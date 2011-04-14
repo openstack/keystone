@@ -1,0 +1,4 @@
+POST /v1.0/token HTTP/1.1
+Host: idm.api.rackspace.com
+Content-Type: application/json
+Accept: application/xml

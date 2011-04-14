@@ -1,0 +1,22 @@
+{"service": [
+      {
+      "endpoint": [      {
+         "region": "DFW",
+         "v1Default": true,
+         "publicURL": "https://storage.clouddrive.com/v1/KovacsNastId",
+         "internalURL": "https://storage-snet.clouddrive.com/v1/KovacsNastId",
+         "adminURL": null
+      }],
+      "name": "cloudFiles"
+   },
+      {
+      "endpoint": [      {
+         "region": null,
+         "v1Default": false,
+         "publicURL": "https://servers.api.rackspacecloud.com/v1.0/90000",
+         "internalURL": null,
+         "adminURL": null
+      }],
+      "name": "cloudServers"
+   }
+]}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<permissions xmlns="http://docs.rackspacecloud.com/idm/api/v1.0">
+    <granted>
+        <permission 
+            clientId="IDM" 
+            customerId="RCN-000-000-000" 
+            permissionId="addCustomer"/>
+        <permission 
+            clientId="IDM" 
+            customerId="RCN-000-000-000" 
+            permissionId="getCustomer"/>
+    </granted>
+    <defined>
+        <permission 
+            clientId="IDM" 
+            customerId="RCN-000-000-000" 
+            permissionId="addCustomer"/>
+        <permission 
+            clientId="IDM" 
+            customerId="RCN-000-000-000" 
+            permissionId="getCustomer"/>
+    </defined>
+</permissions>

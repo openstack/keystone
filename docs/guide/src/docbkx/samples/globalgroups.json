@@ -1,0 +1,10 @@
+{"groups": [
+    {
+        "name" : "Admin",
+        "description" : "A description ..."
+    },
+    {
+        "name" : "Technical",
+        "description" : "Another description ..."
+    }]
+}

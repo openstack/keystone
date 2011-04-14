@@ -1,0 +1,15 @@
+{"user":
+    {
+      "groups": {
+        "values": [
+          {
+            "tenantId" : "1234",
+            "id": "Admin"
+          }
+        ]},
+      "id": "jqsmith",
+      "tenantId": "1234",
+      "email": "john.smith@example.org",
+      "enabled": true
+    }
+}

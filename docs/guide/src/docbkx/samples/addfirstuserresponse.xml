@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<user xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+    email="john.smith@example.org"
+    tenantId="1234" 
+    username="jqsmith"
+    enabled="true"
+    password="C@n+f001me!" />

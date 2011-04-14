@@ -1,0 +1,7 @@
+{"tenant":
+    {
+      "id": "1234",
+      "description": "A NEW description...",
+      "enabled": true
+    }
+}

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group xmlns="http://docs.openstack.org/idm/api/v1.0"
+       tenantId="1234" id="Admin">
+    <description>A Description of the group...</description>
+</group>

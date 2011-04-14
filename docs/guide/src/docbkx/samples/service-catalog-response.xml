@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<serviceCatalog xmlns="http://docs.rackspacecloud.com/idm/api/v1.0">
+    <service name="cloudFiles">
+        <endpoint region="DFW" 
+            v1Default="true" 
+            publicURL="https://storage.clouddrive.com/v1/KovacsNastId" 
+            internalURL="https://storage-snet.clouddrive.com/v1/KovacsNastId"/>
+   </service>
+   <service name="cloudServers">
+        <endpoint v1Default="false" 
+            publicURL="https://servers.api.rackspacecloud.com/v1.0/90000"/>
+   </service>
+</serviceCatalog>

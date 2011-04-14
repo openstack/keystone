@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+    softDeleted="true" />

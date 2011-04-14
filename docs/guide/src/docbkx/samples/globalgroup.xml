@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<group xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+    name="Admin"
+    description="A description..." />

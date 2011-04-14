@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tenants xmlns="http://docs.openstack.org/idm/api/v1.0">
+    <tenant enabled="true" id="1234">
+        <description>A description...</description>
+    </tenant>
+    <tenant enabled="true" id="3645">
+        <description>A description...</description>
+    </tenant>
+</tenants>

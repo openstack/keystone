@@ -1,0 +1,12 @@
+{
+  "role": [
+    {
+      "name": "Admin",
+      "type": "RackspaceDefined"
+    },
+    {
+      "name": "HR",
+      "type": "CustomerDefined"
+    }
+  ]
+}
