@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns="http://docs.openstack.org/idm/api/v1.0">
+	<token expires="2010-11-01T03:32:15-05:00"
+           id="ab48a9efdfedb23ty3494"/>
+	<user tenantId="1245" username="jqsmith">
+	    <groups>
+	        <group tenantId="1245" name="Admin"/>
+	    </groups>
+	</user>
+</auth>

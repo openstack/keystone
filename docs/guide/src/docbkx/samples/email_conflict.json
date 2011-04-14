@@ -1,0 +1,5 @@
+{
+  "message": "Email Address already taken.",
+  "details": "Error Details...",
+  "code": 409
+}

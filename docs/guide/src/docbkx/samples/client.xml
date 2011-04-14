@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+    softDeleted="false" 
+    locked="false" 
+    status="ACTIVE"
+    iname="@Rackspace*Rackspace*ControlPanel" 
+    inum="@FFFF.FFFF.FFFF.FFFF!EEEE.EEEE!0001"
+    name="Test Application2" 
+    customerId="RCN-000-000-000" 
+    clientId="ab4820dhcb39347">
+    <permissions>
+        <permission clientId="IDM" 
+            customerId="RCN-000-000-000" 
+            resourceId="addCustomer" />
+    </permissions>
+</client>

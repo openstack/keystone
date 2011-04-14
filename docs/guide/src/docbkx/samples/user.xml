@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<user xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+    softDeleted="false" locked="false" 
+    status="ACTIVE" timeZone="America/Chicago"
+    region="SAT" iname="@Example.Smith*John" 
+    inum="@!FFFF.FFFF.FFFF.FFFF!EEEE.EEEE!1111"
+    prefLanguage="US_en" displayName="John Smith" 
+    lastName="Smith" middleName="Quincy" 
+    firstName="John" personId="RPN-111-111-111" 
+    email="john.smith@example.org"
+    customerInum="@!FFFF.FFFF.FFFF.FFFF!EEEE.EEEE" 
+    customerId="RCN-000-000-000"
+    username="jqsmith">
+    <roles>
+        <role type="RackspaceDefined" 
+            name="Admin" />
+    </roles>
+</user>

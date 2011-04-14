@@ -1,0 +1,16 @@
+{
+  "defined": {
+    "permission": [
+      {
+        "permissionId": "addCustomer",
+        "customerId": "RCN-000-000-000",
+        "clientId": "IDM"
+      },
+      {
+        "permissionId": "getCustomer",
+        "customerId": "RCN-000-000-000",
+        "clientId": "IDM"
+      }
+    ]
+  }
+}

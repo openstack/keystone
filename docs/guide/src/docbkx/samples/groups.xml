@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groups xmlns="http://docs.openstack.org/idm/api/v1.0">
+    <group tenantId="1234" id="Admin">
+        <description>A Description of the group...</description>
+    </group>
+    <group tenantId="1234" id="Technical">
+        <description>Another description...</description>
+    </group>
+</groups>

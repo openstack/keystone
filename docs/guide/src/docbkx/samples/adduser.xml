@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<user xmlns="http://docs.openstack.org/idm/api/v1.0"
+      email="john.smith@example.org" tenantId="1234"
+      id="jqsmith" password="C@n+f001me!"/>

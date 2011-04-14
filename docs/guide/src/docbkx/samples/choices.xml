@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<choices xmlns="http://docs.openstack.org/common/api/v1.0" 
+         xmlns:atom="http://www.w3.org/2005/Atom">
+
+ <version id="v1.0" status="DEPRECATED">
+     <media-types>
+         <media-type base="application/xml"
+            type="application/vnd.openstack.idm-v1.0+xml"/>
+         <media-type base="application/json"
+            type="application/vnd.openstack.idm-v1.0+json"/>
+     </media-types>
+        
+     <atom:link rel="self"
+                href="http://idm.api.openstack.org/v1.0/tenants/12"/>
+    </version>
+    
+    <version id="v1.1" status="CURRENT">
+     <media-types>
+         <media-type base="application/xml"
+            type="application/vnd.openstack.idm-v1.1+xml"/>
+         <media-type base="application/json"
+            type="application/vnd.openstack.idm-v1.1+json"/>
+     </media-types>
+        
+     <atom:link rel="self"
+                href="http://idm.api.openstack.org/v1.1/tenants/12"/>
+    </version>
+</choices>

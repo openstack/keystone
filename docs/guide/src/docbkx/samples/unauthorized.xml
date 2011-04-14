@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<unauthorized xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+	code="401">
+	<message>Oh no you don't.</message>
+	<details>Error Details...</details>
+</unauthorized>

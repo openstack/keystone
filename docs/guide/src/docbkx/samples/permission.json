@@ -1,0 +1,7 @@
+{
+  "value": "POST /customers",
+  "permissionId": "addCustomer",
+  "customerId": "RCN-000-000-000",
+  "clientId": "IDM",
+  "type": "application/text"
+}

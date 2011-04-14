@@ -1,0 +1,10 @@
+{
+   "id": 111111,
+   "userType": "NAST",
+   "serviceName": "cloudFiles",
+   "region": "DFW",
+   "publicURL": "https://storage.clouddrive.com/v1",
+   "internalURL": "https://storage-snet.clouddrive.com/v1",
+   "adminURL": null,
+   "default": true
+}

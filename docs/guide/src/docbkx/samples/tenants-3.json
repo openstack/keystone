@@ -1,0 +1,16 @@
+{
+"tenants": {
+    "values" : [
+        {
+            "id": "9999",
+            "description": "A description ...",
+            "enabled": true
+        }
+    ],
+    "links" : [
+        {
+            "rel" : "previous",
+            "href" : "http://idm.api.openstack.org/v1.0/1234/tenants?limit=1&marker=1234"
+        }
+    ]
+}

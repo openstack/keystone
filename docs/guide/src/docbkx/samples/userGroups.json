@@ -1,0 +1,16 @@
+{"groups": {
+    "values" : [
+        {
+            "tenantId" : "1234",
+            "id" : "Admin",
+        },
+        {
+            "tenantId" : "1234",
+            "id" : "Technical",
+        },
+        {
+            "id" : "Customer",
+        }
+    ]
+}
+}

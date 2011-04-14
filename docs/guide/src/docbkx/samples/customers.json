@@ -1,0 +1,15 @@
+{"tenants": {
+    "values" : [
+        {
+            "id": "1234",
+            "description": "A description ...",
+            "enabled": true
+        },
+        {
+            "id": "3456",
+            "description": "A description ...",
+            "enabled": true
+        }
+    ]
+}
+}

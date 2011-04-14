@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<missingUsername xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+	code="400">
+	<message>What username?</message>
+	<details>Error Details...</details>
+</missingUsername>

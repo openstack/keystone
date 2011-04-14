@@ -1,0 +1,21 @@
+{"user":
+    {
+      "groups": {
+        "values": [
+          {
+            "tenantId" : "1234",
+            "id": "Admin"
+          }
+        ]},
+        "id": "jqsmith",
+        "tenantId": "1234",
+        "email": "john.smith@example.org",
+        "enabled": true,
+        "RS-META:metadata" : {
+            "values" : {
+                "MetaKey1" : "MetaValue1",
+                "MetaKey2" : "MetaValue2"
+            }
+        },
+    }
+}

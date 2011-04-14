@@ -1,0 +1,33 @@
+{
+    "version" : {
+        "id" : "v1.0",
+        "status" : "CURRENT",
+        "updated" : "2011-01-21T11:33:21-06:00",
+        "links": [
+            {
+                "rel" : "self",
+                "href" : "http://idm.api.openstack.org/v1.0/"
+            },
+            {
+                "rel" : "describedby",
+                "type" : "application/pdf",
+                "href" : "http://docs.rackspacecloud.com/idm/api/v1.0/idm-devguide-20110125.pdf"
+            },
+            {
+                "rel" : "describedby",
+                "type" : "application/vnd.sun.wadl+xml",
+                "href" : "http://docs.rackspacecloud.com/idm/api/v1.0/application.wadl"
+            }
+        ],
+        "media-types": [
+            {
+                "base" : "application/xml",
+                "type" : "application/vnd.openstack.idm-v1.0+xml"
+            },
+            {
+                "base" : "application/json",
+                "type" : "application/vnd.openstack.idm-v1.0+json"
+            }
+        ]
+    }
+}

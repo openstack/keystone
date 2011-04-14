@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<badRequest xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+	code="400">
+	<message>Bad Request!</message>
+	<details>Error Details...</details>
+</badRequest>

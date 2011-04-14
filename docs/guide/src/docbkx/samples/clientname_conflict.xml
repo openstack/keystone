@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<clientnameConflict xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
+	code="409">
+	<message>Clientname already taken.</message>
+	<details>Error Details...</details>
+</clientnameConflict>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom" 
+      xml:lang="en-US">
+<entry>
+ <title>User, "mkovacs" was modified.</title>
+ <summary>User, "mkovacs" was modified.</summary>
+ <link rel="actual"
+    href="/customers/RCN-000-000-000/users/mkovacs" />
+ <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+ <updated>2003-12-13T18:30:02Z</updated>
+</entry>
+<entry>
+ <title>User, "hueyly" was created.</title>
+ <summary>User, "hueyly" was created.</summary>
+ <link rel="actual"
+    href="/customers/RCN-000-000-000/users/hueyly" />
+ <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-920474efa234</id>
+ <updated>2003-12-13T18:29:20Z</updated>
+</entry>
+</feed>

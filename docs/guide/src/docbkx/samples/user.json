@@ -1,0 +1,41 @@
+{
+  "secret": {
+    "secretQuestion": "What is the middle name of your best fried, spelled backward?",
+    "secretAnswer": "sicnarF"
+  },
+  "password": {
+    "password": "C@n+f001me!"
+  },
+  "apiKey": {
+    "apiKey": "10388a8497547f8w77e"
+  },
+  "roles": [
+      {
+        "name": "Admin",
+        "type": "RackspaceDefined"
+      }
+    ],
+  "permissions": [
+      {
+        "description": "POST /users",
+        "name": "AddUser"
+      },
+      {}
+    ],
+  "username": "jqsmith",
+  "customerId": "RCN-000-000-000",
+  "customerInum": "@!FFFF.FFFF.FFFF.FFFF!EEEE.EEEE",
+  "email": "john.smith@example.org",
+  "personId": "RPN-111-111-111",
+  "firstName": "John",
+  "middleName": "Quincy",
+  "lastName": "Smith",
+  "displayName": "John Smith",
+  "prefLanguage": "US_en",
+  "inum": "@!FFFF.FFFF.FFFF.FFFF!EEEE.EEEE!1111",
+  "iname": "@Example.Smith*John",
+  "region": "America/Chicago",
+  "status": "ACTIVE",
+  "locked": false,
+  "softDeleted": false
+}
