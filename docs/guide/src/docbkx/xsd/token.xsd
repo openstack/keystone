@@ -17,9 +17,13 @@
     <complexType name="PasswordCredentials">
         <complexContent>
             <extension base="idm:Credentials">
+                <sequence>
+                    <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+                </sequence>
                 <attribute name="password" type="xsd:string" use="required" />
                 <attribute name="username" type="xsd:string" use="required" />
                 <attribute name="tenantId" type="xsd:string" use="optional" />
+                <anyAttribute namespace="##other" processContents="lax"/>
             </extension>
         </complexContent>
     </complexType>
@@ -28,30 +32,41 @@
         <sequence>
             <element name="token" type="idm:Token"/>
             <element name="user" type="idm:User"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
     <complexType name="Token">
+        <sequence>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
         <attribute name="expires" type="xsd:dateTime" use="required"/>
         <attribute name="id" type="xsd:ID" use="required"/>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
     <complexType name="User">
         <sequence>
             <element name="groups" type="idm:Groups" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <attribute name="tenantId" type="xsd:string"/>
         <attribute name="username" type="xsd:string"/>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
     <complexType name="Groups">
         <sequence>
             <element name="group" type="idm:Group" maxOccurs="1000"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
     <complexType name="Group">
         <attribute name="id" type="xsd:string" use="required"/>
         <attribute name="tenantId" type="xsd:string"  use="optional"/>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 </schema>
