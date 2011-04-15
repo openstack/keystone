@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:idm="http://docs.openstack.org/idm/api/v1.0"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://docs.openstack.org/idm/api/v1.0"
+>
+    <!-- Elements -->
+    <element name="passwordCredentials" type="idm:PasswordCredentials"/>
+    <element name="auth" type="idm:AuthData"/>
+
+    <!-- Complex Types -->
+    <complexType name="Credentials" abstract="true" />
+    <complexType name="PasswordCredentials">
+        <complexContent>
+            <extension base="idm:Credentials">
+                <attribute name="password" type="xsd:string" use="required" />
+                <attribute name="username" type="xsd:string" use="required" />
+                <attribute name="tenantId" type="xsd:string" use="optional" />
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="AuthData">
+        <sequence>
+            <element name="token" type="idm:Token"/>
+            <element name="user" type="idm:User"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="Token">
+        <attribute name="expires" type="xsd:dateTime" use="required"/>
+        <attribute name="id" type="xsd:ID" use="required"/>
+    </complexType>
+
+    <complexType name="User">
+        <sequence>
+            <element name="groups" type="idm:Groups" />
+        </sequence>
+        <attribute name="tenantId" type="xsd:string"/>
+        <attribute name="username" type="xsd:string"/>
+    </complexType>
+
+    <complexType name="Groups">
+        <sequence>
+            <element name="group" type="idm:Group" maxOccurs="1000"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="Group">
+        <attribute name="id" type="xsd:string" use="required"/>
+        <attribute name="tenantId" type="xsd:string"  use="optional"/>
+    </complexType>
+</schema>
