@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE book [<!-- Some useful entities borrowed from HTML -->
-    <!ENTITY ndash  "–">
-    <!ENTITY mdash  "—">
-    <!ENTITY hellip "…">
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
 
     <!-- Useful for describing APIs -->
     <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
