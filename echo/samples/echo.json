@@ -2,10 +2,10 @@
     "echo" : {
         "method" : "GET",
         "pathInfo" : "/bla/bla",
-        "queryString" : "hello=true",
+        "queryString" : "hello",
         "content" : {
             "type" : "application/xml",
-            "value" : "This is some content." 
-        } 
+            "value" : "        This is some content.    " 
+        }
     }
 }
