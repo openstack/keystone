@@ -20,35 +20,33 @@ import eventlet
 
 class EchoApp:
     def __init__(self, environ, start_response):
-        self.environ = environ
         self.start = start_response
-        self.method       = environ["REQUEST_METHOD"]
-        self.pathInfo     = environ["PATH_INFO"]
-        self.queryString  = environ["QUERY_STRING"]
-        self.contentType  = environ["CONTENT_TYPE"]
-        self.content      = ""
-
-        inReq = environ["wsgi.input"]
-        for line in inReq:
-            self.content = self.content + line
+        self.dom   = self.toDOM(environ)
+        self.transform = etree.XSLT(etree.parse("xsl/echo.xsl"))
 
     def __iter__(self):
-        return self.toXML()
+        return self.toJSON()
 
     def toJSON(self):
         self.start('200 OK', [('Content-Type', 'application/json')])
-        yield "{'echo' : {}}" 
+        yield str(self.transform(self.dom))
 
     def toXML(self):
-        echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
-                             method=self.method,
-                             pathInfo=self.pathInfo,
-                             queryString=self.queryString)
-        content = etree.Element("{http://docs.openstack.org/echo/api/v1.0}content")
-        content.set ("type", self.contentType)
-        content.text = self.content
-        echo.append (content)
         self.start('200 OK', [('Content-Type', 'application/xml')])
-        yield etree.tostring (echo, pretty_print=True)
+        yield etree.tostring (self.dom)
+
+    def toDOM(self, environ):
+        echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
+                             method=environ["REQUEST_METHOD"],
+                             pathInfo=environ["PATH_INFO"],
+                             queryString=environ["QUERY_STRING"])
+        content = etree.Element("{http://docs.openstack.org/echo/api/v1.0}content")
+        content.set ("type", environ["CONTENT_TYPE"])
+        content.text = ""
+        inReq = environ["wsgi.input"]
+        for line in inReq:
+            content.text = content.text + line
+        echo.append (content)
+        return echo
 
 wsgi.server(eventlet.listen(('', 8090)), EchoApp)
