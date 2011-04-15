@@ -33,5 +33,24 @@ Validate bad token:
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvbad
 
 
+Using SOAPUI:
+
+Download SOAPUI: http://sourceforge.net/projects/soapui/files/
+To Test Identity Service:
+   File->New soapUI Project:
+   ProjectName: KeyStone
+   Initial WSDL/WADL: keystone/identity.wadl
+   [OK]
+
+   Select Request, set parameters, select "Accept"
+   SOAP UI works best with XML, it will fill in most parameters for
+   in that case.  For JSON, SOAPUI will still help you fill in
+   parameters and headers, but that's it.
+
+To Test Echo Service:
+   File->New soapUI Project:
+   ProjectName: Echo
+   Initial WSL/WADL: echo/echo.wadl
+
 
 
