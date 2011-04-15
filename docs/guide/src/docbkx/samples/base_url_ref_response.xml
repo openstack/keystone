@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<baseURLRef xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
-    id="111111" 
-    href="https://idm.rackspace.com/v1.0/baseurls/111111" 
-    v1Default="true" />

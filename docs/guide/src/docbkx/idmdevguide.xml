@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE book [<!-- Some useful entities borrowed from HTML -->
-    <!ENTITY ndash  "–">
-    <!ENTITY mdash  "—">
-    <!ENTITY hellip "…">
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
 
     <!-- Useful for describing APIs -->
     <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
@@ -60,37 +60,44 @@
     </copyright>
     <releaseinfo>API v1.0</releaseinfo>
     <productname>Cloud Identity</productname>
-    <pubdate>2011-04-11</pubdate>
+    <pubdate>2011-04-14</pubdate>
     <legalnotice role="apache2">
         <annotation>
             <remark>Copyright details are filled in by the template.</remark>
         </annotation>
     </legalnotice>
     <abstract>
-      <para> This document is intended for software developers interested in developing applications
-        which utilizes Organization Identity Management System as the authentication engine. It includes
-        details on how to integrate with IdM. </para>
+      <para>
+          This document is intended for software developers interested
+          in developing applications which utilize the Cloud Identity
+          Service for authentication. This document also includes
+          details on how to integrate services with the Cloud Identity
+          Service.
+      </para>
     </abstract>
   </info>
   <chapter>
     <title>Overview</title>
-    <para>The IdM Service allows Rackspace Applications to obtain tokens that can be used to access
-      resources in the Rackspace Cloud. This document is intended for: </para>
-    <variablelist>
-      <varlistentry>
-        <term>Service Developers</term>
-        <listitem>
-          <para> Service developers are interested in writing client for Rackspace IdM service.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-    <para> This Guide assumes the reader is familiar with RESTful web services, HTTP/1.1, and JSON
-      and/or XML serialization formats. </para>
+    <para>
+        The Cloud Identity Service allows applications to obtain
+        tokens that can be used to access OpenStack resources.  This
+        document is intended for software developers interested in
+        developing applications which utilize the Cloud Identity
+        Service for authentication. This document also includes
+        details on how to integrate services with the Cloud Identity
+        Service.
+    </para>
+    <para>
+        This Guide assumes the reader is familiar with RESTful web
+        services, HTTP/1.1, and JSON and/or XML serialization formats.
+    </para>
   </chapter>
   <chapter>
     <title>Concepts</title>
-    <para> The IdM system has several key concepts that are important to understand: </para>
+    <para>
+        The Cloud Identity Service has several key concepts that are
+        important to understand:
+    </para>
     <section>
       <title>Token</title>
       <para>
@@ -104,30 +111,20 @@
       <title>Tenant</title>
       <para>
           Depending on the operator, a tenant may map to a customer,
-          account, organization, or project. Users are always placed
-          under a tenant.
+          account, organization, or project.
       </para>
     </section>
     <section>
       <title>User</title>
       <para>
-          Individuals under a tenant.  Users have a login and may be
-          assigned tokens to access resources.
+          Users have a login and may be assigned tokens to access
+          resources.
       </para>
     </section>
     <section>
-        <title>Tenant Group</title>
+        <title>Group</title>
         <para>
-            A group of users under a tenant. Tenant groups are managed
-            by tenants. They are used to organize and assign
-            privileges to group of related users. For example a tenant
-            may add administrator privileges to users in the "admin" group.
-        </para>
-    </section>
-    <section>
-        <title>Global Group</title>
-        <para>
-            A global group of users. Global groups are managed by
+            A group of users. Global groups are managed by
             operators. They are used to organize and assign privileges
             to a group of related users. For example, an operator may
             create a "delinquent" group, which will assign limited
@@ -754,7 +751,7 @@ Host: idm.api.openstack.org/v1.1/
             <tr>
               <td colspan="1"> &POST; </td>
               <td colspan="1">/token</td>
-              <td colspan="4">Authenticate to generate a token and a service catalog.</td>
+              <td colspan="4">Authenticate to generate a token.</td>
             </tr>
           </tbody>
         </informaltable>
@@ -869,25 +866,25 @@ Host: idm.api.openstack.org/v1.1/
       <example>
         <title>XML Tenant Create Request</title>
         <programlisting language="xml">
-<xi:include href="samples/customer.xml" parse="text"/>
+<xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Create Request</title>
         <programlisting language="javascript">
-<xi:include href="samples/customer.json" parse="text"/>
+<xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>XML Tenant Create Response</title>
         <programlisting language="xml">
-<xi:include href="samples/customer.xml" parse="text"/>
+<xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Create Response</title>
         <programlisting language="javascript">
-<xi:include href="samples/customer.json" parse="text"/>
+<xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
       </example>
        </section>
@@ -917,13 +914,13 @@ Host: idm.api.openstack.org/v1.1/
         <example>
           <title>XML Tenants Response</title>
           <programlisting language="xml">
-<xi:include href="samples/customers.xml" parse="text"/>
+<xi:include href="samples/tenants.xml" parse="text"/>
 </programlisting>
         </example>
         <example>
           <title>JSON Tenants Response</title>
           <programlisting language="javascript">
-<xi:include href="samples/customers.json" parse="text"/>
+<xi:include href="samples/tenants.json" parse="text"/>
 </programlisting>
         </example>
       </section>
@@ -948,13 +945,13 @@ Host: idm.api.openstack.org/v1.1/
         <example>
           <title>XML Tenant Response</title>
           <programlisting language="xml">
-<xi:include href="samples/customer.xml" parse="text"/>
+<xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
         </example>
         <example>
           <title>JSON Tenant Response</title>
           <programlisting language="javascript">
-<xi:include href="samples/customer.json" parse="text"/>
+<xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
         </example>
       </section>
@@ -978,25 +975,25 @@ Host: idm.api.openstack.org/v1.1/
       <example>
         <title>XML Tenant Update Request</title>
         <programlisting language="xml">
-<xi:include href="samples/customerlock.xml" parse="text"/>
+<xi:include href="samples/tenantlock.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Update Request</title>
         <programlisting language="javascript">
-<xi:include href="samples/customerlock.json" parse="text"/>
+<xi:include href="samples/tenantlock.json" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>XML Tenant Update Response</title>
         <programlisting language="xml">
-<xi:include href="samples/updatedcustomer.xml" parse="text"/>
+<xi:include href="samples/updatedtenant.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Update Response</title>
         <programlisting language="javascript">
-<xi:include href="samples/updatedcustomer.json" parse="text"/>
+<xi:include href="samples/updatedtenant.json" parse="text"/>
 </programlisting>
       </example>
        </section>     
@@ -1019,835 +1016,6 @@ Host: idm.api.openstack.org/v1.1/
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
             &NO_REQUEST;       
         </section>
-    </section>
-    <section>
-      <title>User Operations</title>
-      <section>
-        <title>Create a User</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &POST; </td>
-              <td colspan="4">/tenants/<parameter>tenantId</parameter>/users</td>
-              <td colspan="3">Create a new user. If a blank password is passed in, the API generates
-                a random password for the user.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>The Id attribute and Password element are required in this request. If a
-          blank password is passed in the Password element, the API will generate a random password
-          for the user.</simpara>
-        <simpara>&CODES;<returnvalue>201</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), passwordValidation(<errorcode>400</errorcode>), forbidden
-            (<errorcode>403</errorcode>), itemNotFound (<errorcode>404</errorcode>),
-            usernameConflict(<errorcode>409</errorcode>), emailConflict(<errorcode>409</errorcode>),
-          idmFault (<errorcode>500</errorcode>),
-          serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        <example>
-          <title>XML User Request</title>
-          <programlisting language="xml">
-<xi:include href="samples/adduser.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Request</title>
-          <programlisting language="javascript">
-<xi:include href="samples/adduser.json" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>XML User Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/adduserresponse.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/addeduser.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Get a User</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/users/<parameter>userId</parameter></td>
-              <td colspan="3">Get a user. </td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-          <title>XML User Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/getuser.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/getuser.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Update a User</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &PUT; </td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/users/<parameter>userId</parameter></td>
-              <td colspan="3">Update a user. </td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden(<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), emailConflict (409), idmFault
-          (<errorcode>500</errorcode>), serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        <example>
-          <title>XML User Request</title>
-          <programlisting language="xml">
-<xi:include href="samples/updateuser.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Request</title>
-          <programlisting language="javascript">
-<xi:include href="samples/updateuser.json" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>XML User Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/updateduser.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/updateduser.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Delete User</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&DELETE; </td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/users/<parameter>userId</parameter></td>
-              <td colspan="3">Delete a user. </td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden(<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-      </section>
-      <section>
-        <title>Get Users</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/users</td>
-              <td colspan="3"> Gets a list of users.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized
-        (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden
-        (<errorcode>403</errorcode>), overLimit
-        (<errorcode>413</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), idmFault
-        (<errorcode>500</errorcode>), serviceUnavailable
-        (<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-          <title>XML User List Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/users.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User List Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/users.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Set a User's Password</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&PUT;</td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/users/<parameter>userId</parameter>/password</td>
-              <td colspan="3">Set a user's password. </td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden(<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        <example>
-          <title>XML Set User Password Reqeust</title>
-          <programlisting language="xml">
-<xi:include href="samples/user_api_key.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON Set User Password Request</title>
-          <programlisting language="javascript">
-<xi:include href="samples/user_api_key.json" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>XML Set User Password Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/user_api_key.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON Set User Password Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/user_api_key.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Enable / Disable a User</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &PUT; </td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/users/<parameter>userId</parameter>/enabled</td>
-              <td colspan="3"> Set a user's lock</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden(<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        <example>
-          <title>XML User Enable Request</title>
-          <programlisting language="xml">
-<xi:include href="samples/userWithOnlyLock.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Enable Request</title>
-          <programlisting language="javascript">
-<xi:include href="samples/userWithOnlyLock.json" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>XML User Enable Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/userWithOnlyLock.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Enable Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/userWithOnlyLock.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-          <title>Get Groups for a User</title>
-          <informaltable rules="all">
-              &LONG_URI_REFHEAD;
-              <tbody>
-                  <tr>
-                      <td colspan="1"> &GET; </td>
-                      <td colspan="4">/tenants/<parameter>tenantId</parameter>/users/<parameter>userId</parameter>/groups</td>
-              <td colspan="3">Get groups for a user.</td>
-                  </tr>
-              </tbody>
-          </informaltable>
-          <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-          <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-          (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-          (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-          serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-          &NO_REQUEST;
-          <example>
-              <title>XML User Response</title>
-              <programlisting language="xml">
-<xi:include href="samples/userGroups.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON User Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/userGroups.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-  </section>
-    <section>
-        <title>Tenant Groups</title>
-        <section>
-            <title>Create Tenant Group</title>
-            <informaltable rules="all">
-                &LONG_URI_REFHEAD;
-                <tbody>
-                    <tr>
-                        <td colspan="1">&POST;</td>
-                        <td colspan="4"
-                            >/tenant/<parameter>tenantId</parameter>/groups</td>
-                        <td colspan="3">Creates a tenant group.</td>
-                    </tr>
-                </tbody>
-            </informaltable>
-            <simpara>&CODES;<returnvalue>201</returnvalue></simpara>
-            <simpara>
-                &ERROR_CODES;
-                unauthorized (<errorcode>401</errorcode>), forbidden
-                (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
-                badRequest (<errorcode>400</errorcode>), groupConflict(<returnvalue>409</returnvalue>),
-                idmFault(<returnvalue>500</returnvalue>),
-                serviceUnavailable(<returnvalue>503</returnvalue>)
-            </simpara>
-            <example>
-                <title>XML Tenant Group Create Request</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-create.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Tenant Group Create Request</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-create.json" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>XML Tenant Group Create Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/group.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Tenant Group Create Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group.json" parse="text"/>
-                </programlisting>
-            </example>
-        </section>
-        <section>
-            <title>Get Tenant Groups</title>
-            <informaltable rules="all">
-                &LONG_URI_REFHEAD;
-                <tbody>
-                    <tr>
-                        <td colspan="1">&GET;</td>
-                        <td colspan="4"
-                            >/tenant/<parameter>tenantId</parameter>/groups</td>
-                        <td colspan="3">Get a list of tenant groups.</td>
-                    </tr>
-                </tbody>
-            </informaltable>
-            <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-            <simpara>
-                &ERROR_CODES;
-                unauthorized (<errorcode>401</errorcode>), forbidden
-                (<returnvalue>403</returnvalue>), overLimit
-                (<returnvalue>413</returnvalue>), userDisabled
-                (<returnvalue>403</returnvalue>), badRequest
-                (<errorcode>400</errorcode>), idmFault
-                (<returnvalue>500</returnvalue>), serviceUnavailable
-                (<returnvalue>503</returnvalue>)
-            </simpara>
-            &NO_REQUEST;
-            <example>
-                <title>XML Tenant Groups Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/groups.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Tenant Groups Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/groups.json" parse="text"/>
-                </programlisting>
-            </example>
-        </section>
-        <section>
-            <title>Get a Tenant Group</title>
-            <informaltable rules="all">
-                &LONG_URI_REFHEAD;
-                <tbody>
-                    <tr>
-                        <td colspan="1">&GET;</td>
-                        <td colspan="4"
-                            >/tenant/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter></td>
-                        <td colspan="3">Get a tenant group.</td>
-                    </tr>
-                </tbody>
-            </informaltable>
-            <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-            <simpara>
-                &ERROR_CODES;
-                unauthorized (<errorcode>401</errorcode>), forbidden
-                (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
-                badRequest (<errorcode>400</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-                idmFault(<returnvalue>500</returnvalue>),
-                serviceUnavailable(<returnvalue>503</returnvalue>)
-            </simpara>
-            &NO_REQUEST;
-            <example>
-                <title>XML Tenant Group Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/group.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Tenant Groups Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group.json" parse="text"/>
-                </programlisting>
-            </example>
-        </section>
-      <section>
-        <title>Update a Tenant Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&PUT;</td>
-              <td colspan="4">/tenant/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter></td>
-              <td colspan="3">Update a tenant group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
-            forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-          badRequest (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-            <example>
-                <title>XML Tenant Group Update Request</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-updated.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Tenant Group Update Request</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-updated.json" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>XML Tenant Group Update Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-updated.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Tenant Group Update Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-updated.json" parse="text"/>
-                </programlisting>
-            </example>
-      </section>
-      <section>
-          <title>Delete a Tenant Group</title>
-          <informaltable rules="all">
-            &LONG_URI_REFHEAD;
-            <tbody>
-              <tr>
-                <td colspan="1">&DELETE;</td>
-                <td colspan="4">/tenant/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter></td>
-                <td colspan="3">Delete a tenant group.</td>
-              </tr>
-            </tbody>
-          </informaltable>
-          <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-          <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-            &NO_REQUEST;
-      </section>
-      <section>
-        <title>Get Users in Tenant Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4"
-                  >/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users</td>
-              <td colspan="3"> Gets a list of users in a tenant group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized
-        (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden
-        (<errorcode>403</errorcode>), overLimit
-        (<errorcode>413</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), idmFault
-        (<errorcode>500</errorcode>), serviceUnavailable
-        (<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-          <title>XML Tenant Group User List Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/users.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON Tenant Group User List Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/users.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Add a User to a Tenant Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&PUT;</td>
-              <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users</td>
-              <td colspan="3">Add a user to a tenant group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized
-        (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden
-        (<errorcode>403</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), usernameConflict
-        (<errorcode>409</errorcode>), emailConflict
-        (<errorcode>409</errorcode>), idmFault
-        (<errorcode>500</errorcode>), serviceUnavailable
-        (<errorcode>503</errorcode>)</simpara>
-          &NO_REQUEST;
-      </section>
-      <section>
-        <title>Remove a User from a Tenant Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&DELETE;</td>
-              <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users</td>
-              <td colspan="3">Remove a user from a tenant group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized
-        (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden
-        (<errorcode>403</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), usernameConflict
-        (<errorcode>409</errorcode>), emailConflict
-        (<errorcode>409</errorcode>), idmFault
-        (<errorcode>500</errorcode>), serviceUnavailable
-        (<errorcode>503</errorcode>)</simpara>
-          &NO_REQUEST;
-      </section>
-    </section>
-    <section>
-        <title>Global Groups</title>
-        <section>
-            <title>Create a Group</title>
-            <informaltable rules="all">
-                &LONG_URI_REFHEAD;
-                <tbody>
-                    <tr>
-                        <td colspan="1">&POST;</td>
-                        <td colspan="4">/groups</td>
-                        <td colspan="3">Creates a group.</td>
-                    </tr>
-                </tbody>
-            </informaltable>
-            <simpara>&CODES;<returnvalue>201</returnvalue></simpara>
-            <simpara>
-                &ERROR_CODES;
-                unauthorized (<errorcode>401</errorcode>), forbidden
-                (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
-                badRequest (<errorcode>400</errorcode>), groupConflict(<returnvalue>409</returnvalue>),
-                idmFault(<returnvalue>500</returnvalue>),
-                serviceUnavailable(<returnvalue>503</returnvalue>)
-            </simpara>
-            <example>
-                <title>XML Group Create Request</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-create.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Group Create Request</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-create.json" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>XML Group Create Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-create.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Group Create Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-create.json" parse="text"/>
-                </programlisting>
-            </example>
-        </section>
-        <section>
-            <title>Get Groups</title>
-            <informaltable rules="all">
-                &LONG_URI_REFHEAD;
-                <tbody>
-                    <tr>
-                        <td colspan="1">&GET;</td>
-                        <td colspan="4">/groups</td>
-                        <td colspan="3">Get a list of groups.</td>
-                    </tr>
-                </tbody>
-            </informaltable>
-            <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-            <simpara>
-                &ERROR_CODES;
-                unauthorized (<errorcode>401</errorcode>), forbidden
-                (<returnvalue>403</returnvalue>), overLimit
-                (<returnvalue>413</returnvalue>), userDisabled
-                (<returnvalue>403</returnvalue>), badRequest
-                (<errorcode>400</errorcode>), idmFault
-                (<returnvalue>500</returnvalue>), serviceUnavailable
-                (<returnvalue>503</returnvalue>)
-            </simpara>
-            &NO_REQUEST;
-            <example>
-                <title>XML Groups Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/groups-nt.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Groups Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/groups-nt.json" parse="text"/>
-                </programlisting>
-            </example>
-        </section>
-        <section>
-            <title>Get a Group</title>
-            <informaltable rules="all">
-                &LONG_URI_REFHEAD;
-                <tbody>
-                    <tr>
-                        <td colspan="1">&GET;</td>
-                        <td colspan="4">/groups/<parameter>groupId</parameter></td>
-                        <td colspan="3">Get a group.</td>
-                    </tr>
-                </tbody>
-            </informaltable>
-            <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-            <simpara>
-                &ERROR_CODES;
-                unauthorized (<errorcode>401</errorcode>), forbidden
-                (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
-                badRequest (<errorcode>400</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-                idmFault(<returnvalue>500</returnvalue>),
-                serviceUnavailable(<returnvalue>503</returnvalue>)
-            </simpara>
-            &NO_REQUEST;
-            <example>
-                <title>XML Group Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-create.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Groups Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-create.json" parse="text"/>
-                </programlisting>
-            </example>
-        </section>
-      <section>
-        <title>Update a Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&PUT;</td>
-              <td colspan="4">/groups/<parameter>groupId</parameter></td>
-              <td colspan="3">Update a group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
-            forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-          badRequest (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-            <example>
-                <title>XML Group Update Request</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-updated-nt.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Group Update Request</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-updated-nt.json" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>XML Group Update Response</title>
-                <programlisting language="xml">
-<xi:include href="samples/group-updated-nt.xml" parse="text"/>
-                </programlisting>
-            </example>
-            <example>
-                <title>JSON Group Update Response</title>
-                <programlisting language="javascript">
-<xi:include href="samples/group-updated-nt.json" parse="text"/>
-                </programlisting>
-            </example>
-      </section>
-      <section>
-          <title>Delete a Group</title>
-          <informaltable rules="all">
-            &LONG_URI_REFHEAD;
-            <tbody>
-              <tr>
-                <td colspan="1">&DELETE;</td>
-                <td colspan="4">/groups/<parameter>groupId</parameter></td>
-                <td colspan="3">Delete a group.</td>
-              </tr>
-            </tbody>
-          </informaltable>
-          <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-          <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-            &NO_REQUEST;
-      </section>
-      <section>
-        <title>Get Users in a Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4">/groups/<parameter>groupId</parameter>/users</td>
-              <td colspan="3"> Gets a list of users in a group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden(<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-          <title>XML Group User List Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/users.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON Group User List Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/users.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Add a User to a Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&PUT;</td>
-              <td colspan="4">/groups/<parameter>groupId</parameter>/users</td>
-              <td colspan="3">Add a user to a group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized
-        (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden
-        (<errorcode>403</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), usernameConflict
-        (<errorcode>409</errorcode>), emailConflict
-        (<errorcode>409</errorcode>), idmFault
-        (<errorcode>500</errorcode>), serviceUnavailable
-        (<errorcode>503</errorcode>)</simpara>
-          &NO_REQUEST;
-      </section>
-      <section>
-        <title>Remove a User from a Group</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1">&DELETE;</td>
-              <td colspan="4">/groups/<parameter>groupId</parameter>/users</td>
-              <td colspan="3">Remove a user from a group.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized
-        (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden
-        (<errorcode>403</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), usernameConflict
-        (<errorcode>409</errorcode>), emailConflict
-        (<errorcode>409</errorcode>), idmFault
-        (<errorcode>500</errorcode>), serviceUnavailable
-        (<errorcode>503</errorcode>)</simpara>
-          &NO_REQUEST;
-      </section>
     </section>
   </chapter>
 </book>

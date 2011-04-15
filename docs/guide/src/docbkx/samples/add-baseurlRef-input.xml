@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<baseURLRef xmlns="http://docs.rackspacecloud.com/idm/api/v1.0"
-    id="111114"
-    href="https://storage-snet.clouddrive.com/v1"
-    v1Default="true"/>

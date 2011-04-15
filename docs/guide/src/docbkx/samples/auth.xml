@@ -7,28 +7,4 @@
 	        <group tenantId="1245" name="Admin"/>
 	    </groups>
 	</user>
-    <serviceCatalog>
-        <service name="cloudFiles">
-            <endpoint
-                region="DFW"
-                publicURL="https://storage.clouddrive.com/v1/MossoCloudFS_blah-blah"
-                internalURL="https://storage-snet.clouddrive.com/v1/MossoCloudFS_blah-blah"/>
-            <endpoint
-                region="ORD"
-                publicURL="https://otherstorage.clouddrive.com/v1/MossoCloudFS_blah-blah"
-                internalURL="https://otherstorage-snet.clouddrive.com/v1/MossoCloudFS_blah-blah"/>
-        </service>
-        <service name="cloudFilesCDN">
-            <endpoint
-                region="DFW"
-                publicURL="https://cdn.clouddrive.com/v1/MossoCloudFS_blah-blah"/>
-            <endpoint
-                region="ORD"
-                publicURL="https://othercdn.clouddrive.com/v1/MossoCloudFS_blah-blah"/>
-        </service>
-        <service name="cloudServers">
-            <endpoint
-                publicURL="https://servers.api.rackspacecloud.com/v1.0/322781"/>
-        </service>
-    </serviceCatalog>
 </auth>
