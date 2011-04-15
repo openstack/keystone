@@ -26,7 +26,8 @@ class EchoApp:
         self.transform = etree.XSLT(etree.parse("xsl/echo.xsl"))
 
     def __iter__(self):
-        if self.envr["HTTP_ACCEPT"] == "application/xml":
+        accept = self.envr.get("HTTP_ACCEPT","application/json")
+        if accept == "application/xml":
             return self.toXML()
         else:
             return self.toJSON()
