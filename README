@@ -3,3 +3,35 @@ Description
 
 Dependencies:
 * Install SQLite3
+
+Setup:
+Install http://pypi.python.org/pypi/setuptools
+sudo easy_install PasteDeploy
+sudo easy_install simplejson
+sudo easy_install -U bottle
+
+Tables:
+CREATE TABLE tenants(tenant_id INTEGER, tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
+
+Issues:
+bottle not in path on Mac OS X (added exception handling to default path)
+
+Demo:
+Start server:
+python identity.py
+
+Add Tenant:
+curl -i -X POST -H "Content-Type: application/json" -d '{"tenant": { "id": "123456", "description": "A description ...", "enabled": true } }' http://localhost:8080/tenants
+
+Get token:
+curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/tokens
+
+Validate good token:
+curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvwxy
+
+Validate bad token:
+curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvbad
+
+
+
+
