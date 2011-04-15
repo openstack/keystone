@@ -18,6 +18,13 @@
     <resources base="https://idm.api.openstack.org">
         <resource id="version" path="v1.0">
             <method href="#getVersionInfo"/>
+            <resource id="extensions" path="extensions">
+                <method href="#getExtensions"/>
+                <resource id="alias" path="{alias}">
+                    <param name="alias" style="template" type="xsd:string"/>
+                    <method href="#getExtension"/>
+                </resource>
+            </resource>
             <resource id="token" path="token">
                 <method href="#authenticate" />
                 <resource id="tokenId" path="{tokenId}">
@@ -39,11 +46,14 @@
         </resource>
     </resources>
 
-    <!-- Version Info -->
-    <method name="GET" id="getVersionInfo">
+    <!-- Extensions -->
+    <method name="GET" id="getExtensions">
         <response status="200 203">
-            <representation mediaType="application/xml" element="capi:version"/>
+            <representation mediaType="application/xml" element="capi:extensions"/>
             <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
         </response>
         <response status="500">
             <representation mediaType="application/xml" element="idm:idmFault"/>
@@ -51,7 +61,49 @@
         <response status="503">
             <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
         </response>
-        <response status="500 503">
+        <response status="400 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="GET" id="getExtension">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="capi:extension"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <!-- Version Info -->
+    <method name="GET" id="getVersionInfo">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="capi:version"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 500 503">
             <representation mediaType="application/json"/>
         </response>
     </method>
