@@ -15,6 +15,7 @@
 
 from eventlet import wsgi
 from lxml import etree
+from paste.deploy import loadapp
 import simplejson as json
 import eventlet
 
@@ -54,4 +55,6 @@ class EchoApp:
         echo.append (content)
         return echo
 
+
 wsgi.server(eventlet.listen(('', 8090)), EchoApp)
+#wsgi.server(eventlet.listen(('', 8090)), loadapp("config:echo.ini", relative_to="."))
