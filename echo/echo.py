@@ -20,12 +20,16 @@ import eventlet
 
 class EchoApp:
     def __init__(self, environ, start_response):
+        self.envr  = environ
         self.start = start_response
         self.dom   = self.toDOM(environ)
         self.transform = etree.XSLT(etree.parse("xsl/echo.xsl"))
 
     def __iter__(self):
-        return self.toJSON()
+        if self.envr["HTTP_ACCEPT"] == "application/xml":
+            return self.toXML()
+        else:
+            return self.toJSON()
 
     def toJSON(self):
         self.start('200 OK', [('Content-Type', 'application/json')])
