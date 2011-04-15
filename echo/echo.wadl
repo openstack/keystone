@@ -13,6 +13,7 @@
 
     <resources base="http://localhost:8090">
         <resource id="root" path="/">
+            <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
             <method href="#get" />
             <method href="#put" />
             <method href="#post" />
