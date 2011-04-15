@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:idm="http://docs.openstack.org/idm/api/v1.0"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://docs.openstack.org/idm/api/v1.0"
+>
+    <!-- Fault Elements -->
+    <element name="idmFault" type="idm:IDMFault"/>
+    <element name="serviceUnavailable" type="idm:ServiceUnavailableFault"/>
+    <element name="badRequest" type="idm:BadRequestFault"/>
+    <element name="unauthorized" type="idm:UnauthorizedFault"/>
+    <element name="overLimit" type="idm:OverLimitFault"/>
+    <element name="userDisabled" type="idm:UserDisabledFault"/>
+    <element name="forbidden" type="idm:ForbiddenFault"/>
+    <element name="itemNotFound" type="idm:ItemNotFoundFault"/>
+    <element name="tenantConflict" type="idm:TenantConflictFault"/>
+
+    <!-- Fault Types -->
+    <complexType name="IDMFault">
+        <sequence>
+            <element name="message" type="xsd:string">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            A human readable message that is appropriate for display
+                            to the end user.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+            <element name="details" type="xsd:string" minOccurs="0">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            The optional &lt;details&gt; element may contain useful
+                            information for tracking down errors (e.g a stack
+                            trace).  This information may or may not be appropriate
+                            for display to an end user.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+        <attribute name="code" type="xsd:int" use="required">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The HTTP status code associated with the current fault.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+
+    <complexType name="ServiceUnavailableFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="BadRequestFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UnauthorizedFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UserDisabledFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ForbiddenFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ItemNotFoundFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="TenantConflictFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="OverLimitFault">
+        <complexContent>
+            <extension base="idm:IDMFault">
+                <attribute name="retryAt" type="xsd:dateTime" use="optional">
+                    <annotation>
+                        <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                            <p>
+                                An optional dateTime denoting when an operation should
+                                be retried.
+                            </p>
+                        </xsd:documentation>
+                    </annotation>
+                </attribute>
+            </extension>
+        </complexContent>
+    </complexType>
+
+</schema>
