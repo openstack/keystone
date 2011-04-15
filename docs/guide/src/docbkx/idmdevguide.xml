@@ -529,9 +529,8 @@ Host: idm.api.openstack.org/v1.1/
             </tbody>
         </informaltable>
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
+        <simpara>&ERROR_CODES; badRequest
+        (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
         <para>
@@ -575,9 +574,10 @@ Host: idm.api.openstack.org/v1.1/
             </tbody>
         </informaltable>
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-        (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-        (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
+        <simpara>&ERROR_CODES; itemNotFound
+        (<errorcode>404</errorcode>), badRequest
+        (<errorcode>400</errorcode>), idmFault
+        (<errorcode>500</errorcode>),
         serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
         <example>
