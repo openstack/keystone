@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openstack.org/common/api/v1.0"
+           xmlns:vers="http://docs.openstack.org/common/api/v1.0"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+    <!-- Import ATOM specific schema definitions -->
+    <xs:import namespace="http://www.w3.org/2005/Atom" schemaLocation="./atom/atom.xsd" />
+    
+    <!-- Multiple choices -->
+    <xs:element name="choices" type="vers:VersionChoiceList" />
+
+    <!-- Versioning -->
+    <xs:element name="versions" type="vers:VersionChoiceList" />
+    <xs:element name="version" type="vers:VersionChoice" vc:minVersion="1.0" vc:maxVersion="1.1"/>
+    <xs:element name="version" type="vers:VersionChoiceRoot" vc:minVersion="1.1"/>
+
+    <!-- Types -->
+    <xs:simpleType name="VersionStatus">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The VersionStatus type describes a service's operational status.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DEPRECATED" />
+            <xs:enumeration value="ALPHA" />
+            <xs:enumeration value="BETA" />
+            <xs:enumeration value="CURRENT" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="VersionChoiceList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A version choice list outlines a collection of service version choices.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="version" type="vers:VersionChoice" minOccurs="1" maxOccurs="unbounded" />
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+        <xs:assert vc:minVersion="1.1" test="every $v in vers:version satisfies $v/atom:link[@rel='self']">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        In version lists, every single version must
+                        contain at least one self link.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="VersionChoiceRoot" vc:minVersion="1.1">
+        <xs:complexContent>
+            <xs:extension base="vers:VersionChoice">
+                <xs:assert test="atom:link[@rel='describedby']">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                When used as a root element, a version choice
+                                must contain at least one describedby link.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:assert>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="VersionChoice">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A version choice contains relevant information about an available service
+                    that a user can then use to target a specific version of the service. Note
+                    that both the descriptive media types and the atom link references are
+                    not manditory and are offered as message enrichment elements rather
+                    than message requirements.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-types" type="vers:MediaTypeList" minOccurs="0" maxOccurs="1" />
+            <xs:element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The ID of a version choice represents the service version's unique 
+                        identifier. This ID is guaranteed to be unique only among the
+                        service version choices outlined in the VersionChoiceList.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="status" type="vers:VersionStatus" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A version choice's status describes the current operational state of
+                        the given service version. The operational status is captured in a
+                        simple type enumeration called VersionStatus.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="updated" type="xs:dateTime" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A version choice's updated attribute describes
+                        the time when the version was updated. The
+                        time should be updated anytime
+                        <html:strong>anything</html:strong> in the
+                        version has changed: documentation,
+                        extensions, bug fixes.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+
+    <xs:complexType name="MediaTypeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A MediaTypeList outlines a collection of valid media types for a given 
+                    service version.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="media-type" type="vers:MediaType" minOccurs="1" maxOccurs="unbounded" />
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+
+    <xs:complexType name="MediaType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A MediaType describes what content types the service version understands.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="base" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The base of a given media type describes the simple MIME type
+                        that then a more complicated media type can be derived from. These
+                        types are basic and provide no namespace or version specific
+                        data are are only provided as a convenience. Because of this the
+                        base attribute is declared as optional.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The type attribute of a MediaType describes the MIME specific
+                        identifier of the media type in question. This identifier should include 
+                        a vendor namespace (
+                        <html:a href="http://tools.ietf.org/html/rfc2048">See RFC 2048</html:a>)
+                        as well as a version suffix.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+</xs:schema>
