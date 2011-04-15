@@ -4,7 +4,7 @@
            id="ab48a9efdfedb23ty3494"/>
 	<user tenantId="1245" username="jqsmith">
 	    <groups>
-	        <group tenantId="1245" name="Admin"/>
+	        <group tenantId="1245" id="Admin"/>
 	    </groups>
 	</user>
 </auth>
