@@ -866,25 +866,25 @@ Host: idm.api.openstack.org/v1.1/
       <example>
         <title>XML Tenant Create Request</title>
         <programlisting language="xml">
-<xi:include href="samples/customer.xml" parse="text"/>
+<xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Create Request</title>
         <programlisting language="javascript">
-<xi:include href="samples/customer.json" parse="text"/>
+<xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>XML Tenant Create Response</title>
         <programlisting language="xml">
-<xi:include href="samples/customer.xml" parse="text"/>
+<xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Create Response</title>
         <programlisting language="javascript">
-<xi:include href="samples/customer.json" parse="text"/>
+<xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
       </example>
        </section>
@@ -914,13 +914,13 @@ Host: idm.api.openstack.org/v1.1/
         <example>
           <title>XML Tenants Response</title>
           <programlisting language="xml">
-<xi:include href="samples/customers.xml" parse="text"/>
+<xi:include href="samples/tenants.xml" parse="text"/>
 </programlisting>
         </example>
         <example>
           <title>JSON Tenants Response</title>
           <programlisting language="javascript">
-<xi:include href="samples/customers.json" parse="text"/>
+<xi:include href="samples/tenants.json" parse="text"/>
 </programlisting>
         </example>
       </section>
@@ -945,13 +945,13 @@ Host: idm.api.openstack.org/v1.1/
         <example>
           <title>XML Tenant Response</title>
           <programlisting language="xml">
-<xi:include href="samples/customer.xml" parse="text"/>
+<xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
         </example>
         <example>
           <title>JSON Tenant Response</title>
           <programlisting language="javascript">
-<xi:include href="samples/customer.json" parse="text"/>
+<xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
         </example>
       </section>
@@ -975,25 +975,25 @@ Host: idm.api.openstack.org/v1.1/
       <example>
         <title>XML Tenant Update Request</title>
         <programlisting language="xml">
-<xi:include href="samples/customerlock.xml" parse="text"/>
+<xi:include href="samples/tenantlock.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Update Request</title>
         <programlisting language="javascript">
-<xi:include href="samples/customerlock.json" parse="text"/>
+<xi:include href="samples/tenantlock.json" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>XML Tenant Update Response</title>
         <programlisting language="xml">
-<xi:include href="samples/updatedcustomer.xml" parse="text"/>
+<xi:include href="samples/updatedtenant.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Tenant Update Response</title>
         <programlisting language="javascript">
-<xi:include href="samples/updatedcustomer.json" parse="text"/>
+<xi:include href="samples/updatedtenant.json" parse="text"/>
 </programlisting>
       </example>
        </section>     
