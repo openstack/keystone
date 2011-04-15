@@ -716,16 +716,6 @@ Host: idm.api.openstack.org/v1.1/
             <td>409</td>
             <td/>
           </tr>
-          <tr align="center">
-            <td>usernameConflict</td>
-            <td>409</td>
-            <td/>
-          </tr>
-          <tr align="center">
-            <td>groupConflict</td>
-            <td>409</td>
-            <td/>
-          </tr>
         </tbody>
       </table>
       <para>From an XML schema perspective, all API faults are extensions of the base fault type
