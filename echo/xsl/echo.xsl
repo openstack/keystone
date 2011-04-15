@@ -34,7 +34,7 @@
 
     <template match="text()">
         <variable name="noeol"   select="translate(string(.),'&#x000a;','')"/>
-        <variable name="noquote" select="translate($noeol,'&quot;','!')"/>
+        <variable name="noquote" select="translate($noeol,'&quot;',&quot;&apos;&quot;)"/>
         <value-of select="$noquote"/>
     </template>
 
