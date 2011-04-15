@@ -28,12 +28,14 @@
             <resource id="token" path="token">
                 <method href="#authenticate" />
                 <resource id="tokenId" path="{tokenId}">
+                    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="tokenId" style="template" type="xsd:string"/>
                     <method href="#validateToken"/>
                     <method href="#revokeToken"/>
                 </resource>
             </resource>
             <resource id="tenants" path="tenants">
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getTenants" />
                 <method href="#createTenant" />
                 <resource id="tenantId" path="{tenantId}">
