@@ -104,30 +104,20 @@
       <title>Tenant</title>
       <para>
           Depending on the operator, a tenant may map to a customer,
-          account, organization, or project. Users are always placed
-          under a tenant.
+          account, organization, or project.
       </para>
     </section>
     <section>
       <title>User</title>
       <para>
-          Individuals under a tenant.  Users have a login and may be
-          assigned tokens to access resources.
+          Users have a login and may be assigned tokens to access
+          resources.
       </para>
     </section>
     <section>
-        <title>Tenant Group</title>
+        <title>Group</title>
         <para>
-            A group of users under a tenant. Tenant groups are managed
-            by tenants. They are used to organize and assign
-            privileges to group of related users. For example a tenant
-            may add administrator privileges to users in the "admin" group.
-        </para>
-    </section>
-    <section>
-        <title>Global Group</title>
-        <para>
-            A global group of users. Global groups are managed by
+            A group of users. Global groups are managed by
             operators. They are used to organize and assign privileges
             to a group of related users. For example, an operator may
             create a "delinquent" group, which will assign limited
