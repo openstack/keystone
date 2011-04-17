@@ -223,7 +223,7 @@ class Tenants:
                 'application/xml', 'text/xml']
             content = request.environ['CONTENT_TYPE'];
             if content in content_types:
-                print content
+                
                 if content == 'application/json':
                     body = json.loads(request.body.readline())
                    

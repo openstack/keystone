@@ -22,7 +22,7 @@ except ImportError:
     import json
 import eventlet
 import urllib2
-import pprint
+
 
 class EchoApp:
 
