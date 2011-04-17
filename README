@@ -9,6 +9,8 @@ Install http://pypi.python.org/pypi/setuptools
 sudo easy_install PasteDeploy
 sudo easy_install simplejson
 sudo easy_install -U bottle
+sudo easy_install eventlet
+
 
 Tables:
 CREATE TABLE tenants(tenant_id INTEGER, tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
