@@ -16,7 +16,10 @@
 from eventlet import wsgi
 from lxml import etree
 from paste.deploy import loadapp
-import simplejson as json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import eventlet
 
 class EchoApp:
@@ -45,7 +48,7 @@ class EchoApp:
         echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
                              method=environ["REQUEST_METHOD"],
                              pathInfo=environ["PATH_INFO"],
-                             queryString=environ["QUERY_STRING"])
+                             queryString=environ.get('QUERY_STRING', ""))
         content = etree.Element("{http://docs.openstack.org/echo/api/v1.0}content")
         content.set ("type", environ["CONTENT_TYPE"])
         content.text = ""
