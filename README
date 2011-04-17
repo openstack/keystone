@@ -15,6 +15,8 @@ sudo easy_install eventlet
 Tables:
 CREATE TABLE tenants(tenant_id INTEGER, tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
 
+CREATE TABLE token (token_id varchar(255),expires datetime);
+
 Issues:
 bottle not in path on Mac OS X (added exception handling to default path)
 
@@ -28,12 +30,23 @@ curl -i -X POST -H "Content-Type: application/json" -d '{"tenant": { "id": "1234
 Get token:
 curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/tokens
 
+Add User:(Test Function)
+curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/users
+
+
 Validate good token:
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvwxy
 
 Validate bad token:
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvbad
 
+Echo:
+Start server:
+python echo.py
+  
+ Validate Token:
+ curl -i -X GET -H "Content-Type: application/json" -H "X-Auth-Token: fad94013a5b3b836dbc18" -d '{"test": "something"}' http://127.0.0.1:8090/
+ 
 
 Using SOAPUI:
 
@@ -53,6 +66,7 @@ To Test Echo Service:
    File->New soapUI Project:
    ProjectName: Echo
    Initial WSL/WADL: echo/echo.wadl
+ 
 
 
 

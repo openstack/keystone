@@ -21,8 +21,11 @@ try:
 except ImportError:
     import json
 import eventlet
+import urllib2
+import pprint
 
 class EchoApp:
+
     def __init__(self, environ, start_response):
         self.envr  = environ
         self.start = start_response
@@ -32,15 +35,29 @@ class EchoApp:
     def __iter__(self):
         accept = self.envr.get("HTTP_ACCEPT","application/json")
         if accept == "application/xml":
+                       
             return self.toXML()
         else:
             return self.toJSON()
 
     def toJSON(self):
+        
+        
+        token = str(self.envr.get("HTTP_X_AUTH_TOKEN",""))
+        
+        if token !='':
+            response=self.ValidateToken({'type':'json','token':token})
+            
+            r=json.loads('{"auth" : { "token": {"id": "fad94013a5b3b836dbc18", "expires": "2011-04-18 16:17:59"}}}')
+           
+        
         self.start('200 OK', [('Content-Type', 'application/json')])
         yield str(self.transform(self.dom))
+        
+        
 
     def toXML(self):
+       
         self.start('200 OK', [('Content-Type', 'application/xml')])
         yield etree.tostring (self.dom)
 
@@ -57,7 +74,27 @@ class EchoApp:
             content.text = content.text + line
         echo.append (content)
         return echo
+    
+    
+    def ValidateToken(self,params):
+        
+        
+        if params['token']:
+            url = "http://localhost:8080/token/"+str(params['token'])
+            #print url
+            data = '{"test":""}'
+            if params['type']=='json':
+                headers = { "Accept" : "application/json", "Content-Type": "application/json",'REQUEST_METHOD':'GET' }
+            elif type =='xml':
+                headers = { "Accept" : "application/xml", "Content-Type": "application/xml" }
+            
+            req = urllib2.Request(url, data, headers)
+            response = urllib2.urlopen(req)
+            
+            return response.read()
+        else:
+            return abort(401, "No Token Found!")
+             
 
-
-wsgi.server(eventlet.listen(('', 8090)), EchoApp)
+wsgi.server(eventlet.listen(('127.0.0.1', 8090)), EchoApp)
 #wsgi.server(eventlet.listen(('', 8090)), loadapp("config:echo.ini", relative_to="."))
