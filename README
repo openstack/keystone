@@ -10,12 +10,15 @@ sudo easy_install PasteDeploy
 sudo easy_install simplejson
 sudo easy_install -U bottle
 sudo easy_install eventlet
+sudo easy_install urllib2
 
 
 Tables:
 CREATE TABLE tenants(tenant_id INTEGER, tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
 
 CREATE TABLE token (token_id varchar(255),expires datetime);
+
+CREATE TABLE groups (group_id varchar(255),tenant_id varchar(255),group_desc varchar(255));
 
 Issues:
 bottle not in path on Mac OS X (added exception handling to default path)

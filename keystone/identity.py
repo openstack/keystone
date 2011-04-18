@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Not Yet PEP8 standardized  
+
 import os
 import hashlib
 try:
@@ -260,7 +262,7 @@ class Tenants:
            
         return 'it did NOT work\n'
     
-    @route('/token/:token_id', method='POST')
+    @route('/token/:token_id', method='GET')
     def validate_token(token_id):
         '''
             Validating token by doing a GET on /token/token_id
@@ -291,10 +293,214 @@ class Tenants:
             if count>0:
                 #return '{ "token": {"id": "'+a[0]+'", "expires": "2010-11-01T03:32:15-05:00"}}'
                 
-                return '{"auth" : { "token": {"id": "'+a[0]+'", "expires": "'+a[1]+'"}, "user" :{"groups"{ "group": [{"tenantId" : "1234","name": "Admin"}]}, "username": "jqsmith", "tenantId": "1234",}{"tenantId" : "1234", "name": "Admin"}}}'
+                return '{"auth" : { "token": {"id": "'+a[0]+'", "expires": "'+a[1]+'"}, "user" :{"groups":{ "group": [{"tenantId" : "1234","name": "Admin"}]}, "username": "jqsmith", "tenantId": "1234",}{"tenantId" : "1234", "name": "Admin"}}}'
             else:
                 abort(401, "Token not valid")
 
         return 'it did NOT work\n'
+    
+    
+    
+    
+    
+    @route('/tenant/:tenantId/groups', method='POST')
+    def create_tenant_group(tenantId):
+        '''
+            Creating tenant by doing a POST on /tenant/:tenantId/groups
+            {"group":
+                        {
+                        "id" : "Admin",
+                        "description" : "A Description of the group..."
+                        }
+            }
+
+        '''
+        
+        if 'CONTENT_TYPE' in request.environ:
+            content_types = ['text/plain', 'application/json', 
+                'application/xml', 'text/xml']
+            content = request.environ['CONTENT_TYPE'];
+            if content in content_types:
+                
+                #try:
+                    if content == 'application/json':
+                        if tenantId:
+                            body = json.loads(request.body.readline())
+                           
+                            group_id = body['group']['id']
+                            group_desc = body['group']['description']
+        
+                            dbpath = os.path.abspath(os.path.join(os.path.dirname(__file__),'../db/keystone.db'))
+                            con = sqlite3.connect(dbpath)
+                            cur = con.cursor()
+                            cur.execute("SELECT * FROM tenants WHERE tenant_id='%s'" % (tenantId))
+                            t=cur.fetchone()
+                            # Finding Tenants Exists or not
+                            if t is not None:
+                                # Finding Tenant Exists or not
+                                if not t[2]:
+                                    return  abort(403, "Tenant Disabled")
+                                
+                            else:
+                                return  abort(401, "unauthorized")
+                            # Finding group Exists or not
+                            cur.execute("SELECT count(*) FROM groups WHERE tenant_id='%s' AND group_id='%s' " % (tenantId,group_id))
+                            a=cur.fetchone()
+                            
+                            count=a[0]
+                            if count:
+                                
+                                    
+                                    
+                                return  abort(409, "Group already exists")
+                                                                 
+                            else:
+                                    try:
+                                        cur.execute("INSERT INTO groups ('group_id','tenant_id','group_desc') VALUES ('%s','%s', '%s')" % (group_id.strip(),tenantId,group_desc))
+                                        con.commit()
+                                    
+                                        return '{"group":{"tenantId" : "%s","id" : "%s","description" : "%s"}}' % (group_id.strip(),tenantId,group_desc)
+                                    except Exception,e:
+                                        return abort(500,"IDM Fault Creation Failed")
+                            con.close() 
+                        else:
+                            return  abort(400, "Bad Request")     
+                    elif content == 'application/xml':
+                        #TODO: Implement XML support
+                        return "whatever, we don't have XML yet"
+                    
+                #except:
+                 #   return  abort(500, "IDM Fault") 
+        return 'it did NOT work\n'
+    
+    @route('/tenant/:tenantId/groups', method='GET')
+    def get_tenant_groups(tenantId):
+        '''
+            Getting all Tenant Groups /tenant/tenantId/groups GET
+           
+           Response will be like 
+           
+            {"groups": {
+                        "values" : [
+                            {
+                            "tenantId" : "1234",
+                            "id" : "Admin",
+                            "description" : "A description ..."
+                            },
+                            {
+                            "tenantId" : "1234",
+                            "id" : "Technical",
+                            "description" : "Another description ..."
+                            }
+                                    ]
+                        }
+            }
+
+        '''
+        if 'CONTENT_TYPE' in request.environ:
+            content_types = ['text/plain', 'application/json', 
+                'application/xml', 'text/xml']
+            content = request.environ['CONTENT_TYPE'];
+            if content in content_types:
+                
+                #try:
+                    if content == 'application/json':
+                        if tenantId:
+                            
+        
+                            dbpath = os.path.abspath(os.path.join(os.path.dirname(__file__),'../db/keystone.db'))
+                            con = sqlite3.connect(dbpath)
+                            cur = con.cursor()
+                            # Finding group Exists or not
+                            tenant=cur.execute("SELECT * FROM tenants WHERE tenant_id='%s'" % (tenantId))
+                            t=cur.fetchone()
+                            resp=''
+                            count=tenant.rowcount
+                            
+                            
+                            if count:
+                                return t[2]
+                                if not t[2]:
+                                     # checking Tenant Enabled  or not
+                                    return  abort(403, "Tenant disabled")
+                                
+                                groups=cur.execute("SELECT * FROM groups WHERE tenant_id='%s'" % (tenantId))
+                                if groups.rowcount > 100:
+                                    return abort(413,"Over Limit")
+                                else:    
+                                    resp+='{"groups": { "values" : ['
+                                    gresp=''
+                                    for group in groups:
+                                        if gresp=='':
+                                            gresp+='{"tenantId" : "%s","id" : "%s","description" : "%s"}' % (group[2],group[0],group[1])
+                                        else:
+                                            gresp+=',{"tenantId" : "%s","id" : "%s","description" : "%s"}' % (group[2],group[0],group[1])
+                                    resp+=gresp+']}}'   
+                                    
+                                    return resp
+                                
+                                                                 
+                            else:
+                                return  abort(401, "unauthorized")     
+                            con.close() 
+                        else:
+                            return  abort(400, "Bad Request")     
+                    elif content == 'application/xml':
+                        #TODO: Implement XML support
+                        return "whatever, we don't have XML yet"
+                #except:
+                #    return  abort(500, "IDM Fault")
+        return 'it did NOT work\n'
+    
+    @route('/tenant/:tenantId/groups/:groupId', method='GET')
+    def get_tenant_group(tenantId,groupId):
+        '''
+            Getting Tenant Group /tenant/tenantId/groups/groupId
+        '''
+        if 'CONTENT_TYPE' in request.environ:
+            content_types = ['text/plain', 'application/json', 
+                'application/xml', 'text/xml']
+            content = request.environ['CONTENT_TYPE'];
+            if content in content_types:
+                
+                try:
+                    if content == 'application/json':
+                        if tenantId and groupId:
+                            
+        
+                            dbpath = os.path.abspath(os.path.join(os.path.dirname(__file__),'../db/keystone.db'))
+                            con = sqlite3.connect(dbpath)
+                            cur = con.cursor()
+                            # Finding group Exists or not
+                            tenant=cur.execute("SELECT * FROM tenants WHERE tenant_id='%s'" % (tenantId))
+                            t=cur.fetchone()
+                            resp=''
+                            count=tenant.rowcount
+                            if count:
+                                if not t[2]:
+                                    # checking Tenant Enabled  or not
+                                    return  abort(403, "Tenant disabled")
+                                
+                                cur.execute("SELECT * FROM groups WHERE tenant_id='%s' AND group_id='%s' " % (tenantId,groupId))
+                                group=cur.fetchone
+                                
+                                if not group == None:    
+                                    resp='{"group": { "tenantId" : "%s","id" : "%s","description" : "%s"}}' % (group[2],group[0],group[1])
+                                    return resp      
+                                else:
+                                    
+                                    return  abort(404, "Group Not Found")
+                            else:
+                                return  abort(401, "unauthorized")     
+                            con.close() 
+                        else:
+                            return  abort(400, "Bad Request")     
+                    elif content == 'application/xml':
+                        #TODO: Implement XML support
+                        return "whatever, we don't have XML yet"
+                except:
+                    return  abort(500, "IDM Fault")
+        return 'it did NOT work\n'
+    
 debug(True)
 run(host='localhost', port=8080, reloader=True)
