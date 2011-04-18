@@ -10,12 +10,14 @@
                                  http://docs.openstack.org/common/api/v1.0
                                  xsd/api-common.xsd
                                  ">
+
     <grammars>
         <include href="xsd/api.xsd"/>
         <include href="xsd/api-common.xsd"/>
     </grammars>
 
-    <resources base="https://idm.api.openstack.org">
+    <!-- We should use SSL in production -->
+    <resources base="http://localhost:8080">
         <resource id="version" path="v1.0">
             <method href="#getVersionInfo"/>
             <resource id="extensions" path="extensions">
