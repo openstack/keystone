@@ -21,7 +21,9 @@ try:
 except ImportError:
     import json
 import eventlet
-import urllib2
+import urllib
+from httplib2 import Http
+
 
 
 class EchoApp:
@@ -42,17 +44,23 @@ class EchoApp:
 
     def toJSON(self):
         
-        
+        self.start('200 OK', [('Content-Type', 'application/json')])
         token = str(self.envr.get("HTTP_X_AUTH_TOKEN",""))
         
         if token !='':
-            response=self.ValidateToken({'type':'json','token':token})
             
-            r=json.loads('{"auth" : { "token": {"id": "fad94013a5b3b836dbc18", "expires": "2011-04-18 16:17:59"}}}')
-           
+            res=self.ValidateToken({'type':'json','token':token})
+            
+            if int(res['response']['status'])==200 :
+                
+                yield str(res['content'])
+            else:
+                pass
+                # Need to Do Something Here
+        else:
+            
+            yield str(self.transform(self.dom))
         
-        self.start('200 OK', [('Content-Type', 'application/json')])
-        yield str(self.transform(self.dom))
         
         
 
@@ -80,18 +88,14 @@ class EchoApp:
         
         
         if params['token']:
+        
+            http=Http()
+            
             url = "http://localhost:8080/token/"+str(params['token'])
-            #print url
-            data = '{"test":""}'
-            if params['type']=='json':
-                headers = { "Accept" : "application/json", "Content-Type": "application/json",'REQUEST_METHOD':'GET' }
-            elif type =='xml':
-                headers = { "Accept" : "application/xml", "Content-Type": "application/xml" }
-            
-            req = urllib2.Request(url, data, headers)
-            response = urllib2.urlopen(req)
-            
-            return response.read()
+            body = {}
+            headers = {"Accept" : "application/json", "Content-Type": "application/json"}
+            response, content = http.request(url, 'GET', headers=headers, body=urllib.urlencode(body))
+            return {'response':response,'content':content}
         else:
             return abort(401, "No Token Found!")
              
