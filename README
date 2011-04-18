@@ -70,8 +70,8 @@ Create a user:
 
 
 Echo:
-Start server:
-python echo.py
+Start server with PAPI-Auth Middleware:
+paster serve echo.init --reload
   
  Validate Token:
  curl -i -X GET -H "Content-Type: application/json" -H "X-Auth-Token: fad94013a5b3b836dbc18" -d '{"test": "something"}' http://127.0.0.1:8090/

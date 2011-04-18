@@ -25,7 +25,6 @@ import urllib
 from httplib2 import Http
 
 
-
 class EchoApp:
 
     def __init__(self, environ, start_response):
@@ -37,35 +36,25 @@ class EchoApp:
     def __iter__(self):
         accept = self.envr.get("HTTP_ACCEPT","application/json")
         if accept == "application/xml":
-                       
             return self.toXML()
         else:
             return self.toJSON()
 
     def toJSON(self):
-        
         self.start('200 OK', [('Content-Type', 'application/json')])
         token = str(self.envr.get("HTTP_X_AUTH_TOKEN",""))
         
         if token !='':
-            
             res=self.ValidateToken({'type':'json','token':token})
-            
             if int(res['response']['status'])==200 :
-                
                 yield str(res['content'])
             else:
                 pass
                 # Need to Do Something Here
         else:
-            
             yield str(self.transform(self.dom))
-        
-        
-        
 
     def toXML(self):
-       
         self.start('200 OK', [('Content-Type', 'application/xml')])
         yield etree.tostring (self.dom)
 
@@ -74,7 +63,8 @@ class EchoApp:
                              method=environ["REQUEST_METHOD"],
                              pathInfo=environ["PATH_INFO"],
                              queryString=environ.get('QUERY_STRING', ""))
-        content = etree.Element("{http://docs.openstack.org/echo/api/v1.0}content")
+        content = etree.Element(
+			"{http://docs.openstack.org/echo/api/v1.0}content")
         content.set ("type", environ["CONTENT_TYPE"])
         content.text = ""
         inReq = environ["wsgi.input"]
@@ -83,22 +73,24 @@ class EchoApp:
         echo.append (content)
         return echo
     
-    
-    def ValidateToken(self,params):
-        
-        
-        if params['token']:
-        
-            http=Http()
-            
-            url = "http://localhost:8080/token/"+str(params['token'])
-            body = {}
-            headers = {"Accept" : "application/json", "Content-Type": "application/json"}
-            response, content = http.request(url, 'GET', headers=headers, body=urllib.urlencode(body))
-            return {'response':response,'content':content}
-        else:
-            return abort(401, "No Token Found!")
+
+    #def ValidateToken(self,params):
+    #    if params['token']:
+    #        http=Http()
+    #        url = "http://localhost:8080/token/"+str(params['token'])
+    #        body = {}
+    #        headers = {
+	#			"Accept" : "application/json", 
+	#			"Content-Type": "application/json"}
+    #        response, content = http.request(url, 'GET', headers=headers, 
+	#			body=urllib.urlencode(body))
+    #        return {'response':response,'content':content}
+    #    else:
+    #        return abort(401, "No Token Found!")
              
 
-wsgi.server(eventlet.listen(('127.0.0.1', 8090)), EchoApp)
+def app_factory (global_conf, **local_conf):
+	return EchoApp
+
+#wsgi.server(eventlet.listen(('127.0.0.1', 8090)), EchoApp)
 #wsgi.server(eventlet.listen(('', 8090)), loadapp("config:echo.ini", relative_to="."))

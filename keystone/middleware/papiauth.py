@@ -15,8 +15,6 @@
 
 from webob.exc import HTTPUseProxy, HTTPUnauthorized
 
-from swift.common.utils import TRUE_VALUES
-
 
 class PAPIAuth(object):
     """Auth Middleware that uses the dev auth server."""
@@ -24,14 +22,9 @@ class PAPIAuth(object):
     def __init__(self, app, conf):
         self.app = app
         self.conf = conf
-        self.reseller_prefix = conf.get('reseller_prefix', 'AUTH').strip()
-        if self.reseller_prefix and self.reseller_prefix[-1] != '_':
-            self.reseller_prefix += '_'
         self.auth_host = conf.get('ip', '127.0.0.1')
         self.auth_port = int(conf.get('port', 11000))
         self.auth_pass = conf.get('pass', 'dTpw')
-        self.ssl = conf.get('ssl', 'false').lower() in TRUE_VALUES
-        self.timeout = int(conf.get('node_timeout', 10))
 
     def __call__(self, env, start_response):
         # Make sure that the user has been authenticated by the Auth Service
@@ -41,7 +34,7 @@ class PAPIAuth(object):
             return HTTPUseProxy(location=proxy_location)(env, start_response)
 
         # Authenticate the Auth component itself.
-        headers = [('www-authenticate', 'Basic realm="swift"')]
+        headers = [('www-authenticate', 'Basic realm="echo"')]
         if 'HTTP_AUTHORIZATION' not in env:
             return HTTPUnauthorized(headers=headers)(env, start_response)
         else:
