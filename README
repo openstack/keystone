@@ -14,11 +14,14 @@ sudo easy_install urllib2
 
 
 Tables:
-CREATE TABLE tenants(tenant_id INTEGER, tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
+CREATE TABLE tenants(tenant_id varchar(255), tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
 
 CREATE TABLE token (token_id varchar(255),expires datetime);
 
 CREATE TABLE groups (group_id varchar(255),tenant_id varchar(255),group_desc varchar(255));
+
+
+
 
 Issues:
 bottle not in path on Mac OS X (added exception handling to default path)
@@ -32,6 +35,7 @@ curl -i -X POST -H "Content-Type: application/json" -d '{"tenant": { "id": "1234
 
 Get token:
 curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/tokens
+curl -i -X POST -H "Content-Type: application/json" -d '{"username":"jack", "password": "secret","tenant_id":"1" }'http://localhost:8080/tokens
 
 Add User:(Test Function)
 curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/users
@@ -42,6 +46,28 @@ curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/
 
 Validate bad token:
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvbad
+
+
+Update Tenant
+ curl -i -X PUT -H "Content-Type: application/json" -d '{"tenant": { "description": "A new description update ..." } }' http://localhost:8080/tenants/1234
+
+Get Tenant
+ curl -i -X GET -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants/1234
+
+Get Tenants
+ curl -i -X GET -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants
+
+
+Delete Tenant
+ curl -i -X DELETE -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants/1234
+
+Create a user:
+ curl -i -X POST -H "Content-Type: application/json" -d '{"user": {"username": "jacky", "password": "secret","email":"jacky@example.com","enabled": true } }' http://localhost:8080/tenants/111/users
+
+
+ 
+
+
 
 Echo:
 Start server:
