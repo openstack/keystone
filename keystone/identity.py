@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Copyright (c) 2010-2011 OpenStack, LLC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -1507,4 +1506,3 @@ class Tenants:
     
 debug(True)
 run(host='localhost', port=8080, reloader=True)
->>>>>>> master
