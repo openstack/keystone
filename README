@@ -6,25 +6,30 @@ Dependencies:
 
 Setup:
 Install http://pypi.python.org/pypi/setuptools
+sudo easy_install Paste
 sudo easy_install PasteDeploy
+sudo easy_install PasteScript
 sudo easy_install simplejson
-sudo easy_install -U bottle
 sudo easy_install eventlet
-sudo easy_install urllib2
+sudo easy_install webob
 
 
 Tables:
-CREATE TABLE tenants(tenant_id varchar(255), tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
-
-CREATE TABLE token (token_id varchar(255),expires datetime);
-
 CREATE TABLE groups (group_id varchar(255),tenant_id varchar(255),group_desc varchar(255));
+CREATE TABLE tenants(tenant_id INTEGER, tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
+CREATE TABLE token (token_id varchar(255),expires datetime);
+CREATE TABLE users(username varchar(255), password varchar(255));
 
 
+Run:
+python setup.py build
+sudo python setup.py install
+paster serve keystone/keystone.ini
+paster serve echo/echo/echo.ini
 
 
 Issues:
-bottle not in path on Mac OS X (added exception handling to default path)
+
 
 Demo:
 Start server:
