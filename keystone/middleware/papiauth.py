@@ -22,13 +22,16 @@ class PAPIAuth(object):
     def __init__(self, app, conf):
         self.app = app
         self.conf = conf
-        self.auth_host = conf.get('ip', '127.0.0.1')
-        self.auth_port = int(conf.get('port', 11000))
-        self.auth_pass = conf.get('pass', 'dTpw')
+        self.auth_host = conf.get('auth_ip', '127.0.0.1')
+        self.auth_port = int(conf.get('auth_port', 11000))
+        self.auth_pass = conf.get('auth_pass', 'dTpw')
+        proxy_location = 'http://' + self.auth_host + ':' + \
+            str(self.auth_port) + '/'
+        print 'starting PAPI Auth middleware'
 
     def __call__(self, env, start_response):
         # Make sure that the user has been authenticated by the Auth Service
-        if 'HTTP_X_AUTHORIZATION' not in env:
+        if 'HTTP_X_AUTH_TOKEN' not in env:
             proxy_location = 'http://' + self.auth_host + ':' + \
                 str(self.auth_port) + '/'
             return HTTPUseProxy(location=proxy_location)(env, start_response)

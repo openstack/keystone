@@ -15,6 +15,8 @@
 
 # Not Yet PEP8 standardized  
 
+from eventlet import wsgi
+from paste.deploy import loadapp
 import os
 import hashlib
 try:
@@ -22,13 +24,12 @@ try:
 except ImportError:
     import json
 import sqlite3
+import eventlet
+import urllib
+from httplib2 import Http
 
-try:
-    from bottle import route, run, request, debug, abort
-except ImportError:
-    import imp
-    imp.load_source("bottle", "/Library/Python/2.6/site-packages/bottle-0.8.5-py2.6.egg/bottle.py")
-    from bottle import route, run, request, debug, abort
+from bottle import route, run, request, debug, abort
+
 import uuid
 from datetime import datetime,timedelta
 import sqlite3
@@ -37,6 +38,7 @@ class Identity:
     def __init__(self, environ, start_response):
         self.envr  = environ
         self.start = start_response
+        print 'starting keystone server'
 
 	class Tenants:
 		@route ('/tenants', method='POST')

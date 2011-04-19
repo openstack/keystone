@@ -34,6 +34,11 @@ class EchoApp:
         self.transform = etree.XSLT(etree.parse("xsl/echo.xsl"))
 
     def __iter__(self):
+        if 'HTTP_X_AUTHORIZATION' not in self.envr:
+            proxy_location = 'http://' + ' ' + ':' + \
+                str(' ') + '/'
+            return HTTPUseProxy(location=proxy_location)(env, start_response)
+
         accept = self.envr.get("HTTP_ACCEPT","application/json")
         if accept == "application/xml":
             return self.toXML()
