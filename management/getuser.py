@@ -24,15 +24,17 @@ def main():
 	if len(args) != 1:
 		parser.error("Incorrect number of arguments")
 	else:
-		username = args[0]
+		user_id = args[0]
+		
 		dbpath = os.path.abspath(
 			os.path.join(os.path.dirname(__file__),'../db/keystone.db'))
 		con = sqlite3.connect(dbpath)
 		cur = con.cursor()
 		cur.execute(
-			"DELETE FROM users WHERE username='%s'" % username)
+			"select * from users where ut.username = '%s' " % (user_id))
 		con.commit()
+		print cur.fetchall()
 		con.close()
-
+		
 if __name__ == '__main__':
 	main()

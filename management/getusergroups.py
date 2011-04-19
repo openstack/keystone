@@ -18,21 +18,25 @@ import os
 import sqlite3
 
 def main():
-	usage = "usage: %prog username"
+	usage = "usage: %prog user_id"
 	parser = optparse.OptionParser(usage)
 	options, args = parser.parse_args()
 	if len(args) != 1:
 		parser.error("Incorrect number of arguments")
 	else:
-		username = args[0]
+		user_id = args[0]
+		
 		dbpath = os.path.abspath(
 			os.path.join(os.path.dirname(__file__),'../db/keystone.db'))
 		con = sqlite3.connect(dbpath)
 		cur = con.cursor()
 		cur.execute(
-			"DELETE FROM users WHERE username='%s'" % username)
+					"select g.* from groups g inner join user-group ug on 
+					g.group_id = ug.group_id where ug.user_id = '%s' " % (user_id)
+					)
 		con.commit()
+		print cur.fetchall()
 		con.close()
-
+		
 if __name__ == '__main__':
 	main()
