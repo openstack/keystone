@@ -25,7 +25,7 @@ import urllib
 from httplib2 import Http
 
 
-class EchoApp:
+class EchoApp(object):
 
     def __init__(self, environ, start_response):
         self.envr  = environ
@@ -97,5 +97,6 @@ class EchoApp:
 def app_factory (global_conf, **local_conf):
 	return EchoApp
 
-#wsgi.server(eventlet.listen(('127.0.0.1', 8090)), EchoApp)
-#wsgi.server(eventlet.listen(('', 8090)), loadapp("config:echo.ini", relative_to="."))
+app = loadapp("config:echo.ini", relative_to=".", \
+	global_conf={"log_name":"echo.log"})
+wsgi.server(eventlet.listen(('', 8090)), app)

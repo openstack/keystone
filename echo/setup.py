@@ -26,14 +26,12 @@ setup(
 	classifiers=[ "Programming Language :: Python", ],
 	keywords='',
     author='OpenStack, LLC.',
-	author_email='none of your beeswax@somehost.com',
-	url='http://lionfacelemonface.wordpress.com',
 	include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
 	zip_safe=False,
 	install_requires=['setuptools', 'keystone'],
     entry_points={
-        'paste.app_factory': ['main=echo.echo:app_factory'],
+        'paste.app_factory': ['main=echo:app_factory'],
         'paste.filter_factory': [
             'papiauth=keystone.middleware.papiauth:filter_factory',
             ],
