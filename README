@@ -66,21 +66,37 @@ Get Tenants
 Delete Tenant
  curl -i -X DELETE -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants/1234
 
+Create Tenant group:
+curl -i -X POST -H "Content-Type: application/json" -d '{"group": { "id": "admin","description":"Administrator" } }' http://localhost:8080/v1.0/tenant/1/groups
+Get tenant groups:
+curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenant/:tenantId/groups
+
+GET TENANT GROUP:
+curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenant/:tenantId/groups/:groupId
+
+GET GROUP USERS:
+v1.0/tenants/groups/:groupId/users', method='GET'
+curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenants/groups/:groupId/users
+
+ADD USER TO TENANT  group:
+
+curl -i -X PUT -H "Content-Type: application/json" -d '{"username": "john" }' http://localhost:8080/tenants/123456/groups/user/users
+
+DELETE USER FROM  TENANT GROUP:
+curl -i -X DELETE -H "Content-Type: application/json" -d '{"username": "john" }' http://localhost:8080/tenants/123456/groups/user/users
+
+
 Create a user:
  curl -i -X POST -H "Content-Type: application/json" -d '{"user": {"username": "jacky", "password": "secret","email":"jacky@example.com","enabled": true } }' http://localhost:8080/tenants/111/users
-
-
- 
-
 
 
 Echo:
 Start server with PAPI-Auth Middleware:
 paster serve echo.ini --reload
-  
+
  Validate Token:
  curl -i -X GET -H "Content-Type: application/json" -H "X-Auth-Token: fad94013a5b3b836dbc18" -d '{"test": "something"}' http://127.0.0.1:8090/
- 
+
 
 Using SOAPUI:
 
