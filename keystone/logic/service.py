@@ -17,6 +17,7 @@ import keystone.logic.types.auth as auth
 import keystone.logic.types.tenant as tenant
 import keystone.logic.types.atom as atom
 import keystone.logic.types.fault as fault
+import keystone.db.sqlalchemy.api as db_api
 
 
 class IDMService(object):
@@ -45,7 +46,8 @@ class IDMService(object):
         True
 
     def get_tenant(self, admin_token, tenant_id):
-        True
+		#TODO: Validate the admin_token
+		return db_api.tenant_get(tenant_id)
 
     def get_tenants(self, admin_token, marker, limit):
         True
@@ -65,3 +67,4 @@ class IDMService(object):
         if not admin_token:
             raise fault.ForbiddenFault("You are not authorized this operation")
         True
+
