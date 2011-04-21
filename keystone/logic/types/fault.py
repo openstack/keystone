@@ -16,6 +16,7 @@
 import simplejson as json
 from lxml import etree
 
+
 class IDMFault(Exception):
     "Base Exception type for all auth exceptions"
 
@@ -57,7 +58,7 @@ class IDMFault(Exception):
         fault["code"] = self.__code.__str__()
         ret = {}
         ret[self.key] = fault
-        return json.dumps (ret)
+        return json.dumps(ret)
 
 
 class ServiceUnavailableFault(IDMFault):
@@ -66,7 +67,6 @@ class ServiceUnavailableFault(IDMFault):
     def __init__(self, msg, details=None, code=503):
         super(ServiceUnavailableFault, self).__init__(msg, details, code)
         self.key = "serviceUnavailable"
-
 
 
 class BadRequestFault(IDMFault):
