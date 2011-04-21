@@ -53,3 +53,8 @@ def tenant_delete(id, session=None):
 		tenant_ref = tenant_get(id, session)
 		session.delete(tenant_ref)
 
+def user_create(values):
+	user_ref = models.User()
+	user_ref.update(values)
+	user_ref.save()
+	return user_ref
