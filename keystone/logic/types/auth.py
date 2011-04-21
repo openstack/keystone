@@ -74,6 +74,22 @@ class Group(object):
         return self.__tenant_id
 
 
+class Groups(object):
+    "A collection of groups."
+
+    def __init__(self, values, links):
+        self.__values = values
+        self.__links = links
+
+    @property
+    def values(self):
+        return self.__values
+
+    @property
+    def links(self):
+        return self.__links
+
+
 class User(object):
     "A user."
 

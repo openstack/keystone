@@ -33,3 +33,19 @@ class Tenant(object):
     @property
     def enabled(self):
         return self.__enabled
+
+
+class Tenants(object):
+    "A collection of tenants."
+
+    def __init__(self, values, links):
+        self.__values = values
+        self.__links = links
+
+    @property
+    def values(self):
+        return self.__values
+
+    @property
+    def links(self):
+        return self.__links
