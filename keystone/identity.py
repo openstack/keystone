@@ -22,7 +22,6 @@ from bottle import request
 from bottle import debug
 from bottle import abort
 from bottle import Bottle
-from bottle import EventletServer
 import ConfigParser
 from datetime import datetime
 from datetime import timedelta
