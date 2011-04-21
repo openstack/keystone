@@ -14,6 +14,8 @@
 # limitations under the License.
 
 from abc import ABCMeta
+import simplejson as json
+from lxml import etree
 
 
 class Credentials(object):
@@ -125,3 +127,46 @@ class AuthData(object):
     @property
     def token(self):
         return self.__token
+
+    def to_xml(self):
+        dom = etree.Element("auth",
+                             xmlns="http://docs.openstack.org/idm/api/v1.0")
+        token = etree.Element("token",
+                             expires=self.__token.expires)
+        token.set("id", self.__token.token_id)
+        user = etree.Element("user",
+                             username=self.__user.username,
+                             tenantId=self.__user.tenant_id)
+        groups = etree.Element("groups")
+        for group in self.__user.groups.values:
+            g = etree.Element("group",
+                             tenantId=group.tenant_id)
+            g.set("id", group.group_id)
+            groups.append(g)
+        user.append(groups)
+        dom.append(token)
+        dom.append(user)
+        return etree.tostring(dom)
+
+    def to_json(self):
+        token = {}
+        token["id"] = self.__token.token_id
+        token["expires"] = self.__token.expires
+        user = {}
+        user["username"] = self.__user.username
+        user["tenantId"] = self.__user.tenant_id
+        group = []
+        for g in self.__user.groups.values:
+            grp = {}
+            grp["tenantId"] = g.tenant_id
+            grp["id"] = g.group_id
+            group.append(grp)
+        groups = {}
+        groups["group"] = group
+        user["groups"] = groups
+        auth = {}
+        auth["token"] = token
+        auth["user"] = user
+        ret = {}
+        ret["auth"] = auth
+        return json.dumps(ret)
