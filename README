@@ -25,18 +25,22 @@ CREATE TABLE users(id varchar(255),password varchar(255),email varchar(255),enab
 
 
 Run:
+>> for keystone
 python setup.py build
 sudo python setup.py install
-paster serve keystone/keystone.ini
-paster serve echo/echo/echo.ini
+python identity.py
+
+>> for echo
+python setup.py build
+sudo python setup.py install
+python echo.py
 
 
 Issues:
 
 
 Demo:
-Start server:
-python identity.py
+Start server as per run instructions above.
 
 Add Tenant:
 curl -i -X POST -H "Content-Type: application/json" -d '{"tenant": { "id": "123456", "description": "A description ...", "enabled": true } }' http://localhost:8080/tenants
