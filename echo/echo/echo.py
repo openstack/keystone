@@ -24,9 +24,7 @@ import eventlet
 import urllib
 from httplib2 import Http
 
-
 class EchoApp(object):
-
     def __init__(self, environ, start_response):
         self.envr  = environ
         self.start = start_response
@@ -93,10 +91,9 @@ class EchoApp(object):
     #    else:
     #        return abort(401, "No Token Found!")
              
-
 def app_factory (global_conf, **local_conf):
 	return EchoApp
-
-app = loadapp("config:echo.ini", relative_to=".", \
+if __name__ == "__main__":
+    app = loadapp("config:echo.ini", relative_to=".", \
 	global_conf={"log_name":"echo.log"})
-wsgi.server(eventlet.listen(('', 8090)), app)
+    wsgi.server(eventlet.listen(('', 8090)), app)

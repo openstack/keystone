@@ -34,10 +34,7 @@ from datetime import datetime, timedelta
 import sqlite3
 import ConfigParser
 
-version = 'v2.0'
-
-
-class Identity:
+class Identity(object):
 
     def __init__(self, environ, start_response):
         self.envr = environ
@@ -47,7 +44,7 @@ class Identity:
     class Tenants:
         # Tenant functionality
         @route('/tenants', method='POST')
-        @route('/:ver/tenants', method='POST')
+        @route('/v1.0/tenants', method='POST')
         def create_tenant(ver=''):
             '''
                 Creating Tenants by doing a POST on /tenants
@@ -109,7 +106,7 @@ class Identity:
             return 'it did NOT work\n'
 
         @route('/tenants/:tenantId', method='GET')
-        @route('/:ver/tenants', method='POST')
+        @route('/v1.0/tenants', method='POST')
         def get_tenant(tenantId, ver=''):
             '''
                 Getting/Retrieving Tenants by doing a GET on /tenants
@@ -165,7 +162,7 @@ class Identity:
             return 'it did NOT work\n'
 
         @route('/tenants', method='GET')
-        @route('/:ver/tenants', method='GET')
+        @route('/v1.0/tenants', method='GET')
         def get_tenants(ver=''):
             '''
                 Getting/Retrieving all Tenants by doing a GET on /tenants
@@ -233,7 +230,7 @@ class Identity:
 
 
         @route ('/tenants/:tenantId', method='PUT')
-        @route ('/:ver/tenants/:tenantId', method='PUT')
+        @route ('/v1.0/tenants/:tenantId', method='PUT')
         def update_tenant(tenantId, ver=''):
             '''
                 Updating Tenants by doing a PUT on /tenants
@@ -288,7 +285,7 @@ class Identity:
             return 'it did NOT work\n'
 
         @route ('/tenants/:tenantId', method='DELETE')
-        @route ('/:ver/tenants/:tenantId', method='DELETE')
+        @route ('/v1.0/tenants/:tenantId', method='DELETE')
         def delete_tenant(tenantId, ver=''):
             '''
                 Deleting Tenants by doing a Delete on /tenants
@@ -344,7 +341,7 @@ class Identity:
         #Tenant Group Functionalities
 
         @route('tenant/:tenantId/groups', method='POST')
-        @route('/:ver/tenant/:tenantId/groups', method='POST')
+        @route('/v1.0/tenant/:tenantId/groups', method='POST')
         def create_tenant_group(tenantId, ver=''):
             """
                 Creating tenant by doing a POST on /tenant/:tenantId/groups
@@ -412,7 +409,7 @@ class Identity:
 
 
         @route('/tenant/:tenantId/groups/:groupId', method='PUT')
-        @route('/:ver/tenant/:tenantId/groups/:groupId', method='PUT')
+        @route('/v1.0/tenant/:tenantId/groups/:groupId', method='PUT')
         def update_tenant_group(tenantId, groupId, ver=''):
 
             global version
@@ -461,7 +458,7 @@ class Identity:
                             return "whatever, we don't have XML yet"
             return 'it did NOT work\n'
 
-        @route('/:ver/tenant/:tenantId/groups/:groupId', method='DELETE')
+        @route('/v1.0/tenant/:tenantId/groups/:groupId', method='DELETE')
         @route('/tenant/:tenantId/groups/:groupId', method='DELETE')
         def delete_tenant_group(tenantId, groupId, ver=''):
             '''
@@ -520,7 +517,7 @@ class Identity:
             return 'it did NOT work\n'
 
         @route('/tenant/:tenantId/groups', method='GET')
-        @route('/:ver/tenant/:tenantId/groups', method='GET')
+        @route('/v1.0/tenant/:tenantId/groups', method='GET')
         def get_tenant_groups(tenantId, ver=''):
             '''
                 Getting all Tenant Groups /tenant/tenantId/groups GET
@@ -602,7 +599,7 @@ class Identity:
             return 'it did NOT work\n'
 
 
-        @route('/:ver/tenant/:tenantId/groups/:groupId', method='GET')
+        @route('/v1.0/tenant/:tenantId/groups/:groupId', method='GET')
         @route('/tenant/:tenantId/groups/:groupId', method='GET')
         def get_tenant_group(tenantId, groupId, ver=''):
             '''
@@ -652,7 +649,7 @@ class Identity:
 
             return 'it did NOT work\n'
 
-        @route('/:ver/:tenantId/groups/:groupId/users', method='GET')
+        @route('/v1.0/:tenantId/groups/:groupId/users', method='GET')
         @route('/tenants/:tenantId/groups/:groupId/users', method='GET')
         def get_group_users(tenantId, groupId, ver=''):
             '''
@@ -714,7 +711,7 @@ class Identity:
             return 'it did NOT work\n'
 
         @route('/tenants/:tenantId/groups/:groupId/users', method='PUT')
-        @route('/:ver/tenants/:tenantId/groups/:groupId/users', method='PUT')
+        @route('/v1.0/tenants/:tenantId/groups/:groupId/users', method='PUT')
         def add_group_user(tenantId, groupId, ver=''):
             '''
                 Getting Tenant Group /tenant/tenantId/groups/groupId
@@ -778,7 +775,7 @@ class Identity:
                             return "whatever, we don't have XML yet"
             return 'it did NOT work\n'
 
-        @route('/:ver/tenants/:tenantId/groups/:groupId/users', method='DELETE')
+        @route('/v1.0/tenants/:tenantId/groups/:groupId/users', method='DELETE')
         @route('/tenants/:tenantId/groups/:groupId/users', method='DELETE')
         def remove_group_user(tenantId, groupId, ver=''):
             '''
@@ -852,7 +849,7 @@ class Identity:
             will be updated to after testing
         """
 
-        @route ('/:ver/tenants/:tenantId/users', method='POST')
+        @route ('/v1.0/tenants/:tenantId/users', method='POST')
         @route ('/tenants/:tenantId/users', method='POST')
         def create_user(tenantId, ver=''):
             '''
@@ -926,7 +923,7 @@ class Identity:
 
         # Token Functionalities
 
-        @route ('/:ver/tokens', method='POST')
+        @route ('/v1.0/tokens', method='POST')
         @route ('/tokens', method='POST')
         def create_token(ver=''):
             '''
@@ -999,7 +996,7 @@ class Identity:
 
             return 'it did NOT work\n'
 
-        @route('/:ver/token/:token_id', method='POST')
+        @route('/v1.0/token/:token_id', method='POST')
         @route('/token/:token_id', method='POST')
         def validate_token(token_id, ver=''):
             '''
@@ -1060,7 +1057,7 @@ class Identity:
 
             return 'it did NOT work\n'
 
-        @route('/:ver/token/:token_id', method='DELETE')
+        @route('/v1.0/token/:token_id', method='DELETE')
         @route('/token/:token_id', method='DELETE')
         def revoke_token(token_id, ver=''):
             '''
@@ -1138,9 +1135,13 @@ class Identity:
 
             return 'it did NOT work\n'
 
-#debug(True)
-run(host='localhost', server=EventletServer, port=8080, reloader=True)
 
 
 def app_factory(global_conf, **local_conf):
     return Identity
+
+if __name__ == "__main__":
+    app = loadapp('config:keystone.ini', relative_to=".", \
+	global_conf={"log_name":"keystone.log"})
+    wsgi.server(eventlet.listen(('', 8080)), app)
+

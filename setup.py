@@ -33,7 +33,7 @@ setup(
 	zip_safe=False,
 	install_requires=['setuptools',],
     entry_points={
-        'paste.app_factory': ['keystone=identity:app_factory'],
+        'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
             'papiauth=keystone.middleware.papiauth:filter_factory',
             ],
