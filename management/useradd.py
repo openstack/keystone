@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import optparse
-from keystone.db.sqlalchemy import api
+import keystone.db.sqlalchemy.api as db_api
 from keystone.db.sqlalchemy import models
 
 
@@ -33,12 +33,12 @@ def main():
                     u.email = username
                     u.password = password
                     u.enabled = True
-                    api.user_create(u)
+                    db_api.user_create(u)
                     print 'user', u.id, 'created.'
                     return
 
                 except Exception, e:
-                    raise #e, ('User %s already exists' % username)
+                    print 'Error creating user', u.id, ':', str(e)
                 
 if __name__ == '__main__':
 	main()
