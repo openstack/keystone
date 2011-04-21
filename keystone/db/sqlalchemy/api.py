@@ -53,3 +53,22 @@ def tenant_delete(id, session=None):
 		tenant_ref = tenant_get(id, session)
 		session.delete(tenant_ref)
 
+def user_create(values):
+	user_ref = models.User()
+	user_ref.update(values)
+	user_ref.save()
+	return user_ref
+
+def token_create(values):
+	token_ref = models.Token()
+	token_ref.update(values)
+	token_ref.save()
+	return user_ref
+
+def token_get(id, session=None):
+	if not session:
+		session = get_session()
+	result = session.query(models.Token).filter_by(id=id).first()
+	if not result:
+		raise
+	return result

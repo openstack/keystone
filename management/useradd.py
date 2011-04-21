@@ -14,8 +14,9 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
+from keystone.db.sqlalchemy import models
+
 
 def main():
 	usage = "usage: %prog username password"
@@ -26,14 +27,18 @@ def main():
 	else:
 		username = args[0]
 		password = args[1]
-		dbpath = os.path.abspath(
-			os.path.join(os.path.dirname(__file__),'../db/keystone.db'))
-		con = sqlite3.connect(dbpath)
-		cur = con.cursor()
-		cur.execute(
-			"INSERT INTO users VALUES ('%s', '%s')" % (username, password))
-		con.commit()
-		con.close()
+                try:
+                    u = models.User()
+                    u.id = username
+                    u.email = username
+                    u.password = password
+                    u.enabled = True
+                    db_api.user_create(u)
+                    print 'user', u.id, 'created.'
+                    return
 
+                except Exception, e:
+                    print 'Error creating user', u.id, ':', str(e)
+                
 if __name__ == '__main__':
 	main()
