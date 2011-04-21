@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from os import path
+
 import eventlet
 from eventlet import wsgi
 from httplib2 import Http
@@ -36,7 +38,9 @@ class EchoApp(object):
         self.envr = environ
         self.start = start_response
         self.dom = self.toDOM(environ)
-        self.transform = etree.XSLT(etree.parse("xsl/echo.xsl"))
+        echo_xsl = path.join(path.abspath(\
+			path.dirname(__file__)), "xsl/echo.xsl")
+        self.transform = etree.XSLT(etree.parse(echo_xsl))
 
     def __iter__(self):
         if 'HTTP_X_AUTHORIZATION' not in self.envr:
@@ -90,7 +94,7 @@ class EchoApp(object):
     #        url = "http://localhost:8080/token/"+str(params['token'])
     #        body = {}
     #        headers = {
-    #	           "Accept": "application/json",
+    #			   "Accept": "application/json",
     #              "Content-Type": "application/json"}
     #        response, content = http.request(url, 'GET', headers=headers,
     #			body = urllib.urlencode(body))
@@ -102,6 +106,7 @@ def app_factory(global_conf, **local_conf):
     return EchoApp
 
 if __name__ == "__main__":
-    app = loadapp("config:echo.ini", relative_to=".", \
-      global_conf={"log_name": "echo.log"})
-    wsgi.server(eventlet.listen(('', 8090)), app)
+	app = loadapp("config:" + \
+		path.join(path.abspath(path.dirname(__file__)), "echo.ini"), \
+		global_conf={"log_name": "echo.log"})
+	wsgi.server(eventlet.listen(('', 8090)), app)
