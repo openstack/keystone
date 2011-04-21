@@ -25,7 +25,9 @@ except ImportError:
     import json
 import urllib
 
-
+"""
+Echo: a dummy service for OpenStack auth testing. It returns request info.
+"""
 class EchoApp(object):
     def __init__(self, environ, start_response):
         self.envr  = environ

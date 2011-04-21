@@ -15,6 +15,7 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
+import bottle
 from bottle import route
 from bottle import run
 from bottle import request
@@ -39,11 +40,14 @@ import sqlite3
 import urllib
 import uuid
 
+
 """
 Identity: a pluggable auth server concept for OpenStack
 """
 class Identity(object):
-
+    def __init__(self, environ, start_response):
+        self.envr  = environ
+        self.start = start_response
 
     class Tenants:
         # Tenant functionality
@@ -1092,12 +1096,10 @@ class Identity(object):
             return 'it did NOT work\n'
 
 
-
 def app_factory(global_conf, **local_conf):
     return Identity
 
 if __name__ == "__main__":
     app = loadapp('config:keystone.ini', relative_to=".", \
-	global_conf={"log_name":"keystone.log"})
-    wsgi.server(eventlet.listen(('', 8080)), app)
-
+       global_conf={"log_name":"keystone.log"})
+    bottle.run(host='localhost', port=8080, reloader=True)
