@@ -1,3 +1,4 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 # Copyright (c) 2010-2011 OpenStack, LLC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import eventlet
 from eventlet import wsgi
+from httplib2 import Http
 from lxml import etree
 from paste.deploy import loadapp
 try:
     import simplejson as json
 except ImportError:
     import json
-import eventlet
 import urllib
-from httplib2 import Http
+
 
 class EchoApp(object):
     def __init__(self, environ, start_response):

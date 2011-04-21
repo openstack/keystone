@@ -1,3 +1,4 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 # Copyright (c) 2010-2011 OpenStack, LLC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,38 +15,41 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
+from bottle import route
+from bottle import run
+from bottle import request
+from bottle import debug
+from bottle import abort
+from bottle import Bottle
+from bottle import EventletServer
+import ConfigParser
+from datetime import datetime
+from datetime import timedelta
+import eventlet
 from eventlet import wsgi
-from paste.deploy import loadapp
-import os
 import hashlib
+from httplib2 import Http
+import os
+from paste.deploy import loadapp
 try:
     import simplejson as json
 except ImportError:
     import json
 import sqlite3
-import eventlet
 import urllib
-from httplib2 import Http
-
-from bottle import route, run, request, debug, abort, EventletServer
-
 import uuid
-from datetime import datetime, timedelta
-import sqlite3
-import ConfigParser
 
+"""
+Identity: a pluggable auth server concept for OpenStack
+"""
 class Identity(object):
 
-    def __init__(self, environ, start_response):
-        self.envr = environ
-        self.start = start_response
-        print 'starting keystone server'
 
     class Tenants:
         # Tenant functionality
         @route('/tenants', method='POST')
         @route('/v1.0/tenants', method='POST')
-        def create_tenant(ver=''):
+        def create_tenant():
             '''
                 Creating Tenants by doing a POST on /tenants
                 Request Body:
@@ -58,9 +62,6 @@ class Identity(object):
                 }
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                                  'application/xml', 'text/xml']
@@ -107,14 +108,11 @@ class Identity(object):
 
         @route('/tenants/:tenantId', method='GET')
         @route('/v1.0/tenants', method='POST')
-        def get_tenant(tenantId, ver=''):
+        def get_tenant(tenantId):
             '''
                 Getting/Retrieving Tenants by doing a GET on /tenants
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -163,14 +161,11 @@ class Identity(object):
 
         @route('/tenants', method='GET')
         @route('/v1.0/tenants', method='GET')
-        def get_tenants(ver=''):
+        def get_tenants():
             '''
                 Getting/Retrieving all Tenants by doing a GET on /tenants
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -231,7 +226,7 @@ class Identity(object):
 
         @route ('/tenants/:tenantId', method='PUT')
         @route ('/v1.0/tenants/:tenantId', method='PUT')
-        def update_tenant(tenantId, ver=''):
+        def update_tenant(tenantId):
             '''
                 Updating Tenants by doing a PUT on /tenants
                 Request Body:
@@ -244,9 +239,6 @@ class Identity(object):
                 }
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -286,7 +278,7 @@ class Identity(object):
 
         @route ('/tenants/:tenantId', method='DELETE')
         @route ('/v1.0/tenants/:tenantId', method='DELETE')
-        def delete_tenant(tenantId, ver=''):
+        def delete_tenant(tenantId):
             '''
                 Deleting Tenants by doing a Delete on /tenants
                 Request Body:
@@ -297,9 +289,6 @@ class Identity(object):
                 }
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -342,7 +331,7 @@ class Identity(object):
 
         @route('tenant/:tenantId/groups', method='POST')
         @route('/v1.0/tenant/:tenantId/groups', method='POST')
-        def create_tenant_group(tenantId, ver=''):
+        def create_tenant_group(tenantId):
             """
                 Creating tenant by doing a POST on /tenant/:tenantId/groups
                 {"group":
@@ -354,9 +343,6 @@ class Identity(object):
 
             """
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json','application/xml','text/xml']
                 content = request.environ['CONTENT_TYPE']
@@ -410,11 +396,9 @@ class Identity(object):
 
         @route('/tenant/:tenantId/groups/:groupId', method='PUT')
         @route('/v1.0/tenant/:tenantId/groups/:groupId', method='PUT')
-        def update_tenant_group(tenantId, groupId, ver=''):
+        def update_tenant_group(tenantId, groupId):
 
-            global version
-            if ver =='':
-                ver =version
+
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -460,7 +444,7 @@ class Identity(object):
 
         @route('/v1.0/tenant/:tenantId/groups/:groupId', method='DELETE')
         @route('/tenant/:tenantId/groups/:groupId', method='DELETE')
-        def delete_tenant_group(tenantId, groupId, ver=''):
+        def delete_tenant_group(tenantId, groupId):
             '''
                 Deleting Tenant Group /tenants/tenantId/groups/groupId
                 given curl url has /tenants/:1234/groups/:Admin
@@ -468,9 +452,7 @@ class Identity(object):
                    Sucessfully Deleted
 
             '''
-            global version
-            if ver =='':
-                ver =version
+
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -518,7 +500,7 @@ class Identity(object):
 
         @route('/tenant/:tenantId/groups', method='GET')
         @route('/v1.0/tenant/:tenantId/groups', method='GET')
-        def get_tenant_groups(tenantId, ver=''):
+        def get_tenant_groups(tenantId):
             '''
                 Getting all Tenant Groups /tenant/tenantId/groups GET
 
@@ -541,10 +523,6 @@ class Identity(object):
                 }
 
             '''
-
-            global version
-            if ver =='':
-                ver =version
 
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
@@ -601,14 +579,11 @@ class Identity(object):
 
         @route('/v1.0/tenant/:tenantId/groups/:groupId', method='GET')
         @route('/tenant/:tenantId/groups/:groupId', method='GET')
-        def get_tenant_group(tenantId, groupId, ver=''):
+        def get_tenant_group(tenantId, groupId):
             '''
                 Getting Tenant Group /tenant/tenantId/groups/groupId
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -651,14 +626,11 @@ class Identity(object):
 
         @route('/v1.0/:tenantId/groups/:groupId/users', method='GET')
         @route('/tenants/:tenantId/groups/:groupId/users', method='GET')
-        def get_group_users(tenantId, groupId, ver=''):
+        def get_group_users(tenantId, groupId):
             '''
                 Getting Tenant Group /tenant/tenantId/groups/groupId
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -712,13 +684,10 @@ class Identity(object):
 
         @route('/tenants/:tenantId/groups/:groupId/users', method='PUT')
         @route('/v1.0/tenants/:tenantId/groups/:groupId/users', method='PUT')
-        def add_group_user(tenantId, groupId, ver=''):
+        def add_group_user(tenantId, groupId):
             '''
                 Getting Tenant Group /tenant/tenantId/groups/groupId
             '''
-            global version
-            if ver =='':
-                ver =version
 
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
@@ -777,14 +746,11 @@ class Identity(object):
 
         @route('/v1.0/tenants/:tenantId/groups/:groupId/users', method='DELETE')
         @route('/tenants/:tenantId/groups/:groupId/users', method='DELETE')
-        def remove_group_user(tenantId, groupId, ver=''):
+        def remove_group_user(tenantId, groupId):
             '''
                 Getting Tenant Group /tenant/tenantId/groups/groupId
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -851,13 +817,11 @@ class Identity(object):
 
         @route ('/v1.0/tenants/:tenantId/users', method='POST')
         @route ('/tenants/:tenantId/users', method='POST')
-        def create_user(tenantId, ver=''):
+        def create_user(tenantId):
             '''
                 Creating users by doing a POST on /users
             '''
-            global version
-            if ver =='':
-                ver =version
+
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
@@ -925,14 +889,11 @@ class Identity(object):
 
         @route ('/v1.0/tokens', method='POST')
         @route ('/tokens', method='POST')
-        def create_token(ver=''):
+        def create_token():
             '''
             Creating token by doing a POST on /tokens
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                                  'application/xml', 'text/xml']
@@ -998,13 +959,11 @@ class Identity(object):
 
         @route('/v1.0/token/:token_id', method='POST')
         @route('/token/:token_id', method='POST')
-        def validate_token(token_id, ver=''):
+        def validate_token(token_id):
             '''
                 Validating token by doing a GET on /token/token_id
             '''
-            global version
-            if ver =='':
-                ver =version
+
             if('belongsto' in request.GET):
                 tenantid=request.GET.get('belongsto')
 
@@ -1059,14 +1018,11 @@ class Identity(object):
 
         @route('/v1.0/token/:token_id', method='DELETE')
         @route('/token/:token_id', method='DELETE')
-        def revoke_token(token_id, ver=''):
+        def revoke_token(token_id):
             '''
                 Revoking token by doing a DELETE on /token/token_id
             '''
 
-            global version
-            if ver =='':
-                ver =version
             if 'CONTENT_TYPE' in request.environ:
                 content_types = ['text/plain', 'application/json',
                     'application/xml', 'text/xml']
