@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
+
 from abc import ABCMeta
 import simplejson as json
 import keystone.logic.types.fault as fault
@@ -173,7 +175,7 @@ class AuthData(object):
         dom = etree.Element("auth",
                              xmlns="http://docs.openstack.org/idm/api/v1.0")
         token = etree.Element("token",
-                             expires=self.__token.expires)
+                             expires=self.__token.expires.isoformat())
         token.set("id", self.__token.token_id)
         user = etree.Element("user",
                              username=self.__user.username,
@@ -192,7 +194,7 @@ class AuthData(object):
     def to_json(self):
         token = {}
         token["id"] = self.__token.token_id
-        token["expires"] = self.__token.expires
+        token["expires"] = self.__token.expires.isoformat()
         user = {}
         user["username"] = self.__user.username
         user["tenantId"] = self.__user.tenant_id
