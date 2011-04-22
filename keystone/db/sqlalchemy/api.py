@@ -66,6 +66,12 @@ def user_get(id, session=None):
         result = session.query(models.User).options(joinedload('groups')).options(joinedload('tenants')).filter_by(id=id).first()
         return result
 
+def group_get(id, session=None):
+        if not session:
+                session = get_session()
+        result = session.query(models.Group).filter_by(id=id).first()
+        return result
+
 def token_create(values):
 	token_ref = models.Token()
 	token_ref.update(values)

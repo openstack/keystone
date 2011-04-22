@@ -35,12 +35,28 @@ class IDMService(object):
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_token(admin_token)
-        group1 = auth.Group("Admin","19928")
-        group2 = auth.Group("Other","28882")
-        gs = [group1, group2]
+
+        dauth = self.__get_auth_data(token_id)
+        dtoken = dauth[0]
+        duser = dauth[1]
+
+        if not dtoken:
+            raise fault.ItemNotFoundFault("Token not found")
+
+        if dtoken.expires < datetime.now():
+            raise fault.ItemNotFoundFault("Token not found")
+
+        if belongs_to != None and dtoken.tenant_id != belongs_to:
+            raise fault.ItemNotFoundFault("Token not found")
+
+        token = auth.Token(dtoken.expires, dtoken.token_id)
+        gs = []
+        for ug in duser.groups:
+            dgroup = db_api.group_get(ug.group_id)
+            gs.append (auth.Group (dgroup.id, dgroup.tenant_id))
         groups = auth.Groups(gs,[])
+
         user = auth.User("joeuser","19928", groups)
-        token = auth.Token ("2010-11-01T03:32:15-05:00", "388376625525637773")
         return auth.AuthData(token, user)
 
     def revoke_token(self, admin_token, token_id):
@@ -71,21 +87,34 @@ class IDMService(object):
     #
     # Private Operations
     #
+    def __get_auth_data(self, token_id):
+        if not token_id:
+            token = None
+        else:
+            token = db_api.token_get(token_id)
+        if not token:
+            user = None
+        else:
+            user = db_api.user_get(token.user_id)
+        return (token, user)
+
     def __validate_token(self, token_id, admin=True):
         if not token_id:
             raise fault.UnauthorizedFault("Missing token")
-        token = db_api.token_get(token_id)
+        auth_data = self.__get_auth_data(token_id)
+        token = auth_data[0]
+        user  = auth_data[1]
+
         if not token:
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
         if token.expires < datetime.now():
             raise fault.UnauthorizedFault("Token expired, please renew")
-        user = db_api.user_get(token.user_id)
         if not user.enabled:
             raise fault.UserDisabledFault("The user "+user.id+" has been disabled!")
         if admin:
             for ug in user.groups:
                 if ug.group_id == "Admin":
-                    return True
+                    return auth_data
             raise fault.ForbiddenFault("You are not authorized to make this call")
-        return True
+        return auth_data
 
