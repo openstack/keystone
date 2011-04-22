@@ -19,20 +19,20 @@ from setuptools import setup, find_packages
 version = '1.0'
 
 setup(
-    name = 'keystone',
-    version = version,
-    description = "",
-    license = 'Apache License (2.0)',
-    classifiers = ["Programming Language :: Python", ],
-    keywords = '',
-    author = 'OpenStack, LLC.',
-    author_email = 'openstack@lists.launchpad.net',
-    url = 'http://www.openstack.org',
-    include_package_data = True,
-    packages = find_packages(exclude=['test', 'bin']),
-    zip_safe = False,
-    install_requires = ['setuptools', ],
-    entry_points = {
+    name='keystone',
+    version=version,
+    description='',
+    license='Apache License (2.0)',
+    classifiers=["Programming Language :: Python", ],
+    keywords='',
+    author='OpenStack, LLC.',
+    author_email='openstack@lists.launchpad.net',
+    url='http://www.openstack.org',
+    include_package_data=True,
+    packages=find_packages(exclude=['test', 'bin']),
+    zip_safe=False,
+    install_requires=['setuptools', ],
+    entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
             'papiauth=keystone.middleware.papiauth:filter_factory',
