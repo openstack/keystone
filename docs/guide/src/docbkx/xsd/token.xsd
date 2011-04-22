@@ -42,7 +42,7 @@
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <attribute name="expires" type="xsd:dateTime" use="required"/>
-        <attribute name="id" type="xsd:ID" use="required"/>
+        <attribute name="id" type="xsd:string" use="required"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
