@@ -56,7 +56,7 @@ class IDMService(object):
             gs.append (auth.Group (dgroup.id, dgroup.tenant_id))
         groups = auth.Groups(gs,[])
 
-        user = auth.User("joeuser","19928", groups)
+        user = auth.User(duser.id,duser.tenants[0].tenant_id, groups)
         return auth.AuthData(token, user)
 
     def revoke_token(self, admin_token, token_id):
