@@ -103,7 +103,7 @@ class Tenant(object):
         tenant = {}
         tenant["id"] = self.__tenant_id
         tenant["description"] = self.__description
-        tenant["enabled"] = s.lower(self.__enabled.__str__())
+        tenant["enabled"] = self.__enabled
         ret = {}
         ret["tenant"] = tenant
         return ret
