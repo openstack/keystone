@@ -253,6 +253,9 @@
         <response status="400">
             <representation mediaType="application/xml" element="idm:badRequest"/>
         </response>
+        <response status="409">
+            <representation mediaType="application/xml" element="idm:tenantConflict"/>
+        </response>
         <response status="500">
             <representation mediaType="application/xml" element="idm:idmFault"/>
         </response>
