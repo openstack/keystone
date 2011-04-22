@@ -31,8 +31,8 @@ def main():
 		con = sqlite3.connect(dbpath)
 		cur = con.cursor()
 		cur.execute(
-					"select u.* from users u inner join user-tenants ut on 
-					u.username = ut.user_id where ut.tenant_id = '%s' " % (tenant_id)
+					"""select u.* from users u inner join user-tenants ut on
+					u.username = ut.user_id where ut.tenant_id = '%s' """ % (tenant_id)
 					)
 		con.commit()
 		print cur.fetchall()

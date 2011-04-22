@@ -24,7 +24,7 @@ setup(
 	description = "",
 	license = 'Apache License (2.0)',
 	classifiers = [ "Programming Language :: Python", ],
-	keywords = '',
+	keywords = 'identity auth authentication openstack',
 	author = 'OpenStack, LLC.',
 	author_email = 'openstack@lists.launchpad.net',
 	url = 'http://www.openstack.org',
