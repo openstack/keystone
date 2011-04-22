@@ -79,7 +79,15 @@ class IDMService(object):
         return self.__get_auth_data(dtoken, duser)
 
     def revoke_token(self, admin_token, token_id):
-        True
+        self.__validate_token(admin_token)
+
+        dtoken = db_api.token_get(token_id)
+        if not dtoken:
+            raise fault.ItemNotFoundFault("Token not found")
+
+        db_api.token_delete(token_id)
+
+        return None
 
     #
     #   Tenant Operations

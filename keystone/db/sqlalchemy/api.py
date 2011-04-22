@@ -84,6 +84,13 @@ def token_get(id, session=None):
 	result = session.query(models.Token).filter_by(token_id=id).first()
 	return result
 
+def token_delete(id, session=None):
+        if not session:
+                session = get_session()
+        with session.begin():
+                token_ref = token_get(id, session)
+                session.delete(token_ref)
+
 def token_for_user(user_id, session=None):
         if not session:
                 session = get_session()

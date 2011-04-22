@@ -52,12 +52,16 @@ def is_xml_response():
     return request.header["Accept"] == "application/xml"
 
 def send_result(result, code=500):
-    if is_xml_response():
-        ret = result.to_xml()
-        response.content_type = "application/xml"
+    if result != None:
+        if is_xml_response():
+            ret = result.to_xml()
+            response.content_type = "application/xml"
+        else:
+            ret = result.to_json()
+            response.content_type = "application/json"
     else:
-        ret = result.to_json()
-        response.content_type = "application/json"
+        ret = None
+        response.content_type = None
     response.status = code
     if code > 399:
         return abort (code, ret)
@@ -72,6 +76,12 @@ def get_request(c):
     else:
         raise fault.IDMFault("I don't understand the content type ",code=415)
     return ret
+
+def get_auth_token():
+    auth_token = None
+    if "X-Auth-Token" in request.header:
+        auth_token = request.header["X-Auth-Token"]
+    return auth_token
 
 def send_error(error):
     if isinstance(error, fault.IDMFault):
@@ -93,15 +103,15 @@ def validate_token(token_id):
         belongs_to = None
         if "belongsTo" in request.GET:
             belongs_to = request.GET["belongsTo"]
-            auth_token = None
-        if "X-Auth-Token" in request.header:
-            auth_token = request.header["X-Auth-Token"]
-        return send_result (service.validate_token(auth_token, token_id, belongs_to), 200)
+        return send_result (service.validate_token(get_auth_token(), token_id, belongs_to), 200)
     except Exception as e:
         return send_error (e)
 
 @route('/v1.0/token/:token_id', method='DELETE')
 def delete_token(token_id):
-    return "Deleting "+token_id
+    try:
+        return send_result (service.revoke_token(get_auth_token(), token_id), 204)
+    except Exception as e:
+        return send_error (e)
 
 run(host='localhost', port=8080)
