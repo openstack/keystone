@@ -25,7 +25,7 @@ from bottle import error
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
-import keystone.logic.types.tenant as tenant
+import keystone.logic.types.tenant as tenants
 import keystone.logic.types.fault as fault
 
 bottle.debug(True)
@@ -111,6 +111,14 @@ def validate_token(token_id):
 def delete_token(token_id):
     try:
         return send_result (service.revoke_token(get_auth_token(), token_id), 204)
+    except Exception as e:
+        return send_error (e)
+
+@route('/v1.0/tenants', method='POST')
+def create_tenant():
+    try:
+        tenant = get_request(tenants.Tenant)
+        return send_result (service.create_tenant(get_auth_token(), tenant), 201)
     except Exception as e:
         return send_error (e)
 

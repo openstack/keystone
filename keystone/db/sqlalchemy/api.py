@@ -30,8 +30,6 @@ def tenant_get(id, session=None):
 	if not session:
 		session = get_session()
 	result = session.query(models.Tenant).filter_by(id=id).first()
-	if not result:
-		raise
 	return result
 
 def tenant_get_all(session=None):

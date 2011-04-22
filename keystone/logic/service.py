@@ -17,7 +17,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import keystone.logic.types.auth as auth
-import keystone.logic.types.tenant as tenant
+import keystone.logic.types.tenant as tenants
 import keystone.logic.types.atom as atom
 import keystone.logic.types.fault as fault
 
@@ -93,9 +93,22 @@ class IDMService(object):
     #   Tenant Operations
     #
     def create_tenant(self, admin_token, tenant):
-        if not isinstance(tenant, tenant.Tenant):
+        self.__validate_token(admin_token)
+
+        if not isinstance(tenant, tenants.Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
-        True
+
+        if db_api.tenant_get(tenant.tenant_id) != None:
+            raise fault.TenantConflictFault("A tenant with that id already exists")
+
+        dtenant = db_models.Tenant()
+        dtenant.id = tenant.tenant_id
+        dtenant.desc = tenant.description
+        dtenant.enabled = tenant.enabled
+
+        db_api.tenant_create(dtenant)
+
+        return tenant
 
     def get_tenant(self, admin_token, tenant_id):
         True
@@ -104,7 +117,7 @@ class IDMService(object):
         True
 
     def update_tenant(self, admin_token, tenant):
-        if not isinstance(tenant, tenant.Tenant):
+        if not isinstance(tenant, tenants.Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
         True
 
