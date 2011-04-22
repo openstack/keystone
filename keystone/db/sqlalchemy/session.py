@@ -27,6 +27,9 @@ from sqlalchemy.orm import sessionmaker
 _ENGINE = None
 _MAKER = None
 
+print 'SQL', __package__
+print 'File', __file__
+
 
 def get_session(autocommit=True, expire_on_commit=False):
     """Helper method to grab session"""

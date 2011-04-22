@@ -21,10 +21,10 @@ version = '1.0'
 setup(  
 	name = 'keystone',
 	version = version,
-	description = "",
+	description = "Authentication service - proposed for OpenStack",
 	license = 'Apache License (2.0)',
 	classifiers = [ "Programming Language :: Python", ],
-	keywords = '',
+	keywords = 'identity auth authentication openstack',
 	author = 'OpenStack, LLC.',
 	author_email = 'openstack@lists.launchpad.net',
 	url = 'http://www.openstack.org',
@@ -36,7 +36,7 @@ setup(
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
             'papiauth=keystone.middleware.papiauth:filter_factory',
-			'tokenauth=keystone.auth_protocol.auth_protocol_token:filter_factory',
+            'tokenauth=keystone.auth_protocol.auth_protocol_token:filter_factory',
             ],
-		},
-	)
+        },
+    )
