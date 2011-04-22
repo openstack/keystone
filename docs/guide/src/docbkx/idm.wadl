@@ -262,7 +262,7 @@
         <response status="503">
             <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
         </response>
-        <response status="401 403 400 500 503">
+        <response status="401 403 400 409 500 503">
             <representation mediaType="application/json"/>
         </response>
     </method>
