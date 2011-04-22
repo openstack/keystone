@@ -25,6 +25,7 @@ from session import get_session
 
 Base = declarative_base()
 
+
 class KeystoneBase(object):
     """Base class for Keystone Models."""
 
@@ -36,7 +37,7 @@ class KeystoneBase(object):
         try:
             session.flush()
         except IntegrityError:
-			raise
+            raise
 
     def delete(self, session=None):
         """Delete this object."""
@@ -76,61 +77,59 @@ class KeystoneBase(object):
 
 
 class UserTenantAssociation(Base, KeystoneBase):
-	__tablename__ = 'user_tenant_association'
+    __tablename__ = 'user_tenant_association'
 
-	user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
-	tenant_id = Column(String(255), ForeignKey('tenants.id'), primary_key=True)
+    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
+    tenant_id = Column(String(255), ForeignKey('tenants.id'), primary_key=True)
 
 
 class UserGroupAssociation(Base, KeystoneBase):
-	__tablename__ = 'user_group_association'
+    __tablename__ = 'user_group_association'
 
-	user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
-	group_id = Column(String(255), ForeignKey('groups.id'), primary_key=True)
+    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
+    group_id = Column(String(255), ForeignKey('groups.id'), primary_key=True)
 
 
 class User(Base, KeystoneBase):
-	__tablename__ = 'users'
+    __tablename__ = 'users'
 
-	id = Column(String(255), primary_key=True, unique=True)
-	password = Column(String(255))
-	email = Column(String(255))
-	enabled = Column(Integer)
-	groups = relationship(UserGroupAssociation, backref='users')
-	tenants = relationship(UserTenantAssociation, backref='user')
+    id = Column(String(255), primary_key=True, unique=True)
+    password = Column(String(255))
+    email = Column(String(255))
+    enabled = Column(Integer)
+    groups = relationship(UserGroupAssociation, backref='users')
+    tenants = relationship(UserTenantAssociation, backref='user')
 
 
 class Tenant(Base, KeystoneBase):
-	__tablename__ = 'tenants'
+    __tablename__ = 'tenants'
 
-	id = Column(String(255), primary_key=True, unique=True)
-	desc = Column(String(255))
-	enabled = Column(Integer)
-	groups = relationship('Group', backref='tenants')
+    id = Column(String(255), primary_key=True, unique=True)
+    desc = Column(String(255))
+    enabled = Column(Integer)
+    groups = relationship('Group', backref='tenants')
 
 
 class Group(Base, KeystoneBase):
-	__tablename__ = 'groups'
+    __tablename__ = 'groups'
 
-	id = Column(String(255), primary_key=True, unique=True)
-	desc = Column(String(255))
-	tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    id = Column(String(255), primary_key=True, unique=True)
+    desc = Column(String(255))
+    tenant_id = Column(String(255), ForeignKey('tenants.id'))
 
 
 class Token(Base, KeystoneBase):
-	__tablename__ = 'token'
+    __tablename__ = 'token'
 
-	token_id = Column(String(255), primary_key=True, unique=True)
-	user_id = Column(String(255))
-	tenant_id = Column(String(255))
-	expires = Column(DateTime)
+    token_id = Column(String(255), primary_key=True, unique=True)
+    user_id = Column(String(255))
+    tenant_id = Column(String(255))
+    expires = Column(DateTime)
 
 
 def register_models(session, engine):
-	models = (User, Tenant, Group, Token, UserGroupAssociation,
-		UserTenantAssociation)
-	for model in models:
-		model.metadata.create_all(engine)
-	session.flush()
-
-
+    models = (User, Tenant, Group, Token, UserGroupAssociation,
+        UserTenantAssociation)
+    for model in models:
+        model.metadata.create_all(engine)
+    session.flush()
