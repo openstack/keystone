@@ -40,6 +40,7 @@ service = serv.IDMService()
 @error(403)
 @error(404)
 @error(409)
+@error(415)
 @error(500)
 @error(503)
 def error_handler(err):
@@ -62,6 +63,16 @@ def send_result(result, code=500):
         return abort (code, ret)
     return ret
 
+def get_request(c):
+    ctype = request.environ.get("CONTENT_TYPE")
+    if ctype == "application/xml":
+        ret = c.from_xml(request.body.read())
+    elif ctype == "application/json":
+        ret = c.from_json(request.body.read())
+    else:
+        raise fault.IDMFault("I don't understand the content type ",code=415)
+    return ret
+
 def send_error(error):
     if isinstance(error, fault.IDMFault):
         send_result (error, error.code)
@@ -70,7 +81,11 @@ def send_error(error):
 
 @route('/v1.0/token', method='POST')
 def authenticate():
-    return "Authenticate"
+    try:
+        creds = get_request (auth.PasswordCredentials)
+        return send_result (service.authenticate(creds), 200)
+    except Exception as e:
+        return send_error (e)
 
 @route('/v1.0/token/:token_id', method='GET')
 def validate_token(token_id):

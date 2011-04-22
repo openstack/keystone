@@ -76,10 +76,16 @@ def token_create(values):
 	token_ref = models.Token()
 	token_ref.update(values)
 	token_ref.save()
-	return user_ref
+	return token_ref
 
 def token_get(id, session=None):
 	if not session:
 		session = get_session()
 	result = session.query(models.Token).filter_by(token_id=id).first()
 	return result
+
+def token_for_user(user_id, session=None):
+        if not session:
+                session = get_session()
+        result = session.query(models.Token).filter_by(user_id=user_id).order_by("expires desc").first()
+        return result
