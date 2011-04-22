@@ -34,7 +34,7 @@ class IDMService(object):
         True
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
-        self.__validate_admin_token(admin_token)
+        self.__validate_token(admin_token)
         group1 = auth.Group("Admin","19928")
         group2 = auth.Group("Other","28882")
         gs = [group1, group2]
@@ -71,10 +71,10 @@ class IDMService(object):
     #
     # Private Operations
     #
-    def __validate_admin_token(self, admin_token):
-        if not admin_token:
-            raise fault.UnauthorizedFault("Missing admin token")
-        token = db_api.token_get(admin_token)
+    def __validate_token(self, token_id, admin=True):
+        if not token_id:
+            raise fault.UnauthorizedFault("Missing token")
+        token = db_api.token_get(token_id)
         if not token:
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
         if token.expires < datetime.now():
@@ -82,8 +82,10 @@ class IDMService(object):
         user = db_api.user_get(token.user_id)
         if not user.enabled:
             raise fault.UserDisabledFault("The user "+user.id+" has been disabled!")
-        for ug in user.groups:
-            if ug.group_id == "Admin":
-                return True
-        raise fault.ForbiddenFault("You are not authorized to make this call")
+        if admin:
+            for ug in user.groups:
+                if ug.group_id == "Admin":
+                    return True
+            raise fault.ForbiddenFault("You are not authorized to make this call")
+        return True
 
