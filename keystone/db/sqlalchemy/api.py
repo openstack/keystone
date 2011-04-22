@@ -68,7 +68,5 @@ def token_create(values):
 def token_get(id, session=None):
 	if not session:
 		session = get_session()
-	result = session.query(models.Token).filter_by(id=id).first()
-	if not result:
-		raise
+	result = session.query(models.Token).filter_by(token_id=id).first()
 	return result

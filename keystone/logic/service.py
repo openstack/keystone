@@ -18,6 +18,7 @@ import keystone.logic.types.tenant as tenant
 import keystone.logic.types.atom as atom
 import keystone.logic.types.fault as fault
 
+import keystone.db.sqlalchemy.api as db_api
 
 class IDMService(object):
     "This is the logical implemenation of the IDM service"
@@ -71,5 +72,7 @@ class IDMService(object):
     def __validate_admin_token(self, admin_token):
         if not admin_token:
             raise fault.UnauthorizedFault("Missing admin token")
-        True
+        token = db_api.token_get(admin_token)
+        if not token:
+            raise fault.UnauthorizedFault("Bad token, please reauthenticate")
 
