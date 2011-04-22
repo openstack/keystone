@@ -21,6 +21,7 @@ from bottle import run
 from bottle import request
 from bottle import response
 from bottle import abort
+from bottle import error
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
@@ -30,6 +31,19 @@ import keystone.logic.types.fault as fault
 bottle.debug(True)
 
 service = serv.IDMService()
+
+##
+## Override error pages
+##
+@error(400)
+@error(401)
+@error(403)
+@error(404)
+@error(409)
+@error(500)
+@error(503)
+def error_handler(err):
+    return err.output
 
 def is_xml_response():
     if not "Accept" in request.header:
@@ -44,6 +58,8 @@ def send_result(result, code=500):
         ret = result.to_json()
         response.content_type = "application/json"
     response.status = code
+    if code > 399:
+        return abort (code, ret)
     return ret
 
 def send_error(error):
@@ -65,7 +81,7 @@ def validate_token(token_id):
             auth_token = None
         if "X-Auth-Token" in request.header:
             auth_token = request.header["X-Auth-Token"]
-        return send_result (service.validate_token(auth_token, token_id, belongs_to))
+        return send_result (service.validate_token(auth_token, token_id, belongs_to), 200)
     except Exception as e:
         return send_error (e)
 
