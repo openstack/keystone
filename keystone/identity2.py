@@ -19,6 +19,38 @@ import bottle
 from bottle import route
 from bottle import run
 from bottle import request
+from bottle import response
+from bottle import abort
+
+import keystone.logic.service as serv
+import keystone.logic.types.auth as auth
+import keystone.logic.types.tenant as tenant
+import keystone.logic.types.fault as fault
+
+bottle.debug(True)
+
+service = serv.IDMService()
+
+def is_xml_response():
+    if not "Accept" in request.header:
+        return False
+    return request.header["Accept"] == "application/xml"
+
+def send_result(result, code=500):
+    if is_xml_response():
+        ret = result.to_xml()
+        response.content_type = "application/xml"
+    else:
+        ret = result.to_json()
+        response.content_type = "application/json"
+    response.status = code
+    return ret
+
+def send_error(error):
+    if isinstance(error, fault.IDMFault):
+        send_result (error, error.code)
+    else:
+        send_result (fault.IDMFault("Unhandled error", error.__str__()))
 
 @route('/v1.0/token', method='POST')
 def authenticate():
@@ -26,7 +58,16 @@ def authenticate():
 
 @route('/v1.0/token/:token_id', method='GET')
 def validate_token(token_id):
-    return "Good token "+token_id+" is good!"
+    try:
+        belongs_to = None
+        if "belongsTo" in request.GET:
+            belongs_to = request.GET["belongsTo"]
+            auth_token = None
+        if "X-Auth-Token" in request.header:
+            auth_token = request.header["X-Auth-Token"]
+        return send_result (service.validate_token(auth_token, token_id, belongs_to))
+    except Exception as e:
+        return send_error (e)
 
 @route('/v1.0/token/:token_id', method='DELETE')
 def delete_token(token_id):

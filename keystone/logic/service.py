@@ -17,7 +17,6 @@ import keystone.logic.types.auth as auth
 import keystone.logic.types.tenant as tenant
 import keystone.logic.types.atom as atom
 import keystone.logic.types.fault as fault
-import keystone.db.sqlalchemy.api as db_api
 
 
 class IDMService(object):
@@ -32,7 +31,14 @@ class IDMService(object):
         True
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
-        True
+        self.__validate_admin_token(admin_token)
+        group1 = auth.Group("Admin","19928")
+        group2 = auth.Group("Other","28882")
+        gs = [group1, group2]
+        groups = auth.Groups(gs,[])
+        user = auth.User("joeuser","19928", groups)
+        token = auth.Token ("2010-11-01T03:32:15-05:00", "388376625525637773")
+        return auth.AuthData(token, user)
 
     def revoke_token(self, admin_token, token_id):
         True
@@ -46,8 +52,7 @@ class IDMService(object):
         True
 
     def get_tenant(self, admin_token, tenant_id):
-		#TODO: Validate the admin_token
-		return db_api.tenant_get(tenant_id)
+        True
 
     def get_tenants(self, admin_token, marker, limit):
         True
@@ -65,6 +70,6 @@ class IDMService(object):
     #
     def __validate_admin_token(self, admin_token):
         if not admin_token:
-            raise fault.ForbiddenFault("You are not authorized this operation")
+            raise fault.UnauthorizedFault("Missing admin token")
         True
 
