@@ -96,7 +96,7 @@ class User(Base, KeystoneBase):
 	password = Column(String(255))
 	email = Column(String(255))
 	enabled = Column(Integer)
-	groups = relationship(UserTenantAssociation, backref='users')
+	groups = relationship(UserGroupAssociation, backref='users')
 	tenants = relationship(UserTenantAssociation, backref='user')
 
 

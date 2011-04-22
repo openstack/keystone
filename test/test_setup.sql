@@ -60,3 +60,9 @@ insert into token values
 insert into token values
        ("999888777666", "admin", "1234", datetime("2015-02-05T00:00"));
 
+insert into token values
+       ("000999", "admin", "1234", datetime("2010-02-05T00:00"));
+
+insert into token values
+       ("999888777", "disabled", "1234", datetime("2015-02-05T00:00"));
+

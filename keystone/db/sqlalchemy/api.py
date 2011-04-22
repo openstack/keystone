@@ -17,6 +17,7 @@
 
 
 from session import get_session
+from sqlalchemy.orm import joinedload
 import models
 
 def tenant_create(values):
@@ -58,6 +59,12 @@ def user_create(values):
 	user_ref.update(values)
 	user_ref.save()
 	return user_ref
+
+def user_get(id, session=None):
+        if not session:
+                session = get_session()
+        result = session.query(models.User).options(joinedload('groups')).options(joinedload('tenants')).filter_by(id=id).first()
+        return result
 
 def token_create(values):
 	token_ref = models.Token()

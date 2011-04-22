@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
+
 import keystone.logic.types.auth as auth
 import keystone.logic.types.tenant as tenant
 import keystone.logic.types.atom as atom
@@ -75,4 +77,13 @@ class IDMService(object):
         token = db_api.token_get(admin_token)
         if not token:
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
+        if token.expires < datetime.now():
+            raise fault.UnauthorizedFault("Token expired, please renew")
+        user = db_api.user_get(token.user_id)
+        if not user.enabled:
+            raise fault.UserDisabledFault("The user "+user.id+" has been disabled!")
+        for ug in user.groups:
+            if ug.group_id == "Admin":
+                return True
+        raise fault.ForbiddenFault("You are not authorized to make this call")
 
