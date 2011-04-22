@@ -1,45 +1,44 @@
-Description
+DESCRIPTION
+Keystone is a proposed independent authentication service for OpenStack (www.openstack.org).
+This initial proof of concept aims to address the current use cases in Swift and Nova which are:
+- ReST-based, token auth for Swift
+- many-to-many relationship between identity and tenant for Nova.
 
 
-Dependencies:
-* Install SQLite3
+SERVICES
+Keystone - authentication service
+PAPIAuth - WSGI middleware that can be used in services (like Swift, Nova, and Glance) to perform authentication
+Echo     - A sample service that responds by returning call details
 
-Setup:
+
+DEPENDENCIES:
+* SQLite3
+* Paste
+* PasteDeploy
+* PasteScript
+* simplejson
+* eventlet
+* webob
+
+
+SETUP:
 Install http://pypi.python.org/pypi/setuptools
-sudo easy_install Paste
-sudo easy_install PasteDeploy
-sudo easy_install PasteScript
-sudo easy_install simplejson
-sudo easy_install eventlet
-sudo easy_install webob
+sudo easy_install [all the above dependencies]
 
 
-Tables:
-CREATE TABLE groups(group_id varchar(255),group_desc varchar(255),tenant_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id));
-CREATE TABLE tenants(tenant_id varchar(255), tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
-CREATE TABLE token(token_id varchar(255),user_id varchar(255),expires datetime,tenant_id varchar(255));
-CREATE TABLE user_group(user_id varchar(255),group_id varchar(255), FOREIGN KEY(user_id) REFERENCES user(id), FOREIGN KEY(group_id) REFERENCES groups(group_id));
-CREATE TABLE user_tenant(tenant_id varchar(255),user_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id),FOREIGN KEY(user_id) REFERENCES user(id));
-CREATE TABLE users(id varchar(255),password varchar(255),email varchar(255),enabled integer);
-
-
-
-Run:
+RUNNING:
 >> for keystone
 python setup.py build
 sudo python setup.py install
 python identity.py
 
->> for echo
+>> for the test echo
 python setup.py build
 sudo python setup.py install
 python echo.py
 
 
-Issues:
-
-
-Demo:
+Demo - curl commands:
 Start server as per run instructions above.
 
 Add Tenant:
@@ -78,15 +77,14 @@ curl -i -X POST -H "Content-Type: application/json" -d '{"group": { "id": "admin
 Get tenant groups:
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenant/:tenantId/groups
 
-GET TENANT GROUP:
+Get Tenant Groups:
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenant/:tenantId/groups/:groupId
 
-GET GROUP USERS:
+Get Group Users:
 v1.0/tenants/groups/:groupId/users', method='GET'
 curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenants/groups/:groupId/users
 
-ADD USER TO TENANT  group:
-
+Add User Tenant Group:
 curl -i -X PUT -H "Content-Type: application/json" -d '{"username": "john" }' http://localhost:8080/tenants/123456/groups/user/users
 
 DELETE USER FROM  TENANT GROUP:
@@ -103,6 +101,10 @@ python echo.py
 
  Validate Token:
  curl -i -X GET -H "Content-Type: application/json" -H "X-Auth-Token: fad94013a5b3b836dbc18" -d '{"test": "something"}' http://127.0.0.1:8090/
+
+
+TESTING
+Testing is kinda manual right now...run test_setup.sql to setup the database, then run the soap ui test...run kill.sql before you run test_setup.sql again
 
 
 Using SOAPUI:
@@ -123,3 +125,14 @@ To Test Echo Service:
    File->New soapUI Project:
    ProjectName: Echo
    Initial WSL/WADL: echo/echo.wadl
+
+ISSUES
+
+
+DATABASE SCHEMA
+CREATE TABLE groups(group_id varchar(255),group_desc varchar(255),tenant_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id));
+CREATE TABLE tenants(tenant_id varchar(255), tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
+CREATE TABLE token(token_id varchar(255),user_id varchar(255),expires datetime,tenant_id varchar(255));
+CREATE TABLE user_group(user_id varchar(255),group_id varchar(255), FOREIGN KEY(user_id) REFERENCES user(id), FOREIGN KEY(group_id) REFERENCES groups(group_id));
+CREATE TABLE user_tenant(tenant_id varchar(255),user_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id),FOREIGN KEY(user_id) REFERENCES user(id));
+CREATE TABLE users(id varchar(255),password varchar(255),email varchar(255),enabled integer);
