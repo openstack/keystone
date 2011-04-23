@@ -25,7 +25,10 @@ class Tenant(object):
     def __init__(self, tenant_id, description, enabled):
         self.__tenant_id = tenant_id
         self.__description = description
-        self.__enabled = enabled
+        if enabled:
+            self.__enabled = True
+        else:
+            self.__enabled = False
 
     @staticmethod
     def from_xml(xml_str):
@@ -141,5 +144,5 @@ class Tenants(object):
         v = {}
         v["values"] = values
         ret = {}
-        ret["tenants"] = values
+        ret["tenants"] = v
         return json.dumps(ret)

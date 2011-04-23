@@ -110,10 +110,17 @@ class IDMService(object):
 
         return tenant
 
-    def get_tenant(self, admin_token, tenant_id):
-        True
-
     def get_tenants(self, admin_token, marker, limit):
+        self.__validate_token(admin_token)
+
+        ts = []
+        dtenants = db_api.tenant_get_all()
+        for dtenant in dtenants:
+            ts.append (tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled))
+
+        return tenants.Tenants(ts,[])
+
+    def get_tenant(self, admin_token, tenant_id):
         True
 
     def update_tenant(self, admin_token, tenant):

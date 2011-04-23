@@ -122,4 +122,17 @@ def create_tenant():
     except Exception as e:
         return send_error (e)
 
+@route('/v1.0/tenants', method='GET')
+def get_tenants():
+    try:
+        marker = None
+        if "marker" in request.GET:
+            marker = request.GET["marker"]
+        limit = None
+        if "limit" in request.GET:
+            limit = request.GET["limit"]
+        return send_result(service.get_tenants(get_auth_token(), marker, limit), 200)
+    except Exception as e:
+        return send_error (e)
+
 run(host='localhost', port=8080)
