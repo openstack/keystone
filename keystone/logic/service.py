@@ -141,6 +141,9 @@ class IDMService(object):
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
 
+        if not db_api.tenant_is_empty(tenant_id):
+            raise fault.ForbiddenFault("You may not delete a tenant that contains users or groups")
+
         db_api.tenant_delete(dtenant.id)
         return None
 

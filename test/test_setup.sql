@@ -29,6 +29,9 @@ insert into groups (id, "desc", tenant_id) values
 insert into groups (id, "desc", tenant_id) values
        ("Default", "Standard users", "1234");
 
+insert into groups (id, "desc", tenant_id) values
+       ("Empty", "Group on disabled tenant", "0000");
+
 
 -- User Group Associations
 
