@@ -60,7 +60,7 @@
     </copyright>
     <releaseinfo>API v1.0</releaseinfo>
     <productname>Cloud Identity</productname>
-    <pubdate>2011-04-14</pubdate>
+    <pubdate>2011-04-23</pubdate>
     <legalnotice role="apache2">
         <annotation>
             <remark>Copyright details are filled in by the template.</remark>
@@ -800,6 +800,13 @@ Host: idm.api.openstack.org/v1.1/
             idmFault(<returnvalue>500</returnvalue>),
             serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
         &NO_REQUEST;
+        <para>
+            Valid tokens will exist in the
+            /token/<parameter>tokenId</parameter> path and invalid
+            tokens will not.  In other words, a user should expect an
+            itemNotFound (<errorcode>404</errorcode>) fault for an
+            invalid token.
+        </para>
         <example>
           <title>XML Validate Token Response</title>
           <programlisting language="xml">
