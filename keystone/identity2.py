@@ -116,6 +116,16 @@ def get_version_info():
     except Exception as e:
         return send_error (e)
 
+##
+## Serve version links:
+##
+@route('/v1.0/idmdevguide.pdf', method='GET')
+def get_pdf_contract():
+    try:
+        return static_file ("content/idmdevguide.pdf",root=get_app_root(), mimetype="application/pdf")
+    except Exception as e:
+        return send_error (e)
+
 @route('/v1.0/token', method='POST')
 def authenticate():
     try:
