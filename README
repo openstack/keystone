@@ -16,6 +16,7 @@ DEPENDENCIES:
 * Paste
 * PasteDeploy
 * PasteScript
+* bottle
 * simplejson
 * eventlet
 * webob
@@ -24,7 +25,6 @@ DEPENDENCIES:
 SETUP:
 Install http://pypi.python.org/pypi/setuptools
 sudo easy_install [all the above dependencies]
-
 
 RUNNING:
 >> for keystone
@@ -37,97 +37,21 @@ python setup.py build
 sudo python setup.py install
 python echo.py
 
-
-Demo - curl commands:
-Start server as per run instructions above.
-
-Add Tenant:
-curl -i -X POST -H "Content-Type: application/json" -d '{"tenant": { "id": "123456", "description": "A description ...", "enabled": true } }' http://localhost:8080/tenants
-
-Get token:
-curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/tokens
-curl -i -X POST -H "Content-Type: application/json" -d '{"username":"jack", "password": "secret","tenant_id":"1" }'http://localhost:8080/tokens
-
-Add User:(Test Function)
-curl -i -X POST -H "Content-Type: application/json" -d '{"username": "john", "password": "secret" }' http://localhost:8080/users
-
-
-Validate good token:
-curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvwxy
-
-Validate bad token:
-curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/token/abcdefghijklmnopqrstuvbad
-
-
-Update Tenant
- curl -i -X PUT -H "Content-Type: application/json" -d '{"tenant": { "description": "A new description update ..." } }' http://localhost:8080/tenants/1234
-
-Get Tenant
- curl -i -X GET -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants/1234
-
-Get Tenants
- curl -i -X GET -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants
-
-
-Delete Tenant
- curl -i -X DELETE -H "Content-Type: application/json" -d '{}' http://localhost:8080/tenants/1234
-
-Create Tenant group:
-curl -i -X POST -H "Content-Type: application/json" -d '{"group": { "id": "admin","description":"Administrator" } }' http://localhost:8080/v1.0/tenant/1/groups
-Get tenant groups:
-curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenant/:tenantId/groups
-
-Get Tenant Groups:
-curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenant/:tenantId/groups/:groupId
-
-Get Group Users:
-v1.0/tenants/groups/:groupId/users', method='GET'
-curl -i -X GET -H "Content-Type: application/json"  http://localhost:8080/v1.0/tenants/groups/:groupId/users
-
-Add User Tenant Group:
-curl -i -X PUT -H "Content-Type: application/json" -d '{"username": "john" }' http://localhost:8080/tenants/123456/groups/user/users
-
-DELETE USER FROM  TENANT GROUP:
-curl -i -X DELETE -H "Content-Type: application/json" -d '{"username": "john" }' http://localhost:8080/tenants/123456/groups/user/users
-
-
-Create a user:
- curl -i -X POST -H "Content-Type: application/json" -d '{"user": {"username": "jacky", "password": "secret","email":"jacky@example.com","enabled": true } }' http://localhost:8080/tenants/111/users
-
-
-Echo:
-Start server with PAPI-Auth Middleware:
-python echo.py
-
- Validate Token:
- curl -i -X GET -H "Content-Type: application/json" -H "X-Auth-Token: fad94013a5b3b836dbc18" -d '{"test": "something"}' http://127.0.0.1:8090/
-
-
 TESTING
-Testing is kinda manual right now...run test_setup.sql to setup the database, then run the soap ui test...run kill.sql before you run test_setup.sql again
+Testing is kinda manual right now...and based on SOAP UI.  After
+starting identity.py a keystone.db sql-lite database should be created
+run test_setup.sql to setup the database, then run the soap ui test,
 
+You'll need to run kill.sql to tear down the tests and test_setup.sql
+to restart :-)
 
 Using SOAPUI:
 
 Download SOAPUI: http://sourceforge.net/projects/soapui/files/
 To Test Identity Service:
-   File->New soapUI Project:
-   ProjectName: KeyStone
-   Initial WSDL/WADL: keystone/identity.wadl
-   [OK]
-
-   Select Request, set parameters, select "Accept"
-   SOAP UI works best with XML, it will fill in most parameters for
-   in that case.  For JSON, SOAPUI will still help you fill in
-   parameters and headers, but that's it.
-
-To Test Echo Service:
-   File->New soapUI Project:
-   ProjectName: Echo
-   Initial WSL/WADL: echo/echo.wadl
-
-ISSUES
-
+   File->Import Project:
+   Select tests/IdentitySOAPUI.xml
+   Double click on "Keystone Tests" and press the green play (>) button.
 
 DATABASE SCHEMA
 CREATE TABLE groups(group_id varchar(255),group_desc varchar(255),tenant_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id));
