@@ -22,11 +22,14 @@ from bottle import request
 from bottle import response
 from bottle import abort
 from bottle import error
+from bottle import static_file
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.fault as fault
+
+from os import path
 
 bottle.debug(True)
 
@@ -50,6 +53,9 @@ def is_xml_response():
     if not "Accept" in request.header:
         return False
     return request.header["Accept"] == "application/xml"
+
+def get_app_root():
+    return path.abspath(path.dirname(__file__))
 
 def send_result(result, code=500):
     if result != None:
@@ -154,6 +160,29 @@ def update_tenant(tenant_id):
 def delete_tenant(tenant_id):
     try:
         return send_result(service.delete_tenant(get_auth_token(), tenant_id), 204)
+    except Exception as e:
+        return send_error (e)
+
+@route('/v1.0/extensions', method='GET')
+def get_extensions():
+    try:
+        if is_xml_response():
+            resp_file = "content/extensions.xml"
+            mimetype  = "application/xml"
+        else:
+            resp_file = "content/extensions.json"
+            mimetype = "application/json"
+        return static_file (resp_file,root=get_app_root(), mimetype=mimetype)
+    except Exception as e:
+        return send_error (e)
+
+@route('/v1.0/extensions/:ext_alias', method='GET')
+def get_extension(ext_alias):
+    try:
+        #
+        # Todo: Define some extensions :-)
+        #
+        raise fault.ItemNotFoundFault("The extension is not found")
     except Exception as e:
         return send_error (e)
 
