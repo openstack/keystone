@@ -117,7 +117,7 @@ def get_version_info():
         return send_error (e)
 
 ##
-## Serve version links:
+## Version links:
 ##
 @route('/v1.0/idmdevguide.pdf', method='GET')
 def get_pdf_contract():
@@ -125,6 +125,10 @@ def get_pdf_contract():
         return static_file ("content/idmdevguide.pdf",root=get_app_root(), mimetype="application/pdf")
     except Exception as e:
         return send_error (e)
+
+##
+##  Token Operations
+##
 
 @route('/v1.0/token', method='POST')
 def authenticate():
@@ -150,6 +154,10 @@ def delete_token(token_id):
         return send_result (service.revoke_token(get_auth_token(), token_id), 204)
     except Exception as e:
         return send_error (e)
+
+##
+##  Tenant Operations
+##
 
 @route('/v1.0/tenants', method='POST')
 def create_tenant():
@@ -193,6 +201,10 @@ def delete_tenant(tenant_id):
         return send_result(service.delete_tenant(get_auth_token(), tenant_id), 204)
     except Exception as e:
         return send_error (e)
+
+##
+##  Extensions
+##
 
 @route('/v1.0/extensions', method='GET')
 def get_extensions():
