@@ -126,6 +126,27 @@ def get_pdf_contract():
     except Exception as e:
         return send_error (e)
 
+@route('/v1.0/identity.wadl', method='GET')
+def get_wadl_contract():
+    try:
+        return static_file ("identity.wadl",root=get_app_root(), mimetype="application/vnd.sun.wadl+xml")
+    except Exception as e:
+        return send_error (e)
+
+@route('/v1.0/xsd/:xsd', method='GET')
+def get_xsd_contract(xsd):
+    try:
+        return static_file ("/xsd/"+xsd,root=get_app_root(), mimetype="application/xml")
+    except Exception as e:
+        return send_error (e)
+
+@route('/v1.0/xsd/atom/:xsd', method='GET')
+def get_xsd_atom_contract(xsd):
+    try:
+        return static_file ("/xsd/atom/"+xsd,root=get_app_root(), mimetype="application/xml")
+    except Exception as e:
+        return send_error (e)
+
 ##
 ##  Token Operations
 ##
