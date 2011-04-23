@@ -142,6 +142,14 @@ def get_tenant(tenant_id):
     except Exception as e:
         return send_error (e)
 
+@route('/v1.0/tenants/:tenant_id', method='PUT')
+def update_tenant(tenant_id):
+    try:
+        tenant = get_request(tenants.Tenant)
+        return send_result(service.update_tenant(get_auth_token(), tenant_id, tenant), 200)
+    except Exception as e:
+        return send_error(e)
+
 @route('/v1.0/tenants/:tenant_id', method='DELETE')
 def delete_tenant(tenant_id):
     try:

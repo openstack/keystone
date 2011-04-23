@@ -52,7 +52,7 @@ def tenant_update(id, values, session=None):
 	if not session:
 		session = get_session()
 	with session.begin():
-		tenant_ref = tenant_get(id)
+		tenant_ref = tenant_get(id, session)
 		tenant_ref.update(values)
 		tenant_ref.save(session=session)
 	

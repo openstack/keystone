@@ -98,6 +98,9 @@ class IDMService(object):
         if not isinstance(tenant, tenants.Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
+        if tenant.tenant_id == None:
+            raise fault.BadRequestFault("Expecting a unique Tenant Id")
+
         if db_api.tenant_get(tenant.tenant_id) != None:
             raise fault.TenantConflictFault("A tenant with that id already exists")
 
@@ -129,10 +132,24 @@ class IDMService(object):
 
         return tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
 
-    def update_tenant(self, admin_token, tenant):
+    def update_tenant(self, admin_token, tenant_id, tenant):
+        self.__validate_token(admin_token)
+
         if not isinstance(tenant, tenants.Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
         True
+
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant cloud not be found")
+
+        values={}
+        values["desc"] = tenant.description
+        values["enabled"] = tenant.enabled
+
+        db_api.tenant_update(tenant_id, values)
+
+        return tenants.Tenant(dtenant.id, tenant.description, tenant.enabled)
 
     def delete_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)

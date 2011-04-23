@@ -39,8 +39,6 @@ class Tenant(object):
             if root == None:
                 raise fault.BadRequestFault("Expecting Tenant")
             tenant_id=root.get("id")
-            if tenant_id == None:
-                raise fault.BadRequestFault("Expecting a unique Tenant Id")
             enabled=root.get("enabled")
             if enabled == None or enabled == "true" or enabled == "yes":
                 set_enabled=True
@@ -63,8 +61,9 @@ class Tenant(object):
                 raise fault.BadRequestFault("Expecting tenant")
             tenant = obj["tenant"]
             if not "id" in tenant:
-                raise fault.BadRequestFault("Expecting a unique Tenant Id")
-            tenant_id = tenant["id"]
+                tenant_id = None
+            else:
+                tenant_id = tenant["id"]
             set_enabled=True
             if "enabled" in tenant:
                 set_enabled = tenant["enabled"]
@@ -93,7 +92,8 @@ class Tenant(object):
         dom = etree.Element("tenant",
                             xmlns="http://docs.openstack.org/idm/api/v1.0",
                             enabled=s.lower(self.__enabled.__str__()))
-        dom.set("id", self.__tenant_id)
+        if self.__tenant_id != None:
+            dom.set("id", self.__tenant_id)
         desc = etree.Element("description")
         desc.text = self.__description
         dom.append(desc)
@@ -104,7 +104,8 @@ class Tenant(object):
 
     def to_dict(self):
         tenant = {}
-        tenant["id"] = self.__tenant_id
+        if self.__tenant_id != None:
+            tenant["id"] = self.__tenant_id
         tenant["description"] = self.__description
         tenant["enabled"] = self.__enabled
         ret = {}
