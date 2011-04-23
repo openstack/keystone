@@ -53,6 +53,8 @@ class IDMService(object):
             dtoken=db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
+            if len(duser.tenants) == 0:
+                raise fault.IDMFault("Strange: user "+duser.id+" is not associated with a tenant!")
             dtoken.tenant_id = duser.tenants[0].tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
 
@@ -186,7 +188,8 @@ class IDMService(object):
             dgroup = db_api.group_get(ug.group_id)
             gs.append (auth.Group (dgroup.id, dgroup.tenant_id))
         groups = auth.Groups(gs,[])
-
+        if len(duser.tenants) == 0:
+            raise fault.IDMFault("Strange: user "+duser.id+" is not associated with a tenant!")
         user = auth.User(duser.id,duser.tenants[0].tenant_id, groups)
         return auth.AuthData(token, user)
 
