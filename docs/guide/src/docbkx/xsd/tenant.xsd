@@ -12,7 +12,7 @@
 >
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
-            schemaLocation="./atom/atom.xsd" />
+            schemaLocation="atom/atom.xsd" />
 
     <!-- Elements -->
     <element name="tenant" type="idm:Tenant"  />

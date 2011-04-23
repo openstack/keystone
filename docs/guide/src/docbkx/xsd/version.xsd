@@ -9,7 +9,7 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
     
     <!-- Import ATOM specific schema definitions -->
-    <xs:import namespace="http://www.w3.org/2005/Atom" schemaLocation="./atom/atom.xsd" />
+    <xs:import namespace="http://www.w3.org/2005/Atom" schemaLocation="atom/atom.xsd" />
     
     <!-- Multiple choices -->
     <xs:element name="choices" type="vers:VersionChoiceList" />
