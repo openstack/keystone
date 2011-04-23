@@ -23,6 +23,7 @@ from bottle import response
 from bottle import abort
 from bottle import error
 from bottle import static_file
+from bottle import template
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
@@ -30,6 +31,9 @@ import keystone.logic.types.tenant as tenants
 import keystone.logic.types.fault as fault
 
 from os import path
+
+VERSION_STATUS = "ALPHA"
+VERSION_DATE   = "2011-04-23T00:00:00Z"
 
 bottle.debug(True)
 
@@ -94,6 +98,23 @@ def send_error(error):
         send_result (error, error.code)
     else:
         send_result (fault.IDMFault("Unhandled error", error.__str__()))
+
+@route('/v1.0', method='GET')
+@route('/v1.0/', method='GET')
+def get_version_info():
+    try:
+        if is_xml_response():
+            resp_file = "content/version.xml"
+            response.content_type = "application/xml"
+        else:
+            resp_file = "content/version.json"
+            response.content_type = "application/json"
+
+        hostname = request.environ.get("SERVER_NAME")
+        port = request.environ.get("SERVER_PORT")
+        return template (resp_file, HOST=hostname, PORT=port, VERSION_STATUS=VERSION_STATUS, VERSION_DATE=VERSION_DATE)
+    except Exception as e:
+        return send_error (e)
 
 @route('/v1.0/token', method='POST')
 def authenticate():
