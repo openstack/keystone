@@ -46,16 +46,18 @@ class IDMFault(Exception):
         msg = etree.Element("message")
         msg.text = self.__msg
         dom.append(msg)
-        desc = etree.Element("details")
-        desc.text = self.__details
-        dom.append(desc)
+        if self.__details != None:
+            desc = etree.Element("details")
+            desc.text = self.__details
+            dom.append(desc)
         return etree.tostring(dom)
 
     def to_json(self):
         fault = {}
         fault["message"] = self.__msg
-        fault["details"] = self.__details
         fault["code"] = self.__code.__str__()
+        if self.__details != None:
+            fault["details"] = self.__details
         ret = {}
         ret[self.key] = fault
         return json.dumps(ret)
