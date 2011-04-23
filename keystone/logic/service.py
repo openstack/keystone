@@ -135,7 +135,14 @@ class IDMService(object):
         True
 
     def delete_tenant(self, admin_token, tenant_id):
-        True
+        self.__validate_token(admin_token)
+
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant cloud not be found")
+
+        db_api.tenant_delete(dtenant.id)
+        return None
 
     #
     # Private Operations

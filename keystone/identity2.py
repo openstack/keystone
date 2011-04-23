@@ -142,4 +142,11 @@ def get_tenant(tenant_id):
     except Exception as e:
         return send_error (e)
 
+@route('/v1.0/tenants/:tenant_id', method='DELETE')
+def delete_tenant(tenant_id):
+    try:
+        return send_result(service.delete_tenant(get_auth_token(), tenant_id), 204)
+    except Exception as e:
+        return send_error (e)
+
 run(host='localhost', port=8080)
