@@ -121,7 +121,13 @@ class IDMService(object):
         return tenants.Tenants(ts,[])
 
     def get_tenant(self, admin_token, tenant_id):
-        True
+        self.__validate_token(admin_token)
+
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant could not be found")
+
+        return tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
 
     def update_tenant(self, admin_token, tenant):
         if not isinstance(tenant, tenants.Tenant):

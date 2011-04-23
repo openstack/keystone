@@ -135,4 +135,11 @@ def get_tenants():
     except Exception as e:
         return send_error (e)
 
+@route('/v1.0/tenants/:tenant_id', method='GET')
+def get_tenant(tenant_id):
+    try:
+        return send_result(service.get_tenant(get_auth_token(), tenant_id), 200)
+    except Exception as e:
+        return send_error (e)
+
 run(host='localhost', port=8080)
