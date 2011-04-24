@@ -20,13 +20,15 @@ SERVICES:
 DEPENDENCIES:
 -------------
 
-* SQLite3
 * Paste
 * PasteDeploy
 * PasteScript
+* SQLAlchemy
+* SQLite3
 * bottle
-* simplejson
 * eventlet
+* lxml
+* simplejson
 * webob
 
 
@@ -35,15 +37,20 @@ SETUP:
 
 Install http://pypi.python.org/pypi/setuptools
 
+    sudo easy_install bottle
+    sudo easy_install eventlet
+    sudo easy_install lxml
     sudo easy_install paste
     sudo easy_install pastedeploy
     sudo easy_install pastescript
-    sudo easy_install bottle
-    sudo easy_install simplejson
-    sudo easy_install eventlet
-    sudo easy_install webob
     sudo easy_install pysqlite
-    
+    sudo easy_install simplejson
+    sudo easy_install sqlalchemy
+    sudo easy_install webob
+
+Or using pip:
+
+    sudo pip install -r pip-requires
 
 
 RUNNING KEYSTONE:
@@ -85,7 +92,7 @@ To Test Identity Service:
 
 DATABASE SCHEMA
 ---------------
-    
+
     CREATE TABLE groups(group_id varchar(255),group_desc varchar(255),tenant_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id));
     CREATE TABLE tenants(tenant_id varchar(255), tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
     CREATE TABLE token(token_id varchar(255),user_id varchar(255),expires datetime,tenant_id varchar(255));
