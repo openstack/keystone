@@ -34,7 +34,7 @@ def get_auth_token(username, password, tenant):
 def call_service(token):
     headers = {"X-Auth-Token": token, "Content-type": "application/json", "Accept": "text/json"}
     params = '{"ping": "abcdefg"}'
-    conn = httplib.HTTPConnection("localhost:11000")
+    conn = httplib.HTTPConnection("localhost:8090")
     conn.request("POST", "/", params, headers=headers)
     response = conn.getresponse()
     data = response.read()
