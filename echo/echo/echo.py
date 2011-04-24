@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from os import path
+import os
+import sys
 
 import eventlet
 from eventlet import wsgi
@@ -27,6 +28,21 @@ except ImportError:
     import json
 import urllib
 
+# If ../echo/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'echo', '__init__.py')):
+    # also use the local keystone
+    KEYSTONE_TOPDIR = os.path.normpath(os.path.join(POSSIBLE_TOPDIR,
+                                                    os.pardir))
+    if os.path.exists(os.path.join(KEYSTONE_TOPDIR,
+                                   'keystone',
+                                   '__init__.py')):
+        sys.path.insert(0, KEYSTONE_TOPDIR)
+    sys.path.insert(0, POSSIBLE_TOPDIR)
+
 
 """
 Echo: a dummy service for OpenStack auth testing. It returns request info.
@@ -38,8 +54,8 @@ class EchoApp(object):
         self.envr = environ
         self.start = start_response
         self.dom = self.toDOM(environ)
-        echo_xsl = path.join(path.abspath(\
-			path.dirname(__file__)), "xsl/echo.xsl")
+        echo_xsl = os.path.join(os.path.abspath(\
+			os.path.dirname(__file__)), "xsl/echo.xsl")
         self.transform = etree.XSLT(etree.parse(echo_xsl))
 
     def __iter__(self):
@@ -107,6 +123,6 @@ def app_factory(global_conf, **local_conf):
 
 if __name__ == "__main__":
 	app = loadapp("config:" + \
-		path.join(path.abspath(path.dirname(__file__)), "echo.ini"), \
+		os.path.join(os.path.abspath(os.path.dirname(__file__)), "echo.ini"), \
 		global_conf={"log_name": "echo.log"})
 	wsgi.server(eventlet.listen(('', 8090)), app)

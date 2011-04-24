@@ -24,13 +24,21 @@ from bottle import abort
 from bottle import error
 from bottle import static_file
 from bottle import template
+import os
+import sys
+
+# If ../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
+    sys.path.insert(0, POSSIBLE_TOPDIR)
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.fault as fault
-
-from os import path
 
 VERSION_STATUS = "ALPHA"
 VERSION_DATE   = "2011-04-23T00:00:00Z"
@@ -59,7 +67,7 @@ def is_xml_response():
     return request.header["Accept"] == "application/xml"
 
 def get_app_root():
-    return path.abspath(path.dirname(__file__))
+    return os.path.abspath(os.path.dirname(__file__))
 
 def send_result(result, code=500):
     if result != None:
