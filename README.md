@@ -12,9 +12,9 @@ This initial proof of concept aims to address the current use cases in Swift and
 SERVICES:
 ---------
 
-Keystone - authentication service
-PAPIAuth - WSGI middleware that can be used in services (like Swift, Nova, and Glance) to perform authentication
-Echo     - A sample service that responds by returning call details
+* Keystone - authentication service
+* PAPIAuth - WSGI middleware that can be used in services (like Swift, Nova, and Glance) to perform authentication
+* Echo     - A sample service that responds by returning call details
 
 
 DEPENDENCIES:
@@ -59,7 +59,7 @@ TESTING
 
 Testing is kinda manual right now...and based on SOAP UI.  After
 starting identity.py a keystone.db sql-lite database should be created
-run test_setup.sql to setup the database, then run the soap ui test,
+run test_setup.sql to setup the database, then run the soap ui test.
 
 You'll need to run kill.sql to tear down the tests and test_setup.sql
 to restart :-)
@@ -70,9 +70,9 @@ Download [SOAPUI](http://sourceforge.net/projects/soapui/files/):
 
 To Test Identity Service:
 
-* File->Import Project:
+* File->Import Project
 * Select tests/IdentitySOAPUI.xml
-* Double click on "Keystone Tests" and press the green play (>) button.
+* Double click on "Keystone Tests" and press the green play (>) button
 
 
 DATABASE SCHEMA
