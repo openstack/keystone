@@ -18,7 +18,7 @@ from os import path
 
 import eventlet
 from eventlet import wsgi
-from httplib2 import Http
+#from httplib2 import Http
 from lxml import etree
 from paste.deploy import loadapp
 try:

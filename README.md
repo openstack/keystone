@@ -5,7 +5,7 @@ Keystone is a proposed independent authentication service for [OpenStack](http:/
 
 This initial proof of concept aims to address the current use cases in Swift and Nova which are:
 
-* ReST-based, token auth for Swift
+* REST-based, token auth for Swift
 * many-to-many relationship between identity and tenant for Nova.
 
 
@@ -22,7 +22,6 @@ DEPENDENCIES:
 
 * bottle
 * eventlet
-* httplib2
 * lxml
 * Paste
 * PasteDeploy
@@ -40,7 +39,6 @@ Install http://pypi.python.org/pypi/setuptools
 
     sudo easy_install bottle
     sudo easy_install eventlet
-    sudo easy_install httplib2
     sudo easy_install lxml
     sudo easy_install paste
     sudo easy_install pastedeploy
@@ -60,6 +58,7 @@ RUNNING KEYSTONE:
 
     $ python setup.py build
     $ sudo python setup.py install
+    $ cd keystone
     $ python identity.py
 
 
@@ -67,7 +66,8 @@ RUNNING TEST SERVICE:
 ---------------------
 
     $ python setup.py build
-    $ sudo python setup.py install
+    $ sudo python setup.py install  
+    $ cd echo/echo
     $ python echo.py
 
 
