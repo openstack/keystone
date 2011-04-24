@@ -20,15 +20,16 @@ SERVICES:
 DEPENDENCIES:
 -------------
 
+* bottle
+* eventlet
+* httplib2
+* lxml
 * Paste
 * PasteDeploy
 * PasteScript
+* simplejson
 * SQLAlchemy
 * SQLite3
-* bottle
-* eventlet
-* lxml
-* simplejson
 * webob
 
 
@@ -39,6 +40,7 @@ Install http://pypi.python.org/pypi/setuptools
 
     sudo easy_install bottle
     sudo easy_install eventlet
+    sudo easy_install httplib2
     sudo easy_install lxml
     sudo easy_install paste
     sudo easy_install pastedeploy
