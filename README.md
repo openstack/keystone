@@ -67,7 +67,7 @@ RUNNING TEST SERVICE:
 
     $ cd echo
     $ python setup.py build
-    $ sudo python setup.py install  
+    $ sudo python setup.py install
     $ cd echo
     $ python echo.py
 
@@ -76,11 +76,15 @@ TESTING
 -------
 
 Testing is kinda manual right now...and based on SOAP UI.  After
-starting identity.py a keystone.db sql-lite database should be created
-run test_setup.sql to setup the database, then run the soap ui test.
+starting identity.py a keystone.db sql-lite database should be created.
 
-You'll need to run kill.sql to tear down the tests and test_setup.sql
-to restart :-)
+To test setup the test database:
+
+    $ sqlite3 keystone.db < test/test_setup.sql
+
+To clean the test database
+
+    $ sqlite3 keystone.db < test/kill.sql
 
 Using SOAPUI:
 
