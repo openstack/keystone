@@ -56,8 +56,6 @@ Or using pip:
 RUNNING KEYSTONE:
 -----------------
 
-    $ python setup.py build
-    $ sudo python setup.py install
     $ cd keystone
     $ python identity.py
 
@@ -65,11 +63,23 @@ RUNNING KEYSTONE:
 RUNNING TEST SERVICE:
 ---------------------
 
+    $ cd echo/echo
+    $ python echo.py
+
+
+INSTALLING KEYSTONE:
+--------------------
+
+    $ python setup.py build
+    $ sudo python setup.py install
+
+
+INSTALLING TEST SERVICE:
+------------------------
+
     $ cd echo
     $ python setup.py build
     $ sudo python setup.py install
-    $ cd echo
-    $ python echo.py
 
 
 TESTING
