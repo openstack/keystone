@@ -90,11 +90,11 @@ starting identity.py a keystone.db sql-lite database should be created.
 
 To test setup the test database:
 
-    $ sqlite3 keystone.db < test/test_setup.sql
+    $ sqlite3 keystone/keystone.db < test/test_setup.sql
 
 To clean the test database
 
-    $ sqlite3 keystone.db < test/kill.sql
+    $ sqlite3 keystone/keystone.db < test/kill.sql
 
 Using SOAPUI:
 
