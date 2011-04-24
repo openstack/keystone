@@ -35,7 +35,15 @@ SETUP:
 
 Install http://pypi.python.org/pypi/setuptools
 
-    sudo easy_install [all the above dependencies]
+    sudo easy_install paste
+    sudo easy_install pastedeploy
+    sudo easy_install pastescript
+    sudo easy_install bottle
+    sudo easy_install simplejson
+    sudo easy_install eventlet
+    sudo easy_install webob
+    sudo easy_install pysqlite
+    
 
 
 RUNNING KEYSTONE:
