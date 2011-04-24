@@ -18,22 +18,22 @@ from setuptools import setup, find_packages
 
 version = '1.0'
 
-setup(  
-	name='echo',
-	version=version,
-	description="",
-	license='Apache License (2.0)',
-	classifiers=[ "Programming Language :: Python", ],
-	keywords='',
+setup(
+    name='echo',
+    version=version,
+    description="",
+    license='Apache License (2.0)',
+    classifiers=["Programming Language :: Python"],
+    keywords='',
     author='OpenStack, LLC.',
-	include_package_data=True,
+    include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
-	zip_safe=False,
-	install_requires=['setuptools', 'keystone'],
+    zip_safe=False,
+    install_requires=['setuptools', 'keystone'],
     entry_points={
         'paste.app_factory': ['main=echo:app_factory'],
         'paste.filter_factory': [
             'papiauth=keystone.middleware.papiauth:filter_factory',
             ],
-		},
-	)
+        },
+    )

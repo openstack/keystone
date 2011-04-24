@@ -20,6 +20,7 @@ from webob.exc import HTTPUnauthorized, Request
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
+
 class TokenAuth(object):
     """Auth Middleware that uses the dev auth server."""
 
@@ -61,7 +62,7 @@ class TokenAuth(object):
 
         env['HTTP_AUTHORIZATION'] = "Basic dTpw"
         return self.app(env, custom_start_response)
-        
+
 
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""

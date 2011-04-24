@@ -38,20 +38,22 @@ class PasswordCredentials(Credentials):
     def from_xml(xml_str):
         try:
             dom = etree.Element("root")
-            dom.append (etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}passwordCredentials")
+            dom.append(etree.fromstring(xml_str))
+            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}"
+                            "passwordCredentials")
             if root == None:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
-            username=root.get("username")
+            username = root.get("username")
             if username == None:
                 raise fault.BadRequestFault("Expecting a username")
-            password=root.get("password")
+            password = root.get("password")
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
-            tenant_id=root.get("tenantId")
-            return PasswordCredentials (username, password, tenant_id)
+            tenant_id = root.get("tenantId")
+            return PasswordCredentials(username, password, tenant_id)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse password credentials", e.__str__())
+            raise fault.BadRequestFault("Cannot parse password credentials",
+                                        str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -62,17 +64,18 @@ class PasswordCredentials(Credentials):
             cred = obj["passwordCredentials"]
             if not "username" in cred:
                 raise fault.BadRequestFault("Expecting a username")
-            username=cred["username"]
+            username = cred["username"]
             if not "password" in cred:
                 raise fault.BadRequestFault("Expecting a password")
-            password=cred["password"]
+            password = cred["password"]
             if "tenantId" in cred:
                 tenant_id = cred["tenantId"]
             else:
                 tenant_id = None
-            return PasswordCredentials (username, password, tenant_id)
+            return PasswordCredentials(username, password, tenant_id)
         except (json.decoder.JSONDecodeError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse password credentials", e.__str__())
+            raise fault.BadRequestFault("Cannot parse password credentials",
+                                        str(e))
 
     @property
     def username(self):

@@ -36,15 +36,16 @@ def get_session(autocommit=True, expire_on_commit=False):
     global _ENGINE
     global _MAKER
     if not _MAKER:
-       if not _ENGINE:
-           kwargs = {'pool_recycle': 30, 'echo': False}
-           kwargs['poolclass'] = pool.NullPool
-           _ENGINE = create_engine("sqlite:///keystone.db", **kwargs)
-       _MAKER = (sessionmaker(bind=_ENGINE,
-           autocommit=autocommit,
-           expire_on_commit=expire_on_commit))
+        if not _ENGINE:
+            kwargs = {'pool_recycle': 30, 'echo': False}
+            kwargs['poolclass'] = pool.NullPool
+            _ENGINE = create_engine("sqlite:///keystone.db", **kwargs)
+        _MAKER = (sessionmaker(bind=_ENGINE,
+            autocommit=autocommit,
+            expire_on_commit=expire_on_commit))
     session = _MAKER()
     return session
+
 
 def get_engine():
     if not _ENGINE:

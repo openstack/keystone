@@ -34,8 +34,8 @@ class PAPIAuth(object):
         if 'HTTP_X_AUTHORIZATION' not in env:
             self.proxy_location = 'http://' + self.auth_host + ':' + \
                 str(self.auth_port) + '/'
-            return HTTPUseProxy(location=self.proxy_location)\
-				(env, start_response)
+            return HTTPUseProxy(location=self.proxy_location)(env,
+                start_response)
 
         # Authenticate the Auth component itself.
         headers = [('www-authenticate', 'Basic realm="echo"')]

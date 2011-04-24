@@ -20,26 +20,25 @@ from keystone.db.sqlalchemy import models
 
 
 def main():
-	usage = "usage: %prog username password"
-	parser = optparse.OptionParser(usage)
-	options, args = parser.parse_args()
-	if len(args) != 2:
-		parser.error("Incorrect number of arguments")
-	else:
-		username = args[0]
-		password = args[1]
-                try:
-                    u = models.User()
-                    u.id = username
-                    u.email = username
-                    u.password = password
-                    u.enabled = True
-                    db_api.user_create(u)
-                    print 'user', u.id, 'created.'
-                    return
+    usage = "usage: %prog username password"
+    parser = optparse.OptionParser(usage)
+    options, args = parser.parse_args()
+    if len(args) != 2:
+        parser.error("Incorrect number of arguments")
+    else:
+        username = args[0]
+        password = args[1]
+        try:
+            u = models.User()
+            u.id = username
+            u.email = username
+            u.password = password
+            u.enabled = True
+            db_api.user_create(u)
+            print 'user', u.id, 'created.'
+            return
+        except Exception, e:
+            print 'Error creating user', u.id, ':', str(e)
 
-                except Exception, e:
-                    print 'Error creating user', u.id, ':', str(e)
-                
 if __name__ == '__main__':
-	main()
+    main()

@@ -26,6 +26,7 @@ import keystone.db.sqlalchemy.models as db_models
 
 import uuid
 
+
 class IDMService(object):
     "This is the logical implemenation of the IDM service"
 
@@ -50,15 +51,16 @@ class IDMService(object):
         #
         dtoken = db_api.token_for_user(duser.id)
         if not dtoken or dtoken.expires < datetime.now():
-            dtoken=db_models.Token()
+            dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
             if len(duser.tenants) == 0:
-                raise fault.IDMFault("Strange: user "+duser.id+" is not associated with a tenant!")
+                raise fault.IDMFault("Strange: user %s is not associated "
+                                     "with a tenant!" % duser.id)
             dtoken.tenant_id = duser.tenants[0].tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
 
-            db_api.token_create (dtoken)
+            db_api.token_create(dtoken)
 
         return self.__get_auth_data(dtoken, duser)
 
@@ -104,7 +106,8 @@ class IDMService(object):
             raise fault.BadRequestFault("Expecting a unique Tenant Id")
 
         if db_api.tenant_get(tenant.tenant_id) != None:
-            raise fault.TenantConflictFault("A tenant with that id already exists")
+            raise fault.TenantConflictFault(
+                "A tenant with that id already exists")
 
         dtenant = db_models.Tenant()
         dtenant.id = tenant.tenant_id
@@ -121,9 +124,10 @@ class IDMService(object):
         ts = []
         dtenants = db_api.tenant_get_all()
         for dtenant in dtenants:
-            ts.append (tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled))
+            ts.append(tenants.Tenant(dtenant.id,
+                                     dtenant.desc, dtenant.enabled))
 
-        return tenants.Tenants(ts,[])
+        return tenants.Tenants(ts, [])
 
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
@@ -145,7 +149,7 @@ class IDMService(object):
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
 
-        values={}
+        values = {}
         values["desc"] = tenant.description
         values["enabled"] = tenant.enabled
 
@@ -161,7 +165,8 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
 
         if not db_api.tenant_is_empty(tenant_id):
-            raise fault.ForbiddenFault("You may not delete a tenant that contains users or groups")
+            raise fault.ForbiddenFault("You may not delete a tenant that "
+                                       "contains users or groups")
 
         db_api.tenant_delete(dtenant.id)
         return None
@@ -186,11 +191,12 @@ class IDMService(object):
         gs = []
         for ug in duser.groups:
             dgroup = db_api.group_get(ug.group_id)
-            gs.append (auth.Group (dgroup.id, dgroup.tenant_id))
-        groups = auth.Groups(gs,[])
+            gs.append(auth.Group(dgroup.id, dgroup.tenant_id))
+        groups = auth.Groups(gs, [])
         if len(duser.tenants) == 0:
-            raise fault.IDMFault("Strange: user "+duser.id+" is not associated with a tenant!")
-        user = auth.User(duser.id,duser.tenants[0].tenant_id, groups)
+            raise fault.IDMFault("Strange: user %s is not associated "
+                                 "with a tenant!" % duser.id)
+        user = auth.User(duser.id, duser.tenants[0].tenant_id, groups)
         return auth.AuthData(token, user)
 
     def __validate_token(self, token_id, admin=True):
@@ -198,18 +204,19 @@ class IDMService(object):
             raise fault.UnauthorizedFault("Missing token")
         auth_data = self.__get_dauth_data(token_id)
         token = auth_data[0]
-        user  = auth_data[1]
+        user = auth_data[1]
 
         if not token:
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
         if token.expires < datetime.now():
             raise fault.UnauthorizedFault("Token expired, please renew")
         if not user.enabled:
-            raise fault.UserDisabledFault("The user "+user.id+" has been disabled!")
+            raise fault.UserDisabledFault("The user %s has been disabled!"
+                                          % user.id)
         if admin:
             for ug in user.groups:
                 if ug.group_id == "Admin":
                     return auth_data
-            raise fault.ForbiddenFault("You are not authorized to make this call")
+            raise fault.ForbiddenFault("You are not authorized "
+                                       "to make this call")
         return auth_data
-

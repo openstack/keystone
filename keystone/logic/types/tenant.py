@@ -34,19 +34,20 @@ class Tenant(object):
     def from_xml(xml_str):
         try:
             dom = etree.Element("root")
-            dom.append (etree.fromstring(xml_str))
+            dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/idm/api/v1.0}tenant")
             if root == None:
                 raise fault.BadRequestFault("Expecting Tenant")
-            tenant_id=root.get("id")
-            enabled=root.get("enabled")
+            tenant_id = root.get("id")
+            enabled = root.get("enabled")
             if enabled == None or enabled == "true" or enabled == "yes":
-                set_enabled=True
+                set_enabled = True
             elif enabled == "false" or enabled == "no":
-                set_enabled=False
+                set_enabled = False
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
-            desc = root.find("{http://docs.openstack.org/idm/api/v1.0}description")
+            desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
+                             "description")
             if desc == None:
                 raise fault.BadRequestFault("Expecting Tenant Description")
             return Tenant(tenant_id, desc.text, set_enabled)
@@ -64,11 +65,11 @@ class Tenant(object):
                 tenant_id = None
             else:
                 tenant_id = tenant["id"]
-            set_enabled=True
+            set_enabled = True
             if "enabled" in tenant:
                 set_enabled = tenant["enabled"]
                 if not isinstance(set_enabled, bool):
-                    raise fault.BadRequestFault ("Bad enabled attribute!")
+                    raise fault.BadRequestFault("Bad enabled attribute!")
             if not "description" in tenant:
                 raise fault.BadRequestFault("Expecting Tenant Description")
             description = tenant["description"]
@@ -139,7 +140,7 @@ class Tenants(object):
         return etree.tostring(dom)
 
     def to_json(self):
-        values=[]
+        values = []
         for t in self.__values:
             values.append(t.to_dict()["tenant"])
         v = {}

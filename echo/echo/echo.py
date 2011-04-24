@@ -55,7 +55,7 @@ class EchoApp(object):
         self.start = start_response
         self.dom = self.toDOM(environ)
         echo_xsl = os.path.join(os.path.abspath(\
-			os.path.dirname(__file__)), "xsl/echo.xsl")
+            os.path.dirname(__file__)), "xsl/echo.xsl")
         self.transform = etree.XSLT(etree.parse(echo_xsl))
 
     def __iter__(self):
@@ -110,10 +110,10 @@ class EchoApp(object):
     #        url = "http://localhost:8080/token/"+str(params['token'])
     #        body = {}
     #        headers = {
-    #			   "Accept": "application/json",
+    #               "Accept": "application/json",
     #              "Content-Type": "application/json"}
     #        response, content = http.request(url, 'GET', headers=headers,
-    #			body = urllib.urlencode(body))
+    #            body = urllib.urlencode(body))
     #        return {'response': response, 'content': content}
     #    else:
     #        return abort(401, "No Token Found!")
@@ -122,7 +122,7 @@ def app_factory(global_conf, **local_conf):
     return EchoApp
 
 if __name__ == "__main__":
-	app = loadapp("config:" + \
-		os.path.join(os.path.abspath(os.path.dirname(__file__)), "echo.ini"), \
-		global_conf={"log_name": "echo.log"})
-	wsgi.server(eventlet.listen(('', 8090)), app)
+    app = loadapp("config:" + \
+        os.path.join(os.path.abspath(os.path.dirname(__file__)), "echo.ini"), \
+        global_conf={"log_name": "echo.log"})
+    wsgi.server(eventlet.listen(('', 8090)), app)
