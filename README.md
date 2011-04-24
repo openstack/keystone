@@ -65,9 +65,10 @@ RUNNING KEYSTONE:
 RUNNING TEST SERVICE:
 ---------------------
 
+    $ cd echo
     $ python setup.py build
     $ sudo python setup.py install  
-    $ cd echo/echo
+    $ cd echo
     $ python echo.py
 
 
