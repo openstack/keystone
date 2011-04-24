@@ -1,5 +1,6 @@
 bottle
 eventlet
+httplib2
 lxml
 paste
 pastedeploy
