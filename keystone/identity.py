@@ -87,12 +87,14 @@ def send_result(code, result):
     return content
 
 
-def get_request(ctx):
+def get_request(model):
+    """initialize a model from json/xml contents of request body"""
+
     ctype = request.environ.get("CONTENT_TYPE")
     if ctype == "application/xml":
-        ret = ctx.from_xml(request.body.read())
+        ret = model.from_xml(request.body.read())
     elif ctype == "application/json":
-        ret = ctx.from_json(request.body.read())
+        ret = model.from_json(request.body.read())
     else:
         raise fault.IDMFault("I don't understand the content type ", code=415)
     return ret
