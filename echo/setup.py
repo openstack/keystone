@@ -33,7 +33,7 @@ setup(
     entry_points={
         'paste.app_factory': ['main=echo:app_factory'],
         'paste.filter_factory': [
-            'papiauth=keystone.middleware.papiauth:filter_factory',
+            'papiauth=keystone:papiauth_factory',
             ],
         },
     )
