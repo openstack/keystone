@@ -210,7 +210,7 @@ class IDMService(object):
         if admin:
             for ug in user.groups:
                 if ug.group_id == "Admin":
-                    return auth_data
+                    return (token, user)
             raise fault.ForbiddenFault("You are not authorized "
                                        "to make this call")
         return (token, user)
