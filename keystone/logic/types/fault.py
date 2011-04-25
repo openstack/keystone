@@ -22,42 +22,34 @@ class IDMFault(Exception):
 
     def __init__(self, msg, details=None, code=500):
         self.args = (code, msg, details)
-        self.__code = code
-        self.__msg = msg
-        self.__details = details
+        self.code = code
+        self.msg = msg
+        self.details = details
         self.key = "idmFault"
 
     @property
     def message(self):
-        return self.__msg
-
-    @property
-    def code(self):
-        return self.__code
-
-    @property
-    def details(self):
-        return self.__details
+        return self.msg
 
     def to_xml(self):
         dom = etree.Element(self.key,
                             xmlns="http://docs.openstack.org/idm/api/v1.0")
-        dom.set("code", self.__code.__str__())
+        dom.set("code", str(self.code))
         msg = etree.Element("message")
-        msg.text = self.__msg
+        msg.text = self.msg
         dom.append(msg)
-        if self.__details != None:
+        if self.details != None:
             desc = etree.Element("details")
-            desc.text = self.__details
+            desc.text = self.details
             dom.append(desc)
         return etree.tostring(dom)
 
     def to_json(self):
         fault = {}
-        fault["message"] = self.__msg
-        fault["code"] = self.__code.__str__()
-        if self.__details != None:
-            fault["details"] = self.__details
+        fault["message"] = self.msg
+        fault["code"] = str(self.code)
+        if self.details != None:
+            fault["details"] = self.details
         ret = {}
         ret[self.key] = fault
         return json.dumps(ret)
@@ -125,9 +117,5 @@ class OverlimitFault(IDMFault):
     def __init__(self, msg, details=None, code=409, retry_at=None):
         super(OverlimitFault, self).__init__(msg, details, code)
         self.args = (code, msg, details, retry_at)
-        self.__retry_at = retry_at
+        self.retry_at = retry_at
         self.key = "overLimit"
-
-    @property
-    def retry_at(self):
-        return self.__retry_at
