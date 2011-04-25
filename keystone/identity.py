@@ -15,11 +15,14 @@
 # limitations under the License.
 
 
+import functools
+import logging
+import os
+import sys
+
 import bottle
 from bottle import request
 from bottle import response
-import os
-import sys
 
 # If ../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -102,30 +105,35 @@ def get_auth_token():
     return auth_token
 
 
-def send_error(error):
-    if isinstance(error, fault.IDMFault):
-        send_result(error.code, error)
-    else:
-        send_result(500, fault.IDMFault("Unhandled error", str(error)))
+def wrap_error(func):
+    @functools.wraps(func)
+    def check_error(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as err:
+            if isinstance(err, fault.IDMFault):
+                send_result(err.code, err)
+            else:
+                logging.exception(err)
+                send_result(500, fault.IDMFault("Unhandled error", str(err)))
+    return check_error
 
 
 @bottle.route('/v1.0', method='GET')
 @bottle.route('/v1.0/', method='GET')
+@wrap_error
 def get_version_info():
-    try:
-        if is_xml_response():
-            resp_file = "content/version.xml"
-            response.content_type = "application/xml"
-        else:
-            resp_file = "content/version.json"
-            response.content_type = "application/json"
-        hostname = request.environ.get("SERVER_NAME")
-        port = request.environ.get("SERVER_PORT")
-        return bottle.template(resp_file, HOST=hostname, PORT=port,
-                               VERSION_STATUS=VERSION_STATUS,
-                               VERSION_DATE=VERSION_DATE)
-    except Exception as e:
-        return send_error(e)
+    if is_xml_response():
+        resp_file = "content/version.xml"
+        response.content_type = "application/xml"
+    else:
+        resp_file = "content/version.json"
+        response.content_type = "application/json"
+    hostname = request.environ.get("SERVER_NAME")
+    port = request.environ.get("SERVER_PORT")
+    return bottle.template(resp_file, HOST=hostname, PORT=port,
+                           VERSION_STATUS=VERSION_STATUS,
+                           VERSION_DATE=VERSION_DATE)
 
 ##
 ## Version links:
@@ -133,43 +141,35 @@ def get_version_info():
 
 
 @bottle.route('/v1.0/idmdevguide.pdf', method='GET')
+@wrap_error
 def get_pdf_contract():
-    try:
-        return bottle.static_file("content/idmdevguide.pdf",
-                                  root=get_app_root(),
-                                  mimetype="application/pdf")
-    except Exception as e:
-        return send_error(e)
+    return bottle.static_file("content/idmdevguide.pdf",
+                              root=get_app_root(),
+                              mimetype="application/pdf")
 
 
 @bottle.route('/v1.0/identity.wadl', method='GET')
+@wrap_error
 def get_wadl_contract():
-    try:
-        return bottle.static_file("identity.wadl",
-                                  root=get_app_root(),
-                                  mimetype="application/vnd.sun.wadl+xml")
-    except Exception as e:
-        return send_error(e)
+    return bottle.static_file("identity.wadl",
+                              root=get_app_root(),
+                              mimetype="application/vnd.sun.wadl+xml")
 
 
 @bottle.route('/v1.0/xsd/:xsd', method='GET')
+@wrap_error
 def get_xsd_contract(xsd):
-    try:
-        return bottle.static_file("/xsd/" + xsd,
-                                  root=get_app_root(),
-                                  mimetype="application/xml")
-    except Exception as e:
-        return send_error(e)
+    return bottle.static_file("/xsd/" + xsd,
+                              root=get_app_root(),
+                              mimetype="application/xml")
 
 
 @bottle.route('/v1.0/xsd/atom/:xsd', method='GET')
+@wrap_error
 def get_xsd_atom_contract(xsd):
-    try:
-        return bottle.static_file("/xsd/atom/" + xsd,
-                                  root=get_app_root(),
-                                  mimetype="application/xml")
-    except Exception as e:
-        return send_error(e)
+    return bottle.static_file("/xsd/atom/" + xsd,
+                              root=get_app_root(),
+                              mimetype="application/xml")
 
 ##
 ##  Token Operations
@@ -177,33 +177,27 @@ def get_xsd_atom_contract(xsd):
 
 
 @bottle.route('/v1.0/token', method='POST')
+@wrap_error
 def authenticate():
-    try:
-        creds = get_request(auth.PasswordCredentials)
-        return send_result(200, service.authenticate(creds))
-    except Exception as e:
-        return send_error(e)
+    creds = get_request(auth.PasswordCredentials)
+    return send_result(200, service.authenticate(creds))
 
 
 @bottle.route('/v1.0/token/:token_id', method='GET')
+@wrap_error
 def validate_token(token_id):
-    try:
-        belongs_to = None
-        if "belongsTo" in request.GET:
-            belongs_to = request.GET["belongsTo"]
-        rval = service.validate_token(get_auth_token(), token_id, belongs_to)
-        return send_result(200, rval)
-    except Exception as e:
-        return send_error(e)
+    belongs_to = None
+    if "belongsTo" in request.GET:
+        belongs_to = request.GET["belongsTo"]
+    rval = service.validate_token(get_auth_token(), token_id, belongs_to)
+    return send_result(200, rval)
 
 
 @bottle.route('/v1.0/token/:token_id', method='DELETE')
+@wrap_error
 def delete_token(token_id):
-    try:
-        return send_result(204,
-                           service.revoke_token(get_auth_token(), token_id))
-    except Exception as e:
-        return send_error(e)
+    return send_result(204,
+                       service.revoke_token(get_auth_token(), token_id))
 
 
 ##
@@ -211,56 +205,46 @@ def delete_token(token_id):
 ##
 
 @bottle.route('/v1.0/tenants', method='POST')
+@wrap_error
 def create_tenant():
-    try:
-        tenant = get_request(tenants.Tenant)
-        return send_result(201,
-                           service.create_tenant(get_auth_token(), tenant))
-    except Exception as e:
-        return send_error(e)
+    tenant = get_request(tenants.Tenant)
+    return send_result(201,
+                       service.create_tenant(get_auth_token(), tenant))
 
 
 @bottle.route('/v1.0/tenants', method='GET')
+@wrap_error
 def get_tenants():
-    try:
-        marker = None
-        if "marker" in request.GET:
-            marker = request.GET["marker"]
-        limit = None
-        if "limit" in request.GET:
-            limit = request.GET["limit"]
-        tenants = service.get_tenants(get_auth_token(), marker, limit)
-        return send_result(200, tenants)
-    except Exception as e:
-        return send_error(e)
+    marker = None
+    if "marker" in request.GET:
+        marker = request.GET["marker"]
+    limit = None
+    if "limit" in request.GET:
+        limit = request.GET["limit"]
+    tenants = service.get_tenants(get_auth_token(), marker, limit)
+    return send_result(200, tenants)
 
 
 @bottle.route('/v1.0/tenants/:tenant_id', method='GET')
+@wrap_error
 def get_tenant(tenant_id):
-    try:
-        tenant = service.get_tenant(get_auth_token(), tenant_id)
-        return send_result(200, tenant)
-    except Exception as e:
-        return send_error(e)
+    tenant = service.get_tenant(get_auth_token(), tenant_id)
+    return send_result(200, tenant)
 
 
 @bottle.route('/v1.0/tenants/:tenant_id', method='PUT')
+@wrap_error
 def update_tenant(tenant_id):
-    try:
-        tenant = get_request(tenants.Tenant)
-        rval = service.update_tenant(get_auth_token(), tenant_id, tenant)
-        return send_result(200, rval)
-    except Exception as e:
-        return send_error(e)
+    tenant = get_request(tenants.Tenant)
+    rval = service.update_tenant(get_auth_token(), tenant_id, tenant)
+    return send_result(200, rval)
 
 
 @bottle.route('/v1.0/tenants/:tenant_id', method='DELETE')
+@wrap_error
 def delete_tenant(tenant_id):
-    try:
-        rval = service.delete_tenant(get_auth_token(), tenant_id)
-        return send_result(204, rval)
-    except Exception as e:
-        return send_error(e)
+    rval = service.delete_tenant(get_auth_token(), tenant_id)
+    return send_result(204, rval)
 
 
 ##
@@ -268,30 +252,26 @@ def delete_tenant(tenant_id):
 ##
 
 @bottle.route('/v1.0/extensions', method='GET')
+@wrap_error
 def get_extensions():
-    try:
-        if is_xml_response():
-            resp_file = "content/extensions.xml"
-            mimetype = "application/xml"
-        else:
-            resp_file = "content/extensions.json"
-            mimetype = "application/json"
-        return bottle.static_file(resp_file,
-                                  root=get_app_root(),
-                                  mimetype=mimetype)
-    except Exception as e:
-        return send_error(e)
+    if is_xml_response():
+        resp_file = "content/extensions.xml"
+        mimetype = "application/xml"
+    else:
+        resp_file = "content/extensions.json"
+        mimetype = "application/json"
+    return bottle.static_file(resp_file,
+                              root=get_app_root(),
+                              mimetype=mimetype)
 
 
 @bottle.route('/v1.0/extensions/:ext_alias', method='GET')
+@wrap_error
 def get_extension(ext_alias):
-    try:
-        #
-        # Todo: Define some extensions :-)
-        #
-        raise fault.ItemNotFoundFault("The extension is not found")
-    except Exception as e:
-        return send_error(e)
+    #
+    # Todo: Define some extensions :-)
+    #
+    raise fault.ItemNotFoundFault("The extension is not found")
 
 
 if __name__ == "__main__":
