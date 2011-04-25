@@ -71,7 +71,7 @@ class Tenant(object):
                 raise fault.BadRequestFault("Expecting Tenant Description")
             description = tenant["description"]
             return Tenant(tenant_id, description, set_enabled)
-        except (json.decoder.JSONDecodeError, TypeError) as e:
+        except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
     def to_dom(self):
