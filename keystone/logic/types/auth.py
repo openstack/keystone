@@ -118,7 +118,7 @@ class AuthData(object):
                              xmlns="http://docs.openstack.org/idm/api/v1.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
-        token.set("id", self.__token.token_id)
+        token.set("id", self.token.token_id)
         user = etree.Element("user",
                              username=self.user.username,
                              tenantId=self.user.tenant_id)
