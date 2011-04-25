@@ -42,23 +42,26 @@ class TokenAuth(object):
 
         token = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         if token:
-            #conn = http_connect(self.auth_host, self.auth_port, 'GET',
-            #        '/token/%s' % token)
-            #resp = conn.getresponse()
-            path = 'http://%s:%s/token/%s' % \
-                (self.auth_host, self.auth_port, token)
-            resp = Request.blank(path).get_response(self.app)
-            user = json.loads(resp.body)
-            #resp.read()
-            #conn.close()
-            if not resp.status.startswith('20'):
+            # NOTE(vish): Not sure what the logic behind this other token is
+            headers = {'X-Auth-Token': '999888777666'}
+            conn = http_connect(self.auth_host, self.auth_port, 'GET',
+                                '/v1.0/token/%s' % token, headers=headers)
+            resp = conn.getresponse()
+            data = resp.read()
+            conn.close()
+            #path = 'http://%s:%s/v1.0/token/%s' % \
+            #       (self.auth_host, self.auth_port, token)
+            #resp = Request.blank(path).get_response(self.app)
+            #data = resp.body
+            dict_response = json.loads(data)
+            user = dict_response['auth']['user']['username']
+            if not str(resp.status).startswith('20'):
                 if self.delegated:
                     env['HTTP_X_IDENTITY_STATUS'] = "Invalid"
             else:
                 env['HTTP_X_AUTHORIZATION'] = "Proxy " + user
                 if self.delegated:
                     env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
-                return HTTPUnauthorized()(env, custom_start_response)
 
         env['HTTP_AUTHORIZATION'] = "Basic dTpw"
         return self.app(env, custom_start_response)
