@@ -43,6 +43,7 @@ HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
 
 """
 
+import httplib
 import json
 from webob.exc import HTTPUnauthorized, Request
 
@@ -73,6 +74,20 @@ class TokenAuth(object):
         self.delegated = int(conf.get('delegated', 0))
         
 
+    def get_admin_auth_token(self, username, password, tenant):
+        headers = {"Content-type": "application/json", "Accept": "text/json"}
+        params = {"passwordCredentials": {"username": username,
+                                          "password": password,
+                                          "tenantId": "1"}}
+        conn = httplib.HTTPConnection("localhost:8080")
+        conn.request("POST", "/v1.0/token", json.dumps(params), \
+            headers=headers)
+        response = conn.getresponse()
+        data = response.read()
+        ret = data
+        return ret
+
+
     def __call__(self, env, start_response):
         print "Handling a token-auth client call"
         def custom_start_response(status, headers):
@@ -84,20 +99,23 @@ class TokenAuth(object):
         if token:
             # this request is claiming it has a valid token, let's check
             # with the auth service
+            auth = self.get_admin_auth_token("admin", "secrete", "1")
+            admin_token = json.loads(auth)["auth"]["token"]["id"]
+
             headers = {"Content-type": "application/json",
-                        "Accept": "text/json"}
+                        "Accept": "text/json",
+                        "X-Auth-Token": admin_token}
             conn = http_connect(self.auth_host, self.auth_port, 'GET',
                                 '/v1.0/token/%s' % token, headers=headers)
             resp = conn.getresponse()
             data = resp.read()
             conn.close()
-            #path = 'http://%s:%s/v1.0/token/%s' % \
-            #       (self.auth_host, self.auth_port, token)
-            #resp = Request.blank(path).get_response(self.app)
-            #data = resp.body
             if not str(resp.status).startswith('20'):
                 if self.delegated:
                     env['HTTP_X_IDENTITY_STATUS'] = "Invalid"
+                else:
+                    # Unauthorized token
+                    return HTTPUnauthorized()(env, custom_start_response)
             else:
                 dict_response = json.loads(data)
                 user = dict_response['auth']['user']['username']
