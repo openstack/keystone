@@ -69,17 +69,7 @@ class EchoApp(object):
 
     def toJSON(self):
         self.start('200 OK', [('Content-Type', 'application/json')])
-        token = str(self.envr.get("HTTP_X_AUTH_TOKEN", ""))
-
-        if token != '':
-            res = self.ValidateToken({'type': 'json', 'token': token})
-            if int(res['response']['status']) == 200:
-                yield str(res['content'])
-            else:
-                pass
-                # Need to Do Something Here
-        else:
-            yield str(self.transform(self.dom))
+        yield str(self.transform(self.dom))
 
     def toXML(self):
         self.start('200 OK', [('Content-Type', 'application/xml')])
@@ -100,20 +90,6 @@ class EchoApp(object):
         echo.append(content)
         return echo
 
-
-    #def ValidateToken(self,params):
-    #    if params['token']:
-    #        http = Http()
-    #        url = "http://localhost:8080/token/"+str(params['token'])
-    #        body = {}
-    #        headers = {
-    #               "Accept": "application/json",
-    #              "Content-Type": "application/json"}
-    #        response, content = http.request(url, 'GET', headers=headers,
-    #            body = urllib.urlencode(body))
-    #        return {'response': response, 'content': content}
-    #    else:
-    #        return abort(401, "No Token Found!")
 
 def app_factory(global_conf, **local_conf):
     return EchoApp
