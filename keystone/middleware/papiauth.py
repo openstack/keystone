@@ -25,8 +25,8 @@ class PAPIAuth(object):
         self.auth_host = conf.get('auth_ip', '127.0.0.1')
         self.auth_port = int(conf.get('auth_port', 11000))
         self.auth_pass = conf.get('auth_pass', 'dTpw')
-        self.proxy_location = 'http://' + self.auth_host + ':' + \
-            str(self.auth_port) + '/'
+        self.proxy_location = 'http://%s:%d/' % (self.auth_host,
+            self.auth_port)
         print 'starting PAPI Auth middleware'
 
     def __call__(self, env, start_response):
