@@ -68,7 +68,7 @@ class PasswordCredentials(object):
             else:
                 tenant_id = None
             return PasswordCredentials(username, password, tenant_id)
-        except (json.decoder.JSONDecodeError, TypeError) as e:
+        except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
                                         str(e))
 

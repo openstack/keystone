@@ -26,7 +26,6 @@ DEPENDENCIES:
 * Paste
 * PasteDeploy
 * PasteScript
-* simplejson
 * SQLAlchemy
 * SQLite3
 * webob
@@ -44,7 +43,6 @@ Install http://pypi.python.org/pypi/setuptools
     sudo easy_install pastedeploy
     sudo easy_install pastescript
     sudo easy_install pysqlite
-    sudo easy_install simplejson
     sudo easy_install sqlalchemy
     sudo easy_install webob
 

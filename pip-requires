@@ -5,6 +5,5 @@ paste
 pastedeploy
 pastescript
 pysqlite
-simplejson
 sqlalchemy
 webob
