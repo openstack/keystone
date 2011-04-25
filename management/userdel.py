@@ -14,8 +14,7 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
 
 
 def main():
@@ -26,14 +25,15 @@ def main():
         parser.error("Incorrect number of arguments")
     else:
         username = args[0]
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute(
-            "DELETE FROM users WHERE username='%s'" % username)
-        con.commit()
-        con.close()
+        try:
+            u = db_api.user_get(username)
+            if u == None:
+                raise IndexError("User not found")
+            else:
+                db_api.user_delete(username)
+            print 'User', username, 'deleted.'
+        except Exception, e:
+            print 'Error deleting user', username, ':', str(e)
 
 if __name__ == '__main__':
     main()

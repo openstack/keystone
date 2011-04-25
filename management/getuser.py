@@ -14,9 +14,7 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
-
+import keystone.db.sqlalchemy.api as db_api
 
 def main():
     usage = "usage: %prog username"
@@ -25,17 +23,14 @@ def main():
     if len(args) != 1:
         parser.error("Incorrect number of arguments")
     else:
-        user_id = args[0]
-
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute(
-            "select * from users where ut.username = '%s' " % (user_id))
-        con.commit()
-        print cur.fetchall()
-        con.close()
+        username = args[0]
+        try:
+            u = db_api.user_get(username)
+            if u == None:
+                raise IndexError("User not found")
+            print u.id, u.email, u.enabled
+        except Exception, e:
+            print 'Error finding user', username, ':', str(e)
 
 if __name__ == '__main__':
     main()

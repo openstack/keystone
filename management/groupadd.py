@@ -14,8 +14,8 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
+from keystone.db.sqlalchemy import models
 
 
 def main():
@@ -27,15 +27,14 @@ def main():
     else:
         group_id = args[0]
         group_desc = args[1]
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute(
-                    "INSERT INTO groups ('group_id','group_desc','tenant_id') \
-                    VALUES     ('%s', '%s','')" % (group_id, group_desc))
-        con.commit()
-        con.close()
+        try:
+            g = models.Group()
+            g.id = group_id
+            g.desc = group_desc
+            db_api.group_create(g)
+            print 'Group', g.id, 'created.'
+        except Exception, e:
+            print 'Error creating group', group_id, ':', str(e)
 
 if __name__ == '__main__':
     main()

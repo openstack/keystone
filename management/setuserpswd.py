@@ -14,8 +14,7 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
 
 
 def main():
@@ -27,14 +26,16 @@ def main():
     else:
         username = args[0]
         password = args[1]
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute("UPDATE users SET password = '%s' where username ='%s'"
-                    % (password, username))
-        con.commit()
-        con.close()
+        try:
+            u = db_api.user_get(username)
+            if u == None:
+                raise IndexError("User not found")
+            else:
+                values = {'password': password}
+                db_api.user_update(username, values)
+            print 'User', u.id, 'updated.'
+        except Exception, e:
+            print 'Error updating user', username, ':', str(e)
 
 if __name__ == '__main__':
     main()

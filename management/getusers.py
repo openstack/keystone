@@ -14,8 +14,7 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
 
 
 def main():
@@ -26,17 +25,14 @@ def main():
         parser.error("Incorrect number of arguments")
     else:
         tenant_id = args[0]
-
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute("select u.* from users u inner join user-tenants ut on \
-                    u.username = ut.user_id where ut.tenant_id = '%s' "
-                    % (tenant_id))
-        con.commit()
-        print cur.fetchall()
-        con.close()
+        try:
+            u = db_api.user_get_by_tenant(tenant_id)
+            if u == None:
+                raise IndexError("Users not found")
+            for row in u:
+                print row
+        except Exception, e:
+            print 'Error getting users for tenant', tenant_id, ':', str(e)
 
 if __name__ == '__main__':
     main()

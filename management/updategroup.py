@@ -14,8 +14,8 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
+from keystone.db.sqlalchemy import models
 
 
 def main():
@@ -25,16 +25,18 @@ def main():
     if len(args) != 2:
         parser.error("Incorrect number of arguments")
     else:
-        group_id = args[0]
-        group_desc = args[1]
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute("update groups set group_desc='%s' where group_id='%s')"
-                    % (group_desc, group_id))
-        con.commit()
-        con.close()
+        group = args[0]
+        desc = args[1]
+        try:
+            g = db_api.group_get(group)
+            if g == None:
+                raise IndexError("Group not found")
+            else:
+                values = {'desc': desc}
+                db_api.group_update(group, values)
+            print 'Group', g.id, 'updated.'
+        except Exception, e:
+            print 'Error updating user', group, ':', str(e)
 
 if __name__ == '__main__':
     main()

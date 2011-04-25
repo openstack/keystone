@@ -14,8 +14,7 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
 
 
 def main():
@@ -25,18 +24,15 @@ def main():
     if len(args) != 1:
         parser.error("Incorrect number of arguments")
     else:
-        user_id = args[0]
-
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute("select g.* from groups g inner join user-group ug on \
-                    g.group_id = ug.group_id where ug.user_id = '%s' "
-                    % user_id)
-        con.commit()
-        print cur.fetchall()
-        con.close()
+        username = args[0]
+        try:
+            g = db_api.user_groups(username)
+            if g == None:
+                raise IndexError("User groups not found")
+            for row in g:
+                print row
+        except Exception, e:
+            print 'Error getting user groups for user', user_id, ':', str(e)
 
 if __name__ == '__main__':
     main()

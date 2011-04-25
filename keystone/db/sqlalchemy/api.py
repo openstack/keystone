@@ -85,14 +85,61 @@ def user_get(id, session=None):
         joinedload('tenants')).filter_by(id=id).first()
     return result
 
+def user_get_by_tenant(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.UserTenantAssociation).filter_by(
+    tenant_id=tenant_id)
+    return result
 
+def user_groups(id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.Group).filter_by(
+        user_id=id)
+    return result
+
+def user_update(id, values, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        user_ref = user_get(id, session)
+        user_ref.update(values)
+        user_ref.save(session=session)
+
+def user_delete(id, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        user_ref = user_get(id, session)
+        session.delete(user_ref)
+        
 def group_get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Group).filter_by(id=id).first()
     return result
 
+def group_users(id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.Users).filter_by(
+        group_id=id)
+    return result
 
+def group_get_all(session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.Group)
+    return result
+
+def group_delete(id, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        group_ref = group_get(id, session)
+        session.delete(group_ref)
+        
 def token_create(values):
     token_ref = models.Token()
     token_ref.update(values)

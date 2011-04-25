@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
 
 
 def main():
@@ -27,16 +27,14 @@ def main():
     else:
         group_id = args[0]
 
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute("select u.* from users u inner join user-group ug on \
-                     u.username = ug.user_id where ug.group_id = '%s' "
-                    % group_id)
-        con.commit()
-        print cur.fetchall()
-        con.close()
+        try:
+            g = db_api.group_users(group_id)
+            if g == None:
+                raise IndexError("Group users not found")
+            for row in g:
+                print row
+        except Exception, e:
+            print 'Error getting group users for group', group_id, ':', str(e)
 
 if __name__ == '__main__':
     main()

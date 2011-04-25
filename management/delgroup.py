@@ -14,8 +14,7 @@
 # limitations under the License.
 
 import optparse
-import os
-import sqlite3
+import keystone.db.sqlalchemy.api as db_api
 
 
 def main():
@@ -25,15 +24,19 @@ def main():
     if len(args) != 1:
         parser.error("Incorrect number of arguments")
     else:
-        group_id = args[0]
-        dbpath = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../db/keystone.db'))
-        con = sqlite3.connect(dbpath)
-        cur = con.cursor()
-        cur.execute(
-            "DELETE FROM groups WHERE group_id='%s'" % group_id)
-        con.commit()
-        con.close()
+        index = args[0]
+
+        try:
+            o = db_api.group_get(index)
+            if o == None:
+                raise IndexError("Group %s not found", index)
+            else:
+                db_api.group_delete(index)
+            print 'Group', index, 'deleted.'
+
+        except Exception, e:
+            print 'Error deleting group', index, str(e)
+
 
 if __name__ == '__main__':
     main()

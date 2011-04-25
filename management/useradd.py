@@ -35,10 +35,9 @@ def main():
             u.password = password
             u.enabled = True
             db_api.user_create(u)
-            print 'user', u.id, 'created.'
-            return
+            print 'User', u.id, 'created.'
         except Exception, e:
-            print 'Error creating user', u.id, ':', str(e)
+            print 'Error creating user', username, ':', str(e)
 
 if __name__ == '__main__':
     main()
