@@ -18,28 +18,8 @@ class Link(object):
     "An atom link"
 
     def __init__(self, rel, href, link_type=None, hreflang=None, title=None):
-        self.__rel = rel
-        self.__href = href
-        self.__link_type = link_type
-        self.__hreflang = hreflang
-        self.__title = title
-
-    @property
-    def rel(self):
-        return self.__rel
-
-    @property
-    def href(self):
-        return self.__href
-
-    @property
-    def link_type(self):
-        return self.__link_type
-
-    @property
-    def hreflang(self):
-        return self.__hreflang
-
-    @property
-    def title(self):
-        return self.__title
+        self.rel = rel
+        self.href = href
+        self.link_type = link_type
+        self.hreflang = hreflang
+        self.title = title
