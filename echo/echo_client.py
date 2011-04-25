@@ -18,21 +18,26 @@ Implement a client for Echo service using Identity service
 """
 
 import httplib
-import simplejson
+import json
 
 
 def get_auth_token(username, password, tenant):
     headers = {"Content-type": "application/json", "Accept": "text/json"}
-    params = '{"passwordCredentials": { "username": "' + username + '", "password": "' + password + '", "tenantId": "1"}}'
+    params = {"passwordCredentials": {"username": username,
+                                      "password": password,
+                                      "tenantId": "1"}}
     conn = httplib.HTTPConnection("localhost:8080")
-    conn.request("POST", "/v1.0/token", params, headers=headers)
+    conn.request("POST", "/v1.0/token", json.dumps(params), headers=headers)
     response = conn.getresponse()
     data = response.read()
     ret = data
     return ret
 
+
 def call_service(token):
-    headers = {"X-Auth-Token": token, "Content-type": "application/json", "Accept": "text/json"}
+    headers = {"X-Auth-Token": token,
+               "Content-type": "application/json",
+               "Accept": "text/json"}
     params = '{"ping": "abcdefg"}'
     conn = httplib.HTTPConnection("localhost:8090")
     conn.request("POST", "/", params, headers=headers)
@@ -42,13 +47,12 @@ def call_service(token):
     return ret
 
 if __name__ == '__main__':
-    # Call the keystone service to get a token (assumes the test_setup.sql script has loaded this user)
+    # Call the keystone service to get a token
+    # NOTE: assumes the test_setup.sql script has loaded this user
     auth = get_auth_token("joeuser", "secrete", "1")
-    obj = simplejson.loads(auth)
+    obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token:", token
-
-    # Use that token to call an OpenStack service (we're using the Echo sample service for now)
+    # Use that token to call an OpenStack service (echo)
     data = call_service(token)
     print "Response:", data
-    

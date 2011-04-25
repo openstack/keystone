@@ -20,12 +20,9 @@ import sys
 import eventlet
 from eventlet import wsgi
 #from httplib2 import Http
+import json
 from lxml import etree
 from paste.deploy import loadapp
-try:
-    import simplejson as json
-except ImportError:
-    import json
 import urllib
 
 # If ../echo/__init__.py exists, add ../ to Python search path, so that

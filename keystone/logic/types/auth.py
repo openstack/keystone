@@ -16,7 +16,7 @@
 from datetime import datetime
 
 from abc import ABCMeta
-import simplejson as json
+import json
 import keystone.logic.types.fault as fault
 from lxml import etree
 

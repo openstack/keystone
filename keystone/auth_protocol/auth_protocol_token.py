@@ -15,7 +15,7 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
-import simplejson as json
+import json
 from webob.exc import HTTPUnauthorized, Request
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect

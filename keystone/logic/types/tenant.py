@@ -13,22 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import string as s
-import simplejson as json
+import json
 import keystone.logic.types.fault as fault
 from lxml import etree
+import string
 
 
 class Tenant(object):
     "Describes a tenant in the auth system"
 
     def __init__(self, tenant_id, description, enabled):
-        self.__tenant_id = tenant_id
-        self.__description = description
+        self.tenant_id = tenant_id
+        self.description = description
         if enabled:
-            self.__enabled = True
+            self.enabled = True
         else:
-            self.__enabled = False
+            self.enabled = False
 
     @staticmethod
     def from_xml(xml_str):
@@ -52,7 +52,7 @@ class Tenant(object):
                 raise fault.BadRequestFault("Expecting Tenant Description")
             return Tenant(tenant_id, desc.text, set_enabled)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse Tenant", e.__str__())
+            raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -75,28 +75,16 @@ class Tenant(object):
             description = tenant["description"]
             return Tenant(tenant_id, description, set_enabled)
         except (json.decoder.JSONDecodeError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse Tenant", e.__str__())
-
-    @property
-    def tenant_id(self):
-        return self.__tenant_id
-
-    @property
-    def description(self):
-        return self.__description
-
-    @property
-    def enabled(self):
-        return self.__enabled
+            raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
     def to_dom(self):
         dom = etree.Element("tenant",
                             xmlns="http://docs.openstack.org/idm/api/v1.0",
-                            enabled=s.lower(self.__enabled.__str__()))
-        if self.__tenant_id != None:
-            dom.set("id", self.__tenant_id)
+                            enabled=string.lower(str(self.enabled)))
+        if self.tenant_id:
+            dom.set("id", self.tenant_id)
         desc = etree.Element("description")
-        desc.text = self.__description
+        desc.text = self.description
         dom.append(desc)
         return dom
 
@@ -105,13 +93,11 @@ class Tenant(object):
 
     def to_dict(self):
         tenant = {}
-        if self.__tenant_id != None:
-            tenant["id"] = self.__tenant_id
-        tenant["description"] = self.__description
-        tenant["enabled"] = self.__enabled
-        ret = {}
-        ret["tenant"] = tenant
-        return ret
+        if self.tenant_id:
+            tenant["id"] = self.tenant_id
+        tenant["description"] = self.description
+        tenant["enabled"] = self.enabled
+        return {'tenant': tenant}
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -121,30 +107,16 @@ class Tenants(object):
     "A collection of tenants."
 
     def __init__(self, values, links):
-        self.__values = values
-        self.__links = links
-
-    @property
-    def values(self):
-        return self.__values
-
-    @property
-    def links(self):
-        return self.__links
+        self.values = values
+        self.links = links
 
     def to_xml(self):
         dom = etree.Element("tenants",
                             xmlns="http://docs.openstack.org/idm/api/v1.0")
-        for t in self.__values:
+        for t in self.values:
             dom.append(t.to_dom())
         return etree.tostring(dom)
 
     def to_json(self):
-        values = []
-        for t in self.__values:
-            values.append(t.to_dict()["tenant"])
-        v = {}
-        v["values"] = values
-        ret = {}
-        ret["tenants"] = v
-        return json.dumps(ret)
+        values = [t.to_dict()["tenant"] for t in self.values]
+        return json.dumps({"tenants": {"values": values}})
