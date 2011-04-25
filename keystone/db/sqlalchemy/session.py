@@ -18,6 +18,8 @@
 """
 Session Handling for SQLAlchemy backend
 """
+import logging
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy import pool
@@ -27,9 +29,16 @@ from sqlalchemy.orm import sessionmaker
 _ENGINE = None
 _MAKER = None
 
-print 'SQL', __package__
-print 'File', __file__
-
+def get_connection_string():
+    path = os.path.realpath(__file__)
+    dbpath = os.path.normpath(os.path.join(path,
+                                    os.pardir, #sqlalchemy
+                                    os.pardir, #db
+                                    os.pardir  #keystone
+                                    ))
+    connection_string = "sqlite:///%s/keystone.db" % dbpath
+    logging.debug('SQL ALchemy connection string: %s', connection_string)
+    return connection_string
 
 def get_session(autocommit=True, expire_on_commit=False):
     """Helper method to grab session"""
@@ -38,8 +47,8 @@ def get_session(autocommit=True, expire_on_commit=False):
     if not _MAKER:
         if not _ENGINE:
             kwargs = {'pool_recycle': 30, 'echo': False}
-            kwargs['poolclass'] = pool.NullPool
-            _ENGINE = create_engine("sqlite:///keystone.db", **kwargs)
+            kwargs['poolclass'] = pool.NullPool #for SQLite3
+            _ENGINE = create_engine(get_connection_string(), **kwargs)
         _MAKER = (sessionmaker(bind=_ENGINE,
             autocommit=autocommit,
             expire_on_commit=expire_on_commit))
