@@ -54,7 +54,7 @@ class IDMService(object):
             dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
-            if len(duser.tenants) == 0:
+            if not duser.tenants:
                 raise fault.IDMFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
             dtoken.tenant_id = duser.tenants[0].tenant_id
@@ -67,9 +67,7 @@ class IDMService(object):
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_token(admin_token)
 
-        dauth = self.__get_dauth_data(token_id)
-        dtoken = dauth[0]
-        duser = dauth[1]
+        (dtoken, duser) = self.__get_dauth_data(token_id)
 
         if not dtoken:
             raise fault.ItemNotFoundFault("Token not found")
@@ -90,8 +88,6 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("Token not found")
 
         db_api.token_delete(token_id)
-
-        return None
 
     #
     #   Tenant Operations
@@ -133,7 +129,7 @@ class IDMService(object):
         self.__validate_token(admin_token)
 
         dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
+        if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
 
         return tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
@@ -149,9 +145,7 @@ class IDMService(object):
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
 
-        values = {}
-        values["desc"] = tenant.description
-        values["enabled"] = tenant.enabled
+        values = {'desc': tenant.description, 'enabled': tenant.enabled}
 
         db_api.tenant_update(tenant_id, values)
 
@@ -175,17 +169,19 @@ class IDMService(object):
     # Private Operations
     #
     def __get_dauth_data(self, token_id):
-        if not token_id:
-            token = None
-        else:
+        """return token and user object for a token_id"""
+
+        token = None
+        user = None
+        if token_id:
             token = db_api.token_get(token_id)
-        if not token:
-            user = None
-        else:
-            user = db_api.user_get(token.user_id)
+            if token:
+                user = db_api.user_get(token.user_id)
         return (token, user)
 
     def __get_auth_data(self, dtoken, duser):
+        """return AuthData object for a token/user pair"""
+
         token = auth.Token(dtoken.expires, dtoken.token_id)
 
         gs = []
@@ -202,9 +198,7 @@ class IDMService(object):
     def __validate_token(self, token_id, admin=True):
         if not token_id:
             raise fault.UnauthorizedFault("Missing token")
-        auth_data = self.__get_dauth_data(token_id)
-        token = auth_data[0]
-        user = auth_data[1]
+        (token, user) = self.__get_dauth_data(token_id)
 
         if not token:
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
@@ -219,4 +213,4 @@ class IDMService(object):
                     return auth_data
             raise fault.ForbiddenFault("You are not authorized "
                                        "to make this call")
-        return auth_data
+        return (token, user)

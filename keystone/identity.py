@@ -68,21 +68,20 @@ def get_app_root():
     return os.path.abspath(os.path.dirname(__file__))
 
 
-def send_result(result, code=500):
-    if result != None:
+def send_result(code, result):
+    content = None
+    response.content_type = None
+    if result:
         if is_xml_response():
-            ret = result.to_xml()
+            content = result.to_xml()
             response.content_type = "application/xml"
         else:
-            ret = result.to_json()
+            content = result.to_json()
             response.content_type = "application/json"
-    else:
-        ret = None
-        response.content_type = None
     response.status = code
     if code > 399:
-        return bottle.abort(code, ret)
-    return ret
+        return bottle.abort(code, content)
+    return content
 
 
 def get_request(ctx):
@@ -105,9 +104,9 @@ def get_auth_token():
 
 def send_error(error):
     if isinstance(error, fault.IDMFault):
-        send_result(error, error.code)
+        send_result(error.code, error)
     else:
-        send_result(fault.IDMFault("Unhandled error", str(error)))
+        send_result(500, fault.IDMFault("Unhandled error", str(error)))
 
 
 @bottle.route('/v1.0', method='GET')
@@ -181,7 +180,7 @@ def get_xsd_atom_contract(xsd):
 def authenticate():
     try:
         creds = get_request(auth.PasswordCredentials)
-        return send_result(service.authenticate(creds), 200)
+        return send_result(200, service.authenticate(creds))
     except Exception as e:
         return send_error(e)
 
@@ -193,7 +192,7 @@ def validate_token(token_id):
         if "belongsTo" in request.GET:
             belongs_to = request.GET["belongsTo"]
         rval = service.validate_token(get_auth_token(), token_id, belongs_to)
-        return send_result(rval, 200)
+        return send_result(200, rval)
     except Exception as e:
         return send_error(e)
 
@@ -201,8 +200,8 @@ def validate_token(token_id):
 @bottle.route('/v1.0/token/:token_id', method='DELETE')
 def delete_token(token_id):
     try:
-        return send_result(service.revoke_token(get_auth_token(), token_id),
-                           204)
+        return send_result(204,
+                           service.revoke_token(get_auth_token(), token_id))
     except Exception as e:
         return send_error(e)
 
@@ -215,8 +214,8 @@ def delete_token(token_id):
 def create_tenant():
     try:
         tenant = get_request(tenants.Tenant)
-        return send_result(service.create_tenant(get_auth_token(), tenant),
-                           201)
+        return send_result(201,
+                           service.create_tenant(get_auth_token(), tenant))
     except Exception as e:
         return send_error(e)
 
@@ -231,7 +230,7 @@ def get_tenants():
         if "limit" in request.GET:
             limit = request.GET["limit"]
         tenants = service.get_tenants(get_auth_token(), marker, limit)
-        return send_result(tenants, 200)
+        return send_result(200, tenants)
     except Exception as e:
         return send_error(e)
 
@@ -240,7 +239,7 @@ def get_tenants():
 def get_tenant(tenant_id):
     try:
         tenant = service.get_tenant(get_auth_token(), tenant_id)
-        return send_result(tenant, 200)
+        return send_result(200, tenant)
     except Exception as e:
         return send_error(e)
 
@@ -250,7 +249,7 @@ def update_tenant(tenant_id):
     try:
         tenant = get_request(tenants.Tenant)
         rval = service.update_tenant(get_auth_token(), tenant_id, tenant)
-        return send_result(rval, 200)
+        return send_result(200, rval)
     except Exception as e:
         return send_error(e)
 
@@ -259,7 +258,7 @@ def update_tenant(tenant_id):
 def delete_tenant(tenant_id):
     try:
         rval = service.delete_tenant(get_auth_token(), tenant_id)
-        return send_result(rval, 204)
+        return send_result(204, rval)
     except Exception as e:
         return send_error(e)
 

@@ -20,13 +20,8 @@ import simplejson as json
 import keystone.logic.types.fault as fault
 from lxml import etree
 
-# FIXME(ja): do we need a base class?
-class Credentials(object):
-    "Base class for all auth credentials."
-    __metaclass__ = ABCMeta
 
-
-class PasswordCredentials(Credentials):
+class PasswordCredentials(object):
     "Credentials based on username, password, and (optional) tenant_id."
 
     def __init__(self, username, password, tenant_id):
