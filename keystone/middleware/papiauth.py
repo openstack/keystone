@@ -59,26 +59,20 @@ class PAPIAuth(object):
     # from a separate server.
 
     def __init__(self, app, conf):
+        # app is the next app in WSGI chain - eventually the OpenStack service
         self.app = app
         self.conf = conf
-        self.auth_host = conf.get('auth_ip', '127.0.0.1')
-        self.auth_port = int(conf.get('auth_port', 11000))
+        # where to redirect untrusted requests to go and auth
+        self.proxy_location = conf.get('proxy_location')
+        # secret that will tell us a request is coming from a trusted auth
+        # component
         self.auth_pass = conf.get('auth_pass', 'dTpw')
-        self.proxy_location = 'http://%s:%d/' % (self.auth_host,
-            self.auth_port)
         print 'Starting PAPI Auth middleware'
 
     def __call__(self, env, start_response):
-        print "PAPIAuth handling a service call"
-        # Make sure that the user has been authenticated by the Auth Service
-        if 'HTTP_X_AUTHORIZATION' not in env:
-            self.proxy_location = 'http://' + self.auth_host + ':' + \
-                str(self.auth_port) + '/'
-            return HTTPUseProxy(location=self.proxy_location)(env,
-                start_response)
-
+        # Validate the request is trusted
         # Authenticate the Auth component itself.
-        headers = [('www-authenticate', 'Basic realm="echo"')]
+        headers = [('www-authenticate', 'Basic realm="API Auth"')]
         if 'HTTP_AUTHORIZATION' not in env:
             return HTTPUnauthorized(headers=headers)(env, start_response)
         else:
@@ -86,7 +80,13 @@ class PAPIAuth(object):
             if encoded_creds != self.auth_pass:
                 return HTTPUnauthorized(headers=headers)(env, start_response)
 
+        # Make sure that the user has been authenticated by the Auth Service
+        if 'HTTP_X_AUTHORIZATION' not in env:
+            return HTTPUseProxy(location=self.proxy_location)(env,
+                start_response)
+
         return self.app(env, start_response)
+
 
 
 def filter_factory(global_conf, **local_conf):

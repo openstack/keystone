@@ -19,11 +19,8 @@ import sys
 
 import eventlet
 from eventlet import wsgi
-#from httplib2 import Http
-import json
 from lxml import etree
 from paste.deploy import loadapp
-import urllib
 
 # If ../echo/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -57,9 +54,7 @@ class EchoApp(object):
 
     def __iter__(self):
         if 'HTTP_X_AUTHORIZATION' not in self.envr:
-            proxy_location = 'http://' + ' ' + ':' + \
-                str(' ') + '/'
-            return HTTPUseProxy(location=proxy_location)(env, start_response)
+            return HTTPUnauthorized(env, start_response)
 
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
         if accept == "application/xml":
@@ -95,7 +90,24 @@ def app_factory(global_conf, **local_conf):
     return EchoApp
 
 if __name__ == "__main__":
-    app = loadapp("config:" + \
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), "echo.ini"), \
-        global_conf={"log_name": "echo.log"})
-    wsgi.server(eventlet.listen(('', 8090)), app)
+    remote_auth = False
+    if len(sys.argv) > 1:
+        remote_auth = sys.argv[1] == '--remote'
+
+    if remote_auth:
+        # running auth remotely
+        print "Running for use with remote auth"
+
+        app = loadapp("config:" + \
+            os.path.join(os.path.abspath(os.path.dirname(__file__)),
+            "echo_remote.ini"), global_conf={"log_name": "echo.log"})
+
+        wsgi.server(eventlet.listen(('', 8100)), app)
+
+    else:
+        print "Running all components locally. Use --remote option to run with remote auth proxy"
+        app = loadapp("config:" + \
+            os.path.join(os.path.abspath(os.path.dirname(__file__)),
+            "echo.ini"), global_conf={"log_name": "echo.log"})
+
+        wsgi.server(eventlet.listen(('', 8090)), app)

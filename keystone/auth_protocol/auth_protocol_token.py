@@ -42,8 +42,12 @@ HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
                       to support cloud files
 
 """
-
+import eventlet
+from eventlet import wsgi
 import json
+import os
+from paste.deploy import loadapp
+import sys
 from webob.exc import HTTPUnauthorized, Request
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
@@ -59,22 +63,23 @@ class TokenAuth(object):
         self.app = app #if app is not set, this should forward requests
 
         # where to find the OpenStack service (if not in local WSGI chain)
+        self.service_protocol = conf.get('service_protocol', 'http')
         self.service_host = conf.get('service_host', '127.0.0.1')
         self.service_port = int(conf.get('service_port', 8090))
+        # used to verify this component with the OpenStack service (or PAPIAuth)
+        self.service_pass = conf.get('service_pass', 'dTpw')
 
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_ip', '127.0.0.1')
         self.auth_port = int(conf.get('auth_port', 8080))
-
-        # used to verify this component with the OpenStack service
-        self.auth_pass = conf.get('auth_pass', 'dTpw')
+        # used to verify this component with the Auth service
+        self.auth_token = conf.get('auth_token', 'dTpw')
 
         # delegated means we still allow unauthenticated requests through
         self.delegated = int(conf.get('delegated', 0))
         
 
     def __call__(self, env, start_response):
-        print "Handling a token-auth client call"
         def custom_start_response(status, headers):
             if self.delegated:
                 headers.append(('WWW-Authenticate', "Basic realm='API Realm'"))
@@ -85,28 +90,46 @@ class TokenAuth(object):
             # this request is claiming it has a valid token, let's check
             # with the auth service
             headers = {"Content-type": "application/json",
-                        "Accept": "text/json"}
+                        "Accept": "text/json",
+                        "X-Auth-Token": self.auth_token}
             conn = http_connect(self.auth_host, self.auth_port, 'GET',
                                 '/v1.0/token/%s' % token, headers=headers)
             resp = conn.getresponse()
             data = resp.read()
             conn.close()
-            #path = 'http://%s:%s/v1.0/token/%s' % \
-            #       (self.auth_host, self.auth_port, token)
-            #resp = Request.blank(path).get_response(self.app)
-            #data = resp.body
             if not str(resp.status).startswith('20'):
                 if self.delegated:
                     env['HTTP_X_IDENTITY_STATUS'] = "Invalid"
+                else:
+                    # Reject the response & send back the error (not delegated)
+                    headers = [('www-authenticate', 'Token realm="Token Auth"')]
+                    return HTTPUnauthorized(headers=headers)(env, start_response)
+                    #start_response('%s %s' % (resp.status, resp.reason),
+                    #                resp.getheaders())
+                    #TODO(Ziad): is there any security risk to return the
+                    #data back to an unauthorized client?
+                    #return data
             else:
+                # Get user data and return it to service
                 dict_response = json.loads(data)
                 user = dict_response['auth']['user']['username']
                 env['HTTP_X_AUTHORIZATION'] = "Proxy " + user
                 if self.delegated:
                     env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
 
-        env['HTTP_AUTHORIZATION'] = "Basic dTpw"
-        return self.app(env, custom_start_response)
+        if self.app is None:
+            # We are forwarding to a remote service
+            forward = Request.copy()
+            forward.host = '%s:%s' % (self.service_host, self.service_port)
+            # we need to tell the service who we are by authenticating to it
+            forward.environ['HTTP_AUTHORIZATION'] = "Basic dTpw"
+            service_resp = forward.getresponse()
+            data = service_resp.read()
+            start_response(service_resp.status, service_resp.getheaders())
+            return data
+        else:
+            env['HTTP_AUTHORIZATION'] = "Basic dTpw"
+            return self.app(env, custom_start_response)
 
 
 def filter_factory(global_conf, **local_conf):
@@ -117,3 +140,4 @@ def filter_factory(global_conf, **local_conf):
     def auth_filter(app):
         return TokenAuth(app, conf)
     return auth_filter
+
