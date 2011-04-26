@@ -145,14 +145,15 @@ class TokenAuth(object):
                     env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
 
         if self.app is None:
+            req = Request(env)
             # We are forwarding to a remote service
-            forward = Request.copy()
+            forward = Request.copy(req)
             forward.host = '%s:%s' % (self.service_host, self.service_port)
             # we need to tell the service who we are by authenticating to it
             if self.delegated:
                 env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
             forward.environ['HTTP_AUTHORIZATION'] = "Basic dTpw"
-            service_resp = forward.getresponse()
+            service_resp = forward.get_response()
             data = service_resp.read()
             start_response(service_resp.status, service_resp.getheaders())
             return data
@@ -170,3 +171,13 @@ def filter_factory(global_conf, **local_conf):
         return TokenAuth(app, conf)
     return auth_filter
 
+def app_factory(global_conf, **local_conf):
+    conf = global_conf.copy()
+    conf.update(local_conf)
+    return TokenAuth(None, conf)
+
+if __name__ == "__main__":
+    app = loadapp("config:" + \
+        os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        "auth_protocol_token.ini"), global_conf={"log_name": "echo.log"})
+    wsgi.server(eventlet.listen(('', 8090)), app)
