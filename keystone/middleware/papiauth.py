@@ -77,7 +77,6 @@ class PAPIAuth(object):
             return HTTPUnauthorized(headers=headers)(env, start_response)
         else:
             auth_type, encoded_creds = env['HTTP_AUTHORIZATION'].split(None, 1)
-            print encoded_creds, self.auth_pass
             if encoded_creds != self.auth_pass:
                 return HTTPUnauthorized(headers=headers)(env, start_response)
 
@@ -87,7 +86,6 @@ class PAPIAuth(object):
                 start_response)
 
         return self.app(env, start_response)
-
 
 
 def filter_factory(global_conf, **local_conf):

@@ -146,6 +146,7 @@ class TokenAuth(object):
                 if self.delegated:
                     # Downstream service will receive call still and decide
                     proxy_headers['X_IDENTITY_STATUS'] = "Invalid"
+                    env['HTTPX_IDENTITY_STATUS'] = "Invalid"
                 else:
                     # Reject the response & send back the error (not delegated)
                     return HTTPUnauthorized(headers=headers)(env, start_response)
@@ -156,16 +157,19 @@ class TokenAuth(object):
                 user = dict_response['auth']['user']['username']
                 proxy_headers['X_AUTHORIZATION'] = "Proxy " + user
                 proxy_headers['X_IDENTITY_STATUS'] = "Confirmed"
+                env['HTTP_X_AUTHORIZATION'] = "Proxy " + user
+                env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
         else:
             #No token was provided
             if self.delegated:
                 proxy_headers['X_IDENTITY_STATUS'] = "Invalid"
+                env['HTTP_X_IDENTITY_STATUS'] = "Invalid"
             else:
                 return HTTPUnauthorized()
 
         #Token/Auth processed, headers added now decide how to pass on the call
-        proxy_headers['AUTHORIZATION'] = "Basic dTpw"
         if self.app is None:
+            proxy_headers['AUTHORIZATION'] = "Basic dTpw"
             # We are forwarding to a remote service (no downstream WSGI app)
             req = Request(proxy_headers)
             parsed = urlparse(req.url)
@@ -180,6 +184,7 @@ class TokenAuth(object):
             return Response(status=resp.status, body=data)(env, start_response)
         else:
             # Pass to downstream WSGI component
+            env['HTTP_AUTHORIZATION'] = "Basic dTpw"
             return self.app(env, custom_start_response)
 
 
