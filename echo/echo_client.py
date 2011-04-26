@@ -44,29 +44,30 @@ def call_service(token):
     response = conn.getresponse()
     data = response.read()
     ret = data
-    return (response.status, response.reason, ret)
+    return ret
 
 if __name__ == '__main__':
     # Call the keystone service to get a token
     # NOTE: assumes the test_setup.sql script has loaded this user
+    print "\033[91mTrying with valid test credentials...\033[0m"
     auth = get_auth_token("joeuser", "secrete", "1")
     obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token obtained:", token
+
     # Use that token to call an OpenStack service (echo)
     data = call_service(token)
-    print "Response received:", data[0], data[1]
-    print "Data:"
-    print data[2]
-    
+
+    print "Response received:", data
+    print
+
     # Use bad token to call an OpenStack service (echo)
-    print "Trying with bad token..."
+    print "\033[91mTrying with bad token...\033[0m"
     data = call_service("xxxx_invalid_token_xxxx")
-    print "Response received:", data[0], data[1]
-    print "Data:"
-    print data[2]
+    print "Response received:", data
+    print
 
     #Supply bad credentials
-    print "Trying with bad credentials..."
+    print "\033[91mTrying with bad credentials...\033[0m"
     auth = get_auth_token("joeuser", "wrongpass", "1")
     print "Response:", auth

@@ -83,8 +83,7 @@ INSTALLING TEST SERVICE:
 TESTING
 -------
 
-Testing is kinda manual right now...and based on SOAP UI.  After
-starting identity.py a keystone.db sql-lite database should be created.
+After starting identity.py a keystone.db sql-lite database should be created.
 
 To test setup the test database:
 
@@ -93,6 +92,18 @@ To test setup the test database:
 To clean the test database
 
     $ sqlite3 keystone/keystone.db < test/kill.sql
+
+To run unit tests:
+
+    $ python test/unit/test_identity.py
+
+To run client demo (with all auth middleware running locally on sample service):
+
+    $ python echo/echo/echo.py
+    $ python echo/echo/echo_client.py
+
+
+To perform contract validation and load testing, use SoapUI (for now).
 
 Using SOAPUI:
 
