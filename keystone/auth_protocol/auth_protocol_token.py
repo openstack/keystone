@@ -48,13 +48,10 @@ from eventlet import wsgi
 import json
 import os
 from paste.deploy import loadapp
-import sys
-from webob.exc import HTTPUnauthorized, Request
-
-
-import httplib
-import json
+from urlparse import urlparse
 from webob.exc import HTTPUnauthorized
+from webob.exc import Request, Response
+import httplib
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
@@ -72,6 +69,7 @@ class TokenAuth(object):
         self.service_protocol = conf.get('service_protocol', 'http')
         self.service_host = conf.get('service_host', '127.0.0.1')
         self.service_port = int(conf.get('service_port', 8090))
+        self.service_url = '%s://%s:%s' % (self.service_protocol, self.service_host, self.service_port)
         # used to verify this component with the OpenStack service (or PAPIAuth)
         self.service_pass = conf.get('service_pass', 'dTpw')
 
@@ -88,7 +86,8 @@ class TokenAuth(object):
     def get_admin_auth_token(self, username, password, tenant):
         """
             This function gets an admin auth token to be used by this service to
-            validate a user's token.
+            validate a user's token. Validate_token is a priviledged call so
+            it needs to be authenticated by a service that is calling it
         """
         headers = {"Content-type": "application/json", "Accept": "text/json"}
         params = {"passwordCredentials": {"username": username,
@@ -110,55 +109,77 @@ class TokenAuth(object):
                 headers.append(('WWW-Authenticate', "Basic realm='API Realm'"))
             return start_response(status, headers)
 
+        #Prep for proxy request
+        proxy_headers = env.copy()
+        user = ''
+
+        #Look for token in request
         token = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         if token:
             # this request is claiming it has a valid token, let's check
             # with the auth service
-            # Step1: Get an admin token
-            auth = self.get_admin_auth_token("admin", "secrete", "1")
-            admin_token = json.loads(auth)["auth"]["token"]["id"]
+            # Step 1: We need to auth with the keystone service, so get an
+            # admin token
+            #TODO: Need to properly implement this, where to store creds
+            # for now using token from ini
+            #auth = self.get_admin_auth_token("admin", "secrete", "1")
+            #admin_token = json.loads(auth)["auth"]["token"]["id"]
 
-            # Step2: validate the user's token using the admin token
+            # Step 2: validate the user's token using the admin token
             headers = {"Content-type": "application/json",
                         "Accept": "text/json",
                         "X-Auth-Token": self.auth_token}
-                        #Khaled's version: "X-Auth-Token": admin_token}
+                        ##TODO:we need to figure out how to auth to keystone
+                        #since validate_token is a priviledged call
+                        #Khaled's version uses creds to get a token
+                        # "X-Auth-Token": admin_token}
+                        # we're using a test token from the ini file for now
             conn = http_connect(self.auth_host, self.auth_port, 'GET',
                                 '/v1.0/token/%s' % token, headers=headers)
             resp = conn.getresponse()
             data = resp.read()
             conn.close()
 
+
             if not str(resp.status).startswith('20'):
+                # Keystone rejected claim
                 if self.delegated:
-                    env['HTTP_X_IDENTITY_STATUS'] = "Invalid"
+                    # Downstream service will receive call still and decide
+                    proxy_headers['X_IDENTITY_STATUS'] = "Invalid"
                 else:
                     # Reject the response & send back the error (not delegated)
-                    headers = [('www-authenticate', 'Token realm="Token Auth"')]
                     return HTTPUnauthorized(headers=headers)(env, start_response)
             else:
-                # Get user data and return it to service
+                # Valid token. Get user data and put it in to the call
+                # so the downstream service can use iot
                 dict_response = json.loads(data)
                 user = dict_response['auth']['user']['username']
-                env['HTTP_X_AUTHORIZATION'] = "Proxy " + user
-                if self.delegated:
-                    env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
-
-        if self.app is None:
-            req = Request(env)
-            # We are forwarding to a remote service
-            forward = Request.copy(req)
-            forward.host = '%s:%s' % (self.service_host, self.service_port)
-            # we need to tell the service who we are by authenticating to it
-            if self.delegated:
-                env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
-            forward.environ['HTTP_AUTHORIZATION'] = "Basic dTpw"
-            service_resp = forward.get_response()
-            data = service_resp.read()
-            start_response(service_resp.status, service_resp.getheaders())
-            return data
+                proxy_headers['X_AUTHORIZATION'] = "Proxy " + user
+                proxy_headers['X_IDENTITY_STATUS'] = "Confirmed"
         else:
-            env['HTTP_AUTHORIZATION'] = "Basic dTpw"
+            #No token was provided
+            if self.delegated:
+                proxy_headers['X_IDENTITY_STATUS'] = "Invalid"
+            else:
+                return HTTPUnauthorized()
+
+        #Token/Auth processed, headers added now decide how to pass on the call
+        proxy_headers['AUTHORIZATION'] = "Basic dTpw"
+        if self.app is None:
+            # We are forwarding to a remote service (no downstream WSGI app)
+            req = Request(proxy_headers)
+            parsed = urlparse(req.url)
+            conn = http_connect(self.service_host, self.service_port, \
+                 req.method, parsed.path, \
+                 proxy_headers,\
+                 ssl=(self.service_protocol == 'https'))
+            resp = conn.getresponse()
+            data = resp.read()
+            #TODO: use a more sophisticated proxy
+            # we are rewriting the headers now
+            return Response(status=resp.status, body=data)(env, start_response)
+        else:
+            # Pass to downstream WSGI component
             return self.app(env, custom_start_response)
 
 

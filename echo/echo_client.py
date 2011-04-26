@@ -57,7 +57,6 @@ if __name__ == '__main__':
 
     # Use that token to call an OpenStack service (echo)
     data = call_service(token)
-
     print "Response received:", data
     print
 
