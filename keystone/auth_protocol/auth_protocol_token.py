@@ -42,6 +42,7 @@ HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
                       to support cloud files
 
 """
+
 import eventlet
 from eventlet import wsgi
 import json
@@ -49,6 +50,11 @@ import os
 from paste.deploy import loadapp
 import sys
 from webob.exc import HTTPUnauthorized, Request
+
+
+import httplib
+import json
+from webob.exc import HTTPUnauthorized
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
@@ -79,6 +85,25 @@ class TokenAuth(object):
         self.delegated = int(conf.get('delegated', 0))
         
 
+    def get_admin_auth_token(self, username, password, tenant):
+        """
+            This function gets an admin auth token to be used by this service to
+            validate a user's token.
+        """
+        headers = {"Content-type": "application/json", "Accept": "text/json"}
+        params = {"passwordCredentials": {"username": username,
+                                          "password": password,
+                                          "tenantId": "1"}}
+        conn = httplib.HTTPConnection("%s:%s" \
+            % (self.auth_host, self.auth_port))
+        conn.request("POST", "/v1.0/token", json.dumps(params), \
+            headers=headers)
+        response = conn.getresponse()
+        data = response.read()
+        ret = data
+        return ret
+
+
     def __call__(self, env, start_response):
         def custom_start_response(status, headers):
             if self.delegated:
@@ -89,14 +114,21 @@ class TokenAuth(object):
         if token:
             # this request is claiming it has a valid token, let's check
             # with the auth service
+            # Step1: Get an admin token
+            auth = self.get_admin_auth_token("admin", "secrete", "1")
+            admin_token = json.loads(auth)["auth"]["token"]["id"]
+
+            # Step2: validate the user's token using the admin token
             headers = {"Content-type": "application/json",
                         "Accept": "text/json",
                         "X-Auth-Token": self.auth_token}
+                        #Khaled's version: "X-Auth-Token": admin_token}
             conn = http_connect(self.auth_host, self.auth_port, 'GET',
                                 '/v1.0/token/%s' % token, headers=headers)
             resp = conn.getresponse()
             data = resp.read()
             conn.close()
+
             if not str(resp.status).startswith('20'):
                 if self.delegated:
                     env['HTTP_X_IDENTITY_STATUS'] = "Invalid"
@@ -104,11 +136,6 @@ class TokenAuth(object):
                     # Reject the response & send back the error (not delegated)
                     headers = [('www-authenticate', 'Token realm="Token Auth"')]
                     return HTTPUnauthorized(headers=headers)(env, start_response)
-                    #start_response('%s %s' % (resp.status, resp.reason),
-                    #                resp.getheaders())
-                    #TODO(Ziad): is there any security risk to return the
-                    #data back to an unauthorized client?
-                    #return data
             else:
                 # Get user data and return it to service
                 dict_response = json.loads(data)
@@ -122,6 +149,8 @@ class TokenAuth(object):
             forward = Request.copy()
             forward.host = '%s:%s' % (self.service_host, self.service_port)
             # we need to tell the service who we are by authenticating to it
+            if self.delegated:
+                env['HTTP_X_IDENTITY_STATUS'] = "Confirmed"
             forward.environ['HTTP_AUTHORIZATION'] = "Basic dTpw"
             service_resp = forward.getresponse()
             data = service_resp.read()
