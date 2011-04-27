@@ -13,10 +13,12 @@ SERVICES:
 ---------
 
 * Keystone - authentication service
-* PAPIAuth - WSGI middleware that can be used in services (like Swift, Nova, and Glance) to perform authentication
-* Auth_Protocal_Token - WSGI middleware that can be used ti handle token auth protocol (WSGI or remote proxy)
+* Auth_Protocal_Token - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
 * Echo     - A sample service that responds by returning call details
 
+Also included:
+* Auth_Protocal_Basic - Stub for WSGI middleware that will be used to handle basic auth
+* Auth_Protocal_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
 
 DEPENDENCIES:
 -------------

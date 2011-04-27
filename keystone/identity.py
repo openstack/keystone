@@ -15,6 +15,27 @@
 # limitations under the License.
 
 
+"""
+Service that stores identoties and issues and manages tokens
+
+HEADERS
+-------
+HTTP_ is a standard http header
+HTTP_X is an extended http header
+
+> Coming in from initial call
+HTTP_X_AUTH_TOKEN   : the client token being passed in
+HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
+                      to support cloud files
+> Used for communication between components
+www-authenticate    : only used if this component is being used remotely
+HTTP_AUTHORIZATION  : basic auth password used to validate the connection
+
+> What we add to the request for use by the OpenStack service
+HTTP_X_AUTHORIZATION: the client identity being passed in
+
+"""
+
 import functools
 import logging
 import os
@@ -87,7 +108,7 @@ def send_result(code, result):
     return content
 
 
-def get_request(model):
+def get_normalized_request_content(model):
     """initialize a model from json/xml contents of request body"""
 
     ctype = request.environ.get("CONTENT_TYPE")
@@ -181,7 +202,7 @@ def get_xsd_atom_contract(xsd):
 @bottle.route('/v1.0/token', method='POST')
 @wrap_error
 def authenticate():
-    creds = get_request(auth.PasswordCredentials)
+    creds = get_normalized_request_content(auth.PasswordCredentials)
     return send_result(200, service.authenticate(creds))
 
 
@@ -209,7 +230,7 @@ def delete_token(token_id):
 @bottle.route('/v1.0/tenants', method='POST')
 @wrap_error
 def create_tenant():
-    tenant = get_request(tenants.Tenant)
+    tenant = get_normalized_request_content(tenants.Tenant)
     return send_result(201,
                        service.create_tenant(get_auth_token(), tenant))
 
@@ -237,7 +258,7 @@ def get_tenant(tenant_id):
 @bottle.route('/v1.0/tenants/:tenant_id', method='PUT')
 @wrap_error
 def update_tenant(tenant_id):
-    tenant = get_request(tenants.Tenant)
+    tenant = get_normalized_request_content(tenants.Tenant)
     rval = service.update_tenant(get_auth_token(), tenant_id, tenant)
     return send_result(200, rval)
 

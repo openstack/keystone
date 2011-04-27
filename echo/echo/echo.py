@@ -72,9 +72,10 @@ class EchoApp(object):
 
     def toDOM(self, environ):
         echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
-                             method=environ["REQUEST_METHOD"],
-                             pathInfo=environ["PATH_INFO"],
-                             queryString=environ.get('QUERY_STRING', ""))
+                             method= environ["REQUEST_METHOD"],
+                             pathInfo= environ["PATH_INFO"],
+                             queryString= environ.get('QUERY_STRING', ""),
+                             caller_identity= self.envr['HTTP_X_AUTHORIZATION'])
         content = etree.Element(
             "{http://docs.openstack.org/echo/api/v1.0}content")
         content.set("type", environ["CONTENT_TYPE"])
