@@ -131,6 +131,22 @@ To Test Identity Service:
 * Double click on "Keystone Tests" and press the green play (>) button
 
 
+Unit Test
+----------
+In order to run the unit test on identity services, run from the keystone directory
+
+ python identity.py
+
+Once the Identity service is running, go to unit test/unit directory
+
+ python test_identity.py
+
+For more on unit testing please refer
+
+python test_identity --help
+
+
+
 DATABASE SCHEMA
 ---------------
 
