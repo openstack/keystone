@@ -70,6 +70,7 @@ def _decorate_request_headers(header, value, proxy_headers, env):
         proxy_headers[header] = value
         env["HTTP_%s" % header] = value
 
+
 class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
 
@@ -89,15 +90,14 @@ class AuthProtocol(object):
         self.service_host = conf.get('service_host', '127.0.0.1')
         self.service_port = int(conf.get('service_port', 8090))
         self.service_url = '%s://%s:%s' % (self.service_protocol,
-                            self.service_host,
-                            self.service_port)
-        # used to verify this component with the OpenStack service (or PAPIAuth)
+                                           self.service_host,
+                                           self.service_port)
+        # used to verify this component with the OpenStack service or PAPIAuth
         self.service_pass = conf.get('service_pass', 'dTpw')
 
         # delay_auth_decision means we still allow unauthenticated requests
         # through and we let the downstream service make the final decision
         self.delay_auth_decision = int(conf.get('delay_auth_decision', 0))
-
 
     def _init_protocol(self, app, conf):
         """ Protocol specific initialization """
@@ -110,20 +110,18 @@ class AuthProtocol(object):
         # validating tokens is a priviledged call
         self.auth_token = conf.get('auth_token', 'dTpw')
 
-
     def __init__(self, app, conf):
         """ Common initialization code """
 
         #TODO: maybe we rafactor this into a superclass
-        self._init_protocol_common(app, conf) #Applies to all protocols
-        self._init_protocol(app, conf) #Specific to this protocol
-
+        self._init_protocol_common(app, conf)  # Applies to all protocols
+        self._init_protocol(app, conf)  # Specific to this protocol
 
     def get_admin_auth_token(self, username, password, tenant):
         """
-            This function gets an admin auth token to be used by this service to
-            validate a user's token. Validate_token is a priviledged call so
-            it needs to be authenticated by a service that is calling it
+        This function gets an admin auth token to be used by this service to
+        validate a user's token. Validate_token is a priviledged call so
+        it needs to be authenticated by a service that is calling it
         """
         headers = {"Content-type": "application/json", "Accept": "text/json"}
         params = {"passwordCredentials": {"username": username,
@@ -153,7 +151,9 @@ class AuthProtocol(object):
         if not token:
             #No token was provided
             if self.delay_auth_decision:
-                _decorate_request_headers("X_IDENTITY_STATUS", "Invalid", proxy_headers, env)
+                _decorate_request_headers("X_IDENTITY_STATUS",
+                                          "Invalid",
+                                          proxy_headers, env)
             else:
                 return HTTPUnauthorized()
         else:
@@ -183,27 +183,34 @@ class AuthProtocol(object):
             data = resp.read()
             conn.close()
 
-
             if not str(resp.status).startswith('20'):
                 # Keystone rejected claim
                 if self.delay_auth_decision:
                     # Downstream service will receive call still and decide
-                    _decorate_request_headers("X_IDENTITY_STATUS", "Invalid", proxy_headers, env)
+                    _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",
+                                              proxy_headers, env)
                 else:
-                    # Reject the response & send back the error (not delay_auth_decision)
-                    return HTTPUnauthorized(headers=headers)(env, start_response)
+                    # Reject the response & send back the error
+                    # (not delay_auth_decision)
+                    return HTTPUnauthorized(headers=headers)(env,
+                                                             start_response)
             else:
                 # Valid token. Get user data and put it in to the call
                 # so the downstream service can use iot
                 dict_response = json.loads(data)
                 user = dict_response['auth']['user']['username']
-                #TODO(Ziad): add additional details we may need, like tenant and group info
-                _decorate_request_headers('X_AUTHORIZATION',"Proxy %s" % user, proxy_headers, env)
-                _decorate_request_headers("X_IDENTITY_STATUS", "Confirmed", proxy_headers, env)
-
+                # TODO(Ziad): add additional details we may need,
+                #             like tenant and group info
+                _decorate_request_headers('X_AUTHORIZATION', "Proxy %s" % user,
+                                          proxy_headers, env)
+                _decorate_request_headers("X_IDENTITY_STATUS", "Confirmed",
+                                          proxy_headers, env)
 
         #Token/Auth processed, headers added now decide how to pass on the call
-        _decorate_request_headers('AUTHORIZATION', "Basic %s" % self.service_pass, proxy_headers, env)
+        _decorate_request_headers('AUTHORIZATION',
+                                  "Basic %s" % self.service_pass,
+                                  proxy_headers,
+                                  env)
         if self.app:
             # Pass to downstream WSGI component
             return self.app(env, custom_start_response)
@@ -219,7 +226,8 @@ class AuthProtocol(object):
             data = resp.read()
             #TODO: use a more sophisticated proxy
             # we are rewriting the headers now
-            return Response(status=resp.status, body=data)(proxy_headers, start_response)
+            return Response(status=resp.status, body=data)(proxy_headers,
+                                                           start_response)
 
 
 def filter_factory(global_conf, **local_conf):
@@ -230,6 +238,7 @@ def filter_factory(global_conf, **local_conf):
     def auth_filter(app):
         return AuthProtocol(app, conf)
     return auth_filter
+
 
 def app_factory(global_conf, **local_conf):
     conf = global_conf.copy()

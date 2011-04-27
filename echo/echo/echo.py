@@ -72,10 +72,10 @@ class EchoApp(object):
 
     def toDOM(self, environ):
         echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
-                             method= environ["REQUEST_METHOD"],
-                             pathInfo= environ["PATH_INFO"],
-                             queryString= environ.get('QUERY_STRING', ""),
-                             caller_identity= self.envr['HTTP_X_AUTHORIZATION'])
+                             method=environ["REQUEST_METHOD"],
+                             pathInfo=environ["PATH_INFO"],
+                             queryString=environ.get('QUERY_STRING', ""),
+                             caller_identity=self.envr['HTTP_X_AUTHORIZATION'])
         content = etree.Element(
             "{http://docs.openstack.org/echo/api/v1.0}content")
         content.set("type", environ["CONTENT_TYPE"])
@@ -106,7 +106,8 @@ if __name__ == "__main__":
         wsgi.server(eventlet.listen(('', 8100)), app)
 
     else:
-        print "Running all components locally. Use --remote option to run with remote auth proxy"
+        print "Running all components locally."
+        print "Use --remote option to run with remote auth proxy"
         app = loadapp("config:" + \
             os.path.join(os.path.abspath(os.path.dirname(__file__)),
             "echo.ini"), global_conf={"log_name": "echo.log"})

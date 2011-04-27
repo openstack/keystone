@@ -23,8 +23,8 @@ Auth Middleware that handles auth for a service
 This module can be installed as a filter in front of your service to validate
 that requests are coming from a trusted component that has handled
 authenticating the call. If a call comes from an untrusted source, it will
-redirect it back to be properly authenticated. This is done by sending our a 305
-proxy redirect response with the URL for the auth service.
+redirect it back to be properly authenticated. This is done by sending our a
+305 proxy redirect response with the URL for the auth service.
 
 The auth service settings are specified in the INI file (keystone.ini). The ini
 file is passed in as the WSGI config file when starting the service. For this

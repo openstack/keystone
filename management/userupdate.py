@@ -16,6 +16,7 @@
 import optparse
 import keystone.db.sqlalchemy.api as db_api
 
+
 def main():
     usage = "usage: %prog username email"
     parser = optparse.OptionParser(usage)

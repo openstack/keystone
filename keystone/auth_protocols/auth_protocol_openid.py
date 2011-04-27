@@ -28,12 +28,11 @@ This WSGI component should perform multiple jobs:
     such as user name, groups, etc...
 
 This is an Auth component as per: http://wiki.openstack.org/openstack-authn
-
-
 """
 
 
 PROTOCOL_NAME = "OpenID Authentication"
+
 
 class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
@@ -53,16 +52,14 @@ class AuthProtocol(object):
         self.service_host = conf.get('service_host', '127.0.0.1')
         self.service_port = int(conf.get('service_port', 8090))
         self.service_url = '%s://%s:%s' % (self.service_protocol,
-                            self.service_host,
-                            self.service_port)
-        # used to verify this component with the OpenStack service (or PAPIAuth)
+                                           self.service_host,
+                                           self.service_port)
+        # used to verify this component with the OpenStack service or PAPIAuth
         self.service_pass = conf.get('service_pass', 'dTpw')
 
         # delay_auth_decision means we still allow unauthenticated requests
         # through and we let the downstream service make the final decision
         self.delay_auth_decision = int(conf.get('delay_auth_decision', 0))
-        
-
 
     def __call__(self, env, start_response):
         def custom_start_response(status, headers):
@@ -102,6 +99,7 @@ def filter_factory(global_conf, **local_conf):
         return AuthProtocol(app, conf)
     return auth_filter
 
+
 def app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
@@ -110,5 +108,6 @@ def app_factory(global_conf, **local_conf):
 if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
-        "auth_protocol_openid.ini"), global_conf={"log_name": "auth_protocol_openid.log"})
+            "auth_protocol_openid.ini"),
+            global_conf={"log_name": "auth_protocol_openid.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)
