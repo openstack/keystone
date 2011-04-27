@@ -1,25 +1,22 @@
+import httplib2
+import json
+from lxml import etree
 import unittest
 from webtest import TestApp
-import httplib2
-from lxml import etree
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
 URL = 'http://localhost:8080/v1.0/'
 
 
-def get_token(user, pswd, type=''):
+def get_token(user, pswd, kind=''):
         h = httplib2.Http(".cache")
         url = '%stoken' % URL
-        body = '{"passwordCredentials" : { "username" : "%s",  "password" :\
-                "%s"} }' % (user, pswd)
-        resp, content = h.request(url, "POST", body=body,\
-                                headers={"Content-Type": "application/json"})
+        body = {"passwordCredentials": {"username": user,
+                                        "password": pswd}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
+                                  headers={"Content-Type": "application/json"})
         content = json.loads(content)
         token = str(content['auth']['token']['id'])
-        if type == 'token':
+        if kind == 'token':
             return token
         else:
             return (resp, content)
@@ -69,13 +66,12 @@ def create_tenant(tenantid, auth_token):
     h = httplib2.Http(".cache")
 
     url = '%stenants' % (URL)
-    body = '{"tenant": { "id": "%s", \
-            "description": "A description ...", "enabled"\
-            :true  } }' % tenantid
-    resp, content = h.request(url, "POST", body=body,\
-                              headers={"Content-Type": "application/json",\
-                              "X-Auth-Token": auth_token})
-
+    body = {"tenant": {"id": tenantid,
+                       "description": "A description ...",
+                       "enabled": True}}
+    resp, content = h.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
     return (resp, content)
 
 
@@ -145,15 +141,15 @@ class identity_test(unittest.TestCase):
     def test_a_get_version(self):
         h = httplib2.Http(".cache")
         url = URL
-        resp, content = h.request(url, "GET", body="",\
-                                headers={"Content-Type": "application/json"})
+        resp, content = h.request(url, "GET", body="",
+                                  headers={"Content-Type": "application/json"})
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/json', resp['content-type'])
 
     def test_a_get_version(self):
         h = httplib2.Http(".cache")
         url = URL
-        resp, content = h.request(url, "GET", body="",\
+        resp, content = h.request(url, "GET", body="",
                                 headers={"Content-Type": "application/xml",
                                          "ACCEPT": "application/xml"})
         self.assertEqual(200, int(resp['status']))
@@ -187,9 +183,9 @@ class authorize_test(identity_test):
     def test_a_authorize_user_disaabled(self):
         h = httplib2.Http(".cache")
         url = '%stoken' % URL
-        body = '{"passwordCredentials" : { "username": "disabled", "password":\
-                "secrete"} }'
-        resp, content = h.request(url, "POST", body=body,\
+        body = {"passwordCredentials": {"username": "disabled",
+                                        "password": "secrete"}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
         if int(resp['status']) == 500:
@@ -208,8 +204,8 @@ class authorize_test(identity_test):
                 password="secrete" username="disabled" \
                 />'
         resp, content = h.request(url, "POST", body=body,\
-                                headers={"Content-Type": "application/xml",
-                                         "ACCEPT": "application/xml"})
+                                  headers={"Content-Type": "application/xml",
+                                           "ACCEPT": "application/xml"})
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
             self.fail('IDM fault')
@@ -220,9 +216,9 @@ class authorize_test(identity_test):
     def test_a_authorize_user_wrong(self):
         h = httplib2.Http(".cache")
         url = '%stoken' % URL
-        body = '{"passwordCredentials" : { "username-w" : "disabled",  \
-                "password" : "secrete"} }'
-        resp, content = h.request(url, "POST", body=body,\
+        body = {"passwordCredentials": {"username-w": "disabled",
+                                        "password": "secrete"}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
         if int(resp['status']) == 500:
@@ -422,11 +418,11 @@ class create_tenant_test(tenant_test):
             self.tenant = content['tenant']['id']
 
         url = '%stenants' % (URL)
-        body = '{"tenant": { "id": "%s", \
-                "description": "A description ...", "enabled"\
-                :true  } }' % self.tenant
-        resp, content = h.request(url, "POST", body=body,\
-                                headers={"Content-Type": "application/json",\
+        body = {"tenant": {"id": self.tenant,
+                           "description": "A description ...",
+                           "enabled": True}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
+                                  headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.token})
 
         if int(resp['status']) == 500:
@@ -466,11 +462,11 @@ class create_tenant_test(tenant_test):
             self.tenant = content['tenant']['id']
 
         url = '%stenants' % (URL)
-        body = '{"tenant": { "id": "%s", \
-                "description": "A description ...", "enabled"\
-                :true  } }' % self.tenant
-        resp, content = h.request(url, "POST", body=body,\
-                                headers={"Content-Type": "application/json",\
+        body = {"tenant": {"id": self.tenant,
+                           "description": "A description ...",
+                           "enabled": True}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
+                                headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
 
         if int(resp['status']) == 500:
@@ -511,10 +507,10 @@ class create_tenant_test(tenant_test):
             self.tenant = content['tenant']['id']
 
         url = '%stenants' % (URL)
-        body = '{"tenant": { "id": "%s", \
-                "description": "A description ...", "enabled"\
-                :true  } }' % self.tenant
-        resp, content = h.request(url, "POST", body=body,\
+        body = {"tenant": {"id": self.tenant,
+                           "description": "A description ...",
+                           "enabled": True}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
 
         if int(resp['status']) == 500:
