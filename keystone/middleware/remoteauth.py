@@ -23,8 +23,8 @@ Auth Middleware that handles auth for a service
 This module can be installed as a filter in front of your service to validate
 that requests are coming from a trusted component that has handled
 authenticating the call. If a call comes from an untrusted source, it will
-redirect it back to be properly authenticated. This is done by sending our a 305
-proxy redirect response with the URL for the auth service.
+redirect it back to be properly authenticated. This is done by sending our a
+305 proxy redirect response with the URL for the auth service.
 
 The auth service settings are specified in the INI file (keystone.ini). The ini
 file is passed in as the WSGI config file when starting the service. For this
@@ -38,20 +38,27 @@ Refer to: http://wiki.openstack.org/openstack-authn
 
 HEADERS
 -------
+HTTP_ is a standard http header
+HTTP_X is an extended http header
 
-www-authenticate    : only used if this component is being used remotely
-HTTP_AUTHORIZATION  : basic auth password used to validate the connection
-HTTP_X_AUTHORIZATION: the client token being passed in
+> Coming in from initial call
 HTTP_X_AUTH_TOKEN   : the client token being passed in
 HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
                       to support cloud files
+> Used for communication between components
+www-authenticate    : only used if this component is being used remotely
+HTTP_AUTHORIZATION  : basic auth password used to validate the connection
+
+> What we add to the request for use by the OpenStack service
+HTTP_X_AUTHORIZATION: the client identity being passed in
+
 
 """
 
 from webob.exc import HTTPUseProxy, HTTPUnauthorized
 
 
-class PAPIAuth(object):
+class RemoteAuth(object):
 
     # app is the downstream WSGI component, usually the OpenStack service
     #
@@ -63,11 +70,11 @@ class PAPIAuth(object):
         self.app = app
         self.conf = conf
         # where to redirect untrusted requests to go and auth
-        self.proxy_location = conf.get('proxy_location')
+        self.auth_location = conf.get('auth_location')
         # secret that will tell us a request is coming from a trusted auth
         # component
-        self.auth_pass = conf.get('auth_pass', 'dTpw')
-        print 'Starting PAPI Auth middleware'
+        self.remote_auth_pass = conf.get('remote_auth_pass')
+        print 'Starting Remote Auth middleware'
 
     def __call__(self, env, start_response):
         # Validate the request is trusted
@@ -77,12 +84,12 @@ class PAPIAuth(object):
             return HTTPUnauthorized(headers=headers)(env, start_response)
         else:
             auth_type, encoded_creds = env['HTTP_AUTHORIZATION'].split(None, 1)
-            if encoded_creds != self.auth_pass:
+            if encoded_creds != self.remote_auth_pass:
                 return HTTPUnauthorized(headers=headers)(env, start_response)
 
         # Make sure that the user has been authenticated by the Auth Service
         if 'HTTP_X_AUTHORIZATION' not in env:
-            return HTTPUseProxy(location=self.proxy_location)(env,
+            return HTTPUseProxy(location=self.auth_location)(env,
                 start_response)
 
         return self.app(env, start_response)
@@ -94,5 +101,5 @@ def filter_factory(global_conf, **local_conf):
     conf.update(local_conf)
 
     def auth_filter(app):
-        return PAPIAuth(app, conf)
+        return RemoteAuth(app, conf)
     return auth_filter

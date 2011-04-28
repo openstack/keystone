@@ -29,16 +29,18 @@ from sqlalchemy.orm import sessionmaker
 _ENGINE = None
 _MAKER = None
 
+
 def get_connection_string():
     path = os.path.realpath(__file__)
     dbpath = os.path.normpath(os.path.join(path,
-                                    os.pardir, #sqlalchemy
-                                    os.pardir, #db
-                                    os.pardir  #keystone
+                                    os.pardir,  # sqlalchemy
+                                    os.pardir,  # db
+                                    os.pardir  # keystone
                                     ))
     connection_string = "sqlite:///%s/keystone.db" % dbpath
     logging.debug('SQL ALchemy connection string: %s', connection_string)
     return connection_string
+
 
 def get_session(autocommit=True, expire_on_commit=False):
     """Helper method to grab session"""
@@ -47,7 +49,7 @@ def get_session(autocommit=True, expire_on_commit=False):
     if not _MAKER:
         if not _ENGINE:
             kwargs = {'pool_recycle': 30, 'echo': False}
-            kwargs['poolclass'] = pool.NullPool #for SQLite3
+            kwargs['poolclass'] = pool.NullPool  # for SQLite3
             _ENGINE = create_engine(get_connection_string(), **kwargs)
         _MAKER = (sessionmaker(bind=_ENGINE,
             autocommit=autocommit,

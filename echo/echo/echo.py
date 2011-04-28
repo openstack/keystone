@@ -54,7 +54,13 @@ class EchoApp(object):
 
     def __iter__(self):
         if 'HTTP_X_AUTHORIZATION' not in self.envr:
-            return HTTPUnauthorized(env, start_response)
+            return HTTPUnauthorized(self.envr, start_response)
+
+        print '  Received:'
+        if 'HTTP_X_IDENTITY_STATUS' in self.envr: print '  Auth Status:', self.envr['HTTP_X_IDENTITY_STATUS']
+        if 'HTTP_X_AUTHORIZATION' in self.envr: print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
+        if 'HTTP_X_TENANT' in self.envr: print '  Tenant     :', self.envr['HTTP_X_TENANT']
+        if 'HTTP_X_GROUP' in self.envr: print '  Group      :', self.envr['HTTP_X_GROUP']
 
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
         if accept == "application/xml":
@@ -74,7 +80,8 @@ class EchoApp(object):
         echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
                              method=environ["REQUEST_METHOD"],
                              pathInfo=environ["PATH_INFO"],
-                             queryString=environ.get('QUERY_STRING', ""))
+                             queryString=environ.get('QUERY_STRING', ""),
+                             caller_identity=self.envr['HTTP_X_AUTHORIZATION'])
         content = etree.Element(
             "{http://docs.openstack.org/echo/api/v1.0}content")
         content.set("type", environ["CONTENT_TYPE"])
@@ -105,7 +112,8 @@ if __name__ == "__main__":
         wsgi.server(eventlet.listen(('', 8100)), app)
 
     else:
-        print "Running all components locally. Use --remote option to run with remote auth proxy"
+        print "Running all components locally."
+        print "Use --remote option to run with remote auth proxy"
         app = loadapp("config:" + \
             os.path.join(os.path.abspath(os.path.dirname(__file__)),
             "echo.ini"), global_conf={"log_name": "echo.log"})

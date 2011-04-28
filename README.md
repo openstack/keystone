@@ -12,10 +12,14 @@ This initial proof of concept aims to address the current use cases in Swift and
 SERVICES:
 ---------
 
-* Keystone - authentication service
-* PAPIAuth - WSGI middleware that can be used in services (like Swift, Nova, and Glance) to perform authentication
-* Auth_Protocal_Token - WSGI middleware that can be used ti handle token auth protocol (WSGI or remote proxy)
-* Echo     - A sample service that responds by returning call details
+* Keystone    - authentication service
+* Auth_Token  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
+* Echo        - A sample service that responds by returning call details
+
+Also included:
+* Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
+* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
+* RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
 
 
 DEPENDENCIES:
@@ -62,17 +66,17 @@ RUNNING KEYSTONE:
 RUNNING TEST SERVICE:
 ---------------------
 
-Standalone stack (with PAPIAuth and Auth_Protocol_Token)
+    Standalone stack (with Auth_Token)
     $ cd echo/echo
     $ python echo.py
 
-Distributed stack (with PAPIAuth local and Auth_Protocol_Token remote)
+    Distributed stack (with RemoteAuth local and Auth_Token remote)
     $ cd echo/echo
     $ python echo.py --remote
 
     in separate session
-    $ cd keystone/auth_protocol
-    $ python auth_protocol_token.py --remote
+    $ cd keystone/auth_protocols
+    $ python auth_token.py --remote
 
 DEMO CLIENT:
 ---------------------
@@ -143,7 +147,7 @@ Once the Identity service is running, go to unit test/unit directory
 
 For more on unit testing please refer
 
-python test_identity --help
+ python test_identity --help
 
 
 
