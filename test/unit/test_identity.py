@@ -1,3 +1,10 @@
+import os
+import sys
+# Need to access identity module
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.pathsep, '..', os.pathsep, '..', 'keystone'))
+print path
+sys.path.append()
+import identity
 import unittest
 from webtest import TestApp
 import httplib2
@@ -965,6 +972,39 @@ class delete_tenant_test(tenant_test):
         resp, content = delete_tenant_xml("test_tenant_delete", \
                                             str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
+
+
+class ResponseContentTypeTest(unittest.TestCase):
+    
+    def get_version(accept='', extension=''):
+        h = httplib2.Http(".cache")
+        hdrs = {}
+        url = URL
+        if extension:
+            url += extension
+        elif accept:
+            hdrs['Accept'] = accept
+        return h.request(url, "GET", headers=hdrs)
+
+    def test_getting_xml_by_header(self):
+        identity.request.header['Accept'] = 'application/xml'
+        self.assertEqual(True, identity.is_xml_response())
+
+    def test_getting_json_by_header(self):
+        identity.request.header['Accept'] = 'application/json'
+        self.assertFalse(identity.is_xml_response())
+
+    def test_getting_xml_by_extension(self):
+        identity.request.url = identity.URL + '.xml'
+        self.assertEqual(True, identity.is_xml_response())
+
+    def test_getting_json_by_extension(self):
+        identity.request.url = identity.URL + '.json'
+        self.assertFalse(identity.is_xml_response())
+
+    def test_getting_json_by_default(self):
+        self.assertFalse(identity.is_xml_response())
+
 
 if __name__ == '__main__':
     unittest.main()
