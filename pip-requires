@@ -1,0 +1,9 @@
+bottle
+eventlet
+lxml
+paste
+pastedeploy
+pastescript
+pysqlite
+sqlalchemy
+webob

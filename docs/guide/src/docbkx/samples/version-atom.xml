@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title type="text">About This Version</title>
+  <updated>2011-01-21T11:33:21-06:00</updated>
+  <id>http://idm.api.openstack.org/v1.0/</id>
+   <author><name>Rackspace</name><uri>http://www.rackspace.com/</uri></author>
+   <link rel="self" href="http://idm.api.openstack.org/v1.0/"/>
+   <entry>
+      <id>http://idm.api.openstack.org/v1.0/</id>
+      <title type="text">Version v1.0</title>
+      <updated>2011-01-21T11:33:21-06:00</updated>
+      <link rel="self" href="http://idm.api.openstack.org/v1.0/"/>
+      <link rel="describedby" type="application/pdf"
+           href="http://docs.rackspacecloud.com/idm/api/v1.0/idm-devguide-20110125.pdf"/>
+      <link rel="describedby" type="application/vnd.sun.wadl+xml"
+           href="http://docs.rackspacecloud.com/idm/api/v1.0/application.wadl"/>
+      <content type="text">Version v1.0 CURRENT (2011-01-21T11:33:21-06:00)</content>
+   </entry>
+</feed>

@@ -1,0 +1,29 @@
+{"user":
+    {
+      "groups": {
+          "values": [
+              {
+                  "tenantId" : "1234",
+                  "id": "Admin"
+              },
+              {
+                  "tenantId" : "1234",
+                  "id" : "DBUser"
+              },
+              {
+                  "id" : "Super"
+            }
+          ],
+          "links" : [
+              {
+                  "rel"  : "next",
+                  "href" : "http://idm.api.openstack.org/v1.0/1234/tenants/1234/users/jqsmith/groups?marker=Super"
+              }
+          ]
+      },
+      "id": "jqsmith",
+      "tenantId": "1234",
+      "email": "john.smith@example.org",
+      "enabled": true
+    }
+}
