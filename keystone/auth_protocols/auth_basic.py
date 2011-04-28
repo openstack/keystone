@@ -49,14 +49,14 @@ class AuthProtocol(object):
         # where to find the OpenStack service (if not in local WSGI chain)
         # these settings are only used if this component is acting as a proxy
         # and the OpenSTack service is running remotely
-        self.service_protocol = conf.get('service_protocol', 'http')
-        self.service_host = conf.get('service_host', '127.0.0.1')
-        self.service_port = int(conf.get('service_port', 8090))
+        self.service_protocol = conf.get('service_protocol', 'https')
+        self.service_host = conf.get('service_host')
+        self.service_port = int(conf.get('service_port'))
         self.service_url = '%s://%s:%s' % (self.service_protocol,
                                            self.service_host,
                                            self.service_port)
         # used to verify this component with the OpenStack service or PAPIAuth
-        self.service_pass = conf.get('service_pass', 'dTpw')
+        self.service_pass = conf.get('service_pass')
 
         # delay_auth_decision means we still allow unauthenticated requests
         # through and we let the downstream service make the final decision
@@ -109,6 +109,6 @@ def app_factory(global_conf, **local_conf):
 if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "auth_protocol_basic.ini"),
-            global_conf={"log_name": "auth_protocol_basic.log"})
+            "auth_basic.ini"),
+            global_conf={"log_name": "auth_basic.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)

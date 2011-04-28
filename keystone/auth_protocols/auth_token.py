@@ -86,14 +86,14 @@ class AuthProtocol(object):
         # where to find the OpenStack service (if not in local WSGI chain)
         # these settings are only used if this component is acting as a proxy
         # and the OpenSTack service is running remotely
-        self.service_protocol = conf.get('service_protocol', 'http')
-        self.service_host = conf.get('service_host', '127.0.0.1')
-        self.service_port = int(conf.get('service_port', 8090))
+        self.service_protocol = conf.get('service_protocol', 'https')
+        self.service_host = conf.get('service_host')
+        self.service_port = int(conf.get('service_port'))
         self.service_url = '%s://%s:%s' % (self.service_protocol,
                                            self.service_host,
                                            self.service_port)
         # used to verify this component with the OpenStack service or PAPIAuth
-        self.service_pass = conf.get('service_pass', 'dTpw')
+        self.service_pass = conf.get('service_pass')
 
         # delay_auth_decision means we still allow unauthenticated requests
         # through and we let the downstream service make the final decision
@@ -103,12 +103,15 @@ class AuthProtocol(object):
         """ Protocol specific initialization """
 
          # where to find the auth service (we use this to validate tokens)
-        self.auth_host = conf.get('auth_ip', '127.0.0.1')
-        self.auth_port = int(conf.get('auth_port', 8080))
+        self.auth_host = conf.get('auth_host')
+        self.auth_port = int(conf.get('auth_port'))
+        self.auth_protocol = conf.get('auth_protocol', 'https')
+        self.auth_location = "%s://%s:%s" % (self.auth_protocol, self.auth_host,
+                                            self.auth_port)
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a priviledged call
-        self.auth_token = conf.get('auth_token', 'dTpw')
+        self.admin_token = conf.get('admin_token')
 
     def __init__(self, app, conf):
         """ Common initialization code """
@@ -151,11 +154,12 @@ class AuthProtocol(object):
         if not token:
             #No token was provided
             if self.delay_auth_decision:
-                _decorate_request_headers("X_IDENTITY_STATUS",
-                                          "Invalid",
+                _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",
                                           proxy_headers, env)
             else:
-                return HTTPUnauthorized()
+                # Redirect client to auth server
+                return HTTPUseProxy(location=self.auth_location)(env,
+                    start_response)
         else:
             # this request is claiming it has a valid token, let's check
             # with the auth service
@@ -171,7 +175,7 @@ class AuthProtocol(object):
             # by using an admin token
             headers = {"Content-type": "application/json",
                         "Accept": "text/json",
-                        "X-Auth-Token": self.auth_token}
+                        "X-Auth-Token": self.admin_token}
                         ##TODO:we need to figure out how to auth to keystone
                         #since validate_token is a priviledged call
                         #Khaled's version uses creds to get a token
@@ -198,12 +202,21 @@ class AuthProtocol(object):
                 # Valid token. Get user data and put it in to the call
                 # so the downstream service can use iot
                 dict_response = json.loads(data)
+                #TODO(Ziad): make this more robust
                 user = dict_response['auth']['user']['username']
+                tenant = dict_response['auth']['user']['tenantId']
+                group = '%s/%s' % (dict_response['auth']['user']['groups']['group'][0]['id'],
+                                    dict_response['auth']['user']['groups']['group'][0]['tenantId'])
+
                 # TODO(Ziad): add additional details we may need,
                 #             like tenant and group info
                 _decorate_request_headers('X_AUTHORIZATION', "Proxy %s" % user,
                                           proxy_headers, env)
                 _decorate_request_headers("X_IDENTITY_STATUS", "Confirmed",
+                                          proxy_headers, env)
+                _decorate_request_headers('X_TENANT', tenant,
+                                          proxy_headers, env)
+                _decorate_request_headers('X_GROUP', group,
                                           proxy_headers, env)
 
         #Token/Auth processed, headers added now decide how to pass on the call
@@ -248,5 +261,5 @@ def app_factory(global_conf, **local_conf):
 if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
-        "auth_protocol_token.ini"), global_conf={"log_name": "echo.log"})
+        "auth_token.ini"), global_conf={"log_name": "auth_token.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)
