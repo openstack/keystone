@@ -16,7 +16,7 @@
 
 
 """
-Service that stores identoties and issues and manages tokens
+Service that stores identities and issues and manages tokens
 
 HEADERS
 -------
@@ -40,6 +40,8 @@ import functools
 import logging
 import os
 import sys
+import eventlet
+from eventlet import wsgi
 
 import bottle
 from bottle import request
@@ -222,7 +224,6 @@ def delete_token(token_id):
     return send_result(204,
                        service.revoke_token(get_auth_token(), token_id))
 
-
 ##
 ##  Tenant Operations
 ##
@@ -298,4 +299,4 @@ def get_extension(ext_alias):
 
 
 if __name__ == "__main__":
-    bottle.run(host='localhost', port=8080)
+    wsgi.server(eventlet.listen(('', 8080)), bottle.default_app())
