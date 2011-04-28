@@ -1,20 +1,355 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-       xsi:schemaLocation="http://research.sun.com/wadl/2006/10 https://wadl.dev.java.net/wadl20061109.xsd"
-       xmlns="http://research.sun.com/wadl/2006/10">
-   <grammars/>
-   <resources base="http://api.example.com/services/">
-       <resource path="service1">
-           <method id="newMethod" name="GET">
-               <request>
-                   <param name="a" type="xsd:string" style="query" default="10"/>
-                   <param name="b" type="xsd:string" style="query"/>
-               </request>
-               <response>
-                   <representation mediaType="application/xml"/>
-               </response>
-           </method>
-       </resource>
-   </resources>
+
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:idm="http://docs.openstack.org/idm/api/v1.0"
+             xmlns:capi="http://docs.openstack.org/common/api/v1.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xsi:schemaLocation="http://docs.openstack.org/idm/api/v1.0
+                                 xsd/api.xsd
+                                 http://docs.openstack.org/common/api/v1.0
+                                 xsd/api-common.xsd
+                                 ">
+
+    <grammars>
+        <include href="xsd/api.xsd"/>
+        <include href="xsd/api-common.xsd"/>
+    </grammars>
+
+    <!-- We should use SSL in production -->
+    <resources base="http://localhost:8080">
+        <resource id="version" path="v1.0">
+            <method href="#getVersionInfo"/>
+            <resource id="extensions" path="extensions">
+                <method href="#getExtensions"/>
+                <resource id="alias" path="{alias}">
+                    <param name="alias" style="template" type="xsd:string"/>
+                    <method href="#getExtension"/>
+                </resource>
+            </resource>
+            <resource id="token" path="token">
+                <method href="#authenticate" />
+                <resource id="tokenId" path="{tokenId}">
+                    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                    <param name="tokenId" style="template" type="xsd:string"/>
+                    <method href="#validateToken"/>
+                    <method href="#revokeToken"/>
+                </resource>
+            </resource>
+            <resource id="tenants" path="tenants">
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                <method href="#getTenants" />
+                <method href="#createTenant" />
+                <resource id="tenantId" path="{tenantId}">
+                    <param name="tenantId" style="template" type="xsd:string"/>
+                    <method href="#getTenant" />
+                    <method href="#updateTenant" />
+                    <method href="#deleteTenant" />
+                </resource>
+            </resource>
+        </resource>
+    </resources>
+
+    <!-- Extensions -->
+    <method name="GET" id="getExtensions">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="capi:extensions"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="GET" id="getExtension">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="capi:extension"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <!-- Version Info -->
+    <method name="GET" id="getVersionInfo">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="capi:version"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <!-- Token Operations -->
+    <method name="POST" id="authenticate">
+        <request>
+            <representation mediaType="application/xml" element="idm:passwordCredentials"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="idm:auth"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:userDisabled"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="401 403 400 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="GET" id="validateToken">
+        <request>
+            <param name="belongsTo" style="query"
+                   required="false" type="xsd:string"/>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="idm:auth"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+            <representation mediaType="application/xml" element="idm:userDisabled"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="DELETE" id="revokeToken">
+        <response status="204"/>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <!-- Tenant Operations -->
+    <method name="GET" id="getTenants">
+        <request>
+            <param name="marker" style="query"
+                   required="false" type="xsd:string"/>
+            <param name="limit" style="query"
+                   required="false" type="xsd:int"/>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="idm:tenants"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="POST" id="createTenant">
+        <request>
+            <representation mediaType="application/xml" element="idm:tenant"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="201">
+            <representation mediaType="application/xml" element="idm:tenant"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="409">
+            <representation mediaType="application/xml" element="idm:tenantConflict"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="401 403 400 409 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="GET" id="getTenant">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="idm:tenant"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="PUT" id="updateTenant">
+        <request>
+            <representation mediaType="application/xml" element="idm:tenant"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="200">
+            <representation mediaType="application/xml" element="idm:tenant"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="401 403 404 400 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="DELETE" id="deleteTenant">
+        <response status="204"/>
+        <response status="401">
+            <representation mediaType="application/xml" element="idm:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="idm:forbidden"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="idm:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="idm:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="idm:idmFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
 </application>
