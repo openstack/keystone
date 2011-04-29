@@ -229,6 +229,7 @@ def delete_token(token_id):
 ##  Tenant Operations
 ##
 
+
 @bottle.route('/v1.0/tenants', method='POST')
 @wrap_error
 def create_tenant():
