@@ -243,10 +243,15 @@ def get_tenants():
     marker = None
     if "marker" in request.GET:
         marker = request.GET["marker"]
-    limit = None
+    
     if "limit" in request.GET:
         limit = request.GET["limit"]
-    tenants = service.get_tenants(get_auth_token(), marker, limit)
+    else:
+        limit=10
+    print limit, marker
+    url = '%s://%s%s' % (request.environ['wsgi.url_scheme'],request.environ['HTTP_HOST'],request.environ['PATH_INFO'])
+    
+    tenants = service.get_tenants(get_auth_token(), marker, limit,url)
     return send_result(200, tenants)
 
 

@@ -19,7 +19,7 @@
 from session import get_session
 from sqlalchemy.orm import joinedload
 import models
-
+import pprint
 
 def tenant_create(values):
     tenant_ref = models.Tenant()
@@ -34,11 +34,69 @@ def tenant_get(id, session=None):
     result = session.query(models.Tenant).filter_by(id=id).first()
     return result
 
-
 def tenant_get_all(session=None):
     if not session:
         session = get_session()
     return session.query(models.Tenant).all()
+
+def tenant_get_page(marker,limit,session=None):
+    if not session:
+        session = get_session()
+    
+    if marker:
+        return session.query(models.Tenant).filter("id>=:marker").params(\
+                            marker = '%s' % marker).order_by\
+                            (models.Tenant.id).limit(limit).all()
+    else:
+        return session.query(models.Tenant).order_by(\
+                            models.Tenant.id).limit(limit).all()
+    #return session.query(models.Tenant).all()
+def tenant_get_page_markers(marker,limit,session=None):
+    if not session:
+        session = get_session()
+    
+    first = session.query(models.Tenant).order_by(\
+                        models.Tenant.id).first()
+    last = session.query(models.Tenant).order_by(\
+                        models.Tenant.id.desc()).first()
+                        
+    
+    if marker is None:
+        marker=first.id
+    print marker
+    next=session.query(models.Tenant).filter("id > :marker").params(\
+                    marker = '%s' % marker).order_by(\
+                    models.Tenant.id).limit(limit).all()
+    
+    prev=session.query(models.Tenant).filter("id < :marker").params(\
+                    marker = '%s' % marker).order_by(\
+                    models.Tenant.id.desc()).limit(int(limit)).all()
+    
+    if len(next) == 0:
+        next=last
+    else:
+        for t in next:
+            next=t
+    
+    if len(prev) == 0:
+        prev=first
+    else:
+        for t in prev:
+            prev=t
+    
+    
+    if prev.id == marker:
+        prev = None
+    else:
+        prev=prev.id
+    
+    if next.id == last.id:
+        next = None
+    else:
+        next = next.id
+    
+    
+    return (prev,next)
 
 
 def tenant_is_empty(id, session=None):
