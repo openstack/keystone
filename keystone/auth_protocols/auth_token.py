@@ -55,6 +55,7 @@ import eventlet
 from eventlet import wsgi
 import json
 import os
+import sys
 from paste.deploy import loadapp
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized
@@ -224,6 +225,7 @@ class AuthProtocol(object):
                                   "Basic %s" % self.service_pass,
                                   proxy_headers,
                                   env)
+        
         if self.app:
             # Pass to downstream WSGI component
             return self.app(env, custom_start_response)
@@ -241,7 +243,6 @@ class AuthProtocol(object):
             # we are rewriting the headers now
             return Response(status=resp.status, body=data)(proxy_headers,
                                                            start_response)
-
 
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""

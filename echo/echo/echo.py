@@ -97,23 +97,33 @@ def app_factory(global_conf, **local_conf):
     return EchoApp
 
 if __name__ == "__main__":
-    remote_auth = False
+    parameter = ''
     if len(sys.argv) > 1:
-        remote_auth = sys.argv[1] == '--remote'
+        parameter = sys.argv[1]
 
-    if remote_auth:
+    if parameter == '--remote':
         # running auth remotely
-        print "Running for use with remote auth"
+        print "Running with remote Token Auth"
 
         app = loadapp("config:" + \
             os.path.join(os.path.abspath(os.path.dirname(__file__)),
             "echo_remote.ini"), global_conf={"log_name": "echo.log"})
 
         wsgi.server(eventlet.listen(('', 8100)), app)
+    elif parameter == '--basic':
+        # running auth remotely
+        print "Running for use with Basic Auth"
+
+        app = loadapp("config:" + \
+            os.path.join(os.path.abspath(os.path.dirname(__file__)),
+            "echo_basic.ini"), global_conf={"log_name": "echo.log"})
+
+        wsgi.server(eventlet.listen(('', 8090)), app)
 
     else:
-        print "Running all components locally."
-        print "Use --remote option to run with remote auth proxy"
+        print "Running with local Token Auth"
+        print "   Use --remote option to run with remote token auth proxy"
+        print "   Use --basic option to run with basic auth"
         app = loadapp("config:" + \
             os.path.join(os.path.abspath(os.path.dirname(__file__)),
             "echo.ini"), global_conf={"log_name": "echo.log"})
