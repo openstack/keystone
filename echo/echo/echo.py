@@ -110,35 +110,54 @@ def app_factory(global_conf, **local_conf):
     return EchoApp
 
 if __name__ == "__main__":
-    parameter = ''
-    if len(sys.argv) > 1:
-        parameter = sys.argv[1]
+    def usage():
+        print "Runs Echo, the canonical OpenStack service, " \
+                "with auth middleware"
+        print "Options:"
+        print "-h, --help  : show this usage information"
+        print "-b, --basic : run with basic auth (uses echo_basic.ini)"
+        print "-r, --remote: run with remote auth on port 8100" \
+                "(uses echo_remote.ini)"
+        print "-i, --ini filename: run with specified ini file"
+        print "-p, --port: specifies port to listen on (default is 8090)"
+        print "by default will run with local, token auth (uses echo.ini)"
 
-    if parameter == '--remote':
-        # running auth remotely
-        print "Running with remote Token Auth"
+    import getopt
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],
+                                   "hbrp:i:",
+                                   ["help", "basic", "remote", "port", "ini"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit()
 
-        app = loadapp("config:" + \
-            os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "echo_remote.ini"), global_conf={"log_name": "echo.log"})
+    port = 0
+    ini = "echo.ini"
+    auth_name = "local Token Auth"
 
-        wsgi.server(eventlet.listen(('', 8100)), app)
-    elif parameter == '--basic':
-        # running auth remotely
-        print "Running for use with Basic Auth"
+    for opt, arg in opts:
+        if opt in ["-h", "--help"]:
+            usage()
+            sys.exit()
+        elif opt in ["-p", "--port"]:
+            port = int(arg)
+        elif opt in ["-i", "--ini"]:
+            auth_name = "with custom ini: %s" % arg
+            ini = arg
+        elif opt in ["-b", "--basic"]:
+            auth_name = "Basic Auth"
+            ini = "echo_basic.ini"
+        elif opt in ["-r", "--remote"]:
+            auth_name = "remote Token Auth"
+            ini = "echo_remote.ini"
+            if not port:
+                port = 8100
 
-        app = loadapp("config:" + \
-            os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "echo_basic.ini"), global_conf={"log_name": "echo.log"})
+    if not port:
+        port = 8090
+    print "Running with", auth_name
+    app = loadapp("config:" + \
+        os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        ini), global_conf={"log_name": "echo.log"})
 
-        wsgi.server(eventlet.listen(('', 8090)), app)
-
-    else:
-        print "Running with local Token Auth"
-        print "   Use --remote option to run with remote token auth proxy"
-        print "   Use --basic option to run with basic auth"
-        app = loadapp("config:" + \
-            os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "echo.ini"), global_conf={"log_name": "echo.log"})
-
-        wsgi.server(eventlet.listen(('', 8090)), app)
+    wsgi.server(eventlet.listen(('', port)), app)
