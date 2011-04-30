@@ -47,7 +47,7 @@ class IDMService(object):
 
         #
         # Look for an existing token, or create one,
-        # TODO: Handle tenant/token search
+        # TODO(Jorge): Handle tenant/token search
         #
         dtoken = db_api.token_for_user(duser.id)
         if not dtoken or dtoken.expires < datetime.now():

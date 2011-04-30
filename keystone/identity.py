@@ -299,7 +299,11 @@ def get_extension(ext_alias):
     #
     raise fault.ItemNotFoundFault("The extension is not found")
 
+def start_server(port=8080):
+    app = exthandler.UrlExtensionFilter(bottle.default_app(), None)
+    wsgi.server(eventlet.listen(('', port)), app)
 
 if __name__ == "__main__":
-    app = exthandler.UrlExtensionFilter(bottle.default_app(), None)
-    wsgi.server(eventlet.listen(('', 8080)), app)
+    start_server()
+
+
