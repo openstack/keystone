@@ -117,14 +117,13 @@ class AuthProtocol(object):
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(app, conf)  # Specific to this protocol
 
-
     def __call__(self, env, start_response):
         """ Handle incoming request. Authenticate. And send downstream. """
 
         self.start_response = start_response
         self.env = env
 
-        #Prep headers to forward request to downstream service (local or remote)
+        #Prep headers to forward request to local or remote downstream service
         self.proxy_headers = env.copy()
         for header in self.proxy_headers.iterkeys():
             if header[0:5] == 'HTTP_':
@@ -158,22 +157,20 @@ class AuthProtocol(object):
 
             #Collect information about valid claims
             if valid:
-                verified_claims = self._expound_claims()
-                if verified_claims:
+                claims = self._expound_claims()
+                if claims:
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
                     self._decorate_request('X_AUTHORIZATION',
-                                           "Proxy %s" % verified_claims['user'])
+                                           "Proxy %s" % claims['user'])
                     self._decorate_request('X_TENANT',
-                                           verified_claims['tenant'])
+                                           claims['tenant'])
                     self._decorate_request('X_GROUP',
-                                           verified_claims['group'])
+                                           claims['group'])
                     self.expanded = True
 
-            
             #Send request downstream
             return self._forward_request()
-
 
     def get_admin_auth_token(self, username, password, tenant):
         """
@@ -198,25 +195,25 @@ class AuthProtocol(object):
         return claims
 
     def _reject_request(self):
-         # Redirect client to auth server
-         return HTTPUseProxy(location=self.auth_location)(self.env,
-             self.start_response)
+        # Redirect client to auth server
+        return HTTPUseProxy(location=self.auth_location)(self.env,
+            self.start_response)
 
     def _reject_claims(self):
-         # Client sent bad claims
-         return HTTPUnauthorized()(self.env,
-             self.start_response)
+        # Client sent bad claims
+        return HTTPUnauthorized()(self.env,
+            self.start_response)
 
     def _validate_claims(self, claims):
         """Validate claims, and provide identity information isf applicable """
-        
+
         # Step 1: We need to auth with the keystone service, so get an
         # admin token
         #TODO: Need to properly implement this, where to store creds
         # for now using token from ini
         #auth = self.get_admin_auth_token("admin", "secrete", "1")
         #admin_token = json.loads(auth)["auth"]["token"]["id"]
-        
+
         # Step 2: validate the user's token with the auth service
         # since this is a priviledged op,m we need to auth ourselves
         # by using an admin token
@@ -268,10 +265,11 @@ class AuthProtocol(object):
         first_group = token_info['auth']['user']['groups']['group'][0]
         verified_claims = {'user': token_info['auth']['user']['username'],
                     'tenant': token_info['auth']['user']['tenantId'],
-                    'group': '%s/%s' % (first_group['id'], first_group['tenantId'])}
+                    'group': '%s/%s' % (first_group['id'],
+                                        first_group['tenantId'])}
         return verified_claims
 
-    def _decorate_request(self, index, value):        
+    def _decorate_request(self, index, value):
         self.proxy_headers[index] = value
         self.env["HTTP_%s" % index] = value
 
@@ -282,15 +280,18 @@ class AuthProtocol(object):
         #now decide how to pass on the call
         if self.app:
             # Pass to downstream WSGI component
-            return self.app(self.env, self.start_response)  #.custom_start_response)
+            return self.app(self.env, self.start_response)
+            #.custom_start_response)
         else:
             # We are forwarding to a remote service (no downstream WSGI app)
             req = Request(self.proxy_headers)
             parsed = urlparse(req.url)
-            conn = http_connect(self.service_host, self.service_port, \
-                 req.method, parsed.path, \
-                 self.proxy_headers,\
-                 ssl=(self.service_protocol == 'https'))
+            conn = http_connect(self.service_host,
+                                self.service_port,
+                                req.method,
+                                parsed.path,
+                                self.proxy_headers,
+                                ssl=(self.service_protocol == 'https'))
             resp = conn.getresponse()
             data = resp.read()
             #TODO: use a more sophisticated proxy

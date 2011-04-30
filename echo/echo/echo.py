@@ -43,6 +43,7 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'echo', '__init__.py')):
 Echo: a dummy service for OpenStack auth testing. It returns request info.
 """
 
+
 class EchoApp(object):
     def __init__(self, environ, start_response):
         self.envr = environ
@@ -57,9 +58,10 @@ class EchoApp(object):
         # We assume the request is coming from a trusted source. Middleware
         # is used to perform that validation.
         if 'HTTP_X_AUTHORIZATION' not in self.envr:
-            self.start('401 Unauthorized', [('Content-Type', 'application/json')])
+            self.start('401 Unauthorized', [('Content-Type',
+                                             'application/json')])
             return iter(["401 Unauthorized"])
-        
+
         if 'HTTP_X_IDENTITY_STATUS' not in self.envr:
             identity_status = "Unknown"
         else:

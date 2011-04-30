@@ -47,11 +47,13 @@ def call_service(token):
     ret = data
     return ret
 
+
 def hack_attempt(token):
     # Injecting headers in the request
     headers = {"X-Auth-Token": token,
                "Content-type": "application/json",
-               "Accept": "text/json\nX_AUTHORIZATION: someone else\nX_IDENTITY_STATUS: Confirmed\nINJECTED_HEADER: aha!"}
+               "Accept": "text/json\nX_AUTHORIZATION: someone else\n"
+               "X_IDENTITY_STATUS: Confirmed\nINJECTED_HEADER: aha!"}
     params = '{"ping": "abcdefg"}'
     conn = httplib.HTTPConnection("localhost:8090")
     print headers
@@ -70,24 +72,24 @@ if __name__ == '__main__':
     obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token obtained:", token
-    
+
     # Use that token to call an OpenStack service (echo)
     data = call_service(token)
     print "Response received:", data
     print
-    
+
     # Use the valid token, but inject some headers
     print "\033[91mInjecting some headers >:-/ \033[0m"
     data = hack_attempt(token)
     print "Response received:", data
     print
-    
+
     # Use bad token to call an OpenStack service (echo)
     print "\033[91mTrying with bad token...\033[0m"
     data = call_service("xxxx_invalid_token_xxxx")
     print "Response received:", data
     print
-    
+
     #Supply bad credentials
     print "\033[91mTrying with bad credentials...\033[0m"
     auth = get_auth_token("joeuser", "wrongpass", "1")

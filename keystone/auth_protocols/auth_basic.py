@@ -75,7 +75,8 @@ class AuthProtocol(object):
     def __call__(self, env, start_response):
         def custom_start_response(status, headers):
             if self.delay_auth_decision:
-                headers.append(('WWW-Authenticate', "Basic realm='Use guest/guest'"))
+                headers.append(('WWW-Authenticate',
+                                "Basic realm='Use guest/guest'"))
             return start_response(status, headers)
 
         #Prep headers to proxy request to remote service
@@ -91,16 +92,16 @@ class AuthProtocol(object):
             else:
                 # If the user isn't authenticated, we reject the request and
                 # return 401 indicating we need Basic Auth credentials.
-                return HTTPUnauthorized(
-                                           "Authentication required",
-                                           [('WWW-Authenticate', 'Basic realm="Use guest/guest"')]
-                                  )(env,start_response)
+                return HTTPUnauthorized("Authentication required",
+                                        [('WWW-Authenticate',
+                                          'Basic realm="Use guest/guest"')]
+                                       )(env, start_response)
         else:
             # Claims were provided - validate them
             import base64
             auth_header = env['HTTP_AUTHORIZATION']
             auth_type, encoded_creds = auth_header.split(None, 1)
-            user, password  = base64.b64decode(encoded_creds).split(':', 1)
+            user, password = base64.b64decode(encoded_creds).split(':', 1)
             if not self.validateCreds(user, password):
                 #Claims were rejected
                 if not self.delay_auth_decision:
@@ -125,13 +126,12 @@ class AuthProtocol(object):
             _decorate_request_headers('X_GROUP', 'Blank',
                                       proxy_headers, env)
 
-
             #Auth processed, headers added now decide how to pass on the call
             if self.app:
                 # Pass to downstream WSGI component
                 env['HTTP_AUTHORIZATION'] = "Basic %s" % self.service_pass
                 return self.app(env, custom_start_response)
-    
+
             proxy_headers['AUTHORIZATION'] = "Basic %s" % self.service_pass
             # We are forwarding to a remote service (no downstream WSGI app)
             req = Request(proxy_headers)
@@ -146,9 +146,6 @@ class AuthProtocol(object):
             # we are rewriting the headers now
             return Response(status=resp.status, body=data)(env, start_response)
 
-
-
-
     def validateCreds(self, username, password):
         #stub for password validation.
         import ConfigParser
@@ -162,6 +159,7 @@ class AuthProtocol(object):
         if username == 'guest' and password == 'guest':
             return True
         return False
+
 
 def filter_factory(global_conf, ** local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""
