@@ -46,6 +46,7 @@ from eventlet import wsgi
 import bottle
 from bottle import request
 from bottle import response
+from queryext import exthandler
 
 # If ../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -228,6 +229,7 @@ def delete_token(token_id):
 ##  Tenant Operations
 ##
 
+
 @bottle.route('/v1.0/tenants', method='POST')
 @wrap_error
 def create_tenant():
@@ -299,4 +301,5 @@ def get_extension(ext_alias):
 
 
 if __name__ == "__main__":
-    wsgi.server(eventlet.listen(('', 8080)), bottle.default_app())
+    app = exthandler.UrlExtensionFilter(bottle.default_app(), None)
+    wsgi.server(eventlet.listen(('', 8080)), app)

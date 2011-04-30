@@ -70,27 +70,23 @@ if __name__ == '__main__':
     obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token obtained:", token
-    raw_input()
     
     # Use that token to call an OpenStack service (echo)
     data = call_service(token)
     print "Response received:", data
     print
-    raw_input()
     
     # Use the valid token, but inject some headers
     print "\033[91mInjecting some headers >:-/ \033[0m"
     data = hack_attempt(token)
     print "Response received:", data
     print
-    raw_input()
-
+    
     # Use bad token to call an OpenStack service (echo)
     print "\033[91mTrying with bad token...\033[0m"
     data = call_service("xxxx_invalid_token_xxxx")
     print "Response received:", data
     print
-    raw_input()
     
     #Supply bad credentials
     print "\033[91mTrying with bad credentials...\033[0m"

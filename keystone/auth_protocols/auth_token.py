@@ -102,8 +102,9 @@ class AuthProtocol(object):
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port'))
         self.auth_protocol = conf.get('auth_protocol', 'https')
-        self.auth_location = "%s://%s:%s" % (self.auth_protocol, self.auth_host,
-                                            self.auth_port)
+        self.auth_location = "%s://%s:%s" % (self.auth_protocol,
+                                             self.auth_host,
+                                             self.auth_port)
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a priviledged call
@@ -262,12 +263,12 @@ class AuthProtocol(object):
         if not str(resp.status).startswith('20'):
             raise LookupError('Unable to locate claims: %s' % resp.status)
 
-        token_data = json.loads(data)
+        token_info = json.loads(data)
         #TODO(Ziad): make this more robust
-        verified_claims = {'user': token_data['auth']['user']['username'],
-                    'tenant': token_data['auth']['user']['tenantId'],
-                    'group': '%s/%s' % (token_data['auth']['user']['groups']['group'][0]['id'],
-                            token_data['auth']['user']['groups']['group'][0]['tenantId'])}
+        first_group = token_info['auth']['user']['groups']['group'][0]
+        verified_claims = {'user': token_info['auth']['user']['username'],
+                    'tenant': token_info['auth']['user']['tenantId'],
+                    'group': '%s/%s' % (first_group['id'], first_group['tenantId'])}
         return verified_claims
 
     def _decorate_request(self, index, value):        

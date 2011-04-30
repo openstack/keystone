@@ -17,6 +17,7 @@ SERVICES:
 * Echo        - A sample service that responds by returning call details
 
 Also included:
+
 * Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
 * Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely

@@ -67,9 +67,12 @@ class EchoApp(object):
 
         print '  Received:'
         print '  Auth Status:', identity_status
-        if 'HTTP_X_AUTHORIZATION' in self.envr: print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
-        if 'HTTP_X_TENANT' in self.envr: print '  Tenant     :', self.envr['HTTP_X_TENANT']
-        if 'HTTP_X_GROUP' in self.envr: print '  Group      :', self.envr['HTTP_X_GROUP']
+        if 'HTTP_X_AUTHORIZATION' in self.envr:
+            print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
+        if 'HTTP_X_TENANT' in self.envr:
+            print '  Tenant     :', self.envr['HTTP_X_TENANT']
+        if 'HTTP_X_GROUP' in self.envr:
+            print '  Group      :', self.envr['HTTP_X_GROUP']
 
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
         if accept == "application/xml":
