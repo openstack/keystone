@@ -53,23 +53,18 @@ HTTP_X_AUTHORIZATION: the client identity being passed in
 
 import eventlet
 from eventlet import wsgi
+import httplib
 import json
 import os
-import sys
 from paste.deploy import loadapp
+import sys
 from urlparse import urlparse
-from webob.exc import HTTPUnauthorized
+from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
-import httplib
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 PROTOCOL_NAME = "Token Authentication"
-
-
-def _decorate_request_headers(header, value, proxy_headers, env):
-        proxy_headers[header] = value
-        env["HTTP_%s" % header] = value
 
 
 class AuthProtocol(object):
@@ -121,6 +116,64 @@ class AuthProtocol(object):
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(app, conf)  # Specific to this protocol
 
+
+    def __call__(self, env, start_response):
+        """ Handle incoming request. Authenticate. And send downstream. """
+
+        self.start_response = start_response
+        self.env = env
+
+        #Prep headers to forward request to downstream service (local or remote)
+        self.proxy_headers = env.copy()
+        for header in self.proxy_headers.iterkeys():
+            if header[0:5] == 'HTTP_':
+                self.proxy_headers[header[5:]] = self.proxy_headers[header]
+                del self.proxy_headers[header]
+
+        #Look for authentication claims
+        self.claims = self._get_claims(env)
+        if not self.claims:
+            #No claim(s) provided
+            if self.delay_auth_decision:
+                #Configured to allow downstream service to make final decision.
+                #So mark status as Invalid and forward the request downstream
+                self._decorate_request("X_IDENTITY_STATUS", "Invalid")
+            else:
+                #Respond to client as appropriate for this auth protocol
+                return self._reject_request()
+        else:
+            # this request is presenting claims. Let's validate them
+            valid = self._validate_claims(self.claims)
+            if not valid:
+                # Keystone rejected claim
+                if self.delay_auth_decision:
+                    # Downstream service will receive call still and decide
+                    self._decorate_request("X_IDENTITY_STATUS", "Invalid")
+                else:
+                    #Respond to client as appropriate for this auth protocol
+                    return self._reject_claims()
+            else:
+                self._decorate_request("X_IDENTITY_STATUS", "Confirmed")
+
+            #Collect information about valid claims
+            if valid:
+                verified_claims = self._expound_claims()
+                if verified_claims:
+                    # TODO(Ziad): add additional details we may need,
+                    #             like tenant and group info
+                    self._decorate_request('X_AUTHORIZATION',
+                                           "Proxy %s" % verified_claims['user'])
+                    self._decorate_request('X_TENANT',
+                                           verified_claims['tenant'])
+                    self._decorate_request('X_GROUP',
+                                           verified_claims['group'])
+                    self.expanded = True
+
+            
+            #Send request downstream
+            return self._forward_request()
+
+
     def get_admin_auth_token(self, username, password, tenant):
         """
         This function gets an admin auth token to be used by this service to
@@ -137,112 +190,113 @@ class AuthProtocol(object):
             headers=headers)
         response = conn.getresponse()
         data = response.read()
-        ret = data
-        return ret
+        return data
 
-    def __call__(self, env, start_response):
-        def custom_start_response(status, headers):
-            if self.delay_auth_decision:
-                headers.append(('WWW-Authenticate', "Basic realm='API Realm'"))
-            return start_response(status, headers)
+    def _get_claims(self, env):
+        claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
+        return claims
 
-        #Prep headers to proxy request to remote service
-        proxy_headers = env.copy()
-        user = ''
+    def _reject_request(self):
+         # Redirect client to auth server
+         return HTTPUseProxy(location=self.auth_location)(self.env,
+             self.start_response)
 
-        #Look for token in request
-        token = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
-        if not token:
-            #No token was provided
-            if self.delay_auth_decision:
-                _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",
-                                          proxy_headers, env)
-            else:
-                # Redirect client to auth server
-                return HTTPUseProxy(location=self.auth_location)(env,
-                    start_response)
-        else:
-            # this request is claiming it has a valid token, let's check
-            # with the auth service
-            # Step 1: We need to auth with the keystone service, so get an
-            # admin token
-            #TODO: Need to properly implement this, where to store creds
-            # for now using token from ini
-            #auth = self.get_admin_auth_token("admin", "secrete", "1")
-            #admin_token = json.loads(auth)["auth"]["token"]["id"]
+    def _reject_claims(self):
+         # Client sent bad claims
+         return HTTPUnauthorized()(self.env,
+             self.start_response)
 
-            # Step 2: validate the user's token with the auth service
-            # since this is a priviledged op,m we need to auth ourselves
-            # by using an admin token
-            headers = {"Content-type": "application/json",
-                        "Accept": "text/json",
-                        "X-Auth-Token": self.admin_token}
-                        ##TODO:we need to figure out how to auth to keystone
-                        #since validate_token is a priviledged call
-                        #Khaled's version uses creds to get a token
-                        # "X-Auth-Token": admin_token}
-                        # we're using a test token from the ini file for now
-            conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                                '/v1.0/token/%s' % token, headers=headers)
-            resp = conn.getresponse()
-            data = resp.read()
-            conn.close()
-
-            if not str(resp.status).startswith('20'):
-                # Keystone rejected claim
-                if self.delay_auth_decision:
-                    # Downstream service will receive call still and decide
-                    _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",
-                                              proxy_headers, env)
-                else:
-                    # Reject the response & send back the error
-                    # (not delay_auth_decision)
-                    return HTTPUnauthorized(headers=headers)(env,
-                                                             start_response)
-            else:
-                # Valid token. Get user data and put it in to the call
-                # so the downstream service can use iot
-                dict_response = json.loads(data)
-                #TODO(Ziad): make this more robust
-                user = dict_response['auth']['user']['username']
-                tenant = dict_response['auth']['user']['tenantId']
-                group = '%s/%s' % (dict_response['auth']['user']['groups']['group'][0]['id'],
-                                    dict_response['auth']['user']['groups']['group'][0]['tenantId'])
-
-                # TODO(Ziad): add additional details we may need,
-                #             like tenant and group info
-                _decorate_request_headers('X_AUTHORIZATION', "Proxy %s" % user,
-                                          proxy_headers, env)
-                _decorate_request_headers("X_IDENTITY_STATUS", "Confirmed",
-                                          proxy_headers, env)
-                _decorate_request_headers('X_TENANT', tenant,
-                                          proxy_headers, env)
-                _decorate_request_headers('X_GROUP', group,
-                                          proxy_headers, env)
-
-        #Token/Auth processed, headers added now decide how to pass on the call
-        _decorate_request_headers('AUTHORIZATION',
-                                  "Basic %s" % self.service_pass,
-                                  proxy_headers,
-                                  env)
+    def _validate_claims(self, claims):
+        """Validate claims, and provide identity information isf applicable """
         
+        # Step 1: We need to auth with the keystone service, so get an
+        # admin token
+        #TODO: Need to properly implement this, where to store creds
+        # for now using token from ini
+        #auth = self.get_admin_auth_token("admin", "secrete", "1")
+        #admin_token = json.loads(auth)["auth"]["token"]["id"]
+        
+        # Step 2: validate the user's token with the auth service
+        # since this is a priviledged op,m we need to auth ourselves
+        # by using an admin token
+        headers = {"Content-type": "application/json",
+                    "Accept": "text/json",
+                    "X-Auth-Token": self.admin_token}
+                    ##TODO:we need to figure out how to auth to keystone
+                    #since validate_token is a priviledged call
+                    #Khaled's version uses creds to get a token
+                    # "X-Auth-Token": admin_token}
+                    # we're using a test token from the ini file for now
+        conn = http_connect(self.auth_host, self.auth_port, 'GET',
+                            '/v1.0/token/%s' % claims, headers=headers)
+        resp = conn.getresponse()
+        data = resp.read()
+        conn.close()
+
+        if not str(resp.status).startswith('20'):
+            # Keystone rejected claim
+            return False
+        else:
+            #TODO(Ziad): there is an optimization we can do here. We have just
+            #received data from Keystone that we can use instead of making
+            #another call in _expound_claims
+            return True
+
+    def _expound_claims(self):
+        # Valid token. Get user data and put it in to the call
+        # so the downstream service can use it
+        headers = {"Content-type": "application/json",
+                    "Accept": "text/json",
+                    "X-Auth-Token": self.admin_token}
+                    ##TODO:we need to figure out how to auth to keystone
+                    #since validate_token is a priviledged call
+                    #Khaled's version uses creds to get a token
+                    # "X-Auth-Token": admin_token}
+                    # we're using a test token from the ini file for now
+        conn = http_connect(self.auth_host, self.auth_port, 'GET',
+                            '/v1.0/token/%s' % self.claims, headers=headers)
+        resp = conn.getresponse()
+        data = resp.read()
+        conn.close()
+
+        if not str(resp.status).startswith('20'):
+            raise LookupError('Unable to locate claims: %s' % resp.status)
+
+        token_data = json.loads(data)
+        #TODO(Ziad): make this more robust
+        verified_claims = {'user': token_data['auth']['user']['username'],
+                    'tenant': token_data['auth']['user']['tenantId'],
+                    'group': '%s/%s' % (token_data['auth']['user']['groups']['group'][0]['id'],
+                            token_data['auth']['user']['groups']['group'][0]['tenantId'])}
+        return verified_claims
+
+    def _decorate_request(self, index, value):        
+        self.proxy_headers[index] = value
+        self.env["HTTP_%s" % index] = value
+
+    def _forward_request(self):
+        #Token/Auth processed & claims added to headers
+        self._decorate_request('AUTHORIZATION',
+                                  "Basic %s" % self.service_pass)
+        #now decide how to pass on the call
         if self.app:
             # Pass to downstream WSGI component
-            return self.app(env, custom_start_response)
+            return self.app(self.env, self.start_response)  #.custom_start_response)
         else:
             # We are forwarding to a remote service (no downstream WSGI app)
-            req = Request(proxy_headers)
+            req = Request(self.proxy_headers)
             parsed = urlparse(req.url)
             conn = http_connect(self.service_host, self.service_port, \
                  req.method, parsed.path, \
-                 proxy_headers,\
+                 self.proxy_headers,\
                  ssl=(self.service_protocol == 'https'))
             resp = conn.getresponse()
             data = resp.read()
             #TODO: use a more sophisticated proxy
             # we are rewriting the headers now
-            return Response(status=resp.status, body=data)(proxy_headers,
-                                                           start_response)
+            return Response(status=resp.status, body=data)(self.proxy_headers,
+                                                           self.start_response)
+
 
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""

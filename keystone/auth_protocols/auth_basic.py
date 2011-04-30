@@ -105,8 +105,10 @@ class AuthProtocol(object):
                 #Claims were rejected
                 if not self.delay_auth_decision:
                     # Reject request (or ask for valid claims)
-                    return HTTPUnauthorized()(env,
-                    start_response)
+                    return HTTPUnauthorized("Authentication required",
+                                [('WWW-Authenticate',
+                                'Basic realm="Use guest/guest"')]
+                                )(env, start_response)
                 else:
                     # Claims are valid, forward request
                     _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",

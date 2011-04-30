@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
-
 import eventlet
 from eventlet import wsgi
 from lxml import etree
+import os
 from paste.deploy import loadapp
+import sys
+from webob.exc import HTTPUnauthorized
+
 
 # If ../echo/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -42,7 +43,6 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'echo', '__init__.py')):
 Echo: a dummy service for OpenStack auth testing. It returns request info.
 """
 
-
 class EchoApp(object):
     def __init__(self, environ, start_response):
         self.envr = environ
@@ -53,11 +53,20 @@ class EchoApp(object):
         self.transform = etree.XSLT(etree.parse(echo_xsl))
 
     def __iter__(self):
+        # We expect an X_AUTHORIZATION header to be passed in
+        # We assume the request is coming from a trusted source. Middleware
+        # is used to perform that validation.
         if 'HTTP_X_AUTHORIZATION' not in self.envr:
-            return HTTPUnauthorized(self.envr, start_response)
+            self.start('401 Unauthorized', [('Content-Type', 'application/json')])
+            return iter(["401 Unauthorized"])
+        
+        if 'HTTP_X_IDENTITY_STATUS' not in self.envr:
+            identity_status = "Unknown"
+        else:
+            identity_status = self.envr["HTTP_X_IDENTITY_STATUS"]
 
         print '  Received:'
-        if 'HTTP_X_IDENTITY_STATUS' in self.envr: print '  Auth Status:', self.envr['HTTP_X_IDENTITY_STATUS']
+        print '  Auth Status:', identity_status
         if 'HTTP_X_AUTHORIZATION' in self.envr: print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
         if 'HTTP_X_TENANT' in self.envr: print '  Tenant     :', self.envr['HTTP_X_TENANT']
         if 'HTTP_X_GROUP' in self.envr: print '  Group      :', self.envr['HTTP_X_GROUP']
@@ -80,8 +89,7 @@ class EchoApp(object):
         echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
                              method=environ["REQUEST_METHOD"],
                              pathInfo=environ["PATH_INFO"],
-                             queryString=environ.get('QUERY_STRING', ""),
-                             caller_identity=self.envr['HTTP_X_AUTHORIZATION'])
+                             queryString=environ.get('QUERY_STRING', ""))
         content = etree.Element(
             "{http://docs.openstack.org/echo/api/v1.0}content")
         content.set("type", environ["CONTENT_TYPE"])

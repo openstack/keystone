@@ -24,7 +24,7 @@ insert into tenants (id, "desc", enabled) values
 -- Groups
 
 insert into groups (id, "desc", tenant_id) values
-       ("Admin", "Andmin users", "1234");
+       ("Admin", "Admin users", "1234");
 
 insert into groups (id, "desc", tenant_id) values
        ("Default", "Standard users", "1234");

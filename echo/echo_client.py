@@ -19,6 +19,7 @@ Implement a client for Echo service using Identity service
 
 import httplib
 import json
+import sys
 
 
 def get_auth_token(username, password, tenant):
@@ -46,6 +47,21 @@ def call_service(token):
     ret = data
     return ret
 
+def hack_attempt(token):
+    # Injecting headers in the request
+    headers = {"X-Auth-Token": token,
+               "Content-type": "application/json",
+               "Accept": "text/json\nX_AUTHORIZATION: someone else\nX_IDENTITY_STATUS: Confirmed\nINJECTED_HEADER: aha!"}
+    params = '{"ping": "abcdefg"}'
+    conn = httplib.HTTPConnection("localhost:8090")
+    print headers
+    conn.request("POST", "/", params, headers=headers)
+    response = conn.getresponse()
+    data = response.read()
+    ret = data
+    return ret
+
+
 if __name__ == '__main__':
     # Call the keystone service to get a token
     # NOTE: assumes the test_setup.sql script has loaded this user
@@ -54,18 +70,28 @@ if __name__ == '__main__':
     obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token obtained:", token
-
+    raw_input()
+    
     # Use that token to call an OpenStack service (echo)
     data = call_service(token)
     print "Response received:", data
     print
+    raw_input()
+    
+    # Use the valid token, but inject some headers
+    print "\033[91mInjecting some headers >:-/ \033[0m"
+    data = hack_attempt(token)
+    print "Response received:", data
+    print
+    raw_input()
 
     # Use bad token to call an OpenStack service (echo)
     print "\033[91mTrying with bad token...\033[0m"
     data = call_service("xxxx_invalid_token_xxxx")
     print "Response received:", data
     print
-
+    raw_input()
+    
     #Supply bad credentials
     print "\033[91mTrying with bad credentials...\033[0m"
     auth = get_auth_token("joeuser", "wrongpass", "1")
