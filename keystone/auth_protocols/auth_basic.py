@@ -31,8 +31,18 @@ This is an Auth component as per: http://wiki.openstack.org/openstack-authn
 
 """
 
+from paste.deploy import loadapp
+import eventlet
+from eventlet import wsgi
+import os
+from webob.exc import HTTPUnauthorized, HTTPInternalServerError
 
 PROTOCOL_NAME = "Basic Authentication"
+
+
+def _decorate_request_headers(header, value, proxy_headers, env):
+        proxy_headers[header] = value
+        env["HTTP_%s" % header] = value
 
 
 class AuthProtocol(object):
@@ -65,33 +75,93 @@ class AuthProtocol(object):
     def __call__(self, env, start_response):
         def custom_start_response(status, headers):
             if self.delay_auth_decision:
-                headers.append(('WWW-Authenticate', "Basic realm='API Realm'"))
+                headers.append(('WWW-Authenticate',
+                                "Basic realm='Use guest/guest'"))
             return start_response(status, headers)
 
-        #TODO(Ziad): PERFORM BASIC AUTH
+        #Prep headers to proxy request to remote service
+        proxy_headers = env.copy()
+        user = ''
 
-        #Auth processed, headers added now decide how to pass on the call
-        if self.app:
-            # Pass to downstream WSGI component
-            env['HTTP_AUTHORIZATION'] = "Basic %s" % self.service_pass
-            return self.app(env, custom_start_response)
+        #Look for authentication
+        if 'HTTP_AUTHORIZATION' not in env:
+            #No credentials were provided
+            if self.delay_auth_decision:
+                _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",
+                                          proxy_headers, env)
+            else:
+                # If the user isn't authenticated, we reject the request and
+                # return 401 indicating we need Basic Auth credentials.
+                return HTTPUnauthorized("Authentication required",
+                                        [('WWW-Authenticate',
+                                          'Basic realm="Use guest/guest"')]
+                                       )(env, start_response)
+        else:
+            # Claims were provided - validate them
+            import base64
+            auth_header = env['HTTP_AUTHORIZATION']
+            auth_type, encoded_creds = auth_header.split(None, 1)
+            user, password = base64.b64decode(encoded_creds).split(':', 1)
+            if not self.validateCreds(user, password):
+                #Claims were rejected
+                if not self.delay_auth_decision:
+                    # Reject request (or ask for valid claims)
+                    return HTTPUnauthorized("Authentication required",
+                                [('WWW-Authenticate',
+                                'Basic realm="Use guest/guest"')]
+                                )(env, start_response)
+                else:
+                    # Claims are valid, forward request
+                    _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",
+                                              proxy_headers, env)
 
-        proxy_headers['AUTHORIZATION'] = "Basic %s" % self.service_pass
-        # We are forwarding to a remote service (no downstream WSGI app)
-        req = Request(proxy_headers)
-        parsed = urlparse(req.url)
-        conn = http_connect(self.service_host, self.service_port, \
-             req.method, parsed.path, \
-             proxy_headers,\
-             ssl=(self.service_protocol == 'https'))
-        resp = conn.getresponse()
-        data = resp.read()
-        #TODO: use a more sophisticated proxy
-        # we are rewriting the headers now
-        return Response(status=resp.status, body=data)(env, start_response)
+            # TODO(Ziad): add additional details we may need,
+            #             like tenant and group info
+            _decorate_request_headers('X_AUTHORIZATION', "Proxy %s" % user,
+                                      proxy_headers, env)
+            _decorate_request_headers("X_IDENTITY_STATUS", "Confirmed",
+                                      proxy_headers, env)
+            _decorate_request_headers('X_TENANT', 'blank',
+                                      proxy_headers, env)
+            _decorate_request_headers('X_GROUP', 'Blank',
+                                      proxy_headers, env)
+
+            #Auth processed, headers added now decide how to pass on the call
+            if self.app:
+                # Pass to downstream WSGI component
+                env['HTTP_AUTHORIZATION'] = "Basic %s" % self.service_pass
+                return self.app(env, custom_start_response)
+
+            proxy_headers['AUTHORIZATION'] = "Basic %s" % self.service_pass
+            # We are forwarding to a remote service (no downstream WSGI app)
+            req = Request(proxy_headers)
+            parsed = urlparse(req.url)
+            conn = http_connect(self.service_host, self.service_port, \
+                                req.method, parsed.path, \
+                                proxy_headers, \
+                                ssl=(self.service_protocol == 'https'))
+            resp = conn.getresponse()
+            data = resp.read()
+            #TODO: use a more sophisticated proxy
+            # we are rewriting the headers now
+            return Response(status=resp.status, body=data)(env, start_response)
+
+    def validateCreds(self, username, password):
+        #stub for password validation.
+        import ConfigParser
+        import hashlib
+        #usersConfig = ConfigParser.ConfigParser()
+        #usersConfig.readfp(open('/etc/openstack/users.ini'))
+        #password = hashlib.sha1(password).hexdigest()
+        #for un, pwd in usersConfig.items('users'):
+        #TODO(Ziad): add intelligent credential validation (instead of hard
+        # coded)
+        if username == 'guest' and password == 'guest':
+            return True
+        return False
 
 
-def filter_factory(global_conf, **local_conf):
+def filter_factory(global_conf, ** local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""
     conf = global_conf.copy()
     conf.update(local_conf)
@@ -101,14 +171,14 @@ def filter_factory(global_conf, **local_conf):
     return auth_filter
 
 
-def app_factory(global_conf, **local_conf):
+def app_factory(global_conf, ** local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return AuthProtocol(None, conf)
 
 if __name__ == "__main__":
     app = loadapp("config:" + \
-        os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "auth_basic.ini"),
-            global_conf={"log_name": "auth_basic.log"})
+                  os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                  "auth_basic.ini"),
+                  global_conf={"log_name": "auth_basic.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)

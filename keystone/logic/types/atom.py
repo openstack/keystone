@@ -23,15 +23,3 @@ class Link(object):
         self.link_type = link_type
         self.hreflang = hreflang
         self.title = title
-    def to_dict(self):
-        links = {}
-        if self.link_type:
-            links["link_type"] = self.link_type
-        if self.hreflang:
-            links["hreflang"] = self.hreflang
-        if self.title:
-            links["title"] = self.title
-        
-        links["rel"] = self.rel
-        links["href"] = self.href
-        return {'links': links}

@@ -1,7 +1,8 @@
 import os
 import sys
 # Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath( __file__ ), '..', '..', '..', '..', 'keystone')))
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
+                                '..', '..', '..', '..', 'keystone')))
 from keystone import identity
 import unittest
 from webtest import TestApp
@@ -968,7 +969,6 @@ class delete_tenant_test(tenant_test):
         resp, content = delete_tenant_xml("test_tenant_delete", \
                                             str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
-
 
 
 if __name__ == '__main__':

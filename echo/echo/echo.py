@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
-
 import eventlet
 from eventlet import wsgi
 from lxml import etree
+import os
 from paste.deploy import loadapp
+import sys
+from webob.exc import HTTPUnauthorized
+
 
 # If ../echo/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -53,14 +54,27 @@ class EchoApp(object):
         self.transform = etree.XSLT(etree.parse(echo_xsl))
 
     def __iter__(self):
+        # We expect an X_AUTHORIZATION header to be passed in
+        # We assume the request is coming from a trusted source. Middleware
+        # is used to perform that validation.
         if 'HTTP_X_AUTHORIZATION' not in self.envr:
-            return HTTPUnauthorized(self.envr, start_response)
+            self.start('401 Unauthorized', [('Content-Type',
+                                             'application/json')])
+            return iter(["401 Unauthorized"])
+
+        if 'HTTP_X_IDENTITY_STATUS' not in self.envr:
+            identity_status = "Unknown"
+        else:
+            identity_status = self.envr["HTTP_X_IDENTITY_STATUS"]
 
         print '  Received:'
-        if 'HTTP_X_IDENTITY_STATUS' in self.envr: print '  Auth Status:', self.envr['HTTP_X_IDENTITY_STATUS']
-        if 'HTTP_X_AUTHORIZATION' in self.envr: print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
-        if 'HTTP_X_TENANT' in self.envr: print '  Tenant     :', self.envr['HTTP_X_TENANT']
-        if 'HTTP_X_GROUP' in self.envr: print '  Group      :', self.envr['HTTP_X_GROUP']
+        print '  Auth Status:', identity_status
+        if 'HTTP_X_AUTHORIZATION' in self.envr:
+            print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
+        if 'HTTP_X_TENANT' in self.envr:
+            print '  Tenant     :', self.envr['HTTP_X_TENANT']
+        if 'HTTP_X_GROUP' in self.envr:
+            print '  Group      :', self.envr['HTTP_X_GROUP']
 
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
         if accept == "application/xml":
@@ -80,8 +94,7 @@ class EchoApp(object):
         echo = etree.Element("{http://docs.openstack.org/echo/api/v1.0}echo",
                              method=environ["REQUEST_METHOD"],
                              pathInfo=environ["PATH_INFO"],
-                             queryString=environ.get('QUERY_STRING', ""),
-                             caller_identity=self.envr['HTTP_X_AUTHORIZATION'])
+                             queryString=environ.get('QUERY_STRING', ""))
         content = etree.Element(
             "{http://docs.openstack.org/echo/api/v1.0}content")
         content.set("type", environ["CONTENT_TYPE"])
@@ -97,25 +110,54 @@ def app_factory(global_conf, **local_conf):
     return EchoApp
 
 if __name__ == "__main__":
-    remote_auth = False
-    if len(sys.argv) > 1:
-        remote_auth = sys.argv[1] == '--remote'
+    def usage():
+        print "Runs Echo, the canonical OpenStack service, " \
+                "with auth middleware"
+        print "Options:"
+        print "-h, --help  : show this usage information"
+        print "-b, --basic : run with basic auth (uses echo_basic.ini)"
+        print "-r, --remote: run with remote auth on port 8100" \
+                "(uses echo_remote.ini)"
+        print "-i, --ini filename: run with specified ini file"
+        print "-p, --port: specifies port to listen on (default is 8090)"
+        print "by default will run with local, token auth (uses echo.ini)"
 
-    if remote_auth:
-        # running auth remotely
-        print "Running for use with remote auth"
+    import getopt
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],
+                                   "hbrp:i:",
+                                   ["help", "basic", "remote", "port", "ini"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit()
 
-        app = loadapp("config:" + \
-            os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "echo_remote.ini"), global_conf={"log_name": "echo.log"})
+    port = 0
+    ini = "echo.ini"
+    auth_name = "local Token Auth"
 
-        wsgi.server(eventlet.listen(('', 8100)), app)
+    for opt, arg in opts:
+        if opt in ["-h", "--help"]:
+            usage()
+            sys.exit()
+        elif opt in ["-p", "--port"]:
+            port = int(arg)
+        elif opt in ["-i", "--ini"]:
+            auth_name = "with custom ini: %s" % arg
+            ini = arg
+        elif opt in ["-b", "--basic"]:
+            auth_name = "Basic Auth"
+            ini = "echo_basic.ini"
+        elif opt in ["-r", "--remote"]:
+            auth_name = "remote Token Auth"
+            ini = "echo_remote.ini"
+            if not port:
+                port = 8100
 
-    else:
-        print "Running all components locally."
-        print "Use --remote option to run with remote auth proxy"
-        app = loadapp("config:" + \
-            os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "echo.ini"), global_conf={"log_name": "echo.log"})
+    if not port:
+        port = 8090
+    print "Running with", auth_name
+    app = loadapp("config:" + \
+        os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        ini), global_conf={"log_name": "echo.log"})
 
-        wsgi.server(eventlet.listen(('', 8090)), app)
+    wsgi.server(eventlet.listen(('', port)), app)

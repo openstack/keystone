@@ -229,6 +229,7 @@ def delete_token(token_id):
 ##  Tenant Operations
 ##
 
+
 @bottle.route('/v1.0/tenants', method='POST')
 @wrap_error
 def create_tenant():
@@ -243,15 +244,10 @@ def get_tenants():
     marker = None
     if "marker" in request.GET:
         marker = request.GET["marker"]
-    
+    limit = None
     if "limit" in request.GET:
         limit = request.GET["limit"]
-    else:
-        limit=10
-    print limit, marker
-    url = '%s://%s%s' % (request.environ['wsgi.url_scheme'],request.environ['HTTP_HOST'],request.environ['PATH_INFO'])
-    
-    tenants = service.get_tenants(get_auth_token(), marker, limit,url)
+    tenants = service.get_tenants(get_auth_token(), marker, limit)
     return send_result(200, tenants)
 
 

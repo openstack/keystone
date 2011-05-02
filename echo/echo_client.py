@@ -19,6 +19,7 @@ Implement a client for Echo service using Identity service
 
 import httplib
 import json
+import sys
 
 
 def get_auth_token(username, password, tenant):
@@ -46,6 +47,23 @@ def call_service(token):
     ret = data
     return ret
 
+
+def hack_attempt(token):
+    # Injecting headers in the request
+    headers = {"X-Auth-Token": token,
+               "Content-type": "application/json",
+               "Accept": "text/json\nX_AUTHORIZATION: someone else\n"
+               "X_IDENTITY_STATUS: Confirmed\nINJECTED_HEADER: aha!"}
+    params = '{"ping": "abcdefg"}'
+    conn = httplib.HTTPConnection("localhost:8090")
+    print headers
+    conn.request("POST", "/", params, headers=headers)
+    response = conn.getresponse()
+    data = response.read()
+    ret = data
+    return ret
+
+
 if __name__ == '__main__':
     # Call the keystone service to get a token
     # NOTE: assumes the test_setup.sql script has loaded this user
@@ -57,6 +75,12 @@ if __name__ == '__main__':
 
     # Use that token to call an OpenStack service (echo)
     data = call_service(token)
+    print "Response received:", data
+    print
+
+    # Use the valid token, but inject some headers
+    print "\033[91mInjecting some headers >:-/ \033[0m"
+    data = hack_attempt(token)
     print "Response received:", data
     print
 

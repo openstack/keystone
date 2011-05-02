@@ -114,35 +114,16 @@ class IDMService(object):
 
         return tenant
 
-        """    def get_tenants(self, admin_token, marker, limit):
-                self.__validate_token(admin_token)
-        
-                ts = []
-                dtenants = db_api.tenant_get_all()
-                for dtenant in dtenants:
-                    ts.append(tenants.Tenant(dtenant.id,
-                                             dtenant.desc, dtenant.enabled))
-        
-                return tenants.Tenants(ts, [])
-        """
-
-    def get_tenants(self, admin_token, marker, limit, url):
+    def get_tenants(self, admin_token, marker, limit):
         self.__validate_token(admin_token)
 
         ts = []
-        dtenants = db_api.tenant_get_page(marker,limit)
+        dtenants = db_api.tenant_get_all()
         for dtenant in dtenants:
             ts.append(tenants.Tenant(dtenant.id,
                                      dtenant.desc, dtenant.enabled))
-        prev,next=db_api.tenant_get_page_markers(marker,limit)
-        links=[]
-        if prev:
-            links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
-        if next:             
-            links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
-        
-        
-        return tenants.Tenants(ts, links)
+
+        return tenants.Tenants(ts, [])
 
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
