@@ -1,0 +1,7 @@
+status: 200
+date: Tue, 03 May 2011 12:22:15 GMT
+content-length: 223
+content-type: application/json
+content-location: http://localhost:8080/v1.0/token/dc502d0d-69ce-405b-9bad-78b29c33dd57?belongsTo=1234
+
+{"auth": {"token": {"expires": "2011-05-04T17:52:15.245552", "id": "dc502d0d-69ce-405b-9bad-78b29c33dd57"}, "user": {"username": "joeuser", "groups": {"group": [{"id": "Default", "tenantId": "1234"}]}, "tenantId": "1234"}}}

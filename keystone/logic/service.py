@@ -114,17 +114,41 @@ class IDMService(object):
 
         return tenant
 
-    def get_tenants(self, admin_token, marker, limit):
+    #def get_tenants(self, admin_token, marker, limit):
+    #    self.__validate_token(admin_token)
+    #
+    #    ts = []
+    #   dtenants = db_api.tenant_get_all()
+    #   for dtenant in dtenants:
+    #       ts.append(tenants.Tenant(dtenant.id,
+    #                                dtenant.desc, dtenant.enabled))
+
+    #    return tenants.Tenants(ts, [])
+    
+    
+    ##
+    ##    GET Tenants with Pagination
+    ##
+    
+    def get_tenants(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
 
         ts = []
-        dtenants = db_api.tenant_get_all()
+        dtenants = db_api.tenant_get_page(marker,limit)
         for dtenant in dtenants:
             ts.append(tenants.Tenant(dtenant.id,
                                      dtenant.desc, dtenant.enabled))
+        prev,next=db_api.tenant_get_page_markers(marker,limit)
+        links=[]
+        if prev:
+            links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
+        if next:             
+            links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
+        
+        
+        return tenants.Tenants(ts, links)
 
-        return tenants.Tenants(ts, [])
-
+    
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
 
@@ -164,7 +188,160 @@ class IDMService(object):
 
         db_api.tenant_delete(dtenant.id)
         return None
+    
+    #
+    #   Tenant Group Operations
+    #
+    
+    def create_tenant_group(self, admin_token, tenant, group):
+        self.__validate_token(admin_token)
 
+        if not isinstance(group, tenants.Group):
+            raise fault.BadRequestFault("Expecting a Group")
+
+        if tenant == None:
+            raise fault.BadRequestFault("Expecting a Tenant Id")
+        
+        dtenant = db_api.tenant_get(tenant)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+
+
+        if group.group_id == None:
+            raise fault.BadRequestFault("Expecting a Group Id")
+        
+        if db_api.group_get(group.group_id) != None:
+            raise fault.TenantGroupConflictFault(
+                "A tenant group with that id already exists")
+
+        dtenant = db_models.Group()
+        dtenant.id = group.group_id
+        dtenant.desc = group.description
+        dtenant.tenant_id = tenant
+
+        db_api.tenant_group_create(dtenant)
+
+        return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
+
+    
+    
+    def get_tenant_groups(self, admin_token, tenantId, marker, limit, url):
+        self.__validate_token(admin_token)
+        if tenantId == None:
+            raise fault.BadRequestFault("Expecting a Tenant Id")
+        
+        dtenant = db_api.tenant_get(tenantId)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+        
+        ts = []
+        dtenantgroups = db_api.tenant_group_get_page(tenantId, marker,limit)
+        
+        for dtenantgroup in dtenantgroups:
+            ts.append(tenants.Group(dtenantgroup.id,
+                                     dtenantgroup.desc, dtenantgroup.tenant_id))
+        prev,next=db_api.tenant_group_get_page_markers(tenantId, marker, limit)
+        links=[]
+        if prev:
+            links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
+        if next:             
+            links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
+        
+        
+        return tenants.Groups(ts, links)
+    
+    def get_tenant_group(self, admin_token, tenant_id, group_id):
+        self.__validate_token(admin_token)
+        
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+        
+        dtenant = db_api.tenant_group_get(group_id, tenant_id)
+        if not dtenant:
+            raise fault.ItemNotFoundFault("The tenant group not found")
+        
+        
+        return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
+    
+    
+    def update_tenant_group(self, admin_token, tenant_id, group_id, group):
+        self.__validate_token(admin_token)
+
+        if not isinstance(group, tenants.Group):
+            raise fault.BadRequestFault("Expecting a Group")
+        True
+
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+        
+        dtenant = db_api.tenant_group_get(group_id, tenant_id)
+        if not dtenant:
+            raise fault.ItemNotFoundFault("The tenant group not found")
+        
+        if group_id != group.group_id:
+                raise fault.BadRequestFault("Wrong Data Provided,Group id not matching")
+        
+        if str(tenant_id) != str(group.tenant_id):
+                raise fault.BadRequestFault("Wrong Data Provided, Tenant id not matching ")    
+        
+        values = {'desc': group.description}
+
+        db_api.tenant_group_update(group_id, tenant_id, values)
+
+        return tenants.Group(group_id, group.description, tenant_id)
+
+    
+    def delete_tenant_group(self, admin_token, tenant_id, group_id):
+        self.__validate_token(admin_token)
+
+        dtenant = db_api.tenant_get(tenant_id)
+        
+        if dtenant == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+        
+        dtenant = db_api.tenant_group_get(group_id, tenant_id)
+        if not dtenant:
+            raise fault.ItemNotFoundFault("The tenant group not found")
+
+        if not db_api.tenant_group_is_empty(group_id):
+            raise fault.ForbiddenFault("You may not delete a tenant that "
+                                       "contains users or groups")
+
+        db_api.tenant_group_delete(group_id, tenant_id)
+        return None
+    
+    
+    def get_users_tenant_group(self, admin_token, tenantId, groupId, marker, limit, url):
+        self.__validate_token(admin_token)
+        if tenantId == None:
+            raise fault.BadRequestFault("Expecting a Tenant Id")
+        
+        if db_api.tenant_get(tenantId) == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+        
+        if db_api.tenant_group_get(groupId, tenantId) == None:
+            raise fault.ItemNotFoundFault(
+                "A tenant group with that id not found")
+        
+        ts = []
+        
+        dgroupusers = db_api.users_tenant_group_get_page( groupId, marker,limit)
+        for dgroupuser in dgroupusers:
+            ts.append(tenants.User(dgroupuser.id,
+                                     dtenantgroup.email, tenantId, dtenantgroup.enabled))
+        prev,next=db_api.users_tenant_group_get_page_markers( groupId, marker, limit)
+        links=[]
+        if prev:
+            links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
+        if next:             
+            links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
+        
+        
+        return tenants.Users(ts, links)
+    
+    
     #
     # Private Operations
     #

@@ -12,7 +12,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from lxml import etree
 
 class Link(object):
     "An atom link"
@@ -23,3 +23,32 @@ class Link(object):
         self.link_type = link_type
         self.hreflang = hreflang
         self.title = title
+    
+    
+    def to_dict(self):
+        links = {}
+        if self.link_type:
+            links["link_type"] = self.link_type
+        if self.hreflang:
+            links["hreflang"] = self.hreflang
+        if self.title:
+            links["title"] = self.title
+        
+        links["rel"] = self.rel
+        links["href"] = self.href
+        return {'links': links}
+    
+    def to_dom(self):
+        ATOM_NAMESPACE ="http://www.w3.org/2005/Atom"
+        ATOM = "{%s}" % ATOM_NAMESPACE
+        NSMAP = {'atom' : ATOM_NAMESPACE}
+        dom = etree.Element(ATOM+"link", nsmap=NSMAP)
+        if self.link_type:
+            dom.set("link_type", self.link_type)
+        if self.link_type:
+            dom.set("hreflang", self.hreflang)
+        if self.title:
+            dom.set("title", self.title)
+        dom.set("rel", self.rel)
+        dom.set("href", self.href)
+        return dom

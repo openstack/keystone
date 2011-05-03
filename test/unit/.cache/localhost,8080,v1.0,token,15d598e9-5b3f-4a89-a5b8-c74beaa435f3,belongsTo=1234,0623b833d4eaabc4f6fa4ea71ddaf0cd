@@ -1,0 +1,7 @@
+status: 200
+date: Tue, 03 May 2011 12:40:56 GMT
+content-length: 249
+content-type: application/xml
+content-location: http://localhost:8080/v1.0/token/15d598e9-5b3f-4a89-a5b8-c74beaa435f3?belongsTo=1234
+
+<auth xmlns="http://docs.openstack.org/idm/api/v1.0"><token expires="2011-05-04T18:10:56.886321" id="15d598e9-5b3f-4a89-a5b8-c74beaa435f3"/><user username="joeuser" tenantId="1234"><groups><group tenantId="1234" id="Default"/></groups></user></auth>
