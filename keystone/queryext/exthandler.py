@@ -34,15 +34,6 @@ from bottle import Request
 DEFAULT_EXTS = {'xml': 'application/xml', 'json': 'application/json'}
 
 
-def scrub(uri, ext):
-    urisegs = uri.split('?')
-    first = urisegs[0][0: -(len(ext) + 1)]
-    if len(urisegs) > 1:
-        return '?'.join((first, urisegs[1], ))
-    else:
-        return first
-
-
 class UrlExtensionFilter(object):
 
     def __init__(self, app, conf):
