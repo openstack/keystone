@@ -22,10 +22,10 @@ import sys
 from webtest import TestApp
 import unittest
 
-# Need to access identity module
+# Need to access server module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
-from keystone import identity
+from keystone import server
 
 URL = 'http://localhost:8080/v1.0/'
 
@@ -156,7 +156,7 @@ def get_disabled_token():
     return '999888777'
 
 
-class identity_test(unittest.TestCase):
+class server_test(unittest.TestCase):
 
     #Given _a_ to make inherited test cases in an order.
     #here to call below method will call as last test case
@@ -179,7 +179,7 @@ class identity_test(unittest.TestCase):
         self.assertEqual('application/xml', resp['content-type'])
 
 
-class authorize_test(identity_test):
+class authorize_test(server_test):
 
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')

@@ -41,27 +41,15 @@ SETUP:
 ------
 
 Install http://pypi.python.org/pypi/setuptools
-
-    sudo easy_install bottle
-    sudo easy_install eventlet
-    sudo easy_install lxml
-    sudo easy_install paste
-    sudo easy_install pastedeploy
-    sudo easy_install pastescript
-    sudo easy_install pysqlite
-    sudo easy_install sqlalchemy
-    sudo easy_install webob
-
-Or using pip:
-
+    sudo easy_install pip
     sudo pip install -r pip-requires
 
 
 RUNNING KEYSTONE:
 -----------------
 
-    $ cd keystone
-    $ python identity.py
+    $ cd bin
+    $ ./keystoned
 
 
 RUNNING TEST SERVICE:
@@ -140,7 +128,7 @@ Unit Test on Identity Services
 ------------------------------
 In order to run the unit test on identity services, run from the keystone directory
 
- python identity.py
+ python server.py
 
 Once the Identity service is running, go to unit test/unit directory
 
