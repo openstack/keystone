@@ -130,6 +130,8 @@ In order to run the unit test on identity services, run from the keystone direct
 
  python server.py
 
+cat test_setup.sql |sqlite ../../keystone/keystone.db
+
 Once the Identity service is running, go to unit test/unit directory
 
  python test_identity.py

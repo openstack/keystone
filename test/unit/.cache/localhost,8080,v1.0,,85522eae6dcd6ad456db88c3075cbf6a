@@ -1,0 +1,29 @@
+status: 200
+date: Thu, 05 May 2011 15:37:21 GMT
+content-length: 865
+content-type: application/xml
+content-location: http://localhost:8080/v1.0/
+
+<?xml version="1.0" encoding="UTF-8"?>
+<version xmlns="http://docs.openstack.org/common/api/v1.0"
+         xmlns:atom="http://www.w3.org/2005/Atom"
+         id="v1.0" status="ALPHA" updated="2011-04-23T00:00:00Z">
+
+    <media-types>
+        <media-type base="application/xml"
+                    type="application/vnd.openstack.idm-v1.0+xml"/>
+        <media-type base="application/json"
+                    type="application/vnd.openstack.idm-v1.0+json"/>
+    </media-types>
+
+     <atom:link rel="self"
+                href="http://127.0.0.1:8080/v1.0/"/>
+
+     <atom:link rel="describedby"
+                type="application/pdf"
+                href="http://127.0.0.1:8080/v1.0/idmdevguide.pdf" />
+
+     <atom:link rel="describedby"
+                type="application/vnd.sun.wadl+xml"
+                href="http://127.0.0.1:8080/v1.0/identity.wadl" />
+</version>
