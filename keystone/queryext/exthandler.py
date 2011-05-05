@@ -27,20 +27,9 @@ overwrites the Accept header in the request, if present.
 
 """
 
-import bottle
-from bottle import Request
 
 # Does this need to be configurable?
 DEFAULT_EXTS = {'xml': 'application/xml', 'json': 'application/json'}
-
-
-def scrub(uri, ext):
-    urisegs = uri.split('?')
-    first = urisegs[0][0: -(len(ext) + 1)]
-    if len(urisegs) > 1:
-        return '?'.join((first, urisegs[1], ))
-    else:
-        return first
 
 
 class UrlExtensionFilter(object):
