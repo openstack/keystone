@@ -55,6 +55,7 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
+print POSSIBLE_TOPDIR
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
@@ -150,10 +151,10 @@ def wrap_error(func):
 @wrap_error
 def get_version_info():
     if is_xml_response():
-        resp_file = "content/version.xml"
+        resp_file = os.path.join(POSSIBLE_TOPDIR, "keystone/content/version.xml.tpl")
         response.content_type = "application/xml"
     else:
-        resp_file = "content/version.json"
+        resp_file = os.path.join(POSSIBLE_TOPDIR, "keystone/content/version.json.tpl")
         response.content_type = "application/json"
     hostname = request.environ.get("SERVER_NAME")
     port = request.environ.get("SERVER_PORT")
@@ -387,7 +388,11 @@ def get_extension(ext_alias):
     #
     raise fault.ItemNotFoundFault("The extension is not found")
 
+def start_server(port=8080):
+    app = exthandler.UrlExtensionFilter(bottle.default_app(), None)
+    wsgi.server(eventlet.listen(('', port)), app)
 
 if __name__ == "__main__":
-    app = exthandler.UrlExtensionFilter(bottle.default_app(), None)
-    wsgi.server(eventlet.listen(('', 8080)), app)
+    start_server()
+
+

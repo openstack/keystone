@@ -113,7 +113,7 @@ class AuthProtocol(object):
     def __init__(self, app, conf):
         """ Common initialization code """
 
-        #TODO: maybe we rafactor this into a superclass
+        #TODO(ziad): maybe we rafactor this into a superclass
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(app, conf)  # Specific to this protocol
 
@@ -209,7 +209,7 @@ class AuthProtocol(object):
 
         # Step 1: We need to auth with the keystone service, so get an
         # admin token
-        #TODO: Need to properly implement this, where to store creds
+        #TODO(ziad): Need to properly implement this, where to store creds
         # for now using token from ini
         #auth = self.get_admin_auth_token("admin", "secrete", "1")
         #admin_token = json.loads(auth)["auth"]["token"]["id"]
@@ -220,7 +220,7 @@ class AuthProtocol(object):
         headers = {"Content-type": "application/json",
                     "Accept": "text/json",
                     "X-Auth-Token": self.admin_token}
-                    ##TODO:we need to figure out how to auth to keystone
+                    ##TODO(ziad):we need to figure out how to auth to keystone
                     #since validate_token is a priviledged call
                     #Khaled's version uses creds to get a token
                     # "X-Auth-Token": admin_token}
@@ -246,7 +246,7 @@ class AuthProtocol(object):
         headers = {"Content-type": "application/json",
                     "Accept": "text/json",
                     "X-Auth-Token": self.admin_token}
-                    ##TODO:we need to figure out how to auth to keystone
+                    ##TODO(ziad):we need to figure out how to auth to keystone
                     #since validate_token is a priviledged call
                     #Khaled's version uses creds to get a token
                     # "X-Auth-Token": admin_token}
@@ -294,7 +294,7 @@ class AuthProtocol(object):
                                 ssl=(self.service_protocol == 'https'))
             resp = conn.getresponse()
             data = resp.read()
-            #TODO: use a more sophisticated proxy
+            #TODO(ziad): use a more sophisticated proxy
             # we are rewriting the headers now
             return Response(status=resp.status, body=data)(self.proxy_headers,
                                                            self.start_response)

@@ -1,16 +1,31 @@
-import os
-import sys
-# Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
-from keystone import identity
-import unittest
-from webtest import TestApp
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import httplib2
 import json
 from lxml import etree
-import unittest
+import os
+import sys
 from webtest import TestApp
+import unittest
+
+# Need to access server module
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
+                                '..', '..', '..', '..', 'keystone')))
+from keystone import server
 
 URL = 'http://localhost:8080/v1.0/'
 
@@ -235,12 +250,12 @@ def get_disabled_token():
     return '999888777'
 
 
-class identity_test(unittest.TestCase):
+class server_test(unittest.TestCase):
 
     #Given _a_ to make inherited test cases in an order.
     #here to call below method will call as last test case
 
-    def test_a_get_version(self):
+    def test_get_version_json(self):
         h = httplib2.Http(".cache")
         url = URL
         resp, content = h.request(url, "GET", body="",
@@ -248,7 +263,7 @@ class identity_test(unittest.TestCase):
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/json', resp['content-type'])
 
-    def test_a_get_version(self):
+    def test_get_version_xml(self):
         h = httplib2.Http(".cache")
         url = URL
         resp, content = h.request(url, "GET", body="",
@@ -258,7 +273,7 @@ class identity_test(unittest.TestCase):
         self.assertEqual('application/xml', resp['content-type'])
 
 
-class authorize_test(identity_test):
+class authorize_test(server_test):
 
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
@@ -1069,6 +1084,7 @@ class delete_tenant_test(tenant_test):
         self.assertEqual(204, int(resp['status']))
 
 
+<<<<<<< HEAD
 
 
 class tenant_group_test(unittest.TestCase):
@@ -2087,7 +2103,17 @@ class create_global_group_test(global_group_test):
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
 
+def setup():
+    pass
+
+
+def teardown():
+    pass
 
 
 if __name__ == '__main__':
-    unittest.main()
+    setup()
+    try:
+        unittest.main()
+    finally:
+        teardown()

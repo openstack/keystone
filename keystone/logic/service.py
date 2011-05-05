@@ -47,7 +47,7 @@ class IDMService(object):
 
         #
         # Look for an existing token, or create one,
-        # TODO: Handle tenant/token search
+        # TODO(Jorge): Handle tenant/token search
         #
         dtoken = db_api.token_for_user(duser.id)
         if not dtoken or dtoken.expires < datetime.now():
@@ -124,12 +124,12 @@ class IDMService(object):
     #                                dtenant.desc, dtenant.enabled))
 
     #    return tenants.Tenants(ts, [])
-    
-    
+
+
     ##
     ##    GET Tenants with Pagination
     ##
-    
+
     def get_tenants(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
 
@@ -142,13 +142,13 @@ class IDMService(object):
         links=[]
         if prev:
             links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
-        if next:             
+        if next:
             links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
-        
-        
+
+
         return tenants.Tenants(ts, links)
 
-    
+
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
 
@@ -188,11 +188,11 @@ class IDMService(object):
 
         db_api.tenant_delete(dtenant.id)
         return None
-    
+
     #
     #   Tenant Group Operations
     #
-    
+
     def create_tenant_group(self, admin_token, tenant, group):
         self.__validate_token(admin_token)
 
@@ -201,7 +201,7 @@ class IDMService(object):
 
         if tenant == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
-        
+
         dtenant = db_api.tenant_get(tenant)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
@@ -209,7 +209,7 @@ class IDMService(object):
 
         if group.group_id == None:
             raise fault.BadRequestFault("Expecting a Group Id")
-        
+
         if db_api.group_get(group.group_id) != None:
             raise fault.TenantGroupConflictFault(
                 "A tenant group with that id already exists")
@@ -223,20 +223,20 @@ class IDMService(object):
 
         return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
 
-    
-    
+
+
     def get_tenant_groups(self, admin_token, tenantId, marker, limit, url):
         self.__validate_token(admin_token)
         if tenantId == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
-        
+
         dtenant = db_api.tenant_get(tenantId)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
-        
+
         ts = []
         dtenantgroups = db_api.tenant_group_get_page(tenantId, marker,limit)
-        
+
         for dtenantgroup in dtenantgroups:
             ts.append(tenants.Group(dtenantgroup.id,
                                      dtenantgroup.desc, dtenantgroup.tenant_id))
@@ -244,27 +244,27 @@ class IDMService(object):
         links=[]
         if prev:
             links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
-        if next:             
+        if next:
             links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
-        
-        
+
+
         return tenants.Groups(ts, links)
-    
+
     def get_tenant_group(self, admin_token, tenant_id, group_id):
         self.__validate_token(admin_token)
-        
+
         dtenant = db_api.tenant_get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
-        
+
         dtenant = db_api.tenant_group_get(group_id, tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant group not found")
-        
-        
+
+
         return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
-    
-    
+
+
     def update_tenant_group(self, admin_token, tenant_id, group_id, group):
         self.__validate_token(admin_token)
 
@@ -275,32 +275,32 @@ class IDMService(object):
         dtenant = db_api.tenant_get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
-        
+
         dtenant = db_api.tenant_group_get(group_id, tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant group not found")
-        
+
         if group_id != group.group_id:
                 raise fault.BadRequestFault("Wrong Data Provided,Group id not matching")
-        
+
         if str(tenant_id) != str(group.tenant_id):
-                raise fault.BadRequestFault("Wrong Data Provided, Tenant id not matching ")    
-        
+                raise fault.BadRequestFault("Wrong Data Provided, Tenant id not matching ")
+
         values = {'desc': group.description}
 
         db_api.tenant_group_update(group_id, tenant_id, values)
 
         return tenants.Group(group_id, group.description, tenant_id)
 
-    
+
     def delete_tenant_group(self, admin_token, tenant_id, group_id):
         self.__validate_token(admin_token)
 
         dtenant = db_api.tenant_get(tenant_id)
-        
+
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
-        
+
         dtenant = db_api.tenant_group_get(group_id, tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant group not found")
@@ -311,22 +311,22 @@ class IDMService(object):
 
         db_api.tenant_group_delete(group_id, tenant_id)
         return None
-    
-    
+
+
     def get_users_tenant_group(self, admin_token, tenantId, groupId, marker, limit, url):
         self.__validate_token(admin_token)
         if tenantId == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
-        
+
         if db_api.tenant_get(tenantId) == None:
             raise fault.ItemNotFoundFault("The tenant not found")
-        
+
         if db_api.tenant_group_get(groupId, tenantId) == None:
             raise fault.ItemNotFoundFault(
                 "A tenant group with that id not found")
-        
+
         ts = []
-        
+
         dgroupusers = db_api.users_tenant_group_get_page( groupId, marker,limit)
         for dgroupuser in dgroupusers:
             ts.append(tenants.User(dgroupuser.id,
@@ -335,13 +335,13 @@ class IDMService(object):
         links=[]
         if prev:
             links.append(atom.Link('prev',"%s?'marker=%s&limit=%s'" % (url,prev,limit)))
-        if next:             
+        if next:
             links.append(atom.Link('next',"%s?'marker=%s&limit=%s'" % (url,next,limit)))
-        
-        
+
+
         return tenants.Users(ts, links)
-    
-    
+
+
     #
     # Private Operations
     #

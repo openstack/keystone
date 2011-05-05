@@ -44,7 +44,7 @@ def tenant_get_all(session=None):
 def tenant_get_page(marker,limit,session=None):
     if not session:
         session = get_session()
-    
+
     if marker:
         return session.query(models.Tenant).filter("id>:marker").params(\
                             marker = '%s' % marker).order_by\
@@ -53,8 +53,8 @@ def tenant_get_page(marker,limit,session=None):
         return session.query(models.Tenant).order_by(\
                             models.Tenant.id.desc()).limit(limit).all()
     #return session.query(models.Tenant).all()
-    
-    
+
+
 def tenant_get_page_markers(marker,limit,session=None):
     if not session:
         session = get_session()
@@ -120,7 +120,7 @@ def tenant_group_is_empty( id, session=None):
         group_id=id).first()
     if a_user != None:
         return False
-    
+
     return True
 
 def tenant_delete(id, session=None):
@@ -142,13 +142,13 @@ def tenant_group_get(id, tenant, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Group).filter_by(id=id, tenant_id=tenant).first()
-    
+
     return result
 
 def tenant_group_get_page(tenantId, marker,limit,session=None):
     if not session:
         session = get_session()
-    
+
     if marker:
         return session.query(models.Group).filter("id>:marker").params(\
                             marker = '%s' % marker).filter_by(\
@@ -158,8 +158,8 @@ def tenant_group_get_page(tenantId, marker,limit,session=None):
         return session.query(models.Group).filter_by(tenant_id=tenantId)\
                         .order_by(models.Group.id.desc()).limit(limit).all()
     #return session.query(models.Tenant).all()
-    
-    
+
+
 def tenant_group_get_page_markers(tenantId, marker,limit,session=None):
     if not session:
         session = get_session()
@@ -279,7 +279,7 @@ def group_users(id, session=None):
 def users_tenant_group_get_page(group_id, marker,limit,session=None):
     if not session:
         session = get_session()
-    
+
     if marker:
         return session.query(models.Users).filter_by(\
                             group_id=group_id).filter("id>:marker").params(\
@@ -289,9 +289,9 @@ def users_tenant_group_get_page(group_id, marker,limit,session=None):
         return session.query(models.Users).filter_by(\
                             group_id=group_id).order_by(\
                             models.Users.id.desc()).limit(limit).all()
-    
-    
-    
+
+
+
 def users_tenant_group_get_page_markers(group_id, marker,limit,session=None):
     if not session:
         session = get_session()
@@ -339,7 +339,7 @@ def group_get_all(session=None):
 def group_get_page(marker,limit,session=None):
     if not session:
         session = get_session()
-    
+
     if marker:
         return session.query(models.Group).filter("id>:marker").params(\
                             marker = '%s' % marker).order_by\
@@ -347,9 +347,9 @@ def group_get_page(marker,limit,session=None):
     else:
         return session.query(models.Group).order_by(\
                             models.Group.id.desc()).limit(limit).all()
-    
-    
-    
+
+
+
 def group_get_page_markers(marker,limit,session=None):
     if not session:
         session = get_session()

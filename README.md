@@ -41,27 +41,15 @@ SETUP:
 ------
 
 Install http://pypi.python.org/pypi/setuptools
-
-    sudo easy_install bottle
-    sudo easy_install eventlet
-    sudo easy_install lxml
-    sudo easy_install paste
-    sudo easy_install pastedeploy
-    sudo easy_install pastescript
-    sudo easy_install pysqlite
-    sudo easy_install sqlalchemy
-    sudo easy_install webob
-
-Or using pip:
-
+    sudo easy_install pip
     sudo pip install -r pip-requires
 
 
 RUNNING KEYSTONE:
 -----------------
 
-    $ cd keystone
-    $ python identity.py
+    $ cd bin
+    $ ./keystoned
 
 
 RUNNING TEST SERVICE:
@@ -140,7 +128,7 @@ Unit Test on Identity Services
 ------------------------------
 In order to run the unit test on identity services, run from the keystone directory
 
- python identity.py
+ python server.py
 
 Once the Identity service is running, go to unit test/unit directory
 
@@ -151,13 +139,3 @@ For more on unit testing please refer
  python test_identity --help
 
 
-
-DATABASE SCHEMA
----------------
-
-    CREATE TABLE groups(group_id varchar(255),group_desc varchar(255),tenant_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id));
-    CREATE TABLE tenants(tenant_id varchar(255), tenant_desc varchar(255), tenant_enabled INTEGER, PRIMARY KEY(tenant_id ASC));
-    CREATE TABLE token(token_id varchar(255),user_id varchar(255),expires datetime,tenant_id varchar(255));
-    CREATE TABLE user_group(user_id varchar(255),group_id varchar(255), FOREIGN KEY(user_id) REFERENCES user(id), FOREIGN KEY(group_id) REFERENCES groups(group_id));
-    CREATE TABLE user_tenant(tenant_id varchar(255),user_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id),FOREIGN KEY(user_id) REFERENCES user(id));
-    CREATE TABLE users(id varchar(255),password varchar(255),email varchar(255),enabled integer);

@@ -116,8 +116,8 @@ class TenantGroupConflictFault(IDMFault):
     def __init__(self, msg, details=None, code=409):
         super(TenantGroupConflictFault, self).__init__(msg, details, code)
         self.key = "tenantGroupConflict"
-        
-        
+
+
 class OverlimitFault(IDMFault):
     "A limit has been exceeded"
 
