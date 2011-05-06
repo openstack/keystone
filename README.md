@@ -67,10 +67,12 @@ RUNNING TEST SERVICE:
     $ cd keystone/auth_protocols
     $ python auth_token.py --remote
 
+
 DEMO CLIENT:
 ---------------------
     $ cd echo/echo
     $ python echo_client.py
+    Note: this requires tests data. See section TESTING for initializing data
 
 
 INSTALLING KEYSTONE:
