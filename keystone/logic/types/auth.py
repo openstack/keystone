@@ -12,14 +12,13 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not Yet PEP8 standardized
 
 from datetime import datetime
-
 from abc import ABCMeta
 import json
-import keystone.logic.types.fault as fault
 from lxml import etree
+
+import keystone.logic.types.fault as fault
 
 
 class PasswordCredentials(object):

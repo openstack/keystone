@@ -12,7 +12,6 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not yet PEP8 Standardized
 
 import json
 from lxml import etree
@@ -110,6 +109,7 @@ class TenantConflictFault(IDMFault):
     def __init__(self, msg, details=None, code=409):
         super(TenantConflictFault, self).__init__(msg, details, code)
         self.key = "tenantConflict"
+
 
 class TenantGroupConflictFault(IDMFault):
     "The tenant Group already exists?"

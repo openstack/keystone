@@ -14,9 +14,10 @@
 # limitations under the License.
 
 import json
-import keystone.logic.types.fault as fault
 from lxml import etree
 import string
+
+import keystone.logic.types.fault as fault
 
 
 class Tenant(object):
@@ -109,7 +110,7 @@ class Tenants(object):
 
     def to_xml(self):
         dom = etree.Element("tenants")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -122,8 +123,7 @@ class Tenants(object):
     def to_json(self):
         values = [t.to_dict()["tenant"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"tenants": {"values": values,"links":links}})
-
+        return json.dumps({"tenants": {"values": values, "links": links}})
 
 
 class Group(object):
@@ -145,7 +145,6 @@ class Group(object):
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
             tenant_id = root.get("tenantId")
-
 
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
@@ -190,7 +189,6 @@ class Group(object):
         if self.tenant_id:
             dom.set("tenantId", self.tenant_id)
 
-
         desc = etree.Element("description")
 
         desc.text = self.description
@@ -222,7 +220,7 @@ class Groups(object):
 
     def to_xml(self):
         dom = etree.Element("groups")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -235,8 +233,7 @@ class Groups(object):
     def to_json(self):
         values = [t.to_dict()["group"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"groups": {"values": values,"links":links}})
-
+        return json.dumps({"groups": {"values": values, "links": links}})
 
 
 class User(object):
@@ -334,7 +331,7 @@ class Users(object):
 
     def to_xml(self):
         dom = etree.Element("users")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -347,4 +344,4 @@ class Users(object):
     def to_json(self):
         values = [t.to_dict()["user"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"users": {"values": values,"links":links}})
+        return json.dumps({"users": {"values": values, "links": links}})
