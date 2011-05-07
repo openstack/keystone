@@ -65,9 +65,9 @@ import keystone.logic.types.auth as auth
 service = serv.IDMService()
 
 def is_xml_response():
-    if not "Accept" in request.header:
+    if not "Accept" in Request.headers:
         return False
-    return request.header["Accept"] == "application/xml"
+    return Request.headers == "application/xml"
 
 
 def get_normalized_request_content(model, req):
@@ -84,7 +84,7 @@ def get_normalized_request_content(model, req):
 
 def send_result(code, result):
     content = None
-    response.content_type = None
+    Response.content_type = None
     if result:
         if is_xml_response():
             content = result.to_xml()
