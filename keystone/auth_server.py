@@ -49,7 +49,6 @@ from webob.exc import (HTTPNotFound,
                        HTTPConflict,
                        HTTPBadRequest)
 
-
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
                                    os.pardir))
@@ -61,14 +60,12 @@ from keystone.common import wsgi
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
 
-
 service = serv.IDMService()
 
 def is_xml_response(req):
     if not "Accept" in req.headers:
         return False
     return req.content_type == "application/xml"
-
 
 def get_normalized_request_content(model, req):
     """initialize a model from json/xml contents of request body"""
@@ -81,23 +78,22 @@ def get_normalized_request_content(model, req):
         raise fault.IDMFault("I don't understand the content type ", code=415)
     return ret
 
-
 def send_result(code, req, result):
     content = None
-    Response.content_type = None
+    resp=Response()
+    resp.content_type = None
     if result:
         if is_xml_response(req):
             content = result.to_xml()
-            Response.content_type = "application/xml"
+            resp.content_type = "application/xml"
         else:
             content = result.to_json()
-            Response.content_type = "application/json"
-    Response.status = code
+            resp.content_type = "application/json"
+    resp.status = code
     if code > 399:
        #return bottle.abort(code, content)
        return;
     return content
-
 
 class Controller(wsgi.Controller):
 
@@ -108,7 +104,6 @@ class Controller(wsgi.Controller):
         creds = get_normalized_request_content(auth.PasswordCredentials, req)
         return send_result(200, req, service.authenticate(creds))
 
-
 class Auth_API(wsgi.Router):
     """WSGI entry point for all Keystone Auth API requests."""
 
@@ -118,7 +113,6 @@ class Auth_API(wsgi.Router):
         controller = Controller(options)
         mapper.connect("/v1.0/token", controller=controller, action="authenticate")
         super(Auth_API, self).__init__(mapper)
-
 
 def app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating Glance API server apps"""
