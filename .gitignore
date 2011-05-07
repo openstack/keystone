@@ -3,3 +3,4 @@
 .cache/
 .pydevproject/
 keystone.db
+*.swp

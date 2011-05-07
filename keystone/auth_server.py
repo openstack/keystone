@@ -80,15 +80,15 @@ def get_normalized_request_content(model, req):
 
 def send_result(code, req, result):
     content = None
-    resp=Response()
-    resp.content_type = None
+    resp = Response()
+    resp.headers['Content-Type'] = None
     if result:
         if is_xml_response(req):
             content = result.to_xml()
-            resp.content_type = "application/xml"
+            resp.headers['Content_Type'] = "application/xml"
         else:
             content = result.to_json()
-            resp.content_type = "application/json"
+            resp.headers['Content-Type'] = "application/json"
     resp.status = code
     if code > 399:
        #return bottle.abort(code, content)
@@ -104,6 +104,14 @@ class Controller(wsgi.Controller):
         creds = get_normalized_request_content(auth.PasswordCredentials, req)
         return send_result(200, req, service.authenticate(creds))
 
+    def validate_token(self, req):
+        belongs_to = None
+        if "belongsTo" in req.GET:
+            belongs_to = req.GET["belongsTo"]
+        rval = service.validate_token(get_auth_token(), token_id, belongs_to)
+        return send_result(200, rval)
+
+
 class Auth_API(wsgi.Router):
     """WSGI entry point for all Keystone Auth API requests."""
 
@@ -112,6 +120,9 @@ class Auth_API(wsgi.Router):
         mapper = routes.Mapper()
         controller = Controller(options)
         mapper.connect("/v1.0/token", controller=controller, action="authenticate")
+        mapper.connect("/v1.0/token/{id}", controller=controller,
+                        action="validate_token")
+
         super(Auth_API, self).__init__(mapper)
 
 def app_factory(global_conf, **local_conf):
