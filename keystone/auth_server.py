@@ -64,10 +64,10 @@ import keystone.logic.types.auth as auth
 
 service = serv.IDMService()
 
-def is_xml_response():
-    if not "Accept" in request.header:
+def is_xml_response(req):
+    if not "Accept" in req.headers:
         return False
-    return request.header["Accept"] == "application/xml"
+    return req.content_type == "application/xml"
 
 
 def get_normalized_request_content(model, req):
@@ -82,17 +82,17 @@ def get_normalized_request_content(model, req):
     return ret
 
 
-def send_result(code, result):
+def send_result(code, req, result):
     content = None
-    response.content_type = None
+    Response.content_type = None
     if result:
-        if is_xml_response():
+        if is_xml_response(req):
             content = result.to_xml()
-            response.content_type = "application/xml"
+            Response.content_type = "application/xml"
         else:
             content = result.to_json()
-            response.content_type = "application/json"
-    response.status = code
+            Response.content_type = "application/json"
+    Response.status = code
     if code > 399:
        #return bottle.abort(code, content)
        return;
@@ -106,7 +106,7 @@ class Controller(wsgi.Controller):
 
     def authenticate(self, req):
         creds = get_normalized_request_content(auth.PasswordCredentials, req)
-        return send_result(200, service.authenticate(creds))
+        return send_result(200, req, service.authenticate(creds))
 
 
 class Auth_API(wsgi.Router):

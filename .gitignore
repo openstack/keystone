@@ -1,1 +1,5 @@
 *.pyc
+.project/
+.cache/
+.pydevproject/
+keystone.db
