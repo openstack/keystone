@@ -64,8 +64,6 @@ import keystone.logic.types.tenant as tenants
 import keystone.logic.types.auth as auth
 import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
-import bottle
-
 
 VERSION_STATUS = "ALPHA"
 VERSION_DATE = "2011-04-23T00:00:00Z"
@@ -121,23 +119,22 @@ class MiscController(wsgi.Controller):
         self.options = options
 
     def get_version_info(self, req):
-        response=Response()
         if is_xml_response(req):
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                      "keystone/content/version.xml.tpl")
-            response.content_type = "application/xml"
         else:
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                  "keystone/content/version.json.tpl")
-            response.content_type = "application/json"
 
-            print resp_file
-            hostname = req.environ.get("SERVER_NAME")
-            port = req.environ.get("SERVER_PORT")
+        hostname = req.environ.get("SERVER_NAME")
+        port = req.environ.get("SERVER_PORT")
+        #try:
+        tmplfile=open(resp_file);
+        tmplstring=tmplfile.read()
 
-            return bottle.template(resp_file, HOST=hostname, PORT=port,
+        send_result(200,req, tmplstring.format(HOST=hostname, PORT=port,
                            VERSION_STATUS=VERSION_STATUS,
-                           VERSION_DATE=VERSION_DATE)
+                           VERSION_DATE=VERSION_DATE))
 
 
 class AuthController(wsgi.Controller):
