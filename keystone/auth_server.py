@@ -50,10 +50,12 @@ from webob.exc import (HTTPNotFound,
                        HTTPBadRequest)
 
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
+                                   os.pardir,os.pardir,
                                    os.pardir))
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
+
+
 
 from queryext import exthandler
 from keystone.common import wsgi
@@ -62,6 +64,11 @@ import keystone.logic.types.tenant as tenants
 import keystone.logic.types.auth as auth
 import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
+import bottle
+
+
+VERSION_STATUS = "ALPHA"
+VERSION_DATE = "2011-04-23T00:00:00Z"
 
 service = serv.IDMService()
 
@@ -107,6 +114,30 @@ def send_result(code, req, result):
         #return bottle.abort(code, content)
         return
     return content
+
+class MiscController(wsgi.Controller):
+
+    def __init__(self, options):
+        self.options = options
+
+    def get_version_info(self, req):
+        response=Response()
+        if is_xml_response(req):
+            resp_file = os.path.join(POSSIBLE_TOPDIR,
+                                     "keystone/content/version.xml.tpl")
+            response.content_type = "application/xml"
+        else:
+            resp_file = os.path.join(POSSIBLE_TOPDIR,
+                                 "keystone/content/version.json.tpl")
+            response.content_type = "application/json"
+
+            print resp_file
+            hostname = req.environ.get("SERVER_NAME")
+            port = req.environ.get("SERVER_PORT")
+
+            return bottle.template(resp_file, HOST=hostname, PORT=port,
+                           VERSION_STATUS=VERSION_STATUS,
+                           VERSION_DATE=VERSION_DATE)
 
 
 class AuthController(wsgi.Controller):
@@ -351,6 +382,13 @@ class Auth_API(wsgi.Router):
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
                 action="delete_user", conditions=dict(method=["DELETE"]))
 
+
+        # Miscellaneous Operations
+        misc_controller = MiscController(options)
+        mapper.connect("/v1.0/", controller=misc_controller, 
+                       action="get_version_info",conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0", controller=misc_controller, 
+                       action="get_version_info",conditions=dict(method=["GET"]))
 
 
         super(Auth_API, self).__init__(mapper)

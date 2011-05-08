@@ -240,7 +240,7 @@ class identity_test(unittest.TestCase):
     #Given _a_ to make inherited test cases in an order.
     #here to call below method will call as last test case
 
-    def test_a_get_version(self):
+    def test_a_get_version_json(self):
         h = httplib2.Http(".cache")
         url = URL
         resp, content = h.request(url, "GET", body="",
@@ -248,7 +248,7 @@ class identity_test(unittest.TestCase):
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/json', resp['content-type'])
 
-    def test_a_get_version(self):
+    def test_a_get_version_xml(self):
         h = httplib2.Http(".cache")
         url = URL
         resp, content = h.request(url, "GET", body="",
