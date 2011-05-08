@@ -359,12 +359,86 @@ class UserController(wsgi.Controller):
         rval = service.set_user_password(get_auth_token(req), user_id, user, tenant_id)
         return send_result(204, req, rval)
 
-    def set_user_enabled(self, req, user_id,tenant_id):
-        rval = service.enable_disable_user(get_auth_token(req), user_id, tenant_id)
+    # To be checked with Abdul not finished yet
+    def set_user_enabled(self, req, user_id, tenant_id):
+        user = get_normalized_request_content(users.User_Update, req)
+        rval = service.enable_disable_user(get_auth_token(req), user_id, user, tenant_id)
         return send_result(204, req, rval)
 
 
-class Auth_API(wsgi.Router):
+
+class GroupsController(wsgi.Controller):
+
+    def __init__(self, options):
+        self.options = options
+
+    def create_group(self, req):
+        group = get_normalized_request_content(tenants.Group, req)
+        return send_result(201, req,
+                       service.create_global_group(get_auth_token(req),
+                                                   group))
+    def get_groups(self, req):
+        marker = None
+        if "marker" in req.GET:
+            marker = req.GET["marker"]
+
+        if "limit" in req.GET:
+            limit = req.GET["limit"]
+        else:
+            limit = 10
+
+        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                         req.environ.get("SERVER_NAME"),
+                         req.environ.get("SERVER_PORT"),
+                         req.environ['PATH_INFO'])
+        groups = service.get_global_groups(get_auth_token(req),
+                                         marker, limit, url)
+        return send_result(200, req, groups)
+
+    def get_group(self, req, group_id):
+        tenant = service.get_global_group(get_auth_token(req), group_id)
+        return send_result(200, req, tenant)
+
+    def update_group(self, req, group_id):
+        group = get_normalized_request_content(tenants.Group, req)
+        rval = service.update_global_group(get_auth_token(req),
+                                        group_id, group)
+        return send_result(200, req, rval)
+
+    def delete_group(self, req, group_id):
+        rval = service.delete_global_group(get_auth_token(req), group_id)
+        return send_result(204, req, rval)
+
+    def get_users_group(self, req, group_id):
+        marker = None
+        if "marker" in req.GET:
+            marker = req.GET["marker"]
+
+        if "limit" in req.GET:
+            limit = req.GET["limit"]
+        else:
+            limit = 10
+
+        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                             req.environ.get("SERVER_NAME"),
+                             req.environ.get("SERVER_PORT"),
+                             req.environ['PATH_INFO'])
+
+        users = service.get_users_global_group(get_auth_token(req),
+                                             group_id, marker, limit, url)
+        return send_result(200, req, users)
+
+
+    def add_user_group(self, req, group_id, user_id):
+        return send_result(201, req,
+                       service.add_user_global_group(get_auth_token(req),
+                                                    group_id, user_id))
+    def delete_user_group(self, req,  group_id, user_id):
+        return send_result(204, req,
+                       service.delete_user_global_group(get_auth_token(req),
+                                                   group_id, user_id))
+
+class KeystoneAPI(wsgi.Router):
     """WSGI entry point for all Keystone Auth API requests."""
 
     def __init__(self, options):
@@ -417,6 +491,34 @@ class Auth_API(wsgi.Router):
                 action="update_user", conditions=dict(method=["PUT"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
                 action="delete_user", conditions=dict(method=["DELETE"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/password", controller=user_controller,
+                action="set_user_password", conditions=dict(method=["PUT"]))
+
+        # Test this, test failed
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/enabled", controller=user_controller,
+                action="set_user_enabled", conditions=dict(method=["PUT"]))
+
+        #Global Groups
+        groups_controller = GroupsController(options)
+        mapper.connect("/v1.0/groups", controller=groups_controller,
+                action="create_group", conditions=dict(method=["POST"]))
+        mapper.connect("/v1.0/groups", controller=groups_controller,
+                action="get_groups", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
+                action="get_group", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
+                action="update_group", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
+                action="delete_group", conditions=dict(method=["DELETE"]))
+        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
+                action="add_user_group", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
+                action="delete_user_group", conditions=dict(method=["DELETE"]))
+
+        #Not working yet, somebody who has touched its models, please handle
+        mapper.connect("/v1.0/groups/{group_id}/users", controller=groups_controller,
+                action="get_users_group", conditions=dict(method=["GET"]))
+
 
 
         # Miscellaneous Operations
@@ -446,4 +548,4 @@ def app_factory(global_conf, **local_conf):
         conf.update(local_conf)
     except Exception as err:
         print err
-    return Auth_API(conf)
+    return KeystoneAPI(conf)

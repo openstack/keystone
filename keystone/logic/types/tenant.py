@@ -109,14 +109,14 @@ class Tenants(object):
 
     def to_xml(self):
         dom = etree.Element("tenants")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0") 
-        
+        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+
         for t in self.values:
             dom.append(t.to_dom())
-        
+
         for t in self.links:
             dom.append(t.to_dom())
-            
+
         return etree.tostring(dom)
 
     def to_json(self):
@@ -125,15 +125,16 @@ class Tenants(object):
         return json.dumps({"tenants": {"values": values,"links":links}})
 
 
-
 class Group(object):
-    "Describes a group in the auth system"
 
+    "Describes a group in the auth system"
     def __init__(self, group_id, description, tenant_id=''):
-        
         self.description = description
         self.group_id = group_id
-        self.tenant_id = tenant_id
+        if tenant_id:
+            self.tenant_id = tenant_id
+        else:
+            self.tenant_id = None
 
     @staticmethod
     def from_xml(xml_str):
@@ -144,9 +145,8 @@ class Group(object):
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
-            tenant_id = root.get("tenantId")
-            
-            
+            if root.get("tenantId"):
+                tenant_id = root.get("tenantId")
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:
@@ -159,21 +159,21 @@ class Group(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            
+
             if not "group" in obj:
                 raise fault.BadRequestFault("Expecting group")
             group = obj["group"]
-            
+
             if not "id" in group:
                 group_id = None
             else:
                 group_id = group["id"]
-                
+
             if not "tenantId" in group:
                 tenantId = None
             else:
                 tenantId = group["tenantId"]
-            
+
             if not "description" in group:
                 raise fault.BadRequestFault("Expecting Group Description")
             description = group["description"]
@@ -186,13 +186,9 @@ class Group(object):
                             xmlns="http://docs.openstack.org/idm/api/v1.0")
         if self.group_id:
             dom.set("id", self.group_id)
-        
         if self.tenant_id:
             dom.set("tenantId", self.tenant_id)
-        
-        
         desc = etree.Element("description")
-        
         desc.text = self.description
         dom.append(desc)
         return dom
@@ -205,8 +201,8 @@ class Group(object):
         if self.group_id:
             group["id"] = self.group_id
         group["description"] = self.description
-        group["tenantId"] = self.tenant_id
-        
+        if self.tenant_id:
+            group["tenantId"] = self.tenant_id
         return {'group': group}
 
     def to_json(self):
@@ -222,31 +218,38 @@ class Groups(object):
 
     def to_xml(self):
         dom = etree.Element("groups")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0") 
-        
+        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+
         for t in self.values:
             dom.append(t.to_dom())
-        
+
         for t in self.links:
             dom.append(t.to_dom())
-            
+
         return etree.tostring(dom)
 
     def to_json(self):
         values = [t.to_dict()["group"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
         return json.dumps({"groups": {"values": values,"links":links}})
-    
-    
-    
-class User(object):
-    "Describes a user in the auth system"
 
-    def __init__(self, user_id, email, group_id, tenant_id, enabled):
-        
+
+
+
+
+class User(object):
+
+    "Describes a user in the auth system"
+    def __init__(self, user_id, email, enabled, tenant_id='', group_id=''):
         self.user_id = user_id
-        
-        self.tenant_id = tenant_id
+        if group_id:
+            self.group_id = group_id
+        else:
+            self.group_id = None
+        if tenant_id:
+            self.tenant_id = tenant_id
+        else:
+            self.tenant_id = None
         self.email = email
         self.enabled = enabled and True or False
 
@@ -259,8 +262,6 @@ class User(object):
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
-            
-            
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:
@@ -273,16 +274,13 @@ class User(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            
             if not "group" in obj:
                 raise fault.BadRequestFault("Expecting group")
             group = obj["group"]
-            
             if not "id" in group:
                 group_id = None
             else:
                 group_id = group["id"]
-            
             if not "description" in group:
                 raise fault.BadRequestFault("Expecting Group Description")
             description = group["description"]
@@ -290,22 +288,19 @@ class User(object):
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Group", str(e))
     """
-    
     def to_dom(self):
         dom = etree.Element("user",
                             xmlns="http://docs.openstack.org/idm/api/v1.0")
-        if self.group_id:
-            dom.set("id", self.group_id)
-        
+        if self.group_id != None:
+            dom.set("group_id", self.group_id)
+        if self.user_id:
+            dom.set("id", self.user_id)
         if self.tenant_id:
             dom.set("tenantId", self.tenant_id)
-        
-        if self.tenant_id:
+        if self.email:
             dom.set("email", self.email)
-        
-        if self.tenant_id:
-            dom.set("enabled", self.enabled)
-        
+        if self.enabled:
+            dom.set("enabled", string.lower(str(self.enabled)))
         return dom
 
     def to_xml(self):
@@ -313,12 +308,13 @@ class User(object):
 
     def to_dict(self):
         user = {}
-        if self.group_id:
-            group["id"] = self.group_id
-        group["email"] = self.email
-        group["enabled"] = self.enabled
-        group["tenantId"] = self.tenant_id
-        
+        if self.group_id != None:
+            user["group_id"] = self.group_id
+        user["id"] = self.user_id
+        user["email"] = self.email
+        user["enabled"] = string.lower(str(self.enabled))
+        if self.tenant_id:
+            user["tenantId"] = self.tenant_id
         return {'user': user}
 
     def to_json(self):
@@ -334,14 +330,14 @@ class Users(object):
 
     def to_xml(self):
         dom = etree.Element("users")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0") 
-        
+        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+
         for t in self.values:
             dom.append(t.to_dom())
-        
+
         for t in self.links:
             dom.append(t.to_dom())
-            
+
         return etree.tostring(dom)
 
     def to_json(self):
