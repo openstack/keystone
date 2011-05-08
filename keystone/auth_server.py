@@ -63,6 +63,7 @@ import keystone.logic.types.tenant as tenants
 import keystone.logic.types.auth as auth
 import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
+import keystone.common.template as template
 
 
 VERSION_STATUS = "ALPHA"
@@ -117,6 +118,33 @@ def send_result(code, req, result):
         return
     return content
 
+class StaticFilesController(wsgi.Controller):
+
+    def __init__(self, options):
+        self.options = options
+
+    def get_pdf_contract(self, req):
+        resp = Response()
+        return template.static_file(resp, req, "content/idmdevguide.pdf",
+                                  root=get_app_root(),
+                                  mimetype="application/pdf")
+
+    def get_wadl_contract():
+        resp = Response()
+        return template.static_file(resp, req, "identity.wadl",
+                              root=get_app_root(),
+                              mimetype="application/vnd.sun.wadl+xml")
+    def get_xsd_contract(xsd):
+        resp = Response()
+        return template.static_file(resp, req, "/xsd/" + xsd,
+                              root=get_app_root(),
+                              mimetype="application/xml")
+
+    def get_xsd_atom_contract(xsd):
+        resp = Response()
+        return template.static_file(resp, req, "/xsd/atom/" + xsd,
+                              root=get_app_root(),
+                              mimetype="application/xml")
 
 class MiscController(wsgi.Controller):
 
@@ -125,84 +153,28 @@ class MiscController(wsgi.Controller):
 
     def  get_version_info(self, req):
     
+        resp = Response()
         if is_xml_response(req):
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                      "keystone/content/version.xml.tpl")
+            resp.headers['Content_Type'] = "application/xml"
         else:
-            
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                  "keystone/content/version.json.tpl")
+            resp.headers['Content_Type'] = "application/json"
 
         hostname = req.environ.get("SERVER_NAME")
         port = req.environ.get("SERVER_PORT")
-        #try:
-        tmplfile=open(resp_file);
-        tmplstring=tmplfile.read()
-        
-        return serv.template(resp_file, HOST=hostname, PORT=port,
+
+        content= template.template(resp_file, HOST=hostname, PORT=port,
                                VERSION_STATUS=VERSION_STATUS,
                                VERSION_DATE=VERSION_DATE)
 
-    def get_pdf_contract(self, req):
-        resp = Response()
-        return serv.static_file(resp, req, "content/idmdevguide.pdf",
-                                  root=get_app_root(),
-                                  mimetype="application/pdf",)
-        
-"""
-@bottle.route('/v1.0', method='GET')
-@bottle.route('/v1.0/', method='GET')
-@wrap_error
-def get_version_info():
-    if is_xml_response():
-        resp_file = os.path.join(POSSIBLE_TOPDIR, "keystone/content/version.xml.tpl")
-        response.content_type = "application/xml"
-    else:
-        resp_file = os.path.join(POSSIBLE_TOPDIR, "keystone/content/version.json.tpl")
-        response.content_type = "application/json"
-    hostname = request.environ.get("SERVER_NAME")
-    port = request.environ.get("SERVER_PORT")
-    return bottle.template(resp_file, HOST=hostname, PORT=port,
-                           VERSION_STATUS=VERSION_STATUS,
-                           VERSION_DATE=VERSION_DATE)
+        print content
 
-##
-## Version links:
-##
+        return content
 
 
-@bottle.route('/v1.0/idmdevguide.pdf', method='GET')
-@wrap_error
-def get_pdf_contract():
-    return bottle.static_file("content/idmdevguide.pdf",
-                              root=get_app_root(),
-                              mimetype="application/pdf")
-
-
-@bottle.route('/v1.0/identity.wadl', method='GET')
-@wrap_error
-def get_wadl_contract():
-    return bottle.static_file("identity.wadl",
-                              root=get_app_root(),
-                              mimetype="application/vnd.sun.wadl+xml")
-
-
-@bottle.route('/v1.0/xsd/:xsd', method='GET')
-@wrap_error
-def get_xsd_contract(xsd):
-    return bottle.static_file("/xsd/" + xsd,
-                              root=get_app_root(),
-                              mimetype="application/xml")
-
-
-@bottle.route('/v1.0/xsd/atom/:xsd', method='GET')
-@wrap_error
-def get_xsd_atom_contract(xsd):
-    return bottle.static_file("/xsd/atom/" + xsd,
-                              root=get_app_root(),
-                              mimetype="application/xml")
-
-"""
 
 class AuthController(wsgi.Controller):
 
@@ -453,11 +425,18 @@ class Auth_API(wsgi.Router):
                        action="get_version_info",conditions=dict(method=["GET"]))
         mapper.connect("/v1.0", controller=misc_controller, 
                        action="get_version_info",conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/idmdevguide.pdf", controller=misc_controller, 
+
+        # Static Files Controller
+        static_files_controller = StaticFilesController(options)
+        mapper.connect("/v1.0/idmdevguide.pdf", controller=static_files_controller, 
+                       action="get_pdf_contract",conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/identity.wadl", controller=static_files_controller, 
+                       action="get_identity_wadl",conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/xsd/{xsd}", controller=static_files_controller, 
+                       action="get_pdf_contract",conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/xsd/atom/{xsd}", controller=static_files_controller, 
                        action="get_pdf_contract",conditions=dict(method=["GET"]))
         
-        
-
         super(Auth_API, self).__init__(mapper)
 
 def app_factory(global_conf, **local_conf):
