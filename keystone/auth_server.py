@@ -56,7 +56,6 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
 
 
-
 from queryext import exthandler
 from keystone.common import wsgi
 import keystone.logic.service as serv
@@ -64,6 +63,7 @@ import keystone.logic.types.tenant as tenants
 import keystone.logic.types.auth as auth
 import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
+
 
 VERSION_STATUS = "ALPHA"
 VERSION_DATE = "2011-04-23T00:00:00Z"
@@ -75,6 +75,10 @@ def is_xml_response(req):
     if not "Accept" in req.headers:
         return False
     return req.content_type == "application/xml"
+
+
+def get_app_root():
+    return os.path.abspath(os.path.dirname(__file__))
 
 
 def get_auth_token(req):
@@ -113,16 +117,19 @@ def send_result(code, req, result):
         return
     return content
 
+
 class MiscController(wsgi.Controller):
 
     def __init__(self, options):
         self.options = options
 
-    def get_version_info(self, req):
+    def  get_version_info(self, req):
+    
         if is_xml_response(req):
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                      "keystone/content/version.xml.tpl")
         else:
+            
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                  "keystone/content/version.json.tpl")
 
@@ -131,11 +138,71 @@ class MiscController(wsgi.Controller):
         #try:
         tmplfile=open(resp_file);
         tmplstring=tmplfile.read()
+        
+        return serv.template(resp_file, HOST=hostname, PORT=port,
+                               VERSION_STATUS=VERSION_STATUS,
+                               VERSION_DATE=VERSION_DATE)
 
-        send_result(200,req, tmplstring.format(HOST=hostname, PORT=port,
+    def get_pdf_contract(self, req):
+        resp = Response()
+        return serv.static_file(resp, req, "content/idmdevguide.pdf",
+                                  root=get_app_root(),
+                                  mimetype="application/pdf",)
+        
+"""
+@bottle.route('/v1.0', method='GET')
+@bottle.route('/v1.0/', method='GET')
+@wrap_error
+def get_version_info():
+    if is_xml_response():
+        resp_file = os.path.join(POSSIBLE_TOPDIR, "keystone/content/version.xml.tpl")
+        response.content_type = "application/xml"
+    else:
+        resp_file = os.path.join(POSSIBLE_TOPDIR, "keystone/content/version.json.tpl")
+        response.content_type = "application/json"
+    hostname = request.environ.get("SERVER_NAME")
+    port = request.environ.get("SERVER_PORT")
+    return bottle.template(resp_file, HOST=hostname, PORT=port,
                            VERSION_STATUS=VERSION_STATUS,
-                           VERSION_DATE=VERSION_DATE))
+                           VERSION_DATE=VERSION_DATE)
 
+##
+## Version links:
+##
+
+
+@bottle.route('/v1.0/idmdevguide.pdf', method='GET')
+@wrap_error
+def get_pdf_contract():
+    return bottle.static_file("content/idmdevguide.pdf",
+                              root=get_app_root(),
+                              mimetype="application/pdf")
+
+
+@bottle.route('/v1.0/identity.wadl', method='GET')
+@wrap_error
+def get_wadl_contract():
+    return bottle.static_file("identity.wadl",
+                              root=get_app_root(),
+                              mimetype="application/vnd.sun.wadl+xml")
+
+
+@bottle.route('/v1.0/xsd/:xsd', method='GET')
+@wrap_error
+def get_xsd_contract(xsd):
+    return bottle.static_file("/xsd/" + xsd,
+                              root=get_app_root(),
+                              mimetype="application/xml")
+
+
+@bottle.route('/v1.0/xsd/atom/:xsd', method='GET')
+@wrap_error
+def get_xsd_atom_contract(xsd):
+    return bottle.static_file("/xsd/atom/" + xsd,
+                              root=get_app_root(),
+                              mimetype="application/xml")
+
+"""
 
 class AuthController(wsgi.Controller):
 
@@ -386,7 +453,10 @@ class Auth_API(wsgi.Router):
                        action="get_version_info",conditions=dict(method=["GET"]))
         mapper.connect("/v1.0", controller=misc_controller, 
                        action="get_version_info",conditions=dict(method=["GET"]))
-
+        mapper.connect("/v1.0/idmdevguide.pdf", controller=misc_controller, 
+                       action="get_pdf_contract",conditions=dict(method=["GET"]))
+        
+        
 
         super(Auth_API, self).__init__(mapper)
 
