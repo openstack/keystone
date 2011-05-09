@@ -1954,6 +1954,7 @@ class create_tenant_group_test(tenant_group_test):
 	    respG, contentG = create_tenant_group_xml('test_tenant_group', \
 						"test_tenant", str(self.auth_token))
 
+	    print contentG
 	    self.tenant = 'test_tenant'
 	    self.tenant_group = 'test_tenant_group'
 	    content = etree.fromstring(content)

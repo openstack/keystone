@@ -139,14 +139,23 @@ class Group(object):
     @staticmethod
     def from_xml(xml_str):
         try:
+            print ''
+            print xml_str
+            print ''
+
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/idm/api/v1.0}group")
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
+            tenant_id=None
             if root.get("tenantId"):
                 tenant_id = root.get("tenantId")
+
+            if tenant_id==None:
+                raise fault.BadRequestFault("Expecting a tenant id")
+
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:
