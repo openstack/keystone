@@ -92,6 +92,11 @@ INSTALLING KEYSTONE:
     $ sudo python setup.py install
 
 
+RUNNING KEYSTONE (Eventlet Server):
+-----------------------------------
+ sudo keystone (start|stop|restart)
+
+
 INSTALLING TEST SERVICE:
 ------------------------
 
