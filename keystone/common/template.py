@@ -6,6 +6,9 @@ import re
 import os
 import functools
 import time
+from webob import Response
+import keystone.logic.types.fault as fault
+
 TEMPLATES = {}
 DEBUG = False
 TEMPLATE_PATH = ['./', './views/']
@@ -33,7 +36,7 @@ class BaseTemplate(object):
         self.lookup = map(os.path.abspath, lookup)
         self.encoding = encoding
         self.settings = self.settings.copy() # Copy from class variable
-        self.settings.update(settings) # Apply 
+        self.settings.update(settings) # Apply
         if not self.source and self.name:
             self.filename = self.search(self.name, self.lookup)
             if not self.filename:
@@ -227,7 +230,7 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     """
     root = os.path.abspath(root) + os.sep
     filename = os.path.abspath(os.path.join(root, filename.strip('/\\')))
-    header = dict()
+    header = {}
     if not filename.startswith(root):
         #return HTTPError(403, "Access denied.")
         return ForbiddenFault("Access denied.")
@@ -239,30 +242,30 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
         return ForbiddenFault("You do not have permission to access this file.")
 
     if not mimetype and guessmime:
-        resp.headers['Content-Type'] = mimetypes.guess_type(filename)[0]
+        resp.content_type = mimetypes.guess_type(filename)[0]
     else:
-        resp.headers['Content-Type'] = mimetype if mimetype else 'text/plain'
+        resp.content_type = mimetype if mimetype else 'text/plain'
 
     if download == True:
         download = os.path.basename(filename)
     if download:
-        resp.headers['Content-Disposition'] = 'attachment; filename="%s"' % download
+        resp.content_disposition = 'attachment; filename="%s"' % download
 
     stats = os.stat(filename)
     lm = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(stats.st_mtime))
-    resp.headers['Last-Modified'] = lm
+    resp.last_modified = lm
     ims = req.environ.get('HTTP_IF_MODIFIED_SINCE')
     if ims:
         ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
         ims = parse_date(ims)
         if ims is not None and ims >= int(stats.st_mtime):
-            resp.headers['Date'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
-            return Response(status=304, header=header)
-    resp.headers['Content-Length'] = stats.st_size
+            resp.date = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
+            return Response(body=None, status=304, headerlist=resp.headerlist)
+    resp.content_length = stats.st_size
     if req.method == 'HEAD':
-        return resp('', header=header)
+        return Response(body=None, status=200, headerlist=resp.headerlist)
     else:
-        return resp(open(filename, 'rb'), header=header)
+        return Response(body=open(filename).read(), status=200, headerlist=resp.headerlist)
 
 
 def template(tpl, template_adapter=SimpleTemplate, **kwargs):

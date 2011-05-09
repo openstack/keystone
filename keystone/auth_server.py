@@ -45,6 +45,7 @@ import json
 import routes
 from webob import Response
 from webob import Request
+from webob import descriptors
 from webob.exc import (HTTPNotFound,
                        HTTPConflict,
                        HTTPBadRequest)
@@ -135,18 +136,18 @@ class StaticFilesController(wsgi.Controller):
                                   root=get_app_root(),
                                   mimetype="application/pdf")
 
-    def get_wadl_contract():
+    def get_wadl_contract(self, req):
         resp = Response()
         return template.static_file(resp, req, "identity.wadl",
                               root=get_app_root(),
                               mimetype="application/vnd.sun.wadl+xml")
-    def get_xsd_contract(xsd):
+    def get_xsd_contract(self, req, xsd):
         resp = Response()
         return template.static_file(resp, req, "/xsd/" + xsd,
                               root=get_app_root(),
                               mimetype="application/xml")
 
-    def get_xsd_atom_contract(xsd):
+    def get_xsd_atom_contract(self, req, xsd):
         resp = Response()
         return template.static_file(resp, req, "/xsd/atom/" + xsd,
                               root=get_app_root(),
