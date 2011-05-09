@@ -159,5 +159,6 @@ if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
         ini), global_conf={"log_name": "echo.log"})
-
-    wsgi.server(eventlet.listen(('', port)), app)
+    listener = eventlet.listen(('', port))
+    pool = eventlet.GreenPool(1000)
+    wsgi.server(listener, app, custom_pool=pool)

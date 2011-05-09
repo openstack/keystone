@@ -1,5 +1,5 @@
-Nova Style Commandments
-=======================
+Keystone Style Commandments (pilfered from Nova and added to)
+=============================================================
 
 Step 1: Read http://www.python.org/dev/peps/pep-0008/
 Step 2: Read http://www.python.org/dev/peps/pep-0008/ again
@@ -16,7 +16,7 @@ Imports
   # vim: tabstop=4 shiftwidth=4 softtabstop=4
   {{stdlib imports in human alphabetical order}}
   \n
-  {{nova imports in human alphabetical order}}
+  {{OpenStack/Keystone imports in human alphabetical order}}
   \n
   \n
   {{begin your code}}
@@ -27,8 +27,9 @@ General
 - thou shalt put two newlines twixt toplevel code (funcs, classes, etc)
 - thou shalt put one newline twixt methods in classes and anywhere else
 - thou shalt not write "except:", use "except Exception:" at the very least
-- thou shalt include your name with TODOs as in "TODO(termie)"
+- thou shalt include your name with TODOs as in "TODO(waldo)"
 - thou shalt not name anything the same name as a builtin or reserved word
+- thou shouldeth comment profusely
 - thou shalt not violate causality in our time cone, or else
 
 
@@ -42,14 +43,12 @@ Human Alphabetical Order Examples
   import time
   import unittest
 
-  from nova import flags
-  from nova import test
-  from nova.auth import users
-  from nova.endpoint import api
-  from nova.endpoint import cloud
+  import keystone.logic.types.fault as fault
+  import keystone.db.sqlalchemy.api as db_api
 
 Docstrings
 ----------
+Add them to modules, classes, and functions:
   """Summary of the function, class or method, less than 80 characters.
 
   New paragraph after newline that explains in more detail any general
@@ -66,3 +65,15 @@ Docstrings
   :returns: description of the return value
 
   """
+
+Done/Done Criteria
+------------------
+How we define our code is done and ready for release:
+1. PEP-8 compliance
+2. pylint (same rules as Nova)
+3. McCabe 10 or less
+4. 65.258% test coverage
+5. All functional and unit tests pass
+6. Q/A Approval (if applicable - it is for Rackspace Integration dev teams)
+7. No sev A bugs (this shoud have been #1)
+

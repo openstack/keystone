@@ -13,6 +13,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Not yet PEP8
 
 
 """
@@ -150,10 +151,12 @@ def wrap_error(func):
 @wrap_error
 def get_version_info():
     if is_xml_response():
-        resp_file = "content/version.xml"
+        resp_file = os.path.join(POSSIBLE_TOPDIR,
+                                 "keystone/content/version.xml.tpl")
         response.content_type = "application/xml"
     else:
-        resp_file = "content/version.json"
+        resp_file = os.path.join(POSSIBLE_TOPDIR,
+                                 "keystone/content/version.json.tpl")
         response.content_type = "application/json"
     hostname = request.environ.get("SERVER_NAME")
     port = request.environ.get("SERVER_PORT")
@@ -238,16 +241,26 @@ def create_tenant():
                        service.create_tenant(get_auth_token(), tenant))
 
 
+#
+# Tenants Pagination Script Added
 @bottle.route('/v1.0/tenants', method='GET')
 @wrap_error
 def get_tenants():
     marker = None
     if "marker" in request.GET:
         marker = request.GET["marker"]
-    limit = None
+
     if "limit" in request.GET:
         limit = request.GET["limit"]
-    tenants = service.get_tenants(get_auth_token(), marker, limit)
+    else:
+        limit = 10
+
+    url = '%s://%s:%s%s' % (request.environ['wsgi.url_scheme'],
+                         request.environ.get("SERVER_NAME"),
+                         request.environ.get("SERVER_PORT"),
+                         request.environ['PATH_INFO'])
+
+    tenants = service.get_tenants(get_auth_token(), marker, limit, url)
     return send_result(200, tenants)
 
 
@@ -271,6 +284,86 @@ def update_tenant(tenant_id):
 def delete_tenant(tenant_id):
     rval = service.delete_tenant(get_auth_token(), tenant_id)
     return send_result(204, rval)
+
+
+##
+##    Tenant Groups
+##
+
+@bottle.route('/v1.0/tenant/:tenantId/groups', method='POST')
+@wrap_error
+def create_tenant_group(tenantId):
+    group = get_normalized_request_content(tenants.Group)
+    return send_result(201,
+                       service.create_tenant_group(get_auth_token(), \
+                                                   tenantId, group))
+
+
+@bottle.route('/v1.0/tenant/:tenantId/groups', method='GET')
+@wrap_error
+def get_tenant_groups(tenantId):
+    marker = None
+    if "marker" in request.GET:
+        marker = request.GET["marker"]
+
+    if "limit" in request.GET:
+        limit = request.GET["limit"]
+    else:
+        limit = 10
+
+    url = '%s://%s:%s%s' % (request.environ['wsgi.url_scheme'],
+                         request.environ.get("SERVER_NAME"),
+                         request.environ.get("SERVER_PORT"),
+                         request.environ['PATH_INFO'])
+
+    groups = service.get_tenant_groups(get_auth_token(),
+                                        tenantId, marker, limit, url)
+    return send_result(200, groups)
+
+
+@bottle.route('/v1.0/tenant/:tenantId/groups/:groupId', method='GET')
+@wrap_error
+def get_tenant_group(tenantId, groupId):
+    tenant = service.get_tenant_group(get_auth_token(), tenantId, groupId)
+    return send_result(200, tenant)
+
+
+@bottle.route('/v1.0/tenant/:tenantId/groups/:groupId', method='PUT')
+@wrap_error
+def update_tenant_group(tenantId, groupId):
+    group = get_normalized_request_content(tenants.Group)
+    rval = service.update_tenant_group(get_auth_token(),\
+                                        tenantId, groupId, group)
+    return send_result(200, rval)
+
+
+@bottle.route('/v1.0/tenant/:tenantId/groups/:groupId', method='DELETE')
+@wrap_error
+def delete_tenant_group(tenantId, groupId):
+    rval = service.delete_tenant_group(get_auth_token(), tenantId, groupId)
+    return send_result(204, rval)
+
+
+@bottle.route('/v1.0/tenants/:tenantId/groups/:groupId/users', method='GET')
+@wrap_error
+def get_users_tenant_group(tenantId, groupId):
+    marker = None
+    if "marker" in request.GET:
+        marker = request.GET["marker"]
+
+    if "limit" in request.GET:
+        limit = request.GET["limit"]
+    else:
+        limit = 10
+
+    url = '%s://%s:%s%s' % (request.environ['wsgi.url_scheme'],\
+                         request.environ.get("SERVER_NAME"),\
+                         request.environ.get("SERVER_PORT"),\
+                         request.environ['PATH_INFO'])
+
+    users = service.get_users_tenant_group(get_auth_token(),\
+                                        tenantId, groupId, marker, limit, url)
+    return send_result(200, users)
 
 
 ##
@@ -300,6 +393,9 @@ def get_extension(ext_alias):
     raise fault.ItemNotFoundFault("The extension is not found")
 
 
-if __name__ == "__main__":
+def start_server(port=8080):
     app = exthandler.UrlExtensionFilter(bottle.default_app(), None)
-    wsgi.server(eventlet.listen(('', 8080)), app)
+    wsgi.server(eventlet.listen(('', port)), app)
+
+if __name__ == "__main__":
+    start_server()

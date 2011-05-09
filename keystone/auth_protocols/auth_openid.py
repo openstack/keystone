@@ -85,7 +85,7 @@ class AuthProtocol(object):
              ssl=(self.service_protocol == 'https'))
         resp = conn.getresponse()
         data = resp.read()
-        #TODO: use a more sophisticated proxy
+        #TODO(ziad): use a more sophisticated proxy
         # we are rewriting the headers now
         return Response(status=resp.status, body=data)(env, start_response)
 
