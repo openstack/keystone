@@ -13,22 +13,14 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
-try:
-    from glance.vcsversion import version_info
-except ImportError:
-    version_info = {'branch_nick': u'LOCALBRANCH',
-                    'revision_id': 'LOCALREVISION',
-                    'revno': 0}
-
-GLANCE_VERSION = ['2011', '2']
-YEAR, COUNT = GLANCE_VERSION
+KEYSTONE_VERSION = ['1', '0']
+MAJOR, MINOR = KEYSTONE_VERSION
 
 FINAL = True   # This becomes true at Release Candidate time
 
 
 def canonical_version_string():
-    return '.'.join([YEAR, COUNT])
+    return '.'.join([MAJOR, MINOR])
 
 
 def version_string():
@@ -37,10 +29,3 @@ def version_string():
     else:
         return '%s-dev' % (canonical_version_string(),)
 
-
-def vcs_version_string():
-    return "%s:%s" % (version_info['branch_nick'], version_info['revision_id'])
-
-
-def version_string_with_vcs():
-    return "%s-%s" % (canonical_version_string(), vcs_version_string())
