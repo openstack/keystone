@@ -73,7 +73,7 @@ class BadRequestFault(IDMFault):
 
 class UnauthorizedFault(IDMFault):
     "User is unauthorized"
-
+    
     def __init__(self, msg, details=None, code=401):
         super(UnauthorizedFault, self).__init__(msg, details, code)
         self.key = "unauthorized"
