@@ -103,20 +103,26 @@ def get_normalized_request_content(model, req):
 
 def send_result(code, req, result):
     content = None
+
     resp = Response()
-    resp.headers['Content-Type'] = None
+    resp.content_type = None
+
+    resp.status = code
+    if code > 399:
+        return resp
+
     if result:
         if is_xml_response(req):
             content = result.to_xml()
-            resp.headers['Content_Type'] = "application/xml"
+            resp.content_type = "application/xml"
         else:
             content = result.to_json()
-            resp.headers['Content-Type'] = "application/json"
-    resp.status = code
-    if code > 399:
-        #return bottle.abort(code, content)
-        return
-    return content
+            resp.content_type = "application/json"
+
+    resp.charset = 'UTF-8'
+    resp.unicode_body = content
+
+    return resp
 
 class StaticFilesController(wsgi.Controller):
 
@@ -154,25 +160,23 @@ class MiscController(wsgi.Controller):
     def  get_version_info(self, req):
     
         resp = Response()
+        resp.charset = 'UTF-8'
         if is_xml_response(req):
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                      "keystone/content/version.xml.tpl")
-            resp.headers['Content_Type'] = "application/xml"
+            resp.content_type = "application/xml"
         else:
             resp_file = os.path.join(POSSIBLE_TOPDIR,
                                  "keystone/content/version.json.tpl")
-            resp.headers['Content_Type'] = "application/json"
+            resp.content_type = "application/json"
 
         hostname = req.environ.get("SERVER_NAME")
         port = req.environ.get("SERVER_PORT")
 
-        content= template.template(resp_file, HOST=hostname, PORT=port,
+        resp.unicode_body= template.template(resp_file, HOST=hostname, PORT=port,
                                VERSION_STATUS=VERSION_STATUS,
                                VERSION_DATE=VERSION_DATE)
-
-        print content
-
-        return content
+        return resp
 
 
 
@@ -539,7 +543,7 @@ class KeystoneAPI(wsgi.Router):
         mapper.connect("/v1.0/xsd/atom/{xsd}", controller=static_files_controller, 
                        action="get_pdf_contract",conditions=dict(method=["GET"]))
         
-        super(Auth_API, self).__init__(mapper)
+        super(KeystoneAPI, self).__init__(mapper)
 
 def app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating Glance API server apps"""
