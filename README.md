@@ -23,23 +23,10 @@ Also included:
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
 
 
-DEPENDENCIES:
--------------
-
-* bottle
-* eventlet
-* lxml
-* Paste
-* PasteDeploy
-* PasteScript
-* SQLAlchemy
-* SQLite3
-* webob
-
-
-SETUP:
-------
-
+ENVIRONMENT & DEPENDENCIES:
+---------------------------
+see pip-requires for dependency list
+Setup:
 Install http://pypi.python.org/pypi/setuptools
     sudo easy_install pip
     sudo pip install -r pip-requires
@@ -56,12 +43,12 @@ RUNNING TEST SERVICE:
 ---------------------
 
     Standalone stack (with Auth_Token)
-    $ cd echo/echo
-    $ python echo.py
+    $ cd echo/bin
+    $ ./echod
 
     Distributed stack (with RemoteAuth local and Auth_Token remote)
-    $ cd echo/echo
-    $ python echo.py --remote
+    $ cd echo/bon
+    $ ./echod --remote
 
     in separate session
     $ cd keystone/auth_protocols
@@ -75,27 +62,12 @@ DEMO CLIENT:
     Note: this requires tests data. See section TESTING for initializing data
 
 
-INSTALLING KEYSTONE:
---------------------
-
-    $ python setup.py build
-    $ sudo python setup.py install
-
-
-INSTALLING TEST SERVICE:
-------------------------
-
-    $ cd echo
-    $ python setup.py build
-    $ sudo python setup.py install
-
-
 TESTING
 -------
 
-After starting identity.py a keystone.db sql-lite database should be created.
+After starting keystone a keystone.db sqlite database should be created in the keystone folder.
 
-To test setup the test database:
+Add test data to the database:
 
     $ sqlite3 keystone/keystone.db < test/test_setup.sql
 
@@ -109,7 +81,7 @@ To run unit tests:
 
 To run client demo (with all auth middleware running locally on sample service):
 
-    $ python echo/echo/echo.py
+    $ ./echo/bin/echod
     $ python echo/echo/echo_client.py
 
 
@@ -119,7 +91,7 @@ Using SOAPUI:
 
 Download [SOAPUI](http://sourceforge.net/projects/soapui/files/):
 
-To Test Identity Service:
+To Test Keystone Service:
 
 * File->Import Project
 * Select tests/IdentitySOAPUI.xml
@@ -128,15 +100,11 @@ To Test Identity Service:
 
 Unit Test on Identity Services
 ------------------------------
-In order to run the unit test on identity services, run from the keystone directory
-
- python server.py
-
-cat test_setup.sql |sqlite ../../keystone/keystone.db
-
-Once the Identity service is running, go to unit test/unit directory
-
- python test_identity.py
+In order to run the unit test on identity services:
+* start the keystone server
+* cat test_setup.sql |sqlite ../../keystone/keystone.db
+* go to unit test/unit directory
+* python test_identity.py
 
 For more on unit testing please refer
 

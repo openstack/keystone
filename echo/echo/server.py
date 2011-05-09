@@ -22,6 +22,7 @@ from paste.deploy import loadapp
 import sys
 from webob.exc import HTTPUnauthorized
 
+
 # If ../echo/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
@@ -158,5 +159,6 @@ if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
         ini), global_conf={"log_name": "echo.log"})
-
-    wsgi.server(eventlet.listen(('', port)), app)
+    listener = eventlet.listen(('', port))
+    pool = eventlet.GreenPool(1000)
+    wsgi.server(listener, app, custom_pool=pool)
