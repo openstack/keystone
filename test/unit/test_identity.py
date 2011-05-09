@@ -234,6 +234,8 @@ def get_exp_auth_token():
 def get_disabled_token():
     return '999888777'
 
+def content_type(resp):
+	return resp['content-type'].split(';')[0]
 
 class identity_test(unittest.TestCase):
 
@@ -244,9 +246,10 @@ class identity_test(unittest.TestCase):
         h = httplib2.Http(".cache")
         url = URL
         resp, content = h.request(url, "GET", body="",
-                                  headers={"Content-Type": "application/json"})
+                                   headers={"Content-Type": "application/json"})
+
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/json', resp['content-type'])
+        self.assertEqual('application/json', content_type(resp))
 
     def test_a_get_version_xml(self):
         h = httplib2.Http(".cache")
@@ -254,8 +257,9 @@ class identity_test(unittest.TestCase):
         resp, content = h.request(url, "GET", body="",
                                 headers={"Content-Type": "application/xml",
                                          "ACCEPT": "application/xml"})
+
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/xml', resp['content-type'])
+        self.assertEqual('application/xml', content_type(resp))
 
 
 class authorize_test(identity_test):
@@ -276,13 +280,14 @@ class authorize_test(identity_test):
 
     def test_a_authorize(self):
         resp, content = get_token('joeuser', 'secrete')
+
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/json', resp['content-type'])
+        self.assertEqual('application/json', content_type(resp))
 
     def test_a_authorize_xml(self):
         resp, content = get_token_xml('joeuser', 'secrete')
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/xml', resp['content-type'])
+        self.assertEqual('application/xml', content_type(resp))
 
     def test_a_authorize_user_disaabled(self):
         h = httplib2.Http(".cache")
@@ -364,7 +369,7 @@ class validate_token(authorize_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/json', resp['content-type'])
+        self.assertEqual('application/json', content_type(resp))
 
     def test_validate_token_true_xml(self):
         h = httplib2.Http(".cache")
@@ -378,7 +383,7 @@ class validate_token(authorize_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/xml', resp['content-type'])
+        self.assertEqual('application/xml', content_type(resp))
 
     def test_validate_token_expired(self):
         h = httplib2.Http(".cache")
@@ -392,7 +397,7 @@ class validate_token(authorize_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
-        self.assertEqual('application/json', resp['content-type'])
+        self.assertEqual('application/json', content_type(resp))
 
     def test_validate_token_expired_xml(self):
         h = httplib2.Http(".cache")
@@ -408,7 +413,7 @@ class validate_token(authorize_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
-        self.assertEqual('application/xml', resp['content-type'])
+        self.assertEqual('application/xml', content_type(resp))
 
     def test_validate_token_invalid(self):
         h = httplib2.Http(".cache")
@@ -423,7 +428,7 @@ class validate_token(authorize_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
-        self.assertEqual('application/json', resp['content-type'])
+        self.assertEqual('application/json', content_type(resp))
 
     def test_validate_token_invalid_xml(self):
         h = httplib2.Http(".cache")
@@ -437,7 +442,7 @@ class validate_token(authorize_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
-        self.assertEqual('application/json', resp['content-type'])
+        self.assertEqual('application/json', content_type(resp))
 
 
 class tenant_test(unittest.TestCase):
