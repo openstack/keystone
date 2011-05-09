@@ -22,7 +22,6 @@ from paste.deploy import loadapp
 import sys
 from webob.exc import HTTPUnauthorized
 
-
 # If ../echo/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
