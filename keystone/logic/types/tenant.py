@@ -128,7 +128,7 @@ class Tenants(object):
 class Group(object):
 
     "Describes a group in the auth system"
-    def __init__(self, group_id, description, tenant_id=''):
+    def __init__(self, group_id, description, tenant_id=None):
         self.description = description
         self.group_id = group_id
         if tenant_id:
@@ -147,6 +147,8 @@ class Group(object):
             group_id = root.get("id")
             if root.get("tenantId"):
                 tenant_id = root.get("tenantId")
+            else:
+                tenant_id = None
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:
@@ -179,7 +181,7 @@ class Group(object):
             description = group["description"]
             return Group(group_id, description, tenantId)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse Group", str(e))
+            raise fault.BadRequestFault("Cannot parse Group.", str(e))
 
     def to_dom(self):
         dom = etree.Element("group",

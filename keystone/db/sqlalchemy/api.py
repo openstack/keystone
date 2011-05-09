@@ -535,12 +535,12 @@ def users_get_by_tenant_get_page_markers(tenant_id, marker, limit, session=None)
                         order_by(user.id.desc()).first()
     if marker is None:
         marker = first.id
-    next = session.query(user, uta).join((uta, uta.user_id == user.id)).\
+    next, nextuta = session.query(user, uta).join((uta, uta.user_id == user.id)).\
                     filter(uta.tenant_id == tenant_id).\
                     filter("id >= :marker").params(
                     marker='%s' % marker).order_by(
                     user.id).limit(int(limit) + 1).all()
-    prev = session.query(user, uta).join((uta, uta.user_id == user.id)).\
+    prev, prevuta = session.query(user, uta).join((uta, uta.user_id == user.id)).\
                     filter(uta.tenant_id == tenant_id).\
                     filter("id < :marker").params(
                     marker='%s' % marker).order_by(

@@ -354,19 +354,36 @@ class IDMService(object):
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_token(admin_token)
+        if not token_id:
+            raise fault.UnauthorizedFault("Missing token")
+        (token, user) = self.__get_dauth_data(token_id)
 
-        (dtoken, duser) = self.__get_dauth_data(token_id)
+        if not token:
+            raise fault.ItemNotFoundFault("Bad token, please reauthenticate")
+        if token.expires < datetime.now():
+            raise fault.UnauthorizedFault("Token expired, please renew")
+        if not user.enabled:
+            raise fault.UserDisabledFault("The user %s has been disabled!"
+                                          % user.id)
+#        if admin:
+#            for ug in user.groups:
+#                if ug.group_id == "Admin":
+#                    return (token, user)
+#            raise fault.ForbiddenFault("You are not authorized "
+#                                       "to make this call")
+        return self.__get_auth_data(token, user)
+        """(dtoken, duser) = self.__get_dauth_data(token_id)
 
         if not dtoken:
-            raise fault.ItemNotFoundFault("Token not found")
+            raise fault.UnauthorizedFault("Token not found")
 
         if dtoken.expires < datetime.now():
-            raise fault.ItemNotFoundFault("Token not found")
+            raise fault.UnauthorizedFault("Token expired")
 
         if belongs_to != None and dtoken.tenant_id != belongs_to:
-            raise fault.ItemNotFoundFault("Token not found")
+            raise fault.UnauthorizedFault("Token not found")
 
-        return self.__get_auth_data(dtoken, duser)
+        return self.__get_auth_data(dtoken, duser)"""
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_token(admin_token)
@@ -922,7 +939,7 @@ class IDMService(object):
         ts = []
         dusergroups = db_api.groups_get_by_user_get_page(user_id, marker,
                                                           limit)
-        print dusergroups
+        
         for dusergroup, dusergroupAsso in dusergroups:
 
 
@@ -1157,7 +1174,7 @@ class IDMService(object):
         (token, user) = self.__get_dauth_data(token_id)
 
         if not token:
-            raise fault.UnauthorizedFault("Bad token, please reauthenticate")
+            raise fault.ItemNotFoundFault("Bad token, please reauthenticate")
         if token.expires < datetime.now():
             raise fault.UnauthorizedFault("Token expired, please renew")
         if not user.enabled:
