@@ -119,8 +119,8 @@ def send_result(code, req, result):
             content = result.to_json()
             resp.content_type = "application/json"
 
-    resp.charset = 'UTF-8'
-    resp.unicode_body = content
+        resp.charset = 'UTF-8'
+        resp.unicode_body = content.decode('UTF-8')
 
     return resp
 
