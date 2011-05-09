@@ -56,27 +56,21 @@ class IDMService(object):
                                      "with a tenant!" % duser.id)
             dtoken.tenant_id = duser.tenants[0].tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
-
             db_api.token_create(dtoken)
         return self.__get_auth_data(dtoken, duser)
 
-
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_token(admin_token)
-
         (dtoken, duser) = self.__get_dauth_data(token_id)
 
         if not dtoken:
             raise fault.ItemNotFoundFault("Token not found")
-
         if dtoken.expires < datetime.now():
             raise fault.ItemNotFoundFault("Token not found")
-
         if belongs_to != None and dtoken.tenant_id != belongs_to:
             raise fault.ItemNotFoundFault("Token not found")
 
         return self.__get_auth_data(dtoken, duser)
-
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_token(admin_token)
@@ -86,7 +80,6 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("Token not found")
 
         db_api.token_delete(token_id)
-
 
     #
     #   Tenant Operations
@@ -112,7 +105,6 @@ class IDMService(object):
         db_api.tenant_create(dtenant)
 
         return tenant
-
 
     #def get_tenants(self, admin_token, marker, limit):
     #    self.__validate_token(admin_token)
@@ -145,9 +137,7 @@ class IDMService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                    (url, next, limit)))
-
         return tenants.Tenants(ts, links)
-
 
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
@@ -155,9 +145,7 @@ class IDMService(object):
         dtenant = db_api.tenant_get(tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-
         return tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
-
 
     def update_tenant(self, admin_token, tenant_id, tenant):
         self.__validate_token(admin_token)
@@ -169,13 +157,9 @@ class IDMService(object):
         dtenant = db_api.tenant_get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
-
         values = {'desc': tenant.description, 'enabled': tenant.enabled}
-
         db_api.tenant_update(tenant_id, values)
-
         return tenants.Tenant(dtenant.id, tenant.description, tenant.enabled)
-
 
     def delete_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
@@ -190,7 +174,6 @@ class IDMService(object):
 
         db_api.tenant_delete(dtenant.id)
         return None
-
 
     #
     #   Tenant Group Operations
@@ -219,11 +202,8 @@ class IDMService(object):
         dtenant.id = group.group_id
         dtenant.desc = group.description
         dtenant.tenant_id = tenant
-
         db_api.tenant_group_create(dtenant)
-
         return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
-
 
     def get_tenant_groups(self, admin_token, tenantId, marker, limit, url):
         self.__validate_token(admin_token)
@@ -253,7 +233,6 @@ class IDMService(object):
 
         return tenants.Groups(ts, links)
 
-
     def get_tenant_group(self, admin_token, tenant_id, group_id):
         self.__validate_token(admin_token)
 
@@ -266,7 +245,6 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("The tenant group not found")
 
         return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
-
 
     def update_tenant_group(self, admin_token, tenant_id, group_id, group):
         self.__validate_token(admin_token)
@@ -297,7 +275,6 @@ class IDMService(object):
 
         return tenants.Group(group_id, group.description, tenant_id)
 
-
     def delete_tenant_group(self, admin_token, tenant_id, group_id):
         self.__validate_token(admin_token)
 
@@ -316,7 +293,6 @@ class IDMService(object):
 
         db_api.tenant_group_delete(group_id, tenant_id)
         return None
-
 
     def get_users_tenant_group(self, admin_token, tenantId, groupId, marker,
                                limit, url):
@@ -354,7 +330,6 @@ class IDMService(object):
 
         return tenants.Users(ts, links)
 
-
     #
     # Private Operations
     #
@@ -368,7 +343,6 @@ class IDMService(object):
             if token:
                 user = db_api.user_get(token.user_id)
         return (token, user)
-
 
     def __get_auth_data(self, dtoken, duser):
         """return AuthData object for a token/user pair"""
@@ -385,7 +359,6 @@ class IDMService(object):
                                  "with a tenant!" % duser.id)
         user = auth.User(duser.id, duser.tenants[0].tenant_id, groups)
         return auth.AuthData(token, user)
-
 
     def __validate_token(self, token_id, admin=True):
         if not token_id:

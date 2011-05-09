@@ -56,7 +56,6 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
-print POSSIBLE_TOPDIR
 
 import keystone.logic.service as serv
 import keystone.logic.types.auth as auth
