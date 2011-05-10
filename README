@@ -60,8 +60,14 @@ Or using pip:
 RUNNING KEYSTONE:
 -----------------
 
-    $ cd keystone
-    $ python identity.py
+From the topdir 
+
+     $ bin/keystone-control --config-file etc/keystone.conf --pid-file=pidfile auth <start|stop|restart>
+
+The "start" command invokes bin/keystone-auth. During  development you can also run
+
+     $ bin/keystone-auth etc/keystone.conf
+
 
 
 RUNNING TEST SERVICE:
@@ -138,17 +144,47 @@ To Test Identity Service:
 
 Unit Test on Identity Services
 ------------------------------
-In order to run the unit test on identity services, run from the keystone directory
+In order to run the unit test on identity services start the auth sever
 
- python identity.py
+    $ cd test/unit
+    $ ../../bin/keystone-control --config-file ../..etc/keystone.conf --pid-file=pidfile auth start
 
 Once the Identity service is running, go to unit test/unit directory
 
- python test_identity.py
+    $ python test_identity.py
+
+You can run a sbuset of tests the following way
+    $ grep class test_identity.py 
+
+You get something like 
+
+
+class identity_test(unittest.TestCase):
+class authorize_test(identity_test):
+class validate_token(authorize_test):
+class tenant_test(unittest.TestCase):
+class create_tenant_test(tenant_test):
+class get_tenants_test(tenant_test):
+class get_tenant_test(tenant_test):
+class update_tenant_test(tenant_test):
+class delete_tenant_test(tenant_test):
+class tenant_group_test(unittest.TestCase):
+class create_tenant_group_test(tenant_group_test):
+class get_tenant_groups_test(tenant_group_test):
+class get_tenant_group_test(tenant_group_test):
+class update_tenant_group_test(tenant_group_test):
+class delete_tenant_group_test(tenant_test):
+class global_group_test(unittest.TestCase):
+class create_global_group_test(global_group_test):
+class create_tenant_group_test(tenant_group_test):
+
+You can choose any class you like to test
+    
+     $ python test_identity.py delete_tenant_test
 
 For more on unit testing please refer
 
- python test_identity --help
+     $ python test_identity --help
 
 
 
@@ -161,3 +197,9 @@ DATABASE SCHEMA
     CREATE TABLE user_group(user_id varchar(255),group_id varchar(255), FOREIGN KEY(user_id) REFERENCES user(id), FOREIGN KEY(group_id) REFERENCES groups(group_id));
     CREATE TABLE user_tenant(tenant_id varchar(255),user_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id),FOREIGN KEY(user_id) REFERENCES user(id));
     CREATE TABLE users(id varchar(255),password varchar(255),email varchar(255),enabled integer);
+
+
+
+
+
+
