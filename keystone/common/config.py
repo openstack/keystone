@@ -68,7 +68,7 @@ def add_common_options(parser):
     :param parser: optparse.OptionParser
     """
     help_text = "The following configuration options are common to "\
-                "all glance programs."
+                "all keystone programs."
 
     group = optparse.OptionGroup(parser, "Common Options", help_text)
     group.add_option('-v', '--verbose', default=False, dest="verbose",
@@ -180,16 +180,20 @@ def find_config_file(options, args):
     We search for the paste config file in the following order:
     * If --config-file option is used, use that
     * If args[0] is a file, use that
-    * Search for glance.conf in standard directories:
+    * Search for keystone.conf in standard directories:
         * .
-        * ~.glance/
+        * ~.keystone/
         * ~
-        * /etc/glance
+        * /etc/keystone
         * /etc
+    :if no config file is given get from possible_topdir/etc/keystone.conf
 
     :retval Full path to config file, or None if no config file found
     """
-
+    POSSIBLE_TOPDIR = os.path.normpath(os.path.join(\
+                    os.path.abspath(sys.argv[0]),
+                    os.pardir,
+                    os.pardir))
     fix_path = lambda p: os.path.abspath(os.path.expanduser(p))
     if options.get('config_file'):
         if os.path.exists(options['config_file']):
@@ -198,7 +202,7 @@ def find_config_file(options, args):
         if os.path.exists(args[0]):
             return fix_path(args[0])
 
-    # Handle standard directory search for glance.conf
+    # Handle standard directory search for keystone.conf
     config_file_dirs = [fix_path(os.getcwd()),
                         fix_path(os.path.join('~', '.keystone')),
                         fix_path('~'),
@@ -208,8 +212,17 @@ def find_config_file(options, args):
     for cfg_dir in config_file_dirs:
         cfg_file = os.path.join(cfg_dir, 'keystone.conf')
         if os.path.exists(cfg_file):
-            print cfg_file
             return cfg_file
+        else:
+            if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'etc', \
+                    'keystone.conf')):
+                # For debug only
+                config_file = os.path.join(POSSIBLE_TOPDIR, 'etc', \
+                        'keystone.conf')
+                print "Running server from %s "  % config_file
+
+                return os.path.join(POSSIBLE_TOPDIR, 'etc', \
+                        'keystone.conf')
 
 
 def load_paste_config(app_name, options, args):
@@ -220,11 +233,11 @@ def load_paste_config(app_name, options, args):
     We search for the paste config file in the following order:
     * If --config-file option is used, use that
     * If args[0] is a file, use that
-    * Search for glance.conf in standard directories:
+    * Search for keystone.conf in standard directories:
         * .
-        * ~.glance/
+        * ~.keystone/
         * ~
-        * /etc/glance
+        * /etc/keystone
         * /etc
 
     :param app_name: Name of the application to load config for, or None.
@@ -256,11 +269,11 @@ def load_paste_app(app_name, options, args):
     We search for the paste config file in the following order:
     * If --config-file option is used, use that
     * If args[0] is a file, use that
-    * Search for glance.conf in standard directories:
+    * Search for keystone.conf in standard directories:
         * .
-        * ~.glance/
+        * ~.keystone/
         * ~
-        * /etc/glance
+        * /etc/keystone
         * /etc
 
     :param app_name: Name of the application to load

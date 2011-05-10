@@ -31,13 +31,13 @@ setup(
     include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
     scripts=['bin/keystone']
-    zip_safe=False,
-    install_requires=['setuptools'],
-    entry_points={
-        'paste.app_factory': ['main=identity:app_factory'],
-        'paste.filter_factory': [
-            'papiauth=keystone:papiauth_factory',
-            'tokenauth=keystone:tokenauth_factory',
-            ],
-        },
+#    zip_safe=False,
+#    install_requires=['setuptools'],
+#    entry_points={
+#        'paste.app_factory': ['main=identity:app_factory'],
+#        'paste.filter_factory': [
+#            'papiauth=keystone:papiauth_factory',
+#            'tokenauth=keystone:tokenauth_factory',
+#            ],
+#        },
     )

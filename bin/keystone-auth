@@ -57,7 +57,7 @@ if __name__ == '__main__':
     (options, args) = config.parse_options(oparser)
 
     try:
-        conf, app = config.load_paste_app('auth_server', options, args)
+        conf, app = config.load_paste_app('server', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
         server.wait()
