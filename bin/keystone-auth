@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # Copyright 2010 United States Government as represented by the
@@ -19,7 +19,7 @@
 #    under the License.
 
 """
-Glance API Server
+Keystone API Server
 """
 
 import optparse
@@ -29,7 +29,6 @@ import sys
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
                                    os.pardir,
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):

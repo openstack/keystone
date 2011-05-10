@@ -45,12 +45,13 @@ import json
 import routes
 from webob import Response
 from webob import Request
+from webob import descriptors
 from webob.exc import (HTTPNotFound,
                        HTTPConflict,
                        HTTPBadRequest)
 
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,os.pardir,
+                                   os.pardir,
                                    os.pardir))
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
@@ -177,22 +178,40 @@ class StaticFilesController(wsgi.Controller):
         return template.static_file(resp, req, "content/idmdevguide.pdf",
                                   root=get_app_root(),
                                   mimetype="application/pdf")
+<<<<<<< .merge_file_Twv8gg
     
     @wrap_error
     def get_wadl_contract():
+=======
+
+    @wrap_error
+    def get_wadl_contract(self, req):
+>>>>>>> .merge_file_p5E40f
         resp = Response()
         return template.static_file(resp, req, "identity.wadl",
                               root=get_app_root(),
                               mimetype="application/vnd.sun.wadl+xml")
+<<<<<<< .merge_file_Twv8gg
     @wrap_error
     def get_xsd_contract(xsd):
+=======
+
+    @wrap_error
+    def get_xsd_contract(self, req, xsd):
+>>>>>>> .merge_file_p5E40f
         resp = Response()
         return template.static_file(resp, req, "/xsd/" + xsd,
                               root=get_app_root(),
                               mimetype="application/xml")
+<<<<<<< .merge_file_Twv8gg
     
     @wrap_error
     def get_xsd_atom_contract(xsd):
+=======
+
+    @wrap_error
+    def get_xsd_atom_contract(self, req, xsd):
+>>>>>>> .merge_file_p5E40f
         resp = Response()
         return template.static_file(resp, req, "/xsd/atom/" + xsd,
                               root=get_app_root(),
