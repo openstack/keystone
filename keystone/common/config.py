@@ -123,7 +123,6 @@ def setup_logging(options, conf):
     :param options: Mapping of typed option key/values
     :param conf: Mapping of untyped key/values from config file
     """
-
     if options.get('log_config', None):
         # Use a logging configuration file for all settings...
         if os.path.exists(options['log_config']):

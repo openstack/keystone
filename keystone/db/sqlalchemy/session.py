@@ -29,7 +29,6 @@ from sqlalchemy.orm import sessionmaker
 _ENGINE = None
 _MAKER = None
 
-
 def get_connection_string():
     path = os.path.realpath(__file__)
     dbpath = os.path.normpath(os.path.join(path,

@@ -12,7 +12,7 @@ from lxml import etree
 import unittest
 from webtest import TestApp
 
-URL = 'http://localhost:8080/v1.0/'
+URL = 'http://localhost:8900/v1.0/'
 
 
 def get_token(user, pswd, kind=''):
