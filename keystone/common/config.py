@@ -219,8 +219,8 @@ def find_config_file(options, args):
                 # For debug only
                 config_file = os.path.join(POSSIBLE_TOPDIR, 'etc', \
                         'keystone.conf')
-
                 print "Running server from %s "  % config_file
+
                 return os.path.join(POSSIBLE_TOPDIR, 'etc', \
                         'keystone.conf')
 
