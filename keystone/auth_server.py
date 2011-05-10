@@ -191,9 +191,9 @@ class StaticFilesController(wsgi.Controller):
         return template.static_file(resp, req, "/xsd/" + xsd,
                               root=get_app_root(),
                               mimetype="application/xml")
-    
-    @wrap_error
-    def get_xsd_atom_contract(self, req, xsd):
+	
+	@wrap_error
+	def get_xsd_atom_contract(self, req, xsd):
         resp = Response()
         return template.static_file(resp, req, "/xsd/atom/" + xsd,
                               root=get_app_root(),
