@@ -93,7 +93,6 @@ def get_auth_token(req):
 def wrap_error(func):
     @functools.wraps(func)
     def check_error(*args, **kwargs):
-        print '>>>>>>>>>>>>>>>>>>..'
         try:
             
             return func(*args, **kwargs)
@@ -353,22 +352,53 @@ class TenantController(wsgi.Controller):
         return send_result(204, req, rval)
 
     @wrap_error
+    def get_users_tenant_group(self, req, tenant_id, group_id):
+        marker = None
+        if "marker" in req.GET:
+            marker = request.GET["marker"]
+        
+        if "limit" in req.GET:
+            limit = req.GET["limit"]
+        else:
+            limit = 10
+        
+        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                             req.environ.get("SERVER_NAME"),
+                             req.environ.get("SERVER_PORT"),
+                             req.environ['PATH_INFO'])
+        
+        users = service.get_users_tenant_group(get_auth_token(req), tenant_id,
+                                               group_id, marker, limit, url)
+        return send_result(200, req, users)
+    
+    """ 
+    @wrap_error
+    def add_user_tenant_group(tenantId, groupId, userId):
+        
+        return send_result(201,
+                           service.add_user_tenant_group(get_auth_token(), 
+                                                       tenantId, groupId, userId))
+    
+    
+    @wrap_error
+    def delete_user_tenant_group(tenantId, groupId, userId):
+        return send_result(204,
+                           service.delete_user_tenant_group(get_auth_token(), 
+                                                       tenantId, groupId, userId))
+    """
+    
+
+    @wrap_error
     def add_user_tenant_group(self, req, tenant_id, group_id, user_id):
-        # TBD
-        # IDMDevguide clarification needed on this property
-        return None
+        return send_result(201, req, service.add_user_tenant_group(\
+                                get_auth_token(req), tenant_id, group_id,
+                                user_id))
     
     @wrap_error
     def delete_user_tenant_group(self, req, tenant_id, group_id, user_id):
-        # TBD
-        # IDMDevguide clarification needed on this property
-        return None
-    
-    @wrap_error
-    def get_user_tenant_group(self, req, tenant_id, group_id, user_id):
-        # TBD
-        # IDMDevguide clarification needed on this property
-        return None
+        return send_result(204, req, service.delete_user_tenant_group(\
+                                get_auth_token(req), tenant_id, group_id,
+                                user_id))
 
 class UserController(wsgi.Controller):
 
@@ -451,11 +481,12 @@ class GroupsController(wsgi.Controller):
     
     
     def __init__(self, options):
+        
         self.options = options
 
     @wrap_error
     def create_group(self, req):
-        group = get_normalized_request_content(tenants.Group, req)
+        group = get_normalized_request_content(tenants.GlobalGroup, req)
         return send_result(201, req,
                        service.create_global_group(get_auth_token(req),
                                                    group))
@@ -476,6 +507,7 @@ class GroupsController(wsgi.Controller):
                          req.environ['PATH_INFO'])
         groups = service.get_global_groups(get_auth_token(req),
                                          marker, limit, url)
+        
         return send_result(200, req, groups)
     
     @wrap_error
@@ -485,7 +517,7 @@ class GroupsController(wsgi.Controller):
     
     @wrap_error
     def update_group(self, req, group_id):
-        group = get_normalized_request_content(tenants.Group, req)
+        group = get_normalized_request_content(tenants.GlobalGroup, req)
         rval = service.update_global_group(get_auth_token(req),
                                         group_id, group)
         return send_result(200, req, rval)
@@ -495,36 +527,39 @@ class GroupsController(wsgi.Controller):
         rval = service.delete_global_group(get_auth_token(req), group_id)
         return send_result(204, req, rval)
     
+    
     @wrap_error
-    def get_users_group(self, req, group_id):
+    def get_users_global_group(self, req, group_id):
+        
         marker = None
         if "marker" in req.GET:
             marker = req.GET["marker"]
-
+        
         if "limit" in req.GET:
             limit = req.GET["limit"]
         else:
             limit = 10
-
+        
         url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
                              req.environ.get("SERVER_NAME"),
                              req.environ.get("SERVER_PORT"),
                              req.environ['PATH_INFO'])
-
+        
         users = service.get_users_global_group(get_auth_token(req),
                                              group_id, marker, limit, url)
         return send_result(200, req, users)
-
+    
     @wrap_error
-    def add_user_group(self, req, group_id, user_id):
-        return send_result(201, req,
-                       service.add_user_global_group(get_auth_token(req),
-                                                    group_id, user_id))
+    def add_user_global_group(self, req, group_id, user_id):
+        
+        return send_result(201, req, service.add_user_global_group(\
+                                get_auth_token(req), group_id, user_id))
+    
     @wrap_error
-    def delete_user_group(self, req,  group_id, user_id):
-        return send_result(204, req,
-                       service.delete_user_global_group(get_auth_token(req),
-                                                   group_id, user_id))
+    def delete_user_global_group(self, req, group_id, user_id):
+        
+        return send_result(204, req, service.delete_user_global_group(\
+                                get_auth_token(req), group_id, user_id))
 
 class KeystoneAPI(wsgi.Router):
     """WSGI entry point for all Keystone Auth API requests."""
@@ -566,7 +601,15 @@ class KeystoneAPI(wsgi.Router):
                 action="update_tenant_group", conditions=dict(method=["PUT"]))
         mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}", controller=tenant_controller,
                 action="delete_tenant_group", conditions=dict(method=["DELETE"]))
+        
+        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users", controller=tenant_controller,
+                action="get_users_tenant_group", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}", controller=tenant_controller,
+                action="add_user_tenant_group", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}", controller=tenant_controller,
+                action="delete_user_tenant_group", conditions=dict(method=["DELETE"]))
 
+        
         # User Operations
         user_controller = UserController(options)
         mapper.connect("/v1.0/tenants/{tenant_id}/users", controller=user_controller,
@@ -598,14 +641,14 @@ class KeystoneAPI(wsgi.Router):
                 action="update_group", conditions=dict(method=["PUT"]))
         mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
                 action="delete_group", conditions=dict(method=["DELETE"]))
-        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
-                action="add_user_group", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
-                action="delete_user_group", conditions=dict(method=["DELETE"]))
-
-        #Not working yet, somebody who has touched its models, please handle
+        
+        
         mapper.connect("/v1.0/groups/{group_id}/users", controller=groups_controller,
-                action="get_users_group", conditions=dict(method=["GET"]))
+                action="get_users_global_group", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
+                action="add_user_global_group", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
+                action="delete_user_global_group", conditions=dict(method=["DELETE"]))
 
 
 

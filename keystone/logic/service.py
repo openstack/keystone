@@ -72,9 +72,9 @@ class IDMService(object):
         (token, user) = self.__get_dauth_data(token_id)
 
         if not token:
-            raise fault.ItemNotFoundFault("Bad token, please reauthenticate")
+            raise fault.UnauthorizedFault("Bad token, please reauthenticate")
         if token.expires < datetime.now():
-            raise fault.UnauthorizedFault("Token expired, please renew")
+            raise fault.ForbiddenFault("Token expired, please renew")
         if not user.enabled:
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
@@ -690,7 +690,7 @@ class IDMService(object):
     def create_global_group(self, admin_token, group):
         self.__validate_token(admin_token)
 
-        if not isinstance(group, tenants.Group):
+        if not isinstance(group, tenants.GlobalGroup):
             raise fault.BadRequestFault("Expecting a Group")
 
         if group.group_id == None:
@@ -705,7 +705,7 @@ class IDMService(object):
         dtenant.desc = group.description
         dtenant.tenant_id = gtenant.id
         db_api.tenant_group_create(dtenant)
-        return tenants.Group(dtenant.id, dtenant.desc, None)
+        return tenants.GlobalGroup(dtenant.id, dtenant.desc, None)
 
     def get_global_groups(self, admin_token,  marker, limit, url):
         self.__validate_token(admin_token)
@@ -713,9 +713,8 @@ class IDMService(object):
         ts = []
         dtenantgroups = db_api.tenant_group_get_page(gtenant.id, \
                                                       marker, limit)
-
         for dtenantgroup in dtenantgroups:
-            ts.append(tenants.Group(dtenantgroup.id,
+            ts.append(tenants.GlobalGroup(dtenantgroup.id,
                                      dtenantgroup.desc))
         prev, next = db_api.tenant_group_get_page_markers(gtenant.id,
                                                        marker, limit)
@@ -726,7 +725,7 @@ class IDMService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                   (url, next, limit)))
-        return tenants.Groups(ts, links)
+        return tenants.GlobalGroups(ts, links)
 
     def get_global_group(self, admin_token, group_id):
         self.__validate_token(admin_token)
@@ -734,16 +733,17 @@ class IDMService(object):
         dtenant = db_api.tenant_get(gtenant.id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The Global tenant not found")
-
+        
         dtenant = db_api.tenant_group_get(group_id, gtenant.id)
+        
         if not dtenant:
             raise fault.ItemNotFoundFault("The Global tenant group not found")
-        return tenants.Group(dtenant.id, dtenant.desc)
+        return tenants.GlobalGroup(dtenant.id, dtenant.desc)
 
     def update_global_group(self, admin_token, group_id, group):
         self.__validate_token(admin_token)
         gtenant = self.__check_create_global_tenant()
-        if not isinstance(group, tenants.Group):
+        if not isinstance(group, tenants.GlobalGroup):
             raise fault.BadRequestFault("Expecting a Group")
 
         dtenant = db_api.tenant_get(gtenant.id)
@@ -759,7 +759,7 @@ class IDMService(object):
 
         values = {'desc': group.description}
         db_api.tenant_group_update(group_id, gtenant.id, values)
-        return tenants.Group(group_id, group.description, gtenant.id)
+        return tenants.GlobalGroup(group_id, group.description, gtenant.id)
 
     def delete_global_group(self, admin_token, group_id):
         self.__validate_token(admin_token)
@@ -768,8 +768,8 @@ class IDMService(object):
 
         if dtenant == None:
             raise fault.ItemNotFoundFault("The global tenant not found")
-
-        dtenant = db_api.tenant_group_get(group_id, gtenant.id)
+        
+        dtenant = db_api.tenant_group_get(group_id, dtenant.id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The global tenant group not found")
 
@@ -782,6 +782,7 @@ class IDMService(object):
 
     def get_users_global_group(self, admin_token, groupId, marker, limit, url):
         self.__validate_token(admin_token)
+        
         gtenant = self.__check_create_global_tenant()
         if gtenant.id == None:
             raise fault.BadRequestFault("Expecting a global Tenant")
@@ -885,11 +886,11 @@ class IDMService(object):
         if not token_id:
             raise fault.UnauthorizedFault("Missing token")
         (token, user) = self.__get_dauth_data(token_id)
-
+        
         if not token:
             raise fault.ItemNotFoundFault("Bad token, please reauthenticate")
         if token.expires < datetime.now():
-            raise fault.UnauthorizedFault("Token expired, please renew")
+            raise fault.ForbiddenFault("Token expired, please renew")
         if not user.enabled:
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
@@ -897,6 +898,7 @@ class IDMService(object):
             for ug in user.groups:
                 if ug.group_id == "Admin":
                     return (token, user)
-            raise fault.ForbiddenFault("You are not authorized "
+            raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
+        
         return (token, user)

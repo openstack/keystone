@@ -36,21 +36,27 @@ Right now you get
 class identity_test(unittest.TestCase):
 class authorize_test(identity_test):
 class validate_token(authorize_test):
+
 class tenant_test(unittest.TestCase):
 class create_tenant_test(tenant_test):
 class get_tenants_test(tenant_test):
 class get_tenant_test(tenant_test):
 class update_tenant_test(tenant_test):
 class delete_tenant_test(tenant_test):
+
 class tenant_group_test(unittest.TestCase):
 class create_tenant_group_test(tenant_group_test):
 class get_tenant_groups_test(tenant_group_test):
 class get_tenant_group_test(tenant_group_test):
 class update_tenant_group_test(tenant_group_test):
 class delete_tenant_group_test(tenant_test):
+
 class global_group_test(unittest.TestCase):
 class create_global_group_test(global_group_test):
-class create_tenant_group_test(tenant_group_test):
+class get_global_groups_test(global_group_test):
+class get_global_group_test(global_group_test):
+class update_global_groups_test(global_group_test):
+class delete_global_group_test(global_group_test):
 
 
 You can run all of the tests with 
