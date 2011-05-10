@@ -139,10 +139,6 @@ class Group(object):
     @staticmethod
     def from_xml(xml_str):
         try:
-            print ''
-            print xml_str
-            print ''
-
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/idm/api/v1.0}group")
@@ -152,15 +148,12 @@ class Group(object):
             tenant_id=None
             if root.get("tenantId"):
                 tenant_id = root.get("tenantId")
-<<<<<<< .merge_file_DfS1um
             else:
                 tenant_id = None
-=======
-
+            
             if tenant_id==None:
                 raise fault.BadRequestFault("Expecting a tenant id")
 
->>>>>>> .merge_file_aCiGyo
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:

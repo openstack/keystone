@@ -178,40 +178,23 @@ class StaticFilesController(wsgi.Controller):
         return template.static_file(resp, req, "content/idmdevguide.pdf",
                                   root=get_app_root(),
                                   mimetype="application/pdf")
-<<<<<<< .merge_file_Twv8gg
-    
-    @wrap_error
-    def get_wadl_contract():
-=======
 
     @wrap_error
     def get_wadl_contract(self, req):
->>>>>>> .merge_file_p5E40f
         resp = Response()
         return template.static_file(resp, req, "identity.wadl",
                               root=get_app_root(),
                               mimetype="application/vnd.sun.wadl+xml")
-<<<<<<< .merge_file_Twv8gg
-    @wrap_error
-    def get_xsd_contract(xsd):
-=======
 
     @wrap_error
     def get_xsd_contract(self, req, xsd):
->>>>>>> .merge_file_p5E40f
         resp = Response()
         return template.static_file(resp, req, "/xsd/" + xsd,
                               root=get_app_root(),
                               mimetype="application/xml")
-<<<<<<< .merge_file_Twv8gg
     
     @wrap_error
-    def get_xsd_atom_contract(xsd):
-=======
-
-    @wrap_error
     def get_xsd_atom_contract(self, req, xsd):
->>>>>>> .merge_file_p5E40f
         resp = Response()
         return template.static_file(resp, req, "/xsd/atom/" + xsd,
                               root=get_app_root(),
