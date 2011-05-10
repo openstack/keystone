@@ -1540,6 +1540,7 @@ class get_tenant_groups_test(tenant_group_test):
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
+<<<<<<< HEAD
     def test_get_tenant_groups_forbidden_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1884,10 +1885,10 @@ class user_test(unittest.TestCase):
         self.invalid_token = get_non_existing_token()
 
     def tearDown(self):
-        
+
         resp, content = delete_user_json(self.tenant,\
                 self.userid, str(self.auth_token))
-       
+
         #resp, content = delete_user_xml(self.tenant,\
                 #self.userid, str(self.auth_token))
 
@@ -1912,14 +1913,14 @@ class create_user_test(user_test):
         print content
         self.assertEqual(201,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_a_user_create_json_disabled_tenant(self):
         resp, content = create_user_json('0000', 'test_user11',\
                 str(self.auth_token))
         resp_val = int(resp['status'])
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(403,resp_val)
-    
+
     def test_a_user_create_json_disabled_tenant_xml(self):
         resp, content = create_user_xml('0000', 'test_user11',\
                 str(self.auth_token))
@@ -2035,7 +2036,7 @@ class get_user_test(user_test):
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(200,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_a_user_get_expired_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2047,7 +2048,7 @@ class get_user_test(user_test):
         resp_val = int(resp['status'])
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(401,resp_val)
-    
+
     def test_a_user_get_expired_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2061,7 +2062,7 @@ class get_user_test(user_test):
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_a_user_get_disabled_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2073,7 +2074,7 @@ class get_user_test(user_test):
         resp_val = int(resp['status'])
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(403,resp_val)
-    
+
     def test_a_user_get_disabled_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2087,7 +2088,7 @@ class get_user_test(user_test):
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_a_user_get_missing_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2099,7 +2100,7 @@ class get_user_test(user_test):
         resp_val = int(resp['status'])
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(401,resp_val)
-    
+
     def test_a_user_get_missing_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2113,7 +2114,7 @@ class get_user_test(user_test):
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_a_user_get_invalid_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2125,7 +2126,7 @@ class get_user_test(user_test):
         resp_val = int(resp['status'])
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(401,resp_val)
-    
+
     def test_a_user_get_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2139,7 +2140,7 @@ class get_user_test(user_test):
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_a_user_get_disabled_user(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.userdisabled)
@@ -2151,7 +2152,7 @@ class get_user_test(user_test):
         print resp,content
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(403,resp_val)
-    
+
     def test_a_user_get_disabled_user_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.userdisabled)
@@ -2164,7 +2165,7 @@ class get_user_test(user_test):
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_a_user_get_disabled_tenant(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,'0000',self.userdisabled)
@@ -2175,7 +2176,7 @@ class get_user_test(user_test):
         resp_val = int(resp['status'])
         handle_user_resp(self,content, resp_val,content_type(resp))
         self.assertEqual(403,resp_val)
-    
+
     def test_a_user_get_disabled_tenant_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,'0000',self.userdisabled)
@@ -2221,7 +2222,7 @@ class delete_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(204,resp_val)
-    
+
     def test_a_user_delete_expired_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2236,7 +2237,7 @@ class delete_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_a_user_delete_expired_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2253,7 +2254,7 @@ class delete_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_a_user_delete_missing_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2268,7 +2269,7 @@ class delete_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_a_user_delete_missing_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2285,7 +2286,7 @@ class delete_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_a_user_delete_invalid_token(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2300,7 +2301,7 @@ class delete_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_a_user_delete_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.user,self.tenant,str(self.auth_token))
@@ -2332,7 +2333,7 @@ class delete_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_a_user_delete_disabled_tenant_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,'0000',self.userdisabled)
@@ -2379,7 +2380,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(200,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_expired_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2392,7 +2393,7 @@ class get_users_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_users_get_expired_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2407,7 +2408,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_disabled_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2420,7 +2421,7 @@ class get_users_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_users_get_disabled_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2435,7 +2436,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_users_get_missing_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2448,7 +2449,7 @@ class get_users_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_users_get_missing_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2463,7 +2464,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_invalid_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2476,7 +2477,7 @@ class get_users_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_users_get_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,self.tenant)
@@ -2491,7 +2492,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_disabled_tenant_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,"0000")
@@ -2505,7 +2506,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         print resp,content
         self.assertEqual(403,resp_val)
-    
+
     def test_users_get_disabled_tenant_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL,"0000")
@@ -2520,7 +2521,7 @@ class get_users_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
 class get_users_group_test(user_test):
 
     def test_users_get_json(self):
@@ -2550,7 +2551,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(200,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_expired_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2563,7 +2564,7 @@ class get_users_group_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_users_get_expired_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2578,7 +2579,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_disabled_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2591,7 +2592,7 @@ class get_users_group_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_users_get_disabled_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2606,7 +2607,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_users_get_missing_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2619,7 +2620,7 @@ class get_users_group_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_users_get_missing_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2634,7 +2635,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_invalid_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2647,7 +2648,7 @@ class get_users_group_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_users_get_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,self.tenant,self.user)
@@ -2662,7 +2663,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_users_get_disabled_tenant_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,"0000",self.user)
@@ -2676,7 +2677,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         print resp,content
         self.assertEqual(403,resp_val)
-    
+
     def test_users_get_disabled_tenant_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL,"0000",self.user)
@@ -2691,7 +2692,7 @@ class get_users_group_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
 
 
 
@@ -2746,7 +2747,7 @@ class update_user_test(user_test):
         self.assertEqual(200,resp_val)
         self.assertEqual('updatedjoeuser@rackspace.com',content.get("email"))
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_update_user_disabled_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.userdisabled)
@@ -2763,7 +2764,7 @@ class update_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_user_update_user_disabled_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.userdisabled)
@@ -2783,7 +2784,7 @@ class update_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_user_update_email_conflict_json(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant,self.user , \
@@ -2802,7 +2803,7 @@ class update_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(409,resp_val)
-    
+
     def test_user_update_email_conflict_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant,self.user , \
@@ -2824,7 +2825,7 @@ class update_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(409,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-     
+
     def test_user_update_bad_request_json(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.tenant,self.user , \
@@ -2872,8 +2873,8 @@ class update_user_test(user_test):
                 str(self.auth_token))
         self.assertEqual(400,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
-    
+
+
     def test_user_update_expired_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -2890,7 +2891,7 @@ class update_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_update_expired_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -2910,7 +2911,7 @@ class update_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_update_disabled_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -2927,7 +2928,7 @@ class update_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_user_update_disabled_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -2947,7 +2948,7 @@ class update_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_update_invalid_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -2964,7 +2965,7 @@ class update_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_update_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -2984,7 +2985,7 @@ class update_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_update_missing_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -3001,7 +3002,7 @@ class update_user_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_update_missing_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.user)
@@ -3021,7 +3022,7 @@ class update_user_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
 
 class set_password_test(user_test):
 
@@ -3074,7 +3075,7 @@ class set_password_test(user_test):
         self.assertEqual(200,resp_val)
         self.assertEqual('p@ssword',content.get("password"))
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_password_user_disabled_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.userdisabled)
@@ -3091,7 +3092,7 @@ class set_password_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_user_password_user_disabled_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL,self.tenant,self.userdisabled)
@@ -3111,7 +3112,7 @@ class set_password_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
+
     def test_user_password_bad_request_json(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.tenant,self.user , \
@@ -3159,8 +3160,8 @@ class set_password_test(user_test):
                 str(self.auth_token))
         self.assertEqual(400,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
-    
+
+
     def test_user_password_expired_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3177,7 +3178,7 @@ class set_password_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_password_expired_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3197,7 +3198,7 @@ class set_password_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_password_disabled_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3214,7 +3215,7 @@ class set_password_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_user_password_disabled_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3234,7 +3235,7 @@ class set_password_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_password_invalid_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3251,7 +3252,7 @@ class set_password_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_password_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3271,7 +3272,7 @@ class set_password_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_password_missing_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3288,7 +3289,7 @@ class set_password_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_password_missing_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3308,8 +3309,8 @@ class set_password_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-        
-        
+
+
 class set_enabled_test(user_test):
 
     def test_user_enabled_json(self):
@@ -3361,7 +3362,7 @@ class set_enabled_test(user_test):
         self.assertEqual(200,resp_val)
         self.assertEqual('true',content.get("enabled"))
         self.assertEqual('application/xml', content_type(resp))
-                
+
     def test_user_enabled_bad_request_json(self):
         h = httplib2.Http(".cache")
         resp, content = create_user_json(self.tenant,self.user , \
@@ -3409,8 +3410,8 @@ class set_enabled_test(user_test):
                 str(self.auth_token))
         self.assertEqual(400,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
-    
+
+
     def test_user_enabled_expired_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3427,7 +3428,7 @@ class set_enabled_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_enabled_expired_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3447,7 +3448,7 @@ class set_enabled_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_enabled_disabled_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3464,7 +3465,7 @@ class set_enabled_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
-    
+
     def test_user_enabled_disabled_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3484,7 +3485,7 @@ class set_enabled_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(403,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_enabled_invalid_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3501,7 +3502,7 @@ class set_enabled_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_enabled_invalid_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3521,7 +3522,7 @@ class set_enabled_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
+
     def test_user_enabled_missing_token_json(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL,self.tenant,self.user)
@@ -3538,7 +3539,7 @@ class set_enabled_test(user_test):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
-    
+
     def test_user_enabled_missing_token_xml(self):
         h = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL,self.tenant,self.user)
@@ -3558,10 +3559,10 @@ class set_enabled_test(user_test):
             self.fail('Service Not Available')
         self.assertEqual(401,resp_val)
         self.assertEqual('application/xml', content_type(resp))
-    
-    
 
-    
+
+
+
 
 
 #class get_user_test(user_test):
