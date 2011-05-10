@@ -3,7 +3,7 @@ import sys
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
-from keystone import auth_server
+from keystone import server
 import unittest
 from webtest import TestApp
 import httplib2
@@ -12,7 +12,7 @@ from lxml import etree
 import unittest
 from webtest import TestApp
 
-URL = 'http://localhost:8900/v1.0/'
+URL = 'http://localhost:8080/v1.0/'
 
 
 def get_token(user, pswd, kind=''):
