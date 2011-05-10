@@ -96,12 +96,36 @@ def create_global_group(groupid, auth_token):
     return (resp, content)
 
 
-def delete_global_group(groupid, auth_token):
+def create_global_group_xml(groupid, tenantid, auth_token):
+    h = httplib2.Http(".cache")
+    url = '%sgroups' % (URL)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+            <group xmlns="http://docs.openstack.org/idm/api/v1.0"\
+            id="Admin">\
+                    <description>A Description of the group</description>\
+                    </group>'
+    resp, content = h.request(url, "POST", body=json.dumps(body), \
+            headers={"Content-Type": "application/xml", \
+            "X-Auth-Token": auth_token, "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def delete_global_group(groupid, tenantid, auth_token):
     h = httplib2.Http(".cache")
     url = '%sgroups/%s' % (URL, groupid)
-    resp, content = h.request(url, "DELETE", body='{}',\
-                            headers={"Content-Type": "application/json",\
-                                     "X-Auth-Token": auth_token})
+    resp, content = h.request(url, "DELETE", body='{}', \
+            headers={"Content-Type": "application/json", \
+            "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def delete_global_group_xml(groupid, tenantid, auth_token):
+    h = httplib2.Http(".cache")
+    url = '%sgroups/%s' % (URL, groupid)
+    resp, content = h.request(url, "DELETE", body='{}', \
+            headers={"Content-Type": "application/xml", \
+            "X-Auth-Token": auth_token, \
+            "ACCEPT": "application/xml"})
     return (resp, content)
 
 
@@ -238,6 +262,8 @@ def get_disabled_token():
 def content_type(resp):
     return resp['content-type'].split(';')[0]
 
+def get_global_tenant():
+    return 'GlobalTenant'
 
 class identity_test(unittest.TestCase):
 
@@ -1774,7 +1800,7 @@ class delete_tenant_group_test(tenant_test):
                         str(self.auth_token))
         self.assertEqual(204, int(respG['status']))
 
-class global_group_test(unittest.TestCase):
+"""class global_group_test(unittest.TestCase):
 
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
@@ -1831,21 +1857,16 @@ class create_global_group_test(global_group_test):
             self.tenant = content['tenant']['id']
             self.tenant_group = contentG['group']['id']
 
-<<<<<<< .merge_file_25oxKq
-=======
-	def test_tenant_group_create_forbidden_token(self):
+
+	def test_global_group_create_forbidden_token(self):
 	    h = httplib2.Http(".cache")
-	    resp, content = create_tenant("test_tenant", str(self.auth_token))
-	    respG, contentG = create_tenant_group_xml('test_tenant_group', \
-					    "test_tenant", str(self.auth_token))
-	    if int(resp['status']) == 200:
-		self.tenant = content['tenant']['id']
+	    
+	    respG, contentG = delete_global_group('test_global_group', \
+                        str(self.auth_token))
+	    self.global_group = 'test_global_group'
 
-	    if int(respG['status']) == 200:
-		self.tenant_group = respG['group']['id']
-
-	    url = '%stenant/%s/groups' % (URL, self.tenant)
-	    body = {"group": {"id": self.tenant_group,
+	    url = '%sgroups' % URL
+	    body = {"group": {"id": self.global_group,
 			       "description": "A description ..."
 			       }}
 	    resp, content = h.request(url, "POST", body=json.dumps(body),
@@ -1853,75 +1874,75 @@ class create_global_group_test(global_group_test):
 					     "X-Auth-Token": self.token})
 
 	    if int(resp['status']) == 500:
-		self.fail('IDM fault')
+            self.fail('IDM fault')
 	    elif int(resp['status']) == 503:
-		self.fail('Service Not Available')
+            self.fail('Service Not Available')
 	    self.assertEqual(403, int(resp['status']))
 
 
-	def test_tenant_group_create_expired_token(self):
+	def test_global_group_create_expired_token(self):
 	    h = httplib2.Http(".cache")
-	    resp, content = create_tenant("test_tenant", str(self.auth_token))
-	    if int(resp['status']) == 200:
-		self.tenant = content['tenant']['id']
+	    
+	    respG, contentG = delete_global_group('test_global_group', \
+                        str(self.auth_token))
+        self.global_group = 'test_global_group'
 
-	    url = '%stenant/%s/groups' % (URL, self.tenant)
-	    body = {"group": {"id": self.tenant_group,
+	    url = '%sgroups' % (URL)
+	    body = {"group": {"id": self.global_group,
 			       "description": "A description ..."
 			       }}
 	    resp, content = h.request(url, "POST", body=json.dumps(body),
 				    headers={"Content-Type": "application/json",
 					     "X-Auth-Token": self.exp_auth_token})
 	    if int(resp['status']) == 500:
-		self.fail('IDM fault')
+            self.fail('IDM fault')
 	    elif int(resp['status']) == 503:
-		self.fail('Service Not Available')
+            self.fail('Service Not Available')
 	    self.assertEqual(401, int(resp['status']))
 
-	def test_tenant_group_create_missing_token(self):
+	def test_global_group_create_missing_token(self):
 	    h = httplib2.Http(".cache")
-	    resp, content = create_tenant("test_tenant", str(self.auth_token))
-	    if int(resp['status']) == 200:
-		self.tenant = content['tenant']['id']
-
-	    url = '%stenant/%s/groups' % (URL, self.tenant)
-	    body = {"group": {"id": self.tenant_group,
+	    respG, contentG = delete_global_group('test_global_group', \
+                                              str(self.auth_token))
+	    self.global_group = 'test_global_group'
+	    url = '%sgroups' % (URL)
+	    body = {"group": {"id": self.global_group,
 			       "description": "A description ..."}}
 	    resp, content = h.request(url, "POST", body=json.dumps(body),
 				    headers={"Content-Type": "application/json"})
 
 	    if int(resp['status']) == 500:
-		self.fail('IDM fault')
+            self.fail('IDM fault')
 	    elif int(resp['status']) == 503:
-		self.fail('Service Not Available')
+            self.fail('Service Not Available')
 	    self.assertEqual(401, int(resp['status']))
 
-	def test_tenant_group_create_disabled_token(self):
+	def test_global_group_create_disabled_token(self):
 	    h = httplib2.Http(".cache")
-	    resp, content = create_tenant("test_tenant", str(self.auth_token))
-	    if int(resp['status']) == 200:
-		self.tenant = content['tenant']['id']
+	    respG, contentG = delete_global_group('test_global_group', \
+                                              str(self.auth_token))
+	    self.global_group = 'test_global_group'
 
-	    url = '%stenant/%s/groups' % (URL, self.tenant)
-	    body = '{"group": { "id": "%s", \
-		    "description": "A description ..." } }' % self.tenant_group
+	    url = '%sgroups' % (URL)
+	    body = {"group": { "id": self.global_group, \
+		    "description": "A description ..." } }
 	    resp, content = h.request(url, "POST", body=body,\
 				    headers={"Content-Type": "application/json",\
 					     "X-Auth-Token": self.disabled_token})
 
 	    if int(resp['status']) == 500:
-		self.fail('IDM fault')
+            self.fail('IDM fault')
 	    elif int(resp['status']) == 503:
-		self.fail('Service Not Available')
+            self.fail('Service Not Available')
 	    self.assertEqual(403, int(resp['status']))
 
-	def test_tenant_group_create_invalid_token(self):
+	def test_global_group_create_invalid_token(self):
 	    h = httplib2.Http(".cache")
-	    resp, content = create_tenant("test_tenant", str(self.auth_token))
-	    if int(resp['status']) == 200:
-		self.tenant = content['tenant']['id']
+	    respG, contentG = delete_global_group('test_global_group', \
+                                              str(self.auth_token))
+        self.global_group = 'test_global_group'
 
-	    url = '%stenant/%s/groups' % (URL, self.tenant)
+	    url = '%sgroups' % (URL)
 	    body = '{"group": { "id": "%s", \
 		    "description": "A description ..." } }' % self.tenant
 	    resp, content = h.request(url, "POST", body=body,\
@@ -1934,54 +1955,39 @@ class create_global_group_test(global_group_test):
 		self.fail('Service Not Available')
 	    self.assertEqual(401, int(resp['status']))
 
-
-
-	def test_tenant_group_create_xml(self):
-	    resp, content = delete_tenant_xml('test_tenant', str(self.auth_token))
-	    resp, content = create_tenant_xml('test_tenant', str(self.auth_token))
-	    respG, contentG = delete_tenant_group_xml('test_tenant_group', \
-						"test_tenant", str(self.auth_token))
-	    respG, contentG = create_tenant_group_xml('test_tenant_group', \
-						"test_tenant", str(self.auth_token))
-
-	    print contentG
-	    self.tenant = 'test_tenant'
-	    self.tenant_group = 'test_tenant_group'
-	    content = etree.fromstring(content)
+	def test_global_group_create_xml(self):
+	    h = httplib2.Http(".cache")
+        resp, content = delete_global_group('test_global_group', \
+                                              str(self.auth_token))
+        self.global_group = 'test_global_group'
+	    respG, contentG = create_global_group_xml(self.global_group, \
+                                                  str(self.auth_token))
+        content = etree.fromstring(content)
 	    if int(resp['status']) == 500:
-		self.fail('IDM fault')
+            self.fail('IDM fault')
 	    elif int(resp['status']) == 503:
-		self.fail('Service Not Available')
+            self.fail('Service Not Available')
+        if int(respG['status']) not in (200, 201):
+            self.fail('Failed due to %d' % int(respG['status']))
 
-	    if int(respG['status']) not in (200, 201):
-
-		self.fail('Failed due to %d' % int(respG['status']))
-
-	def test_tenant_group_create_again_xml(self):
-
-	    resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
-
-	    respG, contentG = create_tenant_group_xml('test_tenant_group', \
-					    "test_tenant", str(self.auth_token))
-	    respG, contentG = create_tenant_group_xml('test_tenant_group', \
-					    "test_tenant", str(self.auth_token))
-
-	    content = etree.fromstring(content)
+	def test_global_group_create_again_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = delete_global_group('test_global_group',
+                                              str(self.auth_token))
+        self.global_group = 'test_global_group'
+        resp, content = create_global_group(self.global_group,
+                                             str(self.auth_token))
+	    respG, contentG = create_global_group_xml(self.global_group, 
+                                                  str(self.auth_token))
 	    contentG = etree.fromstring(contentG)
-	    if int(respG['status']) == 200:
-		self.tenant = content.get("id")
-		self.tenant_group = contentG.get("id")
-
 	    if int(respG['status']) == 500:
-		self.fail('IDM fault')
+            self.fail('IDM fault')
 	    elif int(respG['status']) == 503:
-		self.fail('Service Not Available')
+            self.fail('Service Not Available')
 	    self.assertEqual(409, int(respG['status']))
-	    if int(respG['status']) == 200:
-		self.tenant = content.get("id")
-		self.tenant_group = contentG.get("id")
+	    
 
-	def test_tenant_group_create_forbidden_token_xml(self):
+	def test_global_group_create_forbidden_token_xml(self):
 	    h = httplib2.Http(".cache")
 	    resp, content = create_tenant("test_tenant", str(self.auth_token))
 	    if int(resp['status']) == 200:
@@ -2005,7 +2011,7 @@ class create_global_group_test(global_group_test):
 
 	    self.assertEqual(403, int(resp['status']))
 
-	def test_tenant_group_create_expired_token_xml(self):
+	def test_global_group_create_expired_token_xml(self):
 	    h = httplib2.Http(".cache")
 	    resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
 	    content = etree.fromstring(content)
@@ -2030,7 +2036,7 @@ class create_global_group_test(global_group_test):
 		self.fail('Service Not Available')
 	    self.assertEqual(401, int(resp['status']))
 
-	def test_tenant_group_create_missing_token_xml(self):
+	def test_global_group_create_missing_token_xml(self):
 	    h = httplib2.Http(".cache")
 	    resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
 	    content = etree.fromstring(content)
@@ -2054,7 +2060,7 @@ class create_global_group_test(global_group_test):
 		self.fail('Service Not Available')
 	    self.assertEqual(401, int(resp['status']))
 
-	def test_tenant_group_create_disabled_token_xml(self):
+	def test_global_group_create_disabled_token_xml(self):
 	    h = httplib2.Http(".cache")
 	    resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
 	    content = etree.fromstring(content)
@@ -2078,7 +2084,7 @@ class create_global_group_test(global_group_test):
 		self.fail('Service Not Available')
 	    self.assertEqual(403, int(resp['status']))
 
-	def test_tenant_group_create_invalid_token_xml(self):
+	def test_global_group_create_invalid_token_xml(self):
 	    h = httplib2.Http(".cache")
 	    resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
 	    content = etree.fromstring(content)
@@ -2101,7 +2107,675 @@ class create_global_group_test(global_group_test):
 	    elif int(resp['status']) == 503:
 		self.fail('Service Not Available')
 	    self.assertEqual(401, int(resp['status']))
->>>>>>> .merge_file_EdpW8p
+"""
+##
+## Global Group Tests
+##
+class global_group_test(unittest.TestCase):
+
+    def setUp(self):
+        self.token = get_token('joeuser', 'secrete', 'token')
+        self.globaltenant = get_global_tenant()
+        self.user = get_user()
+        self.userdisabled = get_userdisabled()
+        self.auth_token = get_auth_token()
+        self.exp_auth_token = get_exp_auth_token()
+        self.disabled_token = get_disabled_token()
+        self.global_group = 'test_global_group'
+
+    def tearDown(self):
+        resp, content = delete_global_group(self.global_group,
+                                            self.globaltenant, 
+                                            self.auth_token)
+        resp, content = delete_tenant(self.globaltenant, self.auth_token)
+
+
+class create_global_group_test(global_group_test):
+
+    def test_global_group_create(self):
+        resp, content = delete_tenant(self.globaltenant, str(self.auth_token))
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        respG, contentG = delete_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        if int(respG['status']) not in (200, 201):
+            self.fail('Failed due to %d' % int(respG['status']))
+
+    def test_global_group_create_xml(self):
+        resp, content = delete_tenant_xml(self.globaltenant, str(self.auth_token))
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        respG, contentG = delete_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        if int(respG['status']) not in (200, 201):
+            self.fail('Failed due to %d' % int(respG['status']))
+
+    def test_global_group_create_again(self):
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        if int(respG['status']) == 500:
+            self.fail('IDM fault')
+        elif int(respG['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(409, int(respG['status']))
+        
+
+    def test_global_group_create_again_xml(self):
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        contentG = etree.fromstring(contentG)
+        if int(respG['status']) == 500:
+            self.fail('IDM fault')
+        elif int(respG['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(409, int(respG['status']))
+        
+
+    def test_global_group_create_forbidden_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        url = '%sgroups' % (URL)
+        body = {"group": {"id": self.global_group,\
+                "description": "A description ..."}}
+        resp, content = h.request(url, "POST", body=json.dumps(body), \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_global_group_create_forbidden_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        if int(resp['status']) == 200:
+            self.tenant = content['tenant']['id']
+        url = '%sgroups' % (URL)
+        body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                id="%s"> \
+                <description>A description...</description> \
+                </group>' % self.global_group
+        resp, content = h.request(url, "POST", body=body,\
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_global_group_create_expired_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        if int(resp['status']) == 200:
+            self.globaltenant = content['tenant']['id']
+        url = '%sgroups' % (URL)
+        body = {"group": {"id": self.global_group, 
+                          "description": "A description ..."}}
+        resp, content = h.request(url, "POST", body=json.dumps(body), 
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": self.exp_auth_token
+                                           })
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_global_group_create_expired_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        content = etree.fromstring(content)
+        if int(resp['status']) == 200:
+            self.tenant = content.get('id')
+        url = '%sgroups' % (URL)
+        body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                id="%s"><description>A description...</description> \
+                </group>' % self.globaltenant
+        resp, content = h.request(url, "POST", body=body, 
+                                  headers={"Content-Type": "application/xml", 
+                                           "X-Auth-Token": self.exp_auth_token,
+                                           "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_global_group_create_missing_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        
+        url = '%sgroups' % (URL)
+        body = {"group": {"id": self.global_group, 
+                          "description": "A description ..."}}
+        resp, content = h.request(url, "POST", body=json.dumps(body),
+                                  headers={"Content-Type": "application/json"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_global_group_create_missing_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        url = '%sgroups' % (URL, self.globaltenant)
+        body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                id="%s"><description>A description...</description> \
+                </group>' % self.global_group
+        resp, content = h.request(url, "POST", body=body, 
+                                  headers={"Content-Type": "application/xml", 
+                                           "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_global_group_create_disabled_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        url = '%sgroups' % (URL)
+        body = '{"group": { "id": "%s", \
+                "description": "A description ..." } }' % self.global_group
+        resp, content = h.request(url, "POST", body=body,
+                                  headers={"Content-Type": "application/json", 
+                                           "X-Auth-Token": self.disabled_token
+                                           })
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_global_group_create_disabled_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        content = etree.fromstring(content)
+        url = '%sgroups' % (URL)
+        body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                id="%s"><description>A description...</description> \
+                </group>' % self.global_group
+        resp, content = h.request(url, "POST", body=body, 
+                                  headers={"Content-Type": "application/xml", 
+                                           "X-Auth-Token": self.disabled_token, 
+                                           "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_global_group_create_invalid_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        url = '%sgroups' % (URL)
+        body = '{"group": { "id": "%s", \
+                "description": "A description ..." } }' % self.globaltenant
+        resp, content = h.request(url, "POST", body=body, 
+                                  headers={"Content-Type": "application/json", 
+                                           "X-Auth-Token": 'nonexsitingtoken'})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_global_group_create_invalid_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, str(self.auth_token))
+        url = '%sgroups' % (URL)
+        body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                id="%s"><description>A description...</description> \
+                </group>' % self.global_group
+        resp, content = h.request(url, "POST", body=body, 
+                                  headers={"Content-Type": "application/xml", 
+                                           "X-Auth-Token": 'nonexsitingtoken', 
+                                           "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+
+class get_global_groups_test(global_group_test):
+
+    def test_get_global_groups(self):
+        h = httplib2.Http(".cache")
+        resp, content = delete_tenant(self.globaltenant, str(self.auth_token))
+        resp, content = create_tenant(self.globaltenant, str(self.auth_token))
+        respG, contentG = delete_global_group(self.global_group,
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        url = '%sgroups' % (URL)
+        resp, content = h.request(url, "GET", body='{}', 
+                                  headers={"Content-Type": "application/json", 
+                                           "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+
+    def test_get_global_groups_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, 
+                                          str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        url = '%sgroups' % (URL)
+        resp, content = h.request(url, "GET", body='', 
+                                  headers={"Content-Type": "application/xml", 
+                                           "X-Auth-Token": self.auth_token, 
+                                           "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+
+    def test_get_global_groups_forbidden_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, 
+                                      str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        url = '%sgroups' % (URL)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": self.token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_global_groups_forbidden_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, 
+                                          str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, 
+                                                  self.globaltenant, 
+                                                  str(self.auth_token))
+        url = '%sgroups' % (URL)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='', \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_global_groups_exp_token(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%stenant/%s/groups' % (URL, self.globaltenant)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='{}', \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.exp_auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_get_global_groups_exp_token_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups' % (URL)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='', \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.exp_auth_token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+
+class get_global_group_test(global_group_test):
+
+    def test_get_global_group(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.globaltenant, \
+                self.global_group)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='{}', \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+
+    def test_get_global_group_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.global_group)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='', \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.auth_token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+
+    def test_get_global_group_bad(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, 'global_group_bad')
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='{', \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+
+    def test_get_global_group_bad_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_tenant_group_xml(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, 'tenant_bad', \
+                self.global_group)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='{', \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.auth_token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+
+    def test_get_global_group_not_found(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, 
+                                      str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, 
+                                              self.globaltenant, 
+                                              str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.globaltenant, 
+                               'nonexistinggroup')
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='{}', 
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+
+    def test_get_global_group_not_found_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group_xml(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.globaltenant, \
+                'nonexistinggroup')
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body='', \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.auth_token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+
+
+class update_global_groups_test(global_group_test):
+
+    def test_update_global_group(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.global_group)
+        resp, content = h.request(url, "PUT", body='{"group":{\
+                "id" : "%s","description" :\
+                "A New description of the group..."}}' % self.global_group, \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.auth_token})
+        body = json.loads(content)
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        self.assertEqual(self.global_group, body['group']['id'])
+        self.assertEqual('A NEW description...', \
+                body['group']['description'])
+
+    def test_update_global_group_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_tenant_group_xml(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.global_group)
+        data = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                tenantId="%s" id="%s"> \
+                <description>A NEW description...</description> \
+                </group>' % (self.globaltenant, self.global_group)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "PUT", body=data, \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.auth_token, "ACCEPT":\
+                "application/xml"})
+        body = etree.fromstring(content)
+        desc = body.find("{http://docs.openstack.org/idm/api/v1.0}description")
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        self.assertEqual(str(self.global_group), str(body.get('id')))
+        self.assertEqual('A NEW description...', desc.text)
+
+    def test_update_global_group_bad(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.global_group)
+        data = '{"group": { "description_bad": "A NEW description...", \
+                "id":"%s","tenantId":"%s"  }}'\
+                % (self.global_group, self.globaltenant)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "PUT", body=data, \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(400, int(resp['status']))
+
+    def test_update_global_group_bad_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_tenant_group_xml(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/%s' % (URL, self.global_group)
+        data = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                tenantId="%s" id="%s"> \
+                <description_bad>A NEW description...</description> \
+                </group>' % (self.globaltenant, self.global_group)
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "PUT", body=data, \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.auth_token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(400, int(resp['status']))
+
+    def test_update_global_group_not_found(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant(self.globaltenant, \
+                str(self.auth_token))
+        respG, contentG = create_global_group(self.global_group, \
+                self.globaltenant, str(self.auth_token))
+        url = '%sgroups/NonexistingID' % (URL)
+        data = '{"group": { "description": "A NEW description...", \
+                "id":"NonexistingID", "tenantId"="test_tenant"  }}'
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body=data, \
+                headers={"Content-Type": "application/json", \
+                "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+
+    def test_update_global_group_not_found_xml(self):
+        h = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.globaltenant, \
+                str(self.auth_token))
+        url = '%stenant/%s/groups/NonexistingID' % (URL, \
+                self.globaltenant)
+        data = '<?xml version="1.0" encoding="UTF-8"?> \
+                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                id="NonexistingID", "tenant_id"="test_tenant"> \
+                <description_bad>A NEW description...</description> \
+                </group>'
+        #test for Content-Type = application/json
+        resp, content = h.request(url, "GET", body=data, \
+                headers={"Content-Type": "application/xml", \
+                "X-Auth-Token": self.auth_token, \
+                "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('IDM fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+
+
+class delete_global_group_test(global_group_test):
+
+    def test_delete_global_group_not_found(self):
+        resp, content = delete_global_group(\
+                "test_global_group_1", \
+                "GlobalTenant", str(self.auth_token))
+        self.assertEqual(404, int(resp['status']))
+
+    def test_delete_global_group_not_found_xml(self):
+        resp, content = delete_global_group_xml(\
+                "test_global_group_1", \
+                "GlobalTenant", str(self.auth_token))
+        self.assertEqual(404, int(resp['status']))
+
+    def test_delete_global_group(self):
+        resp, content = create_tenant("GlobalTenant", \
+                str(self.auth_token))
+        respG, contentG = create_global_group(\
+                'test_global_group_delete', \
+                "GlobalTenant", str(self.auth_token))
+        respG, contentG = delete_global_group(\
+                'test_global_group_delete', \
+                "GlobalTenant", str(self.auth_token))
+        resp, content = delete_tenant("GlobalTenant", \
+                str(self.auth_token))
+        self.assertEqual(204, int(respG['status']))
+
+    def test_delete_global_group_xml(self):
+        resp, content = create_tenant_xml("GlobalTenant", \
+                str(self.auth_token))
+        respG, contentG = create_global_group_xml(\
+                'test_global_group_delete', \
+                "GlobalTenant", str(self.auth_token))
+        respG, contentG = delete_global_group_xml(\
+                'test_global_group_delete', \
+                "GlobalTenant", str(self.auth_token))
+        resp, content = delete_tenant_xml("GlobalTenant", \
+                str(self.auth_token))
+        self.assertEqual(204, int(respG['status']))
 
 if __name__ == '__main__':
     unittest.main()
