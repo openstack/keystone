@@ -30,6 +30,7 @@ setup(
     url='http://www.openstack.org',
     include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
+    scripts=['bin/keystone']
     zip_safe=False,
     install_requires=['setuptools'],
     entry_points={
