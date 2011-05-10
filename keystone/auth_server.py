@@ -160,11 +160,11 @@ def send_result(code, req, result):
             resp.headers['content-type'] = "application/xml"
         else:
             content = result.to_json()
+            print content
             resp.headers['content-type'] = "application/json"
 
         resp.content_type_params={'charset' : 'UTF-8'}
         resp.unicode_body = content.decode('UTF-8')
-
     return resp
 
 class StaticFilesController(wsgi.Controller):
@@ -412,9 +412,9 @@ class UserController(wsgi.Controller):
                              req.environ.get("SERVER_PORT"),
                              req.environ['PATH_INFO'])
 
-        groups = service.get_user_groups(get_auth_token(),
+        groups = service.get_user_groups(get_auth_token(req),
                                         tenant_id,user_id, marker, limit,url)
-        return send_result(200, groups)
+        return send_result(200,req, groups)
     
     @wrap_error
     def get_user(self, req, tenant_id, user_id):
@@ -436,14 +436,13 @@ class UserController(wsgi.Controller):
     def set_user_password(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
         rval = service.set_user_password(get_auth_token(req), user_id, user, tenant_id)
-        return send_result(204, req, rval)
+        return send_result(200, req, rval)
 
-    # To be checked with Abdul not finished yet
     @wrap_error
     def set_user_enabled(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
         rval = service.enable_disable_user(get_auth_token(req), user_id, user, tenant_id)
-        return send_result(204, req, rval)
+        return send_result(200, req, rval)
 
 
 
@@ -573,6 +572,8 @@ class KeystoneAPI(wsgi.Router):
                 action="create_user", conditions=dict(method=["POST"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users", controller=user_controller,
                 action="get_tenant_users", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/groups", controller=user_controller,
+                action="get_user_groups", conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
                 action="get_user", conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,

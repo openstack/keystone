@@ -140,8 +140,7 @@ class User_Update(object):
         self.password = password
         self.email = email
         self.enabled = enabled and True or False
-        if group is not None:
-            self.group=group
+        self.group=group
     @staticmethod
     def from_xml(xml_str):
         try:
@@ -212,11 +211,11 @@ class User_Update(object):
             dom.set("tenantId",self.tenant_id)
         if self.user_id:
             dom.set("id",self.user_id)
-        if self.enabled:
+        if self.enabled is not None:
             dom.set("enabled",string.lower(str(self.enabled)))
         if self.password:
             dom.set("password",self.password)
-        if self.group:
+        if self.group is not None:
             print '78'
             for group in self.group:
                 dom.append(group.to_dom())
@@ -236,9 +235,9 @@ class User_Update(object):
             user["password"]=self.password
         if self.email:
             user["email"]=self.email
-        if self.enabled:
+        if self.enabled is not None:
             user["enabled"]=self.enabled
-        if self.group:
+        if self.group is not None:
             values=[t.to_dict()["group"] for t in self.group]
             user["groups"] = {"values": values}
         return {'user': user}

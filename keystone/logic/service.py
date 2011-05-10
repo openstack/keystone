@@ -458,9 +458,11 @@ class IDMService(object):
 
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
-
-        if db_api.tenant_get(tenant_id) == None:
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant is  None:
             raise fault.ItemNotFoundFault("The tenant not found")
+        if not dtenant.enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
         ts = []
         dtenantusers = db_api.users_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
@@ -520,6 +522,8 @@ class IDMService(object):
             raise fault.TenantDisabledFault("Your account has been disabled")
 
         duser = db_api.user_get(user_id)
+        print 'here'
+        print duser
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
@@ -530,10 +534,7 @@ class IDMService(object):
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
         True
-        duser = db_api.user_get_update(user_id)
-        if duser == None:
-            raise fault.ItemNotFoundFault("The user could not be found")
-        if db_api.user_get_email(user.email) != None:
+        if db_api.user_get_email(user.email) is not None:
             raise fault.EmailConflictFault(
                 "Email already exists")
 
@@ -572,7 +573,7 @@ class IDMService(object):
 
         db_api.user_update(user_id, values)
 
-        return users.User(user.password, '', '', '', '')
+        return users.User_Update(user.password, None, None, None, None,None)
 
     def enable_disable_user(self, admin_token, user_id, user,tenant_id):
         self.__validate_token(admin_token)
@@ -585,12 +586,7 @@ class IDMService(object):
 
         duser = db_api.user_get(user_id)
         if not duser:
-            raise fault.ItemNotFoundFault("The user could not be found")
-
-        if not duser.enabled:
-            raise fault.UserDisabledFault("User has been disabled")
-
-
+            raise fault.ItemNotFoundFault("The user could not be found" )
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
         True
@@ -602,7 +598,7 @@ class IDMService(object):
 
         db_api.user_update(user_id, values)
 
-        return users.User('','','','',user.enabled)
+        return users.User_Update(None,None,None,None,user.enabled,None)
 
     def delete_user(self, admin_token, user_id, tenant_id):
         self.__validate_token(admin_token)
@@ -631,6 +627,9 @@ class IDMService(object):
 
         if db_api.tenant_get(tenant_id) == None:
             raise fault.ItemNotFoundFault("The tenant not found")
+        
+        if not db_api.tenant_get(tenant_id).enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
 
         ts = []
         dusergroups = db_api.groups_get_by_user_get_page(user_id, marker,
