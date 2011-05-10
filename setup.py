@@ -31,6 +31,7 @@ setup(
     include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
     scripts=['bin/keystone']
+<<<<<<< HEAD
     zip_safe=False,
     install_requires=['setuptools'],
     entry_points={
