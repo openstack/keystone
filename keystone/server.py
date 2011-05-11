@@ -634,13 +634,13 @@ class KeystoneAPI(wsgi.Router):
                     controller=tenant_controller,
                     action="get_users_tenant_group",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/\
-                                                    users/{user_id}",
+        mapper.connect(
+                "/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}",
                     controller=tenant_controller,
                     action="add_user_tenant_group",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/\
-                                                    users/{user_id}",
+        mapper.connect(
+                 "/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}",
                     controller=tenant_controller,
                     action="delete_user_tenant_group",
                     conditions=dict(method=["DELETE"]))
