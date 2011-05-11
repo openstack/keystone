@@ -57,8 +57,7 @@ def create_tenant_group(groupid, tenantid, auth_token):
 
     url = '%stenant/%s/groups' % (URL, tenantid)
     body = {"group": {"id": groupid,
-                       "description": "A description ..."
-                         }}
+                       "description": "A description ..."}}
     resp, content = h.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -88,8 +87,7 @@ def create_global_group(groupid, auth_token):
 
     url = '%sgroups' % (URL)
     body = {"group": {"id": groupid,
-                       "description": "A description ..."
-                         }}
+                       "description": "A description ..."}}
     resp, content = h.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -117,6 +115,7 @@ def delete_global_group(groupid, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
+
 
 def delete_global_group_xml(groupid, auth_token):
     h = httplib2.Http(".cache")
@@ -208,6 +207,7 @@ def delete_tenant_group_xml(groupid, tenantid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def create_user(tenantid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/users' % (URL, tenantid)
@@ -232,6 +232,7 @@ def delete_user(tenant, userid, auth_token):
 
     return (resp, content)
 
+
 def create_user_xml(tenantid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/users' % (URL, tenantid)
@@ -246,6 +247,7 @@ def create_user_xml(tenantid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def delete_user_xml(tenantid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/users/%s' % (URL, tenantid, userid)
@@ -255,6 +257,7 @@ def delete_user_xml(tenantid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def add_user_tenant_group(tenantid, groupid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
@@ -263,6 +266,7 @@ def add_user_tenant_group(tenantid, groupid, userid, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
+
 
 def add_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
     h = httplib2.Http(".cache")
@@ -274,6 +278,7 @@ def add_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def delete_user_tenant_group(tenantid, groupid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
@@ -282,6 +287,7 @@ def delete_user_tenant_group(tenantid, groupid, userid, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
+
 
 def delete_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
     h = httplib2.Http(".cache")
@@ -293,6 +299,7 @@ def delete_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def get_user_tenant_group(tenantid, groupid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/groups/%s/users' % (URL, tenantid, groupid)
@@ -301,6 +308,7 @@ def get_user_tenant_group(tenantid, groupid, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
+
 
 def get_user_tenant_group_xml(tenantid, groupid, auth_token):
     h = httplib2.Http(".cache")
@@ -322,6 +330,7 @@ def add_user_global_group(groupid, userid, auth_token):
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
+
 def add_user_global_group_xml(groupid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%sgroups/%s/users/%s' % (URL, groupid, userid)
@@ -332,6 +341,7 @@ def add_user_global_group_xml(groupid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def delete_user_global_group(groupid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%sgroups/%s/users/%s' % (URL, groupid, userid)
@@ -340,6 +350,7 @@ def delete_user_global_group(groupid, userid, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
+
 
 def delete_user_global_group_xml(groupid, userid, auth_token):
     h = httplib2.Http(".cache")
@@ -351,6 +362,7 @@ def delete_user_global_group_xml(groupid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def get_user_global_group(groupid, auth_token):
     h = httplib2.Http(".cache")
     url = '%sgroups/%s/users' % (URL, groupid)
@@ -360,6 +372,7 @@ def get_user_global_group(groupid, auth_token):
                                        "X-Auth-Token": auth_token})
 
     return (resp, content)
+
 
 def get_userid():
     return 'test_user11'
@@ -372,6 +385,7 @@ def get_password():
 def get_email():
     return 'joetest@rackspace.com'
 
+
 def get_user_global_group_xml(groupid, auth_token):
     h = httplib2.Http(".cache")
     url = '%sgroups/%s/users' % (URL, groupid)
@@ -381,6 +395,7 @@ def get_user_global_group_xml(groupid, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
+
 
 def get_tenant():
     return '1234'
@@ -393,6 +408,7 @@ def get_user():
 def get_userdisabled():
     return 'disabled'
 
+
 def get_auth_token():
     return '999888777666'
 
@@ -400,11 +416,14 @@ def get_auth_token():
 def get_exp_auth_token():
     return '000999'
 
+
 def get_none_token():
     return ''
 
+
 def get_non_existing_token():
     return 'invalid_token'
+
 
 def get_disabled_token():
     return '999888777'
@@ -413,26 +432,27 @@ def get_disabled_token():
 def content_type(resp):
     return resp['content-type'].split(';')[0]
 
+
 def get_global_tenant():
     return 'GlobalTenant'
 
-def handle_user_resp(self,content, respvalue,resptype):
+
+def handle_user_resp(self, content, respvalue, resptype):
     if respvalue == 200:
         if resptype == 'application/json':
             content = json.loads(content)
             self.tenant = content['user']['tenantId']
             self.userid = content['user']['id']
         if resptype == 'application/xml':
-            content=etree.fromstring(content)
-            self.tenant=content.get("tenantId")
-            self.id=content.get("id")
-
+            content = etree.fromstring(content)
+            self.tenant = content.get("tenantId")
+            self.id = content.get("id")
 
     if respvalue == 500:
         self.fail('IDM fault')
     elif respvalue == 503:
         self.fail('Service Not Available')
 
+
 def content_type(resp):
     return resp['content-type'].split(';')[0]
-
