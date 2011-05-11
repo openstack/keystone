@@ -379,7 +379,7 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("A tenant group with"
                                            " that id not found")
         
-        if db_api.user_get_by_group(user, group) != None:
+        if db_api.get_user_by_group(user, group) != None:
             raise fault.UserGroupConflictFault(
                 "A user with that id already exists in group")
         
@@ -407,7 +407,7 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("A tenant group with"
                                           " that id not found")
         
-        if db_api.user_get_by_group(user, group) == None:
+        if db_api.get_user_by_group(user, group) == None:
             raise fault.ItemNotFoundFault("A user with that id "
                                           "in a group not found")
         
@@ -539,8 +539,7 @@ class IDMService(object):
             raise fault.TenantDisabledFault("Your account has been disabled")
 
         duser = db_api.user_get(user_id)
-        print 'here'
-        print duser
+        
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
@@ -550,7 +549,7 @@ class IDMService(object):
 
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
-        True
+        
         if db_api.user_get_email(user.email) is not None:
             raise fault.EmailConflictFault(
                 "Email already exists")
@@ -581,7 +580,7 @@ class IDMService(object):
 
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
-        True
+        
         duser = db_api.user_get(user_id)
         if duser == None:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -606,13 +605,13 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("The user could not be found" )
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
-        True
+        
         duser = db_api.user_get(user_id)
         if duser == None:
             raise fault.ItemNotFoundFault("The user could not be found")
 
         values = {'enabled': user.enabled}
-
+        
         db_api.user_update(user_id, values)
 
         return users.User_Update(None,None,None,None,user.enabled,None)
@@ -827,7 +826,7 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("A global tenant group with"
                                           " that id not found")
 
-        if db_api.user_get_by_group(user, group) != None:
+        if db_api.get_user_by_group(user, group) != None:
             raise fault.UserGroupConflictFault(
                 "A user with that id already exists in group")
 
@@ -856,7 +855,7 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("A global tenant group with "
                                           "that id not found")
 
-        if db_api.user_get_by_group(user, group) == None:
+        if db_api.get_user_by_group(user, group) == None:
             raise fault.ItemNotFoundFault("A user with that id in a "
                                           "group not found")
 

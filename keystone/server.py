@@ -474,16 +474,15 @@ class UserController(wsgi.Controller):
     @wrap_error
     def set_user_password(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
-        rval = service.set_user_password(get_auth_token(req),
-                user_id, user, tenant_id)
-        return send_result(204, req, rval)
+        rval = service.set_user_password(get_auth_token(req), user_id, user, tenant_id)
+        return send_result(200, req, rval)
+
 
     @wrap_error
     def set_user_enabled(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
-        rval = service.enable_disable_user(get_auth_token(req), user_id,
-                                           user, tenant_id)
-        return send_result(204, req, rval)
+        rval = service.enable_disable_user(get_auth_token(req), user_id, user, tenant_id)
+        return send_result(200, req, rval)
 
 
 class GroupsController(wsgi.Controller):
@@ -654,6 +653,10 @@ class KeystoneAPI(wsgi.Router):
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/groups",
+                    controller=user_controller,
+                    action="get_user_groups",
+                    conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
                     controller=user_controller,
                     action="get_user",
@@ -670,10 +673,10 @@ class KeystoneAPI(wsgi.Router):
                     controller=user_controller,
                     action="set_user_password",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/enabled",
-                    controller=user_controller,
-                    action="set_user_enabled",
-                    conditions=dict(method=["PUT"]))
+
+        # Test this, test failed
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/enabled", controller=user_controller,
+                action="set_user_enabled", conditions=dict(method=["PUT"]))
 
         #Global Groups
         groups_controller = GroupsController(options)
