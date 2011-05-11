@@ -1,3 +1,4 @@
+
 Keystone: Identity Service
 ==========================
 
@@ -60,14 +61,41 @@ Or using pip:
 RUNNING KEYSTONE:
 -----------------
 
+During  development, you can simply run
+
+     $ bin/keystone-auth 
+
+It dumps stdout and stderr onto the terminal.
+
+In production, stdout and stderr need to be closed and all theoutput needs tobe redirected to a log file.
+Once the package is installed through setup tools, RPM, deb, or ebuild keystone-control is installed 
+as /usr/sbin/keystone-control. Typically, it will be started a script in /etc/init.d/keystoned
+
+keystone-control can invoke keystone-auth and start the keystone daemon with 
+
+     $ /usr/sbin/keystone-control auth start
+
+It writes the process id of the daemon into /var/run/keystone/keystine-auth.pid. he daemon can be stopped with
+ 
+     $ /usr/sbin/keystone-control auth stop
+
+keystone-control has the infrastructure to start and stop multiple servers keystone-xxx  
+
+
+The developenmt of keystone-control itself can be done like this
+
 From the topdir 
 
-     $ bin/keystone-control --config-file etc/keystone.conf --pid-file=pidfile auth <start|stop|restart>
+     $ bin/keystone-control --pid-file pidfile auth <start|stop|restart>
 
-The "start" command invokes bin/keystone-auth. During  development you can also run
+config.py takes the config file from topdir/etc/keystone.conf
 
-     $ bin/keystone-auth etc/keystone.conf
+If the keystone package is also intalled on the system
+/etc/keystone.conf or /etc/keystone/keystone.conf has higher priority
+than top_dir/etc/keystone.conf. If you are also doing development on a
+system that has keystone.conf installed in /etc/you need to disambiguate it by
 
+     $ bin/keystone-control --confg-file etc/keystone.conf  --pid-file pidfile auth <start|stop|restart>
 
 
 RUNNING TEST SERVICE:
@@ -90,17 +118,11 @@ DEMO CLIENT:
     $ cd echo/echo
     $ python echo_client.py
 
-
 INSTALLING KEYSTONE:
 --------------------
 
     $ python setup.py build
     $ sudo python setup.py install
-
-
-RUNNING KEYSTONE (Eventlet Server):
------------------------------------
- sudo keystone (start|stop|restart)
 
 
 INSTALLING TEST SERVICE:
@@ -124,15 +146,10 @@ To clean the test database
 
     $ sqlite3 keystone/keystone.db < test/kill.sql
 
-To run unit tests:
-
-    $ python test/unit/test_identity.py
-
 To run client demo (with all auth middleware running locally on sample service):
 
     $ python echo/echo/echo.py
     $ python echo/echo/echo_client.py
-
 
 To perform contract validation and load testing, use SoapUI (for now).
 
@@ -152,45 +169,15 @@ Unit Test on Identity Services
 In order to run the unit test on identity services start the auth sever
 
     $ cd test/unit
-    $ ../../bin/keystone-control --config-file ../..etc/keystone.conf --pid-file=pidfile auth start
+    $ ../../bin/keystone-auth
 
-Once the Identity service is running, go to unit test/unit directory
+There are 8 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run
 
-    $ python test_identity.py
+    $ python test_keystone
 
-You can run a sbuset of tests the following way
-    $ grep class test_identity.py 
+A test can also be run individually e.g.
 
-You get something like 
-
-
-class identity_test(unittest.TestCase):
-class authorize_test(identity_test):
-class validate_token(authorize_test):
-class tenant_test(unittest.TestCase):
-class create_tenant_test(tenant_test):
-class get_tenants_test(tenant_test):
-class get_tenant_test(tenant_test):
-class update_tenant_test(tenant_test):
-class delete_tenant_test(tenant_test):
-class tenant_group_test(unittest.TestCase):
-class create_tenant_group_test(tenant_group_test):
-class get_tenant_groups_test(tenant_group_test):
-class get_tenant_group_test(tenant_group_test):
-class update_tenant_group_test(tenant_group_test):
-class delete_tenant_group_test(tenant_test):
-class global_group_test(unittest.TestCase):
-class create_global_group_test(global_group_test):
-class create_tenant_group_test(tenant_group_test):
-
-You can choose any class you like to test
-    
-     $ python test_identity.py delete_tenant_test
-
-For more on unit testing please refer
-
-     $ python test_identity --help
-
+    $ python test_token
 
 
 DATABASE SCHEMA
