@@ -20,15 +20,14 @@ import string
 
 
 class User(object):
-    "A user."
 
-    def __init__(self, password,user_id, tenant_id, email,enabled):
+    def __init__(self, password, user_id, tenant_id, email, enabled):
         self.user_id = user_id
         self.tenant_id = tenant_id
         self.password = password
         self.email = email
         self.enabled = enabled and True or False
-        
+
     @staticmethod
     def from_xml(xml_str):
         try:
@@ -37,7 +36,7 @@ class User(object):
             root = dom.find("{http://docs.openstack.org/idm/api/v1.0}user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
-            user_id=root.get("id")
+            user_id = root.get("id")
             tenant_id = root.get("tenantId")
             email = root.get("email")
             password = root.get("password")
@@ -49,7 +48,7 @@ class User(object):
             elif password == None:
                 raise fault.BadRequestFault("Expecting User password")
             elif email == None:
-                raise fault.BadRequestFault("Expecting User email")      
+                raise fault.BadRequestFault("Expecting User email")
             if enabled == None or enabled == "true" or enabled == "yes":
                 set_enabled = True
             elif enabled == "false" or enabled == "no":
@@ -57,8 +56,8 @@ class User(object):
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
             if password == '':
-                password=user_id                
-            return User(password,user_id,tenant_id,email,set_enabled)
+                password = user_id
+            return User(password, user_id, tenant_id, email, set_enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse User", str(e))
 
@@ -66,7 +65,6 @@ class User(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            print obj
             if not "user" in obj:
                 raise fault.BadRequestFault("Expecting User")
             user = obj["user"]
@@ -86,12 +84,12 @@ class User(object):
             if "enabled" in user:
                 set_enabled = user["enabled"]
                 if not isinstance(set_enabled, bool):
-                    raise fault.BadRequestFault("Bad enabled attribute!") 
+                    raise fault.BadRequestFault("Bad enabled attribute!")
             else:
-                set_enabled=True
+                set_enabled = True
             if password == '':
-                password=user_id      
-            return User(password,user_id,tenant_id,email,set_enabled)
+                password = user_id
+            return User(password, user_id, tenant_id, email, set_enabled)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
@@ -101,46 +99,45 @@ class User(object):
         if self.email:
             dom.set("email", self.email)
         if self.tenant_id:
-            dom.set("tenantId",self.tenant_id)
+            dom.set("tenantId", self.tenant_id)
         if self.user_id:
-            dom.set("id",self.user_id)
+            dom.set("id", self.user_id)
         if self.enabled:
-            dom.set("enabled",string.lower(str(self.enabled)))
+            dom.set("enabled", string.lower(str(self.enabled)))
         if self.password:
-            dom.set("password",self.password)
-       
-            
+            dom.set("password", self.password)
         return dom
 
     def to_xml(self):
-        print '34'
         return etree.tostring(self.to_dom())
 
     def to_dict(self):
         user = {}
-        
+
         if self.user_id:
             user["id"] = self.user_id
-        user["tenantId"]=self.tenant_id
+        user["tenantId"] = self.tenant_id
         if self.password:
-            user["password"]=self.password
-        user["email"]=self.email
-        user["enabled"]=self.enabled
+            user["password"] = self.password
+        user["email"] = self.email
+        user["enabled"] = self.enabled
         return {'user': user}
-    
-    def to_json(self):
-        return json.dumps(self.to_dict()) 
-    
-class User_Update(object):
-    "A user."
 
-    def __init__(self, password,user_id, tenant_id, email,enabled, group=None):
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
+
+class User_Update(object):
+
+    def __init__(self, password, user_id, tenant_id, email,
+            enabled, group=None):
         self.user_id = user_id
         self.tenant_id = tenant_id
         self.password = password
         self.email = email
         self.enabled = enabled and True or False
-        self.group=group
+        self.group = group
+
     @staticmethod
     def from_xml(xml_str):
         try:
@@ -149,11 +146,11 @@ class User_Update(object):
             root = dom.find("{http://docs.openstack.org/idm/api/v1.0}user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
-            user_id=root.get("id")
+            user_id = root.get("id")
             tenant_id = root.get("tenantId")
             email = root.get("email")
             password = root.get("password")
-            enabled = root.get("enabled")      
+            enabled = root.get("enabled")
             if enabled == None or enabled == "true" or enabled == "yes":
                 set_enabled = True
             elif enabled == "false" or enabled == "no":
@@ -161,8 +158,8 @@ class User_Update(object):
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
             if password == '':
-                password=user_id                
-            return User(password,user_id,tenant_id,email,set_enabled)
+                password = user_id
+            return User(password, user_id, tenant_id, email, set_enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse User", str(e))
 
@@ -170,7 +167,6 @@ class User_Update(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            print obj
             if not "user" in obj:
                 raise fault.BadRequestFault("Expecting User")
             user = obj["user"]
@@ -181,24 +177,24 @@ class User_Update(object):
             if not "password" in user:
                 password = None
             else:
-                password=user["password"]
+                password = user["password"]
             if not "tenantId" in user:
-                tenant_id=None
+                tenant_id = None
             else:
                 tenant_id = user["tenantId"]
             if not "email" in user:
-                email=None
-            else:    
+                email = None
+            else:
                 email = user["email"]
             if "enabled" in user:
                 set_enabled = user["enabled"]
                 if not isinstance(set_enabled, bool):
-                    raise fault.BadRequestFault("Bad enabled attribute!") 
+                    raise fault.BadRequestFault("Bad enabled attribute!")
             else:
-                set_enabled=True
+                set_enabled = True
             if password == '':
-                password=user_id      
-            return User(password,user_id,tenant_id,email,set_enabled)
+                password = user_id
+            return User(password, user_id, tenant_id, email, set_enabled)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
@@ -208,15 +204,15 @@ class User_Update(object):
         if self.email:
             dom.set("email", self.email)
         if self.tenant_id:
-            dom.set("tenantId",self.tenant_id)
+            dom.set("tenantId", self.tenant_id)
         if self.user_id:
-            dom.set("id",self.user_id)
+            dom.set("id", self.user_id)
         if self.enabled is not None:
-            dom.set("enabled",string.lower(str(self.enabled)))
+            dom.set("enabled", string.lower(str(self.enabled)))
         if self.password:
-            dom.set("password",self.password)
+            dom.set("password", self.password)
         if self.group is not None:
-            
+
             for group in self.group:
                 dom.append(group.to_dom())
         return dom
@@ -226,24 +222,25 @@ class User_Update(object):
 
     def to_dict(self):
         user = {}
-        
+
         if self.user_id:
             user["id"] = self.user_id
         if self.user_id:
-            user["tenantId"]=self.tenant_id
+            user["tenantId"] = self.tenant_id
         if self.password:
-            user["password"]=self.password
+            user["password"] = self.password
         if self.email:
-            user["email"]=self.email
+            user["email"] = self.email
         if self.enabled is not None:
-            user["enabled"]=self.enabled
+            user["enabled"] = self.enabled
         if self.group is not None:
-            values=[t.to_dict()["group"] for t in self.group]
+            values = [t.to_dict()["group"] for t in self.group]
             user["groups"] = {"values": values}
         return {'user': user}
-    
+
     def to_json(self):
-        return json.dumps(self.to_dict()) 
+        return json.dumps(self.to_dict())
+
 
 class Users(object):
     "A collection of users."

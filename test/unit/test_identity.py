@@ -2,7 +2,6 @@ import logging
 import os
 import unittest
 from lxml import etree
-
 MODULE_EXTENSIONS = set('.py'.split())
 
 def unit_test_extractor(tup, path, filenames):
@@ -49,6 +48,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.WARN)
     package_path = os.path.dirname(os.path.abspath(__file__))
     suites = get_test_suites(package_path)
-    #print suites
     for suite in suites:
         unittest.TextTestRunner(verbosity=1).run(suite)

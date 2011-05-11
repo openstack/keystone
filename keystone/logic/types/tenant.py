@@ -109,7 +109,7 @@ class Tenants(object):
 
     def to_xml(self):
         dom = etree.Element("tenants")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -122,12 +122,12 @@ class Tenants(object):
     def to_json(self):
         values = [t.to_dict()["tenant"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"tenants": {"values": values,"links":links}})
+        return json.dumps({"tenants": {"values": values, "links": links}})
 
 
 class Group(object):
-
     "Describes a group in the auth system"
+
     def __init__(self, group_id, description, tenant_id):
         self.description = description
         self.group_id = group_id
@@ -145,12 +145,12 @@ class Group(object):
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
-            tenant_id=None
+            tenant_id = None
             if root.get("tenantId"):
                 tenant_id = root.get("tenantId")
             else:
                 tenant_id = None
-            
+
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:
@@ -222,7 +222,7 @@ class Groups(object):
 
     def to_xml(self):
         dom = etree.Element("groups")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -235,16 +235,15 @@ class Groups(object):
     def to_json(self):
         values = [t.to_dict()["group"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"groups": {"values": values,"links":links}})
+        return json.dumps({"groups": {"values": values, "links": links}})
 
 
 class GlobalGroup(object):
-
     "Describes a group in the auth system"
+
     def __init__(self, group_id, description, tenant_id=None):
         self.description = description
         self.group_id = group_id
-        
 
     @staticmethod
     def from_xml(xml_str):
@@ -255,7 +254,7 @@ class GlobalGroup(object):
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
-            
+
             desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
                              "description")
             if desc == None:
@@ -290,7 +289,7 @@ class GlobalGroup(object):
                             xmlns="http://docs.openstack.org/idm/api/v1.0")
         if self.group_id:
             dom.set("id", self.group_id)
-        
+
         desc = etree.Element("description")
         desc.text = self.description
         dom.append(desc)
@@ -304,7 +303,7 @@ class GlobalGroup(object):
         if self.group_id:
             group["id"] = self.group_id
         group["description"] = self.description
-        
+
         return {'group': group}
 
     def to_json(self):
@@ -320,7 +319,7 @@ class GlobalGroups(object):
 
     def to_xml(self):
         dom = etree.Element("groups")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -333,15 +332,12 @@ class GlobalGroups(object):
     def to_json(self):
         values = [t.to_dict()["group"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"groups": {"values": values,"links":links}})
-
-
-
+        return json.dumps({"groups": {"values": values, "links": links}})
 
 
 class User(object):
-
     "Describes a user in the auth system"
+
     def __init__(self, user_id, email, enabled, tenant_id='', group_id=''):
         self.user_id = user_id
         if group_id:
@@ -355,41 +351,6 @@ class User(object):
         self.email = email
         self.enabled = enabled and True or False
 
-    """@staticmethod
-    def from_xml(xml_str):
-        try:
-            dom = etree.Element("root")
-            dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}group")
-            if root == None:
-                raise fault.BadRequestFault("Expecting Group")
-            group_id = root.get("id")
-            desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
-                             "description")
-            if desc == None:
-                raise fault.BadRequestFault("Expecting Group Description")
-            return Group(group_id, desc.text)
-        except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse Group", str(e))
-
-    @staticmethod
-    def from_json(json_str):
-        try:
-            obj = json.loads(json_str)
-            if not "group" in obj:
-                raise fault.BadRequestFault("Expecting group")
-            group = obj["group"]
-            if not "id" in group:
-                group_id = None
-            else:
-                group_id = group["id"]
-            if not "description" in group:
-                raise fault.BadRequestFault("Expecting Group Description")
-            description = group["description"]
-            return Group(group_id, description)
-        except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse Group", str(e))
-    """
     def to_dom(self):
         dom = etree.Element("user",
                             xmlns="http://docs.openstack.org/idm/api/v1.0")
@@ -432,7 +393,7 @@ class Users(object):
 
     def to_xml(self):
         dom = etree.Element("users")
-        dom.set(u"xmlns","http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -445,4 +406,4 @@ class Users(object):
     def to_json(self):
         values = [t.to_dict()["user"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"users": {"values": values,"links":links}})
+        return json.dumps({"users": {"values": values, "links": links}})

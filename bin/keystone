@@ -186,7 +186,7 @@ if __name__ == '__main__':
         sys.exit(msg)
 
     if command == 'start':
-        do_start(server,options, args)
+        do_start(server, options, args)
 
     if command == 'stop':
         do_stop(server, options, args)

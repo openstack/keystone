@@ -29,13 +29,14 @@ from sqlalchemy.orm import sessionmaker
 _ENGINE = None
 _MAKER = None
 
+#TODO(India Team) Change the connection string to generic connection string
+
 def get_connection_string():
     path = os.path.realpath(__file__)
     dbpath = os.path.normpath(os.path.join(path,
-                                    os.pardir,  # sqlalchemy
-                                    os.pardir,  # db
-                                    os.pardir  # keystone
-                                    ))
+                                    os.pardir,   # sqlalchemy
+                                    os.pardir,   # db
+                                    os.pardir))  # keystone
     connection_string = "sqlite:///%s/keystone.db" % dbpath
     logging.debug('SQL ALchemy connection string: %s', connection_string)
     return connection_string

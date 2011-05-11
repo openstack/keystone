@@ -73,7 +73,7 @@ class BadRequestFault(IDMFault):
 
 class UnauthorizedFault(IDMFault):
     "User is unauthorized"
-    
+
     def __init__(self, msg, details=None, code=401):
         super(UnauthorizedFault, self).__init__(msg, details, code)
         self.key = "unauthorized"
@@ -86,13 +86,6 @@ class ForbiddenFault(IDMFault):
         super(ForbiddenFault, self).__init__(msg, details, code)
         self.key = "forbidden"
 
-class TenantDisabledFault(IDMFault):
-    "The tenant is disabled"
-
-    def __init__(self, msg, details=None, code=403):
-        super(TenantDisabledFault, self).__init__(msg, details, code)
-        self.key = "tenantDisabled"
-
 
 class ItemNotFoundFault(IDMFault):
     "The item is not found"
@@ -102,6 +95,14 @@ class ItemNotFoundFault(IDMFault):
         self.key = "itemNotFound"
 
 
+class TenantDisabledFault(IDMFault):
+    "The tenant is disabled"
+
+    def __init__(self, msg, details=None, code=403):
+        super(TenantDisabledFault, self).__init__(msg, details, code)
+        self.key = "tenantDisabled"
+
+
 class TenantConflictFault(IDMFault):
     "The tenant already exists?"
 
@@ -109,14 +110,15 @@ class TenantConflictFault(IDMFault):
         super(TenantConflictFault, self).__init__(msg, details, code)
         self.key = "tenantConflict"
 
+
 class TenantGroupConflictFault(IDMFault):
     "The tenant Group already exists?"
 
     def __init__(self, msg, details=None, code=409):
         super(TenantGroupConflictFault, self).__init__(msg, details, code)
         self.key = "tenantGroupConflict"
-        
-        
+
+
 class OverlimitFault(IDMFault):
     "A limit has been exceeded"
 
@@ -125,13 +127,15 @@ class OverlimitFault(IDMFault):
         self.args = (code, msg, details, retry_at)
         self.retry_at = retry_at
         self.key = "overLimit"
-        
+
+
 class UserConflictFault(IDMFault):
     "The User already exists?"
 
     def __init__(self, msg, details=None, code=409):
         super(UserConflictFault, self).__init__(msg, details, code)
         self.key = "userConflict"
+
 
 class UserDisabledFault(IDMFault):
     "The user is disabled"
@@ -140,12 +144,14 @@ class UserDisabledFault(IDMFault):
         super(UserDisabledFault, self).__init__(msg, details, code)
         self.key = "userDisabled"
 
+
 class EmailConflictFault(IDMFault):
     "The Email already exists?"
 
     def __init__(self, msg, details=None, code=409):
         super(EmailConflictFault, self).__init__(msg, details, code)
         self.key = "emailConflict"
+
 
 class UserGroupConflictFault(IDMFault):
     "The user already exists in group?"

@@ -66,13 +66,16 @@ import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
 import keystone.common.template as template
 
-# Shall give [app:server paste value from conf file ]
 logger = logging.getLogger('keystone.server')
 
 VERSION_STATUS = "ALPHA"
 VERSION_DATE = "2011-04-23T00:00:00Z"
 
 service = serv.IDMService()
+
+"""
+General Functions for the server.py use
+"""
 
 
 def is_xml_response(req):
@@ -93,56 +96,54 @@ def get_auth_token(req):
 
 
 def wrap_error(func):
+
     @functools.wraps(func)
     def check_error(*args, **kwargs):
         try:
-            
             return func(*args, **kwargs)
-            
         except Exception as err:
             if isinstance(err, fault.IDMFault):
                 return send_error(err.code, kwargs['req'], err)
             else:
                 logging.exception(err)
-                return send_error(500, kwargs['req'], fault.IDMFault("Unhandled error", str(err)))
+                return send_error(500, kwargs['req'],
+                                fault.IDMFault("Unhandled error", str(err)))
     return check_error
 
 
 def get_normalized_request_content(model, req):
-    """initialize a model from json/xml contents of request body"""
-    
+    """Initialize a model from json/xml contents of request body"""
+
     if  req.content_type == "application/xml":
-        
         ret = model.from_xml(req.body)
     elif req.content_type == "application/json":
-        
         ret = model.from_json(req.body)
     else:
-        
         raise fault.IDMFault("I don't understand the content type ", code=415)
     return ret
+
 
 def send_error(code, req, result):
     content = None
     resp = Response()
-    
+
     resp.headers['content-type'] = None
     resp.status = code
-    
+
     if result:
-        
+
         if is_xml_response(req):
-            
+
             content = result.to_xml()
             resp.headers['content-type'] = "application/xml"
         else:
-            
+
             content = result.to_json()
             resp.headers['content-type'] = "application/json"
 
-        resp.content_type_params={'charset' : 'UTF-8'}
+        resp.content_type_params = {'charset': 'UTF-8'}
         resp.unicode_body = content.decode('UTF-8')
-    
+
     return resp
 
 
@@ -153,9 +154,9 @@ def send_result(code, req, result):
     resp.status = code
     if code > 399:
         return resp
-    
+
     if result:
-        
+
         if is_xml_response(req):
             content = result.to_xml()
             resp.headers['content-type'] = "application/xml"
@@ -163,16 +164,21 @@ def send_result(code, req, result):
             content = result.to_json()
             resp.headers['content-type'] = "application/json"
 
-        resp.content_type_params={'charset' : 'UTF-8'}
+        resp.content_type_params = {'charset': 'UTF-8'}
         resp.unicode_body = content.decode('UTF-8')
 
     return resp
 
+
 class StaticFilesController(wsgi.Controller):
+    """
+        Static Files Controller -
+        Controller for contract documents
+    """
 
     def __init__(self, options):
         self.options = options
-        
+
     @wrap_error
     def get_pdf_contract(self, req):
         resp = Response()
@@ -193,7 +199,7 @@ class StaticFilesController(wsgi.Controller):
         return template.static_file(resp, req, "/xsd/" + xsd,
                               root=get_app_root(),
                               mimetype="application/xml")
-	
+
     @wrap_error
     def get_xsd_atom_contract(self, req, xsd):
         resp = Response()
@@ -201,14 +207,19 @@ class StaticFilesController(wsgi.Controller):
                               root=get_app_root(),
                               mimetype="application/xml")
 
-class MiscController(wsgi.Controller):
+
+class VersionController(wsgi.Controller):
+    """
+        Version Controller -
+        Controller for version related methods
+    """
 
     def __init__(self, options):
         self.options = options
-    
+
     @wrap_error
     def  get_version_info(self, req):
-    
+
         resp = Response()
         resp.charset = 'UTF-8'
         if is_xml_response(req):
@@ -223,52 +234,61 @@ class MiscController(wsgi.Controller):
         hostname = req.environ.get("SERVER_NAME")
         port = req.environ.get("SERVER_PORT")
 
-        resp.unicode_body= template.template(resp_file, HOST=hostname, PORT=port,
-                               VERSION_STATUS=VERSION_STATUS,
+        resp.unicode_body = template.template(resp_file, HOST=hostname,
+                               PORT=port, VERSION_STATUS=VERSION_STATUS,
                                VERSION_DATE=VERSION_DATE)
         return resp
 
 
-
 class AuthController(wsgi.Controller):
+    """
+        Auth Controller -
+        Controller for token related operations
+    """
 
     def __init__(self, options):
         self.options = options
         self.request = None
-    
+
     @wrap_error
     def authenticate(self, req):
         self.request = req
-        
+
         creds = get_normalized_request_content(auth.PasswordCredentials, req)
         return send_result(200, req, service.authenticate(creds))
-    
+
     @wrap_error
     def validate_token(self, req, token_id):
-        
+
         belongs_to = None
         if "belongsTo" in req.GET:
             belongs_to = req.GET["belongsTo"]
-        rval = service.validate_token(get_auth_token(req), token_id, belongs_to)
-        
+        rval = service.validate_token(get_auth_token(req),
+                                      token_id, belongs_to)
+
         return send_result(200, req, rval)
-    
+
     @wrap_error
     def delete_token(self, req, token_id):
-        return send_result(204, req, service.revoke_token(get_auth_token(req), token_id))
+        return send_result(204, req,
+                        service.revoke_token(get_auth_token(req), token_id))
 
 
 class TenantController(wsgi.Controller):
+    """
+        Tenant Controller -
+        Controller for Tenant and Tenant Group related operations
+    """
 
     def __init__(self, options):
         self.options = options
-    
+
     @wrap_error
     def create_tenant(self, req):
         tenant = get_normalized_request_content(tenants.Tenant, req)
         return send_result(201, req,
                        service.create_tenant(get_auth_token(req), tenant))
-    
+
     @wrap_error
     def get_tenants(self, req):
         marker = None
@@ -287,13 +307,12 @@ class TenantController(wsgi.Controller):
 
         tenants = service.get_tenants(get_auth_token(req), marker, limit, url)
         return send_result(200, req, tenants)
-    
-    
+
     @wrap_error
     def get_tenant(self, req, tenant_id):
         tenant = service.get_tenant(get_auth_token(req), tenant_id)
         return send_result(200, req, tenant)
-    
+
     @wrap_error
     def update_tenant(self, req, tenant_id):
         tenant = get_normalized_request_content(tenants.Tenant, req)
@@ -305,15 +324,13 @@ class TenantController(wsgi.Controller):
         rval = service.delete_tenant(get_auth_token(req), tenant_id)
         return send_result(204, req, rval)
 
-
-
-    # Tenant Group Methods
     @wrap_error
     def create_tenant_group(self, req, tenant_id):
         group = get_normalized_request_content(tenants.Group, req)
         return send_result(201, req,
-                       service.create_tenant_group(get_auth_token(req), \
+                       service.create_tenant_group(get_auth_token(req),
                                                    tenant_id, group))
+
     @wrap_error
     def get_tenant_groups(self, req, tenant_id):
         marker = None
@@ -335,22 +352,22 @@ class TenantController(wsgi.Controller):
         return send_result(200, req, groups)
 
     @wrap_error
-    def get_tenant_group(self, req, tenant_id,  group_id):
+    def get_tenant_group(self, req, tenant_id, group_id):
         tenant = service.get_tenant_group(get_auth_token(req), tenant_id,
-                group_id)
-        return send_result(200, req,  tenant)
+                                            group_id)
+        return send_result(200, req, tenant)
 
     @wrap_error
     def update_tenant_group(self, req, tenant_id, group_id):
         group = get_normalized_request_content(tenants.Group, req)
-        rval = service.update_tenant_group(get_auth_token(req),\
+        rval = service.update_tenant_group(get_auth_token(req),
                                         tenant_id, group_id, group)
         return send_result(200, req, rval)
-    
+
     @wrap_error
     def delete_tenant_group(self, req, tenant_id, group_id):
         rval = service.delete_tenant_group(get_auth_token(req), tenant_id,
-                group_id)
+                                           group_id)
         return send_result(204, req, rval)
 
     @wrap_error
@@ -358,51 +375,39 @@ class TenantController(wsgi.Controller):
         marker = None
         if "marker" in req.GET:
             marker = request.GET["marker"]
-        
+
         if "limit" in req.GET:
             limit = req.GET["limit"]
         else:
             limit = 10
-        
+
         url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
                              req.environ.get("SERVER_NAME"),
                              req.environ.get("SERVER_PORT"),
                              req.environ['PATH_INFO'])
-        
+
         users = service.get_users_tenant_group(get_auth_token(req), tenant_id,
                                                group_id, marker, limit, url)
         return send_result(200, req, users)
-    
-    """ 
-    @wrap_error
-    def add_user_tenant_group(tenantId, groupId, userId):
-        
-        return send_result(201,
-                           service.add_user_tenant_group(get_auth_token(), 
-                                                       tenantId, groupId, userId))
-    
-    
-    @wrap_error
-    def delete_user_tenant_group(tenantId, groupId, userId):
-        return send_result(204,
-                           service.delete_user_tenant_group(get_auth_token(), 
-                                                       tenantId, groupId, userId))
-    """
-    
 
     @wrap_error
     def add_user_tenant_group(self, req, tenant_id, group_id, user_id):
         return send_result(201, req, service.add_user_tenant_group(\
                                 get_auth_token(req), tenant_id, group_id,
                                 user_id))
-    
+
     @wrap_error
     def delete_user_tenant_group(self, req, tenant_id, group_id, user_id):
         return send_result(204, req, service.delete_user_tenant_group(\
                                 get_auth_token(req), tenant_id, group_id,
                                 user_id))
 
+
 class UserController(wsgi.Controller):
+    """
+        User Controller -
+        Controller for User related operations
+    """
 
     def __init__(self, options):
         self.options = options
@@ -411,7 +416,8 @@ class UserController(wsgi.Controller):
     def create_user(self, req, tenant_id):
         user = get_normalized_request_content(users.User, req)
         return send_result(201, req,
-                       service.create_user(get_auth_token(req), tenant_id, user))
+                       service.create_user(get_auth_token(req), \
+                                        tenant_id, user))
 
     @wrap_error
     def get_tenant_users(self, req, tenant_id):
@@ -423,12 +429,13 @@ class UserController(wsgi.Controller):
         else:
             limit = 10
         url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                                                        req.environ.get("SERVER_NAME"),
-                                                        req.environ.get("SERVER_PORT"),
-                                                        req.environ['PATH_INFO'])
-        users = service.get_tenant_users(get_auth_token(req), tenant_id, marker, limit, url)
+                                req.environ.get("SERVER_NAME"),
+                                req.environ.get("SERVER_PORT"),
+                                req.environ['PATH_INFO'])
+        users = service.get_tenant_users(get_auth_token(req), \
+                                    tenant_id, marker, limit, url)
         return send_result(200, req, users)
-    
+
     @wrap_error
     def get_user_groups(self, req, tenant_id, user_id):
         marker = None
@@ -445,45 +452,48 @@ class UserController(wsgi.Controller):
                              req.environ['PATH_INFO'])
 
         groups = service.get_user_groups(get_auth_token(req),
-                                        tenant_id,user_id, marker, limit,url)
+                                        tenant_id, user_id, marker, limit, url)
         return send_result(200, req, groups)
-    
+
     @wrap_error
     def get_user(self, req, tenant_id, user_id):
         user = service.get_user(get_auth_token(req), tenant_id, user_id)
         return send_result(200, req, user)
-    
+
     @wrap_error
     def update_user(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
-        rval = service.update_user(get_auth_token(req), user_id, user, tenant_id)
+        rval = service.update_user(get_auth_token(req),
+                user_id, user, tenant_id)
         return send_result(200, req, rval)
-    
+
     @wrap_error
     def delete_user(self, req, user_id, tenant_id):
         rval = service.delete_user(get_auth_token(req), user_id, tenant_id)
         return send_result(204, req, rval)
-    
+
     @wrap_error
     def set_user_password(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
-        rval = service.set_user_password(get_auth_token(req), user_id, user, tenant_id)
+        rval = service.set_user_password(get_auth_token(req), user_id, user,
+                                        tenant_id)
         return send_result(200, req, rval)
 
-    
     @wrap_error
     def set_user_enabled(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
-        rval = service.enable_disable_user(get_auth_token(req), user_id, user, tenant_id)
+        rval = service.enable_disable_user(get_auth_token(req), user_id, user,
+                                        tenant_id)
         return send_result(200, req, rval)
 
 
-
 class GroupsController(wsgi.Controller):
-    
-    
+    """
+        Groups Controller -
+        Controller for Group related operations
+    """
+
     def __init__(self, options):
-        
         self.options = options
 
     @wrap_error
@@ -492,6 +502,7 @@ class GroupsController(wsgi.Controller):
         return send_result(201, req,
                        service.create_global_group(get_auth_token(req),
                                                    group))
+
     @wrap_error
     def get_groups(self, req):
         marker = None
@@ -509,59 +520,59 @@ class GroupsController(wsgi.Controller):
                          req.environ['PATH_INFO'])
         groups = service.get_global_groups(get_auth_token(req),
                                          marker, limit, url)
-        
+
         return send_result(200, req, groups)
-    
+
     @wrap_error
     def get_group(self, req, group_id):
         tenant = service.get_global_group(get_auth_token(req), group_id)
         return send_result(200, req, tenant)
-    
+
     @wrap_error
     def update_group(self, req, group_id):
         group = get_normalized_request_content(tenants.GlobalGroup, req)
         rval = service.update_global_group(get_auth_token(req),
                                         group_id, group)
         return send_result(200, req, rval)
-    
+
     @wrap_error
     def delete_group(self, req, group_id):
         rval = service.delete_global_group(get_auth_token(req), group_id)
         return send_result(204, req, rval)
-    
-    
+
     @wrap_error
     def get_users_global_group(self, req, group_id):
-        
+
         marker = None
         if "marker" in req.GET:
             marker = req.GET["marker"]
-        
+
         if "limit" in req.GET:
             limit = req.GET["limit"]
         else:
             limit = 10
-        
+
         url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
                              req.environ.get("SERVER_NAME"),
                              req.environ.get("SERVER_PORT"),
                              req.environ['PATH_INFO'])
-        
+
         users = service.get_users_global_group(get_auth_token(req),
                                              group_id, marker, limit, url)
         return send_result(200, req, users)
-    
+
     @wrap_error
     def add_user_global_group(self, req, group_id, user_id):
-        
+
         return send_result(201, req, service.add_user_global_group(\
                                 get_auth_token(req), group_id, user_id))
-    
+
     @wrap_error
     def delete_user_global_group(self, req, group_id, user_id):
-        
+
         return send_result(204, req, service.delete_user_global_group(\
                                 get_auth_token(req), group_id, user_id))
+
 
 class KeystoneAPI(wsgi.Router):
     """WSGI entry point for all Keystone Auth API requests."""
@@ -572,109 +583,160 @@ class KeystoneAPI(wsgi.Router):
 
         # Token Operations
         auth_controller = AuthController(options)
-        mapper.connect("/v1.0/token", controller=auth_controller, action="authenticate")
+        mapper.connect("/v1.0/token", controller=auth_controller,
+                       action="authenticate")
         mapper.connect("/v1.0/token/{token_id}", controller=auth_controller,
-                        action="validate_token", conditions=dict(method=["GET"]))
+                        action="validate_token",
+                        conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/token/{token_id}", controller=auth_controller,
-                        action="delete_token", conditions=dict(method=["DELETE"]))
+                        action="delete_token",
+                        conditions=dict(method=["DELETE"]))
 
         # Tenant Operations
         tenant_controller = TenantController(options)
         mapper.connect("/v1.0/tenants", controller=tenant_controller,
-                action="create_tenant", conditions=dict(method=["POST"]))
+                    action="create_tenant", conditions=dict(method=["POST"]))
         mapper.connect("/v1.0/tenants", controller=tenant_controller,
-                action="get_tenants", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}", controller=tenant_controller,
-                action="get_tenant", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}", controller=tenant_controller,
-                action="update_tenant", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}", controller=tenant_controller,
-                action="delete_tenant", conditions=dict(method=["DELETE"]))
+                    action="get_tenants", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}",
+                    controller=tenant_controller,
+                    action="get_tenant", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}",
+                    controller=tenant_controller,
+                    action="update_tenant", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}",
+                    controller=tenant_controller,
+                    action="delete_tenant", conditions=dict(method=["DELETE"]))
 
         # Tenant Group Operations
 
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups", controller=tenant_controller,
-                action="create_tenant_group", conditions=dict(method=["POST"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups", controller=tenant_controller,
-                action="get_tenant_groups", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}", controller=tenant_controller,
-                action="get_tenant_group", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}", controller=tenant_controller,
-                action="update_tenant_group", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}", controller=tenant_controller,
-                action="delete_tenant_group", conditions=dict(method=["DELETE"]))
-        
-        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users", controller=tenant_controller,
-                action="get_users_tenant_group", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}", controller=tenant_controller,
-                action="add_user_tenant_group", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}", controller=tenant_controller,
-                action="delete_user_tenant_group", conditions=dict(method=["DELETE"]))
+        mapper.connect("/v1.0/tenant/{tenant_id}/groups",
+                    controller=tenant_controller,
+                    action="create_tenant_group",
+                    conditions=dict(method=["POST"]))
+        mapper.connect("/v1.0/tenant/{tenant_id}/groups",
+                    controller=tenant_controller,
+                    action="get_tenant_groups",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}",
+                    controller=tenant_controller,
+                    action="get_tenant_group",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}",
+                    controller=tenant_controller,
+                    action="update_tenant_group",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}",
+                    controller=tenant_controller,
+                    action="delete_tenant_group",
+                    conditions=dict(method=["DELETE"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users",
+                    controller=tenant_controller,
+                    action="get_users_tenant_group",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/\
+                                                    users/{user_id}",
+                    controller=tenant_controller,
+                    action="add_user_tenant_group",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/\
+                                                    users/{user_id}",
+                    controller=tenant_controller,
+                    action="delete_user_tenant_group",
+                    conditions=dict(method=["DELETE"]))
 
-        
         # User Operations
         user_controller = UserController(options)
-        mapper.connect("/v1.0/tenants/{tenant_id}/users", controller=user_controller,
-                action="create_user", conditions=dict(method=["POST"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users", controller=user_controller,
-                action="get_tenant_users", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/groups", controller=user_controller,
-                action="get_user_groups", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
-                action="get_user", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
-                action="update_user", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
-                action="delete_user", conditions=dict(method=["DELETE"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/password", controller=user_controller,
-                action="set_user_password", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users",
+                    controller=user_controller,
+                    action="create_user",
+                    conditions=dict(method=["POST"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users",
+                    controller=user_controller,
+                    action="get_tenant_users",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/groups",
+                    controller=user_controller,
+                    action="get_user_groups",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
+                    controller=user_controller,
+                    action="get_user",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
+                    controller=user_controller,
+                    action="update_user",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
+                    controller=user_controller,
+                    action="delete_user",
+                    conditions=dict(method=["DELETE"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/password",
+                    controller=user_controller,
+                    action="set_user_password",
+                    conditions=dict(method=["PUT"]))
 
         # Test this, test failed
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/enabled", controller=user_controller,
-                action="set_user_enabled", conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/enabled",
+                    controller=user_controller,
+                    action="set_user_enabled",
+                    conditions=dict(method=["PUT"]))
 
         #Global Groups
         groups_controller = GroupsController(options)
         mapper.connect("/v1.0/groups", controller=groups_controller,
-                action="create_group", conditions=dict(method=["POST"]))
+                    action="create_group", conditions=dict(method=["POST"]))
         mapper.connect("/v1.0/groups", controller=groups_controller,
-                action="get_groups", conditions=dict(method=["GET"]))
+                    action="get_groups", conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
-                action="get_group", conditions=dict(method=["GET"]))
+                    action="get_group", conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
-                action="update_group", conditions=dict(method=["PUT"]))
+                    action="update_group", conditions=dict(method=["PUT"]))
         mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
-                action="delete_group", conditions=dict(method=["DELETE"]))
-        
-        
-        mapper.connect("/v1.0/groups/{group_id}/users", controller=groups_controller,
-                action="get_users_global_group", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
-                action="add_user_global_group", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}", controller=groups_controller,
-                action="delete_user_global_group", conditions=dict(method=["DELETE"]))
-
-
+                    action="delete_group", conditions=dict(method=["DELETE"]))
+        mapper.connect("/v1.0/groups/{group_id}/users",
+                    controller=groups_controller,
+                    action="get_users_global_group",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}",
+                    controller=groups_controller,
+                    action="add_user_global_group",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}",
+                    controller=groups_controller,
+                    action="delete_user_global_group",
+                    conditions=dict(method=["DELETE"]))
 
         # Miscellaneous Operations
-        misc_controller = MiscController(options)
-        mapper.connect("/v1.0/", controller=misc_controller, 
-                       action="get_version_info",conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0", controller=misc_controller, 
-                       action="get_version_info",conditions=dict(method=["GET"]))
+        version_controller = VersionController(options)
+        mapper.connect("/v1.0/", controller=version_controller,
+                    action="get_version_info",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0", controller=version_controller,
+                    action="get_version_info",
+                    conditions=dict(method=["GET"]))
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
-        mapper.connect("/v1.0/idmdevguide.pdf", controller=static_files_controller, 
-                       action="get_pdf_contract",conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/identity.wadl", controller=static_files_controller, 
-                       action="get_identity_wadl",conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/xsd/{xsd}", controller=static_files_controller, 
-                       action="get_pdf_contract",conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/xsd/atom/{xsd}", controller=static_files_controller, 
-                       action="get_pdf_contract",conditions=dict(method=["GET"]))
-        
+        mapper.connect("/v1.0/idmdevguide.pdf",
+                    controller=static_files_controller,
+                    action="get_pdf_contract",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/identity.wadl",
+                    controller=static_files_controller,
+                    action="get_identity_wadl",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/xsd/{xsd}",
+                    controller=static_files_controller,
+                    action="get_pdf_contract",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/xsd/atom/{xsd}",
+                    controller=static_files_controller,
+                    action="get_pdf_contract",
+                    conditions=dict(method=["GET"]))
+
         super(KeystoneAPI, self).__init__(mapper)
+
 
 def app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating Glance API server apps"""
