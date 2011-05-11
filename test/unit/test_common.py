@@ -258,7 +258,6 @@ def delete_user_xml(tenantid, userid, auth_token):
 def add_user_tenant_group(tenantid, groupid, userid, auth_token):
     h = httplib2.Http(".cache")
     url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
-    print url
 
     resp, content = h.request(url, "PUT", body='',
                               headers={"Content-Type": "application/json",
