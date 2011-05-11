@@ -4,3 +4,7 @@
 .pydevproject/
 keystone.db
 .*.swp
+*.log
+*.pid
+pidfile
+
