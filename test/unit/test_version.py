@@ -12,6 +12,7 @@ import unittest
 from webtest import TestApp
 from test_common import *
 
+
 class version_test(unittest.TestCase):
 
     #Given _a_ to make inherited test cases in an order.
@@ -21,7 +22,7 @@ class version_test(unittest.TestCase):
         h = httplib2.Http(".cache")
         url = URL
         resp, content = h.request(url, "GET", body="",
-                                  headers={"Content-Type":"application/json"})
+                                  headers={"Content-Type": "application/json"})
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/json', content_type(resp))
 
@@ -34,6 +35,6 @@ class version_test(unittest.TestCase):
 
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', content_type(resp))
-        
+
 if __name__ == '__main__':
     unittest.main()
