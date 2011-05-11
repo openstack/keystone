@@ -1,0 +1,19 @@
+2011-05-11 17:06:00    DEBUG [server] ********************************************************************************
+2011-05-11 17:06:00    DEBUG [server] Configuration options gathered from config file:
+2011-05-11 17:06:00    DEBUG [server] /home/psaikrishna/code_git/keystone_eai/keystone_new/newtoday2/keystone/etc/keystone.conf
+2011-05-11 17:06:00    DEBUG [server] ================================================
+2011-05-11 17:06:00    DEBUG [server] bind_host                      0.0.0.0
+2011-05-11 17:06:00    DEBUG [server] bind_port                      8900
+2011-05-11 17:06:00    DEBUG [server] debug                          False
+2011-05-11 17:06:00    DEBUG [server] default_store                  file
+2011-05-11 17:06:00    DEBUG [server] log_file                       keystone.log
+2011-05-11 17:06:00    DEBUG [server] registry_host                  0.0.0.0
+2011-05-11 17:06:00    DEBUG [server] registry_port                  9191
+2011-05-11 17:06:00    DEBUG [server] verbose                        True
+2011-05-11 17:06:00    DEBUG [server] ********************************************************************************
+2011-05-11 17:06:00    DEBUG [routes.middleware] Initialized with method overriding = True, and path info altering = True
+2011-05-11 17:06:00    DEBUG [eventlet.wsgi.server] (5359) wsgi starting up on http://0.0.0.0:8900/
+2011-05-11 17:06:16    DEBUG [routes.middleware] Matched GET /v1.0/
+2011-05-11 17:06:16    DEBUG [routes.middleware] Route path: '/v1.0/', defaults: {'action': u'get_version_info', 'controller': <keystone.server.VersionController object at 0x94ed94c>}
+2011-05-11 17:06:16    DEBUG [routes.middleware] Match dict: {'action': u'get_version_info', 'controller': <keystone.server.VersionController object at 0x94ed94c>}
+2011-05-11 17:06:16    DEBUG [eventlet.wsgi.server] 127.0.0.1 - - [11/May/2011 17:06:16] "GET /v1.0/ HTTP/1.1" 200 1081 0.091914
