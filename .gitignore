@@ -4,3 +4,4 @@
 .pydevproject/
 keystone.db
 .*.swp
+keystone.log
