@@ -115,5 +115,8 @@ class validate_token(unittest.TestCase):
         self.assertEqual(401, int(resp['status']))
         self.assertEqual('application/json', content_type(resp))
 
+def run():
+    unittest.main()
+    
 if __name__ == '__main__':
     unittest.main()

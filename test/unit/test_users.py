@@ -1634,5 +1634,8 @@ class set_enabled_test(user_test):
         self.assertEqual(401, resp_val)
         self.assertEqual('application/xml', content_type(resp))
 
+def run():
+    unittest.main()
+    
 if __name__ == '__main__':
     unittest.main()

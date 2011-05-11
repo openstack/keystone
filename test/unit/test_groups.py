@@ -1037,5 +1037,9 @@ class delete_users_global_group_test(unittest.TestCase):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(respG['status']))
+
+def run():
+    unittest.main()
+    
 if __name__ == '__main__':
     unittest.main()

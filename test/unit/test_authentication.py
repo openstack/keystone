@@ -105,5 +105,8 @@ class authentication_test(unittest.TestCase):
         self.assertEqual(400, int(resp['status']))
         self.assertEqual('application/xml', content_type(resp))
 
+def run():
+    unittest.main()
+    
 if __name__ == '__main__':
     unittest.main()
