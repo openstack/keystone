@@ -45,7 +45,7 @@ class create_tenant_group_test(tenant_group_test):
         respG, contentG = create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -553,16 +553,16 @@ class update_tenant_group_test(tenant_group_test):
                                               self.tenant,
                                               str(self.auth_token))
         url = '%stenant/%s/groups/%s' % (URL, self.tenant, self.tenant_group)
-        
+
         data = '{"group": { "id":"%s","description": "A NEW description..." ,\
                 "tenantId":"%s" }}' % (self.tenant_group, self.tenant)
         #test for Content-Type = application/json
-        
+
         resp, content = h.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
-        
-        
+
+
         body = json.loads(content)
         if int(resp['status']) == 500:
             self.fail('IDM fault')
@@ -575,31 +575,31 @@ class update_tenant_group_test(tenant_group_test):
     def test_update_tenant_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = delete_tenant(self.tenant, str(self.auth_token))
-        
+
         resp, content = create_tenant(self.tenant, str(self.auth_token))
-        
+
         resp, content = delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             str(self.auth_token))
-        
+
         respG, contentG = create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        
+
         url = '%stenant/%s/groups/%s' % (URL, self.tenant , self.tenant_group)
-        
+
         data = '<group xmlns="http://docs.openstack.org/idm/api/v1.0" \
              tenantId="%s" id="%s"> \
              <description>A NEW description...</description> \
              </group>' % (self.tenant, self.tenant_group)
-        
+
         #test for Content-Type = application/json
         resp, content = h.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.auth_token,
                                          "ACCEPT": "application/xml"})
-        
-        
+
+
         body = etree.fromstring(content)
         desc = body.find("{http://docs.openstack.org/idm/api/v1.0}description")
 
@@ -749,7 +749,7 @@ class delete_tenant_group_test(tenant_group_test):
 
 
 class add_user_tenant_group_test(tenant_group_test):
-    
+
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
         self.tenant = 'test_tenant'
@@ -765,35 +765,37 @@ class add_user_tenant_group_test(tenant_group_test):
                                                    self.tenant_group,
                                                    self.user,
                                                    str(self.auth_token))
-        
+
         respG, contentG = delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
         resp, content = delete_tenant(self.tenant, self.auth_token)
-        
-        
+
+
     def test_add_user_tenant_group(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
+
         respG, contentG = create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
+
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, str(self.auth_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
             self.fail('Failed due to %d' % int(respG['status']))
-        
-    
+
+
     def test_add_user_tenant_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -806,15 +808,15 @@ class add_user_tenant_group_test(tenant_group_test):
                                                     self.tenant_group,
                                                     self.user,
                                                     str(self.auth_token))
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
             self.fail('Failed due to %d' % int(respG['status']))
-        
-    
+
+
     def test_add_user_tenant_group_conflict(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -829,13 +831,13 @@ class add_user_tenant_group_test(tenant_group_test):
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, str(self.auth_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
-    
+
     def test_add_user_tenant_group_conflict_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -850,13 +852,13 @@ class add_user_tenant_group_test(tenant_group_test):
         respG, contentG = add_user_tenant_group_xml(self.tenant, self.tenant_group,
                                                 self.user, str(self.auth_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
-        
+
     def test_add_user_tenant_group_unauthorized(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -865,16 +867,16 @@ class add_user_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.token)
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_add_user_tenant_group_unauthorized_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -883,16 +885,16 @@ class add_user_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group_xml(self.tenant, self.tenant_group,
                                                 self.user, self.token)
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_add_user_tenant_group_forbidden(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -901,16 +903,16 @@ class add_user_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.disabled_token)
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_add_user_tenant_group_forbidden_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -919,19 +921,19 @@ class add_user_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group_xml(self.tenant, self.tenant_group,
                                                 self.user, self.disabled_token)
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
 
 class get_users_tenant_group_test(tenant_group_test):
-    
+
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
         self.tenant = 'test_tenant'
@@ -947,21 +949,21 @@ class get_users_tenant_group_test(tenant_group_test):
                                                    self.tenant_group,
                                                    self.user,
                                                    str(self.auth_token))
-        
+
         respG, contentG = delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
         resp, content = delete_tenant(self.tenant, self.auth_token)
-           
+
     def test_get_users_tenant_group(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         respG, contentG = create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        
+
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
@@ -970,14 +972,14 @@ class get_users_tenant_group_test(tenant_group_test):
         respG, contentG = get_user_tenant_group(self.tenant, self.tenant_group,
                                                 str(self.auth_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(respG['status']))
-        
-    
+
+
     def test_get_users_tenant_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -990,7 +992,7 @@ class get_users_tenant_group_test(tenant_group_test):
                                                     self.tenant_group,
                                                     self.user,
                                                     str(self.auth_token))
-        respG, contentG = get_user_tenant_group_xml(self.tenant, 
+        respG, contentG = get_user_tenant_group_xml(self.tenant,
                                                     self.tenant_group,
                                                     str(self.auth_token)
                                                 )
@@ -999,8 +1001,8 @@ class get_users_tenant_group_test(tenant_group_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(respG['status']))
-        
-        
+
+
     def test_get_users_tenant_group_unauthorized(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1009,20 +1011,20 @@ class get_users_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.auth_token)
-        
+
         respG, contentG = get_user_tenant_group(self.tenant, self.tenant_group,
                                                 str(self.token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_get_users_tenant_group_unauthorized_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1031,20 +1033,20 @@ class get_users_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.auth_token)
-        respG, contentG = get_user_tenant_group_xml(self.tenant, 
+        respG, contentG = get_user_tenant_group_xml(self.tenant,
                                                     self.tenant_group,
                                                     str(self.token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_get_users_tenant_group_forbidden(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1053,20 +1055,20 @@ class get_users_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.auth_token)
-        respG, contentG = get_user_tenant_group(self.tenant, 
+        respG, contentG = get_user_tenant_group(self.tenant,
                                                 self.tenant_group,
                                                 str(self.disabled_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_get_users_tenant_group_forbidden_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1075,10 +1077,10 @@ class get_users_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.auth_token)
-        respG, contentG = get_user_tenant_group_xml(self.tenant, 
+        respG, contentG = get_user_tenant_group_xml(self.tenant,
                                                     self.tenant_group,
                                                     str(self.disabled_token)
                                                 )
@@ -1087,7 +1089,7 @@ class get_users_tenant_group_test(tenant_group_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_get_users_tenant_group_expired(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1096,19 +1098,19 @@ class get_users_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.auth_token)
         respG, contentG = get_user_tenant_group(self.tenant, self.tenant_group,
                                                 str(self.exp_auth_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_get_users_tenant_group_expired_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1117,10 +1119,10 @@ class get_users_tenant_group_test(tenant_group_test):
                                               str(self.auth_token))
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, self.auth_token)
-        respG, contentG = get_user_tenant_group_xml(self.tenant, 
+        respG, contentG = get_user_tenant_group_xml(self.tenant,
                                                     self.tenant_group,
                                                     str(self.exp_auth_token)
                                                 )
@@ -1129,9 +1131,9 @@ class get_users_tenant_group_test(tenant_group_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
-class delete_users_tenant_group_test(tenant_group_test):  
-    
+
+class delete_users_tenant_group_test(tenant_group_test):
+
     def test_delete_user_tenant_group(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1143,19 +1145,19 @@ class delete_users_tenant_group_test(tenant_group_test):
         respG, contentG = add_user_tenant_group(self.tenant, self.tenant_group,
                                                 self.user, str(self.auth_token)
                                                 )
-        respG, contentG = delete_user_tenant_group(self.tenant, 
+        respG, contentG = delete_user_tenant_group(self.tenant,
                                                    self.tenant_group,
-                                                   self.user, 
+                                                   self.user,
                                                    str(self.auth_token)
                                                 )
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, int(respG['status']))
-        
-    
+
+
     def test_delete_user_tenant_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
@@ -1172,37 +1174,37 @@ class delete_users_tenant_group_test(tenant_group_test):
                                                     self.tenant_group,
                                                     self.user,
                                                     str(self.auth_token))
-        
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, int(respG['status']))
-    
+
     def test_delete_user_tenant_group_notfound(self):
         h = httplib2.Http(".cache")
-        
-        respG, contentG = delete_user_tenant_group(self.tenant, 
+
+        respG, contentG = delete_user_tenant_group(self.tenant,
                                                    self.tenant_group,
-                                                   'NonExistinguser', 
+                                                   'NonExistinguser',
                                                    str(self.auth_token)
                                                 )
-        
+
         if int(respG['status']) == 500:
             self.fail('IDM fault')
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(respG['status']))
-        
+
     def test_delete_user_tenant_group_notfound_xml(self):
         h = httplib2.Http(".cache")
-        
-        respG, contentG = delete_user_tenant_group_xml(self.tenant, 
+
+        respG, contentG = delete_user_tenant_group_xml(self.tenant,
                                                    self.tenant_group,
-                                                   'NonExistinguser', 
+                                                   'NonExistinguser',
                                                    str(self.auth_token)
                                                 )
-        
+
         if int(respG['status']) == 500:
             self.fail('IDM fault')
         elif int(respG['status']) == 503:
