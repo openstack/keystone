@@ -61,8 +61,7 @@ class validate_token(unittest.TestCase):
                                            self.tenant)
         resp, content = h.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.exp_auth_token}
-                                  )
+                                         "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
