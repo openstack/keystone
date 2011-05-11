@@ -444,9 +444,9 @@ class UserController(wsgi.Controller):
                              req.environ.get("SERVER_PORT"),
                              req.environ['PATH_INFO'])
 
-        groups = service.get_user_groups(get_auth_token(),
+        groups = service.get_user_groups(get_auth_token(req),
                                         tenant_id,user_id, marker, limit,url)
-        return send_result(200, groups)
+        return send_result(200, req, groups)
     
     @wrap_error
     def get_user(self, req, tenant_id, user_id):

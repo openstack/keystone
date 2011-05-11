@@ -669,18 +669,35 @@ def user_get_by_tenant(id, tenant_id, session=None):
         session = get_session()
     user_tenant = session.query(models.UserTenantAssociation).filter_by(
     tenant_id=tenant_id, user_id=id).first()
-
     return user_tenant
 
-def user_delete_tenant(id, tenantId, session=None):
+def user_get_by_group(id, session=None):
+    if not session:
+        session = get_session()
+    user_group = session.query(models.Group).filter_by(tenant_id=id).all()
+    return user_group
+
+def user_delete_tenant(id, tenant_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        user_ref = user_get_by_tenant(id, tenantId, session)
-        session.delete(user_ref)
-        user_ref = user_get(id, session)
-        session.delete(user_ref)
-        
+        user_tenant_ref = user_get_by_tenant(id, tenant_id, session)
+        print user_tenant_ref
+        session.delete(user_tenant_ref)
+        user_group_ref = user_get_by_group(tenant_id,session)
+        print user_group_ref
+        if user_group_ref is not None:
+            for user_group in user_group_ref:
+                group_users=session.query(models.UserGroupAssociation).filter_by( \
+                                         user_id=id, group_id = user_group.id).all()
+                for group_user in group_users:
+                    session.delete(group_user)
+        user_tenant_ref= session.query(models.UserTenantAssociation).filter_by( \
+                         user_id=id).first()
+        if user_tenant_ref is None:
+            user_ref = user_get(id, session)
+            session.delete(user_ref)
+            
 def user_tenant_group(values):
     user_ref = models.UserGroupAssociation()
     user_ref.update(values)
