@@ -468,14 +468,14 @@ class UserController(wsgi.Controller):
     def set_user_password(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
         rval = service.set_user_password(get_auth_token(req), user_id, user, tenant_id)
-        return send_result(204, req, rval)
+        return send_result(200, req, rval)
 
-    # To be checked with Abdul not finished yet
+    
     @wrap_error
     def set_user_enabled(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
         rval = service.enable_disable_user(get_auth_token(req), user_id, user, tenant_id)
-        return send_result(204, req, rval)
+        return send_result(200, req, rval)
 
 
 
@@ -618,6 +618,8 @@ class KeystoneAPI(wsgi.Router):
                 action="create_user", conditions=dict(method=["POST"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users", controller=user_controller,
                 action="get_tenant_users", conditions=dict(method=["GET"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/groups", controller=user_controller,
+                action="get_user_groups", conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,
                 action="get_user", conditions=dict(method=["GET"]))
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}", controller=user_controller,

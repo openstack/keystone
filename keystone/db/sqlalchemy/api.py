@@ -62,12 +62,14 @@ def tenant_get_page_markers(marker,limit,session=None):
                         models.Tenant.id).first()
     last = session.query(models.Tenant).order_by(\
                         models.Tenant.id.desc()).first()
+    if first is None :
+        return (None, None)
     if marker is None:
         marker=first.id
-    next=session.query(models.Tenant).filter("id > :marker").params(\
+    next = session.query(models.Tenant).filter("id > :marker").params(\
                     marker = '%s' % marker).order_by(\
                     models.Tenant.id).limit(limit).all()
-    prev=session.query(models.Tenant).filter("id < :marker").params(\
+    prev = session.query(models.Tenant).filter("id < :marker").params(\
                     marker = '%s' % marker).order_by(\
                     models.Tenant.id.desc()).limit(int(limit)).all()
     if len(next) == 0:
@@ -76,19 +78,19 @@ def tenant_get_page_markers(marker,limit,session=None):
         for t in next:
             next=t
     if len(prev) == 0:
-        prev=first
+        prev = first
     else:
         for t in prev:
-            prev=t
+            prev = t
     if prev.id == marker:
         prev = None
     else:
-        prev=prev.id
+        prev = prev.id
     if next.id == last.id:
         next = None
     else:
         next = next.id
-    return (prev,next)
+    return (prev, next)
 
 
 def tenant_is_empty(id, session=None):
@@ -172,24 +174,24 @@ def tenant_group_get_page_markers(tenantId, marker,limit,session=None):
         return (None,None)
     if marker is None:
         marker = first.id
-    next=session.query(models.Group).filter("id > :marker").params(\
+    next = session.query(models.Group).filter("id > :marker").params(\
                     marker = '%s' % marker).filter_by(\
                     tenant_id=tenantId).order_by(\
                     models.Group.id).limit(limit).all()
-    prev=session.query(models.Group).filter("id < :marker").params(\
+    prev = session.query(models.Group).filter("id < :marker").params(\
                     marker = '%s' % marker).filter_by(\
                     tenant_id=tenantId).order_by(\
                     models.Group.id.desc()).limit(int(limit)).all()
     if len(next) == 0:
-        next=last
+        next = last
     else:
         for t in next:
-            next=t
+            next = t
     if len(prev) == 0:
-        prev=first
+        prev = first
     else:
         for t in prev:
-            prev=t
+            prev = t
     if prev.id == marker:
         prev = None
     else:
@@ -216,7 +218,7 @@ def tenant_group_delete(id,tenant_id, session=None):
         tenantgroup_ref = tenant_group_get(id,tenant_id, session)
         session.delete(tenantgroup_ref)
 
-def user_get_by_group(user_id, group_id, session=None):
+def get_user_by_group(user_id, group_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.UserGroupAssociation).filter_by(
@@ -235,7 +237,7 @@ def user_tenant_group_delete(id, group_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        usertenantgroup_ref = user_get_by_group(id, group_id, session)
+        usertenantgroup_ref = get_user_by_group(id, group_id, session)
         session.delete(usertenantgroup_ref)
 
 
@@ -297,6 +299,8 @@ def users_tenant_group_get_page_markers(group_id, marker,limit,session=None):
                         models.User.id).first()
     last = session.query(models.User).order_by(\
                         models.User.id.desc()).first()
+    if first is None:
+        return (None, None)
     if marker is None:
         marker = first.id
     next = session.query(user).join(
@@ -345,60 +349,7 @@ def group_users(id, session=None):
     result = session.query(models.User).filter_by(
         group_id=id)
     return result
-"""
-def users_tenant_group_get_page(group_id, marker,limit,session=None):
-    if not session:
-        session = get_session()
 
-    if marker:
-        return session.query(models.User).filter_by(\
-                            group_id=group_id).filter("id>:marker").params(\
-                            marker = '%s' % marker).order_by\
-                            (models.User.id.desc()).limit(limit).all()
-    else:
-        return session.query(models.User).filter_by(\
-                            group_id=group_id).order_by(\
-                            models.User.id.desc()).limit(limit).all()
-
-
-
-def users_tenant_group_get_page_markers(group_id, marker,limit,session=None):
-    if not session:
-        session = get_session()
-    first = session.query(models.User).order_by(\
-                        models.User.id).first()
-    last = session.query(models.User).order_by(\
-                        models.User.id.desc()).first()
-    if marker is None:
-        marker=first.id
-    next=session.query(models.User).filter_by(\
-                    group_id=group_id).filter("id > :marker").params(\
-                    marker = '%s' % marker).order_by(\
-                    models.User.id).limit(limit).all()
-    prev=session.query(models.User).filter_by(\
-                    group_id=group_id).filter("id < :marker").params(\
-                    marker = '%s' % marker).order_by(\
-                    models.User.id.desc()).limit(int(limit)).all()
-    if len(next) == 0:
-        next=last
-    else:
-        for t in next:
-            next=t
-    if len(prev) == 0:
-        prev=first
-    else:
-        for t in prev:
-            prev=t
-    if prev.id == marker:
-        prev = None
-    else:
-        prev=prev.id
-    if next.id == last.id:
-        next = None
-    else:
-        next = next.id
-    return (prev,next)
-"""
 
 def group_get_all(session=None):
     if not session:
@@ -427,6 +378,8 @@ def group_get_page_markers(marker,limit,session=None):
                         models.Group.id).first()
     last = session.query(models.Group).order_by(\
                         models.Group.id.desc()).first()
+    if first is None:
+        return (None, None)
     if marker is None:
         marker=first.id
     next=session.query(models.Group).filter("id > :marker").params(\
@@ -542,14 +495,16 @@ def users_get_by_tenant_get_page_markers(tenant_id, marker, limit, session=None)
                         join((uta, uta.user_id == user.id)).\
                         filter(uta.tenant_id == tenant_id).\
                         order_by(user.id.desc()).first()
+    if first is None:
+        return (None, None)
     if marker is None:
         marker = first.id
-    next, nextuta = session.query(user, uta).join((uta, uta.user_id == user.id)).\
+    next = session.query(user, uta).join((uta, uta.user_id == user.id)).\
                     filter(uta.tenant_id == tenant_id).\
-                    filter("id >= :marker").params(
-                    marker='%s' % marker).order_by(
-                    user.id).limit(int(limit) + 1).all()
-    prev, prevuta = session.query(user, uta).join((uta, uta.user_id == user.id)).\
+                    filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(user.id).\
+                    limit(int(limit)).all()
+    prev = session.query(user, uta).join((uta, uta.user_id == user.id)).\
                     filter(uta.tenant_id == tenant_id).\
                     filter("id < :marker").params(
                     marker='%s' % marker).order_by(
@@ -617,6 +572,8 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
                         join((uga, uga.group_id == group.id)).\
                         filter(uga.user_id == user_id).\
                         order_by(group.id.desc()).first()
+    if first is None:
+        return (None, None)
     if marker is None:
         marker = first.id
     next = session.query(group, uga).join(
@@ -682,10 +639,10 @@ def user_delete_tenant(id, tenant_id, session=None):
         session = get_session()
     with session.begin():
         user_tenant_ref = user_get_by_tenant(id, tenant_id, session)
-        print user_tenant_ref
+        
         session.delete(user_tenant_ref)
         user_group_ref = user_get_by_group(tenant_id,session)
-        print user_group_ref
+        
         if user_group_ref is not None:
             for user_group in user_group_ref:
                 group_users=session.query(models.UserGroupAssociation).filter_by( \
@@ -698,17 +655,3 @@ def user_delete_tenant(id, tenant_id, session=None):
             user_ref = user_get(id, session)
             session.delete(user_ref)
             
-def user_tenant_group(values):
-    user_ref = models.UserGroupAssociation()
-    user_ref.update(values)
-    user_ref.save()
-    return user_ref
-
-
-def user_tenant_group_delete(id, group_id, session=None):
-    if not session:
-        session = get_session()
-    with session.begin():
-        usertenantgroup_ref = user_get_by_group(id, group_id, session)
-        session.delete(usertenantgroup_ref)
-

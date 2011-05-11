@@ -216,7 +216,7 @@ class User_Update(object):
         if self.password:
             dom.set("password",self.password)
         if self.group is not None:
-            print '78'
+            
             for group in self.group:
                 dom.append(group.to_dom())
         return dom
