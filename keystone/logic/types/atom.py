@@ -14,6 +14,7 @@
 # limitations under the License.
 from lxml import etree
 
+
 class Link(object):
     "An atom link"
 
@@ -23,8 +24,7 @@ class Link(object):
         self.link_type = link_type
         self.hreflang = hreflang
         self.title = title
-    
-    
+
     def to_dict(self):
         links = {}
         if self.link_type:
@@ -33,16 +33,16 @@ class Link(object):
             links["hreflang"] = self.hreflang
         if self.title:
             links["title"] = self.title
-        
+
         links["rel"] = self.rel
         links["href"] = self.href
         return {'links': links}
-    
+
     def to_dom(self):
-        ATOM_NAMESPACE ="http://www.w3.org/2005/Atom"
+        ATOM_NAMESPACE = "http://www.w3.org/2005/Atom"
         ATOM = "{%s}" % ATOM_NAMESPACE
-        NSMAP = {'atom' : ATOM_NAMESPACE}
-        dom = etree.Element(ATOM+"link", nsmap=NSMAP)
+        NSMAP = {'atom': ATOM_NAMESPACE}
+        dom = etree.Element(ATOM + "link", nsmap=NSMAP)
         if self.link_type:
             dom.set("link_type", self.link_type)
         if self.link_type:

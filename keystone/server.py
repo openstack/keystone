@@ -66,13 +66,16 @@ import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
 import keystone.common.template as template
 
-# Shall give [app:server paste value from conf file ]
 logger = logging.getLogger('keystone.server')
 
 VERSION_STATUS = "ALPHA"
 VERSION_DATE = "2011-04-23T00:00:00Z"
 
 service = serv.IDMService()
+
+"""
+General Functions for the server.py use
+"""
 
 
 def is_xml_response(req):
@@ -96,9 +99,7 @@ def wrap_error(func):
     @functools.wraps(func)
     def check_error(*args, **kwargs):
         try:
-
             return func(*args, **kwargs)
-
         except Exception as err:
             if isinstance(err, fault.IDMFault):
                 return send_error(err.code, kwargs['req'], err)
@@ -110,16 +111,13 @@ def wrap_error(func):
 
 
 def get_normalized_request_content(model, req):
-    """initialize a model from json/xml contents of request body"""
+    """Initialize a model from json/xml contents of request body"""
 
     if  req.content_type == "application/xml":
-
         ret = model.from_xml(req.body)
     elif req.content_type == "application/json":
-
         ret = model.from_json(req.body)
     else:
-
         raise fault.IDMFault("I don't understand the content type ", code=415)
     return ret
 
@@ -172,6 +170,10 @@ def send_result(code, req, result):
 
 
 class StaticFilesController(wsgi.Controller):
+    """
+        Static Files Controller -
+        Controller for contract documents
+    """
 
     def __init__(self, options):
         self.options = options
@@ -205,7 +207,11 @@ class StaticFilesController(wsgi.Controller):
                               mimetype="application/xml")
 
 
-class MiscController(wsgi.Controller):
+class VersionController(wsgi.Controller):
+    """
+        Version Controller -
+        Controller for version related methods
+    """
 
     def __init__(self, options):
         self.options = options
@@ -234,6 +240,10 @@ class MiscController(wsgi.Controller):
 
 
 class AuthController(wsgi.Controller):
+    """
+        Auth Controller -
+        Controller for token related operations
+    """
 
     def __init__(self, options):
         self.options = options
@@ -264,6 +274,10 @@ class AuthController(wsgi.Controller):
 
 
 class TenantController(wsgi.Controller):
+    """
+        Tenant Controller -
+        Controller for Tenant and Tenant Group related operations
+    """
 
     def __init__(self, options):
         self.options = options
@@ -309,7 +323,6 @@ class TenantController(wsgi.Controller):
         rval = service.delete_tenant(get_auth_token(req), tenant_id)
         return send_result(204, req, rval)
 
-    # Tenant Group Methods
     @wrap_error
     def create_tenant_group(self, req, tenant_id):
         group = get_normalized_request_content(tenants.Group, req)
@@ -390,6 +403,10 @@ class TenantController(wsgi.Controller):
 
 
 class UserController(wsgi.Controller):
+    """
+        User Controller -
+        Controller for User related operations
+    """
 
     def __init__(self, options):
         self.options = options
@@ -461,7 +478,6 @@ class UserController(wsgi.Controller):
                 user_id, user, tenant_id)
         return send_result(204, req, rval)
 
-    # To be checked with Abdul not finished yet
     @wrap_error
     def set_user_enabled(self, req, user_id, tenant_id):
         user = get_normalized_request_content(users.User_Update, req)
@@ -471,9 +487,12 @@ class UserController(wsgi.Controller):
 
 
 class GroupsController(wsgi.Controller):
+    """
+        Groups Controller -
+        Controller for Group related operations
+    """
 
     def __init__(self, options):
-
         self.options = options
 
     @wrap_error
@@ -682,11 +701,11 @@ class KeystoneAPI(wsgi.Router):
                     conditions=dict(method=["DELETE"]))
 
         # Miscellaneous Operations
-        misc_controller = MiscController(options)
-        mapper.connect("/v1.0/", controller=misc_controller,
+        version_controller = VersionController(options)
+        mapper.connect("/v1.0/", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0", controller=misc_controller,
+        mapper.connect("/v1.0", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
 

@@ -94,8 +94,8 @@ class AuthProtocol(object):
                 # return 401 indicating we need Basic Auth credentials.
                 return HTTPUnauthorized("Authentication required",
                                         [('WWW-Authenticate',
-                                          'Basic realm="Use guest/guest"')]
-                                       )(env, start_response)
+                                        'Basic realm="Use guest/guest"')])\
+                                                (env, start_response)
         else:
             # Claims were provided - validate them
             import base64
@@ -108,8 +108,8 @@ class AuthProtocol(object):
                     # Reject request (or ask for valid claims)
                     return HTTPUnauthorized("Authentication required",
                                 [('WWW-Authenticate',
-                                'Basic realm="Use guest/guest"')]
-                                )(env, start_response)
+                                'Basic realm="Use guest/guest"')])\
+                                        (env, start_response)
                 else:
                     # Claims are valid, forward request
                     _decorate_request_headers("X_IDENTITY_STATUS", "Invalid",

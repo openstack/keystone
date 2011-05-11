@@ -13,10 +13,13 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
+""" Version file for the  python daemon script """
+
 KEYSTONE_VERSION = ['1', '0']
 MAJOR, MINOR = KEYSTONE_VERSION
 
-FINAL = True   # This becomes true at Release Candidate time
+FINAL = True
 
 
 def canonical_version_string():
@@ -28,4 +31,3 @@ def version_string():
         return canonical_version_string()
     else:
         return '%s-dev' % (canonical_version_string(),)
-
