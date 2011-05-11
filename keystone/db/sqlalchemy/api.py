@@ -167,8 +167,11 @@ def tenant_group_get_page_markers(tenantId, marker,limit,session=None):
                         models.Group.id).first()
     last = session.query(models.Group).filter_by(tenant_id=tenantId).order_by(\
                         models.Group.id.desc()).first()
+    
+    if first is None:
+        return (None,None)
     if marker is None:
-        marker=first.id
+        marker = first.id
     next=session.query(models.Group).filter("id > :marker").params(\
                     marker = '%s' % marker).filter_by(\
                     tenant_id=tenantId).order_by(\
@@ -288,20 +291,26 @@ def users_tenant_group_get_page(group_id, marker, limit, session=None):
 def users_tenant_group_get_page_markers(group_id, marker,limit,session=None):
     if not session:
         session = get_session()
+    uga = aliased(models.UserGroupAssociation)
+    user = aliased(models.User)
     first = session.query(models.User).order_by(\
                         models.User.id).first()
     last = session.query(models.User).order_by(\
                         models.User.id.desc()).first()
     if marker is None:
         marker = first.id
-    next = session.query(models.User).filter_by(\
-                    group_id=group_id).filter("id > :marker").params(\
-                    marker = '%s' % marker).order_by(\
-                    models.User.id).limit(limit).all()
-    prev=session.query(models.User).filter_by(\
-                    group_id = group_id).filter("id < :marker").params(\
-                    marker = '%s' % marker).order_by(\
-                    models.User.id.desc()).limit(int(limit)).all()
+    next = session.query(user).join(
+                            (uga, uga.user_id == user.id)).\
+                            filter(uga.group_id == group_id).\
+                            filter("id > :marker").params(\
+                            marker = '%s' % marker).order_by(\
+                            user.id).limit(limit).all()
+    prev= session.query(user).join(
+                            (uga, uga.user_id == user.id)).\
+                            filter(uga.group_id == group_id).\
+                            filter("id < :marker").params(\
+                            marker = '%s' % marker).order_by(\
+                            user.id.desc()).limit(int(limit)).all()
     if len(next) == 0:
         next = last
     else:
@@ -336,7 +345,7 @@ def group_users(id, session=None):
     result = session.query(models.User).filter_by(
         group_id=id)
     return result
-
+"""
 def users_tenant_group_get_page(group_id, marker,limit,session=None):
     if not session:
         session = get_session()
@@ -389,7 +398,7 @@ def users_tenant_group_get_page_markers(group_id, marker,limit,session=None):
     else:
         next = next.id
     return (prev,next)
-
+"""
 
 def group_get_all(session=None):
     if not session:
@@ -535,19 +544,19 @@ def users_get_by_tenant_get_page_markers(tenant_id, marker, limit, session=None)
                         order_by(user.id.desc()).first()
     if marker is None:
         marker = first.id
-    next = session.query(user, uta).join((uta, uta.user_id == user.id)).\
+    next, nextuta = session.query(user, uta).join((uta, uta.user_id == user.id)).\
                     filter(uta.tenant_id == tenant_id).\
                     filter("id >= :marker").params(
                     marker='%s' % marker).order_by(
                     user.id).limit(int(limit) + 1).all()
-    prev = session.query(user, uta).join((uta, uta.user_id == user.id)).\
+    prev, prevuta = session.query(user, uta).join((uta, uta.user_id == user.id)).\
                     filter(uta.tenant_id == tenant_id).\
                     filter("id < :marker").params(
                     marker='%s' % marker).order_by(
                     user.id.desc()).limit(int(limit)).all()
     next_len = len(next)
     prev_len = len(prev)
-    print next_len, prev_len
+    
     if next_len == 0:
         next = last
     else:
@@ -626,7 +635,7 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
                             group.id).limit(int(limit) + 1).all()
     next_len = len(next)
     prev_len = len(prev)
-    print next_len, prev_len
+    
     if next_len == 0:
         next = last
     else:
