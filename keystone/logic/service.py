@@ -271,11 +271,11 @@ class IDMService(object):
             raise fault.ItemNotFoundFault("The tenant group not found")
 
         if group_id != group.group_id:
-                raise fault.BadRequestFault("Wrong Data Provided,
+                raise fault.BadRequestFault("Wrong Data Provided,\
                                             Group id not matching")
 
         if str(tenant_id) != str(group.tenant_id):
-                raise fault.BadRequestFault("Wrong Data Provided,
+                raise fault.BadRequestFault("Wrong Data Provided,\
                                             Tenant id not matching ")
 
         values = {'desc': group.description}
