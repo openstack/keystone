@@ -21,9 +21,9 @@ def get_token(user, pswd, kind='', tenant_id=None):
                                         "password": pswd}}
     else:
         body = {"passwordCredentials": {"username": user,
-                                        "password": pswd, 
+                                        "password": pswd,
                                         "tenantId": tenant_id}}
-        
+
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json"})
     content = json.loads(content)

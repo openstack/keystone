@@ -2,8 +2,7 @@ import os
 import sys
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(
-    os.getcwd(), '..', '..', 'keystone'))
-)
+    os.getcwd(), '..', '..', 'keystone')))
 from queryext.exthandler import UrlExtensionFilter
 import unittest
 
@@ -39,7 +38,8 @@ class UrlExtensionFilterTest(unittest.TestCase):
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
     def test_extension_overrides_header(self):
-        env = {'PATH_INFO': '/v1.0/someresource.json', 'HTTP_ACCEPT': 'application/xml'}
+        env = {'PATH_INFO': '/v1.0/someresource.json',
+                'HTTP_ACCEPT': 'application/xml'}
         self.filter(env, _start_response)
         self.assertEqual('/v1.0/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])

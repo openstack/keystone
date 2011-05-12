@@ -7,6 +7,7 @@ import unittest
 import httplib2
 import test_common as utils
 
+
 class version_test(unittest.TestCase):
 
     #Given _a_ to make inherited test cases in an order.
@@ -26,8 +27,6 @@ class version_test(unittest.TestCase):
                                            "ACCEPT": "application/xml"})
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
-
-
 
 if __name__ == '__main__':
     unittest.main()
