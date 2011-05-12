@@ -543,7 +543,8 @@ class delete_global_group_test(global_group_test):
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_global_group(self):
-        resp, content = utils.create_tenant(self.globaltenant, str(self.auth_token))
+        resp, content = utils.create_tenant(self.globaltenant,
+                                            str(self.auth_token))
         respG, contentG = utils.create_tenant_group('test_global_group_delete',
                                               self.globaltenant,
                                               str(self.auth_token))
@@ -555,11 +556,13 @@ class delete_global_group_test(global_group_test):
 
     def test_delete_global_group_xml(self):
         resp, content = utils.create_tenant_xml(self.globaltenant,
-                                          str(self.auth_token))
-        respG, contentG = utils.create_tenant_group_xml('test_global_group_delete',
+                                                str(self.auth_token))
+        respG, contentG = utils.create_tenant_group_xml(\
+                                                  'test_global_group_delete',
                                                   self.globaltenant,
                                                   str(self.auth_token))
-        respG, contentG = utils.delete_global_group_xml('test_global_group_delete',
+        respG, contentG = utils.delete_global_group_xml(\
+                                                  'test_global_group_delete',
                                                   str(self.auth_token))
         resp, content = utils.delete_tenant_xml(self.globaltenant,
                                           str(self.auth_token))

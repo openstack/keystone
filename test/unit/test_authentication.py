@@ -11,6 +11,7 @@ from lxml import etree
 
 import test_common  as utils
 
+
 class authentication_test(unittest.TestCase):
 
     def setUp(self):

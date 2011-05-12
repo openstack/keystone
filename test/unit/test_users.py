@@ -18,6 +18,7 @@ from test_common import get_password, get_email, get_none_token
 from test_common import get_non_existing_token, delete_user, delete_user_xml
 from test_common import create_user, create_user_xml, handle_user_resp
 
+
 class user_test(unittest.TestCase):
 
     def setUp(self):
