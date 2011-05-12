@@ -4,13 +4,9 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
 import unittest
-from webtest import TestApp
 import httplib2
-import json
-from lxml import etree
-import unittest
-from webtest import TestApp
-from test_common import *
+import test_common as utils
+
 
 class version_test(unittest.TestCase):
 
@@ -18,22 +14,19 @@ class version_test(unittest.TestCase):
     #here to call below method will call as last test case
 
     def test_a_get_version_json(self):
-        h = httplib2.Http(".cache")
-        url = URL
-        resp, content = h.request(url, "GET", body="",
-                                  headers={"Content-Type":"application/json"})
+        header = httplib2.Http(".cache")
+        resp, content = header.request(utils.URL, "GET", body="",
+                                  headers={"Content-Type": "application/json"})
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/json', content_type(resp))
+        self.assertEqual('application/json', utils.content_type(resp))
 
     def test_a_get_version_xml(self):
-        h = httplib2.Http(".cache")
-        url = URL
-        resp, content = h.request(url, "GET", body="",
+        header = httplib2.Http(".cache")
+        resp, content = header.request(utils.URL, "GET", body="",
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
-
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/xml', content_type(resp))
-        
+        self.assertEqual('application/xml', utils.content_type(resp))
+
 if __name__ == '__main__':
     unittest.main()

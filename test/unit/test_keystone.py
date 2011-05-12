@@ -1,9 +1,11 @@
-#TODO (India Team) Need to modify this script
 import logging
 import os
 import unittest
-
-MODULE_EXTENSIONS = set('.py .pyc .pyo'.split())
+from lxml import etree
+MODULE_EXTENSIONS = set('.py'.split())
+TEST_FILES = ['test_authentication.py', 'test_keystone.py', 'test_tenants.py',
+              'test_common.py', 'test_users.py','test_tenant_groups.py',
+              'test_token.py', 'test_version.py', 'test_groups.py']
 
 def unit_test_extractor(tup, path, filenames):
     """Pull ``unittest.TestSuite``s from modules in path
@@ -16,17 +18,19 @@ def unit_test_extractor(tup, path, filenames):
     relpath = os.path.relpath(path, package_path)
     relpath_pieces = relpath.split(os.sep)
 
-    if relpath_pieces[0] == '.': # Base directory.
-        relpath_pieces.pop(0) # Otherwise, screws up module name.
+    if relpath_pieces[0] == '.':  # Base directory.
+        relpath_pieces.pop(0)  # Otherwise, screws up module name.
     elif not any(os.path.exists(os.path.join(path, '__init__' + ext))
             for ext in MODULE_EXTENSIONS):
-        return # Not a package directory and not the base directory, reject.
+        return  # Not a package directory and not the base directory, reject.
 
     logging.info('Base: %s', '.'.join(relpath_pieces))
     for filename in filenames:
-        base, ext = os.path.splitext(filename)
-        if ext not in MODULE_EXTENSIONS: # Not a Python module.
+        if filename not in TEST_FILES:
             continue
+        base, ext = os.path.splitext(filename)
+        #if ext not in MODULE_EXTENSIONS  :  # Not a Python module.
+        #    continue
         logging.info('Module: %s', base)
         module_name = '.'.join(relpath_pieces + [base])
         logging.info('Importing from %s', module_name)
@@ -34,6 +38,7 @@ def unit_test_extractor(tup, path, filenames):
         module_suites = unittest.defaultTestLoader.loadTestsFromModule(module)
         logging.info('Got suites: %s', module_suites)
         suites += module_suites
+
 
 def get_test_suites(path):
     """:return: Iterable of suites for the packages/modules
@@ -50,5 +55,4 @@ if __name__ == '__main__':
     package_path = os.path.dirname(os.path.abspath(__file__))
     suites = get_test_suites(package_path)
     for suite in suites:
-        unittest.TextTestRunner(verbosity=2).run(suite)
-
+        unittest.TextTestRunner(verbosity=1).run(suite)

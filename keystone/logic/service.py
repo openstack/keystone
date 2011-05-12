@@ -51,17 +51,26 @@ class IDMService(object):
         # Look for an existing token, or create one,
         # TODO: Handle tenant/token search
         #
-        dtoken = db_api.token_for_user(duser.id)
+        if not credentials.tenant_id:
+            dtoken = db_api.token_for_user(duser.id)
+        else:
+            dtoken = db_api.token_for_user_tenant(duser.id, credentials.tenant_id)
         if not dtoken or dtoken.expires < datetime.now():
             dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
+
             if not duser.tenants:
                 raise fault.IDMFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
-            dtoken.tenant_id = duser.tenants[0].tenant_id
+            if not credentials.tenant_id and db_api.user_get_by_tenant(duser.id, credentials.tenant_id):
+                raise fault.IDMFault("Error: user %s is not associated "
+                                     "with a tenant! %s" % (duser.id,
+                                                    credentials.tenant_id))
+                dtoken.tenant_id = credentials.tenant_id
+            else:
+                dtoken.tenant_id = duser.tenants[0].tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
-
             db_api.token_create(dtoken)
 
         return self.__get_auth_data(dtoken, duser)
@@ -80,6 +89,7 @@ class IDMService(object):
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
         return self.__get_auth_data(token, user)
+
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_token(admin_token)
@@ -116,6 +126,7 @@ class IDMService(object):
 
         return tenant
 
+
     ##
     ##    GET Tenants with Pagination
     ##
@@ -136,8 +147,6 @@ class IDMService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
-
-
         return tenants.Tenants(ts, links)
 
     def get_tenant(self, admin_token, tenant_id):
@@ -146,7 +155,6 @@ class IDMService(object):
         dtenant = db_api.tenant_get(tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-
         return tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
 
     def update_tenant(self, admin_token, tenant_id, tenant):
@@ -159,11 +167,8 @@ class IDMService(object):
         dtenant = db_api.tenant_get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
-
         values = {'desc': tenant.description, 'enabled': tenant.enabled}
-
         db_api.tenant_update(tenant_id, values)
-
         return tenants.Tenant(dtenant.id, tenant.description, tenant.enabled)
 
     def delete_tenant(self, admin_token, tenant_id):
@@ -209,9 +214,7 @@ class IDMService(object):
         dtenant.id = group.group_id
         dtenant.desc = group.description
         dtenant.tenant_id = tenant
-
         db_api.tenant_group_create(dtenant)
-
         return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
 
     def get_tenant_groups(self, admin_token, tenantId, marker, limit, url):
@@ -849,7 +852,13 @@ class IDMService(object):
         if len(duser.tenants) == 0:
             raise fault.IDMFault("Strange: user %s is not associated "
                                  "with a tenant!" % duser.id)
-        user = auth.User(duser.id, duser.tenants[0].tenant_id, groups)
+        if not dtoken.tenant_id and \
+            db_api.user_get_by_tenant(duser.id, dtoken.tenant_id):
+            raise fault.IDMFault("Error: user %s is not associated "
+                                 "with a tenant! %s" % (duser.id,
+                                                dtoken.tenant_id))
+
+        user = auth.User(duser.id, dtoken.tenant_id, groups)
         return auth.AuthData(token, user)
 
     def __validate_token(self, token_id, admin=True):
