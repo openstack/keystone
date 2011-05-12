@@ -5,8 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
 import unittest
 import httplib2
-from test_common import URL, content_type
-
+import test_common as utils
 
 class version_test(unittest.TestCase):
 
@@ -15,18 +14,18 @@ class version_test(unittest.TestCase):
 
     def test_a_get_version_json(self):
         header = httplib2.Http(".cache")
-        resp, content = header.request(URL, "GET", body="",
+        resp, content = header.request(utils.URL, "GET", body="",
                                   headers={"Content-Type": "application/json"})
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/json', content_type(resp))
+        self.assertEqual('application/json', utils.content_type(resp))
 
     def test_a_get_version_xml(self):
         header = httplib2.Http(".cache")
-        resp, content = header.request(URL, "GET", body="",
+        resp, content = header.request(utils.URL, "GET", body="",
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual('application/xml', content_type(resp))
+        self.assertEqual('application/xml', utils.content_type(resp))
 
 
 
