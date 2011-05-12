@@ -3,7 +3,9 @@ import os
 import unittest
 from lxml import etree
 MODULE_EXTENSIONS = set('.py'.split())
-
+TEST_FILES = ['test_authentication.py', 'test_keystone.py', 'test_tenants.py',
+              'test_common.py', 'test_users.py','test_tenant_groups.py',
+              'test_token.py', 'test_version.py', 'test_groups.py']
 
 def unit_test_extractor(tup, path, filenames):
     """Pull ``unittest.TestSuite``s from modules in path
@@ -24,9 +26,11 @@ def unit_test_extractor(tup, path, filenames):
 
     logging.info('Base: %s', '.'.join(relpath_pieces))
     for filename in filenames:
-        base, ext = os.path.splitext(filename)
-        if ext not in MODULE_EXTENSIONS:  # Not a Python module.
+        if filename not in TEST_FILES:
             continue
+        base, ext = os.path.splitext(filename)
+        #if ext not in MODULE_EXTENSIONS  :  # Not a Python module.
+        #    continue
         logging.info('Module: %s', base)
         module_name = '.'.join(relpath_pieces + [base])
         logging.info('Importing from %s', module_name)
