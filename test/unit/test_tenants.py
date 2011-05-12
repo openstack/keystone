@@ -4,20 +4,24 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
 import unittest
-from webtest import TestApp
 import httplib2
 import json
 from lxml import etree
-import unittest
-from webtest import TestApp
-from test_common import *
+from test_common import URL, get_token, get_user
+from test_common import get_userdisabled, get_auth_token
+from test_common import get_exp_auth_token, get_disabled_token, create_tenant
+from test_common import create_tenant_xml, delete_tenant, delete_tenant_xml
+
+
+
+
 
 
 class tenant_test(unittest.TestCase):
 
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
-        self.tenant = get_tenant()
+        self.tenant = 'test_tenant'
         self.user = get_user()
         self.userdisabled = get_userdisabled()
         self.auth_token = get_auth_token()
@@ -31,10 +35,8 @@ class tenant_test(unittest.TestCase):
 class create_tenant_test(tenant_test):
 
     def test_tenant_create(self):
-        resp, content = delete_tenant('test_tenant', str(self.auth_token))
-        resp, content = create_tenant('test_tenant', str(self.auth_token))
-        self.tenant = 'test_tenant'
-
+        resp, content = delete_tenant(self.tenant, str(self.auth_token))
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -45,52 +47,43 @@ class create_tenant_test(tenant_test):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_xml(self):
-        resp, content = delete_tenant_xml('test_tenant', str(self.auth_token))
-        resp, content = create_tenant_xml('test_tenant', str(self.auth_token))
-        self.tenant = 'test_tenant'
+        resp, content = delete_tenant_xml(self.tenant, str(self.auth_token))
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-
         if int(resp['status']) not in (200, 201):
-
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_again(self):
 
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp['status']))
-        if int(resp['status']) == 200:
-            self.tenant = content['tenant']['id']
-
+        
     def test_tenant_create_again_xml(self):
 
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
-        if int(resp['status']) == 200:
-            self.tenant = content.get("id")
-
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp['status']))
-        if int(resp['status']) == 200:
-            self.tenant = content.get("id")
+        
 
     def test_tenant_create_forbidden_token(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
@@ -98,7 +91,7 @@ class create_tenant_test(tenant_test):
         body = {"tenant": {"id": self.tenant,
                            "description": "A description ...",
                            "enabled": True}}
-        resp, content = h.request(url, "POST", body=json.dumps(body),
+        resp, content = header.request(url, "POST", body=json.dumps(body),
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.token})
 
@@ -109,8 +102,8 @@ class create_tenant_test(tenant_test):
         self.assertEqual(401, int(resp['status']))
 
     def test_tenant_create_forbidden_token_xml(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
@@ -121,7 +114,7 @@ class create_tenant_test(tenant_test):
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.token,
                                            "ACCEPT": "application/xml"})
@@ -133,19 +126,17 @@ class create_tenant_test(tenant_test):
         self.assertEqual(401, int(resp['status']))
 
     def test_tenant_create_expired_token(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
-
         url = '%stenants' % (URL)
         body = {"tenant": {"id": self.tenant,
                            "description": "A description ...",
                            "enabled": True}}
-        resp, content = h.request(url, "POST", body=json.dumps(body),
+        resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
-
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -153,8 +144,8 @@ class create_tenant_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
     def test_tenant_create_expired_token_xml(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
@@ -166,7 +157,7 @@ class create_tenant_test(tenant_test):
             <description>A description...</description> \
             </tenant>' % self.tenant
 
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -178,8 +169,8 @@ class create_tenant_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
     def test_tenant_create_missing_token(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
@@ -187,7 +178,7 @@ class create_tenant_test(tenant_test):
         body = {"tenant": {"id": self.tenant,
                            "description": "A description ...",
                            "enabled": True}}
-        resp, content = h.request(url, "POST", body=json.dumps(body),
+        resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
 
         if int(resp['status']) == 500:
@@ -197,23 +188,20 @@ class create_tenant_test(tenant_test):
         self.assertEqual(401, int(resp['status']))
 
     def test_tenant_create_missing_token_xml(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
-
         url = '%stenants' % (URL)
-
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
-
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -221,8 +209,8 @@ class create_tenant_test(tenant_test):
         self.assertEqual(401, int(resp['status']))
 
     def test_tenant_create_disabled_token(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
@@ -230,7 +218,7 @@ class create_tenant_test(tenant_test):
         body = '{"tenant": { "id": "%s", \
                 "description": "A description ...", "enabled"\
                 :true  } }' % self.tenant
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.disabled_token})
 
@@ -241,23 +229,21 @@ class create_tenant_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
     def test_tenant_create_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
-
         url = '%stenants' % (URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
-
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -265,8 +251,8 @@ class create_tenant_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
     def test_tenant_create_invalid_token(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
@@ -274,7 +260,7 @@ class create_tenant_test(tenant_test):
         body = '{"tenant": { "id": "%s", \
                 "description": "A description ...", "enabled"\
                 :true  } }' % self.tenant
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": 'nonexsitingtoken'})
 
@@ -285,8 +271,8 @@ class create_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
     def test_tenant_create_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
-        resp, content = create_tenant_xml("test_tenant", str(self.auth_token))
+        header = httplib2.Http(".cache")
+        resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
@@ -297,7 +283,7 @@ class create_tenant_test(tenant_test):
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
-        resp, content = h.request(url, "POST", body=body,
+        resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": 'nonexsitingtoken',
                                            "ACCEPT": "application/xml"})
@@ -312,11 +298,11 @@ class create_tenant_test(tenant_test):
 class get_tenants_test(tenant_test):
 
     def test_get_tenants(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
@@ -326,11 +312,11 @@ class get_tenants_test(tenant_test):
         self.assertEqual(200, int(resp['status']))
 
     def test_get_tenants_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -341,11 +327,11 @@ class get_tenants_test(tenant_test):
         self.assertEqual(200, int(resp['status']))
 
     def test_get_tenants_unauthorized_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.token})
         if int(resp['status']) == 500:
@@ -355,11 +341,11 @@ class get_tenants_test(tenant_test):
         self.assertEqual(401, int(resp['status']))
 
     def test_get_tenants_unauthorized_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.token,
                                            "ACCEPT": "application/xml"})
@@ -370,11 +356,11 @@ class get_tenants_test(tenant_test):
         self.assertEqual(401, int(resp['status']))
 
     def test_get_tenants_exp_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
@@ -384,11 +370,11 @@ class get_tenants_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
     def test_get_tenants_exp_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -402,11 +388,11 @@ class get_tenants_test(tenant_test):
 class get_tenant_test(tenant_test):
 
     def test_get_tenant(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, self.tenant)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
@@ -416,11 +402,11 @@ class get_tenant_test(tenant_test):
         self.assertEqual(200, int(resp['status']))
 
     def test_get_tenant_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, self.tenant)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -431,11 +417,11 @@ class get_tenant_test(tenant_test):
         self.assertEqual(200, int(resp['status']))
 
     def test_get_tenant_bad(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, 'tenant_bad')
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
@@ -445,11 +431,11 @@ class get_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
     def test_get_tenant_bad_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, 'tenant_bad')
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -460,11 +446,11 @@ class get_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
     def test_get_tenant_not_found(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/NonexistingID' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
@@ -474,11 +460,11 @@ class get_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
     def test_get_tenant_not_found_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/NonexistingID' % (URL)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -492,13 +478,13 @@ class get_tenant_test(tenant_test):
 class update_tenant_test(tenant_test):
 
     def test_update_tenant(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, self.tenant)
         data = '{"tenant": { "description": "A NEW description..." ,\
                 "enabled":true }}'
         #test for Content-Type = application/json
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         body = json.loads(content)
@@ -507,11 +493,11 @@ class update_tenant_test(tenant_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual(int(self.tenant), int(body['tenant']['id']))
+        self.assertEqual(self.tenant, body['tenant']['id'])
         self.assertEqual('A NEW description...', body['tenant']['description'])
 
     def test_update_tenant_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant_xml(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
@@ -521,7 +507,7 @@ class update_tenant_test(tenant_test):
              </tenant>'
 
         #test for Content-Type = application/json
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -532,18 +518,18 @@ class update_tenant_test(tenant_test):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
-        self.assertEqual(int(self.tenant), int(body.get('id')))
+        self.assertEqual(self.tenant, body.get('id'))
         self.assertEqual('A NEW description...', desc.text)
 
     def test_update_tenant_bad(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, self.tenant)
         data = '{"tenant": { "description_bad": "A NEW description...",\
                 "enabled":true  }}'
         #test for Content-Type = application/json
 
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
@@ -553,7 +539,7 @@ class update_tenant_test(tenant_test):
         self.assertEqual(400, int(resp['status']))
 
     def test_update_tenant_bad_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (URL, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
@@ -562,7 +548,7 @@ class update_tenant_test(tenant_test):
              <description_bad>A NEW description...</description> \
              </tenant>'
         #test for Content-Type = application/json
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -573,13 +559,13 @@ class update_tenant_test(tenant_test):
         self.assertEqual(400, int(resp['status']))
 
     def test_update_tenant_not_found(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/NonexistingID' % (URL)
         data = '{"tenant": { "description": "A NEW description...",\
                 "enabled":true  }}'
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body=data,
+        resp, content = header.request(url, "GET", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
@@ -589,7 +575,7 @@ class update_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
     def test_update_tenant_not_found_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/NonexistingID' % (URL)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
@@ -598,7 +584,7 @@ class update_tenant_test(tenant_test):
              <description_bad>A NEW description...</description> \
              </tenant>'
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body=data,
+        resp, content = header.request(url, "GET", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -637,5 +623,8 @@ class delete_tenant_test(tenant_test):
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
+def run():
+    unittest.main()
+    
 if __name__ == '__main__':
     unittest.main()

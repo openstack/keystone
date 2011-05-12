@@ -1,9 +1,8 @@
-#TODO (India Team) Need to modify this script
 import logging
 import os
 import unittest
-
-MODULE_EXTENSIONS = set('.py .pyc .pyo'.split())
+from lxml import etree
+MODULE_EXTENSIONS = set('.py'.split())
 
 
 def unit_test_extractor(tup, path, filenames):
@@ -52,4 +51,4 @@ if __name__ == '__main__':
     package_path = os.path.dirname(os.path.abspath(__file__))
     suites = get_test_suites(package_path)
     for suite in suites:
-        unittest.TextTestRunner(verbosity=2).run(suite)
+        unittest.TextTestRunner(verbosity=1).run(suite)

@@ -8,10 +8,15 @@ from webtest import TestApp
 import httplib2
 import json
 from lxml import etree
-import unittest
-from webtest import TestApp
-from test_common import *
 
+
+from test_common import URL, get_token, get_tenant, get_user
+from test_common import get_userdisabled, get_auth_token
+from test_common import get_exp_auth_token, get_disabled_token
+from test_common import delete_token, content_type, get_token_xml
+from test_common import get_password, get_email, get_none_token
+from test_common import get_non_existing_token, delete_user, delete_user_xml
+from test_common import create_user, create_user_xml, handle_user_resp
 
 class user_test(unittest.TestCase):
 
@@ -153,11 +158,11 @@ class create_user_test(user_test):
 class get_user_test(user_test):
 
     def test_a_user_get_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -165,11 +170,11 @@ class get_user_test(user_test):
         self.assertEqual(200, resp_val)
 
     def test_a_user_get_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -179,12 +184,12 @@ class get_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_get_expired_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -192,12 +197,12 @@ class get_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_a_user_get_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -207,12 +212,12 @@ class get_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_get_disabled_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
@@ -220,12 +225,12 @@ class get_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_a_user_get_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
@@ -235,12 +240,12 @@ class get_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_get_missing_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -248,12 +253,12 @@ class get_user_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_a_user_get_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -263,12 +268,12 @@ class get_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_get_invalid_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -276,12 +281,12 @@ class get_user_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_a_user_get_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
@@ -291,11 +296,11 @@ class get_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_get_disabled_user(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant,
                                          self.userdisabled)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -304,10 +309,10 @@ class get_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_a_user_get_disabled_user_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.userdisabled)
 
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -317,10 +322,10 @@ class get_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_get_disabled_tenant(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, '0000', self.userdisabled)
 
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -328,10 +333,10 @@ class get_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_a_user_get_disabled_tenant_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, '0000', self.userdisabled)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "GET", body='',
+        resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -344,12 +349,12 @@ class get_user_test(user_test):
 class delete_user_test(user_test):
 
     def test_a_user_delete_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='{}',
+        resp, content = header.request(url, "DELETE", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -360,11 +365,11 @@ class delete_user_test(user_test):
         self.assertEqual(204, resp_val)
 
     def test_a_user_delete_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "DELETE", body='{}',
+        resp, content = header.request(url, "DELETE", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -376,12 +381,12 @@ class delete_user_test(user_test):
         self.assertEqual(204, resp_val)
 
     def test_a_user_delete_expired_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='{}',
+        resp, content = header.request(url, "DELETE", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -392,12 +397,12 @@ class delete_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_a_user_delete_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='',
+        resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -410,12 +415,12 @@ class delete_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_delete_missing_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='{}',
+        resp, content = header.request(url, "DELETE", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -426,12 +431,12 @@ class delete_user_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_a_user_delete_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='',
+        resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -444,12 +449,12 @@ class delete_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_delete_invalid_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='{}',
+        resp, content = header.request(url, "DELETE", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -460,12 +465,12 @@ class delete_user_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_a_user_delete_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.user, self.tenant,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='',
+        resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
@@ -478,10 +483,10 @@ class delete_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_a_user_delete_disabled_tenant(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, '0000', self.userdisabled)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='{}',
+        resp, content = header.request(url, "DELETE", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -493,10 +498,10 @@ class delete_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_a_user_delete_disabled_tenant_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, '0000', self.userdisabled)
         #test for Content-Type = application/json
-        resp, content = h.request(url, "DELETE", body='',
+        resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -513,9 +518,9 @@ class delete_user_test(user_test):
 class get_users_test(user_test):
 
     def test_users_get_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -526,9 +531,9 @@ class get_users_test(user_test):
         self.assertEqual(200, resp_val)
 
     def test_users_get_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -541,9 +546,9 @@ class get_users_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_get_expired_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                        "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -554,9 +559,9 @@ class get_users_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_users_get_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -569,9 +574,9 @@ class get_users_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_get_disabled_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
@@ -582,9 +587,9 @@ class get_users_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_users_get_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
@@ -597,9 +602,9 @@ class get_users_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_get_missing_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -610,9 +615,9 @@ class get_users_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_users_get_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -625,9 +630,9 @@ class get_users_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_get_invalid_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -638,9 +643,9 @@ class get_users_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_users_get_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, self.tenant)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
@@ -653,9 +658,9 @@ class get_users_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_get_disabled_tenant_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, "0000")
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -667,9 +672,9 @@ class get_users_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_users_get_disabled_tenant_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users' % (URL, "0000")
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -685,9 +690,9 @@ class get_users_test(user_test):
 class get_users_group_test(user_test):
 
     def test_users_group_get_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -698,9 +703,9 @@ class get_users_group_test(user_test):
         self.assertEqual(200, resp_val)
 
     def test_users_group_get_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -713,9 +718,9 @@ class get_users_group_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_group_get_expired_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -726,9 +731,9 @@ class get_users_group_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_users_group_get_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -741,9 +746,9 @@ class get_users_group_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_group_get_disabled_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                        "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
@@ -754,9 +759,9 @@ class get_users_group_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_users_group_get_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
@@ -769,9 +774,9 @@ class get_users_group_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_group_get_missing_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -782,9 +787,9 @@ class get_users_group_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_users_group_get_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -797,9 +802,9 @@ class get_users_group_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_group_get_invalid_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -810,9 +815,9 @@ class get_users_group_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_users_group_get_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, self.tenant, self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
@@ -825,9 +830,9 @@ class get_users_group_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_users_group_get_disabled_tenant_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, "0000", self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -839,9 +844,9 @@ class get_users_group_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_users_group_get_disabled_tenant_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/groups' % (URL, "0000", self.user)
-        resp, content = h.request(url, "GET", body='{}',
+        resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -857,14 +862,14 @@ class get_users_group_test(user_test):
 class update_user_test(user_test):
 
     def test_user_update_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
 
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
 
         data = '{"user": { "email": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -880,14 +885,14 @@ class update_user_test(user_test):
                         content['user']['email'])
 
     def test_user_update_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -904,10 +909,10 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_user_disabled_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.userdisabled)
         data = '{"user": { "email": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -919,12 +924,12 @@ class update_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_update_user_disabled_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.userdisabled)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -938,12 +943,12 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_email_conflict_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '{"user": { "email": "joe@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -955,14 +960,14 @@ class update_user_test(user_test):
         self.assertEqual(409, resp_val)
 
     def test_user_update_email_conflict_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="joe@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.auth_token,
                                          "ACCEPT": "application/xml"})
@@ -976,12 +981,12 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_bad_request_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '{"user_bad": { "bad": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -994,14 +999,14 @@ class update_user_test(user_test):
         self.assertEqual(400, resp_val)
 
     def test_user_update_bad_request_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1016,10 +1021,10 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_expired_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '{"user": { "email": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -1031,12 +1036,12 @@ class update_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_update_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.exp_auth_token,
                                          "ACCEPT": "application/xml"})
@@ -1050,10 +1055,10 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_disabled_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '{"user": { "email": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
@@ -1065,12 +1070,12 @@ class update_user_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_update_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.disabled_token,
                                          "ACCEPT": "application/xml"})
@@ -1084,11 +1089,11 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_invalid_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
 
         data = '{"user": { "email": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -1101,12 +1106,12 @@ class update_user_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_user_update_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
@@ -1120,10 +1125,10 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_update_missing_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '{"user": { "email": "updatedjoeuser@rackspace.com"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -1135,12 +1140,12 @@ class update_user_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_user_update_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 email="updatedjoeuser@rackspace.com" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -1157,12 +1162,12 @@ class update_user_test(user_test):
 class set_password_test(user_test):
 
     def test_user_password_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '{"user": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -1176,14 +1181,14 @@ class set_password_test(user_test):
         self.assertEqual('p@ssword', content['user']['password'])
 
     def test_user_password_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1199,11 +1204,11 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_password_user_disabled_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' \
                        % (URL, self.tenant, self.userdisabled)
         data = '{"user": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/json",
                                     "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -1215,12 +1220,12 @@ class set_password_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_password_user_disabled_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.userdisabled)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1234,12 +1239,12 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_password_bad_request_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '{"user_bad": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -1252,14 +1257,14 @@ class set_password_test(user_test):
         self.assertEqual(400, resp_val)
 
     def test_user_password_bad_request_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1274,10 +1279,10 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_password_expired_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '{"user": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -1289,12 +1294,12 @@ class set_password_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_password_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1308,10 +1313,10 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_password_disabled_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '{"user": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                           "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
@@ -1323,12 +1328,12 @@ class set_password_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_password_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.disabled_token,
                                          "ACCEPT": "application/xml"})
@@ -1342,10 +1347,10 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_password_invalid_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '{"user": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -1357,12 +1362,12 @@ class set_password_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_user_password_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
@@ -1376,10 +1381,10 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_password_missing_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '{"user": { "password": "p@ssword"}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -1391,12 +1396,12 @@ class set_password_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_user_password_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="p@ssword" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -1413,12 +1418,12 @@ class set_password_test(user_test):
 class set_enabled_test(user_test):
 
     def test_user_enabled_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = {"user": {"enabled": True}}
-        resp, content = h.request(url, "PUT", body=json.dumps(data),
+        resp, content = header.request(url, "PUT", body=json.dumps(data),
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -1433,14 +1438,14 @@ class set_enabled_test(user_test):
         self.assertEqual(True, content['user']['enabled'])
 
     def test_user_enabled_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 enabled="true" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1456,12 +1461,12 @@ class set_enabled_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_enabled_bad_request_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '{"user_bad": { "enabled": true}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
@@ -1474,14 +1479,14 @@ class set_enabled_test(user_test):
         self.assertEqual(400, resp_val)
 
     def test_user_enabled_bad_request_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp, content = create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 enabled="true" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
@@ -1496,10 +1501,10 @@ class set_enabled_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_enabled_expired_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '{"user": { "enabled": true}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
@@ -1511,12 +1516,12 @@ class set_enabled_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_enabled_expired_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 enabled="true" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.exp_auth_token,
                                          "ACCEPT": "application/xml"})
@@ -1530,10 +1535,10 @@ class set_enabled_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_enabled_disabled_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '{"user": { "enabled": true}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
@@ -1545,12 +1550,12 @@ class set_enabled_test(user_test):
         self.assertEqual(403, resp_val)
 
     def test_user_enabled_disabled_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 enabled="true" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
@@ -1564,10 +1569,10 @@ class set_enabled_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_enabled_invalid_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '{"user": { "enabled": true}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
@@ -1579,12 +1584,12 @@ class set_enabled_test(user_test):
         self.assertEqual(404, resp_val)
 
     def test_user_enabled_invalid_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 enabled="true" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",\
                                          "X-Auth-Token": self.invalid_token,
                                          "ACCEPT": "application/xml"})
@@ -1598,10 +1603,10 @@ class set_enabled_test(user_test):
         self.assertEqual('application/xml', content_type(resp))
 
     def test_user_enabled_missing_token_json(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '{"user": { "enabled": true}}'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
@@ -1613,12 +1618,12 @@ class set_enabled_test(user_test):
         self.assertEqual(401, resp_val)
 
     def test_user_enabled_missing_token_xml(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 enabled="true" />'
-        resp, content = h.request(url, "PUT", body=data,
+        resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
@@ -1631,5 +1636,8 @@ class set_enabled_test(user_test):
         self.assertEqual(401, resp_val)
         self.assertEqual('application/xml', content_type(resp))
 
+def run():
+    unittest.main()
+    
 if __name__ == '__main__':
     unittest.main()

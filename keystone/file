@@ -1,0 +1,242 @@
+************* Module server
+E: 67: No name 'template' in module 'keystone.common'
+F: 67: Unable to import 'keystone.common.template'
+C: 69: Invalid name "logger" (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
+C: 74: Invalid name "service" (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
+W: 78: String statement has no effect
+C: 81:is_xml_response: Missing docstring
+C: 87:get_app_root: Missing docstring
+C: 91:get_auth_token: Missing docstring
+C: 98:wrap_error: Missing docstring
+C:101:wrap_error.check_error: Missing docstring
+W:104:wrap_error.check_error: Catch "Exception"
+C:126:send_error: Missing docstring
+C:150:send_result: Missing docstring
+W:179:StaticFilesController.__init__: __init__ method from base class 'Controller' is not called
+C:183:StaticFilesController.get_pdf_contract: Missing docstring
+R:183:StaticFilesController.get_pdf_contract: Method could be a function
+C:190:StaticFilesController.get_wadl_contract: Missing docstring
+R:190:StaticFilesController.get_wadl_contract: Method could be a function
+C:197:StaticFilesController.get_xsd_contract: Missing docstring
+R:197:StaticFilesController.get_xsd_contract: Method could be a function
+C:204:StaticFilesController.get_xsd_atom_contract: Missing docstring
+R:204:StaticFilesController.get_xsd_atom_contract: Method could be a function
+W:217:VersionController.__init__: __init__ method from base class 'Controller' is not called
+C:221:VersionController.get_version_info: Missing docstring
+R:221:VersionController.get_version_info: Method could be a function
+W:249:AuthController.__init__: __init__ method from base class 'Controller' is not called
+C:254:AuthController.authenticate: Missing docstring
+C:261:AuthController.validate_token: Missing docstring
+R:261:AuthController.validate_token: Method could be a function
+C:272:AuthController.delete_token: Missing docstring
+R:272:AuthController.delete_token: Method could be a function
+W:283:TenantController.__init__: __init__ method from base class 'Controller' is not called
+C:287:TenantController.create_tenant: Missing docstring
+R:287:TenantController.create_tenant: Method could be a function
+W:308:TenantController.get_tenants: Redefining name 'tenants' from outer scope (line 63)
+C:293:TenantController.get_tenants: Missing docstring
+R:293:TenantController.get_tenants: Method could be a function
+C:312:TenantController.get_tenant: Missing docstring
+R:312:TenantController.get_tenant: Method could be a function
+C:317:TenantController.update_tenant: Missing docstring
+R:317:TenantController.update_tenant: Method could be a function
+C:323:TenantController.delete_tenant: Missing docstring
+R:323:TenantController.delete_tenant: Method could be a function
+C:328:TenantController.create_tenant_group: Missing docstring
+R:328:TenantController.create_tenant_group: Method could be a function
+C:335:TenantController.get_tenant_groups: Missing docstring
+R:335:TenantController.get_tenant_groups: Method could be a function
+C:355:TenantController.get_tenant_group: Missing docstring
+R:355:TenantController.get_tenant_group: Method could be a function
+C:361:TenantController.update_tenant_group: Missing docstring
+R:361:TenantController.update_tenant_group: Method could be a function
+C:368:TenantController.delete_tenant_group: Missing docstring
+R:368:TenantController.delete_tenant_group: Method could be a function
+W:389:TenantController.get_users_tenant_group: Redefining name 'users' from outer scope (line 66)
+C:374:TenantController.get_users_tenant_group: Missing docstring
+E:377:TenantController.get_users_tenant_group: Undefined variable 'request'
+R:374:TenantController.get_users_tenant_group: Method could be a function
+C:394:TenantController.add_user_tenant_group: Missing docstring
+R:394:TenantController.add_user_tenant_group: Method could be a function
+C:400:TenantController.delete_user_tenant_group: Missing docstring
+R:400:TenantController.delete_user_tenant_group: Method could be a function
+W:412:UserController.__init__: __init__ method from base class 'Controller' is not called
+C:416:UserController.create_user: Missing docstring
+R:416:UserController.create_user: Method could be a function
+W:435:UserController.get_tenant_users: Redefining name 'users' from outer scope (line 66)
+C:423:UserController.get_tenant_users: Missing docstring
+R:423:UserController.get_tenant_users: Method could be a function
+C:440:UserController.get_user_groups: Missing docstring
+R:440:UserController.get_user_groups: Method could be a function
+C:459:UserController.get_user: Missing docstring
+R:459:UserController.get_user: Method could be a function
+C:464:UserController.update_user: Missing docstring
+R:464:UserController.update_user: Method could be a function
+C:471:UserController.delete_user: Missing docstring
+R:471:UserController.delete_user: Method could be a function
+C:476:UserController.set_user_password: Missing docstring
+R:476:UserController.set_user_password: Method could be a function
+C:483:UserController.set_user_enabled: Missing docstring
+R:483:UserController.set_user_enabled: Method could be a function
+W:496:GroupsController.__init__: __init__ method from base class 'Controller' is not called
+C:500:GroupsController.create_group: Missing docstring
+E:501:GroupsController.create_group: Module 'keystone.logic.types.tenant' has no 'GlobalGroup' member
+R:500:GroupsController.create_group: Method could be a function
+C:507:GroupsController.get_groups: Missing docstring
+R:507:GroupsController.get_groups: Method could be a function
+C:527:GroupsController.get_group: Missing docstring
+R:527:GroupsController.get_group: Method could be a function
+C:532:GroupsController.update_group: Missing docstring
+E:533:GroupsController.update_group: Module 'keystone.logic.types.tenant' has no 'GlobalGroup' member
+R:532:GroupsController.update_group: Method could be a function
+C:539:GroupsController.delete_group: Missing docstring
+R:539:GroupsController.delete_group: Method could be a function
+W:560:GroupsController.get_users_global_group: Redefining name 'users' from outer scope (line 66)
+C:544:GroupsController.get_users_global_group: Missing docstring
+R:544:GroupsController.get_users_global_group: Method could be a function
+C:565:GroupsController.add_user_global_group: Missing docstring
+R:565:GroupsController.add_user_global_group: Method could be a function
+C:571:GroupsController.delete_user_global_group: Missing docstring
+R:571:GroupsController.delete_user_global_group: Method could be a function
+W:746:app_factory: Catch "Exception"
+W: 60: Unused import exthandler
+W: 49: Unused import HTTPBadRequest
+W: 49: Unused import HTTPConflict
+W: 43: Unused import json
+W: 48: Unused import descriptors
+W: 47: Unused import Request
+W: 49: Unused import HTTPNotFound
+W: 42: Unused import httplib
+
+
+Report
+======
+334 statements analysed.
+
+Raw metrics
+-----------
+
++----------+-------+------+---------+-----------+
+|type      |number |%     |previous |difference |
++==========+=======+======+=========+===========+
+|code      |529    |81.38 |529      |=          |
++----------+-------+------+---------+-----------+
+|docstring |63     |9.69  |63       |=          |
++----------+-------+------+---------+-----------+
+|comment   |23     |3.54  |23       |=          |
++----------+-------+------+---------+-----------+
+|empty     |35     |5.38  |35       |=          |
++----------+-------+------+---------+-----------+
+
+
+
+Duplication
+-----------
+
++-------------------------+------+---------+-----------+
+|                         |now   |previous |difference |
++=========================+======+=========+===========+
+|nb duplicated lines      |0     |0        |=          |
++-------------------------+------+---------+-----------+
+|percent duplicated lines |0.000 |0.000    |=          |
++-------------------------+------+---------+-----------+
+
+
+
+External dependencies
+---------------------
+::
+
+    keystone 
+      \-common 
+      | \-wsgi (server)
+      \-logic 
+        \-service (server)
+        \-types 
+          \-auth (server)
+          \-fault (server)
+          \-tenant (server)
+          \-user (server)
+    routes (server)
+    webob 
+      \-Request (server)
+      \-Response (server)
+      \-descriptors (server)
+      \-exc 
+        \-HTTPBadRequest (server)
+        \-HTTPConflict (server)
+        \-HTTPNotFound (server)
+
+
+
+Statistics by type
+------------------
+
++---------+-------+-----------+-----------+------------+---------+
+|type     |number |old number |difference |%documented |%badname |
++=========+=======+===========+===========+============+=========+
+|module   |1      |1          |=          |100.00      |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|class    |7      |7          |=          |100.00      |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|method   |44     |44         |=          |15.91       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|function |9      |9          |=          |22.22       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+
+
+
+Messages by category
+--------------------
+
++-----------+-------+---------+-----------+
+|type       |number |previous |difference |
++===========+=======+=========+===========+
+|convention |46     |46       |=          |
++-----------+-------+---------+-----------+
+|refactor   |36     |36       |=          |
++-----------+-------+---------+-----------+
+|warning    |21     |21       |=          |
++-----------+-------+---------+-----------+
+|error      |4      |4        |=          |
++-----------+-------+---------+-----------+
+
+
+
+Messages
+--------
+
++-----------+------------+
+|message id |occurrences |
++===========+============+
+|C0111      |44          |
++-----------+------------+
+|R0201      |36          |
++-----------+------------+
+|W0611      |8           |
++-----------+------------+
+|W0231      |6           |
++-----------+------------+
+|W0621      |4           |
++-----------+------------+
+|W0703      |2           |
++-----------+------------+
+|E1101      |2           |
++-----------+------------+
+|C0103      |2           |
++-----------+------------+
+|W0105      |1           |
++-----------+------------+
+|F0401      |1           |
++-----------+------------+
+|E0611      |1           |
++-----------+------------+
+|E0602      |1           |
++-----------+------------+
+
+
+
+Global evaluation
+-----------------
+Your code has been rated at 6.32/10 (previous run: 6.32/10)
+
