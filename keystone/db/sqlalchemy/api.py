@@ -471,6 +471,13 @@ def token_for_user(user_id, session=None):
     return result
 
 
+def token_for_user_tenant(user_id, tenant_id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.Token).filter_by(
+        user_id=user_id, tenant_id=tenant_id).order_by("expires desc").first()
+    return result
+
 def user_tenant_create(values):
     user_tenant_ref = models.UserTenantAssociation()
     user_tenant_ref.update(values)

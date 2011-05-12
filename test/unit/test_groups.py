@@ -8,8 +8,7 @@ from webtest import TestApp
 import httplib2
 import json
 from lxml import etree
-import unittest
-from webtest import TestApp
+
 from test_common import *
 
 ##

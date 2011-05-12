@@ -51,8 +51,4 @@ if __name__ == '__main__':
     package_path = os.path.dirname(os.path.abspath(__file__))
     suites = get_test_suites(package_path)
     for suite in suites:
-<<<<<<< HEAD:test/unit/test_identity.py
         unittest.TextTestRunner(verbosity=1).run(suite)
-=======
-        unittest.TextTestRunner(verbosity=2).run(suite)
->>>>>>> 7424db60b25a45e84a0fe7481d6eca5ea94e835c:test/unit/test_keystone.py

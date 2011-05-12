@@ -51,17 +51,26 @@ class IDMService(object):
         # Look for an existing token, or create one,
         # TODO: Handle tenant/token search
         #
-        dtoken = db_api.token_for_user(duser.id)
+        if not credentials.tenant_id:
+            dtoken = db_api.token_for_user(duser.id)
+        else:
+            dtoken = db_api.token_for_user_tenant(duser.id, credentials.tenant_id)
         if not dtoken or dtoken.expires < datetime.now():
             dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
+            
             if not duser.tenants:
                 raise fault.IDMFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
-            dtoken.tenant_id = duser.tenants[0].tenant_id
+            if not credentials.tenant_id and db_api.user_get_by_tenant(duser.id, credentials.tenant_id):
+                raise fault.IDMFault("Error: user %s is not associated "
+                                     "with a tenant! %s" % (duser.id, 
+                                                    credentials.tenant_id))
+                dtoken.tenant_id = credentials.tenant_id
+            else:
+                dtoken.tenant_id = duser.tenants[0].tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
-
             db_api.token_create(dtoken)
 
         return self.__get_auth_data(dtoken, duser)
@@ -849,7 +858,13 @@ class IDMService(object):
         if len(duser.tenants) == 0:
             raise fault.IDMFault("Strange: user %s is not associated "
                                  "with a tenant!" % duser.id)
-        user = auth.User(duser.id, duser.tenants[0].tenant_id, groups)
+        if not dtoken.tenant_id and \
+            db_api.user_get_by_tenant(duser.id, dtoken.tenant_id):
+            raise fault.IDMFault("Error: user %s is not associated "
+                                 "with a tenant! %s" % (duser.id, 
+                                                dtoken.tenant_id))
+        
+        user = auth.User(duser.id, dtoken.tenant_id, groups)
         return auth.AuthData(token, user)
 
     def __validate_token(self, token_id, admin=True):
