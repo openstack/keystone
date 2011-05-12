@@ -633,9 +633,5 @@ class delete_tenant_test(tenant_test):
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
-
-def run():
-    unittest.main()
-
 if __name__ == '__main__':
     unittest.main()
