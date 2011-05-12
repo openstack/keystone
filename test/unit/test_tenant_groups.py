@@ -1201,8 +1201,5 @@ class delete_users_tenant_group_test(tenant_group_test):
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
-def run():
-    unittest.main()
-    
 if __name__ == '__main__':
     unittest.main()

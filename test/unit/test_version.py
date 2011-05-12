@@ -27,7 +27,5 @@ class version_test(unittest.TestCase):
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
 
-
-
 if __name__ == '__main__':
     unittest.main()

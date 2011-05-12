@@ -31,7 +31,8 @@ class authentication_test(unittest.TestCase):
         self.assertEqual('application/json', utils.content_type(resp))
 
     def test_a_authorize_xml(self):
-        resp, content = utils.get_token_xml('joeuser', 'secrete', '', self.tenant)
+        resp, content = utils.get_token_xml('joeuser', 'secrete', '',
+                                             self.tenant)
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
 
@@ -102,9 +103,6 @@ class authentication_test(unittest.TestCase):
             self.fail('Service Not Available')
         self.assertEqual(400, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
-
-def run():
-    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()
