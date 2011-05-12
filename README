@@ -61,40 +61,7 @@ Or using pip:
 RUNNING KEYSTONE:
 -----------------
 
-<<<<<<< HEAD
 From the topdir
-=======
-During  development, you can simply run
-
-     $ bin/keystone-auth
-
-It dumps stdout and stderr onto the terminal.
-
-
-RUNNING KEYSOTNE IN AS ROOT IN PRODUCTION
----------------------------------------------
-In production, stdout and stderr need to be closed and all theoutput needs tobe redirected to a log file.
-Once the package is installed through setup tools, RPM, deb, or ebuild keystone-control is installed
-as /usr/sbin/keystone-control. Typically, it will be started a script in /etc/init.d/keystoned
-
-keystone-control can invoke keystone-auth and start the keystone daemon with
-
-     $ /usr/sbin/keystone-control auth start
-
-It writes the process id of the daemon into /var/run/keystone/keystine-auth.pid. he daemon can be stopped with
-
-     $ /usr/sbin/keystone-control auth stop
-
-keystone-control has the infrastructure to start and stop multiple servers keystone-xxx
-
-
-DEVELOPMENT OF keystone-control
--------------------------------
-
-During the  development of keystone-control can be started as a user instead of root
-
-From the topdir
->>>>>>> a0c43a05126d9cca83b58b788fbc8e24f004fb66
 
      $ bin/keystone-control --pid-file pidfile auth <start|stop|restart>
 
@@ -204,9 +171,6 @@ DATABASE SCHEMA
     CREATE TABLE user_group(user_id varchar(255),group_id varchar(255), FOREIGN KEY(user_id) REFERENCES user(id), FOREIGN KEY(group_id) REFERENCES groups(group_id));
     CREATE TABLE user_tenant(tenant_id varchar(255),user_id varchar(255),FOREIGN KEY(tenant_id) REFERENCES tenant(tenant_id),FOREIGN KEY(user_id) REFERENCES user(id));
     CREATE TABLE users(id varchar(255),password varchar(255),email varchar(255),enabled integer);
-
-
-
 
 
 
