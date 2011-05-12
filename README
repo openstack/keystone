@@ -24,44 +24,46 @@ Also included:
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
 
 
-DEPENDENCIES:
--------------
-
-* bottle
-* eventlet
-* lxml
-* Paste
-* PasteDeploy
-* PasteScript
-* SQLAlchemy
-* SQLite3
-* webob
-
-
-SETUP:
-------
-
+ENVIRONMENT & DEPENDENCIES:
+---------------------------
+see pip-requires for dependency list
+Setup:
 Install http://pypi.python.org/pypi/setuptools
-
-    sudo easy_install bottle
-    sudo easy_install eventlet
-    sudo easy_install lxml
-    sudo easy_install paste
-    sudo easy_install pastedeploy
-    sudo easy_install pastescript
-    sudo easy_install pysqlite
-    sudo easy_install sqlalchemy
-    sudo easy_install webob
-
-Or using pip:
-
+    sudo easy_install pip
     sudo pip install -r pip-requires
-
 
 RUNNING KEYSTONE:
 -----------------
 
-From the topdir
+During  development, you can simply run
+
+     $ bin/keystone-auth 
+
+It dumps stdout and stderr onto the terminal.
+
+
+RUNNING KEYSOTNE IN AS ROOT IN PRODUCTION
+---------------------------------------------
+In production, stdout and stderr need to be closed and all theoutput needs tobe redirected to a log file.
+Once the package is installed through setup tools, RPM, deb, or ebuild keystone-control is installed 
+as /usr/sbin/keystone-control. Typically, it will be started a script in /etc/init.d/keystoned
+
+keystone-control can invoke keystone-auth and start the keystone daemon with 
+
+     $ /usr/sbin/keystone-control auth start
+
+It writes the process id of the daemon into /var/run/keystone/keystine-auth.pid. he daemon can be stopped with
+ 
+     $ /usr/sbin/keystone-control auth stop
+
+keystone-control has the infrastructure to start and stop multiple servers keystone-xxx  
+
+DEVELOPMENT OF keystone-control
+-------------------------------
+
+During the  development of keystone-control can be started as a user instead of root
+
+From the topdir 
 
      $ bin/keystone-control --pid-file pidfile auth <start|stop|restart>
 
@@ -77,7 +79,6 @@ system that has keystone.conf installed in /etc/you need to disambiguate it by
 Also, keystone-control calls keystone-auth and it need to be in the PATH
 
      $ export PATH=<top_dir>/bin:$PATH
-
 
 
 RUNNING TEST SERVICE:
