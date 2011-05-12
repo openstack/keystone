@@ -60,7 +60,7 @@ Or using pip:
 RUNNING KEYSTONE:
 -----------------
 
-From the topdir 
+From the topdir
 
      $ bin/keystone-control --config-file etc/keystone.conf --pid-file=pidfile auth <start|stop|restart>
 
@@ -159,9 +159,9 @@ Once the Identity service is running, go to unit test/unit directory
     $ python test_identity.py
 
 You can run a sbuset of tests the following way
-    $ grep class test_identity.py 
+    $ grep class test_identity.py
 
-You get something like 
+You get something like
 
 
 class identity_test(unittest.TestCase):
@@ -184,7 +184,7 @@ class create_global_group_test(global_group_test):
 class create_tenant_group_test(tenant_group_test):
 
 You can choose any class you like to test
-    
+
      $ python test_identity.py delete_tenant_test
 
 For more on unit testing please refer
