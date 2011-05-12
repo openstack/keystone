@@ -15,6 +15,8 @@ from test_common import *
 ##
 ## Global Group Tests
 ##
+
+
 class global_group_test(unittest.TestCase):
 
     def setUp(self):
@@ -40,7 +42,7 @@ class create_global_group_test(global_group_test):
                                               str(self.auth_token))
         respG, contentG = create_global_group(self.global_group,
                                               str(self.auth_token))
-        
+
         if int(respG['status']) == 500:
             self.fail('IDM fault')
         elif int(respG['status']) == 503:
@@ -51,15 +53,14 @@ class create_global_group_test(global_group_test):
     def test_global_group_create_xml(self):
         respG, contentG = delete_global_group_xml(self.global_group,
                                                   str(self.auth_token))
-        
         respG, contentG = create_global_group_xml(self.global_group,
                                                   str(self.auth_token))
-        
+
         if int(respG['status']) == 500:
             self.fail('IDM fault')
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
-        
+
         if int(respG['status']) not in (200, 201):
             self.fail('Failed due to %d' % int(respG['status']))
 
@@ -73,7 +74,6 @@ class create_global_group_test(global_group_test):
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
-        
 
     def test_global_group_create_again_xml(self):
         respG, contentG = create_global_group_xml(self.global_group,
@@ -86,7 +86,6 @@ class create_global_group_test(global_group_test):
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
-        
 
     def test_global_group_create_unauthorized_token(self):
         h = httplib2.Http(".cache")
@@ -129,8 +128,8 @@ class create_global_group_test(global_group_test):
                           "description": "A description ..."}}
         resp, content = h.request(url, "POST", body=json.dumps(body),
                                   headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.exp_auth_token
-                                           })
+                                           "X-Auth-Token": \
+                                                   self.exp_auth_token})
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -190,8 +189,8 @@ class create_global_group_test(global_group_test):
                 "description": "A description ..." } }' % self.global_group
         resp, content = h.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.disabled_token
-                                           })
+                                           "X-Auth-Token": \
+                                                   self.disabled_token})
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -255,7 +254,7 @@ class get_global_groups_test(global_group_test):
                                               str(self.auth_token))
         respG, contentG = create_global_group(self.global_group,
                                               str(self.auth_token))
-        
+
         url = '%sgroups' % (URL)
         resp, content = h.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -320,8 +319,8 @@ class get_global_groups_test(global_group_test):
         #test for Content-Type = application/json
         resp, content = h.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.exp_auth_token
-                                           })
+                                           "X-Auth-Token": \
+                                                   self.exp_auth_token})
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -397,7 +396,7 @@ class get_global_group_test(global_group_test):
         h = httplib2.Http(".cache")
         respG, contentG = create_global_group_xml(self.global_group,
                                                   str(self.auth_token))
-        url = '%sgroups/%s' % (URL , 'global_group_bad')
+        url = '%sgroups/%s' % (URL, 'global_group_bad')
         #test for Content-Type = application/json
         resp, content = h.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -409,7 +408,6 @@ class get_global_group_test(global_group_test):
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
-    
 
 class update_global_groups_test(global_group_test):
 
@@ -437,7 +435,7 @@ class update_global_groups_test(global_group_test):
         h = httplib2.Http(".cache")
         respG, contentG = create_global_group(self.global_group,
                                                   str(self.auth_token))
-        
+
         url = '%sgroups/%s' % (URL, self.global_group)
         data = u'<?xml version="1.0" encoding="UTF-8"?> \
                 <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
@@ -448,7 +446,7 @@ class update_global_groups_test(global_group_test):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
-        
+
         body = etree.fromstring(content)
         desc = body.find("{http://docs.openstack.org/idm/api/v1.0}description")
         if int(resp['status']) == 500:
@@ -568,11 +566,9 @@ class delete_global_group_test(global_group_test):
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
-   
-
 
 class add_user_global_group_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
         self.tenant = get_global_tenant()
@@ -582,21 +578,17 @@ class add_user_global_group_test(unittest.TestCase):
         self.exp_auth_token = get_exp_auth_token()
         self.disabled_token = get_disabled_token()
         self.global_group = 'test_global_group'
-        
-        
 
     def tearDown(self):
         respG, contentG = delete_user_global_group(self.global_group,
                                                    self.user,
                                                    str(self.auth_token))
-        
+
         respG, contentG = delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = delete_global_group(self.global_group,
                                             self.auth_token)
-        
-        
-        
+
     def test_add_user_global_group(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -604,17 +596,16 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, str(self.auth_token)
-                                                )
-        
+                                                self.user,
+                                                str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
             self.fail('Failed due to %d' % int(respG['status']))
-        
-    
+
     def test_add_user_global_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -622,18 +613,16 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group_xml(self.global_group,
-                                                self.user, str(self.auth_token)
-                                                )
-        
-        
+                                                self.user,
+                                                str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
             self.fail('Failed due to %d' % int(respG['status']))
-        
-    
+
     def test_add_user_global_group_conflict(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -641,19 +630,18 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, str(self.auth_token)
-                                                )
-        
-        
+                                                self.user,
+                                                str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
-    
+
     def test_add_user_global_group_conflict_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -661,18 +649,18 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group_xml(self.global_group,
-                                                self.user, str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = add_user_global_group_xml(self.global_group,
-                                                self.user, str(self.auth_token)
-                                                )
-        
+                                                self.user,
+                                                str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
-        
+
     def test_add_user_global_group_unauthorized(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -680,16 +668,15 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, str(self.token)
-                                                )
-        
-        
+                                                self.user,
+                                                str(self.token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_add_user_global_group_unauthorized_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -697,15 +684,15 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group_xml(self.global_group,
-                                                self.user, str(self.token)
-                                                )
-        
+                                                    self.user,
+                                                    str(self.token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_add_user_global_group_forbidden(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -713,16 +700,15 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.disabled_token)
-                                                )
-        
+                                                self.user,
+                                                str(self.disabled_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_add_user_global_group_forbidden_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -730,18 +716,17 @@ class add_user_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group_xml(self.global_group,
-                                                self.user, 
-                                                str(self.disabled_token)
-                                                )
+                                                self.user,
+                                                str(self.disabled_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
 
 class get_users_tenant_group_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
         self.tenant = get_global_tenant()
@@ -751,18 +736,17 @@ class get_users_tenant_group_test(unittest.TestCase):
         self.exp_auth_token = get_exp_auth_token()
         self.disabled_token = get_disabled_token()
         self.global_group = 'test_global_group'
-        
-        
 
     def tearDown(self):
         respG, contentG = delete_user_global_group(self.global_group,
                                                    self.user,
                                                    str(self.auth_token))
-        
+
         respG, contentG = delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = delete_global_group(self.global_group,
-                                            self.auth_token)       
+                                            self.auth_token)
+
     def test_get_users_global_group(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -770,20 +754,17 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group(self.global_group,
-                                                str(self.auth_token)
-                                                )
-        
+                                                str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(respG['status']))
-        
-    
+
     def test_get_users_global_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -791,19 +772,16 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group_xml(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group_xml(self.global_group,
-                                                str(self.auth_token)
-                                                )
+                                                str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(respG['status']))
-        
-        
+
     def test_get_users_global_group_unauthorized(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -811,20 +789,18 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
-        
+                                                self.user,
+                                                str(self.auth_token))
+
         respG, contentG = get_user_global_group(self.global_group,
-                                                str(self.token)
-                                                )
-        
+                                                str(self.token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_get_users_global_group_unauthorized_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -832,19 +808,17 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group_xml(self.global_group,
-                                                str(self.token)
-                                                )
-        
+                                                str(self.token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
-        
+
     def test_get_users_global_group_forbidden(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -852,19 +826,17 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group(self.global_group,
-                                                str(self.disabled_token)
-                                                )
-        
+                                                str(self.disabled_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_get_users_global_group_forbidden_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -872,18 +844,16 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group_xml(self.global_group,
-                                                str(self.disabled_token)
-                                                )
+                                                str(self.disabled_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_get_users_global_group_expired(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -891,19 +861,17 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group(self.global_group,
-                                                str(self.exp_auth_token)
-                                                )
-        
+                                                str(self.exp_auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
+
     def test_get_users_global_group_expired_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -911,20 +879,19 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = get_user_global_group_xml(self.global_group,
-                                                str(self.exp_auth_token)
-                                                )
+                                                str(self.exp_auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
-    
-class delete_users_global_group_test(unittest.TestCase):  
-    
+
+
+class delete_users_global_group_test(unittest.TestCase):
+
     def setUp(self):
         self.token = get_token('joeuser', 'secrete', 'token')
         self.tenant = get_global_tenant()
@@ -934,18 +901,17 @@ class delete_users_global_group_test(unittest.TestCase):
         self.exp_auth_token = get_exp_auth_token()
         self.disabled_token = get_disabled_token()
         self.global_group = 'test_global_group'
-        
-        
 
     def tearDown(self):
         respG, contentG = delete_user_global_group(self.global_group,
                                                    self.user,
                                                    str(self.auth_token))
-        
+
         respG, contentG = delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = delete_global_group(self.global_group,
                                             self.auth_token)
+
     def test_delete_user_global_group(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -953,22 +919,19 @@ class delete_users_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
-        
+                                                self.user,
+                                                str(self.auth_token))
+
         respG, contentG = delete_user_global_group(self.global_group,
-                                                   self.user, 
-                                                   str(self.auth_token)
-                                                )
-        
+                                                   self.user,
+                                                   str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, int(respG['status']))
-        
-    
+
     def test_delete_user_global_group_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -976,19 +939,17 @@ class delete_users_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.auth_token)
-                                                )
+                                                self.user,
+                                                str(self.auth_token))
         respG, contentG = delete_user_global_group_xml(self.global_group,
-                                                   self.user, 
-                                                   str(self.auth_token)
-                                                )
+                                                   self.user,
+                                                   str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, int(respG['status']))
-    
+
     def test_delete_user_global_group_notfound(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -996,23 +957,20 @@ class delete_users_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.disabled_token)
-                                                )
+                                                self.user,
+                                                str(self.disabled_token))
         respG, contentG = delete_user_global_group(self.global_group,
-                                                   self.user, 
-                                                   str(self.auth_token)
-                                                )
+                                                   self.user,
+                                                   str(self.auth_token))
         respG, contentG = delete_user_global_group(self.global_group,
-                                                   self.user, 
-                                                   str(self.auth_token)
-                                                )
+                                                   self.user,
+                                                   str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(respG['status']))
-        
+
     def test_delete_user_global_group_notfound_xml(self):
         h = httplib2.Http(".cache")
         resp, content = create_global_group(self.global_group,
@@ -1020,18 +978,15 @@ class delete_users_global_group_test(unittest.TestCase):
         respG, contentG = create_user(self.tenant, self.user,
                                       str(self.auth_token))
         respG, contentG = add_user_global_group(self.global_group,
-                                                self.user, 
-                                                str(self.disabled_token)
-                                                )
+                                                self.user,
+                                                str(self.disabled_token))
         respG, contentG = delete_user_global_group(self.global_group,
-                                                   self.user, 
-                                                   str(self.auth_token)
-                                                )
+                                                   self.user,
+                                                   str(self.auth_token))
         respG, contentG = delete_user_global_group_xml(self.global_group,
-                                                   self.user, 
-                                                   str(self.auth_token)
-                                                )
-        
+                                                   self.user,
+                                                   str(self.auth_token))
+
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
