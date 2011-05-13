@@ -10,7 +10,7 @@ from lxml import etree
 import test_common as utils
 
 
-class tenant_test(unittest.TestCase):
+class TenantTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = 'test_tenant'
@@ -26,7 +26,7 @@ class tenant_test(unittest.TestCase):
         resp, content = utils.delete_tenant(self.tenant, self.auth_token)
 
 
-class create_tenant_test(tenant_test):
+class CreateTenantTest(TenantTest):
 
     def test_tenant_create(self):
         resp, content = utils.delete_tenant(self.tenant, str(self.auth_token))
@@ -303,7 +303,7 @@ class create_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class get_tenants_test(tenant_test):
+class GetTenantsTest(TenantTest):
 
     def test_get_tenants(self):
         header = httplib2.Http(".cache")
@@ -393,7 +393,7 @@ class get_tenants_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
 
-class get_tenant_test(tenant_test):
+class GetTenantTest(TenantTest):
 
     def test_get_tenant(self):
         header = httplib2.Http(".cache")
@@ -483,7 +483,7 @@ class get_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class update_tenant_test(tenant_test):
+class UpdateTenantTest(TenantTest):
 
     def test_update_tenant(self):
         header = httplib2.Http(".cache")
@@ -604,7 +604,7 @@ class update_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class delete_tenant_test(tenant_test):
+class DeleteTenantTest(TenantTest):
 
     def test_delete_tenant_not_found(self):
         #resp,content=utils.create_tenant("test_tenant_delete",

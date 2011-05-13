@@ -11,7 +11,7 @@ from lxml import etree
 import test_common as util
 
 
-class tenant_group_test(unittest.TestCase):
+class TenantGroupTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = util.get_tenant()
@@ -31,7 +31,7 @@ class tenant_group_test(unittest.TestCase):
         resp, content = util.delete_tenant(self.tenant, self.auth_token)
 
 
-class create_tenant_group_test(tenant_group_test):
+class CreateTenantGroupTest(TenantGroupTest):
 
     def test_tenant_group_create(self):
 
@@ -313,7 +313,7 @@ class create_tenant_group_test(tenant_group_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class get_tenant_groups_test(tenant_group_test):
+class GetTenantGroupsTest(TenantGroupTest):
 
     def test_get_tenant_groups(self):
         header = httplib2.Http(".cache")
@@ -424,7 +424,7 @@ class get_tenant_groups_test(tenant_group_test):
         self.assertEqual(403, int(resp['status']))
 
 
-class get_tenant_group_test(tenant_group_test):
+class GetTenantGroupTest(TenantGroupTest):
 
     def test_get_tenant_group(self):
         header = httplib2.Http(".cache")
@@ -540,7 +540,7 @@ class get_tenant_group_test(tenant_group_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class update_tenant_group_test(tenant_group_test):
+class UpdateTenantGroupTest(TenantGroupTest):
 
     def test_update_tenant_group(self):
         header = httplib2.Http(".cache")
@@ -706,7 +706,7 @@ class update_tenant_group_test(tenant_group_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class delete_tenant_group_test(tenant_group_test):
+class DeleteTenantGroupTest(TenantGroupTest):
 
     def test_delete_tenant_group_not_found(self):
         resp, content = util.delete_tenant_group("test_tenant_delete111",
@@ -747,7 +747,7 @@ class delete_tenant_group_test(tenant_group_test):
         self.assertEqual(204, int(resp['status']))
 
 
-class add_user_tenant_group_test(tenant_group_test):
+class AddUserTenantGroupTest(TenantGroupTest):
 
     def setUp(self):
         self.tenant = 'test_tenant'
@@ -929,7 +929,7 @@ class add_user_tenant_group_test(tenant_group_test):
         self.assertEqual(403, int(resp['status']))
 
 
-class get_users_tenant_group_test(tenant_group_test):
+class GetUsersTenantGroupTest(TenantGroupTest):
 
     def setUp(self):
         self.tenant = 'test_tenant'
@@ -1124,7 +1124,7 @@ class get_users_tenant_group_test(tenant_group_test):
         self.assertEqual(403, int(resp['status']))
 
 
-class delete_users_tenant_group_test(tenant_group_test):
+class DeleteUsersTenantGroupTest(TenantGroupTest):
 
     def test_delete_user_tenant_group(self):
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))

@@ -8,7 +8,7 @@ import httplib2
 import test_common as utils
 
 
-class validate_token(unittest.TestCase):
+class ValidateToken(unittest.TestCase):
 
     def setUp(self):
         self.tenant = utils.get_tenant()

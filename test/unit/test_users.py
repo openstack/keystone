@@ -12,7 +12,7 @@ import test_common as utils
 from test_common import URL
 
 
-class user_test(unittest.TestCase):
+class UserTest(unittest.TestCase):
 
     def setUp(self):
         self.token = utils.get_token('joeuser', 'secrete', 'token')
@@ -31,7 +31,7 @@ class user_test(unittest.TestCase):
         utils.delete_user(self.tenant, self.user, str(self.auth_token))
 
 
-class create_user_test(user_test):
+class CreateUserTest(UserTest):
 
     def test_a_user_create_json(self):
         utils.delete_user(self.tenant, self.user, str(self.auth_token))
@@ -160,7 +160,7 @@ class create_user_test(user_test):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class get_user_test(user_test):
+class GetUserTest(UserTest):
 
     def test_a_user_get(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -301,7 +301,7 @@ class get_user_test(user_test):
                           utils.content_type(resp))
 
 
-class delete_user_test(user_test):
+class DeleteUserTest(UserTest):
 
     def test_a_user_delete(self):
         utils.create_user(self.tenant, self.user,
@@ -428,7 +428,7 @@ class delete_user_test(user_test):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class get_users_test(user_test):
+class GetUsersTest(UserTest):
 
     def test_users_get(self):
         resp, content = utils.users_get_json(self.tenant, self.auth_token)
@@ -545,7 +545,7 @@ class get_users_test(user_test):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class get_users_group_test(user_test):
+class GetUsersGroupTest(UserTest):
 
     def test_users_group_get(self):
         resp, content = utils.users_group_get_json(self.tenant,
@@ -686,7 +686,7 @@ class get_users_group_test(user_test):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class update_user_test(user_test):
+class UpdateUserTest(UserTest):
 
     def test_user_update(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -924,7 +924,7 @@ class update_user_test(user_test):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class set_password_test(user_test):
+class SetPasswordTest(UserTest):
 
     def test_user_password(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -1134,7 +1134,7 @@ class set_password_test(user_test):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class set_enabled_test(user_test):
+class SetEnabledEest(UserTest):
 
     def test_user_enabled(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))

@@ -8,7 +8,7 @@ import httplib2
 import test_common as utils
 
 
-class version_test(unittest.TestCase):
+class VersionTest(unittest.TestCase):
 
     #Given _a_ to make inherited test cases in an order.
     #here to call below method will call as last test case

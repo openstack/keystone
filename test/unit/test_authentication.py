@@ -12,7 +12,7 @@ from lxml import etree
 import test_common  as utils
 
 
-class authentication_test(unittest.TestCase):
+class AuthenticationTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = utils.get_tenant()
