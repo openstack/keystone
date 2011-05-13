@@ -690,7 +690,7 @@ class update_user_test(user_test):
 
     def test_user_update(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_update_json(self.tenant, self.user,\
+        resp, content = utils.user_update_json(self.tenant, self.user,
                                                self.auth_token)
         resp_val = int(resp['status'])
         content = json.loads(content)
@@ -750,7 +750,7 @@ class update_user_test(user_test):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.tenant,
                                               self.user,
-                                              self.auth_token,\
+                                              self.auth_token,
                                               "joe@rackspace.com")
         resp_val = int(resp['status'])
         content = json.loads(content)
