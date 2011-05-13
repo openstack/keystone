@@ -432,7 +432,6 @@ class IDMService(object):
             raise fault.EmailConflictFault(
                 "Email already exists")
 
-
         duser_tenant = db_models.UserTenantAssociation()
         duser_tenant.user_id = user.user_id
         duser_tenant.tenant_id = tenant_id
