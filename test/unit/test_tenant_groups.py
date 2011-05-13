@@ -14,8 +14,9 @@ import test_common as util
 class tenant_group_test(unittest.TestCase):
 
     def setUp(self):
-        self.token = util.get_token('joeuser', 'secrete', 'token')
         self.tenant = util.get_tenant()
+        self.token = util.get_token('joeuser', 'secrete', self.tenant,
+                                    'token')
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
@@ -749,8 +750,8 @@ class delete_tenant_group_test(tenant_group_test):
 class add_user_tenant_group_test(tenant_group_test):
 
     def setUp(self):
-        self.token = util.get_token('joeuser', 'secrete', 'token')
         self.tenant = 'test_tenant'
+        self.token = util.get_token('joeuser', 'secrete', self.tenant, 'token')
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
@@ -764,7 +765,7 @@ class add_user_tenant_group_test(tenant_group_test):
                                                    self.user,
                                                    str(self.auth_token))
 
-        resp, content = util.delete_user(self.tenant, self.user,
+        resp = util.delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
@@ -931,8 +932,8 @@ class add_user_tenant_group_test(tenant_group_test):
 class get_users_tenant_group_test(tenant_group_test):
 
     def setUp(self):
-        self.token = util.get_token('joeuser', 'secrete', 'token')
         self.tenant = 'test_tenant'
+        self.token = util.get_token('joeuser', 'secrete', self.tenant, 'token')
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
@@ -946,7 +947,7 @@ class get_users_tenant_group_test(tenant_group_test):
                                                    self.user,
                                                    str(self.auth_token))
 
-        resp, content = util.delete_user(self.tenant, self.user,
+        resp = util.delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,

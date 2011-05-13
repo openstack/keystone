@@ -702,7 +702,7 @@ def user_delete_tenant(id, tenant_id, session=None):
                 for group_user in group_users:
                     session.delete(group_user)
         user_tenant_ref = session.query(models.UserTenantAssociation)\
-                            .filter_by(user_id=id).first()
+                            .filter_by(user_id=id, tenant_id=tenant_id).first()
         if user_tenant_ref is None:
             user_ref = user_get(id, session)
             session.delete(user_ref)

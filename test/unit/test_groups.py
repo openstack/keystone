@@ -19,8 +19,9 @@ import test_common as utils
 class global_group_test(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.globaltenant = utils.get_global_tenant()
+        self.token = utils.get_token('joeuser', 'secrete', self.globaltenant,
+                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
@@ -572,8 +573,9 @@ class delete_global_group_test(global_group_test):
 class add_user_global_group_test(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.tenant = utils.get_global_tenant()
+        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
+                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
@@ -586,7 +588,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                    self.user,
                                                    str(self.auth_token))
 
-        respG, contentG = utils.delete_user(self.tenant, self.user,
+        resp = utils.delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = utils.delete_global_group(self.global_group,
                                             self.auth_token)
@@ -730,8 +732,10 @@ class add_user_global_group_test(unittest.TestCase):
 class get_users_tenant_group_test(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
+        
         self.tenant = utils.get_global_tenant()
+        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
+                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
@@ -743,8 +747,7 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = utils.delete_user_global_group(self.global_group,
                                                    self.user,
                                                    str(self.auth_token))
-
-        respG, contentG = utils.delete_user(self.tenant, self.user,
+        respG = utils.delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = utils.delete_global_group(self.global_group,
                                             self.auth_token)
@@ -895,8 +898,9 @@ class get_users_tenant_group_test(unittest.TestCase):
 class delete_users_global_group_test(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.tenant = utils.get_global_tenant()
+        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
+                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
@@ -909,7 +913,7 @@ class delete_users_global_group_test(unittest.TestCase):
                                                    self.user,
                                                    str(self.auth_token))
 
-        respG, contentG = utils.delete_user(self.tenant, self.user,
+        resp = utils.delete_user(self.tenant, self.user,
                                       str(self.auth_token))
         resp, content = utils.delete_global_group(self.global_group,
                                             self.auth_token)

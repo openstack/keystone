@@ -13,8 +13,9 @@ import test_common as utils
 class tenant_test(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.tenant = 'test_tenant'
+        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
+                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()

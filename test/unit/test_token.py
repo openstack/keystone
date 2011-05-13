@@ -11,8 +11,8 @@ import test_common as utils
 class validate_token(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.tenant = utils.get_tenant()
+        self.token = utils.get_token('joeuser', 'secrete', self.tenant, 'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()

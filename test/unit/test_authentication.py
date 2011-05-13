@@ -16,7 +16,8 @@ class authentication_test(unittest.TestCase):
 
     def setUp(self):
         self.tenant = utils.get_tenant()
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
+        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
+                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
@@ -27,12 +28,12 @@ class authentication_test(unittest.TestCase):
         utils.delete_token(self.token, self.auth_token)
 
     def test_a_authorize(self):
-        resp, content = utils.get_token('joeuser', 'secrete', '')
+        resp, content = utils.get_token('joeuser', 'secrete', self.tenant)
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/json', utils.content_type(resp))
 
     def test_a_authorize_xml(self):
-        resp, content = utils.get_token_xml('joeuser', 'secrete', '',
+        resp, content = utils.get_token_xml('joeuser', 'secrete',
                                              self.tenant)
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
@@ -41,7 +42,8 @@ class authentication_test(unittest.TestCase):
         header = httplib2.Http(".cache")
         url = '%stoken' % utils.URL
         body = {"passwordCredentials": {"username": "disabled",
-                                        "password": "secrete"}}
+                                        "password": "secrete",
+                                        "tenantId" : self.tenant}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
@@ -59,7 +61,7 @@ class authentication_test(unittest.TestCase):
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="secrete" username="disabled" \
-                />'
+                tenantId="%s"/>' % self.tenant
         resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
@@ -75,7 +77,8 @@ class authentication_test(unittest.TestCase):
         header = httplib2.Http(".cache")
         url = '%stoken' % utils.URL
         body = {"passwordCredentials": {"username-w": "disabled",
-                                        "password": "secrete"}}
+                                        "password": "secrete",
+                                        "tenantId" : self.tenant}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
@@ -93,7 +96,7 @@ class authentication_test(unittest.TestCase):
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/idm/api/v1.0" \
                 password="secrete" username-w="disabled" \
-                />'
+                tenantId="%s"/>' % self.tenant
         resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
