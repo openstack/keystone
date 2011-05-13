@@ -485,6 +485,11 @@ class UserController(wsgi.Controller):
         rval = service.enable_disable_user(get_auth_token(req), user_id, user,
                                         tenant_id)
         return send_result(200, req, rval)
+    
+    @wrap_error
+    def add_user_tenant(self, req, user_id, tenant_id):
+        rval = service.add_user_tenant(get_auth_token(req), user_id, tenant_id)
+        return send_result(200, req, rval)
 
 
 class GroupsController(wsgi.Controller):
@@ -674,6 +679,10 @@ class KeystoneAPI(wsgi.Router):
         mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/password",
                     controller=user_controller,
                     action="set_user_password",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/add",
+                    controller=user_controller,
+                    action="add_user_tenant",
                     conditions=dict(method=["PUT"]))
 
         # Test this, test failed

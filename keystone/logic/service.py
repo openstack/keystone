@@ -408,7 +408,6 @@ class IDMService(object):
     #
     #   User Operations
     #
-
     def create_user(self, admin_token, tenant_id, user):
         self.__validate_token(admin_token)
 
@@ -423,6 +422,10 @@ class IDMService(object):
 
         if user.user_id == None:
             raise fault.BadRequestFault("Expecting a unique User Id")
+        
+        if db_api.user_get_by_tenant(user.user_id,tenant_id) != None:
+            raise fault.UserConflictFault(
+                "An user with that id already exists in the given tenant")
 
         if db_api.user_get(user.user_id) != None:
             raise fault.UserConflictFault(
@@ -431,21 +434,18 @@ class IDMService(object):
         if db_api.user_get_email(user.email) != None:
             raise fault.EmailConflictFault(
                 "Email already exists")
-
-
-        duser_tenant = db_models.UserTenantAssociation()
-        duser_tenant.user_id = user.user_id
-        duser_tenant.tenant_id = tenant_id
-        db_api.user_tenant_create(duser_tenant)
-
         duser = db_models.User()
         duser.id = user.user_id
         duser.password = user.password
         duser.email = user.email
         duser.enabled = user.enabled
         db_api.user_create(duser)
-
+        duser_tenant = db_models.UserTenantAssociation()
+        duser_tenant.user_id = user.user_id
+        duser_tenant.tenant_id = tenant_id
+        db_api.user_tenant_create(duser_tenant)
         return user
+    
 
     def get_tenant_users(self, admin_token, tenant_id, marker, limit, url):
         self.__validate_token(admin_token)
@@ -640,6 +640,33 @@ class IDMService(object):
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return tenants.Groups(ts, links)
+    
+    def add_user_tenant(self, admin_token, user_id, tenant_id):
+        self.__validate_token(admin_token)
+
+        dtenant = db_api.tenant_get(tenant_id)
+        print '1' * 80
+        print dtenant
+        if dtenant == None:
+            raise fault.UnauthorizedFault("Unauthorized")
+        if not dtenant.enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
+        if user_id == None:
+            raise fault.BadRequestFault("Expecting a unique User Id")
+        
+        if db_api.user_get(user_id) is None:
+            raise fault.ItemNotFoundFault(
+                "user does not exists")
+        
+        if db_api.user_get_by_tenant(user_id,tenant_id) != None:
+            raise fault.UserConflictFault(
+                "An user with that id already exists in the given tenant")
+
+        duser_tenant = db_models.UserTenantAssociation()
+        duser_tenant.user_id = user_id
+        duser_tenant.tenant_id = tenant_id
+        db_api.user_tenant_create(duser_tenant)
+        return None
 
 
     #
