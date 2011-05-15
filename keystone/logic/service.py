@@ -216,18 +216,18 @@ class IDMService(object):
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
 
-        dtenant = db_api.tenant_get(tenantId)
+        dtenant = db_api.tenant_get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
 
         ts = []
-        dtenantgroups = db_api.tenant_group_get_page(tenantId, marker, limit)
+        dtenantgroups = db_api.tenant_group_get_page(tenant_id, marker, limit)
 
         for dtenantgroup in dtenantgroups:
             ts.append(tenants.Group(dtenantgroup.id,
                                      dtenantgroup.desc,
                                      dtenantgroup.tenant_id))
-        prev, next = db_api.tenant_group_get_page_markers(tenantId, marker,
+        prev, next = db_api.tenant_group_get_page_markers(tenant_id, marker,
                                                           limit)
         links = []
         if prev:
@@ -714,7 +714,7 @@ class IDMService(object):
         if not dtenant:
             raise fault.ItemNotFoundFault("The Global tenant group not found")
         if group_id != group.group_id:
-                raise fault.BadRequestFault("Wrong Data Provided,"
+            raise fault.BadRequestFault("Wrong Data Provided,"
                                             "Group id not matching")
 
         values = {'desc': group.description}
