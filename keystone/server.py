@@ -36,13 +36,12 @@ HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
 import functools
-import logging
-import os
-import sys
 import httplib
 import json
-
+import logging
+import os
 import routes
+import sys
 from webob import Response
 from webob import Request
 from webob import descriptors

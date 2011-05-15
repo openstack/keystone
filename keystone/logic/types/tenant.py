@@ -14,9 +14,10 @@
 # limitations under the License.
 
 import json
-import keystone.logic.types.fault as fault
 from lxml import etree
 import string
+
+import keystone.logic.types.fault as fault
 
 
 class Tenant(object):

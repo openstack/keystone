@@ -17,8 +17,8 @@
 #    under the License.
 
 """
-Nova base exception handling, including decorator for re-raising
-Nova-type exceptions. SHOULD include dedicated exception logging.
+OpenStack base exception handling, including decorator for re-raising
+OpenSTack-type exceptions. SHOULD include dedicated exception logging.
 """
 
 import logging

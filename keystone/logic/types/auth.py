@@ -17,8 +17,9 @@ from datetime import datetime
 
 from abc import ABCMeta
 import json
-import keystone.logic.types.fault as fault
 from lxml import etree
+
+import keystone.logic.types.fault as fault
 
 
 class PasswordCredentials(object):

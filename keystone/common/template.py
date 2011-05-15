@@ -1,5 +1,26 @@
+#
+# Copyright (c) 2011, Marcel Hellkamp.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# original code copied from bottle.py
 
-##""" code cut and paste from bottle.py """
 
 import cgi
 import re
@@ -7,6 +28,7 @@ import os
 import functools
 import time
 from webob import Response
+
 import keystone.logic.types.fault as fault
 
 TEMPLATES = {}
@@ -15,11 +37,12 @@ TEMPLATE_PATH = ['./', './views/']
 
 class BaseTemplate(object):
     """ Base class and minimal API for template adapters """
-    extentions = ['tpl','html','thtml','stpl']
-    settings = {} #used in prepare()
-    defaults = {} #used in render()
+    extentions = ['tpl', 'html', 'thtml', 'stpl']
+    settings = {}  #used in prepare()
+    defaults = {}  #used in render()
 
-    def __init__(self, source=None, name=None, lookup=[], encoding='utf8', **settings):
+    def __init__(self, source=None, name=None, lookup=[], encoding='utf8',
+                 **settings):
         """ Create a new template.
         If the source parameter (str or buffer) is missing, the name argument
         is used to guess a template filename. Subclasses can assume that
@@ -49,7 +72,8 @@ class BaseTemplate(object):
     def search(cls, name, lookup=[]):
         """ Search name in all directories specified in lookup.
         First without, then with common extensions. Return first hit. """
-        if os.path.isfile(name): return name
+        if os.path.isfile(name):
+            return name
         for spath in lookup:
             fname = os.path.join(spath, name)
             if os.path.isfile(fname):
@@ -133,9 +157,12 @@ class SimpleTemplate(BaseTemplate):
             cline = ''
             for line in ptrbuffer:
                 for token, value in line:
-                    if token == 'TXT': cline += repr(value)
-                    elif token == 'RAW': cline += '_str(%s)' % value
-                    elif token == 'CMD': cline += '_escape(%s)' % value
+                    if token == 'TXT':
+                        cline += repr(value)
+                    elif token == 'RAW':
+                        cline += '_str(%s)' % value
+                    elif token == 'CMD':
+                        cline += '_escape(%s)' % value
                     cline +=  ', '
                 cline = cline[:-2] + '\\\n'
             cline = cline[:-2]

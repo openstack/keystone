@@ -72,7 +72,7 @@
         <xs:attribute name="rel" use="required" type="atom:relation">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>TODO</html:p>
+                    <html:p>TODO(Jorge)</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -80,7 +80,7 @@
         <xs:attribute name="type" use="optional" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>TODO</html:p>
+                    <html:p>TODO(Jorge)</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -88,7 +88,7 @@
         <xs:attribute name="href" use="required" type="xs:anyURI">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>TODO</html:p>
+                    <html:p>TODO(Jorge)</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -96,7 +96,7 @@
         <xs:attribute name="hreflang" use="optional" type="xs:NMTOKEN">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>TODO</html:p>
+                    <html:p>TODO(Jorge)</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -104,7 +104,7 @@
         <xs:attribute name="title" use="optional" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>TODO</html:p>
+                    <html:p>TODO(Jorge)</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

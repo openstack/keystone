@@ -15,17 +15,15 @@
 
 from datetime import datetime
 from datetime import timedelta
+import uuid
 
 import keystone.logic.types.auth as auth
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.atom as atom
 import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
-
 import keystone.db.sqlalchemy.api as db_api
 import keystone.db.sqlalchemy.models as db_models
-
-import uuid
 
 
 class IDMService(object):
@@ -54,7 +52,8 @@ class IDMService(object):
         if not credentials.tenant_id:
             dtoken = db_api.token_for_user(duser.id)
         else:
-            dtoken = db_api.token_for_user_tenant(duser.id, credentials.tenant_id)
+            dtoken = db_api.token_for_user_tenant(duser.id,
+                                                  credentials.tenant_id)
         if not dtoken or dtoken.expires < datetime.now():
             dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
@@ -63,7 +62,8 @@ class IDMService(object):
             if not duser.tenants:
                 raise fault.IDMFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
-            if not credentials.tenant_id and db_api.user_get_by_tenant(duser.id, credentials.tenant_id):
+            user = db_api.user_get_by_tenant(duser.id, credentials.tenant_id)
+            if not credentials.tenant_id and user:
                 raise fault.IDMFault("Error: user %s is not associated "
                                      "with a tenant! %s" % (duser.id,
                                                     credentials.tenant_id))
@@ -89,7 +89,6 @@ class IDMService(object):
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
         return self.__get_auth_data(token, user)
-
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_token(admin_token)
@@ -123,14 +122,11 @@ class IDMService(object):
         dtenant.enabled = tenant.enabled
 
         db_api.tenant_create(dtenant)
-
         return tenant
-
 
     ##
     ##    GET Tenants with Pagination
     ##
-
     def get_tenants(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
 
@@ -201,7 +197,6 @@ class IDMService(object):
         dtenant = db_api.tenant_get(tenant)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
-
 
         if group.group_id == None:
             raise fault.BadRequestFault("Expecting a Group Id")
@@ -389,11 +384,9 @@ class IDMService(object):
         db_api.user_tenant_group_delete(user, group)
         return None
 
-
     #
     # Private Operations
     #
-
     def __get_dauth_data(self, token_id):
         """return token and user object for a token_id"""
 
@@ -431,7 +424,6 @@ class IDMService(object):
         if db_api.user_get_email(user.email) != None:
             raise fault.EmailConflictFault(
                 "Email already exists")
-
 
         duser_tenant = db_models.UserTenantAssociation()
         duser_tenant.user_id = user.user_id
@@ -521,7 +513,6 @@ class IDMService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
-
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
 
@@ -608,7 +599,8 @@ class IDMService(object):
         db_api.user_delete_tenant(user_id, tenant_id)
         return None
 
-    def get_user_groups(self, admin_token, tenant_id, user_id, marker, limit, url):
+    def get_user_groups(self, admin_token, tenant_id, user_id, marker, limit,
+                        url):
         self.__validate_token(admin_token)
 
         if tenant_id == None:
@@ -625,8 +617,6 @@ class IDMService(object):
                                                           limit)
 
         for dusergroup, dusergroupAsso in dusergroups:
-
-
             ts.append(tenants.Group(dusergroup.id, dusergroup.desc,
                                     dusergroup.tenant_id))
         links = []
@@ -641,13 +631,11 @@ class IDMService(object):
                                       (url, next, limit)))
         return tenants.Groups(ts, links)
 
-
     #
     # Global Group Operations
     # TODO:(India Team) Rename functions
     #       and to maintain consistency
     #       with server.py
-
     def __check_create_global_tenant(self):
 
         dtenant = db_api.tenant_get('GlobalTenant')
