@@ -1,4 +1,3 @@
-bottle    #still used in queryext
 eventlet
 lxml
 paste
