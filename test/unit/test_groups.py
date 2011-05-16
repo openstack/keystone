@@ -319,7 +319,7 @@ class GetGlobalGroupsTest(GlobalGroupTest):
         self.assertEqual(401, int(resp['status']))
 
     def test_get_global_groups_exp_token(self):
-        h = httplib2.Http(".cache")
+        header = httplib2.Http(".cache")
         resp_new, content_new = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
         url = '%sgroups' % (utils.URL)
