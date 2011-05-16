@@ -374,7 +374,7 @@ class TenantController(wsgi.Controller):
     def get_users_tenant_group(self, req, tenant_id, group_id):
         marker = None
         if "marker" in req.GET:
-            marker = request.GET["marker"]
+            marker = req.GET["marker"]
 
         if "limit" in req.GET:
             limit = req.GET["limit"]
@@ -485,7 +485,7 @@ class UserController(wsgi.Controller):
         rval = service.enable_disable_user(get_auth_token(req), user_id, user,
                                         tenant_id)
         return send_result(200, req, rval)
-    
+
     @wrap_error
     def add_user_tenant(self, req, user_id, tenant_id):
         rval = service.add_user_tenant(get_auth_token(req), user_id, tenant_id)

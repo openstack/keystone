@@ -163,7 +163,6 @@ def get_token_xml(user, pswd, tenant_id, type=''):
         resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                          "ACCEPT": "application/xml"})
-        
         dom = etree.fromstring(content)
         root = dom.find("{http://docs.openstack.org/idm/api/v1.0}token")
         token_root = root.attrib
@@ -234,13 +233,17 @@ def delete_tenant_group_xml(groupid, tenantid, auth_token):
     return (resp, content)
 
 
-def create_user(tenantid, userid, auth_token):
+def create_user(tenantid, userid, auth_token, email=None):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/users' % (URL, tenantid)
+    if email is not None:
+        email_id = email
+    else:
+        email_id = "%s@rackspace.com" % userid
     body = {"user": {"password": "secrete",
                      "id": userid,
                      "tenantId": tenantid,
-                     "email": "%s@rackspace.com" % userid,
+                     "email": "%s" % email_id,
                      "enabled": True}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
@@ -254,18 +257,21 @@ def delete_user(tenant, userid, auth_token):
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
-    
     return resp
 
 
-def create_user_xml(tenantid, userid, auth_token):
+def create_user_xml(tenantid, userid, auth_token, email=None):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/users' % (URL, tenantid)
+    if email is not None:
+        email_id = email
+    else:
+        email_id = userid
     body = '<?xml version="1.0" encoding="UTF-8"?> \
             <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
-            email="joetest@rackspace.com" \
+            email="%s" \
             tenantId="%s" id="%s" \
-            enabled="true" password="secrete"/>' % (tenantid, userid)
+            enabled="true" password="secrete"/>' % (email_id, tenantid, userid)
     resp, content = header.request(url, "POST", body=body,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -291,6 +297,25 @@ def delete_user_xml(tenantid, userid, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return resp
+
+
+def add_user_json(tenantid, userid, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%stenants/%s/users/%s/add' % (URL, tenantid, userid)
+    resp, content = header.request(url, "PUT", body='{}',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def add_user_xml(tenantid, userid, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%stenants/%s/users/%s/add' % (URL, tenantid, userid)
+    resp, content = header.request(url, "PUT", body='{}',
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
 
 
 def user_update_json(tenant_id, user_id, auth_token, email=None):
@@ -569,6 +594,10 @@ def get_user_global_group_xml(groupid, auth_token):
 
 def get_tenant():
     return '1234'
+
+
+def get_another_tenant():
+    return '4321'
 
 
 def get_user():

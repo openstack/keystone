@@ -69,7 +69,7 @@ class CreateUserTest(UserTest):
         self.assertEqual(403, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
-    def test_a_user_again_json(self):
+    def test_a_user_create_again_json(self):
         resp, content = utils.create_user(self.tenant, self.user,
                                     str(self.auth_token))
         resp_val = int(resp['status'])
@@ -79,11 +79,34 @@ class CreateUserTest(UserTest):
                                     str(self.auth_token))
         self.assertEqual(409, int(resp['status']))
 
-    def test_a_user_again_xml(self):
+    def test_a_user_create_again_xml(self):
         utils.create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
         resp, content = utils.create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
+        content = etree.fromstring(content)
+        resp_val = int(resp['status'])
+        utils.handle_user_resp(self, content, resp_val,
+                               utils.content_type(resp))
+        self.assertEqual(409, int(resp['status']))
+        self.assertEqual('application/xml', utils.content_type(resp))
+
+    def test_a_user_create_email_conflict(self):
+        utils.create_user(self.tenant, self.user, str(self.auth_token),
+                          self.email)
+        resp, content = utils.create_user(self.tenant, self.user,
+                                          str(self.auth_token),
+                                          self.email)
+        self.assertEqual(409, int(resp['status']))
+
+    def test_a_user_create_email_conflict_xml(self):
+        utils.create_user_xml(self.tenant,
+                              self.user,
+                              str(self.auth_token),
+                              self.email)
+        resp, content = utils.create_user_xml(self.tenant, self.user,
+                                              str(self.auth_token),
+                                              self.email)
         content = etree.fromstring(content)
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
@@ -1134,7 +1157,7 @@ class SetPasswordTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
 
-class SetEnabledEest(UserTest):
+class SetEnabledTest(UserTest):
 
     def test_user_enabled(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -1205,6 +1228,33 @@ class SetEnabledEest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.tenant, self.user, str(self.auth_token))
         self.assertEqual(400, resp_val)
+        self.assertEqual('application/xml', utils.content_type(resp))
+
+    def test_user_enabled_disabled_tenant(self):
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        resp, content = utils.user_enabled_json('0000',
+                                                self.user,
+                                                str(self.auth_token))
+        resp_val = int(resp['status'])
+        content = json.loads(content)
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
+    def test_user_enabled_disabled_tenant_xml(self):
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        resp, content = utils.user_enabled_xml('0000',
+                                               self.user,
+                                               str(self.auth_token))
+        resp_val = int(resp['status'])
+        content = etree.fromstring(content)
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_enabled_expired_token(self):
@@ -1314,5 +1364,197 @@ class SetEnabledEest(UserTest):
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
+
+
+class AddUserTest(UserTest):
+
+    def setUp(self):
+        self.token = utils.get_token('joeuser', 'secrete', 'token')
+        self.tenant = utils.get_another_tenant()
+        self.password = utils.get_password()
+        self.email = utils.get_email()
+        self.user = 'joeuser'
+        self.userdisabled = utils.get_userdisabled()
+        self.auth_token = utils.get_auth_token()
+        self.exp_auth_token = utils.get_exp_auth_token()
+        self.disabled_token = utils.get_disabled_token()
+        self.missing_token = utils.get_none_token()
+        self.invalid_token = utils.get_non_existing_token()
+
+    def tearDown(self):
+        utils.delete_user(self.tenant, self.user, str(self.auth_token))
+        utils.delete_tenant(self.tenant, str(self.auth_token))
+
+    def test_add_user_tenant(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_json(self.tenant,
+                                            self.user,
+                                            str(self.auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, resp_val)
+
+    def test_add_user_tenant_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_xml(self.tenant,
+                                           self.user,
+                                           str(self.auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, resp_val)
+
+    def test_add_user_tenant_conflict(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.add_user_json(self.tenant, self.user, str(self.auth_token))
+        resp, content = utils.add_user_json(self.tenant,
+                                            self.user,
+                                            str(self.auth_token))
+
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(409, resp_val)
+
+    def test_add_user_tenant_conflict_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.add_user_xml(self.tenant, self.user, str(self.auth_token))
+        resp, content = utils.add_user_xml(self.tenant,
+                                           self.user,
+                                           str(self.auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(409, resp_val)
+
+    def test_add_user_tenant_expired_token(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_json(self.tenant,
+                                            self.user,
+                                            str(self.exp_auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
+    def test_add_user_tenant_expired_token_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_xml(self.tenant,
+                                            self.user,
+                                            str(self.exp_auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
+    def test_add_user_tenant_disabled_token(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_json(self.tenant,
+                                            self.user,
+                                            str(self.disabled_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
+    def test_add_user_tenant_disabled_token_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_xml(self.tenant,
+                                            self.user,
+                                            str(self.disabled_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
+    def test_add_user_tenant_invalid_token(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_json(self.tenant,
+                                            self.user,
+                                            str(self.invalid_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, resp_val)
+
+    def test_add_user_tenant_invalid_token_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_xml(self.tenant,
+                                            self.user,
+                                            str(self.invalid_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, resp_val)
+
+    def test_add_user_tenant_missing_token(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_json(self.tenant,
+                                            self.user,
+                                            str(self.missing_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, resp_val)
+
+    def test_add_user_tenant_missing_token_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_xml(self.tenant,
+                                            self.user,
+                                            str(self.missing_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, resp_val)
+
+    def test_add_user_tenant_disabled_tenant(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_json('0000',
+                                            self.user,
+                                            str(self.auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
+    def test_add_user_tenant_disabled_tenant_xml(self):
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        resp, content = utils.add_user_xml('0000',
+                                            self.user,
+                                            str(self.auth_token))
+        resp_val = int(resp['status'])
+        if resp_val == 500:
+            self.fail('IDM fault')
+        elif resp_val == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, resp_val)
+
 if __name__ == '__main__':
     unittest.main()

@@ -51,15 +51,15 @@ class IDMService(object):
         # Look for an existing token, or create one,
         # TODO: Handle tenant/token search
         #
-        # removing following code for multi-token 
+        # removing following code for multi-token
         """if not credentials.tenant_id:
             dtoken = db_api.token_for_user(duser.id)
         else:
-            dtoken = db_api.token_for_user_tenant(duser.id, 
+            dtoken = db_api.token_for_user_tenant(duser.id,
                                                   credentials.tenant_id)
         """
         # added following code
-        dtoken = db_api.token_for_user_tenant(duser.id, 
+        dtoken = db_api.token_for_user_tenant(duser.id,
                                                   credentials.tenant_id)
         #---
         if not dtoken or dtoken.expires < datetime.now():
@@ -419,7 +419,9 @@ class IDMService(object):
     #
     def create_user(self, admin_token, tenant_id, user):
         self.__validate_token(admin_token)
-
+        print "@" * 80 
+        print tenant_id
+        print user
         dtenant = db_api.tenant_get(tenant_id)
         if dtenant == None:
             raise fault.UnauthorizedFault("Unauthorized")

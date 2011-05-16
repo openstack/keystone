@@ -274,15 +274,6 @@ def user_get(id, session=None):
     return result
 
 
-def user_get_by_tenant(id, tenant_id, session=None):
-    if not session:
-        session = get_session()
-    user_tenant = session.query(models.UserTenantAssociation).filter_by(\
-    tenant_id=tenant_id, user_id=id).first()
-    print '1' * 80
-    return user_tenant
-
-
 def user_get_email(email, session=None):
     if not session:
         session = get_session()
@@ -702,7 +693,7 @@ def user_delete_tenant(id, tenant_id, session=None):
                 for group_user in group_users:
                     session.delete(group_user)
         user_tenant_ref = session.query(models.UserTenantAssociation)\
-                            .filter_by(user_id=id, tenant_id=tenant_id).first()
+                            .filter_by(user_id=id).first()
         if user_tenant_ref is None:
             user_ref = user_get(id, session)
             session.delete(user_ref)
