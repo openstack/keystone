@@ -57,8 +57,7 @@ class IDMService(object):
                                                   credentials.tenant_id)
         """
         # added following code
-        dtoken = db_api.token_for_user_tenant(duser.id,
-                                                  credentials.tenant_id)
+        dtoken = db_api.token_for_user_tenant(duser.id, credentials.tenant_id)
         #---
         if not dtoken or dtoken.expires < datetime.now():
             dtoken = db_models.Token()
@@ -69,11 +68,13 @@ class IDMService(object):
                 raise fault.IDMFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
             user = db_api.user_get_by_tenant(duser.id, credentials.tenant_id)
-            if not credentials.tenant_id and user:
-                raise fault.IDMFault("Error: user %s is not associated "
+            
+            if not credentials.tenant_id or not user:
+                raise fault.ForbiddenFault("Error: user %s is "
+                                     "not associated "
                                      "with a tenant! %s" % (duser.id,
                                                     credentials.tenant_id))
-                dtoken.tenant_id = credentials.tenant_id
+            dtoken.tenant_id = credentials.tenant_id
             #removing following code for multi token
             """else:
                 dtoken.tenant_id = duser.tenants[0].tenant_id"""

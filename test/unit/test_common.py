@@ -14,7 +14,7 @@ from lxml import etree
 URL = 'http://localhost:8080/v1.0/'
 
 
-def get_token(user, pswd, tenant_id, kind='',):
+def get_token(user, pswd, tenant_id, kind=''):
     header = httplib2.Http(".cache")
     url = '%stoken' % URL
     # to test multi token, removing below code
@@ -33,12 +33,17 @@ def get_token(user, pswd, tenant_id, kind='',):
     #---
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json"})
-    content = json.loads(content)
-    token = str(content['auth']['token']['id'])
+    
+    if int(resp['status']) == 200:
+        content = json.loads(content)
+        token = str(content['auth']['token']['id'])
+    else:
+        token = None
     if kind == 'token':
         return token
     else:
         return (resp, content)
+    
 
 
 def delete_token(token, auth_token):
@@ -81,7 +86,7 @@ def delete_tenant(tenantid, auth_token):
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
-    return (resp, content)
+    return resp
 
 
 def delete_tenant_group(groupid, tenantid, auth_token):
@@ -164,10 +169,13 @@ def get_token_xml(user, pswd, tenant_id, type=''):
                                   headers={"Content-Type": "application/xml",
                                          "ACCEPT": "application/xml"})
         
-        dom = etree.fromstring(content)
-        root = dom.find("{http://docs.openstack.org/idm/api/v1.0}token")
-        token_root = root.attrib
-        token = str(token_root['id'])
+        if int(resp['status']) == 200:
+            dom = etree.fromstring(content)
+            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}token")
+            token_root = root.attrib
+            token = str(token_root['id'])
+        else:
+            token = None
         if type == 'token':
             return token
         else:
@@ -221,7 +229,7 @@ def delete_tenant_xml(tenantid, auth_token):
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
-    return (resp, content)
+    return resp
 
 
 def delete_tenant_group_xml(groupid, tenantid, auth_token):
@@ -254,7 +262,7 @@ def delete_user(tenant, userid, auth_token):
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
-    
+    print content
     return resp
 
 
@@ -292,6 +300,22 @@ def delete_user_xml(tenantid, userid, auth_token):
                                        "ACCEPT": "application/xml"})
     return resp
 
+def add_user_json(tenantid, userid, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%stenants/%s/users/%s/add' % (URL, tenantid, userid)
+    resp, content = header.request(url, "PUT", body='{}',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+def add_user_xml(tenantid, userid, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%stenants/%s/users/%s/add' % (URL, tenantid, userid)
+    resp, content = header.request(url, "PUT", body='{}',
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
 
 def user_update_json(tenant_id, user_id, auth_token, email=None):
     h = httplib2.Http(".cache")
