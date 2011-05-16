@@ -35,16 +35,14 @@ class GlobalGroupTest(unittest.TestCase):
 
     def tearDown(self):
         utils.delete_user(self.globaltenant, self.user, str(self.auth_token))
-        utils.delete_global_group(self.global_group,
-                                            self.auth_token)
+        utils.delete_global_group(self.global_group, self.auth_token)
         utils.delete_tenant(self.globaltenant, self.auth_token)
 
 
 class CreateGlobalGroupTest(GlobalGroupTest):
 
     def test_global_group_create(self):
-        resp_new, content_new = utils.delete_global_group(self.global_group,
-                                              str(self.auth_token))
+        utils.delete_global_group(self.global_group, str(self.auth_token))
         resp_new, content_new = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
 
@@ -56,9 +54,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
             self.fail('Failed due to %d' % int(resp_new['status']))
 
     def test_global_group_create_xml(self):
-        resp_new, content_new = utils.delete_global_group_xml(\
-                                                    self.global_group,
-                                                    str(self.auth_token))
+        utils.delete_global_group_xml(self.global_group, str(self.auth_token))
         resp_new, content_new = utils.create_global_group_xml(\
                                                   self.global_group,
                                                   str(self.auth_token))
@@ -72,8 +68,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
             self.fail('Failed due to %d' % int(resp_new['status']))
 
     def test_global_group_create_again(self):
-        resp_new, content_new = utils.create_global_group(self.global_group,
-                                              str(self.auth_token))
+        utils.create_global_group(self.global_group, str(self.auth_token))
         resp_new, content_new = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
         if int(resp_new['status']) == 500:
@@ -83,9 +78,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
         self.assertEqual(409, int(resp_new['status']))
 
     def test_global_group_create_again_xml(self):
-        resp_new, content_new = utils.create_global_group_xml(\
-                                                self.global_group,
-                                                str(self.auth_token))
+        utils.create_global_group_xml(self.global_group, str(self.auth_token))
         resp_new, content_new = utils.create_global_group_xml(\
                                                 self.global_group,
                                                 str(self.auth_token))
@@ -260,8 +253,7 @@ class GetGlobalGroupsTest(GlobalGroupTest):
 
     def test_get_global_groups(self):
         header = httplib2.Http(".cache")
-        resp_new, content_new = utils.delete_global_group(self.global_group,
-                                              str(self.auth_token))
+        utils.delete_global_group(self.global_group, str(self.auth_token))
         resp_new, content_new = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
 
@@ -277,9 +269,7 @@ class GetGlobalGroupsTest(GlobalGroupTest):
 
     def test_get_global_groups_xml(self):
         header = httplib2.Http(".cache")
-        resp_new, content_new = utils.create_global_group_xml(\
-                                                    self.global_group,
-                                                    str(self.auth_token))
+        utils.create_global_group_xml(self.global_group, str(self.auth_token))
         url = '%sgroups' % (utils.URL)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -492,9 +482,7 @@ class UpdateGlobalGroupsTest(GlobalGroupTest):
 
     def test_update_global_group_bad_xml(self):
         header = httplib2.Http(".cache")
-        resp_new, content_new = utils.create_global_group_xml(\
-                                                self.global_group,
-                                                  str(self.auth_token))
+        utils.create_global_group_xml(self.global_group, str(self.auth_token))
         url = '%sgroups/%s' % (utils.URL, self.global_group)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
@@ -514,8 +502,7 @@ class UpdateGlobalGroupsTest(GlobalGroupTest):
 
     def test_update_global_group_not_found(self):
         header = httplib2.Http(".cache")
-        resp_new, content_new = utils.create_global_group(self.global_group,
-                                              str(self.auth_token))
+        utils.create_global_group(self.global_group, str(self.auth_token))
         url = '%sgroups/NonexistingID' % (utils.URL)
         data = '{"group": { "description": "A NEW description...", \
                 "id":"NonexistingID"}}'
@@ -527,8 +514,7 @@ class UpdateGlobalGroupsTest(GlobalGroupTest):
 
     def test_update_global_group_not_found_xml(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_tenant_xml(self.globaltenant,
-                                          str(self.auth_token))
+        utils.create_tenant_xml(self.globaltenant, str(self.auth_token))
         url = '%sgroups/NonexistingID' % (utils.URL)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
@@ -560,34 +546,26 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_global_group(self):
-        resp, content = utils.create_tenant(self.globaltenant,
-                                            str(self.auth_token))
-        resp_new, content_new = utils.create_tenant_group(\
-                                                'test_global_group_delete',
-                                                self.globaltenant,
-                                              str(self.auth_token))
-        resp_new, content_new = utils.delete_global_group(\
-                                                'test_global_group_delete',
-                                                str(self.auth_token))
-        resp = utils.delete_tenant(self.globaltenant,
-                                      str(self.auth_token))
+        utils.create_tenant(self.globaltenant, str(self.auth_token))
+        utils.create_tenant_group('test_global_group_delete',
+                                  self.globaltenant, str(self.auth_token))
+        resp_new, content_new = utils.delete_global_group('test_global_group_delete',
+                                  str(self.auth_token))
+        resp = utils.delete_tenant(self.globaltenant, str(self.auth_token))
         self.assertEqual(204, int(resp_new['status']))
 
     def test_delete_global_group_xml(self):
-        resp, content = utils.create_tenant_xml(self.globaltenant,
-                                                str(self.auth_token))
 
-        resp_new, content_new = utils.create_tenant_group_xml(\
-                                                  'test_global_group_delete',
-                                                  self.globaltenant,
-                                                  str(self.auth_token))
+        utils.create_tenant_xml(self.globaltenant, str(self.auth_token))
+
+        utils.create_tenant_group_xml('test_global_group_delete',
+                                      self.globaltenant, str(self.auth_token))
 
         resp_new, content_new = utils.delete_global_group_xml(\
                                                   'test_global_group_delete',
                                                   str(self.auth_token))
 
-        resp = utils.delete_tenant_xml(self.globaltenant,
-                                          str(self.auth_token))
+        utils.delete_tenant_xml(self.globaltenant, str(self.auth_token))
 
         self.assertEqual(204, int(resp_new['status']))
 
@@ -609,23 +587,17 @@ class AddUserGlobalGroupTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        resp_new, content_new = utils.delete_user_global_group(\
-                                                    self.global_group,
-                                                    self.user,
-                                                    str(self.auth_token))
+        utils.delete_user_global_group(self.global_group, self.user,
+                                       str(self.auth_token))
 
-        resp = utils.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        utils.delete_user(self.tenant, self.user, str(self.auth_token))
         utils.delete_user(self.tenant, self.user, self.auth_token)
-        resp, content = utils.delete_global_group(self.global_group,
-                                            self.auth_token)
+        utils.delete_global_group(self.global_group, self.auth_token)
 
     def test_add_user_global_group(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group(self.global_group,
                                                 self.user,
                                                 str(self.auth_token))
@@ -638,11 +610,9 @@ class AddUserGlobalGroupTest(unittest.TestCase):
             self.fail('Failed due to %d' % int(resp_new['status']))
 
     def test_add_user_global_group_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group_xml(\
                                                 self.global_group,
                                                 self.user,
@@ -656,14 +626,11 @@ class AddUserGlobalGroupTest(unittest.TestCase):
             self.fail('Failed due to %d' % int(resp_new['status']))
 
     def test_add_user_global_group_conflict(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group(self.global_group,
                                                 self.user,
                                                 str(self.auth_token))
@@ -675,15 +642,11 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         self.assertEqual(409, int(resp_new['status']))
 
     def test_add_user_global_group_conflict_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group_xml(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group_xml(self.global_group, self.user,
+                                        str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group_xml(\
                                                 self.global_group,
                                                 self.user,
@@ -696,11 +659,10 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         self.assertEqual(409, int(resp_new['status']))
 
     def test_add_user_global_group_unauthorized(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
+
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
 
         resp_new, content_new = utils.add_user_global_group(self.global_group,
                                                 self.user,
@@ -712,11 +674,9 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         self.assertEqual(401, int(resp_new['status']))
 
     def test_add_user_global_group_unauthorized_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group_xml(\
                                                     self.global_group,
                                                     self.user,
@@ -729,11 +689,9 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         self.assertEqual(401, int(resp_new['status']))
 
     def test_add_user_global_group_forbidden(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group(\
                                                 self.global_group,
                                                 self.user,
@@ -746,11 +704,9 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         self.assertEqual(403, int(resp_new['status']))
 
     def test_add_user_global_group_forbidden_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp_new, content_new = utils.add_user_global_group_xml(\
                                                 self.global_group,
                                                 self.user,
@@ -779,25 +735,17 @@ class GetUsersTenantGroupTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        resp_new, content_new = utils.delete_user_global_group(\
-                                                    self.global_group,
-                                                   self.user,
-                                                   str(self.auth_token))
-        resp_new = utils.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp, content = utils.delete_global_group(self.global_group,
-                                            self.auth_token)
+        utils.delete_user_global_group(self.global_group, self.user,
+                                       str(self.auth_token))
+        utils.delete_user(self.tenant, self.user, str(self.auth_token))
+        utils.delete_global_group(self.global_group, self.auth_token)
 
     def test_get_users_global_group(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group(\
                                                 self.global_group,
                                                 str(self.auth_token))
@@ -809,15 +757,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(200, int(resp_new['status']))
 
     def test_get_users_global_group_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group_xml(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group_xml(self.global_group, self.user,
+                                        str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group_xml(\
                                                 self.global_group,
                                                 str(self.auth_token))
@@ -828,15 +772,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(200, int(resp_new['status']))
 
     def test_get_users_global_group_unauthorized(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
 
         resp_new, content_new = utils.get_user_global_group(\
                                                 self.global_group,
@@ -849,15 +789,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(401, int(resp_new['status']))
 
     def test_get_users_global_group_unauthorized_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group_xml(\
                                                 self.global_group,
                                                 str(self.token))
@@ -869,15 +805,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(401, int(resp_new['status']))
 
     def test_get_users_global_group_forbidden(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group(\
                                                 self.global_group,
                                                 str(self.disabled_token))
@@ -889,15 +821,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(403, int(resp_new['status']))
 
     def test_get_users_global_group_forbidden_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user,str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group_xml(\
                                                 self.global_group,
                                                 str(self.disabled_token))
@@ -908,15 +836,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(403, int(resp_new['status']))
 
     def test_get_users_global_group_expired(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(\
-                                                self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group(\
                                                 self.global_group,
                                                 str(self.exp_auth_token))
@@ -928,14 +852,11 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         self.assertEqual(403, int(resp_new['status']))
 
     def test_get_users_global_group_expired_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group_xml(\
                                                 self.global_group,
                                                 str(self.exp_auth_token))
@@ -963,25 +884,18 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        resp_new, content_new = utils.delete_user_global_group(\
-                                                    self.global_group,
-                                                   self.user,
-                                                   str(self.auth_token))
+        utils.delete_user_global_group(self.global_group, self.user,
+                                       str(self.auth_token))
 
-        resp = utils.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp, content = utils.delete_global_group(self.global_group,
-                                            self.auth_token)
+        utils.delete_user(self.tenant, self.user, str(self.auth_token))
+        utils.delete_global_group(self.global_group, self.auth_token)
 
     def test_delete_user_global_group(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
 
         resp_new, content_new = utils.delete_user_global_group(\
                                                     self.global_group,
@@ -995,14 +909,11 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
         self.assertEqual(204, int(resp_new['status']))
 
     def test_delete_user_global_group_xml(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(self.global_group,
-                                                self.user,
-                                                str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.auth_token))
         resp_new, content_new = utils.delete_user_global_group_xml(\
                                                     self.global_group,
                                                    self.user,
@@ -1014,22 +925,17 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
         self.assertEqual(204, int(resp_new['status']))
 
     def test_delete_user_global_group_notfound(self):
-        header = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(self.global_group,
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.disabled_token))
+        utils.delete_user_global_group(self.global_group, self.user,
+                                       str(self.auth_token))
+        resp_new, content_new = utils.delete_user_global_group(
+                                                self.global_group,
                                                 self.user,
-                                                str(self.disabled_token))
-        resp_new, content_new = utils.delete_user_global_group(\
-                                                    self.global_group,
-                                                   self.user,
-                                                   str(self.auth_token))
-        resp_new, content_new = utils.delete_user_global_group(\
-                                                    self.global_group,
-                                                   self.user,
-                                                   str(self.auth_token))
+                                                str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -1037,26 +943,19 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
         self.assertEqual(404, int(resp_new['status']))
 
     def test_delete_user_global_group_notfound_xml(self):
-        h = httplib2.Http(".cache")
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp_new, content_new = utils.create_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp_new, content_new = utils.add_user_global_group(self.global_group,
-                                                self.user,
-                                                str(self.disabled_token))
-        resp_new, content_new = utils.delete_user_global_group(\
-                                                    self.global_group,
-                                                   self.user,
-                                                   str(self.auth_token))
-        resp_new, content_new = utils.delete_user_global_group_xml(\
-                                                    self.global_group,
-                                                   self.user,
-                                                   str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.add_user_global_group(self.global_group, self.user,
+                                    str(self.disabled_token))
+        utils.delete_user_global_group(self.global_group, self.user,
+                                       str(self.auth_token))
+        resp_new, content_new = utils.delete_user_global_group_xml(self.global_group, self.user,
+                                           str(self.auth_token))
         self.assertEqual(404, int(resp_new['status']))
 
 if __name__ == '__main__':

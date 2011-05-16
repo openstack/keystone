@@ -1,14 +1,13 @@
-import os
 import sys
+import os
 
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
-import unittest
-
 import httplib2
 import json
 from lxml import etree
+import unittest
 
 
 URL = 'http://localhost:8080/v1.0/'
