@@ -1,7 +1,8 @@
 import logging
+from lxml import etree
 import os
 import unittest
-from lxml import etree
+
 MODULE_EXTENSIONS = set('.py'.split())
 TEST_FILES = ['test_authentication.py', 'test_keystone.py', 'test_tenants.py',
               'test_common.py', 'test_users.py','test_tenant_groups.py',

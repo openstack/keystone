@@ -1,13 +1,13 @@
+# Need to access identity module
+import httplib2
+import json
+from lxml import etree
 import os
 import sys
-# Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
 import unittest
 from webtest import TestApp
-import httplib2
-import json
-from lxml import etree
 
 import test_common  as utils
 
@@ -46,7 +46,7 @@ class AuthenticationTest(unittest.TestCase):
                                         "tenantId" : self.tenant}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
-        
+
         content = json.loads(content)
         if int(resp['status']) == 500:
             self.fail('IDM fault')
@@ -66,7 +66,7 @@ class AuthenticationTest(unittest.TestCase):
         resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
-        
+
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
             self.fail('IDM fault')
@@ -144,14 +144,14 @@ class MultiToken(unittest.TestCase):
         self.assertNotEqual(token1, None)
         self.assertNotEqual(token2, None)
         self.assertNotEqual(token1, token2)
-        
+
         resp = utils.delete_token(token1, self.auth_token)
         resp = utils.delete_token(token2, self.auth_token)
 
     def test_unassigned_user(self):
         resp, content = utils.get_token('test_user2', 'secrete', 'test_tenant2')
-        
+
         self.assertEqual(403, int(resp['status']))
-        
+
 if __name__ == '__main__':
     unittest.main()

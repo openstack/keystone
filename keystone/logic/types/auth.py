@@ -13,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-
 from abc import ABCMeta
+from datetime import datetime
 import json
 from lxml import etree
 
@@ -50,12 +49,12 @@ class PasswordCredentials(object):
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
             tenant_id = root.get("tenantId")
-            
+
             #--for multi-token handling--
             if tenant_id == None:
                 raise fault.BadRequestFault("Expecting tenant")
             # ----
-            
+
             return PasswordCredentials(username, password, tenant_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse password credentials",

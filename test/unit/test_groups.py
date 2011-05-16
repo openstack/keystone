@@ -1,15 +1,16 @@
+# Need to access identity module
+import httplib2
+import json
+from lxml import etree
 import os
 import sys
-# Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
 import unittest
 from webtest import TestApp
-import httplib2
-import json
-from lxml import etree
 
 import test_common as utils
+
 
 ##
 ## Global Group Tests
@@ -575,19 +576,19 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
     def test_delete_global_group_xml(self):
         resp, content = utils.create_tenant_xml(self.globaltenant,
                                                 str(self.auth_token))
-        
+
         resp_new, content_new = utils.create_tenant_group_xml(\
                                                   'test_global_group_delete',
                                                   self.globaltenant,
                                                   str(self.auth_token))
-        
+
         resp_new, content_new = utils.delete_global_group_xml(\
                                                   'test_global_group_delete',
                                                   str(self.auth_token))
-        
+
         resp = utils.delete_tenant_xml(self.globaltenant,
                                           str(self.auth_token))
-        
+
         self.assertEqual(204, int(resp_new['status']))
 
 
@@ -700,7 +701,7 @@ class AddUserGlobalGroupTest(unittest.TestCase):
                                               str(self.auth_token))
         resp_new, content_new = utils.create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        
+
         resp_new, content_new = utils.add_user_global_group(self.global_group,
                                                 self.user,
                                                 str(self.token))

@@ -3,10 +3,10 @@ import sys
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
-import unittest
 import httplib2
 import json
 from lxml import etree
+import unittest
 
 import test_common as utils
 from test_common import URL
@@ -37,9 +37,9 @@ class UserTest(unittest.TestCase):
 class CreateUserTest(UserTest):
 
     def test_a_user_create_json(self):
-        
+
         resp = utils.delete_user(self.tenant, self.user, str(self.auth_token))
-        
+
         resp, content = utils.create_user(self.tenant, 'test_user1',
                                            str(self.auth_token))
         self.user = 'test_user1'
