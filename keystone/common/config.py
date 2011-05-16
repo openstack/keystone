@@ -17,7 +17,7 @@
 #    under the License.
 
 """
-Routines for configuring Glance
+Routines for configuring OpenStack Service
 """
 
 import ConfigParser
@@ -26,10 +26,9 @@ import logging.config
 import logging.handlers
 import optparse
 import os
+from paste import deploy
 import re
 import sys
-
-from paste import deploy
 
 import keystone.common.exception as exception
 

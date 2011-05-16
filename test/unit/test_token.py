@@ -1,5 +1,6 @@
 import os
 import sys
+
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
@@ -13,11 +14,11 @@ class ValidateToken(unittest.TestCase):
     def setUp(self):
         self.tenant = utils.get_tenant()
         self.token = utils.get_token('joeuser', 'secrete', self.tenant, 'token')
-        self.user = utils.get_user()
-        self.userdisabled = utils.get_userdisabled()
+        #self.user = utils.get_user()
+        #self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
-        self.disabled_token = utils.get_disabled_token()
+        #self.disabled_token = utils.get_disabled_token()
 
     def tearDown(self):
         utils.delete_token(self.token, self.auth_token)

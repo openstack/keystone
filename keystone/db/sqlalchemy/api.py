@@ -485,6 +485,7 @@ def token_for_user_tenant(user_id, tenant_id, session=None):
         user_id=user_id, tenant_id=tenant_id).order_by("expires desc").first()
     return result
 
+
 def user_tenant_create(values):
     user_tenant_ref = models.UserTenantAssociation()
     user_tenant_ref.update(values)

@@ -17,8 +17,8 @@
 # limitations under the License.
 
 """
-Helper script for starting/stopping/reloading Glance server programs.
-Thanks for some of the code, Swifties ;)
+Helper script for starting/stopping/reloading OpenStack server programs.
+Code copied from swift. Should eventually come from common.
 """
 
 from __future__ import with_statement
