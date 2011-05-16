@@ -23,13 +23,13 @@ class TenantTest(unittest.TestCase):
         self.disabled_token = utils.get_disabled_token()
 
     def tearDown(self):
-        resp, content = utils.delete_tenant(self.tenant, self.auth_token)
+        utils.delete_tenant(self.tenant, self.auth_token)
 
 
 class CreateTenantTest(TenantTest):
 
     def test_tenant_create(self):
-        resp, content = utils.delete_tenant(self.tenant, str(self.auth_token))
+        utils.delete_tenant(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
@@ -41,7 +41,7 @@ class CreateTenantTest(TenantTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_xml(self):
-        resp, content = utils.delete_tenant_xml(self.tenant,
+        utils.delete_tenant_xml(self.tenant,
                                                 str(self.auth_token))
         resp, content = utils.create_tenant_xml(self.tenant,
                                                 str(self.auth_token))
@@ -609,28 +609,28 @@ class DeleteTenantTest(TenantTest):
     def test_delete_tenant_not_found(self):
         #resp,content=utils.create_tenant("test_tenant_delete",
         #                                str(self.auth_token))
-        resp, content = utils.delete_tenant("test_tenant_delete111",
+        resp = utils.delete_tenant("test_tenant_delete111",
                                       str(self.auth_token))
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_tenant_not_found_xml(self):
         #resp,content=utils.create_tenant("test_tenant_delete",
         #                                    str(self.auth_token))
-        resp, content = utils.delete_tenant_xml("test_tenant_delete111",
+        resp = utils.delete_tenant_xml("test_tenant_delete111",
                                           str(self.auth_token))
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_tenant(self):
         resp, content = utils.create_tenant("test_tenant_delete",
                                       str(self.auth_token))
-        resp, content = utils.delete_tenant("test_tenant_delete",
+        resp = utils.delete_tenant("test_tenant_delete",
                                       str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
     def test_delete_tenant_xml(self):
         resp, content = utils.create_tenant_xml("test_tenant_delete",
                                           str(self.auth_token))
-        resp, content = utils.delete_tenant_xml("test_tenant_delete",
+        resp = utils.delete_tenant_xml("test_tenant_delete",
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 

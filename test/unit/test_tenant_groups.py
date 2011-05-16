@@ -25,22 +25,22 @@ class TenantGroupTest(unittest.TestCase):
         self.tenant_group = 'test_tenant_group_add'
 
     def tearDown(self):
-        resp, content = util.delete_tenant_group(self.tenant_group,
+        util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
-        resp, content = util.delete_tenant(self.tenant, self.auth_token)
+        util.delete_tenant(self.tenant, self.auth_token)
 
 
 class CreateTenantGroupTest(TenantGroupTest):
 
     def test_tenant_group_create(self):
 
-        resp, content = util.delete_tenant(self.tenant, str(self.auth_token))
+        resp = util.delete_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant(self.tenant, str(self.auth_token))
+        util.create_tenant(self.tenant, str(self.auth_token))
         resp, content = util.delete_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
@@ -52,7 +52,7 @@ class CreateTenantGroupTest(TenantGroupTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_group_create_xml(self):
-        resp, content = util.delete_tenant_xml(self.tenant,
+        resp = util.delete_tenant_xml(self.tenant,
                                                str(self.auth_token))
         resp, content = util.create_tenant_xml(self.tenant,
                                                str(self.auth_token))
@@ -573,7 +573,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
 
     def test_update_tenant_group_xml(self):
         header = httplib2.Http(".cache")
-        resp, content = util.delete_tenant(self.tenant, str(self.auth_token))
+        util.delete_tenant(self.tenant, str(self.auth_token))
 
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
 
@@ -729,7 +729,7 @@ class DeleteTenantGroupTest(TenantGroupTest):
         resp, content = util.delete_tenant_group('test_tenant_group_delete',
                                               "test_tenant_delete",
                                               str(self.auth_token))
-        resp, content = util.delete_tenant("test_tenant_delete",
+        resp = util.delete_tenant("test_tenant_delete",
                                       str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
@@ -742,7 +742,7 @@ class DeleteTenantGroupTest(TenantGroupTest):
         resp, content = util.delete_tenant_group('test_tenant_group_delete',
                                               "test_tenant_delete",
                                               str(self.auth_token))
-        resp, content = util.delete_tenant_xml("test_tenant_delete",
+        resp = util.delete_tenant_xml("test_tenant_delete",
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
@@ -770,7 +770,7 @@ class AddUserTenantGroupTest(TenantGroupTest):
         resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
-        resp, content = util.delete_tenant(self.tenant, self.auth_token)
+        resp = util.delete_tenant(self.tenant, self.auth_token)
 
     def test_add_user_tenant_group(self):
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
@@ -952,7 +952,7 @@ class GetUsersTenantGroupTest(TenantGroupTest):
         resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
-        resp, content = util.delete_tenant(self.tenant, self.auth_token)
+        util.delete_tenant(self.tenant, self.auth_token)
 
     def test_get_users_tenant_group(self):
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
@@ -964,9 +964,9 @@ class GetUsersTenantGroupTest(TenantGroupTest):
                                               self.tenant,
                                               str(self.auth_token))
 
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                    self.tenant_group,
                                                    self.user,
                                                    str(self.auth_token))
@@ -982,12 +982,12 @@ class GetUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        resp, content = util.add_user_tenant_group_xml(self.tenant,
+        util.add_user_tenant_group_xml(self.tenant,
                                                     self.tenant_group,
                                                     self.user,
                                                     str(self.auth_token))
@@ -1003,13 +1003,13 @@ class GetUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
 
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                 self.tenant_group,
                                                 self.user,
                                                 self.auth_token)
@@ -1026,13 +1026,13 @@ class GetUsersTenantGroupTest(TenantGroupTest):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
 
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
 
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                    self.tenant_group,
                                                    self.user, self.auth_token)
         resp, content = util.get_user_tenant_group_xml(self.tenant,
@@ -1046,13 +1046,13 @@ class GetUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
 
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                    self.tenant_group,
                                                    self.user, self.auth_token)
         resp, content = util.get_user_tenant_group(self.tenant,
@@ -1067,13 +1067,13 @@ class GetUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
 
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                    self.tenant_group,
                                                    self.user, self.auth_token)
         resp, content = util.get_user_tenant_group_xml(self.tenant,
@@ -1088,13 +1088,13 @@ class GetUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
 
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                    self.tenant_group,
                                                    self.user, self.auth_token)
         resp, content = util.get_user_tenant_group(self.tenant,
@@ -1108,13 +1108,13 @@ class GetUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
 
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                    self.tenant_group,
                                                 self.user, self.auth_token)
         resp, content = util.get_user_tenant_group_xml(self.tenant,
@@ -1132,12 +1132,12 @@ class DeleteUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        resp, content = util.add_user_tenant_group(self.tenant,
+        util.add_user_tenant_group(self.tenant,
                                                 self.tenant_group,
                                                 self.user,
                                                 str(self.auth_token))
@@ -1154,12 +1154,12 @@ class DeleteUsersTenantGroupTest(TenantGroupTest):
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        resp, content = util.create_tenant_group(self.tenant_group,
+        util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        resp, content = util.create_user(self.tenant, self.user,
+        util.create_user(self.tenant, self.user,
                                       str(self.auth_token))
-        resp, content = util.add_user_tenant_group_xml(self.tenant,
+        util.add_user_tenant_group_xml(self.tenant,
                                                     self.tenant_group,
                                                     self.user,
                                                     str(self.auth_token))

@@ -30,9 +30,9 @@ class GlobalGroupTest(unittest.TestCase):
         self.global_group = 'test_global_group_add'
 
     def tearDown(self):
-        resp, content = utils.delete_global_group(self.global_group,
+        utils.delete_global_group(self.global_group,
                                             self.auth_token)
-        resp, content = utils.delete_tenant(self.globaltenant, self.auth_token)
+        utils.delete_tenant(self.globaltenant, self.auth_token)
 
 
 class CreateGlobalGroupTest(GlobalGroupTest):
@@ -564,7 +564,7 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
         resp_new, content_new = utils.delete_global_group(\
                                                 'test_global_group_delete',
                                                 str(self.auth_token))
-        resp, content = utils.delete_tenant(self.globaltenant,
+        resp = utils.delete_tenant(self.globaltenant,
                                       str(self.auth_token))
         self.assertEqual(204, int(resp_new['status']))
 
@@ -578,7 +578,7 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
         resp_new, content_new = utils.delete_global_group_xml(\
                                                   'test_global_group_delete',
                                                   str(self.auth_token))
-        resp, content = utils.delete_tenant_xml(self.globaltenant,
+        resp = utils.delete_tenant_xml(self.globaltenant,
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
