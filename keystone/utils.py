@@ -15,26 +15,6 @@
 # limitations under the License.
 
 
-"""
-Service that stores identities and issues and manages tokens
-
-HEADERS
--------
-HTTP_ is a standard http header
-HTTP_X is an extended http header
-
-> Coming in from initial call
-HTTP_X_AUTH_TOKEN   : the client token being passed in
-HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
-                      to support cloud files
-> Used for communication between components
-www-authenticate    : only used if this component is being used remotely
-HTTP_AUTHORIZATION  : basic auth password used to validate the connection
-
-> What we add to the request for use by the OpenStack service
-HTTP_X_AUTHORIZATION: the client identity being passed in
-
-"""
 import functools
 import httplib
 import json
@@ -54,7 +34,6 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
-
 
 from queryext import exthandler
 import keystone.logic.types.fault as fault

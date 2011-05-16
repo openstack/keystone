@@ -1,4 +1,20 @@
-# Need to access identity module
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import httplib2
 import json
 from lxml import etree
@@ -43,7 +59,7 @@ class AuthenticationTest(unittest.TestCase):
         url = '%stoken' % utils.URL
         body = {"passwordCredentials": {"username": self.userdisabled,
                                         "password": "secrete",
-                                        "tenantId" : self.tenant}}
+                                        "tenantId": self.tenant}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
 
@@ -80,7 +96,7 @@ class AuthenticationTest(unittest.TestCase):
         url = '%stoken' % utils.URL
         body = {"passwordCredentials": {"username-w": "disabled",
                                         "password": "secrete",
-                                        "tenantId" : self.tenant}}
+                                        "tenantId": self.tenant}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
@@ -110,7 +126,9 @@ class AuthenticationTest(unittest.TestCase):
         self.assertEqual(400, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
 
+
 class MultiToken(unittest.TestCase):
+
     def setUp(self):
         self.auth_token = utils.get_auth_token()
         self.userdisabled = utils.get_userdisabled()
@@ -137,9 +155,11 @@ class MultiToken(unittest.TestCase):
 
     def test_multi_token(self):
         #get token for user1 with tenant1
-        token1 = utils.get_token('test_user1', 'secrete', 'test_tenant1', 'token')
+        token1 = utils.get_token('test_user1', 'secrete', 'test_tenant1',\
+                                'token')
         #get token for user 1 with tenant2
-        token2 = utils.get_token('test_user1', 'secrete', 'test_tenant2', 'token')
+        token2 = utils.get_token('test_user1', 'secrete', 'test_tenant2',\
+                                'token')
         #test result :: both token should be different
         self.assertNotEqual(token1, None)
         self.assertNotEqual(token2, None)
@@ -149,7 +169,8 @@ class MultiToken(unittest.TestCase):
         resp = utils.delete_token(token2, self.auth_token)
 
     def test_unassigned_user(self):
-        resp, content = utils.get_token('test_user2', 'secrete', 'test_tenant2')
+        resp, content = utils.get_token('test_user2', 'secrete', \
+                                'test_tenant2')
 
         self.assertEqual(403, int(resp['status']))
 

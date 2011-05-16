@@ -1,4 +1,20 @@
-# Need to access identity module
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import httplib2
 import json
 from lxml import etree
@@ -549,7 +565,8 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
         utils.create_tenant(self.globaltenant, str(self.auth_token))
         utils.create_tenant_group('test_global_group_delete',
                                   self.globaltenant, str(self.auth_token))
-        resp_new, content_new = utils.delete_global_group('test_global_group_delete',
+        resp_new, content_new = utils.delete_global_group(\
+                                  'test_global_group_delete',
                                   str(self.auth_token))
         resp = utils.delete_tenant(self.globaltenant, str(self.auth_token))
         self.assertEqual(204, int(resp_new['status']))
@@ -823,7 +840,7 @@ class GetUsersTenantGroupTest(unittest.TestCase):
     def test_get_users_global_group_forbidden_xml(self):
         resp, content = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
-        utils.create_user(self.tenant, self.user,str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         utils.add_user_global_group(self.global_group, self.user,
                                     str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group_xml(\
@@ -954,7 +971,8 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
                                     str(self.disabled_token))
         utils.delete_user_global_group(self.global_group, self.user,
                                        str(self.auth_token))
-        resp_new, content_new = utils.delete_user_global_group_xml(self.global_group, self.user,
+        resp_new, content_new = utils.delete_user_global_group_xml(\
+                                        self.global_group, self.user,
                                            str(self.auth_token))
         self.assertEqual(404, int(resp_new['status']))
 

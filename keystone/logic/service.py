@@ -18,12 +18,12 @@ from datetime import timedelta
 import uuid
 
 import keystone.logic.types.auth as auth
-import keystone.logic.types.tenant as tenants
 import keystone.logic.types.atom as atom
-import keystone.logic.types.fault as fault
-import keystone.logic.types.user as users
 import keystone.db.sqlalchemy.api as db_api
 import keystone.db.sqlalchemy.models as db_models
+import keystone.logic.types.fault as fault
+import keystone.logic.types.tenant as tenants
+import keystone.logic.types.user as users
 
 
 class IDMService(object):
@@ -69,7 +69,7 @@ class IDMService(object):
                 raise fault.IDMFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
             user = db_api.user_get_by_tenant(duser.id, credentials.tenant_id)
-            
+
             if not credentials.tenant_id or not user:
                 raise fault.ForbiddenFault("Error: user %s is "
                                      "not associated "
@@ -411,7 +411,7 @@ class IDMService(object):
     #
     def create_user(self, admin_token, tenant_id, user):
         self.__validate_token(admin_token)
-        print "@" * 80 
+        print "@" * 80
         print tenant_id
         print user
         dtenant = db_api.tenant_get(tenant_id)

@@ -35,16 +35,11 @@ HTTP_AUTHORIZATION  : basic auth password used to validate the connection
 HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
-import functools
-import httplib
-import json
 import logging
 import os
 import routes
 import sys
 from webob import Response
-from webob import Request
-from webob import descriptors
 from webob.exc import (HTTPNotFound,
                        HTTPConflict,
                        HTTPBadRequest)
@@ -56,12 +51,10 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
 
 
-from queryext import exthandler
 from keystone.common import wsgi
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.auth as auth
-import keystone.logic.types.fault as fault
 import keystone.logic.types.user as users
 import keystone.common.template as template
 import keystone.utils as utils

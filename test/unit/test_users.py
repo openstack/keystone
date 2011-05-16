@@ -1,11 +1,27 @@
-import os
-import sys
-# Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import httplib2
 import json
 from lxml import etree
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
+                                '..', '..', '..', '..', 'keystone')))
 import unittest
 
 import test_common as utils
@@ -133,7 +149,7 @@ class CreateUserTest(UserTest):
         resp, content = utils.create_user_xml(self.tenant, self.user,
                                               str(self.exp_auth_token))
         resp_val = int(resp['status'])
-        utils.handle_user_resp(self, content,  resp_val,
+        utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
         self.assertEqual(403, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
@@ -176,7 +192,7 @@ class CreateUserTest(UserTest):
         resp, content = utils.create_user(self.tenant, self.user,
                                     str(self.invalid_token))
         resp_val = int(resp['status'])
-        utils.handle_user_resp(self,  content, resp_val,
+        utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
         self.assertEqual(404, int(resp['status']))
 
@@ -184,7 +200,7 @@ class CreateUserTest(UserTest):
         resp, content = utils.create_user_xml(self.tenant, self.user,
                                         str(self.invalid_token))
         resp_val = int(resp['status'])
-        utils.handle_user_resp(self,  content, resp_val,
+        utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
         self.assertEqual(404, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
@@ -1054,7 +1070,7 @@ class SetPasswordTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_password_expired_token(self):
-        utils.create_user(self.tenant, self.user,  str(self.auth_token))
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_password_json(self.tenant,
                                                 self.user,
                                                 str(self.exp_auth_token))
