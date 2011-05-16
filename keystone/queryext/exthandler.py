@@ -27,8 +27,6 @@ overwrites the Accept header in the request, if present.
 
 """
 
-import bottle
-from bottle import Request
 
 # Does this need to be configurable?
 DEFAULT_EXTS = {'xml': 'application/xml', 'json': 'application/json'}

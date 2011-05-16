@@ -1,4 +1,3 @@
-bottle
 eventlet
 lxml
 paste

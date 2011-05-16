@@ -36,13 +36,12 @@ HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
 import functools
-import logging
-import os
-import sys
 import httplib
 import json
-
+import logging
+import os
 import routes
+import sys
 from webob import Response
 from webob import Request
 from webob import descriptors
@@ -73,11 +72,10 @@ VERSION_DATE = "2011-04-23T00:00:00Z"
 
 service = serv.IDMService()
 
-"""
-General Functions for the server.py use
-"""
 
-
+#
+# General Functions for the server.py use
+#
 def is_xml_response(req):
     if not "Accept" in req.headers:
         return False
@@ -748,7 +746,7 @@ class KeystoneAPI(wsgi.Router):
 
 
 def app_factory(global_conf, **local_conf):
-    """paste.deploy app factory for creating Glance API server apps"""
+    """paste.deploy app factory for creating OpenStack API server apps"""
     try:
         conf = global_conf.copy()
         conf.update(local_conf)
