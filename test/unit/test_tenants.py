@@ -14,21 +14,28 @@ class TenantTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = 'test_tenant'
-        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
-                                     'token')
+        self.auth_token = utils.get_auth_token()
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
-        self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.create_user(self.tenant, self.user, self.auth_token)
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
+        
 
     def tearDown(self):
+        utils.delete_user(self.tenant, self.user, self.auth_token)
         utils.delete_tenant(self.tenant, self.auth_token)
+        
 
 
 class CreateTenantTest(TenantTest):
 
     def test_tenant_create(self):
+        utils.delete_user(self.tenant, self.user, self.auth_token)
         utils.delete_tenant(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
@@ -41,6 +48,7 @@ class CreateTenantTest(TenantTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_xml(self):
+        utils.delete_user(self.tenant, self.user, self.auth_token)
         utils.delete_tenant_xml(self.tenant,
                                                 str(self.auth_token))
         resp, content = utils.create_tenant_xml(self.tenant,

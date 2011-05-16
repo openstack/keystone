@@ -15,7 +15,6 @@ from test_common import URL
 class UserTest(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.tenant = utils.get_tenant()
         self.password = utils.get_password()
         self.email = utils.get_email()
@@ -26,6 +25,10 @@ class UserTest(unittest.TestCase):
         self.disabled_token = utils.get_disabled_token()
         self.missing_token = utils.get_none_token()
         self.invalid_token = utils.get_non_existing_token()
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         utils.delete_user(self.tenant, self.user, str(self.auth_token))
@@ -34,9 +37,12 @@ class UserTest(unittest.TestCase):
 class CreateUserTest(UserTest):
 
     def test_a_user_create_json(self):
-        utils.delete_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.create_user(self.tenant, self.user,
+        
+        resp = utils.delete_user(self.tenant, self.user, str(self.auth_token))
+        
+        resp, content = utils.create_user(self.tenant, 'test_user1',
                                            str(self.auth_token))
+        self.user = 'test_user1'
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
@@ -44,8 +50,9 @@ class CreateUserTest(UserTest):
 
     def test_a_user_create_xml(self):
         utils.delete_user_xml(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.create_user_xml(self.tenant, self.user,
+        resp, content = utils.create_user_xml(self.tenant, 'test_user1',
                                            str(self.auth_token))
+        self.user = 'test_user1'
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
                                 utils.content_type(resp))

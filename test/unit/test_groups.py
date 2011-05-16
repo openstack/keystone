@@ -20,16 +20,20 @@ class GlobalGroupTest(unittest.TestCase):
 
     def setUp(self):
         self.globaltenant = utils.get_global_tenant()
-        self.token = utils.get_token('joeuser', 'secrete', self.globaltenant,
-                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
         self.global_group = 'test_global_group_add'
+        utils.create_tenant(self.globaltenant, str(self.auth_token))
+        utils.create_user(self.globaltenant, self.user, self.auth_token)
+        utils.add_user_json(self.globaltenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.globaltenant,
+                                     'token')
 
     def tearDown(self):
+        utils.delete_user(self.globaltenant, self.user, str(self.auth_token))
         utils.delete_global_group(self.global_group,
                                             self.auth_token)
         utils.delete_tenant(self.globaltenant, self.auth_token)
@@ -352,7 +356,7 @@ class GetGlobalGroupsTest(GlobalGroupTest):
         self.assertEqual(403, int(resp['status']))
 
 
-class GetGlobalGroupGest(GlobalGroupTest):
+class GetGlobalGroupTest(GlobalGroupTest):
 
     def test_get_global_group(self):
         header = httplib2.Http(".cache")
@@ -571,30 +575,37 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
     def test_delete_global_group_xml(self):
         resp, content = utils.create_tenant_xml(self.globaltenant,
                                                 str(self.auth_token))
+        
         resp_new, content_new = utils.create_tenant_group_xml(\
                                                   'test_global_group_delete',
                                                   self.globaltenant,
                                                   str(self.auth_token))
+        
         resp_new, content_new = utils.delete_global_group_xml(\
                                                   'test_global_group_delete',
                                                   str(self.auth_token))
+        
         resp = utils.delete_tenant_xml(self.globaltenant,
                                           str(self.auth_token))
-        self.assertEqual(204, int(resp['status']))
+        
+        self.assertEqual(204, int(resp_new['status']))
 
 
 class AddUserGlobalGroupTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = utils.get_global_tenant()
-        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
-                                     'token')
+        self.auth_token = utils.get_auth_token()
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
-        self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
         self.global_group = 'test_global_group'
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.create_user(self.tenant, self.user, self.auth_token)
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         resp_new, content_new = utils.delete_user_global_group(\
@@ -604,6 +615,7 @@ class AddUserGlobalGroupTest(unittest.TestCase):
 
         resp = utils.delete_user(self.tenant, self.user,
                                       str(self.auth_token))
+        utils.delete_user(self.tenant, self.user, self.auth_token)
         resp, content = utils.delete_global_group(self.global_group,
                                             self.auth_token)
 
@@ -688,10 +700,10 @@ class AddUserGlobalGroupTest(unittest.TestCase):
                                               str(self.auth_token))
         resp_new, content_new = utils.create_user(self.tenant, self.user,
                                       str(self.auth_token))
+        
         resp_new, content_new = utils.add_user_global_group(self.global_group,
                                                 self.user,
                                                 str(self.token))
-
         if int(resp['status']) == 500:
             self.fail('IDM fault')
         elif int(resp['status']) == 503:
@@ -753,14 +765,17 @@ class GetUsersTenantGroupTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = utils.get_global_tenant()
-        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
-                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
         self.global_group = 'test_global_group'
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.create_user(self.tenant, self.user, self.auth_token)
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         resp_new, content_new = utils.delete_user_global_group(\
@@ -934,14 +949,17 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = utils.get_global_tenant()
-        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
-                                     'token')
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
         self.global_group = 'test_global_group'
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.create_user(self.tenant, self.user, self.auth_token)
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         resp_new, content_new = utils.delete_user_global_group(\

@@ -15,19 +15,24 @@ class TenantGroupTest(unittest.TestCase):
 
     def setUp(self):
         self.tenant = util.get_tenant()
-        self.token = util.get_token('joeuser', 'secrete', self.tenant,
-                                    'token')
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
         self.exp_auth_token = util.get_exp_auth_token()
         self.disabled_token = util.get_disabled_token()
         self.tenant_group = 'test_tenant_group_add'
+        util.create_tenant(self.tenant, str(self.auth_token))
+        util.create_user(self.tenant, self.user, self.auth_token)
+        util.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = util.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
+        util.delete_user(self.tenant, self.user,
+                                      str(self.auth_token))
         util.delete_tenant(self.tenant, self.auth_token)
 
 
@@ -751,13 +756,17 @@ class AddUserTenantGroupTest(TenantGroupTest):
 
     def setUp(self):
         self.tenant = 'test_tenant'
-        self.token = util.get_token('joeuser', 'secrete', self.tenant, 'token')
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
         self.exp_auth_token = util.get_exp_auth_token()
         self.disabled_token = util.get_disabled_token()
         self.tenant_group = 'test_tenant_group_add'
+        util.create_tenant(self.tenant, str(self.auth_token))
+        util.create_user(self.tenant, self.user, self.auth_token)
+        util.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = util.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         resp, content = util.delete_user_tenant_group(self.tenant,
@@ -933,13 +942,17 @@ class GetUsersTenantGroupTest(TenantGroupTest):
 
     def setUp(self):
         self.tenant = 'test_tenant'
-        self.token = util.get_token('joeuser', 'secrete', self.tenant, 'token')
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
         self.exp_auth_token = util.get_exp_auth_token()
         self.disabled_token = util.get_disabled_token()
         self.tenant_group = 'test_tenant_group_add'
+        util.create_tenant(self.tenant, str(self.auth_token))
+        util.create_user(self.tenant, self.user, self.auth_token)
+        util.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = util.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
         resp, content = util.delete_user_tenant_group(self.tenant,

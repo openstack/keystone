@@ -228,6 +228,7 @@ def delete_tenant_xml(tenantid, auth_token):
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
+    
     return resp
 
 
