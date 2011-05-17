@@ -20,9 +20,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_mapper
-
-from session import get_session
-
+import api as db_api
 Base = declarative_base()
 
 
@@ -32,7 +30,7 @@ class KeystoneBase(object):
     def save(self, session=None):
         """Save this object."""
         if not session:
-            session = get_session()
+            session =  db_api.get_session()
         session.add(self)
         try:
             session.flush()
@@ -109,6 +107,13 @@ class Tenant(Base, KeystoneBase):
     enabled = Column(Integer)
     groups = relationship('Group', backref='tenants')
 
+class Token(Base, KeystoneBase):
+    __tablename__ = 'token'
+
+    token_id = Column(String(255), primary_key=True, unique=True)
+    user_id = Column(String(255))
+    tenant_id = Column(String(255))
+    expires = Column(DateTime)
 
 class Group(Base, KeystoneBase):
     __tablename__ = 'groups'
@@ -118,18 +123,3 @@ class Group(Base, KeystoneBase):
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
 
 
-class Token(Base, KeystoneBase):
-    __tablename__ = 'token'
-
-    token_id = Column(String(255), primary_key=True, unique=True)
-    user_id = Column(String(255))
-    tenant_id = Column(String(255))
-    expires = Column(DateTime)
-
-
-def register_models(session, engine):
-    models = (User, Tenant, Group, Token, UserGroupAssociation,
-        UserTenantAssociation)
-    for model in models:
-        model.metadata.create_all(engine)
-    session.flush()
