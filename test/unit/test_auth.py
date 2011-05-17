@@ -11,8 +11,6 @@ import keystone.logic.types.auth as auth
 import keystone.logic.types.fault as fault
 
 from StringIO import StringIO
-from bottle import HTTPError
-from bottle import request
 from datetime import date
 from lxml import etree
 
