@@ -1,58 +1,46 @@
-import bottle
 import unittest
 import os
 import sys
 import json
 
-
-
-TOP_DIR =  os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                        os.pardir,
-                                        os.pardir))
-
-if os.path.exists(os.path.join(TOP_DIR, 'keystone', '__init__.py')):
-    sys.path.insert(0, TOP_DIR)
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
+                                '..', '..', '..', '..', 'keystone')))
     
 from keystone import server
 import keystone.logic.types.auth as auth
 import keystone.logic.types.fault as fault
 
 from StringIO import StringIO
-from bottle import HTTPError
-from bottle import request
 from datetime import date
 from lxml import etree
-
+from webob import Request
+from webob import Response
     
 class TestServer(unittest.TestCase):
     '''Unit tests for server.py.'''
     
-    request = bottle.Request()
-    response = bottle.Response()
-    auth_data = auth.AuthData(auth.Token(date.today(),"2231312"), auth.User("username","12345",auth.Groups([],[])))
+    request = None
+    auth_data = None
     
     def setUp(self):
-        server.request = self.request
-        server.response = self.response
+        environ = {'wsgi.url_scheme': 'http'} 
+        self.request = Request(environ)
+        self.auth_data = auth.AuthData(auth.Token(date.today(),"2231312"), auth.User("username","12345",auth.Groups([],[])))
         
     #def tearDown(self):
     
-    def test_error(self):
-        msg = 'Access denied!'
-        error = HTTPError(401, msg)
-        retVal = server.error_handler(error)
-        self.assertEqual(retVal,msg)
-    
     def test_is_xml_response(self):
-        self.assertFalse(server.is_xml_response())
-        self.request.header["Accept"] = "application/xml"
-        self.assertTrue(server.is_xml_response())
+        self.assertFalse(server.is_xml_response(self.request))
+        self.request.headers["Accept"] = "application/xml"
+        self.request.content_type="application/json"
+        self.assertTrue(server.is_xml_response(self.request))
     
     def test_send_result_xml(self):
-        self.request.header["Accept"] = "application/xml"
-        xml_str = server.send_result(200,self.auth_data);
-        self.assertTrue(self.response.content_type=="application/xml")
-        xml = etree.fromstring(xml_str)
+        self.request.headers["Accept"] = "application/xml"
+        response = server.send_result(200,self.request,self.auth_data);
+       
+        self.assertTrue(response.headers['content-type'] == "application/xml; charset=UTF-8")
+        xml = etree.fromstring(response.unicode_body)
 
         user = xml.find("{http://docs.openstack.org/idm/api/v1.0}user")
         token = xml.find("{http://docs.openstack.org/idm/api/v1.0}token")
@@ -63,21 +51,21 @@ class TestServer(unittest.TestCase):
         self.assertTrue(token.get("expires"),date.today());
         
     def test_send_result_json(self):
-        self.request.header["Accept"] = "application/json"
-        json_str = server.send_result(200,self.auth_data);
-        self.assertTrue(self.response.content_type=="application/json")
-        dict = json.loads(json_str)
+        self.request.headers["Accept"] = "application/json"
+        response = server.send_result(200,self.request,self.auth_data);
+        self.assertTrue(response.headers['content-type'] == "application/json; charset=UTF-8")
+        dict = json.loads(response.unicode_body)
         self.assertTrue(dict['auth']['user']['username'],'username');
         self.assertTrue(dict['auth']['user']['tenantId'],'12345');
         self.assertTrue(dict['auth']['token']['id'],'2231312');
         self.assertTrue(dict['auth']['token']['expires'],date.today());
         
     def test_get_auth_token(self):
-        self.request.header["X-Auth-Token"]="Test token"
-        self.assertTrue(server.get_auth_token(),"Test Token")
+        self.request.headers["X-Auth-Token"]="Test token"
+        self.assertTrue(server.get_auth_token(self.request),"Test Token")
     
     def test_get_normalized_request_content_exception(self):
-        self.assertRaises(fault.IDMFault,server.get_normalized_request_content,None)
+        self.assertRaises(fault.IDMFault,server.get_normalized_request_content,None,self.request)
     
     def test_get_normalized_request_content_xml(self):
         self.request.environ["CONTENT_TYPE"]="application/xml"

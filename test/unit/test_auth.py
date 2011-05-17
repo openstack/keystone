@@ -1,17 +1,10 @@
-import bottle
 import unittest
 import os
 import sys
 import json
 
-
-
-TOP_DIR =  os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                        os.pardir,
-                                        os.pardir))
-
-if os.path.exists(os.path.join(TOP_DIR, 'keystone', '__init__.py')):
-    sys.path.insert(0, TOP_DIR)
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
+                                '..', '..', '..', '..', 'keystone')))
     
 from keystone import server
 import keystone.logic.types.auth as auth
