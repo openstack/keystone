@@ -1047,6 +1047,7 @@ Host: identity.api.openstack.org/v1.1/
                                 Get a list of enabled base URLs.
                             </td>
                         </tr>
+                        
                     </tbody>
                 </informaltable>
                 <simpara>
@@ -1120,17 +1121,17 @@ Host: identity.api.openstack.org/v1.1/
                 </example>
             </section>
             <section>
-                <title>Get Base URLs for a User</title>
+                <title>Get Base URLs for a Tenant</title>
                 <informaltable rules="all">
                     &LONG_URI_REFHEAD;
                     <tbody>
                         <tr>
                             <td colspan="1">&GET;
                             </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/baseURLRefs
+                            <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
                             </td>
                             <td colspan="3">
-                                Get a list of base URLs for a user.
+                                Get a list of base URLs for a tenant.
                             </td>
                         </tr>
                     </tbody>
@@ -1162,17 +1163,17 @@ Host: identity.api.openstack.org/v1.1/
                 </example>
             </section>
             <section>
-                <title>Add Base URL to a User</title>
+                <title>Add Base URL to a Tenant.</title>
                 <informaltable rules="all">
                     &LONG_URI_REFHEAD;
                     <tbody>
                         <tr>
                             <td colspan="1">&POST;
                             </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/baseURLRefs
+                            <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
                             </td>
                             <td colspan="3">
-                                Add a base URL to a user.
+                                Add a base URL to a tenant.
                             </td>
                         </tr>
                     </tbody>
@@ -1209,14 +1210,14 @@ Host: identity.api.openstack.org/v1.1/
                 </example>
             </section>
             <section>
-                <title>Remove Base URLs from a User</title>
+                <title>Remove Base URLs from a Tennat</title>
                 <informaltable rules="all">
                     &LONG_URI_REFHEAD;
                     <tbody>
                         <tr>
                             <td colspan="1">&DELETE;
                             </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
+                            <td colspan="4">/tenant/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
                             <td colspan="3">
                                 Remove Base URL from a user.
                             </td>
@@ -1254,15 +1255,6 @@ Host: identity.api.openstack.org/v1.1/
                             </td>
                             <td colspan="3">
                                 Get a list of roles.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/roles/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
-                            </td>
-                            <td colspan="3">
-                                Get a list of enabled roles.
                             </td>
                         </tr>
                     </tbody>
