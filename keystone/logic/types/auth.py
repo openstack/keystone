@@ -13,17 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-
 from abc import ABCMeta
+from datetime import datetime
 import json
 from lxml import etree
 
 import keystone.logic.types.fault as fault
 
 
+
 class PasswordCredentials(object):
-    "Credentials based on username, password, and (optional) tenant_id."
+    """Credentials based on username, password, and (optional) tenant_id.
+        To handle multiple token for a user depending on tenants,
+        tenant_id is mandatory.
+    """
 
     def __init__(self, username, password, tenant_id):
         self.username = username
@@ -46,6 +49,12 @@ class PasswordCredentials(object):
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
             tenant_id = root.get("tenantId")
+
+            #--for multi-token handling--
+            if tenant_id == None:
+                raise fault.BadRequestFault("Expecting tenant")
+            # ----
+
             return PasswordCredentials(username, password, tenant_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
@@ -67,7 +76,10 @@ class PasswordCredentials(object):
             if "tenantId" in cred:
                 tenant_id = cred["tenantId"]
             else:
-                tenant_id = None
+                #--for multi-token handling--
+                if tenant_id == None:
+                    raise fault.BadRequestFault("Expecting a tenant")
+                # ---
             return PasswordCredentials(username, password, tenant_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
@@ -122,7 +134,7 @@ class AuthData(object):
         token.set("id", self.token.token_id)
         user = etree.Element("user",
                              username=self.user.username,
-                             tenantId=self.user.tenant_id)
+                             tenantId=str(self.user.tenant_id))
         groups = etree.Element("groups")
         for group in self.user.groups.values:
             g = etree.Element("group",

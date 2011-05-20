@@ -330,6 +330,13 @@ def user_get(id, session=None):
     return result
 
 
+def user_get_email(email, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.User).filter_by(email=email).first()
+    return result
+
+
 def user_groups(id, session=None):
     if not session:
         session = get_session()
@@ -547,14 +554,6 @@ def user_get_update(id, session=None):
         session = get_session()
     result = session.query(models.User).filter_by(id=id).first()
     return result
-
-
-def user_get_email(email, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.User).filter_by(email=email).first()
-    return result
-
 
 def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
     if not session:

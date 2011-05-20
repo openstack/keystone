@@ -1,34 +1,57 @@
-import os
-import sys
-# Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
-import unittest
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import httplib2
 import json
 from lxml import etree
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
+                                '..', '..', '..', '..', 'keystone')))
+import unittest
+
 import test_common as utils
 
 
-class tenant_test(unittest.TestCase):
+class TenantTest(unittest.TestCase):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', 'token')
         self.tenant = 'test_tenant'
+        self.auth_token = utils.get_auth_token()
         self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
-        self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
+        utils.create_tenant(self.tenant, str(self.auth_token))
+        utils.create_user(self.tenant, self.user, self.auth_token)
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        self.token = utils.get_token(self.user, 'secrete', self.tenant,
+                                     'token')
 
     def tearDown(self):
-        resp, content = utils.delete_tenant(self.tenant, self.auth_token)
+        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_tenant(self.tenant, self.auth_token)
 
 
-class create_tenant_test(tenant_test):
+class CreateTenantTest(TenantTest):
 
     def test_tenant_create(self):
-        resp, content = utils.delete_tenant(self.tenant, str(self.auth_token))
+        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_tenant(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
@@ -40,7 +63,8 @@ class create_tenant_test(tenant_test):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_xml(self):
-        resp, content = utils.delete_tenant_xml(self.tenant,
+        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_tenant_xml(self.tenant,
                                                 str(self.auth_token))
         resp, content = utils.create_tenant_xml(self.tenant,
                                                 str(self.auth_token))
@@ -302,7 +326,7 @@ class create_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class get_tenants_test(tenant_test):
+class GetTenantsTest(TenantTest):
 
     def test_get_tenants(self):
         header = httplib2.Http(".cache")
@@ -392,7 +416,7 @@ class get_tenants_test(tenant_test):
         self.assertEqual(403, int(resp['status']))
 
 
-class get_tenant_test(tenant_test):
+class GetTenantTest(TenantTest):
 
     def test_get_tenant(self):
         header = httplib2.Http(".cache")
@@ -482,7 +506,7 @@ class get_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class update_tenant_test(tenant_test):
+class UpdateTenantTest(TenantTest):
 
     def test_update_tenant(self):
         header = httplib2.Http(".cache")
@@ -603,33 +627,33 @@ class update_tenant_test(tenant_test):
         self.assertEqual(404, int(resp['status']))
 
 
-class delete_tenant_test(tenant_test):
+class DeleteTenantTest(TenantTest):
 
     def test_delete_tenant_not_found(self):
         #resp,content=utils.create_tenant("test_tenant_delete",
         #                                str(self.auth_token))
-        resp, content = utils.delete_tenant("test_tenant_delete111",
+        resp = utils.delete_tenant("test_tenant_delete111",
                                       str(self.auth_token))
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_tenant_not_found_xml(self):
         #resp,content=utils.create_tenant("test_tenant_delete",
         #                                    str(self.auth_token))
-        resp, content = utils.delete_tenant_xml("test_tenant_delete111",
+        resp = utils.delete_tenant_xml("test_tenant_delete111",
                                           str(self.auth_token))
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_tenant(self):
         resp, content = utils.create_tenant("test_tenant_delete",
                                       str(self.auth_token))
-        resp, content = utils.delete_tenant("test_tenant_delete",
+        resp = utils.delete_tenant("test_tenant_delete",
                                       str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
     def test_delete_tenant_xml(self):
         resp, content = utils.create_tenant_xml("test_tenant_delete",
                                           str(self.auth_token))
-        resp, content = utils.delete_tenant_xml("test_tenant_delete",
+        resp = utils.delete_tenant_xml("test_tenant_delete",
                                           str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
