@@ -79,7 +79,8 @@ service = serv.IDMService()
 def is_xml_response(req):
     if not "Accept" in req.headers:
         return False
-    return req.content_type == "application/xml"
+    accept = req.headers['Accept']
+    return accept == "application/xml" or req.content_type == "application/xml"
 
 
 def get_app_root():
