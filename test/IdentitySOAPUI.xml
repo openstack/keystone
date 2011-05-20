@@ -28,7 +28,7 @@
   <con:entry key="Save After" value="false"/>
   <con:entry key="Add Settings" value="false"/>
   <con:entry key="Endpoint" value=""/>
-</xml-fragment>]]></con:setting></con:settings><con:interface xsi:type="con:RestService" wadlVersion="http://wadl.dev.java.net/2009/02" name="Keystone" type="rest" basePath="" definitionUrl="file:/Users/jorgew/projects/keystone/keystone/identity.wadl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/Users/jorgew/projects/keystone/keystone/identity.wadl"><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/identity.wadl</con:url><con:content><![CDATA[<application xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0                                  xsd/api.xsd                                  http://docs.openstack.org/common/api/v1.0                                  xsd/api-common.xsd                                  " xmlns="http://wadl.dev.java.net/2009/02" xmlns:idm="http://docs.openstack.org/identity/api/v2.0" xmlns:capi="http://docs.openstack.org/common/api/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+</xml-fragment>]]></con:setting></con:settings><con:interface xsi:type="con:RestService" wadlVersion="http://wadl.dev.java.net/2009/02" name="Keystone" type="rest" basePath="" definitionUrl="file:/Users/jorgew/projects/keystone/keystone/identity.wadl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/Users/jorgew/projects/keystone/keystone/identity.wadl"><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/identity.wadl</con:url><con:content><![CDATA[<application xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0                                  xsd/api.xsd                                  http://docs.openstack.org/common/api/v1.0                                  xsd/api-common.xsd                                  " xmlns="http://wadl.dev.java.net/2009/02" xmlns:identity="http://docs.openstack.org/identity/api/v2.0" xmlns:capi="http://docs.openstack.org/common/api/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <grammars>
     <include href="xsd/api.xsd"/>
     <include href="xsd/api-common.xsd"/>
@@ -73,13 +73,13 @@
       <representation mediaType="application/json"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 500 503">
       <representation mediaType="application/json"/>
@@ -91,16 +91,16 @@
       <representation mediaType="application/json"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 404 500 503">
       <representation mediaType="application/json"/>
@@ -113,13 +113,13 @@
       <representation mediaType="application/json"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 500 503">
       <representation mediaType="application/json"/>
@@ -128,27 +128,27 @@
   <!--Token Operations-->
   <method name="POST" id="authenticate">
     <request>
-      <representation mediaType="application/xml" element="idm:passwordCredentials"/>
+      <representation mediaType="application/xml" element="identity:passwordCredentials"/>
       <representation mediaType="application/json"/>
     </request>
     <response status="200 203">
-      <representation mediaType="application/xml" element="idm:auth"/>
+      <representation mediaType="application/xml" element="identity:auth"/>
       <representation mediaType="application/json"/>
     </response>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:userDisabled"/>
+      <representation mediaType="application/xml" element="identity:userDisabled"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="401 403 400 500 503">
       <representation mediaType="application/json"/>
@@ -159,27 +159,27 @@
       <param name="belongsTo" style="query" required="false" type="xsd:string"/>
     </request>
     <response status="200 203">
-      <representation mediaType="application/xml" element="idm:auth"/>
+      <representation mediaType="application/xml" element="identity:auth"/>
       <representation mediaType="application/json"/>
     </response>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
-      <representation mediaType="application/xml" element="idm:userDisabled"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
+      <representation mediaType="application/xml" element="identity:userDisabled"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 401 403 404 500 503">
       <representation mediaType="application/json"/>
@@ -188,22 +188,22 @@
   <method name="DELETE" id="revokeToken">
     <response status="204"/>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 401 403 404 500 503">
       <representation mediaType="application/json"/>
@@ -216,26 +216,26 @@
       <param name="limit" style="query" required="false" type="xsd:int"/>
     </request>
     <response status="200 203">
-      <representation mediaType="application/xml" element="idm:tenants"/>
+      <representation mediaType="application/xml" element="identity:tenants"/>
       <representation mediaType="application/json"/>
     </response>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 401 403 404 500 503">
       <representation mediaType="application/json"/>
@@ -243,30 +243,30 @@
   </method>
   <method name="POST" id="createTenant">
     <request>
-      <representation mediaType="application/xml" element="idm:tenant"/>
+      <representation mediaType="application/xml" element="identity:tenant"/>
       <representation mediaType="application/json"/>
     </request>
     <response status="201">
-      <representation mediaType="application/xml" element="idm:tenant"/>
+      <representation mediaType="application/xml" element="identity:tenant"/>
       <representation mediaType="application/json"/>
     </response>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
     </response>
     <response status="409">
-       <representation mediaType="application/xml" element="idm:tenantConflict"/>
+       <representation mediaType="application/xml" element="identity:tenantConflict"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="401 403 400 409 500 503">
       <representation mediaType="application/json"/>
@@ -274,26 +274,26 @@
   </method>
   <method name="GET" id="getTenant">
     <response status="200 203">
-      <representation mediaType="application/xml" element="idm:tenant"/>
+      <representation mediaType="application/xml" element="identity:tenant"/>
       <representation mediaType="application/json"/>
     </response>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 401 403 404 500 503">
       <representation mediaType="application/json"/>
@@ -301,30 +301,30 @@
   </method>
   <method name="PUT" id="updateTenant">
     <request>
-      <representation mediaType="application/xml" element="idm:tenant"/>
+      <representation mediaType="application/xml" element="identity:tenant"/>
       <representation mediaType="application/json"/>
     </request>
     <response status="200">
-      <representation mediaType="application/xml" element="idm:tenant"/>
+      <representation mediaType="application/xml" element="identity:tenant"/>
       <representation mediaType="application/json"/>
     </response>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="401 403 404 400 500 503">
       <representation mediaType="application/json"/>
@@ -333,40 +333,40 @@
   <method name="DELETE" id="deleteTenant">
     <response status="204"/>
     <response status="401">
-      <representation mediaType="application/xml" element="idm:unauthorized"/>
+      <representation mediaType="application/xml" element="identity:unauthorized"/>
     </response>
     <response status="403">
-      <representation mediaType="application/xml" element="idm:forbidden"/>
+      <representation mediaType="application/xml" element="identity:forbidden"/>
     </response>
     <response status="400">
-      <representation mediaType="application/xml" element="idm:badRequest"/>
+      <representation mediaType="application/xml" element="identity:badRequest"/>
     </response>
     <response status="404">
-      <representation mediaType="application/xml" element="idm:itemNotFound"/>
+      <representation mediaType="application/xml" element="identity:itemNotFound"/>
     </response>
     <response status="500">
-      <representation mediaType="application/xml" element="idm:idmFault"/>
+      <representation mediaType="application/xml" element="identity:identityFault"/>
     </response>
     <response status="503">
-      <representation mediaType="application/xml" element="idm:serviceUnavailable"/>
+      <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
     </response>
     <response status="400 401 403 404 500 503">
       <representation mediaType="application/json"/>
     </response>
   </method>
-</application>]]></con:content><con:type>http://wadl.dev.java.net/2009/02</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/api.xsd</con:url><con:content>&lt;schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:idm="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+</application>]]></con:content><con:type>http://wadl.dev.java.net/2009/02</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/api.xsd</con:url><con:content>&lt;schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:identity="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   &lt;include schemaLocation="token.xsd"/>
   &lt;include schemaLocation="tenant.xsd"/>
   &lt;include schemaLocation="fault.xsd"/>
-&lt;/schema></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/token.xsd</con:url><con:content><![CDATA[<schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:idm="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+&lt;/schema></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/token.xsd</con:url><con:content><![CDATA[<schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:identity="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!--Elements-->
-  <element name="passwordCredentials" type="idm:PasswordCredentials"/>
-  <element name="auth" type="idm:AuthData"/>
+  <element name="passwordCredentials" type="identity:PasswordCredentials"/>
+  <element name="auth" type="identity:AuthData"/>
   <!--Complex Types-->
   <complexType name="Credentials" abstract="true"/>
   <complexType name="PasswordCredentials">
     <complexContent>
-      <extension base="idm:Credentials">
+      <extension base="identity:Credentials">
         <sequence>
           <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
@@ -379,8 +379,8 @@
   </complexType>
   <complexType name="AuthData">
     <sequence>
-      <element name="token" type="idm:Token"/>
-      <element name="user" type="idm:User"/>
+      <element name="token" type="identity:Token"/>
+      <element name="user" type="identity:User"/>
       <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
     <anyAttribute namespace="##other" processContents="lax"/>
@@ -395,7 +395,7 @@
   </complexType>
   <complexType name="User">
     <sequence>
-      <element name="groups" type="idm:Groups"/>
+      <element name="groups" type="identity:Groups"/>
       <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
     <attribute name="tenantId" type="xsd:string"/>
@@ -404,7 +404,7 @@
   </complexType>
   <complexType name="Groups">
     <sequence>
-      <element name="group" type="idm:Group" maxOccurs="1000"/>
+      <element name="group" type="identity:Group" maxOccurs="1000"/>
       <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
     <anyAttribute namespace="##other" processContents="lax"/>
@@ -414,16 +414,16 @@
     <attribute name="tenantId" type="xsd:string" use="optional"/>
     <anyAttribute namespace="##other" processContents="lax"/>
   </complexType>
-</schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/tenant.xsd</con:url><con:content><![CDATA[<schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:idm="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:atom="http://www.w3.org/2005/Atom">
+</schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/tenant.xsd</con:url><con:content><![CDATA[<schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:identity="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:atom="http://www.w3.org/2005/Atom">
   <!--Import ATOM specific schema definitions-->
   <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom" schemaLocation="./atom/atom.xsd"/>
   <!--Elements-->
-  <element name="tenant" type="idm:Tenant"/>
-  <element name="tenants" type="idm:Tenants"/>
+  <element name="tenant" type="identity:Tenant"/>
+  <element name="tenants" type="identity:Tenants"/>
   <!--Complex Types-->
   <complexType name="Tenants">
     <sequence>
-      <element name="tenant" type="idm:Tenant" maxOccurs="1000"/>
+      <element name="tenant" type="identity:Tenant" maxOccurs="1000"/>
       <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
       <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
@@ -780,19 +780,19 @@
       </div>
     </xs:documentation>
   </xs:annotation>
-</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/fault.xsd</con:url><con:content><![CDATA[<schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:idm="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/Users/jorgew/projects/keystone/keystone/xsd/fault.xsd</con:url><con:content><![CDATA[<schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://docs.openstack.org/identity/api/v2.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:identity="http://docs.openstack.org/identity/api/v2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!--Fault Elements-->
-  <element name="idmFault" type="idm:IDMFault"/>
-  <element name="serviceUnavailable" type="idm:ServiceUnavailableFault"/>
-  <element name="badRequest" type="idm:BadRequestFault"/>
-  <element name="unauthorized" type="idm:UnauthorizedFault"/>
-  <element name="overLimit" type="idm:OverLimitFault"/>
-  <element name="userDisabled" type="idm:UserDisabledFault"/>
-  <element name="forbidden" type="idm:ForbiddenFault"/>
-  <element name="itemNotFound" type="idm:ItemNotFoundFault"/>
-  <element name="tenantConflict" type="idm:TenantConflictFault"/>
+  <element name="identityFault" type="identity:IdentityFault"/>
+  <element name="serviceUnavailable" type="identity:ServiceUnavailableFault"/>
+  <element name="badRequest" type="identity:BadRequestFault"/>
+  <element name="unauthorized" type="identity:UnauthorizedFault"/>
+  <element name="overLimit" type="identity:OverLimitFault"/>
+  <element name="userDisabled" type="identity:UserDisabledFault"/>
+  <element name="forbidden" type="identity:ForbiddenFault"/>
+  <element name="itemNotFound" type="identity:ItemNotFoundFault"/>
+  <element name="tenantConflict" type="identity:TenantConflictFault"/>
   <!--Fault Types-->
-  <complexType name="IDMFault">
+  <complexType name="IdentityFault">
     <sequence>
       <element name="message" type="xsd:string">
         <annotation>
@@ -825,42 +825,42 @@
   </complexType>
   <complexType name="ServiceUnavailableFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="BadRequestFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="UnauthorizedFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="UserDisabledFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="ForbiddenFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="ItemNotFoundFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="TenantConflictFault">
     <complexContent>
-      <extension base="idm:IDMFault"></extension>
+      <extension base="identity:IdentityFault"></extension>
     </complexContent>
   </complexType>
   <complexType name="OverLimitFault">
     <complexContent>
-      <extension base="idm:IDMFault">
+      <extension base="identity:IdentityFault">
         <attribute name="retryAt" type="xsd:dateTime" use="optional">
           <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -1094,47 +1094,47 @@
     </xs:attribute>
     <xs:anyAttribute namespace="##other" processContents="lax"/>
   </xs:complexType>
-</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080</con:endpoint></con:endpoints><con:resource name="v1.0" path="v1.0"><con:settings/><con:parameters/><con:resource name="extensions" path="extensions"><con:settings/><con:parameters/><con:resource name="{alias}" path="{alias}"><con:settings/><con:parameters><con:parameter><con:name>alias</con:name><con:value xsi:nil="true"/><con:style>TEMPLATE</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:method name="GET - getExtension" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/common/api/v1.0">v1:extension</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200 203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="alias" value="RAX-TEST" xmlns="http://eviware.com/soapui/config"/></con:parameters></con:request></con:method></con:resource><con:method name="GET - getExtensions" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/common/api/v1.0">v1:extensions</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200 203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource><con:resource name="token" path="token"><con:settings/><con:parameters/><con:resource name="{tokenId}" path="{tokenId}"><con:settings/><con:parameters><con:parameter required="true"><con:name>X-Auth-Token</con:name><con:value xsi:nil="true"/><con:style>HEADER</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter><con:parameter><con:name>tokenId</con:name><con:value xsi:nil="true"/><con:style>TEMPLATE</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:method name="GET - validateToken" method="GET"><con:settings/><con:parameters><con:parameter><con:name>belongsTo</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:auth</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200 203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:userDisabled</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080</con:endpoint></con:endpoints><con:resource name="v1.0" path="v1.0"><con:settings/><con:parameters/><con:resource name="extensions" path="extensions"><con:settings/><con:parameters/><con:resource name="{alias}" path="{alias}"><con:settings/><con:parameters><con:parameter><con:name>alias</con:name><con:value xsi:nil="true"/><con:style>TEMPLATE</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:method name="GET - getExtension" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/common/api/v1.0">v1:extension</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200 203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="alias" value="RAX-TEST" xmlns="http://eviware.com/soapui/config"/></con:parameters></con:request></con:method></con:resource><con:method name="GET - getExtensions" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/common/api/v1.0">v1:extensions</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200 203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource><con:resource name="token" path="token"><con:settings/><con:parameters/><con:resource name="{tokenId}" path="{tokenId}"><con:settings/><con:parameters><con:parameter required="true"><con:name>X-Auth-Token</con:name><con:value xsi:nil="true"/><con:style>HEADER</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter><con:parameter><con:name>tokenId</con:name><con:value xsi:nil="true"/><con:style>TEMPLATE</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:method name="GET - validateToken" method="GET"><con:settings/><con:parameters><con:parameter><con:name>belongsTo</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:auth</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200 203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:userDisabled</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
   <con:entry key="tokenId" value="887665443383838"/>
   <con:entry key="X-Auth-Token" value="999888777666"/>
   <con:entry key="belongsTo" value="1234"/>
-</con:parameters></con:request></con:method><con:method name="DELETE - revokeToken" method="DELETE"><con:settings/><con:parameters/><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
+</con:parameters></con:request></con:method><con:method name="DELETE - revokeToken" method="DELETE"><con:settings/><con:parameters/><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
   <con:entry key="tokenId" value="3u37737"/>
   <con:entry key="X-Auth-Token" value="3838737726"/>
 </con:parameters></con:request></con:method></con:resource><con:method name="POST - authenticate" method="POST"><con:settings/><con:parameters/><con:representation type="REQUEST" id=""><con:mediaType>application/xml</con:mediaType><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:passwordCredentials</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="REQUEST" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200
 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:auth</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200
-203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:userDisabled</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>401
+203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:userDisabled</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>401
 403 400 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" postQueryString="false" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request>&lt;passwordCredentials
 password="secrete" username="joeuser"
 xmlns="http://docs.openstack.org/identity/api/v2.0"/></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource><con:resource name="tenants" path="tenants"><con:settings/><con:parameters><con:parameter required="true"><con:name>X-Auth-Token</con:name><con:value xsi:nil="true"/><con:style>HEADER</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:resource name="{tenantId}" path="{tenantId}"><con:settings/><con:parameters><con:parameter><con:name>tenantId</con:name><con:value xsi:nil="true"/><con:style>TEMPLATE</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:method name="GET - getTenant" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200
 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200
-203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
+203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
   <con:entry key="tenantId" value="1234"/>
   <con:entry key="X-Auth-Token" value="999888777666"/>
-</con:parameters></con:request></con:method><con:method name="PUT - updateTenant" method="PUT"><con:settings/><con:parameters/><con:representation type="REQUEST" id=""><con:mediaType>application/xml</con:mediaType><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="REQUEST" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>401
+</con:parameters></con:request></con:method><con:method name="PUT - updateTenant" method="PUT"><con:settings/><con:parameters/><con:representation type="REQUEST" id=""><con:mediaType>application/xml</con:mediaType><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="REQUEST" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>401
 403 404 400 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request>&lt;v1:tenant enabled="true" xmlns:v1="http://docs.openstack.org/identity/api/v2.0">
    &lt;v1:description>New Description&lt;/v1:description>
 &lt;/v1:tenant></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
   <con:entry key="tenantId" value="1234"/>
   <con:entry key="X-Auth-Token" value="999888777666"/>
-</con:parameters></con:request></con:method><con:method name="DELETE - deleteTenant" method="DELETE"><con:settings/><con:parameters/><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
+</con:parameters></con:request></con:method><con:method name="DELETE - deleteTenant" method="DELETE"><con:settings/><con:parameters/><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Accept" value="application/xml" xmlns="http://eviware.com/soapui/config"/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
   <con:entry key="tenantId" value="0000"/>
   <con:entry key="X-Auth-Token" value="999888777666"/>
 </con:parameters></con:request></con:method></con:resource><con:method name="GET - getTenants" method="GET"><con:settings/><con:parameters><con:parameter><con:name>marker</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type><con:default xsi:nil="true"/></con:parameter><con:parameter><con:name>limit</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:int</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200
 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenants</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200
-203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
+203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>404</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:itemNotFound</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
 401 403 404 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="X-Auth-Token" value="999888777666" xmlns="http://eviware.com/soapui/config"/></con:parameters></con:request></con:method><con:method name="POST - createTenant" method="POST"><con:settings/><con:parameters/><con:representation type="REQUEST" id=""><con:mediaType>application/xml</con:mediaType><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="REQUEST" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>201</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenant</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>201</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>401</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:unauthorized</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>403</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:forbidden</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType>
 <con:status>409</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:tenantConflict</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType>
-<con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>401
+<con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>401
 403 400 409 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" postQueryString="false" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request>&lt;v1:tenant
 enabled="true" id="my_new_tenant"
 xmlns:v1="http://docs.openstack.org/identity/api/v2.0">&lt;v1:description>This
 is a description of my tenant. Thank you very
 much.&lt;/v1:description>&lt;/v1:tenant></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="X-Auth-Token" value="999888777666" xmlns="http://eviware.com/soapui/config"/></con:parameters></con:request></con:method></con:resource><con:method name="GET - getVersionInfo" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE" id=""><con:mediaType>application/xml</con:mediaType><con:status>200
 203</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/common/api/v1.0">v1:version</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:status>200
-203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:idmFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
+203</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>400</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:badRequest</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>500</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:identityFault</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/xml</con:mediaType><con:status>503</con:status><con:params/><con:element xmlns:v1="http://docs.openstack.org/identity/api/v2.0">v1:serviceUnavailable</con:element><con:description xsi:nil="true"/></con:representation><con:representation type="FAULT" id=""><con:mediaType>application/json</con:mediaType><con:status>400
 500 503</con:status><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource></con:interface><con:testSuite name="Keystone Tests"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Admin Credential Check" searchProperties="true" id="29b2fa4b-e1c3-49c4-a7e6-334724e74bb9"><con:settings/><con:testStep type="restrequest" name="GET - validateToken - Valid Token"><con:settings/><con:config service="Keystone" resourcePath="/v1.0/token/{tokenId}" methodName="GET - validateToken" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="GET - validateToken - Valid Token" mediaType="application/xml" accept="application/xml"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:assertion type="Simple Contains"><con:configuration><token>auth</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="Simple Contains"><con:configuration><token>token</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="Simple Contains"><con:configuration><token>user</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:assertion type="Schema Compliance"><con:configuration><definition/></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
   <con:entry key="tokenId" value="887665443383838"/>
   <con:entry key="X-Auth-Token" value="999888777666"/>

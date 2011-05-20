@@ -60,6 +60,8 @@ if __name__ == '__main__':
         conf, app = config.load_paste_app('server', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
+        print "Server listening on %s:%s" % (conf['bind_host'],
+                                              conf['bind_port'])
         server.wait()
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

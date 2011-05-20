@@ -120,11 +120,11 @@ After starting keystone a keystone.db sqlite database should be created in the k
 
 Add test data to the database:
 
-    $ sqlite3 bin/keystone.sqlite < test/test_setup.sql
+    $ sqlite3 bin/keystone.db < test/test_setup.sql
 
 To clean the test database
 
-    $ sqlite3 bin/keystone.sqlite < test/kill.sql
+    $ sqlite3 bin/keystone.db < test/kill.sql
 
 To run client demo (with all auth middleware running locally on sample service):
 

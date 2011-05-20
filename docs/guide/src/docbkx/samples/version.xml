@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <version xmlns="http://docs.openstack.org/common/api/v1.0"
          xmlns:atom="http://www.w3.org/2005/Atom"
-         id="v1.0" status="CURRENT" updated="2011-01-21T11:33:21-06:00">
+         id="v2.0" status="CURRENT" updated="2011-01-21T11:33:21-06:00">
 
      <media-types>
          <media-type base="application/xml"
@@ -15,7 +15,7 @@
 
     <atom:link rel="describedby"
                type="application/pdf"
-               href="http://docs.rackspacecloud.com/identity/api/v2.0/idm-devguide-20110125.pdf" />
+               href="http://docs.rackspacecloud.com/identity/api/v2.0/identity-devguide-20110125.pdf" />
 
     <atom:link rel="describedby"
                type="application/vnd.sun.wadl+xml"

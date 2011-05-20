@@ -13,7 +13,7 @@
        <content type="text">Version v1.1 CURRENT (2010-12-12T18:30:02.25Z)</content>
     </entry>
     <entry>
-       <id>http://identity.api.openstack.org/v2.0/</id>
+       <id>http://identity.api.openstack.org/v1.0/</id>
        <title type="text">Version v1.0</title>
        <updated>2009-10-09T11:30:00Z</updated>
        <link rel="self" href="http://identity.api.openstack.org/v2.0/"/>

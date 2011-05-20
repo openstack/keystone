@@ -1,4 +1,4 @@
-POST /v1.0/token HTTP/1.1
+POST /v2.0/token HTTP/1.1
 Host: identity.api.rackspace.com
 Content-Type: application/json
 Accept: application/xml
