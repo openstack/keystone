@@ -17,7 +17,7 @@ import json
 from lxml import etree
 
 
-class IDMFault(Exception):
+class IdentityFault(Exception):
     "Base Exception type for all auth exceptions"
 
     def __init__(self, msg, details=None, code=500):
@@ -25,7 +25,7 @@ class IDMFault(Exception):
         self.code = code
         self.msg = msg
         self.details = details
-        self.key = "idmFault"
+        self.key = "IdentityFault"
 
     @property
     def message(self):
@@ -33,7 +33,7 @@ class IDMFault(Exception):
 
     def to_xml(self):
         dom = etree.Element(self.key,
-                            xmlns="http://docs.openstack.org/idm/api/v1.0")
+                            xmlns="http://docs.openstack.org/identity/api/v2.0")
         dom.set("code", str(self.code))
         msg = etree.Element("message")
         msg.text = self.msg
@@ -55,7 +55,7 @@ class IDMFault(Exception):
         return json.dumps(ret)
 
 
-class ServiceUnavailableFault(IDMFault):
+class ServiceUnavailableFault(IdentityFault):
     "The auth service is unavailable"
 
     def __init__(self, msg, details=None, code=503):
@@ -63,7 +63,7 @@ class ServiceUnavailableFault(IDMFault):
         self.key = "serviceUnavailable"
 
 
-class BadRequestFault(IDMFault):
+class BadRequestFault(IdentityFault):
     "Bad user request"
 
     def __init__(self, msg, details=None, code=400):
@@ -71,7 +71,7 @@ class BadRequestFault(IDMFault):
         self.key = "badRequest"
 
 
-class UnauthorizedFault(IDMFault):
+class UnauthorizedFault(IdentityFault):
     "User is unauthorized"
 
     def __init__(self, msg, details=None, code=401):
@@ -79,7 +79,7 @@ class UnauthorizedFault(IDMFault):
         self.key = "unauthorized"
 
 
-class ForbiddenFault(IDMFault):
+class ForbiddenFault(IdentityFault):
     "The user is forbidden"
 
     def __init__(self, msg, details=None, code=403):
@@ -87,7 +87,7 @@ class ForbiddenFault(IDMFault):
         self.key = "forbidden"
 
 
-class ItemNotFoundFault(IDMFault):
+class ItemNotFoundFault(IdentityFault):
     "The item is not found"
 
     def __init__(self, msg, details=None, code=404):
@@ -95,7 +95,7 @@ class ItemNotFoundFault(IDMFault):
         self.key = "itemNotFound"
 
 
-class TenantDisabledFault(IDMFault):
+class TenantDisabledFault(IdentityFault):
     "The tenant is disabled"
 
     def __init__(self, msg, details=None, code=403):
@@ -103,7 +103,7 @@ class TenantDisabledFault(IDMFault):
         self.key = "tenantDisabled"
 
 
-class TenantConflictFault(IDMFault):
+class TenantConflictFault(IdentityFault):
     "The tenant already exists?"
 
     def __init__(self, msg, details=None, code=409):
@@ -111,7 +111,7 @@ class TenantConflictFault(IDMFault):
         self.key = "tenantConflict"
 
 
-class TenantGroupConflictFault(IDMFault):
+class TenantGroupConflictFault(IdentityFault):
     "The tenant Group already exists?"
 
     def __init__(self, msg, details=None, code=409):
@@ -119,7 +119,7 @@ class TenantGroupConflictFault(IDMFault):
         self.key = "tenantGroupConflict"
 
 
-class OverlimitFault(IDMFault):
+class OverlimitFault(IdentityFault):
     "A limit has been exceeded"
 
     def __init__(self, msg, details=None, code=409, retry_at=None):
@@ -129,7 +129,7 @@ class OverlimitFault(IDMFault):
         self.key = "overLimit"
 
 
-class UserConflictFault(IDMFault):
+class UserConflictFault(IdentityFault):
     "The User already exists?"
 
     def __init__(self, msg, details=None, code=409):
@@ -137,7 +137,7 @@ class UserConflictFault(IDMFault):
         self.key = "userConflict"
 
 
-class UserDisabledFault(IDMFault):
+class UserDisabledFault(IdentityFault):
     "The user is disabled"
 
     def __init__(self, msg, details=None, code=403):
@@ -145,7 +145,7 @@ class UserDisabledFault(IDMFault):
         self.key = "userDisabled"
 
 
-class EmailConflictFault(IDMFault):
+class EmailConflictFault(IdentityFault):
     "The Email already exists?"
 
     def __init__(self, msg, details=None, code=409):
@@ -153,7 +153,7 @@ class EmailConflictFault(IDMFault):
         self.key = "emailConflict"
 
 
-class UserGroupConflictFault(IDMFault):
+class UserGroupConflictFault(IdentityFault):
     "The user already exists in group?"
 
     def __init__(self, msg, details=None, code=409):

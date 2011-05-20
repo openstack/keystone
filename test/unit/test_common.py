@@ -10,7 +10,7 @@ import json
 from lxml import etree
 
 
-URL = 'http://localhost:8080/v1.0/'
+URL = 'http://localhost:8080/v2.0/'
 
 
 def get_token(user, pswd, kind='', tenant_id=None):
@@ -102,7 +102,7 @@ def create_global_group_xml(groupid, auth_token):
     header = httplib2.Http(".cache")
     url = '%sgroups' % (URL)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
-            <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
             id="%s"><description>A Description of the group</description>\
                     </group>' % groupid
     resp, content = header.request(url, "POST", body=body,
@@ -137,19 +137,19 @@ def get_token_xml(user, pswd, type='', tenant_id=None):
         if tenant_id:
             body = '<?xml version="1.0" encoding="UTF-8"?> \
                     <passwordCredentials \
-                    xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
                     password="%s" username="%s" \
                     tenantId="%s"/> ' % (pswd, user, tenant_id)
         else:
             body = '<?xml version="1.0" encoding="UTF-8"?> \
                     <passwordCredentials \
-                    xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
                     password="%s" username="%s" /> ' % (pswd, user)
         resp, content = header.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                          "ACCEPT": "application/xml"})
         dom = etree.fromstring(content)
-        root = dom.find("{http://docs.openstack.org/idm/api/v1.0}token")
+        root = dom.find("{http://docs.openstack.org/identity/api/v2.0}token")
         token_root = root.attrib
         token = str(token_root['id'])
         if type == 'token':
@@ -172,7 +172,7 @@ def create_tenant_xml(tenantid, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenants' % (URL)
     body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % tenantid
@@ -187,7 +187,7 @@ def create_tenant_group_xml(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenant/%s/groups' % (URL, tenantid)
     body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
              id="%s"> \
             <description>A description...</description> \
             </group>' % groupid
@@ -247,7 +247,7 @@ def create_user_xml(tenantid, userid, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/users' % (URL, tenantid)
     body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
             email="joetest@rackspace.com" \
             tenantId="%s" id="%s" \
             enabled="true" password="secrete"/>' % (tenantid, userid)
@@ -459,7 +459,7 @@ def handle_user_resp(self, content, respvalue, resptype):
             self.id = content.get("id")
 
     if respvalue == 500:
-        self.fail('IDM fault')
+        self.fail('Identity Fault')
     elif respvalue == 503:
         self.fail('Service Not Available')
 

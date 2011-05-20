@@ -42,8 +42,8 @@ class TestServer(unittest.TestCase):
         self.assertTrue(response.headers['content-type'] == "application/xml; charset=UTF-8")
         xml = etree.fromstring(response.unicode_body)
 
-        user = xml.find("{http://docs.openstack.org/idm/api/v1.0}user")
-        token = xml.find("{http://docs.openstack.org/idm/api/v1.0}token")
+        user = xml.find("{http://docs.openstack.org/identity/api/v2.0}user")
+        token = xml.find("{http://docs.openstack.org/identity/api/v2.0}token")
         
         self.assertTrue(user.get("username"),"username")
         self.assertTrue(user.get("tenantId"),'12345');
@@ -72,7 +72,7 @@ class TestServer(unittest.TestCase):
         pwd_cred = auth.PasswordCredentials("username","password","1")
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
-                xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="secret" username="disabled" \
                 />'
         str=StringIO()

@@ -46,7 +46,7 @@ class authentication_test(unittest.TestCase):
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -57,7 +57,7 @@ class authentication_test(unittest.TestCase):
         url = '%stoken' % utils.URL
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
-                xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="secrete" username="disabled" \
                 />'
         resp, content = header.request(url, "POST", body=body,
@@ -65,7 +65,7 @@ class authentication_test(unittest.TestCase):
                                            "ACCEPT": "application/xml"})
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -80,7 +80,7 @@ class authentication_test(unittest.TestCase):
                                 headers={"Content-Type": "application/json"})
         content = json.loads(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(400, int(resp['status']))
@@ -91,7 +91,7 @@ class authentication_test(unittest.TestCase):
         url = '%stoken' % utils.URL
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
-                xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="secrete" username-w="disabled" \
                 />'
         resp, content = header.request(url, "POST", body=body,
@@ -99,7 +99,7 @@ class authentication_test(unittest.TestCase):
                                            "ACCEPT": "application/xml"})
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(400, int(resp['status']))

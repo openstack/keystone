@@ -33,7 +33,7 @@ class User(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}user")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
             user_id = root.get("id")
@@ -95,7 +95,7 @@ class User(object):
 
     def to_dom(self):
         dom = etree.Element("user",
-                            xmlns="http://docs.openstack.org/idm/api/v1.0")
+                            xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.email:
             dom.set("email", self.email)
         if self.tenant_id:
@@ -143,7 +143,7 @@ class User_Update(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}user")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
             user_id = root.get("id")
@@ -200,7 +200,7 @@ class User_Update(object):
 
     def to_dom(self):
         dom = etree.Element("user",
-                            xmlns="http://docs.openstack.org/idm/api/v1.0")
+                            xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.email:
             dom.set("email", self.email)
         if self.tenant_id:
@@ -251,7 +251,7 @@ class Users(object):
 
     def to_xml(self):
         dom = etree.Element("users")
-        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
         for t in self.values:
             dom.append(t.to_dom())
         for t in self.links:

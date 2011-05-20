@@ -28,7 +28,7 @@ def get_auth_token(username, password, tenant):
                                       "password": password,
                                       "tenantId": "1"}}
     conn = httplib.HTTPConnection("localhost:8080")
-    conn.request("POST", "/v1.0/token", json.dumps(params), headers=headers)
+    conn.request("POST", "/v2.0/token", json.dumps(params), headers=headers)
     response = conn.getresponse()
     data = response.read()
     ret = data

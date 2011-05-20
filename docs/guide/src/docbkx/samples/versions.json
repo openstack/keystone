@@ -8,7 +8,7 @@
                 "links": [
                     {
                         "rel" : "self",
-                        "href" : "http://idm.api.openstack.org/v1.0/"
+                        "href" : "http://identity.api.openstack.org/v2.0/"
                     }
                 ]
             },
@@ -19,7 +19,7 @@
                 "links": [
                     {
                         "rel" : "self",
-                        "href" : "http://idm.api.openstack.org/v1.1/"
+                        "href" : "http://identity.api.openstack.org/v1.1/"
                     }
                 ]
             }

@@ -30,7 +30,7 @@ class validate_token(unittest.TestCase):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -44,7 +44,7 @@ class validate_token(unittest.TestCase):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -58,7 +58,7 @@ class validate_token(unittest.TestCase):
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -74,7 +74,7 @@ class validate_token(unittest.TestCase):
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -89,7 +89,7 @@ class validate_token(unittest.TestCase):
                                            "X-Auth-Token": self.auth_token})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -103,7 +103,7 @@ class validate_token(unittest.TestCase):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))

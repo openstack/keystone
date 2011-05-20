@@ -31,7 +31,7 @@ class create_tenant_test(tenant_test):
         resp, content = utils.delete_tenant(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
 
@@ -46,7 +46,7 @@ class create_tenant_test(tenant_test):
                                                 str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(resp['status']) not in (200, 201):
@@ -61,7 +61,7 @@ class create_tenant_test(tenant_test):
         resp, content = utils.create_tenant(self.tenant,
                                             str(self.auth_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp['status']))
@@ -74,7 +74,7 @@ class create_tenant_test(tenant_test):
                                                 str(self.auth_token))
         content = etree.fromstring(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp['status']))
@@ -94,7 +94,7 @@ class create_tenant_test(tenant_test):
                                          "X-Auth-Token": self.token})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -109,7 +109,7 @@ class create_tenant_test(tenant_test):
 
         url = '%stenants' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
@@ -119,7 +119,7 @@ class create_tenant_test(tenant_test):
                                            "ACCEPT": "application/xml"})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -138,7 +138,7 @@ class create_tenant_test(tenant_test):
                                 headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -153,7 +153,7 @@ class create_tenant_test(tenant_test):
 
         url = '%stenants' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
@@ -164,7 +164,7 @@ class create_tenant_test(tenant_test):
                                            "ACCEPT": "application/xml"})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -184,7 +184,7 @@ class create_tenant_test(tenant_test):
                                 headers={"Content-Type": "application/json"})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -198,7 +198,7 @@ class create_tenant_test(tenant_test):
             self.tenant = content.get('id')
         url = '%stenants' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
@@ -206,7 +206,7 @@ class create_tenant_test(tenant_test):
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -227,7 +227,7 @@ class create_tenant_test(tenant_test):
                                         "X-Auth-Token": self.disabled_token})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -241,7 +241,7 @@ class create_tenant_test(tenant_test):
             self.tenant = content.get('id')
         url = '%stenants' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
@@ -250,7 +250,7 @@ class create_tenant_test(tenant_test):
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -271,7 +271,7 @@ class create_tenant_test(tenant_test):
                                            "X-Auth-Token": 'nonexsitingtoken'})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -286,7 +286,7 @@ class create_tenant_test(tenant_test):
 
         url = '%stenants' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-            <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+            <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
             <description>A description...</description> \
             </tenant>' % self.tenant
@@ -296,7 +296,7 @@ class create_tenant_test(tenant_test):
                                            "ACCEPT": "application/xml"})
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -313,7 +313,7 @@ class get_tenants_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -328,7 +328,7 @@ class get_tenants_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -342,7 +342,7 @@ class get_tenants_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -357,7 +357,7 @@ class get_tenants_test(tenant_test):
                                            "X-Auth-Token": self.token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -371,7 +371,7 @@ class get_tenants_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -386,7 +386,7 @@ class get_tenants_test(tenant_test):
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -403,7 +403,7 @@ class get_tenant_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -418,7 +418,7 @@ class get_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -432,7 +432,7 @@ class get_tenant_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -447,7 +447,7 @@ class get_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -461,7 +461,7 @@ class get_tenant_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -476,7 +476,7 @@ class get_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -496,7 +496,7 @@ class update_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token})
         body = json.loads(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -509,7 +509,7 @@ class update_tenant_test(tenant_test):
                                                 str(self.auth_token))
         url = '%stenants/%s' % (utils.URL, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-             <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
              enabled="true"> \
              <description>A NEW description...</description> \
              </tenant>'
@@ -520,9 +520,9 @@ class update_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         body = etree.fromstring(content)
-        desc = body.find("{http://docs.openstack.org/idm/api/v1.0}description")
+        desc = body.find("{http://docs.openstack.org/identity/api/v2.0}description")
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -541,7 +541,7 @@ class update_tenant_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(400, int(resp['status']))
@@ -551,7 +551,7 @@ class update_tenant_test(tenant_test):
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/%s' % (utils.URL, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-             <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
              enabled="true"> \
              <description_bad>A NEW description...</description> \
              </tenant>'
@@ -561,7 +561,7 @@ class update_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(400, int(resp['status']))
@@ -577,7 +577,7 @@ class update_tenant_test(tenant_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -587,7 +587,7 @@ class update_tenant_test(tenant_test):
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants/NonexistingID' % (utils.URL)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-             <tenant xmlns="http://docs.openstack.org/idm/api/v1.0" \
+             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
              enabled="true"> \
              <description_bad>A NEW description...</description> \
              </tenant>'
@@ -597,7 +597,7 @@ class update_tenant_test(tenant_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))

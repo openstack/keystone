@@ -20,7 +20,7 @@ class TestAuth(unittest.TestCase):
     
     pwd_xml = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
-                xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="secret" username="disabled" \
                 />'
     

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<idmFault xmlns="http://docs.openstack.org/idm/api/v1.0"
+<idmFault xmlns="http://docs.openstack.org/identity/api/v2.0"
           code="500">
 	<message>Fault</message>
 	<details>Error Details...</details>

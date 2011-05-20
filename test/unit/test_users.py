@@ -360,7 +360,7 @@ class delete_user_test(user_test):
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, resp_val)
@@ -376,7 +376,7 @@ class delete_user_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, resp_val)
@@ -392,7 +392,7 @@ class delete_user_test(user_test):
                                          "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -409,7 +409,7 @@ class delete_user_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -426,7 +426,7 @@ class delete_user_test(user_test):
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -443,7 +443,7 @@ class delete_user_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -460,7 +460,7 @@ class delete_user_test(user_test):
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -477,7 +477,7 @@ class delete_user_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -493,7 +493,7 @@ class delete_user_test(user_test):
         resp_val = int(resp['status'])
 
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -509,7 +509,7 @@ class delete_user_test(user_test):
         resp_val = int(resp['status'])
 
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -526,7 +526,7 @@ class get_users_test(user_test):
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, resp_val)
@@ -540,7 +540,7 @@ class get_users_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, resp_val)
@@ -554,7 +554,7 @@ class get_users_test(user_test):
                                        "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -568,7 +568,7 @@ class get_users_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -582,7 +582,7 @@ class get_users_test(user_test):
                                         "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -596,7 +596,7 @@ class get_users_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -610,7 +610,7 @@ class get_users_test(user_test):
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -624,7 +624,7 @@ class get_users_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -638,7 +638,7 @@ class get_users_test(user_test):
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -652,7 +652,7 @@ class get_users_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -666,7 +666,7 @@ class get_users_test(user_test):
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
 
@@ -681,7 +681,7 @@ class get_users_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -698,7 +698,7 @@ class get_users_group_test(user_test):
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, resp_val)
@@ -712,7 +712,7 @@ class get_users_group_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, resp_val)
@@ -726,7 +726,7 @@ class get_users_group_test(user_test):
                                          "X-Auth-Token": self.exp_auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -740,7 +740,7 @@ class get_users_group_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -754,7 +754,7 @@ class get_users_group_test(user_test):
                                        "X-Auth-Token": self.disabled_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -768,7 +768,7 @@ class get_users_group_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -782,7 +782,7 @@ class get_users_group_test(user_test):
                                            "X-Auth-Token": self.missing_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -796,7 +796,7 @@ class get_users_group_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -810,7 +810,7 @@ class get_users_group_test(user_test):
                                            "X-Auth-Token": self.invalid_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -824,7 +824,7 @@ class get_users_group_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -838,7 +838,7 @@ class get_users_group_test(user_test):
                                            "X-Auth-Token": self.auth_token})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
 
@@ -853,7 +853,7 @@ class get_users_group_test(user_test):
                                            "ACCEPT": "application/xml"})
         resp_val = int(resp['status'])
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -877,7 +877,7 @@ class update_user_test(user_test):
 
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -891,7 +891,7 @@ class update_user_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -901,7 +901,7 @@ class update_user_test(user_test):
 
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -919,7 +919,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -928,7 +928,7 @@ class update_user_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.userdisabled)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -937,7 +937,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -955,7 +955,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, resp_val)
@@ -966,7 +966,7 @@ class update_user_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="joe@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
@@ -975,7 +975,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, resp_val)
@@ -993,7 +993,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1005,7 +1005,7 @@ class update_user_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1014,7 +1014,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1031,7 +1031,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1040,7 +1040,7 @@ class update_user_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1049,7 +1049,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1065,7 +1065,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1074,7 +1074,7 @@ class update_user_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1083,7 +1083,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1101,7 +1101,7 @@ class update_user_test(user_test):
 
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -1110,7 +1110,7 @@ class update_user_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1119,7 +1119,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -1135,7 +1135,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -1144,7 +1144,7 @@ class update_user_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 email="updatedjoeuser@rackspace.com" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1153,7 +1153,7 @@ class update_user_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -1174,7 +1174,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1187,7 +1187,7 @@ class set_password_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1196,7 +1196,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1215,7 +1215,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1224,7 +1224,7 @@ class set_password_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s' % (URL, self.tenant, self.userdisabled)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1233,7 +1233,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1251,7 +1251,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1263,7 +1263,7 @@ class set_password_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1272,7 +1272,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1289,7 +1289,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1298,7 +1298,7 @@ class set_password_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1307,7 +1307,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1323,7 +1323,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1332,7 +1332,7 @@ class set_password_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
@@ -1341,7 +1341,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1357,7 +1357,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -1366,7 +1366,7 @@ class set_password_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1375,7 +1375,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -1391,7 +1391,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -1400,7 +1400,7 @@ class set_password_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="p@ssword" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1409,7 +1409,7 @@ class set_password_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -1431,7 +1431,7 @@ class set_enabled_test(user_test):
 
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1444,7 +1444,7 @@ class set_enabled_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 enabled="true" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1453,7 +1453,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1473,7 +1473,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1485,7 +1485,7 @@ class set_enabled_test(user_test):
                                         str(self.auth_token))
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 enabled="true" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1494,7 +1494,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         delete_user(self.tenant, self.user, str(self.auth_token))
@@ -1511,7 +1511,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1520,7 +1520,7 @@ class set_enabled_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 enabled="true" />'
         resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",
@@ -1529,7 +1529,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1545,7 +1545,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1554,7 +1554,7 @@ class set_enabled_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 enabled="true" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1563,7 +1563,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, resp_val)
@@ -1579,7 +1579,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -1588,7 +1588,7 @@ class set_enabled_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/enabled' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 enabled="true" />'
         resp, content = header.request(url, "PUT", body=data,
                                 headers={"Content-Type": "application/xml",\
@@ -1597,7 +1597,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
@@ -1613,7 +1613,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)
@@ -1622,7 +1622,7 @@ class set_enabled_test(user_test):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/users/%s/password' % (URL, self.tenant, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <user xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 enabled="true" />'
         resp, content = header.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
@@ -1631,7 +1631,7 @@ class set_enabled_test(user_test):
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, resp_val)

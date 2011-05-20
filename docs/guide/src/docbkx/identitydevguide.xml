@@ -42,7 +42,7 @@
   xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:svg="http://www.w3.org/2000/svg"
   xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:db="http://docbook.org/ns/docbook" version="5.0" status="draft">
-  <title>Cloud Identity Developer Guide</title>
+  <title>Keystone Developer Guide</title>
   <info>
     <author>
       <personname>
@@ -50,16 +50,16 @@
         <surname/>
       </personname>
       <affiliation>
-        <orgname>Rackspace Cloud</orgname>
+        <orgname>OpenStack</orgname>
       </affiliation>
     </author>
     <copyright>
       <year>2010</year>
       <year>2011</year>
-      <holder>Rackspace Hosting, Inc.</holder>
+      <holder>OpenStack</holder>
     </copyright>
-    <releaseinfo>API v1.0</releaseinfo>
-    <productname>Cloud Identity</productname>
+    <releaseinfo>API v2.0</releaseinfo>
+    <productname>Keystone - OpenStack Identity</productname>
     <pubdate>2011-04-23</pubdate>
     <legalnotice role="apache2">
         <annotation>
@@ -79,7 +79,7 @@
   <chapter>
     <title>Overview</title>
     <para>
-        The Cloud Identity Service allows applications to obtain
+        The Keystone Identity Service allows applications to obtain
         tokens that can be used to access OpenStack resources.  This
         document is intended for software developers interested in
         developing applications which utilize the Cloud Identity
@@ -95,7 +95,7 @@
   <chapter>
     <title>Concepts</title>
     <para>
-        The Cloud Identity Service has several key concepts that are
+        The Keystone Identity Service has several key concepts that are
         important to understand:
     </para>
     <section>
@@ -122,6 +122,14 @@
       </para>
     </section>
     <section>
+      <title>Role</title>
+      <para>
+        A role that an identity is associated with that allows it
+        to perform certain operations. Roles are managed by services
+        and operators. Tenant administrators may assign roles to users.
+      </para>
+    </section>
+    <section>
         <title>Group</title>
         <para>
             A group of users. Global groups are managed by
@@ -134,12 +142,12 @@
   </chapter>
   <chapter>
     <title>General API Information</title>
-    <para>The IdM API is implemented using a RESTful web service interface. All requests to
-      authenticate and operate against the IdM API are performed using SSL over HTTP (HTTPS) on TCP
+    <para>The Keystone API is implemented using a RESTful web service interface. All requests to
+      authenticate and operate against the Keystone API are performed using SSL over HTTP (HTTPS) on TCP
       port 443.</para>
     <section>
       <title>Request/Response Types</title>
-      <para> The IdM API supports both the JSON and XML data serialization formats. The request
+      <para> The Keystone API supports both the JSON and XML data serialization formats. The request
         format is specified using the <code>Content-Type</code> header and is required for
         operations that have a request body. The response format can be specified in requests using
         either the <code>Accept</code> header or adding an <code>.xml</code> or <code>.json</code>
@@ -258,7 +266,7 @@
             will not contain a "next" link. The following examples
             illustrate three pages in a collection of tenants.  The
             first page was retrieved via a &GET; to
-            http://idm.api.openstack.org/v1.0/1234/tenants?limit=1.
+            http://identity.api.openstack.org/v2.0/1234/tenants?limit=1.
             In these examples, the <parameter>limit</parameter>
             parameter sets the page size to a single item.
             Subsequent "next" and "previous" links will honor the
@@ -326,15 +334,15 @@
     <section>
         <title>Versions</title>
         <para>
-            The OpenStack IDM API uses both a URI and a MIME
+            The OpenStack Identity API uses both a URI and a MIME
             type versioning scheme. In the URI scheme, the first
             element of the path contains the target version
-            identifier (e.g. https://idm.api.openstack.org/
-            v1.0/&hellip;). The MIME type versioning scheme uses
+            identifier (e.g. https://identity.api.openstack.org/
+            v2.0/&hellip;). The MIME type versioning scheme uses
             HTTP content negotiation where the <code>Accept</code>
             or <code>Content-Type</code> headers contains a MIME
             type that identifies the version
-            (application/vnd.openstack.idm-v1.1+xml). A
+            (application/vnd.openstack.identity-v1.1+xml). A
             version MIME type is always linked to a base MIME type
             (application/xml or application/json). If conflicting
             versions are specified using both an HTTP header and a
@@ -344,8 +352,8 @@
             <title>Request with MIME type versioning</title>
             <literallayout class="monospaced">
 GET /tenants HTTP/1.1
-Host: idm.api.openstack.org
-Accept: application/vnd.openstack.idm-v1.1+xml
+Host: identity.api.openstack.org
+Accept: application/vnd.openstack.identity-v1.1+xml
 X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
             </literallayout>
         </example>
@@ -353,7 +361,7 @@ X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
             <title>Request with URI versioning</title>
             <literallayout class="monospaced">
 GET /v1.1/tenants HTTP/1.1
-Host: idm.api.openstack.org
+Host: identity.api.openstack.org
 Accept: application/xml
 X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
             </literallayout>
@@ -363,7 +371,7 @@ X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
                 The MIME type versioning approach allows for the
                 creating of permanent links, because the version
                 scheme is not specified in the URI path:
-                https://api.idm.openstack.org/tenants/12234.
+                https://api.identity.openstack.org/tenants/12234.
             </para>
         </note>
         <para>
@@ -414,12 +422,12 @@ X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
             <title>Versions List Request</title>
             <literallayout class="monospaced">
 GET HTTP/1.1
-Host: idm.api.openstack.org
+Host: identity.api.openstack.org
             </literallayout>
         </example>
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; badRequest
-        (<errorcode>400</errorcode>), idmFault
+        (<errorcode>400</errorcode>), identityFault
         (<errorcode>500</errorcode>),
         serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
@@ -444,13 +452,13 @@ Host: idm.api.openstack.org
             You can also obtain additional information about a
             specific version by performing a &GET; on the base
             version URL
-            (e.g. https://idm.api.openstack.org/v1.1/).
+            (e.g. https://identity.api.openstack.org/v1.1/).
             Version request URLs should always end with a trailing
             slash (/). If the slash is omitted, the server may
             respond with a <returnvalue>302</returnvalue>
             redirection request. Format extensions may be placed
             after the slash
-            (e.g. https://idm.api.openstack.org/v1.1/.xml). Note
+            (e.g. https://identity.api.openstack.org/v1.1/.xml). Note
             that this is a special case that does not hold true
             for other API requests. In general, requests such as
             /tenants.xml and /tenants/.xml are handled
@@ -460,12 +468,12 @@ Host: idm.api.openstack.org
             <title>Version Details Request</title>
             <literallayout class="monospaced">
 GET HTTP/1.1
-Host: idm.api.openstack.org/v1.1/
+Host: identity.api.openstack.org/v1.1/
             </literallayout>
         </example>
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; badRequest
-        (<errorcode>400</errorcode>), idmFault
+        (<errorcode>400</errorcode>), identityFault
         (<errorcode>500</errorcode>),
         serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
@@ -530,7 +538,7 @@ Host: idm.api.openstack.org/v1.1/
         </informaltable>
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; badRequest
-        (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
+        (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
         <para>
@@ -576,7 +584,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; itemNotFound
         (<errorcode>404</errorcode>), badRequest
-        (<errorcode>400</errorcode>), idmFault
+        (<errorcode>400</errorcode>), identityFault
         (<errorcode>500</errorcode>),
         serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
@@ -633,19 +641,19 @@ Host: idm.api.openstack.org/v1.1/
       <example>
         <title>XML Fault Response</title>
         <programlisting language="xml">
-<xi:include href="samples/idm_fault.xml" parse="text"/>
+<xi:include href="samples/identity_fault.xml" parse="text"/>
 </programlisting>
       </example>
       <example>
         <title>JSON Fault Response</title>
         <programlisting language="javascript">
-<xi:include href="samples/idm_fault.json" parse="text"/>
+<xi:include href="samples/identity_fault.json" parse="text"/>
 </programlisting>
       </example>
       <para>The error code is returned in the body of the response for convenience. The message
         section returns a human readable message. The details section is optional and may contain
         useful information for tracking down an error (e.g a stack trace). </para>
-      <para>The root element of the fault (e.g. idmFault) may change depending on the type of error.
+      <para>The root element of the fault (e.g. identityFault) may change depending on the type of error.
         The following is an example of an itemNotFound error. </para>
       <example>
         <title>XML Not Found Fault</title>
@@ -672,7 +680,7 @@ Host: idm.api.openstack.org/v1.1/
         </thead>
         <tbody>
           <tr align="center">
-            <td>idmFault</td>
+            <td>identityFault</td>
             <td>500, 400</td>
             <td> &CHECK; </td>
           </tr>
@@ -719,8 +727,8 @@ Host: idm.api.openstack.org/v1.1/
         </tbody>
       </table>
       <para>From an XML schema perspective, all API faults are extensions of the base fault type
-          <type>idmFault</type>. When working with a system that binds XML to actual classes (such
-        as JAXB), one should be capable of using <type>idmFault</type> as a “catch-all” if
+          <type>identityFault</type>. When working with a system that binds XML to actual classes (such
+        as JAXB), one should be capable of using <type>identityFault</type> as a “catch-all” if
         there&apos;s no interest in distinguishing between individual fault types. </para>
     </section>
   </chapter>
@@ -747,7 +755,7 @@ Host: idm.api.openstack.org/v1.1/
         </informaltable>
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), userDisabled
-            (<errorcode>403</errorcode>), badRequest (<errorcode>400</errorcode>), idmFault
+            (<errorcode>403</errorcode>), badRequest (<errorcode>400</errorcode>), identityFault
             (<errorcode>500</errorcode>), serviceUnavailable(<errorcode>503</errorcode>)</simpara>
             <para>
                 TenantID is optional and may be used to specify that a
@@ -797,7 +805,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), forbidden
             (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
           badRequest (<errorcode>400</errorcode>), itemNotFound (<errorcode>404</errorcode>),
-            idmFault(<returnvalue>500</returnvalue>),
+            identityFault(<returnvalue>500</returnvalue>),
             serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
         &NO_REQUEST;
         <para>
@@ -836,7 +844,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), forbidden
             (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
           badRequest (<errorcode>400</errorcode>), itemNotFound (<errorcode>404</errorcode>),
-            idmFault(<returnvalue>500</returnvalue>),
+            identityFault(<returnvalue>500</returnvalue>),
             serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
         &NO_REQUEST;
       </section>
@@ -858,7 +866,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&CODES;<returnvalue>201</returnvalue></simpara>
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
             forbidden(<errorcode>403</errorcode>),
-          badRequest (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
+          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
       <example>
         <title>XML Tenant Create Request</title>
@@ -900,7 +908,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
             forbidden(<errorcode>403</errorcode>), overLimit(<errorcode>413</errorcode>),
-          badRequest (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
+          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         <para>
             The operation returns a list of tenants. The list may be
@@ -936,7 +944,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
             forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-          badRequest (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
+          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
         &NO_REQUEST;
         <example>
@@ -967,7 +975,7 @@ Host: idm.api.openstack.org/v1.1/
         <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
         <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
             forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-          badRequest (<errorcode>400</errorcode>), idmFault (<errorcode>500</errorcode>),
+          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
       <example>
         <title>XML Tenant Update Request</title>
@@ -1009,7 +1017,7 @@ Host: idm.api.openstack.org/v1.1/
           <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
           <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
             (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), idmFault (<errorcode>500</errorcode>),
+            (<errorcode>404</errorcode>), identityFault (<errorcode>500</errorcode>),
             serviceUnavailable(<errorcode>503</errorcode>)</simpara>
             &NO_REQUEST;       
         </section>

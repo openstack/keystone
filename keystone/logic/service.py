@@ -26,8 +26,8 @@ import keystone.db.sqlalchemy.api as db_api
 import keystone.db.sqlalchemy.models as db_models
 
 
-class IDMService(object):
-    "This is the logical implemenation of the IDM service"
+class IdentityService(object):
+    "This is the logical implemenation of the Identity service"
 
     #
     #  Token Operations
@@ -60,11 +60,11 @@ class IDMService(object):
             dtoken.user_id = duser.id
 
             if not duser.tenants:
-                raise fault.IDMFault("Strange: user %s is not associated "
+                raise fault.IdentityFault("Strange: user %s is not associated "
                                      "with a tenant!" % duser.id)
             user = db_api.user_get_by_tenant(duser.id, credentials.tenant_id)
             if not credentials.tenant_id and user:
-                raise fault.IDMFault("Error: user %s is not associated "
+                raise fault.IdentityFault("Error: user %s is not associated "
                                      "with a tenant! %s" % (duser.id,
                                                     credentials.tenant_id))
                 dtoken.tenant_id = credentials.tenant_id
@@ -837,11 +837,11 @@ class IDMService(object):
             gs.append(auth.Group(dgroup.id, dgroup.tenant_id))
         groups = auth.Groups(gs, [])
         if len(duser.tenants) == 0:
-            raise fault.IDMFault("Strange: user %s is not associated "
+            raise fault.IdentityFault("Strange: user %s is not associated "
                                  "with a tenant!" % duser.id)
         if not dtoken.tenant_id and \
             db_api.user_get_by_tenant(duser.id, dtoken.tenant_id):
-            raise fault.IDMFault("Error: user %s is not associated "
+            raise fault.IdentityFault("Error: user %s is not associated "
                                  "with a tenant! %s" % (duser.id,
                                                 dtoken.tenant_id))
 

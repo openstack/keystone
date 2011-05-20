@@ -70,7 +70,7 @@ logger = logging.getLogger('keystone.server')
 VERSION_STATUS = "ALPHA"
 VERSION_DATE = "2011-04-23T00:00:00Z"
 
-service = serv.IDMService()
+service = serv.IdentityService()
 
 
 #
@@ -101,12 +101,12 @@ def wrap_error(func):
         try:
             return func(*args, **kwargs)
         except Exception as err:
-            if isinstance(err, fault.IDMFault):
+            if isinstance(err, fault.IdentityFault):
                 return send_error(err.code, kwargs['req'], err)
             else:
                 logging.exception(err)
                 return send_error(500, kwargs['req'],
-                                fault.IDMFault("Unhandled error", str(err)))
+                                fault.IdentityFault("Unhandled error", str(err)))
     return check_error
 
 
@@ -118,7 +118,7 @@ def get_normalized_request_content(model, req):
     elif req.content_type == "application/json":
         ret = model.from_json(req.body)
     else:
-        raise fault.IDMFault("I don't understand the content type ", code=415)
+        raise fault.IdentityFault("I don't understand the content type ", code=415)
     return ret
 
 
@@ -181,7 +181,7 @@ class StaticFilesController(wsgi.Controller):
     @wrap_error
     def get_pdf_contract(self, req):
         resp = Response()
-        return template.static_file(resp, req, "content/idmdevguide.pdf",
+        return template.static_file(resp, req, "content/identiitydevguide.pdf",
                                   root=get_app_root(),
                                   mimetype="application/pdf")
 
@@ -582,154 +582,154 @@ class KeystoneAPI(wsgi.Router):
 
         # Token Operations
         auth_controller = AuthController(options)
-        mapper.connect("/v1.0/token", controller=auth_controller,
+        mapper.connect("/v2.0/token", controller=auth_controller,
                        action="authenticate")
-        mapper.connect("/v1.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
                         action="validate_token",
                         conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 
         # Tenant Operations
         tenant_controller = TenantController(options)
-        mapper.connect("/v1.0/tenants", controller=tenant_controller,
+        mapper.connect("/v2.0/tenants", controller=tenant_controller,
                     action="create_tenant", conditions=dict(method=["POST"]))
-        mapper.connect("/v1.0/tenants", controller=tenant_controller,
+        mapper.connect("/v2.0/tenants", controller=tenant_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="get_tenant", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="update_tenant", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="delete_tenant", conditions=dict(method=["DELETE"]))
 
         # Tenant Group Operations
 
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups",
+        mapper.connect("/v2.0/tenant/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="create_tenant_group",
                     conditions=dict(method=["POST"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups",
+        mapper.connect("/v2.0/tenant/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="get_tenant_groups",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="get_tenant_group",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="update_tenant_group",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="delete_tenant_group",
                     conditions=dict(method=["DELETE"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/groups/{group_id}/users",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}/users",
                     controller=tenant_controller,
                     action="get_users_tenant_group",
                     conditions=dict(method=["GET"]))
         mapper.connect(
-                "/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}",
+                "/v2.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}",
                     controller=tenant_controller,
                     action="add_user_tenant_group",
                     conditions=dict(method=["PUT"]))
         mapper.connect(
-                 "/v1.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}",
+                 "/v2.0/tenants/{tenant_id}/groups/{group_id}/users/{user_id}",
                     controller=tenant_controller,
                     action="delete_user_tenant_group",
                     conditions=dict(method=["DELETE"]))
 
         # User Operations
         user_controller = UserController(options)
-        mapper.connect("/v1.0/tenants/{tenant_id}/users",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="create_user",
                     conditions=dict(method=["POST"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/groups",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/groups",
                     controller=user_controller,
                     action="get_user_groups",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}",
                     controller=user_controller,
                     action="get_user",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}",
                     controller=user_controller,
                     action="update_user",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}",
                     controller=user_controller,
                     action="delete_user",
                     conditions=dict(method=["DELETE"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/password",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/password",
                     controller=user_controller,
                     action="set_user_password",
                     conditions=dict(method=["PUT"]))
 
         # Test this, test failed
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/enabled",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/enabled",
                     controller=user_controller,
                     action="set_user_enabled",
                     conditions=dict(method=["PUT"]))
 
         #Global Groups
         groups_controller = GroupsController(options)
-        mapper.connect("/v1.0/groups", controller=groups_controller,
+        mapper.connect("/v2.0/groups", controller=groups_controller,
                     action="create_group", conditions=dict(method=["POST"]))
-        mapper.connect("/v1.0/groups", controller=groups_controller,
+        mapper.connect("/v2.0/groups", controller=groups_controller,
                     action="get_groups", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
+        mapper.connect("/v2.0/groups/{group_id}", controller=groups_controller,
                     action="get_group", conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
+        mapper.connect("/v2.0/groups/{group_id}", controller=groups_controller,
                     action="update_group", conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/groups/{group_id}", controller=groups_controller,
+        mapper.connect("/v2.0/groups/{group_id}", controller=groups_controller,
                     action="delete_group", conditions=dict(method=["DELETE"]))
-        mapper.connect("/v1.0/groups/{group_id}/users",
+        mapper.connect("/v2.0/groups/{group_id}/users",
                     controller=groups_controller,
                     action="get_users_global_group",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}",
+        mapper.connect("/v2.0/groups/{group_id}/users/{user_id}",
                     controller=groups_controller,
                     action="add_user_global_group",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/groups/{group_id}/users/{user_id}",
+        mapper.connect("/v2.0/groups/{group_id}/users/{user_id}",
                     controller=groups_controller,
                     action="delete_user_global_group",
                     conditions=dict(method=["DELETE"]))
 
         # Miscellaneous Operations
         version_controller = VersionController(options)
-        mapper.connect("/v1.0/", controller=version_controller,
+        mapper.connect("/v2.0/", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0", controller=version_controller,
+        mapper.connect("/v2.0", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
-        mapper.connect("/v1.0/idmdevguide.pdf",
+        mapper.connect("/v2.0/idmdevguide.pdf",
                     controller=static_files_controller,
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/identity.wadl",
+        mapper.connect("/v2.0/identity.wadl",
                     controller=static_files_controller,
                     action="get_identity_wadl",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/xsd/{xsd}",
+        mapper.connect("/v2.0/xsd/{xsd}",
                     controller=static_files_controller,
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v1.0/xsd/atom/{xsd}",
+        mapper.connect("/v2.0/xsd/atom/{xsd}",
                     controller=static_files_controller,
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))

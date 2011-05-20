@@ -33,7 +33,7 @@ class Tenant(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}tenant")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}tenant")
             if root == None:
                 raise fault.BadRequestFault("Expecting Tenant")
             tenant_id = root.get("id")
@@ -44,7 +44,7 @@ class Tenant(object):
                 set_enabled = False
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
-            desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
+            desc = root.find("{http://docs.openstack.org/identity/api/v2.0}"
                              "description")
             if desc == None:
                 raise fault.BadRequestFault("Expecting Tenant Description")
@@ -77,7 +77,7 @@ class Tenant(object):
 
     def to_dom(self):
         dom = etree.Element("tenant",
-                            xmlns="http://docs.openstack.org/idm/api/v1.0",
+                            xmlns="http://docs.openstack.org/identity/api/v2.0",
                             enabled=string.lower(str(self.enabled)))
         if self.tenant_id:
             dom.set("id", self.tenant_id)
@@ -110,7 +110,7 @@ class Tenants(object):
 
     def to_xml(self):
         dom = etree.Element("tenants")
-        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -142,7 +142,7 @@ class Group(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}group")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}group")
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
@@ -152,7 +152,7 @@ class Group(object):
             else:
                 tenant_id = None
 
-            desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
+            desc = root.find("{http://docs.openstack.org/identity/api/v2.0}"
                              "description")
             if desc == None:
                 raise fault.BadRequestFault("Expecting Group Description")
@@ -188,7 +188,7 @@ class Group(object):
 
     def to_dom(self):
         dom = etree.Element("group",
-                            xmlns="http://docs.openstack.org/idm/api/v1.0")
+                            xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.group_id:
             dom.set("id", self.group_id)
         if self.tenant_id:
@@ -223,7 +223,7 @@ class Groups(object):
 
     def to_xml(self):
         dom = etree.Element("groups")
-        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -251,12 +251,12 @@ class GlobalGroup(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}group")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}group")
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
 
-            desc = root.find("{http://docs.openstack.org/idm/api/v1.0}"
+            desc = root.find("{http://docs.openstack.org/identity/api/v2.0}"
                              "description")
             if desc == None:
                 raise fault.BadRequestFault("Expecting Group Description")
@@ -287,7 +287,7 @@ class GlobalGroup(object):
 
     def to_dom(self):
         dom = etree.Element("group",
-                            xmlns="http://docs.openstack.org/idm/api/v1.0")
+                            xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.group_id:
             dom.set("id", self.group_id)
 
@@ -320,7 +320,7 @@ class GlobalGroups(object):
 
     def to_xml(self):
         dom = etree.Element("groups")
-        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -354,7 +354,7 @@ class User(object):
 
     def to_dom(self):
         dom = etree.Element("user",
-                            xmlns="http://docs.openstack.org/idm/api/v1.0")
+                            xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.group_id != None:
             dom.set("group_id", self.group_id)
         if self.user_id:
@@ -394,7 +394,7 @@ class Users(object):
 
     def to_xml(self):
         dom = etree.Element("users")
-        dom.set(u"xmlns", "http://docs.openstack.org/idm/api/v1.0")
+        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
             dom.append(t.to_dom())

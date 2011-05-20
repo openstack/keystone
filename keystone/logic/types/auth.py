@@ -35,7 +35,7 @@ class PasswordCredentials(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/idm/api/v1.0}"
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}"
                             "passwordCredentials")
             if root == None:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
@@ -108,7 +108,7 @@ class User(object):
 
 
 class AuthData(object):
-    "Authentation Infor returned upon successful login."
+    "Authentation Information returned upon successful login."
 
     def __init__(self, token, user):
         self.token = token
@@ -116,7 +116,7 @@ class AuthData(object):
 
     def to_xml(self):
         dom = etree.Element("auth",
-                             xmlns="http://docs.openstack.org/idm/api/v1.0")
+                             xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)

@@ -4,9 +4,9 @@
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:idm="http://docs.openstack.org/idm/api/v1.0"
+    xmlns:idm="http://docs.openstack.org/identity/api/v2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://docs.openstack.org/idm/api/v1.0"
+    targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <!-- Elements -->
     <element name="passwordCredentials" type="idm:PasswordCredentials"/>

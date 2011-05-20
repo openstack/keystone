@@ -43,7 +43,7 @@ class create_global_group_test(global_group_test):
                                               str(self.auth_token))
 
         if int(respG['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
@@ -56,7 +56,7 @@ class create_global_group_test(global_group_test):
                                                   str(self.auth_token))
 
         if int(respG['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
 
@@ -69,7 +69,7 @@ class create_global_group_test(global_group_test):
         respG, contentG = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
         if int(respG['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
@@ -81,7 +81,7 @@ class create_global_group_test(global_group_test):
                                                   str(self.auth_token))
         contentG = etree.fromstring(contentG)
         if int(respG['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(respG['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
@@ -97,7 +97,7 @@ class create_global_group_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -106,7 +106,7 @@ class create_global_group_test(global_group_test):
         h = httplib2.Http(".cache")
         url = '%sgroups' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"> \
                 <description>A description...</description> \
                 </group>' % self.global_group
@@ -115,7 +115,7 @@ class create_global_group_test(global_group_test):
                                            "X-Auth-Token": self.token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -130,7 +130,7 @@ class create_global_group_test(global_group_test):
                                            "X-Auth-Token": \
                                                    self.exp_auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -139,7 +139,7 @@ class create_global_group_test(global_group_test):
         h = httplib2.Http(".cache")
         url = '%sgroups' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description>A description...</description> \
                 </group>' % self.globaltenant
         resp, content = h.request(url, "POST", body=body,
@@ -147,7 +147,7 @@ class create_global_group_test(global_group_test):
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -160,7 +160,7 @@ class create_global_group_test(global_group_test):
         resp, content = h.request(url, "POST", body=json.dumps(body),
                                   headers={"Content-Type": "application/json"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -169,14 +169,14 @@ class create_global_group_test(global_group_test):
         h = httplib2.Http(".cache")
         url = '%sgroups' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description>A description...</description> \
                 </group>' % self.global_group
         resp, content = h.request(url, "POST", body=body,
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -191,7 +191,7 @@ class create_global_group_test(global_group_test):
                                            "X-Auth-Token": \
                                                    self.disabled_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -200,7 +200,7 @@ class create_global_group_test(global_group_test):
         h = httplib2.Http(".cache")
         url = '%sgroups' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description>A description...</description> \
                 </group>' % self.global_group
         resp, content = h.request(url, "POST", body=body,
@@ -208,7 +208,7 @@ class create_global_group_test(global_group_test):
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -222,7 +222,7 @@ class create_global_group_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": 'nonexsitingtoken'})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -231,7 +231,7 @@ class create_global_group_test(global_group_test):
         h = httplib2.Http(".cache")
         url = '%sgroups' % (utils.URL)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description>A description...</description> \
                 </group>' % self.global_group
         resp, content = h.request(url, "POST", body=body,
@@ -239,7 +239,7 @@ class create_global_group_test(global_group_test):
                                            "X-Auth-Token": 'nonexsitingtoken',
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -259,7 +259,7 @@ class get_global_groups_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -274,7 +274,7 @@ class get_global_groups_test(global_group_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -289,7 +289,7 @@ class get_global_groups_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -305,7 +305,7 @@ class get_global_groups_test(global_group_test):
                                            "X-Auth-Token": self.token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
@@ -321,7 +321,7 @@ class get_global_groups_test(global_group_test):
                                            "X-Auth-Token": \
                                                    self.exp_auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -337,7 +337,7 @@ class get_global_groups_test(global_group_test):
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
@@ -355,7 +355,7 @@ class get_global_group_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -371,7 +371,7 @@ class get_global_group_test(global_group_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -386,7 +386,7 @@ class get_global_group_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -402,7 +402,7 @@ class get_global_group_test(global_group_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -422,7 +422,7 @@ class update_global_groups_test(global_group_test):
                          "X-Auth-Token": self.auth_token})
         body = json.loads(content)
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -437,7 +437,7 @@ class update_global_groups_test(global_group_test):
 
         url = '%sgroups/%s' % (utils.URL, self.global_group)
         data = u'<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description>A NEW description...</description> \
                 </group>' % (self.global_group)
         #test for Content-Type = application/json
@@ -447,9 +447,9 @@ class update_global_groups_test(global_group_test):
                                            "ACCEPT": "application/xml"})
 
         body = etree.fromstring(content)
-        desc = body.find("{http://docs.openstack.org/idm/api/v1.0}description")
+        desc = body.find("{http://docs.openstack.org/identity/api/v2.0}description")
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
@@ -469,7 +469,7 @@ class update_global_groups_test(global_group_test):
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(400, int(resp['status']))
@@ -480,7 +480,7 @@ class update_global_groups_test(global_group_test):
                                                   str(self.auth_token))
         url = '%sgroups/%s' % (utils.URL, self.global_group)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description_bad>A NEW description...</description> \
                 </group>' % (self.global_group)
         #test for Content-Type = application/json
@@ -489,7 +489,7 @@ class update_global_groups_test(global_group_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
 
@@ -514,7 +514,7 @@ class update_global_groups_test(global_group_test):
                                           str(self.auth_token))
         url = '%sgroups/NonexistingID' % (utils.URL)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/idm/api/v1.0" \
+                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="NonexistingID"> \
                 <description_bad>A NEW description...</description> \
                 </group>'
@@ -524,7 +524,7 @@ class update_global_groups_test(global_group_test):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
@@ -602,7 +602,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
@@ -619,7 +619,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         if int(respG['status']) not in (200, 201):
@@ -639,7 +639,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
@@ -658,7 +658,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(respG['status']))
@@ -674,7 +674,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 str(self.token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
@@ -690,7 +690,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                     str(self.token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
@@ -706,7 +706,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 str(self.disabled_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
@@ -721,7 +721,7 @@ class add_user_global_group_test(unittest.TestCase):
                                                 self.user,
                                                 str(self.disabled_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
@@ -762,7 +762,7 @@ class get_users_tenant_group_test(unittest.TestCase):
                                                 str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(respG['status']))
@@ -779,7 +779,7 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = utils.get_user_global_group_xml(self.global_group,
                                                 str(self.auth_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(respG['status']))
@@ -798,7 +798,7 @@ class get_users_tenant_group_test(unittest.TestCase):
                                                 str(self.token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
@@ -816,7 +816,7 @@ class get_users_tenant_group_test(unittest.TestCase):
                                                 str(self.token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(respG['status']))
@@ -834,7 +834,7 @@ class get_users_tenant_group_test(unittest.TestCase):
                                                 str(self.disabled_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
@@ -851,7 +851,7 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = utils.get_user_global_group_xml(self.global_group,
                                                 str(self.disabled_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
@@ -869,7 +869,7 @@ class get_users_tenant_group_test(unittest.TestCase):
                                                 str(self.exp_auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
@@ -886,7 +886,7 @@ class get_users_tenant_group_test(unittest.TestCase):
         respG, contentG = utils.get_user_global_group_xml(self.global_group,
                                                 str(self.exp_auth_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(respG['status']))
@@ -929,7 +929,7 @@ class delete_users_global_group_test(unittest.TestCase):
                                                    str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, int(respG['status']))
@@ -947,7 +947,7 @@ class delete_users_global_group_test(unittest.TestCase):
                                                    self.user,
                                                    str(self.auth_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(204, int(respG['status']))
@@ -968,7 +968,7 @@ class delete_users_global_group_test(unittest.TestCase):
                                                    self.user,
                                                    str(self.auth_token))
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(respG['status']))
@@ -990,7 +990,7 @@ class delete_users_global_group_test(unittest.TestCase):
                                                    str(self.auth_token))
 
         if int(resp['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(respG['status']))

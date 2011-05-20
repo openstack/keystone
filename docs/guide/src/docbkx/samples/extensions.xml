@@ -22,7 +22,7 @@
     </extension>
     <extension
         name="User Metadata Extension"
-        namespace="http://docs.rackspacecloud.com/idm/api/ext/meta/v1.0"
+        namespace="http://docs.rackspacecloud.com/identity/api/ext/meta/v2.0"
         alias="RS-META"
         updated="2011-01-12T11:22:33-06:00">
         <description>
