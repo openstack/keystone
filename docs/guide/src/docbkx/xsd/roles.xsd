@@ -34,7 +34,7 @@
     </element>
     
     
-    <element name="rolerefs" type="idm:RoleRefList"  >
+    <element name="roleRefs" type="idm:RoleRefList"  >
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -46,7 +46,7 @@
         </annotation>
     </element>
     
-    <element name="roleref" type="idm:RoleRef"  >
+    <element name="roleRef" type="idm:RoleRef"  >
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
