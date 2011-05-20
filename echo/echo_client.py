@@ -26,7 +26,7 @@ def get_auth_token(username, password, tenant):
     headers = {"Content-type": "application/json", "Accept": "text/json"}
     params = {"passwordCredentials": {"username": username,
                                       "password": password,
-                                      "tenantId": "1"}}
+                                      "tenantId": tenant}}
     conn = httplib.HTTPConnection("localhost:8080")
     conn.request("POST", "/v2.0/token", json.dumps(params), headers=headers)
     response = conn.getresponse()
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # Call the keystone service to get a token
     # NOTE: assumes the test_setup.sql script has loaded this user
     print "\033[91mTrying with valid test credentials...\033[0m"
-    auth = get_auth_token("joeuser", "secrete", "1")
+    auth = get_auth_token("joeuser", "secrete", "1234")
     obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token obtained:", token

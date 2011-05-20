@@ -65,7 +65,7 @@ class TestServer(unittest.TestCase):
         self.assertTrue(server.get_auth_token(self.request),"Test Token")
     
     def test_get_normalized_request_content_exception(self):
-        self.assertRaises(fault.IDMFault,server.get_normalized_request_content,None,self.request)
+        self.assertRaises(fault.IdentityFault,server.get_normalized_request_content,None,self.request)
     
     def test_get_normalized_request_content_xml(self):
         self.request.environ["CONTENT_TYPE"]="application/xml"

@@ -26,22 +26,22 @@ class UrlExtensionFilterTest(unittest.TestCase):
         self.filter = UrlExtensionFilter(MockWsgiApp(), {})
 
     def test_xml_extension(self):
-        env = {'PATH_INFO': '/v1.0/someresource.xml'}
+        env = {'PATH_INFO': '/v2.0/someresource.xml'}
         self.filter(env, _start_response)
-        self.assertEqual('/v1.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
         self.assertEqual('application/xml', env['HTTP_ACCEPT'])
 
     def test_json_extension(self):
-        env = {'PATH_INFO': '/v1.0/someresource.json'}
+        env = {'PATH_INFO': '/v2.0/someresource.json'}
         self.filter(env, _start_response)
-        self.assertEqual('/v1.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
     def test_extension_overrides_header(self):
-        env = {'PATH_INFO': '/v1.0/someresource.json',
+        env = {'PATH_INFO': '/v2.0/someresource.json',
                 'HTTP_ACCEPT': 'application/xml'}
         self.filter(env, _start_response)
-        self.assertEqual('/v1.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
 

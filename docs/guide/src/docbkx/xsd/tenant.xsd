@@ -4,7 +4,7 @@
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:idm="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
     xmlns:atom="http://www.w3.org/2005/Atom"
@@ -15,13 +15,13 @@
             schemaLocation="atom/atom.xsd" />
 
     <!-- Elements -->
-    <element name="tenant" type="idm:Tenant"  />
-    <element name="tenants" type="idm:Tenants" />
+    <element name="tenant" type="identity:Tenant"  />
+    <element name="tenants" type="identity:Tenants" />
 
     <!-- Complex Types -->
     <complexType name="Tenants">
         <sequence>
-            <element name="tenant" type="idm:Tenant" maxOccurs="1000"/>
+            <element name="tenant" type="identity:Tenant" maxOccurs="1000"/>
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>

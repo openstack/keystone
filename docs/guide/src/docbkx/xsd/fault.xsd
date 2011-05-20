@@ -4,23 +4,23 @@
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:idm="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <!-- Fault Elements -->
-    <element name="idmFault" type="idm:IDMFault"/>
-    <element name="serviceUnavailable" type="idm:ServiceUnavailableFault"/>
-    <element name="badRequest" type="idm:BadRequestFault"/>
-    <element name="unauthorized" type="idm:UnauthorizedFault"/>
-    <element name="overLimit" type="idm:OverLimitFault"/>
-    <element name="userDisabled" type="idm:UserDisabledFault"/>
-    <element name="forbidden" type="idm:ForbiddenFault"/>
-    <element name="itemNotFound" type="idm:ItemNotFoundFault"/>
-    <element name="tenantConflict" type="idm:TenantConflictFault"/>
+    <element name="identityFault" type="identity:IdentityFault"/>
+    <element name="serviceUnavailable" type="identity:ServiceUnavailableFault"/>
+    <element name="badRequest" type="identity:BadRequestFault"/>
+    <element name="unauthorized" type="identity:UnauthorizedFault"/>
+    <element name="overLimit" type="identity:OverLimitFault"/>
+    <element name="userDisabled" type="identity:UserDisabledFault"/>
+    <element name="forbidden" type="identity:ForbiddenFault"/>
+    <element name="itemNotFound" type="identity:ItemNotFoundFault"/>
+    <element name="tenantConflict" type="identity:TenantConflictFault"/>
 
     <!-- Fault Types -->
-    <complexType name="IDMFault">
+    <complexType name="IdentityFault">
         <sequence>
             <element name="message" type="xsd:string">
                 <annotation>
@@ -66,56 +66,56 @@
 
     <complexType name="ServiceUnavailableFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="BadRequestFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="UnauthorizedFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="UserDisabledFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="ForbiddenFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="ItemNotFoundFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="TenantConflictFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
             </extension>
         </complexContent>
     </complexType>
 
     <complexType name="OverLimitFault">
         <complexContent>
-            <extension base="idm:IDMFault">
+            <extension base="identity:IdentityFault">
                 <attribute name="retryAt" type="xsd:dateTime" use="optional">
                     <annotation>
                         <xsd:documentation
