@@ -1,0 +1,48 @@
+{
+ "baseURLs" : [
+     {
+     "id" : 1,
+     "userType" : "NAST",
+     "region"   : "DFW",
+     "default"  : true,
+     "serviceName" : "cloudFiles",
+     "publicURL" : "https://storage.clouddrive.com/v1",
+     "internalURL" : "https://storage-snet.clouddrive.com/v1",
+     "enabled"  : true
+     },
+     {
+     "id" : 2,
+     "userType" : "NAST",
+     "region"   : "ORD",
+     "serviceName" : "cloudFiles",
+     "publicURL" : "https://otherstorage.clouddrive.com/v1",
+     "internalURL" : "https://otherstorage-snet.clouddrive.com/v1",
+     "enabled"  : false
+     },
+     {
+     "id" : 3,
+     "userType" : "NAST",
+     "region"   : "DFW",
+     "default"  : true,
+     "serviceName" : "cloudFilesCDN",
+     "publicURL" : "https://cdn.clouddrive.com/v1",
+     "enabled"  : true
+     },
+     {
+     "id" : 4,
+     "userType" : "NAST",
+     "region"   : "ORD",
+     "serviceName" : "cloudFilesCDN",
+     "publicURL" : "https://othercdn.clouddrive.com/v1",
+     "enabled"  : true
+     },
+     {
+     "id" : 5,
+     "userType" : "MOSSO",
+     "default"  : true,
+     "serviceName" : "cloudServers",
+     "publicURL" : "https://servers.api.rackspacecloud.com/v1.0",
+     "enabled"  : true
+     }
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "roleRefs" : [
+  {
+  "id" : 1,
+  "href" : "https://.openstack.org/identity/v1.1/roles/admin",
+  "tenantId" : "one"
+  },
+  {
+  "id" : 2,
+  "href" : "https://.openstack.org/identity/v1.1/roles/test",
+  "tenantId" : "two"
+  },
+ ]
+}

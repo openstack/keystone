@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<baseURLs xmlns="http://docs.openstack.org/identity/api/v2.0">
+  <baseURL
+   id="1" 
+   userType="NAST" 
+   region="DFW" 
+   default="true"
+   serviceName="cloudFiles"
+   publicURL="https://storage.clouddrive.com/v1"
+   internalURL="https://storage-snet.clouddrive.com/v1" 
+   enabled="true"
+  />
+  <baseURL
+   id="2" 
+   userType="NAST" 
+   region="ORD"
+   serviceName="cloudFiles"
+   publicURL="https://otherstorage.clouddrive.com/v1"
+   internalURL="https://otherstorage-snet.clouddrive.com/v1" 
+   enabled="false"
+  />
+  <baseURL
+   id="3" 
+   userType="NAST" 
+   region="DFW" 
+   default="true"
+   serviceName="cloudFilesCDN"
+   publicURL="https://cdn.clouddrive.com/v1" 
+   enabled="true"
+  />
+  <baseURL
+   id="4" 
+   userType="NAST" 
+   region="ORD"
+   serviceName="cloudFilesCDN"
+   publicURL="https://othercdn.clouddrive.com/v1" 
+   enabled="true"
+  />
+  <baseURL
+   id="5" 
+   userType="MOSSO" 
+   default="true"
+   serviceName="cloudServers"
+   publicURL="https://servers.api.rackspacecloud.com/v1.0" 
+  />
+</baseURLs>

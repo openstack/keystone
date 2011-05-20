@@ -1,0 +1,12 @@
+{
+ "roles" : [
+     {
+     "id" : 1,
+     "serviceName" : "cloudFiles"
+     },
+     {
+     "id" : 2,
+     "serviceName" : "cloudFiles"
+     },
+ ]
+}
