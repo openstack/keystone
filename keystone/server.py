@@ -719,7 +719,7 @@ class KeystoneAPI(wsgi.Router):
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
-        mapper.connect("/v2.0/idmdevguide.pdf",
+        mapper.connect("/v2.0/identitydevguide.pdf",
                     controller=static_files_controller,
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))
