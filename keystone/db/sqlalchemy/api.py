@@ -15,11 +15,67 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
+import logging
 
-from session import get_session
 from sqlalchemy.orm import joinedload, aliased
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from keystone.common import config
 import models
 
+
+_ENGINE = None
+_MAKER = None
+BASE = models.Base
+
+def configure_db(options):
+    """
+    Establish the database, create an engine if needed, and
+    register the models.
+
+    :param options: Mapping of configuration options
+    """
+    global _ENGINE
+    if not _ENGINE:
+        debug = config.get_option(
+            options, 'debug', type='bool', default=False)
+        verbose = config.get_option(
+            options, 'verbose', type='bool', default=False)
+        timeout = config.get_option(
+            options, 'sql_idle_timeout', type='int', default=3600)
+        _ENGINE = create_engine(options['sql_connection'],
+                                pool_recycle=timeout)
+        logger = logging.getLogger('sqlalchemy.engine')
+        if debug:
+            logger.setLevel(logging.DEBUG)
+        elif verbose:
+            logger.setLevel(logging.INFO)
+        register_models()
+
+
+def get_session(autocommit=True, expire_on_commit=False):
+    """Helper method to grab session"""
+    global _MAKER, _ENGINE
+    if not _MAKER:
+        assert _ENGINE
+        _MAKER = sessionmaker(bind=_ENGINE,
+                              autocommit=autocommit,
+                              expire_on_commit=expire_on_commit)
+    return _MAKER()
+
+
+def register_models():
+    """Register Models and create properties"""
+    global _ENGINE
+    assert _ENGINE
+    BASE.metadata.create_all(_ENGINE)
+
+
+def unregister_models():
+    """Unregister Models, useful clearing out data before testing"""
+    global _ENGINE
+    assert _ENGINE
+    BASE.metadata.drop_all(_ENGINE)
 
 #
 # Tenant API operations

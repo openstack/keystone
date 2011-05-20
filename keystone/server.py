@@ -58,6 +58,7 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
 
 from queryext import exthandler
 from keystone.common import wsgi
+from keystone.db.sqlalchemy import api as db_api
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.auth as auth
@@ -579,7 +580,8 @@ class KeystoneAPI(wsgi.Router):
     def __init__(self, options):
         self.options = options
         mapper = routes.Mapper()
-
+        
+        db_api.configure_db(options)
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/token", controller=auth_controller,
