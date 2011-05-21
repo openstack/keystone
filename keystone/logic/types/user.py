@@ -19,6 +19,7 @@ import string
 
 import keystone.logic.types.fault as fault
 
+
 class User(object):
 
     def __init__(self, password, user_id, tenant_id, email, enabled):
@@ -33,7 +34,8 @@ class User(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}user")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+                            "user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
             user_id = root.get("id")
@@ -43,8 +45,6 @@ class User(object):
             enabled = root.get("enabled")
             if user_id == None:
                 raise fault.BadRequestFault("Expecting User")
-            elif tenant_id == None:
-                raise fault.BadRequestFault("Expecting User tenant")
             elif password == None:
                 raise fault.BadRequestFault("Expecting User password")
             elif email == None:
@@ -75,9 +75,10 @@ class User(object):
             if not "password" in user:
                 raise fault.BadRequestFault("Expecting User Password")
             password = user["password"]
-            if not "tenantId" in user:
-                raise fault.BadRequestFault("Expecting User Tenant")
-            tenant_id = user["tenantId"]
+            if "tenantId" in user:
+                tenant_id = user["tenantId"]
+            else:
+                tenant_id = None
             if not "email" in user:
                 raise fault.BadRequestFault("Expecting User Email")
             email = user["email"]
@@ -87,15 +88,13 @@ class User(object):
                     raise fault.BadRequestFault("Bad enabled attribute!")
             else:
                 set_enabled = True
-            if password == '':
-                password = user_id
             return User(password, user_id, tenant_id, email, set_enabled)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
     def to_dom(self):
         dom = etree.Element("user",
-                            xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.email:
             dom.set("email", self.email)
         if self.tenant_id:
@@ -116,7 +115,8 @@ class User(object):
 
         if self.user_id:
             user["id"] = self.user_id
-        user["tenantId"] = self.tenant_id
+        if self.tenant_id:
+            user["tenantId"] = self.tenant_id
         if self.password:
             user["password"] = self.password
         user["email"] = self.email
@@ -143,7 +143,8 @@ class User_Update(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}user")
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+                            "user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
             user_id = root.get("id")
@@ -200,7 +201,7 @@ class User_Update(object):
 
     def to_dom(self):
         dom = etree.Element("user",
-                            xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.email:
             dom.set("email", self.email)
         if self.tenant_id:

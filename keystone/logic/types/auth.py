@@ -21,11 +21,9 @@ from lxml import etree
 import keystone.logic.types.fault as fault
 
 
-
 class PasswordCredentials(object):
     """Credentials based on username, password, and (optional) tenant_id.
-        To handle multiple token for a user depending on tenants,
-        tenant_id is mandatory.
+        To handle multiple token for a user depending on tenants.
     """
 
     def __init__(self, username, password, tenant_id):
@@ -49,12 +47,6 @@ class PasswordCredentials(object):
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
             tenant_id = root.get("tenantId")
-
-            #--for multi-token handling--
-            if tenant_id == None:
-                raise fault.BadRequestFault("Expecting tenant")
-            # ----
-
             return PasswordCredentials(username, password, tenant_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
@@ -75,11 +67,6 @@ class PasswordCredentials(object):
             password = cred["password"]
             if "tenantId" in cred:
                 tenant_id = cred["tenantId"]
-            else:
-                #--for multi-token handling--
-                if tenant_id == None:
-                    raise fault.BadRequestFault("Expecting a tenant")
-                # ---
             return PasswordCredentials(username, password, tenant_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
@@ -128,7 +115,7 @@ class AuthData(object):
 
     def to_xml(self):
         dom = etree.Element("auth",
-                             xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)

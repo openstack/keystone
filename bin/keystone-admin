@@ -19,10 +19,9 @@
 #    under the License.
 
 """
-Keystone API Server
+Keystone Admin API Server
 """
 
-import eventlet
 import optparse
 import os
 import sys
@@ -56,21 +55,13 @@ if __name__ == '__main__':
                                     % version.version_string())
     create_options(oparser)
     (options, args) = config.parse_options(oparser)
-    print "Using config file:", config.find_config_file(options, args)
+
     try:
-        conf, app = config.load_paste_app('server', options, args)
+        conf, app = config.load_paste_app('admin', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
         print "Server listening on %s:%s" % (conf['bind_host'],
                                               conf['bind_port'])
-
-        admin_conf, admin_app = config.load_paste_app('admin', options, args)
-        admin_server = wsgi.Server()
-        admin_server.start(admin_app, int(admin_conf['bind_port']),
-                           admin_conf['bind_host'])
-        print "Admin server listening on %s:%s" % (admin_conf['bind_host'],
-                                              admin_conf['bind_port'])
-
         server.wait()
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

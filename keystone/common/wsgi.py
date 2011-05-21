@@ -176,7 +176,7 @@ class Router(object):
           # Pointing to an arbitrary WSGI app.  You can specify the
           # {path_info:.*} parameter so the target app can be handed just that
           # section of the URL.
-          mapper.connect(None, "/v2.0/{path_info:.*}", controller=BlogApp())
+          mapper.connect(None, "/v2.0/{path_info:.*}", controller=TheApp())
         """
         self.map = mapper
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,

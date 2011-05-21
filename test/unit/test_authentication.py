@@ -55,6 +55,11 @@ class AuthenticationTest(unittest.TestCase):
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
 
+    def test_a_authorize_legacy(self):
+        resp, content = utils.get_token_legacy('joeuser', 'secrete')
+        self.assertEqual(204, int(resp['status']))
+        self.assertTrue(resp['x-auth-token'])
+
     def test_a_authorize_user_disabled(self):
         header = httplib2.Http(".cache")
         url = '%stoken' % utils.URL
@@ -153,7 +158,7 @@ class MultiToken(unittest.TestCase):
         utils.delete_user('test_tenant2', 'test_user1', self.auth_token)
         utils.delete_tenant('test_tenant1', self.auth_token)
         utils.delete_tenant('test_tenant2', self.auth_token)
-        
+
     """ INVALID TEST - we're changing how we delegate access to second tenant
     def test_multi_token(self):
         #get token for user1 with tenant1
@@ -170,7 +175,7 @@ class MultiToken(unittest.TestCase):
         resp = utils.delete_token(token1, self.auth_token)
         resp = utils.delete_token(token2, self.auth_token)
     """
-    
+
     def test_unassigned_user(self):
         resp, content = utils.get_token('test_user2', 'secrete', \
                                 'test_tenant2')

@@ -56,6 +56,20 @@ def get_auth_token(req):
     return auth_token
 
 
+def get_auth_user(req):
+    auth_user = None
+    if "X-Auth-User" in req.headers:
+        auth_user = req.headers["X-Auth-User"]
+    return auth_user
+
+
+def get_auth_key(req):
+    auth_key = None
+    if "X-Auth-Key" in req.headers:
+        auth_key = req.headers["X-Auth-Key"]
+    return auth_key
+
+
 def wrap_error(func):
 
     @functools.wraps(func)
@@ -68,7 +82,8 @@ def wrap_error(func):
             else:
                 logging.exception(err)
                 return send_error(500, kwargs['req'],
-                                fault.IdentityFault("Unhandled error", str(err)))
+                                fault.IdentityFault("Unhandled error",
+                                                    str(err)))
     return check_error
 
 
@@ -80,7 +95,8 @@ def get_normalized_request_content(model, req):
     elif req.content_type == "application/json":
         ret = model.from_json(req.body)
     else:
-        raise fault.IDMFault("I don't understand the content type ", code=415)
+        raise fault.IdentityFault("I don't understand the content type ",
+                                  code=415)
     return ret
 
 
@@ -127,5 +143,20 @@ def send_result(code, req, result):
 
         resp.content_type_params = {'charset': 'UTF-8'}
         resp.unicode_body = content.decode('UTF-8')
+
+    return resp
+
+
+def send_legacy_result(code, headers):
+    resp = Response()
+    if 'content-type' not in headers:
+        headers['content-type'] = "text/plain"
+
+    resp.headers = headers
+    resp.status = code
+    if code > 399:
+        return resp
+
+    resp.content_type_params = {'charset': 'UTF-8'}
 
     return resp

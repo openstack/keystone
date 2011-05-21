@@ -44,15 +44,15 @@ from keystone.common import config
 
 ALL_COMMANDS = ['start', 'stop', 'shutdown', 'restart',
                 'reload', 'force-reload']
-ALL_SERVERS = ['keystone-auth']
-GRACEFUL_SHUTDOWN_SERVERS = ['keystone-auth']
+ALL_SERVERS = ['keystone-auth', 'keystone-admin']
+GRACEFUL_SHUTDOWN_SERVERS = ['keystone-auth', 'keystone-admin']
 MAX_DESCRIPTORS = 32768
 MAX_MEMORY = (1024 * 1024 * 1024) * 2  # 2 GB
 USAGE = """%prog [options] <SERVER> <COMMAND> [CONFPATH]
 
 Where <SERVER> is one of:
 
-    all, auth
+    all, auth, admin
 
 And command is one of:
 
