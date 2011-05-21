@@ -1,0 +1,7 @@
+{
+  "role" :
+   {
+       "id" : "Admin",
+       "serviceName" : "cloudFiles"
+   }
+}

@@ -1022,5 +1022,430 @@ Host: identity.api.openstack.org/v1.1/
             &NO_REQUEST;       
         </section>
     </section>
+     <section>
+            <title>Base URLs</title>
+            <section>
+                <title>Get Base URLs</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/baseURLs?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                            </td>
+                            <td colspan="3">
+                                Get a list of base URLs.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/baseURLs/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                            </td>
+                            <td colspan="3">
+                                Get a list of enabled base URLs.
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES; <returnvalue>200</returnvalue>,
+                    <returnvalue>203</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+                <example>
+                    <title>Base URLs Response: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/baseURLs.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Base URLs Response: JSON</title>
+                    <programlisting language="javascript">
+<xi:include href="samples/baseURLs.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Get Base URL</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/baseURLs/<parameter>baseURLId</parameter>
+                            </td>
+                            <td colspan="3">
+                                Get a base URL.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES; <returnvalue>200</returnvalue>,
+                    <returnvalue>203</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+                <example>
+                    <title>Base URL Response: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="xml">
+<xi:include href="samples/baseURL.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Base URL Response: JSON</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="javascript">
+<xi:include href="samples/baseURL.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Get Base URLs for a Tenant</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+                            </td>
+                            <td colspan="3">
+                                Get a list of base URLs for a tenant.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES; <returnvalue>200</returnvalue>,
+                    <returnvalue>203</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+                <example>
+                    <title>Base URL Refs Response: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/baseURLRefs.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Base URL Refs Response: JSON</title>
+                    <programlisting language="javascript">
+<xi:include href="samples/baseURLRefs.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Add Base URL to a Tenant.</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&POST;
+                            </td>
+                            <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+                            </td>
+                            <td colspan="3">
+                                Add a base URL to a tenant.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES;
+                    <returnvalue>201</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    itemNotFound (<errorcode>404</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                <para xmlns="http://docbook.org/ns/docbook">
+                    Expect a badRequest (400) response if a disabled base URL is added or if the base URL had been previously added.       
+                </para>
+                <example>
+                    <title>Add Base URL Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="xml">
+<xi:include href="samples/baseURL.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Add Base URL Request: JSON</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="javascript">
+<xi:include href="samples/baseURL.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Remove Base URLs from a Tennat</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&DELETE;
+                            </td>
+                            <td colspan="4">/tenant/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
+                            <td colspan="3">
+                                Remove Base URL from a user.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES;
+                    <returnvalue>204</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    itemNotFound (<errorcode>404</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+            </section>
+       </section>
+       <!-- Roles -->
+            <section>
+            <title>Roles</title>
+            <section>
+                <title>Get roles</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/roles?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                            </td>
+                            <td colspan="3">
+                                Get a list of roles.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES; <returnvalue>200</returnvalue>,
+                    <returnvalue>203</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+                <example>
+                    <title>Roles Response: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/roles.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Roles Response: JSON</title>
+                    <programlisting language="javascript">
+<xi:include href="samples/roles.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Get Role</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/roles/<parameter>roleId</parameter>
+                            </td>
+                            <td colspan="3">
+                                Get a role.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES; <returnvalue>200</returnvalue>,
+                    <returnvalue>203</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+                <example>
+                    <title>Role Response: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="xml">
+<xi:include href="samples/role.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Role Response: JSON</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="javascript">
+<xi:include href="samples/role.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Get roles for a User</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&GET;
+                            </td>
+                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs
+                            </td>
+                            <td colspan="3">
+                                Get a list of roles for a user.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES; <returnvalue>200</returnvalue>,
+                    <returnvalue>203</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+                <example>
+                    <title>Role Refs Response: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/roleRefs.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Role Refs Response: JSON</title>
+                    <programlisting language="javascript">
+<xi:include href="samples/roleRefs.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Add Role to a User</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&POST;
+                            </td>
+                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs
+                            </td>
+                            <td colspan="3">
+                                Add a role to a user.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES;
+                    <returnvalue>201</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    itemNotFound (<errorcode>404</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                <example>
+                    <title>Add Role Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="xml">
+<xi:include href="samples/role.xml" parse="text"/>
+                    </programlisting>
+                </example>
+                <example>
+                    <title>Add Role Request: JSON</title>
+                    <?dbfo keep-together="always"?>
+                    <programlisting language="javascript">
+<xi:include href="samples/role.json" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section>
+                <title>Remove roles from a User</title>
+                <informaltable rules="all">
+                    &LONG_URI_REFHEAD;
+                    <tbody>
+                        <tr>
+                            <td colspan="1">&DELETE;
+                            </td>
+                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs/<parameter>roleId</parameter></td>
+                            <td colspan="3">
+                                Remove a role from a user.
+                            </td>
+                        </tr>
+                    </tbody>
+                </informaltable>
+                <simpara>
+                    &CODES;
+                    <returnvalue>204</returnvalue>
+                </simpara>
+                <simpara>
+                    &ERROR_CODES;
+                    unauthorized (<errorcode>401</errorcode>),
+                    forbidden (<errorcode>403</errorcode>),
+                    badRequest (<errorcode>400</errorcode>),
+                    itemNotFound (<errorcode>404</errorcode>),
+                    authFault (<errorcode>500</errorcode>),
+                    serviceUnavailable (<errorcode>503</errorcode>)
+                </simpara>
+                &NO_REQUEST;
+            </section>
+       </section>
+       
   </chapter>
 </book>
