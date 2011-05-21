@@ -19,7 +19,7 @@
 #    under the License.
 
 """
-Keystone API Server
+Keystone Identity Server - Admin and Service API
 """
 
 import eventlet
@@ -61,14 +61,18 @@ if __name__ == '__main__':
         conf, app = config.load_paste_app('server', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Server listening on %s:%s" % (conf['bind_host'],
+        print "Service API listening on %s:%s" % (conf['bind_host'],
                                               conf['bind_port'])
 
         admin_conf, admin_app = config.load_paste_app('admin', options, args)
         admin_server = wsgi.Server()
-        admin_server.start(admin_app, int(admin_conf['bind_port']),
+        if conf['bind_port'] == admin_conf['bind_port']:
+            admin_bind = admin_conf['bind_port'] + 1
+        else:
+            admin_bind = admin_conf['bind_port']
+        admin_server.start(admin_app, int(admin_bind),
                            admin_conf['bind_host'])
-        print "Admin server listening on %s:%s" % (admin_conf['bind_host'],
+        print "Admin API listening on %s:%s" % (admin_conf['bind_host'],
                                               admin_conf['bind_port'])
 
         server.wait()

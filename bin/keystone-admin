@@ -19,7 +19,7 @@
 #    under the License.
 
 """
-Keystone Admin API Server
+Keystone Identity Server - Admin API
 """
 
 import optparse
@@ -55,12 +55,13 @@ if __name__ == '__main__':
                                     % version.version_string())
     create_options(oparser)
     (options, args) = config.parse_options(oparser)
+    print "Using config file:", config.find_config_file(options, args)
 
     try:
         conf, app = config.load_paste_app('admin', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Server listening on %s:%s" % (conf['bind_host'],
+        print "Admin API listening on %s:%s" % (conf['bind_host'],
                                               conf['bind_port'])
         server.wait()
     except RuntimeError, e:

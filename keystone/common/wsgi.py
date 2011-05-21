@@ -44,6 +44,9 @@ class WritableLogger(object):
 
     def write(self, msg):
         self.logger.log(self.level, msg.strip("\n"))
+        #TODO(Ziad): remove this when we get stable
+        if self.level == logging.DEBUG:
+            print msg.strip("\n")
 
 
 def run_server(application, port):

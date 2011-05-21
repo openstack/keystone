@@ -1,5 +1,5 @@
-Keystone: Identity Service
-==========================
+Keystone: OpenStack Identity Service
+====================================
 
 Keystone is a proposed independent authentication service for [OpenStack](http://www.openstack.org).
 
@@ -9,7 +9,7 @@ This initial proof of concept aims to address the current use cases in Swift and
 * many-to-many relationship between identity and tenant for Nova.
 
 
-SERVICES:
+Services:
 ---------
 
 * Keystone    - authentication service
@@ -18,80 +18,43 @@ SERVICES:
 
 Also included:
 
+* Keystone    - Service and Admin API are available separately. Admin API allows management of tenants, roles, and users as well.
 * Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
 * Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
 
 
-ENVIRONMENT & DEPENDENCIES:
----------------------------
-See pip-requires for dependency list
+RUNNING KEYSTONE:
+-----------------
+
+Starting the both Admin and Service API endpoints:
+    $ cd bin
+    $ ./keystone
+
+Starting the auth server only (exposes the Service API):
+    $ cd bin
+    $ ./keystone-auth
+
+Starting the admin server only (exposes the Admin API):
+    $ cd bin
+    $ ./keystone-admin
+
+All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
+
+
+
+DEPENDENCIES:
+-------------
+See pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
 
 Setup:
 Install http://pypi.python.org/pypi/setuptools
     sudo easy_install pip
     sudo pip install -r pip-requires
 
-Configuration:
-Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
-on the command line otherwise the following logic applies (the conf file in use will be output to help
-in troubleshooting:
 
-1. config.py takes the config file from <topdir>/etc/keystone.conf
-2. If the keystone package is also intalled on the system,
-    /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
-
-If you are also doing development on a system that has keystone.conf installed in /etc you may need to disambiguate it by providing the conf file in the command-line
-
-     $ bin/keystone-control --confg-file etc/keystone.conf  --pid-file <pidfile> auth <start|stop|restart>
-
-Path:
-keystone-control calls keystone-auth and it needs to be in the PATH
-
-     $ export PATH=<top_dir>/bin:$PATH
-
-
-RUNNING KEYSTONE:
------------------
-
-    $ cd bin
-    $ ./keystone-auth
-
-
-RUNNING KEYSTONE FOR DEVELOPMENT (HACKING):
-------------------------------
-
-During  development, you can simply run as user (root not needed)
-
-From the top Keystone directory (<topdir>)
-
-     $ bin/keystone=auth
-
-It dumps stdout and stderr onto the terminal.
-
-If you want to specify additional parameters (optional):
-
-     $ bin/keystone-control --pid-file <pidfile>  --config-file etc/keystone.conf auth <start|stop|restart>
-
-RUNNING KEYSTONE AS ROOT IN PRODUCTION
---------------------------------------
-In production, stdout and stderr need to be closed and all the output needs to be redirected to a log file.
-Once the package is installed through setup tools, RPM, deb, or ebuild keystone-control is installed as /usr/sbin/keystone-control. Typically, it will be started a script in /etc/init.d/keystoned
-
-keystone-control can invoke keystone-auth and start the keystone daemon with 
-
-     $ /usr/sbin/keystone-control auth start
-
-It writes the process id of the daemon into /var/run/keystone/keystine-auth.pid.
-The daemon can be stopped with
- 
-     $ /usr/sbin/keystone-control auth stop
-
-keystone-control has the infrastructure to start and stop multiple servers keystone-xxx  
-
-
-RUNNING TEST SERVICE:
----------------------
+RUNNING THE TEST SERVICE (Echo.py):
+----------------------------------
 
     Standalone stack (with Auth_Token)
     $ cd echo/bin
@@ -103,19 +66,31 @@ RUNNING TEST SERVICE:
 
     in separate session
     $ cd keystone/auth_protocols
-    $ python auth_token.py --remote
+    $ python auth_token.py
 
 
 DEMO CLIENT:
----------------------
+------------
+A sample client that gets a token from Keystone and then uses it to call Echo (and a few other example calls):
     $ cd echo/echo
     $ python echo_client.py
     Note: this requires tests data. See section TESTING for initializing data
 
 
-TESTING
--------
+ADDITIONAL INFORMATION:
+-----------------------
 
+Configuration:
+Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
+on the command line otherwise the following logic applies (the conf file in use will be output to help
+in troubleshooting:
+
+1. config.py takes the config file from <topdir>/etc/keystone.conf
+2. If the keystone package is also intalled on the system,
+    /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
+
+
+Testing:
 After starting keystone a keystone.db sqlite database should be created in the keystone folder.
 
 Add test data to the database:
