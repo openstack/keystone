@@ -75,14 +75,23 @@ def add_common_options(parser):
                      help="Print more verbose output")
     group.add_option('-d', '--debug', default=False, dest="debug",
                      action="store_true",
-                     help="Print debugging output")
-    group.add_option('--config-file', default=None, metavar="PATH",
+                     help="Print debugging output to console")
+    group.add_option('-c', '--config-file', default=None, metavar="PATH",
                      help="Path to the config file to use. When not specified "
                           "(the default), we generally look at the first "
                           "argument specified to be a config file, and if "
                           "that is also missing, we search standard "
                           "directories for a config file.")
+    group.add_option('-p', '--port', '--bind-port', default=8080,
+                     dest="bind_port",
+                     help="specifies port to listen on (default is 8080)")
+    group.add_option('--host', '--bind-host',
+                     default="0.0.0.0", dest="bind_host",
+                     help="specifies host address to listen on "
+                            "(default is all or 0.0.0.0)")
+
     parser.add_option_group(group)
+    return group
 
 
 def add_log_options(parser):
@@ -112,7 +121,30 @@ def add_log_options(parser):
     group.add_option("--log-dir", default=None,
                       help="(Optional) The directory to keep log files in "
                            "(will be prepended to --logfile)")
+
     parser.add_option_group(group)
+    return group
+
+
+def add_console_handler(logger):
+    # add a Handler which writes INFO messages or higher to sys.stderr
+    # which is often the console
+    console = None
+    for console in logger.handlers:
+        if isinstance(console, logging.StreamHandler):
+            break
+
+    if not console:
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter("%(name)-12s: "
+                                      "%(levelname)-8s %(message)s")
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logger.addHandler(console)
+    return console
 
 
 def setup_logging(options, conf):
@@ -138,6 +170,7 @@ def setup_logging(options, conf):
     root_logger = logging.root
     if debug:
         root_logger.setLevel(logging.DEBUG)
+        add_console_handler(root_logger)
     elif verbose:
         root_logger.setLevel(logging.INFO)
     else:
@@ -162,7 +195,6 @@ def setup_logging(options, conf):
         if logdir:
             logfile = os.path.join(logdir, logfile)
         logfile = logging.FileHandler(logfile)
-        logfile.setFormatter(formatter)
         logfile.setFormatter(formatter)
         root_logger.addHandler(logfile)
     else:
@@ -295,15 +327,15 @@ def load_paste_app(app_name, options, args):
         # Log the options used when starting if we're in debug mode...
         if debug:
             logger = logging.getLogger(app_name)
-            logger.debug("*" * 80)
-            logger.debug("Configuration options gathered from config file:")
-            logger.debug(conf_file)
-            logger.debug("================================================")
+            logger.info("*" * 50)
+            logger.info("Configuration options gathered from config file:")
+            logger.info(conf_file)
+            logger.info("================================================")
             items = dict([(k, v) for k, v in conf.items()
                           if k not in ('__file__', 'here')])
             for key, value in sorted(items.items()):
-                logger.debug("%(key)-30s %(value)s" % locals())
-            logger.debug("*" * 80)
+                logger.info("%(key)-20s %(value)s" % locals())
+            logger.info("*" * 50)
         app = deploy.loadapp("config:%s" % conf_file, name=app_name)
     except (LookupError, ImportError), e:
         raise RuntimeError("Unable to load %(app_name)s from "

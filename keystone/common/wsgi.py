@@ -34,19 +34,39 @@ import routes.middleware
 import webob.dec
 import webob.exc
 
+def add_console_handler(logger, level):
+    # add a Handler which writes INFO messages or higher to sys.stderr
+    # which is often the console
+    console = None
+    for console in logger.handlers:
+        if isinstance(console, logging.StreamHandler):
+            break
+            
+    if not console:
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logger.addHandler(console)
+    elif console.level != level:
+        console.setLevel(level)
+    return console
 
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
 
     def __init__(self, logger, level=logging.DEBUG):
+        print level, logging.DEBUG
         self.logger = logger
         self.level = level
+        if level == logging.DEBUG:
+            add_console_handler(logger, level)
 
     def write(self, msg):
         self.logger.log(self.level, msg.strip("\n"))
-        #TODO(Ziad): remove this when we get stable
-        if self.level == logging.DEBUG:
-            print msg.strip("\n")
 
 
 def run_server(application, port):
@@ -77,7 +97,7 @@ class Server(object):
         """Start a WSGI server in a new green thread."""
         logger = logging.getLogger('eventlet.wsgi.server')
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                             log=WritableLogger(logger))
+                             log=WritableLogger(logger, logging.root.level))
 
 
 class Middleware(object):

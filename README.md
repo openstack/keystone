@@ -78,23 +78,12 @@ A sample client that gets a token from Keystone and then uses it to call Echo (a
 
     $ cd echo/echo
     $ python echo_client.py
-    Note: this requires tests data. See section TESTING for initializing data
+    Note: this requires test data. See section TESTING for initializing data
 
 
-ADDITIONAL INFORMATION:
------------------------
 
-Configuration:
-Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
-on the command line otherwise the following logic applies (the conf file in use will be output to help
-in troubleshooting:
-
-1. config.py takes the config file from <topdir>/etc/keystone.conf
-2. If the keystone package is also intalled on the system,
-    /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
-
-
-Testing:
+TESTING:
+--------
 After starting keystone a keystone.db sqlite database should be created in the keystone folder.
 
 Add test data to the database:
@@ -111,6 +100,7 @@ To run client demo (with all auth middleware running locally on sample service):
     $ python echo/echo/echo_client.py
 
 To run unit tests:
+
 * go to unit test/unit directory
 * run tests: python test_keystone
 
@@ -129,12 +119,26 @@ For more on unit testing please refer
 
 To perform contract validation and load testing, use SoapUI (for now).
 
+
 Using SOAPUI:
 
-Download [SOAPUI](http://sourceforge.net/projects/soapui/files/):
+First, download [SOAPUI](http://sourceforge.net/projects/soapui/files/):
 
 To Test Keystone Service:
 
 * File->Import Project
 * Select tests/IdentitySOAPUI.xml
 * Double click on "Keystone Tests" and press the green play (>) button
+
+
+ADDITIONAL INFORMATION:
+-----------------------
+
+Configuration:
+Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
+on the command line otherwise the following logic applies (the conf file in use will be output to help
+in troubleshooting:
+
+1. config.py takes the config file from <topdir>/etc/keystone.conf
+2. If the keystone package is also intalled on the system,
+    /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.

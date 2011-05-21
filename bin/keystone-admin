@@ -39,30 +39,29 @@ from keystone.common import config
 from keystone.common import wsgi
 
 
-def create_options(parser):
-    """
-    Sets up the CLI and config-file options that may be
-    parsed and program commands.
-
-    :param parser: The option parser
-    """
-    config.add_common_options(parser)
-    config.add_log_options(parser)
-
-
 if __name__ == '__main__':
-    oparser = optparse.OptionParser(version='%%prog %s'
+    # Parse options (command-line arguments and config file)
+    parser = optparse.OptionParser(version='%%prog %s'
                                     % version.version_string())
-    create_options(oparser)
-    (options, args) = config.parse_options(oparser)
-    print "Using config file:", config.find_config_file(options, args)
+    common_group = config.add_common_options(parser)
+    config.add_log_options(parser)
+    # Handle a special argument to support starting two endpoints
+    common_group.add_option('-a', '--admin-port', default=8081,
+                            dest="admin_port", metavar="PORT",
+                     help = "specifies port for Admin API to listen"
+                            "on (default is 8080)")
+    (options, args) = config.parse_options(parser)
 
+    # Start services
+    print "Using config file:", config.find_config_file(options, args)
     try:
+        # Load Service API server
         conf, app = config.load_paste_app('admin', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
         print "Admin API listening on %s:%s" % (conf['bind_host'],
                                               conf['bind_port'])
+
         server.wait()
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
