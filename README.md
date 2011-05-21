@@ -9,7 +9,7 @@ This initial proof of concept aims to address the current use cases in Swift and
 * many-to-many relationship between identity and tenant for Nova.
 
 
-Services:
+SERVICES:
 ---------
 
 * Keystone    - authentication service
@@ -27,15 +27,18 @@ Also included:
 RUNNING KEYSTONE:
 -----------------
 
-Starting the both Admin and Service API endpoints:
+Starting both Admin and Service API endpoints:
+
     $ cd bin
     $ ./keystone
 
 Starting the auth server only (exposes the Service API):
+
     $ cd bin
     $ ./keystone-auth
 
 Starting the admin server only (exposes the Admin API):
+
     $ cd bin
     $ ./keystone-admin
 
@@ -72,6 +75,7 @@ RUNNING THE TEST SERVICE (Echo.py):
 DEMO CLIENT:
 ------------
 A sample client that gets a token from Keystone and then uses it to call Echo (and a few other example calls):
+
     $ cd echo/echo
     $ python echo_client.py
     Note: this requires tests data. See section TESTING for initializing data
