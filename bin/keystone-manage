@@ -19,7 +19,7 @@
 #    under the License.
 
 """
-Keystone Identity Server - Service API
+Keystone Identity Server - CLI Management Interface
 """
 
 import optparse
@@ -36,27 +36,56 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 
 from keystone import version
 from keystone.common import config
-from keystone.common import wsgi
+import keystone.db.sqlalchemy.api as db_api
+import keystone.db.sqlalchemy.models as db_models
 
 
-
-if __name__ == '__main__':
+def Main():
     # Parse options (command-line arguments and config file)
     parser = optparse.OptionParser(version='%%prog %s'
                                     % version.version_string())
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
     (options, args) = config.parse_options(parser)
+    
+    if len(args) <> 4:
+        print "Usage: keystone-manage [options] type command id [attributes]"
+        print "  type       : user (more to come)"
+        print "  command    : add (more to come)"
+        print "  id         : user name"
+        print "  attributes : password"
+        print "\noptions"
+        print "  -c | --config-file : config file to use"
+        print "  -d | --debug : debug mode"
+        print "\nExample: keystone-manage add user Admin P@ssw0rd"
+        return
 
-    # Start services
-    print "Using config file:", config.find_config_file(options, args)
-    try:
-        # Load Service API server
-        conf, app = config.load_paste_app('server', options, args)
-        server = wsgi.Server()
-        server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Service API listening on %s:%s" % (conf['bind_host'],
-                                              conf['bind_port'])
-        server.wait()
-    except RuntimeError, e:
-        sys.exit("ERROR: %s" % e)
+    object_type = args[0]
+    command = args[1]
+    object_id = args[2]
+    password = args[3]
+
+    if command == "add" and object_type == "user":
+        try:
+            config_file, conf = config.load_paste_config('admin', options, args)
+            print "Config file in use: %s" % config_file
+            config.setup_logging(options, conf)
+            
+            db_api.configure_db(conf)
+
+            duser = db_models.User()
+            duser.id = object_id
+            duser.password = password
+            duser.enabled = True
+            db_api.user_create(duser)
+            print "User created successfully. ID=%s" % duser.id
+        except Exception as exc:
+            print "ERROR: Failed to create user: %s" % exc
+
+    else:
+        print ("Fail: only user add supported right now."
+                "You entered %s %s" % (object_type, command))
+
+
+if __name__ == '__main__':
+    Main()
