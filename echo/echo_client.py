@@ -31,6 +31,7 @@ def get_auth_token(username, password, tenant):
     conn.request("POST", "/v2.0/token", json.dumps(params), headers=headers)
     response = conn.getresponse()
     data = response.read()
+    print data
     ret = data
     return ret
 

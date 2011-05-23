@@ -67,6 +67,8 @@ class PasswordCredentials(object):
             password = cred["password"]
             if "tenantId" in cred:
                 tenant_id = cred["tenantId"]
+            else:
+                tenant_id = None
             return PasswordCredentials(username, password, tenant_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse password credentials",

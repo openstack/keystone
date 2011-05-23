@@ -46,12 +46,6 @@ if __name__ == '__main__':
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 
-    # Handle a special argument to support starting two endpoints
-    common_group.add_option('-a', '--admin-port', default=8081,
-                            dest="admin_port", metavar="PORT",
-                            help = "specifies port for Admin API to listen" \
-                                   "on (default is 8080)")
-
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
     config_file = config.find_config_file(options, args)

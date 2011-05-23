@@ -27,7 +27,6 @@ import unittest
 URL = 'http://localhost:8081/v2.0/'
 URLv1 = 'http://localhost:8081/v1.0/'
 
-
 def get_token(user, pswd, tenant_id, kind=''):
     header = httplib2.Http(".cache")
     url = '%stoken' % URL

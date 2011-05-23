@@ -855,11 +855,12 @@ class IdentityService(object):
         if not user.enabled:
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
+        '''TODO(Ziad): return roles
         if admin:
-            for ug in user.groups:
+            for roles in user.roles:
                 if ug.group_id == "Admin":
                     return (token, user)
             raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
-
+        '''
         return (token, user)

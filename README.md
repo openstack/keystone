@@ -84,15 +84,14 @@ A sample client that gets a token from Keystone and then uses it to call Echo (a
 
 TESTING:
 --------
-After starting keystone a keystone.db sqlite database should be created in the keystone folder.
+A set of sample data can be added by running a shell script:
 
-Add test data to the database:
+    $ ./bin/sampledata.sh
 
-    $ sqlite3 keystone/keystone.db < test/test_setup.sql
+The script calls keystone-manage to create the sample data
 
-To clean the test database
+After starting keystone or runnign keystone-manage a keystone.db sqlite database should be created in the keystone folder.
 
-    $ sqlite3 keystone/keystone.db < test/kill.sql
 
 To run client demo (with all auth middleware running locally on sample service):
 
@@ -142,3 +141,7 @@ in troubleshooting:
 1. config.py takes the config file from <topdir>/etc/keystone.conf
 2. If the keystone package is also intalled on the system,
     /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
+
+CURL commands:
+curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
+curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token

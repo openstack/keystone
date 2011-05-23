@@ -87,7 +87,7 @@ class UserRoleAssociation(Base, KeystoneBase):
 
     user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
     role_id = Column(String(255), ForeignKey('roles.id'), primary_key=True)
-    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    tenant_id = Column(String(255), ForeignKey('tenants.id'), primary_key=True)
 
 
 # Define objects
@@ -150,5 +150,5 @@ class Endpoints(Base, KeystoneBase):
     __tablename__ = 'endpoints'
 
     id = Column(String(255), primary_key=True, unique=True)
-    id = Column(String(255), primary_key=True, unique=True)
+    service = Column(String(255))
     desc = Column(String(255))

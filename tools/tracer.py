@@ -17,6 +17,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+#
+# Author: Ziad Sawalha (http://launchpad.net/~ziad-sawalha)
 
 """
 OpenStack Call Tracing Tool
@@ -47,10 +49,28 @@ if '--trace-calls' in sys.argv:
         global stack_depth
         if event == "return":
             stack_depth = stack_depth - 1
+        elif event == "exception":
+            co = frame.f_code
+            func_name = co.co_name
+            line_no = frame.f_lineno
+            filename = co.co_filename
+            exc_type, exc_value, exc_traceback = arg
+            print '\033[91m%sERROR: %s %s on line %s of %s\033[0m' % \
+                ('  ' * stack_depth, exc_type.__name__, exc_value, line_no,
+                 func_name)
         return None
 
     def selectivetrace(frame, event, arg):
         global stack_depth
+        if event == "exception":
+            co = frame.f_code
+            func_name = co.co_name
+            line_no = frame.f_lineno
+            filename = co.co_filename
+            exc_type, exc_value, exc_traceback = arg
+            print '\033[91m%sERROR: %s %s on line %s of %s\033[0m' % \
+                ('  ' * stack_depth, exc_type.__name__, exc_value, line_no,
+                 func_name)
         if event != 'call':
             return
         co = frame.f_code

@@ -25,6 +25,7 @@ Keystone Identity Server - Service API
 import optparse
 import os
 import sys
+import tools.tracer   #load this first
 
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -34,21 +35,23 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
+import keystone
 from keystone.common import config
 from keystone.common import wsgi
 
 
-
 if __name__ == '__main__':
-    # Parse options (command-line arguments and config file)
-    parser = optparse.OptionParser(version='%%prog %s'
-                                    % version.version_string())
+    # Initialize a parser for our configuration paramaters
+    parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
+
+    # Parse arguments and load config
     (options, args) = config.parse_options(parser)
+    config_file = config.find_config_file(options, args)
+    print "Using config file:", config_file
 
     # Start services
-    print "Using config file:", config.find_config_file(options, args)
     try:
         # Load Service API server
         conf, app = config.load_paste_app('server', options, args)
