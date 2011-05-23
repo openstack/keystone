@@ -51,7 +51,8 @@ DEPENDENCIES:
 See pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
 
 Setup:
-Install http://pypi.python.org/pypi/setuptools
+
+    # Install http://pypi.python.org/pypi/setuptools
     sudo easy_install pip
     sudo pip install -r pip-requires
 
