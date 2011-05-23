@@ -704,3 +704,31 @@ def handle_user_resp(self, content, respvalue, resptype):
         self.fail('Identity Fault')
     elif respvalue == 503:
         self.fail('Service Not Available')
+
+def create_role(roleid, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%sroles' % (URL)
+    body = {"role": {"id": roleid,
+                       "description": "A description ..."}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+    
+def create_role_xml(role_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sroles' % (URL)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+            <role xmlns="http://docs.openstack.org/identity/api/v2.0" \
+            id="%s" description="A Description of the group"/>\
+                    ' % role_id
+    print "Role XML Body is :" ,body
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+    
+if __name__ == '__main__':
+    unittest.main()

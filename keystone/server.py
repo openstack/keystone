@@ -55,6 +55,7 @@ from keystone.common import wsgi
 from keystone.db.sqlalchemy import api as db_api
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
+import keystone.logic.types.role as roles
 import keystone.logic.types.auth as auth
 import keystone.logic.types.user as users
 import keystone.common.template as template
@@ -512,8 +513,48 @@ class GroupsController(wsgi.Controller):
 
         return utils.send_result(204, req, service.delete_user_global_group(\
                                 utils.get_auth_token(req), group_id, user_id))
+        
+class RolesController(wsgi.Controller):
+    """
+        Roles Controller -
+        Controller for Role related operations
+    """
 
+    def __init__(self, options):
+        self.options = options
 
+    @utils.wrap_error
+    def create_role(self, req):
+        role = utils.get_normalized_request_content(roles.Role, req)
+        return utils.send_result(201, req,
+                       service.create_role(utils.get_auth_token(req),
+                                                   role))
+
+    @utils.wrap_error
+    def get_roles(self, req):
+        marker = None
+        if "marker" in req.GET:
+            marker = req.GET["marker"]
+
+        if "limit" in req.GET:
+            limit = req.GET["limit"]
+        else:
+            limit = 10
+
+        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                         req.environ.get("SERVER_NAME"),
+                         req.environ.get("SERVER_PORT"),
+                         req.environ['PATH_INFO'])
+        roles = service.get_roles(utils.get_auth_token(req),
+                                         marker, limit, url)
+
+        return utils.send_result(200, req, roles)
+    
+    @utils.wrap_error    
+    def get_role(self, req, role_id):
+        role = service.get_role(utils.get_auth_token(req), role_id)
+        return utils.send_result(200, req, role)
+        
 class KeystoneAPI(wsgi.Router):
     """WSGI entry point for public Keystone API requests."""
 
@@ -732,6 +773,16 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=groups_controller,
                     action="delete_user_global_group",
                     conditions=dict(method=["DELETE"]))
+
+        #Roles
+        roles_controller = RolesController(options)
+        mapper.connect("/v2.0/roles", controller=roles_controller,
+                    action="create_role", conditions=dict(method=["POST"]))
+        mapper.connect("/v2.0/roles", controller=roles_controller,
+                    action="get_roles", conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/roles/{role_id}", controller=roles_controller,
+                    action="get_role", conditions=dict(method=["GET"]))
+
 
         # Miscellaneous Operations
         version_controller = VersionController(options)
