@@ -48,40 +48,6 @@ class RolesTest(unittest.TestCase):
         utils.delete_user(self.tenant, self.user, self.auth_token)
         utils.delete_tenant(self.tenant, self.auth_token)
         
-class CreateRoleTest(RolesTest):
-    def test_a_role_create_json(self):
-        resp, content = utils.create_role('test_role1',
-                                           str(self.auth_token))
-        self.role = 'test_role1'
-        resp_val = int(resp['status'])
-        self.assertEqual(201, resp_val)
-
-    def test_a_role_create_xml(self):
-        resp, content = utils.create_role_xml('test_role2',
-                                           str(self.auth_token))
-        self.role = 'test_role1'
-        resp_val = int(resp['status'])
-        self.assertEqual(201, resp_val)
-        self.assertEqual('application/xml', utils.content_type(resp))
-        
-    def test_role_create_again(self):
-        resp_new, content = utils.create_role_xml('test_role2',
-                                           str(self.auth_token))
-        if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
-        elif int(resp_new['status']) == 503:
-            self.fail('Service Not Available')
-        self.assertEqual(409, int(resp_new['status']))
-
-    def test_role_create_again_xml(self):
-        resp_new, content = utils.create_role_xml('test_role2',
-                                           str(self.auth_token))
-        if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
-        elif int(resp_new['status']) == 503:
-            self.fail('Service Not Available')
-        self.assertEqual(409, int(resp_new['status']))        
-        
 class GetRolesTest(RolesTest):
     def test_get_roles(self):
         header = httplib2.Http(".cache")
@@ -140,7 +106,7 @@ class GetRolesTest(RolesTest):
 class GetRoleTest(RolesTest):
 
     def test_get_role(self):
-        self.role = 'test_role1'
+        self.role = 'Admin'
         header = httplib2.Http(".cache")
         url = '%sroles/%s' % (utils.URL, self.role)
         #test for Content-Type = application/json
@@ -154,7 +120,7 @@ class GetRoleTest(RolesTest):
         self.assertEqual(200, int(resp['status']))
 
     def test_get_role_xml(self):
-        self.role = 'test_role1'
+        self.role = 'Admin'
         header = httplib2.Http(".cache")
         url = '%sroles/%s' % (utils.URL, self.role)
         #test for Content-Type = application/json

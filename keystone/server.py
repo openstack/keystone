@@ -523,6 +523,7 @@ class RolesController(wsgi.Controller):
     def __init__(self, options):
         self.options = options
 
+    # Not exposed yet.
     @utils.wrap_error
     def create_role(self, req):
         role = utils.get_normalized_request_content(roles.Role, req)
@@ -776,8 +777,6 @@ class KeystoneAdminAPI(wsgi.Router):
 
         #Roles
         roles_controller = RolesController(options)
-        mapper.connect("/v2.0/roles", controller=roles_controller,
-                    action="create_role", conditions=dict(method=["POST"]))
         mapper.connect("/v2.0/roles", controller=roles_controller,
                     action="get_roles", conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/roles/{role_id}", controller=roles_controller,
