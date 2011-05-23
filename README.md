@@ -160,3 +160,22 @@ Load Testing:
    $ # Call Apache Bench
 
    $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/token
+
+
+NOVA Integration:
+-----------------
+
+Initial support for using keystone as nova's identity component has been started.
+
+    # clone projects
+    bzr clone lp:nova
+    git clone git://github.com/khussein/keystone.git
+
+    # copy keystone librarys into nova
+    cp keystone/keystone/common/bufferedhttp.py nova/nova/auth/
+    cp keystone/keystone/auth_protocols/nova_auth_token.py nova/nova/auth/
+
+    # copy paste config to use nova_auth_token.py
+    cp keystone/docs/nova-api-paste.ini nova/etc/nova/api-paste.ini
+
+Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
