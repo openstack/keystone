@@ -149,3 +149,21 @@ CURL commands:
 
 curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
 curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
+
+NOVA Integration:
+-----------------
+
+Initial support for using keystone as nova's identity component has been started.
+
+    # clone projects
+    bzr clone lp:nova
+    git clone git://github.com/khussein/keystone.git
+
+    # copy keystone librarys into nova
+    cp keystone/keystone/common/bufferedhttp.py nova/nova/auth/
+    cp keystone/keystone/auth_protocols/nova_auth_token.py nova/nova/auth/
+
+    # copy paste config to use nova_auth_token.py
+    cp keystone/docs/nova-api-paste.ini nova/etc/nova/api-paste.ini
+
+Assuming you added the test_sql, you can then use joeuser/secrete
