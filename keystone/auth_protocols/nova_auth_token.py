@@ -60,6 +60,8 @@ import httplib
 import json
 from nova import auth
 from nova import context
+from nova import flags
+from nova import utils
 from nova import wsgi
 import os
 from paste.deploy import loadapp
@@ -70,6 +72,7 @@ import webob.dec
 from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
 
+FLAGS = flags.FLAGS
 
 PROTOCOL_NAME = "Token Authentication"
 
