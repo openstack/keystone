@@ -272,11 +272,9 @@ class AuthProtocol(object):
 
         token_info = json.loads(data)
         #TODO(Ziad): make this more robust
-        first_group = token_info['auth']['user']['groups']['group'][0]
         verified_claims = {'user': token_info['auth']['user']['username'],
                     'tenant': token_info['auth']['user']['tenantId'],
-                    'group': '%s/%s' % (first_group['id'],
-                                        first_group['tenantId'])}
+                    'group': 'hack'}
         return verified_claims
 
     def _decorate_request(self, index, value):
