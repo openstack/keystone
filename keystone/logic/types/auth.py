@@ -122,13 +122,14 @@ class AuthData(object):
         user = etree.Element("user",
                              username=self.user.username,
                              tenantId=str(self.user.tenant_id))
-        groups = etree.Element("groups")
+        """groups = etree.Element("groups")
         for group in self.user.groups.values:
             g = etree.Element("group",
                              tenantId=group.tenant_id)
             g.set("id", group.group_id)
             groups.append(g)
         user.append(groups)
+        """
         dom.append(token)
         dom.append(user)
         return etree.tostring(dom)
@@ -140,7 +141,7 @@ class AuthData(object):
         user = {}
         user["username"] = self.user.username
         user["tenantId"] = self.user.tenant_id
-        group = []
+        """group = []
         for g in self.user.groups.values:
             grp = {}
             grp["tenantId"] = g.tenant_id
@@ -149,6 +150,7 @@ class AuthData(object):
         groups = {}
         groups["group"] = group
         user["groups"] = groups
+        """
         auth = {}
         auth["token"] = token
         auth["user"] = user

@@ -74,18 +74,38 @@ class KeystoneBase(object):
         return local.iteritems()
 
 
-class UserTenantAssociation(Base, KeystoneBase):
-    __tablename__ = 'user_tenant_association'
-
-    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
-    tenant_id = Column(String(255), ForeignKey('tenants.id'), primary_key=True)
-
-
+# Define associations firest
 class UserGroupAssociation(Base, KeystoneBase):
     __tablename__ = 'user_group_association'
 
     user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
     group_id = Column(String(255), ForeignKey('groups.id'), primary_key=True)
+
+
+class UserRoleAssociation(Base, KeystoneBase):
+    __tablename__ = 'user_roles'
+
+    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
+    role_id = Column(String(255), ForeignKey('roles.id'), primary_key=True)
+    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+
+
+# Define objects
+class Role(Base, KeystoneBase):
+    __tablename__ = 'roles'
+
+    id = Column(String(255), primary_key=True, unique=True)
+    desc = Column(String(255))
+
+
+class Tenant(Base, KeystoneBase):
+    __tablename__ = 'tenants'
+
+    id = Column(String(255), primary_key=True, unique=True)
+    desc = Column(String(255))
+    enabled = Column(Integer)
+
+    groups = relationship('Group', backref='tenants')
 
 
 class User(Base, KeystoneBase):
@@ -95,25 +115,19 @@ class User(Base, KeystoneBase):
     password = Column(String(255))
     email = Column(String(255))
     enabled = Column(Integer)
+    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    
     groups = relationship(UserGroupAssociation, backref='users')
-    tenants = relationship(UserTenantAssociation, backref='user')
+    roles = relationship(UserRoleAssociation)
 
+class Credentials(Base, KeystoneBase):
+    __tablename__ = 'credentials'
 
-class Tenant(Base, KeystoneBase):
-    __tablename__ = 'tenants'
+    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
+    type = Column(String(20)) #('Password','APIKey','EC2')
+    key = Column(String(255))
+    secret = Column(String(255))
 
-    id = Column(String(255), primary_key=True, unique=True)
-    desc = Column(String(255))
-    enabled = Column(Integer)
-    groups = relationship('Group', backref='tenants')
-
-class Token(Base, KeystoneBase):
-    __tablename__ = 'token'
-
-    token_id = Column(String(255), primary_key=True, unique=True)
-    user_id = Column(String(255))
-    tenant_id = Column(String(255))
-    expires = Column(DateTime)
 
 class Group(Base, KeystoneBase):
     __tablename__ = 'groups'
@@ -123,3 +137,18 @@ class Group(Base, KeystoneBase):
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
 
 
+class Token(Base, KeystoneBase):
+    __tablename__ = 'token'
+
+    token_id = Column(String(255), primary_key=True, unique=True)
+    user_id = Column(String(255))
+    tenant_id = Column(String(255))
+    expires = Column(DateTime)
+
+
+class Endpoints(Base, KeystoneBase):
+    __tablename__ = 'endpoints'
+
+    id = Column(String(255), primary_key=True, unique=True)
+    id = Column(String(255), primary_key=True, unique=True)
+    desc = Column(String(255))

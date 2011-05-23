@@ -28,6 +28,7 @@ _ENGINE = None
 _MAKER = None
 BASE = models.Base
 
+
 def configure_db(options):
     """
     Establish the database, create an engine if needed, and
@@ -555,6 +556,7 @@ def user_get_update(id, session=None):
     result = session.query(models.User).filter_by(id=id).first()
     return result
 
+
 def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
     if not session:
         session = get_session()
@@ -722,8 +724,11 @@ def user_get_by_tenant(id, tenant_id, session=None):
     if not session:
         session = get_session()
     user_tenant = session.query(models.UserTenantAssociation).filter_by(\
-    tenant_id=tenant_id, user_id=id).first()
-    return user_tenant
+        tenant_id=tenant_id, user_id=id).first()
+    if user_tenant:
+        return user_get(id, session)
+    else:
+        return None
 
 
 def user_get_by_group(id, session=None):

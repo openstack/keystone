@@ -25,6 +25,7 @@ Keystone Identity Server - Admin API
 import optparse
 import os
 import sys
+import tools.tracer   #load this first
 
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -34,28 +35,31 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-from keystone import version
+import keystone
 from keystone.common import config
 from keystone.common import wsgi
 
 
 if __name__ == '__main__':
-    # Parse options (command-line arguments and config file)
-    parser = optparse.OptionParser(version='%%prog %s'
-                                    % version.version_string())
+    # Initialize a parser for our configuration paramaters
+    parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
+
     # Handle a special argument to support starting two endpoints
     common_group.add_option('-a', '--admin-port', default=8081,
                             dest="admin_port", metavar="PORT",
-                     help = "specifies port for Admin API to listen"
-                            "on (default is 8080)")
+                            help = "specifies port for Admin API to listen" \
+                                   "on (default is 8080)")
+
+    # Parse arguments and load config
     (options, args) = config.parse_options(parser)
+    config_file = config.find_config_file(options, args)
+    print "Using config file:", config_file
 
     # Start services
-    print "Using config file:", config.find_config_file(options, args)
     try:
-        # Load Service API server
+        # Load Admin API server
         conf, app = config.load_paste_app('admin', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])

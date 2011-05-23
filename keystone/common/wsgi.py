@@ -35,8 +35,11 @@ import webob.dec
 import webob.exc
 
 def add_console_handler(logger, level):
-    # add a Handler which writes INFO messages or higher to sys.stderr
-    # which is often the console
+    """
+    Add a Handler which writes messages to sys.stderr which is often the
+    console.
+    There is a copy of this function in config.py (TODO(Ziad): Make it one copy)
+    """
     console = None
     for console in logger.handlers:
         if isinstance(console, logging.StreamHandler):
@@ -55,13 +58,15 @@ def add_console_handler(logger, level):
         console.setLevel(level)
     return console
 
+
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
 
-    def __init__(self, logger, level=logging.DEBUG):
-        print level, logging.DEBUG
+    def __init__(self, logger, level=logging.INFO):
         self.logger = logger
         self.level = level
+        # TODO(Ziad): figure out why root logger is not set to same level as
+        # caller. Maybe something to do with paste?
         if level == logging.DEBUG:
             add_console_handler(logger, level)
 
@@ -96,6 +101,8 @@ class Server(object):
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
         logger = logging.getLogger('eventlet.wsgi.server')
+        # TODO(Ziad): figure out why root logger is not set to same level as
+        # caller. Maybe something to do with paste?
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
                              log=WritableLogger(logger, logging.root.level))
 

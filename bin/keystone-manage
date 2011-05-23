@@ -34,7 +34,6 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-from keystone import version
 from keystone.common import config
 import keystone.db.sqlalchemy.api as db_api
 import keystone.db.sqlalchemy.models as db_models
@@ -52,8 +51,8 @@ def Main():
         print "Usage: keystone-manage [options] type command id [attributes]"
         print "  type       : user (more to come)"
         print "  command    : add (more to come)"
-        print "  id         : user name"
-        print "  attributes : password"
+        print "  id         : name (user or tenant name)"
+        print "  attributes : password, tenant"
         print "\noptions"
         print "  -c | --config-file : config file to use"
         print "  -d | --debug : debug mode"
