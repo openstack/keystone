@@ -18,6 +18,9 @@
 # Not Yet PEP8 standardized
 
 
+# FIXME(ja): fix "copy & paste ware"!
+#            determine how to integrate nova, dash, keystone
+
 """
 TOKEN-BASED AUTH MIDDLEWARE
 
@@ -51,18 +54,25 @@ HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
 
+from bufferedhttp import http_connect_raw as http_connect
 import eventlet
-from eventlet import wsgi
 import httplib
 import json
+from nova import auth
+from nova import context
+from nova import flags
+from nova import utils
+from nova import wsgi
 import os
 from paste.deploy import loadapp
 import sys
 from urlparse import urlparse
+import webob.exc
+import webob.dec
 from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
 
-from keystone.common.bufferedhttp import http_connect_raw as http_connect
+FLAGS = flags.FLAGS
 
 PROTOCOL_NAME = "Token Authentication"
 
@@ -162,11 +172,11 @@ class AuthProtocol(object):
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
                     self._decorate_request('X_AUTHORIZATION',
-                                           "Proxy %s" % claims['user'])
+                                           claims['user'])
                     self._decorate_request('X_TENANT',
                                            claims['tenant'])
-                    if 'group' in claims:
-                        self._decorate_request('X_GROUP', claims['group'])
+                    self._decorate_request('X_GROUP',
+                                           claims['group'])
                     self.expanded = True
 
             #Send request downstream
@@ -262,12 +272,11 @@ class AuthProtocol(object):
 
         token_info = json.loads(data)
         #TODO(Ziad): make this more robust
-        #first_group = token_info['auth']['user']['groups']['group'][0]
+        first_group = token_info['auth']['user']['groups']['group'][0]
         verified_claims = {'user': token_info['auth']['user']['username'],
-                    'tenant': token_info['auth']['user']['tenantId']}
-        # TODO(Ziad): removed groups for now
-        #            ,'group': '%s/%s' % (first_group['id'],
-        #                                first_group['tenantId'])}
+                    'tenant': token_info['auth']['user']['tenantId'],
+                    'group': '%s/%s' % (first_group['id'],
+                                        first_group['tenantId'])}
         return verified_claims
 
     def _decorate_request(self, index, value):
@@ -300,6 +309,37 @@ class AuthProtocol(object):
             return Response(status=resp.status, body=data)(self.proxy_headers,
                                                            self.start_response)
 
+
+class KeystoneAuthShim(wsgi.Middleware):
+    """Lazy provisioning nova project/users from keystone tenant/user"""
+
+    def __init__(self, application, db_driver=None):
+        if not db_driver:
+            db_driver = FLAGS.db_driver
+        self.db = utils.import_object(db_driver)
+        self.auth = auth.manager.AuthManager()
+        super(KeystoneAuthShim, self).__init__(application)
+
+    @webob.dec.wsgify(RequestClass=wsgi.Request)
+    def __call__(self, req):
+        user_id = req.headers['X_AUTHORIZATION']
+        try:
+            user_ref = self.auth.get_user(user_id)
+        except:
+            user_ref = self.auth.create_user(user_id)
+        project_id = req.headers['X_TENANT']
+        try:
+            project_ref = self.auth.get_project(project_id)
+        except:
+            project_ref = self.auth.create_project(project_id, user_id)
+
+        if not self.auth.is_project_member(user_id, project_id):
+            self.auth.add_to_project(user_id, project_id)
+
+        # groups = req.headers['X_GROUP']
+
+        req.environ['nova.context'] = context.RequestContext(user_ref, project_ref)
+        return self.application
 
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""

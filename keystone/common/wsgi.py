@@ -34,13 +34,41 @@ import routes.middleware
 import webob.dec
 import webob.exc
 
+def add_console_handler(logger, level):
+    """
+    Add a Handler which writes messages to sys.stderr which is often the
+    console.
+    There is a copy of this function in config.py (TODO(Ziad): Make it one copy)
+    """
+    console = None
+    for console in logger.handlers:
+        if isinstance(console, logging.StreamHandler):
+            break
+            
+    if not console:
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logger.addHandler(console)
+    elif console.level != level:
+        console.setLevel(level)
+    return console
+
 
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
 
-    def __init__(self, logger, level=logging.DEBUG):
+    def __init__(self, logger, level=logging.INFO):
         self.logger = logger
         self.level = level
+        # TODO(Ziad): figure out why root logger is not set to same level as
+        # caller. Maybe something to do with paste?
+        if level == logging.DEBUG:
+            add_console_handler(logger, level)
 
     def write(self, msg):
         self.logger.log(self.level, msg.strip("\n"))
@@ -73,8 +101,10 @@ class Server(object):
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
         logger = logging.getLogger('eventlet.wsgi.server')
+        # TODO(Ziad): figure out why root logger is not set to same level as
+        # caller. Maybe something to do with paste?
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                             log=WritableLogger(logger))
+                             log=WritableLogger(logger, logging.root.level))
 
 
 class Middleware(object):
@@ -176,7 +206,7 @@ class Router(object):
           # Pointing to an arbitrary WSGI app.  You can specify the
           # {path_info:.*} parameter so the target app can be handed just that
           # section of the URL.
-          mapper.connect(None, "/v2.0/{path_info:.*}", controller=BlogApp())
+          mapper.connect(None, "/v2.0/{path_info:.*}", controller=TheApp())
         """
         self.map = mapper
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,

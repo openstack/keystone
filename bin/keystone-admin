@@ -19,7 +19,7 @@
 #    under the License.
 
 """
-Keystone Identity Server - Admin and Service API
+Keystone Identity Server - Admin API
 """
 
 import optparse
@@ -46,12 +46,6 @@ if __name__ == '__main__':
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 
-    # Handle a special argument to support starting two endpoints
-    common_group.add_option('-a', '--admin-port', default=8081,
-                            dest="admin_port", metavar="PORT",
-                     help = "specifies port for Admin API to listen"
-                            "on (default is 8080)")
-
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
     config_file = config.find_config_file(options, args)
@@ -59,25 +53,13 @@ if __name__ == '__main__':
 
     # Start services
     try:
-        # Load Service API server
-        conf, app = config.load_paste_app('server', options, args)
+        # Load Admin API server
+        conf, app = config.load_paste_app('admin', options, args)
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Service API listening on %s:%s" % (conf['bind_host'],
+        print "Admin API listening on %s:%s" % (conf['bind_host'],
                                               conf['bind_port'])
 
-        # Load Admin API server
-        admin_conf, admin_app = config.load_paste_app('admin', options, args)
-        admin_server = wsgi.Server()
-        admin_bind = options.get('admin_port') or admin_conf.get('bind_port')
-        if conf['bind_port'] == admin_bind:
-            admin_bind += 1
-        admin_server.start(admin_app, int(admin_bind),
-                           admin_conf['bind_host'])
-        print "Admin API listening on %s:%s" % (admin_conf['bind_host'],
-                                              admin_bind)
-
-        # Wait until done
         server.wait()
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

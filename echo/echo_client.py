@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 # Copyright (c) 2010-2011 OpenStack, LLC.
 #
@@ -31,6 +32,7 @@ def get_auth_token(username, password, tenant):
     conn.request("POST", "/v2.0/token", json.dumps(params), headers=headers)
     response = conn.getresponse()
     data = response.read()
+    print data
     ret = data
     return ret
 

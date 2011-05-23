@@ -18,7 +18,7 @@
 
 """
 OpenStack base exception handling, including decorator for re-raising
-OpenSTack-type exceptions. SHOULD include dedicated exception logging.
+OpenStack-type exceptions. SHOULD include dedicated exception logging.
 """
 
 import logging

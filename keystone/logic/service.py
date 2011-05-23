@@ -34,12 +34,19 @@ class IdentityService(object):
     #
 
     def authenticate(self, credentials):
+        # Check credentials
         if not isinstance(credentials, auth.PasswordCredentials):
             raise fault.BadRequestFault("Expecting Password Credentials!")
 
-        duser = db_api.user_get(credentials.username)
-        if duser == None:
-            raise fault.UnauthorizedFault("Unauthorized")
+        if not credentials.tenant_id:
+            duser = db_api.user_get(credentials.username)
+            if duser == None:
+                raise fault.UnauthorizedFault("Unauthorized")
+        else:
+            duser = db_api.user_get_by_tenant(credentials.username, credentials.tenant_id)
+            if duser == None:
+                raise fault.UnauthorizedFault("Unauthorized on this tenant")
+        
         if not duser.enabled:
             raise fault.UserDisabledFault("Your account has been disabled")
         if duser.password != credentials.password:
@@ -55,23 +62,12 @@ class IdentityService(object):
             dtoken = db_api.token_for_user_tenant(duser.id,
                                                   credentials.tenant_id)
         if not dtoken or dtoken.expires < datetime.now():
+            # Create new token
             dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
-
-            if not duser.tenants:
-                raise fault.IdentityFault("Strange: user %s is not associated "
-                                     "with a tenant!" % duser.id)
-            user = db_api.user_get_by_tenant(duser.id, credentials.tenant_id)
-
-            if not credentials.tenant_id or not user:
-                raise fault.ForbiddenFault("Error: user %s is "
-                                     "not associated "
-                                     "with a tenant! %s" % (duser.id,
-                                                    credentials.tenant_id))
+            if credentials.tenant_id:
                 dtoken.tenant_id = credentials.tenant_id
-            else:
-                dtoken.tenant_id = duser.tenants[0].tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
             db_api.token_create(dtoken)
 
@@ -833,21 +829,18 @@ class IdentityService(object):
 
         token = auth.Token(dtoken.expires, dtoken.token_id)
 
-        gs = []
+        """gs = []
         for ug in duser.groups:
             dgroup = db_api.group_get(ug.group_id)
-            gs.append(auth.Group(dgroup.id, dgroup.tenant_id))
-        groups = auth.Groups(gs, [])
-        if len(duser.tenants) == 0:
-            raise fault.IdentityFault("Strange: user %s is not associated "
-                                 "with a tenant!" % duser.id)
-        if not dtoken.tenant_id and \
-            db_api.user_get_by_tenant(duser.id, dtoken.tenant_id):
-            raise fault.IdentityFault("Error: user %s is not associated "
-                                 "with a tenant! %s" % (duser.id,
-                                                dtoken.tenant_id))
-
-        user = auth.User(duser.id, dtoken.tenant_id, groups)
+            if dtoken.tenant_id:
+                if dgroup.tenant_id == dtoken.tenant_id:
+                    gs.append(auth.Group(dgroup.id, dgroup.tenant_id))
+            else:
+                if dgroup.tenant_id == None:
+                    gs.append(auth.Group(dgroup.id))
+        user = auth.User(duser.id, dtoken.tenant_id, gs)
+        """
+        user = auth.User(duser.id, dtoken.tenant_id, None)
         return auth.AuthData(token, user)
 
     def __validate_token(self, token_id, admin=True):
@@ -862,11 +855,12 @@ class IdentityService(object):
         if not user.enabled:
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
+        '''TODO(Ziad): return roles
         if admin:
-            for ug in user.groups:
+            for roles in user.roles:
                 if ug.group_id == "Admin":
                     return (token, user)
             raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
-
+        '''
         return (token, user)

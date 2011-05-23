@@ -21,11 +21,9 @@ from lxml import etree
 import keystone.logic.types.fault as fault
 
 
-
 class PasswordCredentials(object):
     """Credentials based on username, password, and (optional) tenant_id.
-        To handle multiple token for a user depending on tenants,
-        tenant_id is mandatory.
+        To handle multiple token for a user depending on tenants.
     """
 
     def __init__(self, username, password, tenant_id):
@@ -49,12 +47,6 @@ class PasswordCredentials(object):
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
             tenant_id = root.get("tenantId")
-
-            #--for multi-token handling--
-            if tenant_id == None:
-                raise fault.BadRequestFault("Expecting tenant")
-            # ----
-
             return PasswordCredentials(username, password, tenant_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
@@ -76,10 +68,7 @@ class PasswordCredentials(object):
             if "tenantId" in cred:
                 tenant_id = cred["tenantId"]
             else:
-                #--for multi-token handling--
-                if tenant_id == None:
-                    raise fault.BadRequestFault("Expecting a tenant")
-                # ---
+                tenant_id = None
             return PasswordCredentials(username, password, tenant_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
@@ -128,20 +117,21 @@ class AuthData(object):
 
     def to_xml(self):
         dom = etree.Element("auth",
-                             xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)
         user = etree.Element("user",
                              username=self.user.username,
                              tenantId=str(self.user.tenant_id))
-        groups = etree.Element("groups")
+        """groups = etree.Element("groups")
         for group in self.user.groups.values:
             g = etree.Element("group",
                              tenantId=group.tenant_id)
             g.set("id", group.group_id)
             groups.append(g)
         user.append(groups)
+        """
         dom.append(token)
         dom.append(user)
         return etree.tostring(dom)
@@ -153,7 +143,7 @@ class AuthData(object):
         user = {}
         user["username"] = self.user.username
         user["tenantId"] = self.user.tenant_id
-        group = []
+        """group = []
         for g in self.user.groups.values:
             grp = {}
             grp["tenantId"] = g.tenant_id
@@ -162,6 +152,7 @@ class AuthData(object):
         groups = {}
         groups["group"] = group
         user["groups"] = groups
+        """
         auth = {}
         auth["token"] = token
         auth["user"] = user

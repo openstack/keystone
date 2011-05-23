@@ -30,13 +30,14 @@ setup(
     url='http://www.openstack.org',
     include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
-    scripts=['bin/keystone']
+    scripts=['bin/keystone, bin/leystone-auth, bin/keystone-admin'
+             ', bin/keystone-manage'],
     zip_safe=False,
     install_requires=['setuptools'],
     entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
-            'papiauth=keystone:papiauth_factory',
+            'remoteauth=keystone:remoteauth_factory',
             'tokenauth=keystone:tokenauth_factory',
             ],
         },

@@ -24,15 +24,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', 'keystone')))
 import unittest
 
-
-
-URL = 'http://localhost:8080/v2.0/'
-
+URL = 'http://localhost:8081/v2.0/'
+URLv1 = 'http://localhost:8081/v1.0/'
 
 def get_token(user, pswd, tenant_id, kind=''):
     header = httplib2.Http(".cache")
     url = '%stoken' % URL
-    # to test multi token, removing below code
+
     if not tenant_id:
         body = {"passwordCredentials": {"username": user,
                                         "password": pswd}}
@@ -40,7 +38,7 @@ def get_token(user, pswd, tenant_id, kind=''):
         body = {"passwordCredentials": {"username": user,
                                         "password": pswd,
                                         "tenantId": tenant_id}}
-    
+
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json"})
 
@@ -54,6 +52,23 @@ def get_token(user, pswd, tenant_id, kind=''):
     else:
         return (resp, content)
 
+
+def get_token_legacy(user, pswd, kind=''):
+    header = httplib2.Http(".cache")
+    url = URLv1
+    resp, content = header.request(url, "GET", '',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-User": user,
+                                       "X-Auth-Key": pswd})
+
+    if int(resp['status']) == 204:
+        token = resp['x-auth-token']
+    else:
+        token = None
+    if kind == 'token':
+        return token
+    else:
+        return (resp, content)
 
 
 def delete_token(token, auth_token):
@@ -180,7 +195,8 @@ def get_token_xml(user, pswd, tenant_id, type=''):
                                          "ACCEPT": "application/xml"})
         if int(resp['status']) == 200:
             dom = etree.fromstring(content)
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}token")
+            root = dom.find("{http://docs.openstack.org/" \
+                            "identity/api/v2.0}token")
             token_root = root.attrib
             token = str(token_root['id'])
         else:
@@ -317,6 +333,7 @@ def delete_user_xml(tenantid, userid, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return resp
+
 
 def add_user_json(tenantid, userid, auth_token):
     header = httplib2.Http(".cache")
@@ -676,7 +693,8 @@ def handle_user_resp(self, content, respvalue, resptype):
     if respvalue == 200:
         if resptype == 'application/json':
             content = json.loads(content)
-            self.tenant = content['user']['tenantId']
+            if 'tenantId' in content['user']:
+                self.tenant = content['user']['tenantId']
             self.userid = content['user']['id']
         if resptype == 'application/xml':
             content = etree.fromstring(content)
@@ -686,7 +704,3 @@ def handle_user_resp(self, content, respvalue, resptype):
         self.fail('Identity Fault')
     elif respvalue == 503:
         self.fail('Service Not Available')
-
-
-def content_type(resp):
-    return resp['content-type'].split(';')[0]

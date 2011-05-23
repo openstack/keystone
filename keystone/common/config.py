@@ -75,14 +75,28 @@ def add_common_options(parser):
                      help="Print more verbose output")
     group.add_option('-d', '--debug', default=False, dest="debug",
                      action="store_true",
-                     help="Print debugging output")
-    group.add_option('--config-file', default=None, metavar="PATH",
-                     help="Path to the config file to use. When not specified "
-                          "(the default), we generally look at the first "
-                          "argument specified to be a config file, and if "
-                          "that is also missing, we search standard "
+                     help="Print debugging output to console")
+    group.add_option('-c', '--config-file', default=None, metavar="PATH",
+                     help="Path to the config file to use. When not specified "\
+                          "(the default), we generally look at the first "\
+                          "argument specified to be a config file, and if "\
+                          "that is also missing, we search standard "\
                           "directories for a config file.")
+    group.add_option('-p', '--port', '--bind-port', default=8080,
+                     dest="bind_port",
+                     help="specifies port to listen on (default is 8080)")
+    group.add_option('--host', '--bind-host',
+                     default="0.0.0.0", dest="bind_host",
+                     help="specifies host address to listen on "\
+                            "(default is all or 0.0.0.0)")
+    # This one is handled by tools/tracer.py (if loaded)
+    group.add_option('-t', '--trace-calls', default=False,
+                     dest="trace_calls",
+                     action="store_true",
+                     help="Turns on call tracing for troubleshooting")
+
     parser.add_option_group(group)
+    return group
 
 
 def add_log_options(parser):
@@ -97,22 +111,51 @@ def add_log_options(parser):
 
     group = optparse.OptionGroup(parser, "Logging Options", help_text)
     group.add_option('--log-config', default=None, metavar="PATH",
-                     help="If this option is specified, the logging "
-                          "configuration file specified is used and overrides "
-                          "any other logging options specified. Please see "
-                          "the Python logging module documentation for "
+                     help="If this option is specified, the logging "\
+                          "configuration file specified is used and overrides "\
+                          "any other logging options specified. Please see "\
+                          "the Python logging module documentation for "\
                           "details on logging configuration files.")
     group.add_option('--log-date-format', metavar="FORMAT",
                       default=DEFAULT_LOG_DATE_FORMAT,
-                      help="Format string for %(asctime)s in log records. "
+                      help="Format string for %(asctime)s in log records. "\
                            "Default: %default")
     group.add_option('--log-file', default=None, metavar="PATH",
-                      help="(Optional) Name of log file to output to. "
+                      help="(Optional) Name of log file to output to. "\
                            "If not set, logging will go to stdout.")
     group.add_option("--log-dir", default=None,
-                      help="(Optional) The directory to keep log files in "
+                      help="(Optional) The directory to keep log files in "\
                            "(will be prepended to --logfile)")
+
     parser.add_option_group(group)
+    return group
+
+
+def add_console_handler(logger, level=logging.INFO):
+    """
+    Add a Handler which writes log messages to sys.stderr
+    (which is often the console)
+    There is a copy of this function in wsgi.py (TODO(Ziad): Make it one copy)
+    """
+    console = None
+    for console in logger.handlers:
+        if isinstance(console, logging.StreamHandler):
+            break
+
+    if not console:
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter("%(name)-12s: "\
+                                      "%(levelname)-8s %(message)s")
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logger.addHandler(console)
+    else:
+        if console.level != level:
+            console.setLevel(level)
+    return console
 
 
 def setup_logging(options, conf):
@@ -128,7 +171,7 @@ def setup_logging(options, conf):
             logging.config.fileConfig(options['log_config'])
             return
         else:
-            raise RuntimeError("Unable to locate specified logging "
+            raise RuntimeError("Unable to locate specified logging "\
                                "config file: %s" % options['log_config'])
 
     # If either the CLI option or the conf value
@@ -163,8 +206,12 @@ def setup_logging(options, conf):
             logfile = os.path.join(logdir, logfile)
         logfile = logging.FileHandler(logfile)
         logfile.setFormatter(formatter)
-        logfile.setFormatter(formatter)
         root_logger.addHandler(logfile)
+        # Mirror to console if verbose or debug
+        if debug:
+            add_console_handler(root_logger, logging.INFO)  #debug too noisy
+        elif verbose:
+            add_console_handler(root_logger, logging.INFO)
     else:
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(formatter)
@@ -217,10 +264,7 @@ def find_config_file(options, args):
                 # For debug only
                 config_file = os.path.join(POSSIBLE_TOPDIR, 'etc', \
                         'keystone.conf')
-                print "Running server from %s " % config_file
-
-                return os.path.join(POSSIBLE_TOPDIR, 'etc', \
-                        'keystone.conf')
+                return config_file
 
 
 def load_paste_config(app_name, options, args):
@@ -250,7 +294,7 @@ def load_paste_config(app_name, options, args):
     """
     conf_file = find_config_file(options, args)
     if not conf_file:
-        raise RuntimeError("Unable to locate any configuration file. "
+        raise RuntimeError("Unable to locate any configuration file. "\
                             "Cannot load application %s" % app_name)
     try:
         conf = deploy.appconfig("config:%s" % conf_file, name=app_name)
@@ -274,7 +318,7 @@ def load_paste_app(app_name, options, args):
         * /etc/keystone
         * /etc
 
-    :param app_name: Name of the application to load
+    :param app_name: Name of the application to load (server, admin, proxy, ...)
     :param options: Set of typed options returned from parse_options()
     :param args: Command line arguments from argv[1:]
 
@@ -298,15 +342,15 @@ def load_paste_app(app_name, options, args):
         # Log the options used when starting if we're in debug mode...
         if debug:
             logger = logging.getLogger(app_name)
-            logger.debug("*" * 80)
-            logger.debug("Configuration options gathered from config file:")
-            logger.debug(conf_file)
-            logger.debug("================================================")
+            logger.info("*" * 50)
+            logger.info("Configuration options gathered from config file:")
+            logger.info(conf_file)
+            logger.info("================================================")
             items = dict([(k, v) for k, v in conf.items()
                           if k not in ('__file__', 'here')])
             for key, value in sorted(items.items()):
-                logger.debug("%(key)-30s %(value)s" % locals())
-            logger.debug("*" * 80)
+                logger.info("%(key)-20s %(value)s" % locals())
+            logger.info("*" * 50)
         app = deploy.loadapp("config:%s" % conf_file, name=app_name)
     except (LookupError, ImportError), e:
         raise RuntimeError("Unable to load %(app_name)s from "

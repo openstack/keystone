@@ -173,6 +173,37 @@ class AuthController(wsgi.Controller):
                      service.revoke_token(utils.get_auth_token(req), token_id))
 
 
+class LegacyAuthController(wsgi.Controller):
+    """
+        Auth Controller for v1.x -
+        Controller for token related operations
+    """
+
+    def __init__(self, options):
+        self.options = options
+        self.request = None
+
+    @utils.wrap_error
+    def authenticate(self, req):
+        self.request = req
+
+        creds = auth.PasswordCredentials(utils.get_auth_user(req),
+                                         utils.get_auth_key(req),
+                                         None)
+
+        """HTTP/1.1 204 No Content
+        Date: Mon, 12 Nov 2007 15:32:21 GMT
+        X-Storage-Url: https://storage.clouddrive.com/v1/CF_xer7_34
+        X-CDN-Management-Url: https://cdn.clouddrive.com/v1/CF_xer7_34
+        X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
+        Content-Length: 0
+        Content-Type: text/plain; charset=UTF-8"""
+
+        result = service.authenticate(creds)
+        headers = {"X-Auth-Token": result.token.token_id}
+        return utils.send_legacy_result(204, headers)
+
+
 class TenantController(wsgi.Controller):
     """
         Tenant Controller -
@@ -484,13 +515,94 @@ class GroupsController(wsgi.Controller):
 
 
 class KeystoneAPI(wsgi.Router):
-    """WSGI entry point for all Keystone Auth API requests."""
+    """WSGI entry point for public Keystone API requests."""
 
     def __init__(self, options):
         self.options = options
         mapper = routes.Mapper()
-        
+
         db_api.configure_db(options)
+
+        # Legacy Token Operations
+        auth_controller = AuthController(options)
+        legacy_auth_controller = LegacyAuthController(options)
+        mapper.connect("/v1.0", controller=legacy_auth_controller,
+                       action="authenticate")
+        mapper.connect("/v1.0/", controller=legacy_auth_controller,
+                       action="authenticate")
+
+        mapper.connect("/v1.1/tokens", controller=auth_controller,
+                       action="authenticate",
+                       conditions=dict(method=["POST"]))
+        mapper.connect("/v1.1/tokens/", controller=auth_controller,
+                       action="authenticate",
+                       conditions=dict(method=["POST"]))
+
+        # Token Operations
+        mapper.connect("/v2.0/token", controller=auth_controller,
+                       action="authenticate")
+        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+                        action="delete_token",
+                        conditions=dict(method=["DELETE"]))
+
+        # Tenant Operations
+        tenant_controller = TenantController(options)
+        mapper.connect("/v2.0/tenants", controller=tenant_controller,
+                    action="get_tenants", conditions=dict(method=["GET"]))
+
+        # Miscellaneous Operations
+        version_controller = VersionController(options)
+        mapper.connect("/v2.0/", controller=version_controller,
+                    action="get_version_info",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0", controller=version_controller,
+                    action="get_version_info",
+                    conditions=dict(method=["GET"]))
+
+        # Static Files Controller
+        static_files_controller = StaticFilesController(options)
+        mapper.connect("/v2.0/identitydevguide.pdf",
+                    controller=static_files_controller,
+                    action="get_pdf_contract",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/identity.wadl",
+                    controller=static_files_controller,
+                    action="get_identity_wadl",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/xsd/{xsd}",
+                    controller=static_files_controller,
+                    action="get_pdf_contract",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/xsd/atom/{xsd}",
+                    controller=static_files_controller,
+                    action="get_pdf_contract",
+                    conditions=dict(method=["GET"]))
+
+        super(KeystoneAPI, self).__init__(mapper)
+
+
+class KeystoneAdminAPI(wsgi.Router):
+    """WSGI entry point for admin Keystone API requests."""
+
+    def __init__(self, options):
+        self.options = options
+        mapper = routes.Mapper()
+
+        db_api.configure_db(options)
+
+        # Legacy Token Operations
+        legacy_auth_controller = LegacyAuthController(options)
+        mapper.connect("/v1.0", controller=legacy_auth_controller,
+                       action="authenticate")
+        mapper.connect("/v1.0/", controller=legacy_auth_controller,
+                       action="authenticate")
+        mapper.connect("/v1.1/tokens", controller=legacy_auth_controller,
+                       action="authenticate",
+                       conditions=dict(method=["POST"]))
+        mapper.connect("/v1.1/tokens/", controller=legacy_auth_controller,
+                       action="authenticate",
+                       conditions=dict(method=["POST"]))
+
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/token", controller=auth_controller,
@@ -649,7 +761,7 @@ class KeystoneAPI(wsgi.Router):
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))
 
-        super(KeystoneAPI, self).__init__(mapper)
+        super(KeystoneAdminAPI, self).__init__(mapper)
 
 
 def app_factory(global_conf, **local_conf):
@@ -660,3 +772,13 @@ def app_factory(global_conf, **local_conf):
     except Exception as err:
         print err
     return KeystoneAPI(conf)
+
+
+def admin_app_factory(global_conf, **local_conf):
+    """paste.deploy app factory for creating OpenStack API server apps"""
+    try:
+        conf = global_conf.copy()
+        conf.update(local_conf)
+    except Exception as err:
+        print err
+    return KeystoneAdminAPI(conf)

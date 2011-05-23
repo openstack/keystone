@@ -1,0 +1,280 @@
+#!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2010 United States Government as represented by the
+# Administrator of the National Aeronautics and Space Administration.
+# Copyright 2011 OpenStack LLC.
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+"""
+Keystone Identity Server - CLI Management Interface
+"""
+
+import datetime
+import optparse
+import os
+import sys
+import tools.tracer
+
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
+    sys.path.insert(0, possible_topdir)
+
+import keystone
+from keystone.common import config
+import keystone.db.sqlalchemy.api as db_api
+import keystone.db.sqlalchemy.models as db_models
+
+
+def Main():
+    """
+    Usage: keystone-manage [options] type command [id [attributes]]
+      type       : role, tenant, user, token (more to come)
+      command    : add, list, disable (more to come)
+      id         : name or id
+      attributes : depending on type...
+        users    : password, tenant
+        tokens   : user, tenant, expiration
+    
+    options
+      -c | --config-file : config file to use
+      -d | --debug : debug mode
+    
+    Example: keystone-manage add user Admin P@ssw0rd
+    """
+    usage = "usage: %prog [options] type command [id [attributes]]"
+
+    # Initialize a parser for our configuration paramaters
+    parser = optparse.OptionParser(usage, version='%%prog %s'
+                                   % keystone.version())
+    common_group = config.add_common_options(parser)
+    config.add_log_options(parser)
+
+    # Parse command-line and load config
+    (options, args) = config.parse_options(parser)
+    config_file, conf = config.load_paste_config('admin', options, args)
+
+    # Check arguments
+    if len(args) == 0:
+        parser.error('No object type specified for first argument')
+
+    object_type = args[0]
+    if object_type in ['user', 'tenant', 'role', 'token']:
+        pass
+    else:
+        parser.error('%s is not a supported object type' % object_type)
+    
+    if len(args) == 1:
+        parser.error('No command specified for second argument')
+    command = args[1]
+    if command in ['add', 'list', 'disable', 'delete', 'grant', 'revoke']:
+        pass
+    else:
+        parser.error('add, disable, delete, and list are the only supported"\
+                     " commands (right now)')
+    
+    if len(args) == 2:
+        if command != 'list':
+            parser.error('No id specified for third argument')
+    if len(args) > 2:
+        object_id = args[2]
+
+    # Set things up to run the command
+    print "Config file in use: %s" % config_file
+    config.setup_logging(options, conf)
+    
+    db_api.configure_db(conf)
+
+    if object_type == "user":
+        if command == "add":
+            if len(args) < 4:
+                parser.error('No password specified for fourth argument')
+            password = args[3]
+    
+            try:
+                object = db_models.User()
+                object.id = object_id
+                object.password = password
+                object.enabled = True
+                if len(args) > 4:
+                    tenant = args[4]
+                    object.tenant_id = tenant
+                db_api.user_create(object)
+                print "User created successfully. ID=%s" % object.id
+            except Exception as exc:
+                print "ERROR: Failed to create user: %s" % exc
+            return
+        elif command == "disable":
+            try:
+                object = db_api.user_get(object_id)
+                if object == None:
+                    raise IndexError("User %s not found" % object_id)
+                object.enabled = False
+                db_api.user_update(object_id, object)
+                print "User disabled: %s" % object.id
+            except Exception as exc:
+                print "ERROR: Failed to disable user: %s" % exc
+            return
+        elif command == "list":
+            try:
+                if len(args) > 2:
+                    tenant = args[2]
+                    objects = db_api.user_get_by_tenant(tenant)
+                    if objects == None:
+                        raise IndexError("Users not found")
+                    print 'id', 'enabled'
+                    print '-' * 20
+                    for row in objects:
+                        print row.id, row.enabled
+                else:
+                    objects = db_api.user_get_all()
+                    if objects == None:
+                        raise IndexError("Users not found")
+                    print 'id', 'enabled', 'tenant'
+                    print '-' * 20
+                    for row in objects:
+                        print row.id, row.enabled, row.tenant_id
+            except Exception, e:
+                print 'Error getting all users:', str(e)
+            return
+    elif object_type == "tenant":
+        if command == "add":
+            try:
+                object = db_models.Tenant()
+                object.id = object_id
+                object.enabled = True
+                db_api.tenant_create(object)
+                print "Tenant created successfully. ID=%s" % object.id
+                return
+            except Exception as exc:
+                print "ERROR: Failed to create tenant: %s" % exc
+                return
+        elif command == "list":
+            try:
+                objects = db_api.tenant_get_all()
+                if objects == None:
+                    raise IndexError("Tenants not found")
+                print 'tenant', 'enabled'
+                print '-' * 20
+                for row in objects:
+                    print row.id, row.enabled
+            except Exception, e:
+                print 'Error getting all users:', str(e)
+            return
+        elif command == "disable":
+            try:
+                object = db_api.tenant_get(object_id)
+                if object == None:
+                    raise IndexError("Tenant %s not found" % object_id)
+                object.enabled = False
+                db_api.tenant_update(object_id, object)
+                print "Tenant disabled: %s" % object.id
+            except Exception as exc:
+                print "ERROR: Failed to disable tenant: %s" % exc
+            return
+    elif object_type == "role":
+        if command == "add":
+            try:
+                object = db_models.Role()
+                object.id = object_id
+                db_api.role_create(object)
+                print "Role created successfully. ID=%s" % object.id
+                return
+            except Exception as exc:
+                print "ERROR: Failed to create role: %s" % exc
+                return
+        elif command == "list":
+            try:
+                objects = db_api.role_get_all()
+                if objects == None:
+                    raise IndexError("Roles not found")
+                print 'role'
+                print '-' * 20
+                for row in objects:
+                    print row.id
+            except Exception, e:
+                print 'Error getting all roles:', str(e)
+            return
+        elif command == "grant":
+            if len(args) < 5:
+                parser.error("Missing arguments: role grant 'role' 'user'"\
+                            "'tenant'")
+            user = args[3]
+            tenant = args[4]
+            try:
+                object = db_models.UserRoleAssociation()
+                object.role_id = object_id
+                object.user_id = user
+                object.tenant_id = tenant
+                db_api.user_role_add(object)
+                print "Successfully granted %s the %s role on %s" %\
+                        (object.user_id, object.role_id, object.tenant_id)
+            except Exception as exc:
+                print "ERROR: Failed to grant role: %s" % exc
+            return
+    elif object_type == "token":
+        if command == "add":
+            if len(args) < 6:
+                parser.error('Creating a token requires a token id, user'\
+                             ', tenant, and expiration')
+            try:
+                object = db_models.Token()
+                object.token_id = object_id
+                object.user_id = args[3]
+                object.tenant_id = args[4]
+                tuple_time = datetime.datetime.strptime(args[5]
+                                                        .replace("-", ""),
+                                                        "%Y%m%dT%H:%M")
+                object.expires = tuple_time
+                db_api.token_create(object)
+                print "Token created successfully. ID=%s" % object.token_id
+                return
+            except Exception as exc:
+                print "ERROR: Failed to create token: %s" % exc
+                return
+        elif command == "list":
+            try:
+                objects = db_api.token_get_all()
+                if objects == None:
+                    raise IndexError("Tokens not found")
+                print 'token', 'user', 'expiration', 'tenant'
+                print '-' * 20
+                for row in objects:
+                    print row.token_id, row.user_id, row.expires, row.tenant_id
+            except Exception, e:
+                print 'Error getting all tokens:', str(e)
+            return
+        elif command == "delete":
+            try:
+                object = db_api.token_get(object_id)
+                if object == None:
+                    raise IndexError("Token %s not found" % object_id)
+                else:
+                    db_api.token_delete(object_id)
+                    print 'Token %s deleted' % object_id
+            except Exception, e:
+                print 'Error deleting token %s:' % object_id, str(e)
+            return
+
+    # Command not handled
+    print ("Fail: %s %s not yet supported" % (object_type, command))
+
+
+if __name__ == '__main__':
+    Main()
