@@ -89,9 +89,9 @@ A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
 
-The script calls keystone-manage to create the sample data
+The script calls keystone-manage to create the sample data.
 
-After starting keystone or runnign keystone-manage a keystone.db sqlite database should be created in the keystone folder.
+After starting keystone or running keystone-manage a keystone.db sqlite database should be created in the keystone folder.
 
 
 To run client demo (with all auth middleware running locally on sample service):
@@ -99,12 +99,14 @@ To run client demo (with all auth middleware running locally on sample service):
     $ ./echo/bin/echod
     $ python echo/echo/echo_client.py
 
+NOTE: NOT ALL TESTS CONVERTED TO NEW MODEL YET. MANY FAIL. THIS WILL BE ADDRESSED SOON.
+
 To run unit tests:
 
 * go to unit test/unit directory
 * run tests: python test_keystone
 
-There are 8 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run
+There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run
 
     $ python test_keystone.py
 
@@ -144,5 +146,6 @@ in troubleshooting:
     /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
 
 CURL commands:
+
 curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
 curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
