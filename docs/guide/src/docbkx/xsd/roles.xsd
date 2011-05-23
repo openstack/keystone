@@ -62,7 +62,7 @@
     <!-- Complex Types -->
     <complexType name="Role">
         <attribute name="id" type="xsd:string" use="required"/>
-        <attribute name="service" type="xsd:string"  use="optional"/>
+        <attribute name="description" type="xsd:string"  use="optional"/>
     </complexType>
     
     <complexType name="RoleList">
