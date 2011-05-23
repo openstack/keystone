@@ -6,5 +6,9 @@
 	    <groups>
 	        <group tenantId="1245" name="Admin"/>
 	    </groups>
+       <roleRefs>
+           <roleRef href="https://.openstack.org/identity/v2.0/roles/admin" id="3" tenantId="tenantId"/>
+           <roleRef href="https://.openstack.org/identity/v2.0/roles/test" id="4" tenantId="tenantId"/>
+       </roleRefs>        
 	</user>
 </auth>

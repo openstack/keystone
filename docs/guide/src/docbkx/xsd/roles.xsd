@@ -65,6 +65,13 @@
         <attribute name="service" type="xsd:string"  use="optional"/>
     </complexType>
     
+    <complexType name="RoleList">
+        <sequence>
+            <element name="role" type="idm:Role" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    
+    
     <complexType name="RoleRef">
         <attribute name="id" type="xsd:int" use="required"/>
         <attribute name="tenantId" type="xsd:string" use="required" />
@@ -81,11 +88,6 @@
         </attribute>
     </complexType>
     
-    <complexType name="RoleList">
-        <sequence>
-            <element name="role" type="idm:Role" minOccurs="0" maxOccurs="unbounded"/>
-        </sequence>
-    </complexType>
 
     <complexType name="RoleRefList">
         <sequence>

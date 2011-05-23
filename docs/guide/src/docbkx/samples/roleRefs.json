@@ -2,13 +2,13 @@
  "roleRefs" : [
   {
   	"id" : 1,
-  	"href" : "https://.openstack.org/identity/v1.1/roles/admin",
+  	"href" : "https://.openstack.org/identity/v2.0/roles/admin",
   	"tenantId" : "one"
   },
   {
   	"id" : 2,
-  	"href" : "https://.openstack.org/identity/v1.1/roles/test",
+  	"href" : "https://.openstack.org/identity/v2.0/roles/test",
   	"tenantId" : "two"
-  },
+  }
  ]
 }
