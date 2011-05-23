@@ -54,7 +54,6 @@ HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
 
-from bufferedhttp import http_connect_raw as http_connect
 import eventlet
 import httplib
 import json
@@ -71,6 +70,8 @@ import webob.exc
 import webob.dec
 from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
+
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 FLAGS = flags.FLAGS
 
