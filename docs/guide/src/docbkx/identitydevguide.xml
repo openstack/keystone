@@ -1404,14 +1404,14 @@ Host: identity.api.openstack.org/v1.1/
                     <title>Add Role Request: XML</title>
                     <?dbfo keep-together="always"?>
                     <programlisting language="xml">
-<xi:include href="samples/role.xml" parse="text"/>
+<xi:include href="samples/roleRef.xml" parse="text"/>
                     </programlisting>
                 </example>
                 <example>
                     <title>Add Role Request: JSON</title>
                     <?dbfo keep-together="always"?>
                     <programlisting language="javascript">
-<xi:include href="samples/role.json" parse="text"/>
+<xi:include href="samples/roleRef.json" parse="text"/>
                     </programlisting>
                 </example>
             </section>
