@@ -1,20 +1,39 @@
 Keystone: OpenStack Identity Service
 ====================================
 
-Keystone is a proposed independent authentication service for [OpenStack](http://www.openstack.org).
-
-This initial proof of concept aims to address the current use cases in Swift and Nova which are:
-
-* REST-based, token auth for Swift
-* many-to-many relationship between identity and tenant for Nova.
+Keystone is an open-source authentication service built to be integrated into [OpenStack](http://www.openstack.org).
 
 
-SERVICES:
----------
+Core Concepts:
+--------------
+-Users
+-Tenants
+-Roles
+-Tokens
+-Groups
+-Authentication Protocol Plugins
 
-* keystoned  - Authentication service
-* AuthToken  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
-* Echo       - A sample service that responds by returning call details
+<table>
+  <tr>
+    <th>Concept</th><th>Description</th>
+  </tr>
+  <tr>
+    <td>User</td><td>A 'user' is a client who has been registered with Keystone.</td>
+  </tr>
+  <tr>
+    <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
+  </tr>
+</table>
+
+
+Built-In Services:
+------------------
+
+* bin/keystone  - Provides HTTP API for users and administrators
+* bin/keystone-admin - Provides HTTP API for administrators
+* bin/keystone-service - Provides HTTP API for users
+* bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
+
 
 Also included:
 
