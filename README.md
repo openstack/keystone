@@ -6,8 +6,6 @@ Keystone is an open-source authentication service built to be integrated into [O
 
 Core Concepts:
 --------------
--Users
--Tenants
 -Roles
 -Tokens
 -Groups
@@ -21,7 +19,16 @@ Core Concepts:
     <td>User</td><td>A 'user' is a client who has been registered with Keystone.</td>
   </tr>
   <tr>
-    <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
+    <td>Role</td><td>A 'role' describes a responsibility which is linked to a given user.</td>
+  </tr>
+  <tr>
+    <td>Token</td><td>A 'token' describes a temporary object which helps users authenticate themselves.</td>
+  </tr>
+  <tr>
+    <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
+  </tr>
+  <tr>
+    <td>Group</td></td>Unknown</td>
   </tr>
 </table>
 
