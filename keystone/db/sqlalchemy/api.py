@@ -647,7 +647,7 @@ def token_for_user(user_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Token).filter_by(
-        user_id=user_id).order_by("expires desc").first()
+        user_id=user_id, tenant_id=None).order_by("expires desc").first()
     return result
 
 

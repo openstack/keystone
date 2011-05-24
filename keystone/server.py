@@ -513,7 +513,8 @@ class GroupsController(wsgi.Controller):
 
         return utils.send_result(204, req, service.delete_user_global_group(\
                                 utils.get_auth_token(req), group_id, user_id))
-        
+
+
 class RolesController(wsgi.Controller):
     """
         Roles Controller -

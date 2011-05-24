@@ -48,7 +48,7 @@ class IdentityService(object):
                                               credentials.tenant_id)
             if duser == None:
                 raise fault.UnauthorizedFault("Unauthorized on this tenant")
-        
+
         if not duser.enabled:
             raise fault.UserDisabledFault("Your account has been disabled")
         if duser.password != credentials.password:
@@ -383,6 +383,7 @@ class IdentityService(object):
         db_api.user_tenant_group_delete(user, group)
         return None
 
+
     #
     # Private Operations
     #
@@ -396,6 +397,7 @@ class IdentityService(object):
             if token:
                 user = db_api.user_get(token.user_id)
         return (token, user)
+
 
     #
     #   User Operations
@@ -829,7 +831,7 @@ class IdentityService(object):
     def __get_auth_data(self, dtoken, duser):
         """return AuthData object for a token/user pair"""
 
-        token = auth.Token(dtoken.expires, dtoken.token_id)
+        token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
 
         """gs = []
         for ug in duser.groups:

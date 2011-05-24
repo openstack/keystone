@@ -59,10 +59,12 @@ class PasswordCredentials(object):
             if not "passwordCredentials" in obj:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
             cred = obj["passwordCredentials"]
+            # Check that fields are valid
             invalid = [key for key in cred if key not in\
-                       ['username','tenantId', 'password']]
+                       ['username', 'tenantId', 'password']]
             if invalid != []:
-                raise fault.BadRequestFault("Invalid attribute(s): %s" % invalid)
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
             if not "username" in cred:
                 raise fault.BadRequestFault("Expecting a username")
             username = cred["username"]
@@ -82,9 +84,10 @@ class PasswordCredentials(object):
 class Token(object):
     "An auth token."
 
-    def __init__(self, expires, token_id):
+    def __init__(self, expires, token_id, tenant_id=None):
         self.expires = expires
         self.token_id = token_id
+        self.tenant_id = tenant_id
 
 
 class Group(object):
@@ -125,6 +128,8 @@ class AuthData(object):
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)
+        if self.token.tenant_id:
+            token.set("tenantId", self.token.tenant_id)
         user = etree.Element("user",
                              username=self.user.username,
                              tenantId=str(self.user.tenant_id))
@@ -144,6 +149,8 @@ class AuthData(object):
         token = {}
         token["id"] = self.token.token_id
         token["expires"] = self.token.expires.isoformat()
+        if self.token.tenant_id:
+            token["tenantId"] = self.token.tenant_id
         user = {}
         user["username"] = self.user.username
         user["tenantId"] = self.user.tenant_id
