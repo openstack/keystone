@@ -132,6 +132,17 @@ To Test Keystone Service:
 * Select tests/IdentitySOAPUI.xml
 * Double click on "Keystone Tests" and press the green play (>) button
 
+DOCUMENTATION:
+--------------
+
+The dev guide is automatically generated from XML and other artifacts in the keystone/docs/src folder.
+To build the API dev guide, you need Maven. To build the docs, run the following from the
+keystone/docs folder:
+
+    $ mvn clean generate-sources
+
+The output will go into the keystone/docs/target folder (the source is in keystone/docs/src)
+
 
 ADDITIONAL INFORMATION:
 -----------------------
