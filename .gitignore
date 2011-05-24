@@ -1,4 +1,5 @@
 *.pyc
+.project
 .project/
 .cache/
 .pydevproject/

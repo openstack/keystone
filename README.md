@@ -12,9 +12,9 @@ This initial proof of concept aims to address the current use cases in Swift and
 SERVICES:
 ---------
 
-* Keystone    - authentication service
-* Auth_Token  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
-* Echo        - A sample service that responds by returning call details
+* keystoned  - Authentication service
+* AuthToken  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
+* Echo       - A sample service that responds by returning call details
 
 Also included:
 
@@ -48,13 +48,13 @@ All above files take parameters from etc/keystone.conf file under the Keystone r
 
 DEPENDENCIES:
 -------------
-See pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
+See tools/pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
 
 Setup:
 
     # Install http://pypi.python.org/pypi/setuptools
     sudo easy_install pip
-    sudo pip install -r pip-requires
+    sudo pip install -r tools/pip-requires
 
 
 RUNNING THE TEST SERVICE (Echo.py):
