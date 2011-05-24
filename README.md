@@ -42,7 +42,7 @@ By default, configuration parameters are parsed from etc/keystone.conf.
 Dependencies:
 -------------
 <pre>
-# Python Dependencies
+# Show Dependencies
 $ cat tools/pip-requires
 
 # Install Dependencies
