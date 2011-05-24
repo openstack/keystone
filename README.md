@@ -6,11 +6,6 @@ Keystone is an open-source authentication service built to be integrated into [O
 
 Core Concepts:
 --------------
--Roles
--Tokens
--Groups
--Authentication Protocol Plugins
-
 <table>
   <tr>
     <th>Concept</th><th align="left">Description</th>
@@ -41,76 +36,22 @@ Built-In Services:
 * bin/keystone-service - Provides HTTP API for users
 * bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
 
-
-Also included:
-
-* Keystone    - Service and Admin API are available separately. Admin API allows management of tenants, roles, and users as well.
-* Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
-* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
-* RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
+By default, configuration parameters are parsed from etc/keystone.conf.
 
 
-RUNNING KEYSTONE:
------------------
-
-Starting both Admin and Service API endpoints:
-
-    $ cd bin
-    $ ./keystone
-
-Starting the auth server only (exposes the Service API):
-
-    $ cd bin
-    $ ./keystone-auth
-
-Starting the admin server only (exposes the Admin API):
-
-    $ cd bin
-    $ ./keystone-admin
-
-All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
-
-
-
-DEPENDENCIES:
+Dependencies:
 -------------
-See tools/pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
+<pre>
+# Python Dependencies
+$ cat tools/pip-requires
 
-Setup:
-
-    # Install http://pypi.python.org/pypi/setuptools
-    sudo easy_install pip
-    sudo pip install -r tools/pip-requires
-
-
-RUNNING THE TEST SERVICE (Echo.py):
-----------------------------------
-
-    Standalone stack (with Auth_Token)
-    $ cd echo/bin
-    $ ./echod
-
-    Distributed stack (with RemoteAuth local and Auth_Token remote)
-    $ cd echo/bin
-    $ ./echod --remote
-
-    in separate session
-    $ cd keystone/auth_protocols
-    $ python auth_token.py
+# Install Dependencies
+$ sudo pip install -r tools/pip-requires
+</pre>
 
 
-DEMO CLIENT:
-------------
-A sample client that gets a token from Keystone and then uses it to call Echo (and a few other example calls):
-
-    $ cd echo/echo
-    $ python echo_client.py
-    Note: this requires test data. See section TESTING for initializing data
-
-
-
-TESTING:
---------
+Running Tests:
+--------------
 A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
@@ -159,7 +100,7 @@ To Test Keystone Service:
 * Double click on "Keystone Tests" and press the green play (>) button
 
 
-ADDITIONAL INFORMATION:
+Additional Information:
 -----------------------
 
 Configuration:
