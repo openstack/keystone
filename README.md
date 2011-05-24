@@ -28,7 +28,7 @@ Core Concepts:
     <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
   </tr>
   <tr>
-    <td>Group</td></td>Unknown</td>
+    <td>Group</td><td>Unknown</td>
   </tr>
 </table>
 
