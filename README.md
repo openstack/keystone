@@ -8,6 +8,11 @@ This initial proof of concept aims to address the current use cases in Swift and
 * REST-based, token auth for Swift
 * many-to-many relationship between identity and tenant for Nova.
 
+DEVELOPER GUIDE/CONCEPTS:
+------------------------
+
+This [dev guide](https://github.com/khussein/keystone/raw/master/keystone/content/identitydevguide.pdf) is built from the source on this repo.
+
 
 SERVICES:
 ---------
