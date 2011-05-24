@@ -172,7 +172,7 @@ Initial support for using keystone as nova's identity component has been started
     git clone git://github.com/khussein/keystone.git
 
     # link keystone into the nova root dir
-    ln -s keystone nova/keystone
+    ln -s keystone/keystone nova/keystone
 
     # run nova-api based on the paste config in keystone
     nova/bin/nova-api --api_paste_config=keystone/docs/nova-api-paste.ini
