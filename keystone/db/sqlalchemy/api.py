@@ -190,12 +190,15 @@ def tenant_get_page_markers(marker, limit, session=None):
 def tenant_is_empty(id, session=None):
     if not session:
         session = get_session()
-    a_user = session.query(models.UserTenantAssociation).filter_by(\
+    a_user = session.query(models.UserRoleAssociation).filter_by(\
         tenant_id=id).first()
     if a_user != None:
         return False
     a_group = session.query(models.Group).filter_by(tenant_id=id).first()
     if a_group != None:
+        return False
+    a_user = session.query(models.User).filter_by(tenant_id=id).first()
+    if a_user != None:
         return False
     return True
 
