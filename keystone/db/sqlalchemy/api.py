@@ -483,7 +483,14 @@ def user_delete(id, session=None):
 def user_get_by_tenant(id, tenant_id, session=None):
     if not session:
         session = get_session()
-    user_tenant = session.query(models.UserTenantAssociation).filter_by(\
+    # Most common use case: user lives in tenant
+    user = session.query(models.User).\
+                    filter_by(id=id, tenant_id=tenant_id).first()
+    if user:
+        return user
+    
+    # Find user through grants to this tenant
+    user_tenant = session.query(models.UserRoleAssociation).filter_by(\
         tenant_id=tenant_id, user_id=id).first()
     if user_tenant:
         return user_get(id, session)

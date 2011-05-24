@@ -59,6 +59,10 @@ class PasswordCredentials(object):
             if not "passwordCredentials" in obj:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
             cred = obj["passwordCredentials"]
+            invalid = [key for key in cred if key not in\
+                       ['username','tenantId', 'password']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s" % invalid)
             if not "username" in cred:
                 raise fault.BadRequestFault("Expecting a username")
             username = cred["username"]

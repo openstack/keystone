@@ -20,6 +20,7 @@
 
 # Tenants
 ./keystone-manage tenant add 1234
+./keystone-manage tenant add ANOTHER:TENANT
 ./keystone-manage tenant add 0000
 ./keystone-manage tenant disable 0000
 

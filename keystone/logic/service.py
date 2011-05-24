@@ -44,7 +44,8 @@ class IdentityService(object):
             if duser == None:
                 raise fault.UnauthorizedFault("Unauthorized")
         else:
-            duser = db_api.user_get_by_tenant(credentials.username, credentials.tenant_id)
+            duser = db_api.user_get_by_tenant(credentials.username,
+                                              credentials.tenant_id)
             if duser == None:
                 raise fault.UnauthorizedFault("Unauthorized on this tenant")
         
