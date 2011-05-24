@@ -31,7 +31,7 @@
 
 # Roles
 ./keystone-manage role add Admin
-./keystone-manage role add Admin admin 1234
+./keystone-manage role grant Admin admin 1234
 
 
 # Groups

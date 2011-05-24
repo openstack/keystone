@@ -177,7 +177,9 @@ def setup_logging(options, conf):
     # If either the CLI option or the conf value
     # is True, we set to True
     debug = options.get('debug') or conf.get('debug', False)
+    debug = debug in [True, "True", "1"]
     verbose = options.get('verbose') or conf.get('verbose', False)
+    verbose = verbose in [True, "True", "1"]
     root_logger = logging.root
     if debug:
         root_logger.setLevel(logging.DEBUG)
@@ -335,10 +337,11 @@ def load_paste_app(app_name, options, args):
         # We only update the conf dict for the verbose and debug
         # flags. Everything else must be set up in the conf file...
         debug = options.get('debug') or conf.get('debug', False)
+        debug = debug in [True, "True", "1"]
         verbose = options.get('verbose') or conf.get('verbose', False)
+        verbose = verbose in [True, "True", "1"]
         conf['debug'] = debug
         conf['verbose'] = verbose
-
         # Log the options used when starting if we're in debug mode...
         if debug:
             logger = logging.getLogger(app_name)

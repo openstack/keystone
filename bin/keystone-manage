@@ -34,7 +34,7 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
-import tools.tracer
+import tools.tracer   #load this first
 import keystone
 from keystone.common import config
 import keystone.db.sqlalchemy.api as db_api
@@ -95,7 +95,14 @@ def Main():
         object_id = args[2]
 
     # Set things up to run the command
-    print "Config file in use: %s" % config_file
+    debug = options.get('debug') or conf.get('debug', False)
+    debug = debug in [True, "True", "1"]
+    verbose = options.get('verbose') or conf.get('verbose', False)
+    verbose = verbose in [True, "True", "1"]
+    if debug or verbose:
+        config_file = config.find_config_file(options, args)
+        print "Using config file:", config_file
+
     config.setup_logging(options, conf)
     
     db_api.configure_db(conf)

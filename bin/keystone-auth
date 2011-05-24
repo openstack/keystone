@@ -48,8 +48,14 @@ if __name__ == '__main__':
 
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
-    config_file = config.find_config_file(options, args)
-    print "Using config file:", config_file
+
+    debug = options.get('debug') or conf.get('debug', False)
+    debug = debug in [True, "True", "1"]
+    verbose = options.get('verbose') or conf.get('verbose', False)
+    verbose = verbose in [True, "True", "1"]
+    if debug or verbose:
+        config_file = config.find_config_file(options, args)
+        print "Using config file:", config_file
 
     # Start services
     try:

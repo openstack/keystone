@@ -33,6 +33,7 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
+
 import tools.tracer   #load this first
 import keystone
 from keystone.common import config
@@ -53,13 +54,20 @@ if __name__ == '__main__':
 
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
-    config_file = config.find_config_file(options, args)
-    print "Using config file:", config_file
 
     # Start services
     try:
         # Load Service API server
         conf, app = config.load_paste_app('server', options, args)
+
+        debug = options.get('debug') or conf.get('debug', False)
+        debug = debug in [True, "True", "1"]
+        verbose = options.get('verbose') or conf.get('verbose', False)
+        verbose = verbose in [True, "True", "1"]
+        if debug or verbose:
+            config_file = config.find_config_file(options, args)
+            print "Using config file:", config_file
+
         server = wsgi.Server()
         server.start(app, int(conf['bind_port']), conf['bind_host'])
         print "Service API listening on %s:%s" % (conf['bind_host'],
