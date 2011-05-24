@@ -2,6 +2,6 @@
   "role" :
    {
        "id" : "Admin",
-       "serviceName" : "cloudFiles"
+       "description" : "cloudFiles"
    }
 }

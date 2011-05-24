@@ -2,12 +2,11 @@
   "baseURL" :
    {
        "id" : 1,
-       "userType" : "NAST",
        "region"   : "DFW",
        "default"  : true,
-       "serviceName" : "cloudFiles",
-       "publicURL" : "https://storage.clouddrive.com/v1",
-       "internalURL" : "https://storage-snet.clouddrive.com/v1",
+       "serviceName" : "service1",
+       "publicURL" : "https://service-public.com/v1",
+       "internalURL" : "https://service-internal.com/v1",
        "enabled"  : true
    }
 }

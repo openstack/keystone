@@ -25,7 +25,6 @@ Keystone Identity Server - Admin and Service API
 import optparse
 import os
 import sys
-import tools.tracer   #load this first
 
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -34,7 +33,7 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
-
+import tools.tracer   #load this first
 import keystone
 from keystone.common import config
 from keystone.common import wsgi

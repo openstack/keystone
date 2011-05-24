@@ -12,6 +12,14 @@
                       "name": "Admin"
                   }
               ]},
+           "roleRefs": {   
+	           "roleRef" : [
+                  {
+                      "id" : 1,
+                      "href" : "https://.openstack.org/identity/v2.0/roles/admin",
+                      "tenantId" : "one"
+                  }
+              ]},   
           "username": "jqsmith",
           "tenantId": "1234",
       }

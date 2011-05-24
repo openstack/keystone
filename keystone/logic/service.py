@@ -23,6 +23,7 @@ import keystone.db.sqlalchemy.api as db_api
 import keystone.db.sqlalchemy.models as db_models
 import keystone.logic.types.fault as fault
 import keystone.logic.types.tenant as tenants
+import keystone.logic.types.role as roles
 import keystone.logic.types.user as users
 
 
@@ -864,3 +865,48 @@ class IdentityService(object):
                                        "to make this call")
         '''
         return (token, user)
+        
+    def create_role(self, admin_token, role):
+        self.__validate_token(admin_token)
+
+        if not isinstance(role, roles.Role):
+            raise fault.BadRequestFault("Expecting a Role")
+
+        if role.role_id == None:
+            raise fault.BadRequestFault("Expecting a Role Id")
+
+        if db_api.role_get(role.role_id) != None:
+            raise fault.RoleConflictFault(
+                "A role with that id already exists")
+        drole = db_models.Role()
+        drole.id = role.role_id
+        drole.desc = role.desc
+        db_api.role_create(drole)
+        return role
+        
+    def get_roles(self, admin_token, marker, limit, url):
+        self.__validate_token(admin_token)
+
+        ts = []
+        droles = db_api.role_get_page(marker, limit)
+        for drole in droles:
+            ts.append(roles.Role(drole.id,
+                                     drole.desc))
+        prev, next = db_api.tenant_get_page_markers(marker, limit)
+        links = []
+        if prev:
+            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
+                                                % (url, prev, limit)))
+        if next:
+            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
+                                                % (url, next, limit)))
+        return roles.Roles(ts, links)
+
+    def get_role(self, admin_token, role_id):
+        self.__validate_token(admin_token)
+
+        drole = db_api.role_get(role_id)
+        if not drole:
+            raise fault.ItemNotFoundFault("The role could not be found")
+        return roles.Role(drole.id, drole.desc)
+

@@ -2,9 +2,28 @@
 <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
 	<token expires="2010-11-01T03:32:15-05:00"
            id="ab48a9efdfedb23ty3494"/>
-	<user tenantId="1245" username="jqsmith">
-	    <groups>
-	        <group tenantId="1245" id="Admin"/>
-	    </groups>
-	</user>
+    <serviceCatalog>
+        <service name="service1">
+            <endpoint
+                    region="DFW"
+                    publicURL="https://service1.public.com/v2.0/blah-blah"
+                    internalURL="https://service1.internal.com/v2.0/blah-blah"/>
+            <endpoint
+                    region="ORD"
+                    publicURL="https://service1.public.com/v2.0/blah-blah"
+                    internalURL="https://service1.internal.com/v2.0/blah-blah"/>
+        </service>
+        <service name="service2">
+            <endpoint
+                    region="DFW"
+                    publicURL="https://service2.public.com/v2.0/blah-blah"/>
+            <endpoint
+                    region="ORD"
+                    publicURL="https://service2.public.com/v2.0/blah-blah"/>
+        </service>
+        <service name="service3">
+            <endpoint
+                    publicURL="https://service3.public.com/v2.0/blah-blah"/>
+        </service>
+    </serviceCatalog>
 </auth>
