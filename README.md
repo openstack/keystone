@@ -15,7 +15,7 @@ Core Concepts:
 
 <table>
   <tr>
-    <th>Concept</th><th>Description</th>
+    <th>Concept</th><th align="left">Description</th>
   </tr>
   <tr>
     <td>User</td><td>A 'user' is a client who has been registered with Keystone.</td>
