@@ -101,6 +101,17 @@ def role_get_all(session=None):
         session = get_session()
     return session.query(models.Role).all()
 
+def role_get_page(marker, limit, session=None):
+    if not session:
+        session = get_session()
+
+    if marker:
+        return session.query(models.Role).filter("id>:marker").params(\
+                marker='%s' % marker).order_by(\
+                models.Tenant.id.desc()).limit(limit).all()
+    else:
+        return session.query(models.Tenant).order_by(\
+                            models.Tenant.id.desc()).limit(limit).all()
 
 #
 # Tenant API operations

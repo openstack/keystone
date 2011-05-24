@@ -159,3 +159,10 @@ class UserGroupConflictFault(IdentityFault):
     def __init__(self, msg, details=None, code=409):
         super(UserGroupConflictFault, self).__init__(msg, details, code)
         self.key = "userGroupConflict"
+
+class RoleConflictFault(IdentityFault):
+    "The User already exists?"
+
+    def __init__(self, msg, details=None, code=409):
+        super(RoleConflictFault, self).__init__(msg, details, code)
+        self.key = "roleConflict"

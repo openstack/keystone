@@ -2,11 +2,11 @@
  "roles" : [
      {
      "id" : 1,
-     "serviceName" : "cloudFiles"
+     "description" : "cloudFiles"
      },
      {
      "id" : 2,
-     "serviceName" : "cloudFiles"
+     "description" : "cloudFiles"
      },
  ]
 }

@@ -11,4 +11,6 @@
     <include schemaLocation="token.xsd"/>
     <include schemaLocation="tenant.xsd"/>
     <include schemaLocation="fault.xsd"/>
+    <include schemaLocation="baseURLs.xsd"/>
+    <include schemaLocation="roles.xsd"/>
 </schema>

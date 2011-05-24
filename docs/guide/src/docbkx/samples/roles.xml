@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-  <role
-   id="4" 
-   serviceName="cloudFilesCDN"
-  />
-  <role
-   id="5" 
-   serviceName="cloudServers"
-  />
+  <role id="4" description="cloudFilesCDN" />
+  <role id="5" description="cloudServers" />
 </roles>
