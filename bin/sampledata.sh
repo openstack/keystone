@@ -19,34 +19,34 @@
 #    under the License.
 
 # Tenants
-./keystone-manage tenant add 1234
-./keystone-manage tenant add ANOTHER:TENANT
-./keystone-manage tenant add 0000
-./keystone-manage tenant disable 0000
+./keystone-manage $* tenant add 1234
+./keystone-manage $* tenant add ANOTHER:TENANT
+./keystone-manage $* tenant add 0000
+./keystone-manage $* tenant disable 0000
 
 # Users
-./keystone-manage user add joeuser secrete 1234
-./keystone-manage user add admin secrete 1234
-./keystone-manage user add disabled secrete 1234
-./keystone-manage user disable disabled
+./keystone-manage $* user add joeuser secrete 1234
+./keystone-manage $* user add admin secrete 1234
+./keystone-manage $* user add disabled secrete 1234
+./keystone-manage $* user disable disabled
 
 # Roles
-./keystone-manage role add Admin
-./keystone-manage role grant Admin admin 1234
+./keystone-manage $* role add Admin
+./keystone-manage $* role grant Admin admin 1234
 
 
 # Groups
-#./keystone-manage group add Admin 1234
-#./keystone-manage group add Default 1234
-#./keystone-manage group add Empty 0000
+#./keystone-manage $* group add Admin 1234
+#./keystone-manage $* group add Default 1234
+#./keystone-manage $* group add Empty 0000
 
 # User Group Associations
-#./keystone-manage user joeuser join Default
-#./keystone-manage user disabled join Default
-#./keystone-manage user admin join Admin
+#./keystone-manage $* user joeuser join Default
+#./keystone-manage $* user disabled join Default
+#./keystone-manage $* user admin join Admin
 
 # Tokens
-./keystone-manage token add 887665443383838 joeuser 1234 2012-02-05T00:00
-./keystone-manage token add 999888777666 admin 1234 2015-02-05T00:00
-./keystone-manage token add 000999 admin 1234 2010-02-05T00:00
-./keystone-manage token add 999888777 disabled 1234 2015-02-05T00:00
+./keystone-manage $* token add 887665443383838 joeuser 1234 2012-02-05T00:00
+./keystone-manage $* token add 999888777666 admin 1234 2015-02-05T00:00
+./keystone-manage $* token add 000999 admin 1234 2010-02-05T00:00
+./keystone-manage $* token add 999888777 disabled 1234 2015-02-05T00:00
