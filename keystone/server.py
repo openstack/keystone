@@ -582,6 +582,7 @@ class RolesController(wsgi.Controller):
 
         return utils.send_result(200, req, roleRefs)
     
+    @utils.wrap_error
     def delete_role_ref(self, req, user_id, role_ref_id):
         rval = service.delete_role_ref(utils.get_auth_token(req),
                                         role_ref_id)
