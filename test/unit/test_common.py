@@ -720,8 +720,8 @@ def create_role_ref(user_id, role_id, tenant_id, auth_token):
     header = httplib2.Http(".cache")
 
     url = '%susers/%s/roleRefs' % (URL, user_id)
-    body = {"roleRef": {"tenant_id": tenant_id,
-                       "role_id": role_id}}
+    body = {"roleRef": {"tenantId": tenant_id,
+                       "roleId": role_id}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -733,7 +733,7 @@ def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
     url = '%susers/%s/roleRefs' % (URL, user_id)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
             <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" \
-            tenant_id="%s" role_id="%s"/>\
+            tenantId="%s" roleId="%s"/>\
                     ' % (tenant_id, role_id)
     resp, content = header.request(url, "POST", body=body,
                               headers={"Content-Type": "application/xml",

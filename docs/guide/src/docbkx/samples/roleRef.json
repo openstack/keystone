@@ -1,7 +1,7 @@
 {
    "roleRef" : {
   		"id" : 1,
-  		"href" : "https://.openstack.org/identity/v1.1/roles/admin",
+  		"roleId" : "admin",
   		"tenantId" : "one"
   }
 }
