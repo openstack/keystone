@@ -34,6 +34,8 @@ from nova import flags
 from nova import utils
 from nova import wsgi
 import webob.dec
+import webob.exc
+
 
 FLAGS = flags.FLAGS
 
@@ -50,7 +52,11 @@ class KeystoneAuthShim(wsgi.Middleware):
 
     @webob.dec.wsgify(RequestClass=wsgi.Request)
     def __call__(self, req):
-        user_id = req.headers['X_AUTHORIZATION']
+        # Parse out user_id
+        try:
+            user_id = req.headers['X_AUTHORIZATION'].split()[1]
+        except:
+            return webob.exc.HTTPUnauthorized()
         try:
             user_ref = self.auth.get_user(user_id)
         except:
