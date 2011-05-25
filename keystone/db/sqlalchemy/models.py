@@ -88,7 +88,7 @@ class UserRoleAssociation(Base, KeystoneBase):
     user_id = Column(String(255), ForeignKey('users.id'))
     role_id = Column(String(255), ForeignKey('roles.id'))
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
-    UniqueConstraint('user_id', 'role_id', 'tenant_id', name='user_role_tenant_uniquness')
+    __table_args__ = (UniqueConstraint("user_id", "role_id", "tenant_id"), {} ) 
 
 
 # Define objects
