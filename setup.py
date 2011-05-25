@@ -30,8 +30,8 @@ setup(
     url='http://www.openstack.org',
     include_package_data=True,
     packages=find_packages(exclude=['test', 'bin']),
-    scripts=['bin/keystone, bin/leystone-auth, bin/keystone-admin'
-             ', bin/keystone-manage'],
+    scripts=['bin/keystone', 'bin/keystone-auth', 'bin/keystone-admin',
+             'bin/keystone-manage'],
     zip_safe=False,
     install_requires=['setuptools'],
     entry_points={

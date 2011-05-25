@@ -8,6 +8,11 @@ This initial proof of concept aims to address the current use cases in Swift and
 * REST-based, token auth for Swift
 * many-to-many relationship between identity and tenant for Nova.
 
+DEVELOPER GUIDE/CONCEPTS:
+------------------------
+
+This [dev guide](https://github.com/khussein/keystone/raw/master/keystone/content/identitydevguide.pdf) is built from the source on this repo.
+
 
 SERVICES:
 ---------
@@ -132,6 +137,17 @@ To Test Keystone Service:
 * Select tests/IdentitySOAPUI.xml
 * Double click on "Keystone Tests" and press the green play (>) button
 
+DOCUMENTATION:
+--------------
+
+The dev guide is automatically generated from XML and other artifacts in the keystone/docs/src folder.
+To build the API dev guide, you need Maven. To build the docs, run the following from the
+keystone/docs folder:
+
+    $ mvn clean generate-sources
+
+The output will go into the keystone/docs/target folder (the source is in keystone/docs/src)
+
 
 ADDITIONAL INFORMATION:
 -----------------------
@@ -178,3 +194,19 @@ Initial support for using keystone as nova's identity component has been started
     nova/bin/nova-api --api_paste_config=keystone/docs/nova-api-paste.ini
 
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
+
+
+I WANT OPENSTACK:
+-----------------
+
+    $ # create a maverick cloud server
+    $ curl -O https://github.com/cloudbuilders/deploy.sh/raw/master/nova.sh
+    $ chmod 755 nova.sh
+    $ export USE_GIT=1         # checkout source using github mirror
+    $ export ENABLE_VOLUMES=0  # disable volumes
+    $ export ENABLE_DASH=1     # install & configure dashboard
+    $ export ENABLE_GLANCE=1   # install & configure glance image service
+    $ export ENABLE_KEYSTONE=1 # install & configure keystone (unified auth)
+    $ ./nova.sh branch
+    $ ./nova.sh install
+    $ ./nova.sh run
