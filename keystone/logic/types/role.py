@@ -121,8 +121,8 @@ class RoleRef(object):
                             "roleRef")
             if root == None:
                 raise fault.BadRequestFault("Expecting RoleRef")
-            role_id = root.get("role_id")
-            tenant_id = root.get("tenant_id")
+            role_id = root.get("roleId")
+            tenant_id = root.get("tenantId")
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
             elif tenant_id == None:
@@ -138,16 +138,16 @@ class RoleRef(object):
             if not "roleRef" in obj:
                 raise fault.BadRequestFault("Expecting Role Ref")
             roleRef = obj["roleRef"]
-            if not "role_id" in roleRef:
+            if not "roleId" in roleRef:
                 role_id = None
             else:
-                role_id = roleRef["role_id"]
+                role_id = roleRef["roleId"]
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
-            if not "tenant_id" in roleRef:
+            if not "tenantId" in roleRef:
                 tenant_id = None
             else:
-                tenant_id = roleRef["tenant_id"]
+                tenant_id = roleRef["tenantId"]
             if tenant_id == None:
                 raise fault.BadRequestFault("Expecting Tenant")    
             return RoleRef('',role_id, tenant_id)
@@ -160,9 +160,9 @@ class RoleRef(object):
         if self.role_ref_id:
             dom.set("id", str(self.role_ref_id))
         if self.role_id:
-            dom.set("role_id", self.role_id)
+            dom.set("roleId", self.role_id)
         if self.tenant_id:
-            dom.set("tenant_id", self.tenant_id)
+            dom.set("tenantId", self.tenant_id)
         return dom
 
     def to_xml(self):
@@ -173,9 +173,9 @@ class RoleRef(object):
         if self.role_ref_id:
             roleRef["id"] = self.role_ref_id
         if self.role_id:
-            roleRef["role_id"] = self.role_id
+            roleRef["roleId"] = self.role_id
         if self.tenant_id:
-            roleRef["tenant_id"] = self.tenant_id
+            roleRef["tenantId"] = self.tenant_id
         return {'roleRef': roleRef}
 
     def to_json(self):
