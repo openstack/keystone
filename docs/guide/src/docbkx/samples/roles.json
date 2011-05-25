@@ -1,12 +1,12 @@
 {
  "roles" : [
      {
-     "id" : 1,
-     "description" : "cloudFiles"
+     "id" : "Admin",
+     "description" : "All access"
      },
      {
-     "id" : 2,
-     "description" : "cloudFiles"
+     "id" : "Guest",
+     "description" : "Guest Access"
      },
  ]
 }

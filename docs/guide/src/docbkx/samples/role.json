@@ -2,6 +2,6 @@
   "role" :
    {
        "id" : "Admin",
-       "description" : "cloudFiles"
+       "description" : "All access"
    }
 }

@@ -1251,8 +1251,7 @@ Host: identity.api.openstack.org/v1.1/
                         <tr>
                             <td colspan="1">&GET;
                             </td>
-                            <td colspan="4">/roles?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
-                            </td>
+                            <td colspan="4">/roles                            </td>
                             <td colspan="3">
                                 Get a list of roles.
                             </td>
