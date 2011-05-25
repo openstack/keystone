@@ -15,7 +15,7 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
-from sqlalchemy import create_engine, Column, String, Integer, ForeignKey
+from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -74,7 +74,7 @@ class KeystoneBase(object):
         return local.iteritems()
 
 
-# Define associations firest
+# Define associations first
 class UserGroupAssociation(Base, KeystoneBase):
     __tablename__ = 'user_group_association'
 
@@ -84,10 +84,11 @@ class UserGroupAssociation(Base, KeystoneBase):
 
 class UserRoleAssociation(Base, KeystoneBase):
     __tablename__ = 'user_roles'
-
-    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
-    role_id = Column(String(255), ForeignKey('roles.id'), primary_key=True)
-    tenant_id = Column(String(255), ForeignKey('tenants.id'), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String(255), ForeignKey('users.id'))
+    role_id = Column(String(255), ForeignKey('roles.id'))
+    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    UniqueConstraint('user_id', 'role_id', 'tenant_id', name='user_role_tenant_uniquness')
 
 
 # Define objects
@@ -104,7 +105,6 @@ class Tenant(Base, KeystoneBase):
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
-
     groups = relationship('Group', backref='tenants')
 
 
@@ -118,7 +118,7 @@ class User(Base, KeystoneBase):
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
     
     groups = relationship(UserGroupAssociation, backref='users')
-    roles = relationship(UserRoleAssociation)
+    roles = relationship(UserRoleAssociation,cascade="all,delete")
 
 class Credentials(Base, KeystoneBase):
     __tablename__ = 'credentials'
