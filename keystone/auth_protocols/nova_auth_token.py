@@ -54,7 +54,7 @@ class KeystoneAuthShim(wsgi.Middleware):
     def __call__(self, req):
         # Parse out user_id
         try:
-            user_id = req.headers['X_AUTHORIZATION'].split()[1]
+            user_id = req.headers['X_USER']
         except:
             return webob.exc.HTTPUnauthorized()
         try:
