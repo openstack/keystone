@@ -40,7 +40,7 @@ class RolesTest(unittest.TestCase):
         self.missing_token = utils.get_none_token()
         self.invalid_token = utils.get_non_existing_token()
         utils.create_tenant(self.tenant, str(self.auth_token))
-        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        utils.create_user(self.tenant, self.user, self.auth_token)
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
 
@@ -61,6 +61,23 @@ class GetRolesTest(RolesTest):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
+        
+        #verify content
+        obj = json.loads(content)
+        if not "roles" in obj:
+            raise self.fail("Expecting Roles")
+        roles = obj["roles"]["values"]
+        if len(roles) != 1:
+            self.fail("Roles not of required length.")
+
+        role = roles[0]
+        if not "id" in role:
+                role_id = None
+        else:
+            role_id = role["id"]
+        if role_id != 'Admin':
+            self.fail("Not the expected Role")
+
 
     def test_get_roles_xml(self):
         header = httplib2.Http(".cache")
@@ -75,6 +92,22 @@ class GetRolesTest(RolesTest):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
+        
+        # Validate Returned Content
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        roles = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+            "roles")
+        if roles == None:
+            self.fail("Expecting Roles")
+        roles = roles.findall("{http://docs.openstack.org/identity/api/v2.0}" \
+            "role")
+        if len(roles) != 1:
+            self.fail("Not the expected Role count")
+        for role in roles:
+            if role.get("id") != 'Admin':
+                self.fail("Not the expected Role")
+        
 
     def test_get_roles_exp_token(self):
         header = httplib2.Http(".cache")
@@ -118,6 +151,20 @@ class GetRoleTest(RolesTest):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
+        
+        #verify content
+        obj = json.loads(content)
+        if not "role" in obj:
+            raise fault.BadRequestFault("Expecting Role")
+        role = obj["role"]
+        if not "id" in role:
+                role_id = None
+        else:
+            role_id = role["id"]
+        if role_id != 'Admin':
+            self.fail("Not the expected Role")
+    
+
 
     def test_get_role_xml(self):
         self.role = 'Admin'
@@ -133,7 +180,18 @@ class GetRoleTest(RolesTest):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
-
+        
+        #verify content
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        role = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+            "role")
+        if role == None:
+            self.fail("Expecting Role")
+        role_id = role.get("id")
+        if role_id != 'Admin':
+            self.fail("Not the expected Role")
+            
     def test_get_role_bad(self):
         header = httplib2.Http(".cache")
         url = '%sroles/%s' % (utils.URL, 'tenant_bad')
@@ -162,5 +220,93 @@ class GetRoleTest(RolesTest):
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
         
+class CreateRoleRefTest(RolesTest):
+    def test_role_ref_create_json(self):
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        resp, content = utils.create_role_ref(self.user, 'Admin', self.tenant,
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+    
+    def test_role_ref_create_xml(self):
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        resp, content = utils.create_role_ref_xml(self.user, 'Admin', self.tenant,
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)        
+
+class GetRoleRefsTest(RolesTest):
+    def test_get_rolerefs(self):
+        header = httplib2.Http(".cache")
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        resp, content = utils.create_role_ref(self.user, 'Admin', self.tenant,
+            str(self.auth_token))
+        url = '%susers/%s/roleRefs' % (URL, self.user)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": str(self.auth_token)})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        
+        #verify content
+        obj = json.loads(content)
+        if not "roleRefs" in obj:
+            raise self.fail("Expecting RoleRefs")
+
+    def test_get_rolerefs_xml(self):
+        header = httplib2.Http(".cache")
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        resp, content = utils.create_role_ref(self.user, 'Admin', self.tenant,
+            str(self.auth_token))
+        url = '%susers/%s/roleRefs' % (URL, self.user)
+        #test for Content-Type = application/xml
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": str(self.auth_token),
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        #verify content
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        roles = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+            "roleRefs")
+        if roles == None:
+            self.fail("Expecting Role Refs")
+            
+class DeleteRoleRefTest(RolesTest):
+    def test_delete_roleref(self):
+        header = httplib2.Http(".cache")
+        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        resp, content = utils.create_role_ref(self.user, 'Admin', self.tenant,
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        obj = json.loads(content)
+        if not "roleRef" in obj:
+            raise fault.BadRequestFault("Expecting RoleRef")
+        roleRef = obj["roleRef"]
+        if not "id" in roleRef:
+                role_ref_id = None
+        else:
+            role_ref_id = roleRef["id"]
+        if role_ref_id is None:
+            raise fault.BadRequestFault("Expecting RoleRefId")
+        url = '%susers/%s/roleRefs/%s' % (URL, self.user, role_ref_id)
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.auth_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(204, resp_val)
+        return (resp, content)
+
+
 if __name__ == '__main__':
     unittest.main()

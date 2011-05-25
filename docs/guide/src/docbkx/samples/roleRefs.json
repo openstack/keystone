@@ -2,12 +2,12 @@
  "roleRefs" : [
   {
   	"id" : 1,
-  	"href" : "https://.openstack.org/identity/v2.0/roles/admin",
+  	"roleId" : "admin",
   	"tenantId" : "one"
   },
   {
   	"id" : 2,
-  	"href" : "https://.openstack.org/identity/v2.0/roles/test",
+  	"roleId" : "test",
   	"tenantId" : "two"
   }
  ]
