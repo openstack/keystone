@@ -74,7 +74,7 @@ def Main():
         parser.error('No object type specified for first argument')
 
     object_type = args[0]
-    if object_type in ['user', 'tenant', 'role', 'token']:
+    if object_type in ['user', 'tenant', 'role', 'baseURLs' , 'token']:
         pass
     else:
         parser.error('%s is not a supported object type' % object_type)
@@ -234,6 +234,31 @@ def Main():
             except Exception as exc:
                 print "ERROR: Failed to grant role: %s" % exc
             return
+    elif object_type == "baseURLs":
+        if command == "add":
+            if len(args) < 8:
+                parser.error("Missing arguments: baseURLs add 'region' 'service'"\
+                            "'publicURL' 'adminURL' 'internalURL' 'enabled'")
+            region = args[2]
+            service = args[3]
+            public_url = args[4]
+            admin_url = args[5] 
+            internal_url = args[6]
+            enabled = args[7]
+            try:
+                object = db_models.BaseUrls()
+                object.region = region
+                object.service = service
+                object.public_url = public_url
+                object.admin_url = admin_url
+                object.internal_url = internal_url
+                object.enabled = enabled
+                object = db_api.baseurls_create(object)
+                print "BaseURl created successfully. ID=%s" % object.id
+                return
+            except Exception as exc:
+                print "ERROR: Failed to create BaseURLs: %s" % exc
+                return
     elif object_type == "token":
         if command == "add":
             if len(args) < 6:
