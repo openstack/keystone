@@ -161,8 +161,10 @@ class AuthProtocol(object):
                 if claims:
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
-                    self._decorate_request('X_AUTHORIZATION', claims['user'])
+                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" % 
+                        claims['user'])
                     self._decorate_request('X_TENANT', claims['tenant'])
+                    self._decorate_request('X_USER', claims['user'])
                     if 'group' in claims:
                         self._decorate_request('X_GROUP', claims['group'])
                     self.expanded = True
