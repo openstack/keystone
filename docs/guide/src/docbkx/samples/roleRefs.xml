@@ -3,7 +3,7 @@
 <roleRefs
     xmlns="http://docs.openstack.org/identity/api/v2.0">
     <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0"
-                href="https://.openstack.org/identity/v2.0/roles/admin" id="3" tenantId="tenantId"/>
+                roleId="admin" id="3" tenantId="tenantId"/>
     <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0"
-                href="https://.openstack.org/identity/v2.0/roles/test" id="4" tenantId="tenantId"/>
+                roleId="test" id="4" tenantId="tenantId"/>
 </roleRefs>                

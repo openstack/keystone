@@ -108,11 +108,35 @@ def role_get_page(marker, limit, session=None):
     if marker:
         return session.query(models.Role).filter("id>:marker").params(\
                 marker='%s' % marker).order_by(\
-                models.Tenant.id.desc()).limit(limit).all()
+                models.Role.id.desc()).limit(limit).all()
     else:
-        return session.query(models.Tenant).order_by(\
-                            models.Tenant.id.desc()).limit(limit).all()
+        return session.query(models.Role).order_by(\
+                            models.Role.id.desc()).limit(limit).all()
 
+def role_ref_get_page(marker, limit, user_id, session=None):
+    if not session:
+        session = get_session()
+
+    if marker:
+        return session.query(models.UserRoleAssociation).filter("id>:marker").params(\
+                marker='%s' % marker).filter_by(user_id=user_id).order_by(\
+                models.UserRoleAssociation.id.desc()).limit(limit).all()
+    else:
+        return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
+                            models.UserRoleAssociation.id.desc()).limit(limit).all()
+        
+def role_ref_get(id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.UserRoleAssociation).filter_by(id=id).first()
+    return result
+
+def role_ref_delete(id, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        role_ref = role_ref_get(id, session)
+        session.delete(role_ref)
 #
 # Tenant API operations
 #
@@ -509,9 +533,11 @@ def user_delete_tenant(id, tenant_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        user_tenant_ref = user_get_by_tenant(id, tenant_id, session)
+        users_tenant_ref = users_get_by_tenant(id, tenant_id, session)
+        if users_tenant_ref is not None:
+            for user_tenant_ref in users_tenant_ref:
+                session.delete(user_tenant_ref)
 
-        session.delete(user_tenant_ref)
         user_group_ref = user_get_by_group(tenant_id, session)
 
         if user_group_ref is not None:
@@ -521,17 +547,19 @@ def user_delete_tenant(id, tenant_id, session=None):
                                         group_id=user_group.id).all()
                 for group_user in group_users:
                     session.delete(group_user)
-        user_tenant_ref = session.query(models.UserTenantAssociation)\
-                            .filter_by(user_id=id).first()
-        if user_tenant_ref is None:
-            user_ref = user_get(id, session)
-            session.delete(user_ref)
 
 def user_get_by_tenant(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.User).filter_by(id=user_id,
                                                   tenant_id=tenant_id).first()
+    return result
+
+def users_get_by_tenant(user_id, tenant_id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.User).filter_by(id=user_id,
+                                                  tenant_id=tenant_id)
     return result
 
 #
@@ -668,6 +696,7 @@ def token_get_all(session=None):
 #
 # Unsorted operations
 #
+
 def user_role_add(values):
     user_role_ref = models.UserRoleAssociation()
     user_role_ref.update(values)

@@ -748,7 +748,7 @@ Host: identity.api.openstack.org/v1.1/
           <tbody>
             <tr>
               <td colspan="1"> &POST; </td>
-              <td colspan="1">/token</td>
+              <td colspan="1">/tokens</td>
               <td colspan="4">Authenticate to generate a token.</td>
             </tr>
           </tbody>
@@ -795,7 +795,7 @@ Host: identity.api.openstack.org/v1.1/
             <tr>
               <td colspan="1"> &GET; </td>
               <td colspan="4"
-                  >/token/<parameter>tokenId</parameter>?belongsTo=<parameter>tenantId</parameter></td>
+                  >/tokens/<parameter>tokenId</parameter>?belongsTo=<parameter>tenantId</parameter></td>
               <td colspan="3">Check that a token is valid and that it belongs to a particular user
                 and return the permissions relevant to a particular client.</td>
             </tr>
@@ -810,7 +810,7 @@ Host: identity.api.openstack.org/v1.1/
         &NO_REQUEST;
         <para>
             Valid tokens will exist in the
-            /token/<parameter>tokenId</parameter> path and invalid
+            /tokens/<parameter>tokenId</parameter> path and invalid
             tokens will not.  In other words, a user should expect an
             itemNotFound (<errorcode>404</errorcode>) fault for an
             invalid token.
@@ -835,7 +835,7 @@ Host: identity.api.openstack.org/v1.1/
           <tbody>
             <tr>
               <td colspan="1"> &DELETE; </td>
-              <td colspan="4">/token/<parameter>tokenId</parameter></td>
+              <td colspan="4">/tokens/<parameter>tokenId</parameter></td>
               <td colspan="3"> Revoke an existing token.</td>
             </tr>
           </tbody>
@@ -1423,7 +1423,7 @@ Host: identity.api.openstack.org/v1.1/
                         <tr>
                             <td colspan="1">&DELETE;
                             </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs/<parameter>roleId</parameter></td>
+                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs/<parameter>roleRefId</parameter></td>
                             <td colspan="3">
                                 Remove a role from a user.
                             </td>
