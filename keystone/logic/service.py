@@ -844,7 +844,7 @@ class IdentityService(object):
                     gs.append(auth.Group(dgroup.id))
         user = auth.User(duser.id, dtoken.tenant_id, gs)
         """
-        user = auth.User(duser.id, dtoken.tenant_id, None)
+        user = auth.User(duser.id, duser.tenant_id, None)
         return auth.AuthData(token, user)
 
     def __validate_token(self, token_id, admin=True):
