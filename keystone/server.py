@@ -556,6 +556,36 @@ class RolesController(wsgi.Controller):
     def get_role(self, req, role_id):
         role = service.get_role(utils.get_auth_token(req), role_id)
         return utils.send_result(200, req, role)
+    
+    @utils.wrap_error    
+    def create_role_ref(self, req, user_id):
+        roleRef = utils.get_normalized_request_content(roles.RoleRef, req)
+        return utils.send_result(201, req, service.create_role_ref(utils.get_auth_token(req), user_id, roleRef))
+    
+    @utils.wrap_error
+    def get_role_refs(self, req, user_id):
+        marker = None
+        if "marker" in req.GET:
+            marker = req.GET["marker"]
+
+        if "limit" in req.GET:
+            limit = req.GET["limit"]
+        else:
+            limit = 10
+
+        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                         req.environ.get("SERVER_NAME"),
+                         req.environ.get("SERVER_PORT"),
+                         req.environ['PATH_INFO'])
+        roleRefs = service.get_user_roles(utils.get_auth_token(req),
+                                         marker, limit, url,user_id)
+
+        return utils.send_result(200, req, roleRefs)
+    
+    def delete_role_ref(self, req, user_id, role_ref_id):
+        rval = service.delete_role_ref(utils.get_auth_token(req),
+                                        role_ref_id)
+        return utils.send_result(204, req, rval)
         
 class KeystoneAPI(wsgi.Router):
     """WSGI entry point for public Keystone API requests."""
@@ -782,7 +812,16 @@ class KeystoneAdminAPI(wsgi.Router):
                     action="get_roles", conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/roles/{role_id}", controller=roles_controller,
                     action="get_role", conditions=dict(method=["GET"]))
-
+        mapper.connect("/v2.0/users/{user_id}/roleRefs",
+            controller=roles_controller, action="get_role_refs",
+            conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/users/{user_id}/roleRefs",
+            controller=roles_controller, action="create_role_ref",
+            conditions=dict(method=["POST"]))
+        mapper.connect("/v2.0/users/{user_id}/roleRefs/{role_ref_id}",
+            controller=roles_controller, action="delete_role_ref",
+            conditions=dict(method=["DELETE"]))
+       
 
         # Miscellaneous Operations
         version_controller = VersionController(options)

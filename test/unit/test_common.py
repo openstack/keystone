@@ -354,8 +354,8 @@ def add_user_xml(tenantid, userid, auth_token):
 
 def add_user_json(tenantid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/users/%s/add' % (URL, tenantid, userid)
-    resp, content = header.request(url, "PUT", body='{}',
+    url = '%stenants/%s/users/' % (URL, tenantid)
+    resp, content = header.request(url, "POST", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
@@ -716,6 +716,31 @@ def create_role(roleid, auth_token):
                                        "X-Auth-Token": auth_token})
     return (resp, content)
     
+def create_role_ref(user_id, role_id, tenant_id, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%susers/%s/roleRefs' % (URL, user_id)
+    body = {"roleRef": {"tenant_id": tenant_id,
+                       "role_id": role_id}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    print url, resp, content    
+    return (resp, content)
+    
+def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/roleRefs' % (URL, user_id)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+            <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" \
+            tenant_id="%s" role_id="%s"/>\
+                    ' % (tenant_id, role_id)
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+    
 def create_role_xml(role_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%sroles' % (URL)
@@ -723,7 +748,6 @@ def create_role_xml(role_id, auth_token):
             <role xmlns="http://docs.openstack.org/identity/api/v2.0" \
             id="%s" description="A Description of the group"/>\
                     ' % role_id
-    print "Role XML Body is :" ,body
     resp, content = header.request(url, "POST", body=body,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
