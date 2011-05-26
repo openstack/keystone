@@ -448,7 +448,8 @@ class RESTMethod(object):
         # Start by parsing the uri format string
         for text, field, fmt, conv in string.Formatter().parse(uri):
             # Add field as a required kw argument
-            self.kwargs[field] = ('uri', True)
+            if field is not None:
+                self.kwargs[field] = ('uri', True)
 
         # Now consider other mentioned arguments...
         for field, type_ in kwargs.items():
