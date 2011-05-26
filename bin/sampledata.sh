@@ -34,7 +34,8 @@
 ./keystone-manage $* role add Admin
 ./keystone-manage $* role grant Admin admin 1234
 
-
+#BaseURLs
+./keystone-manage $* baseURLs add DFW cloudFiles public.cloudfiles.com admin.cloudfiles.com internal.cloudfiles.com 1
 # Groups
 #./keystone-manage $* group add Admin 1234
 #./keystone-manage $* group add Default 1234

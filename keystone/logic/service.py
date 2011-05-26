@@ -25,7 +25,7 @@ import keystone.logic.types.fault as fault
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
 import keystone.logic.types.user as users
-
+import keystone.logic.types.baseURL as baseURLs
 
 class IdentityService(object):
     "This is the logical implemenation of the Identity service"
@@ -892,7 +892,7 @@ class IdentityService(object):
         for drole in droles:
             ts.append(roles.Role(drole.id,
                                      drole.desc))
-        prev, next = db_api.tenant_get_page_markers(marker, limit)
+        prev, next = db_api.role_get_page_markers(marker, limit)
         links = []
         if prev:
             links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -959,7 +959,7 @@ class IdentityService(object):
         for droleRef in droleRefs:
             ts.append(roles.RoleRef(droleRef.id,droleRef.role_id,
                                      droleRef.tenant_id))
-        prev, next = db_api.tenant_get_page_markers(marker, limit)
+        prev, next = db_api.role_ref_get_page_markers(user_id, marker, limit)
         links = []
         if prev:
             links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -968,4 +968,29 @@ class IdentityService(object):
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
         return roles.RoleRefs(ts, links)
+        
+    def get_baseurls(self, admin_token, marker, limit, url):
+        self.__validate_token(admin_token)
+
+        ts = []
+        dbaseurls = db_api.baseurls_get_page(marker, limit)
+        for dbaseurl in dbaseurls:
+            ts.append(baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled))
+        prev, next = db_api.baseurls_get_page_markers(marker, limit)
+        links = []
+        if prev:
+            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
+                                                % (url, prev, limit)))
+        if next:
+            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
+                                                % (url, next, limit)))
+        return baseURLs.BaseURLs(ts, links)
+
+    def get_baseurl(self, admin_token, baseurl_id):
+        self.__validate_token(admin_token)
+
+        dbaseurl = db_api.baseurls_get(baseurl_id)
+        if not dbaseurl:
+            raise fault.ItemNotFoundFault("The role could not be found")
+        return baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled)       
     

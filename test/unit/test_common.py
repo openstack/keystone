@@ -725,7 +725,6 @@ def create_role_ref(user_id, role_id, tenant_id, auth_token):
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
-    print url, resp, content    
     return (resp, content)
     
 def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
