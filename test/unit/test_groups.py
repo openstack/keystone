@@ -63,7 +63,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
                                               str(self.auth_token))
 
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
         if int(resp_new['status']) not in (200, 201):
@@ -76,7 +76,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
                                                   str(self.auth_token))
 
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
 
@@ -88,7 +88,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
         resp_new, content_new = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp_new['status']))
@@ -100,7 +100,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
                                                 str(self.auth_token))
         content_new = etree.fromstring(content_new)
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp_new['status']))

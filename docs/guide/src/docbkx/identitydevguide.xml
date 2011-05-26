@@ -1,42 +1,42 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE book [<!-- Some useful entities borrowed from HTML -->
-    <!ENTITY ndash  "&#x2013;">
-    <!ENTITY mdash  "&#x2014;">
-    <!ENTITY hellip "&#x2026;">
+	<!ENTITY ndash  "&#x2013;">
+	<!ENTITY mdash  "&#x2014;">
+	<!ENTITY hellip "&#x2026;">
 
-    <!-- Useful for describing APIs -->
-    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
-    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
-    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
-    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+	<!-- Useful for describing APIs -->
+	<!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+	<!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+	<!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+	<!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
 
 
-    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
-                 <imageobject>
-                  <imagedata fileref="img/Check_mark_23x20_02.svg"
-                             format="SVG" scale="60"/>
-                </imageobject>
-              </inlinemediaobject>'>
-    <!ENTITY CODES       'Normal Response Code(s):'>
-    <!ENTITY ERROR_CODES 'Error Response Code(s):'>
-    <!ENTITY NO_REQUEST '<para xmlns="http://docbook.org/ns/docbook">
-                          This operation does not require a request body.</para>'>
-    <!ENTITY LONG_URI_REFHEAD '
-          <thead xmlns="http://docbook.org/ns/docbook">
-            <tr>
-              <td colspan="1">Verb</td>
-              <td colspan="4">URI</td>
-              <td colspan="3">Description</td>
-            </tr>
-          </thead>'>
-    <!ENTITY URI_REFHEAD '
-          <thead xmlns="http://docbook.org/ns/docbook">
-            <tr>
-              <td colspan="1">Verb</td>
-              <td colspan="1">URI</td>
-              <td colspan="4">Description</td>
-            </tr>
-          </thead>'>
+	<!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+				 <imageobject>
+				  <imagedata fileref="img/Check_mark_23x20_02.svg"
+							 format="SVG" scale="60"/>
+				</imageobject>
+			  </inlinemediaobject>'>
+	<!ENTITY CODES       'Normal Response Code(s):'>
+	<!ENTITY ERROR_CODES 'Error Response Code(s):'>
+	<!ENTITY NO_REQUEST '<para xmlns="http://docbook.org/ns/docbook">
+						  This operation does not require a request body.</para>'>
+	<!ENTITY LONG_URI_REFHEAD '
+		  <thead xmlns="http://docbook.org/ns/docbook">
+			<tr>
+			  <td colspan="1">Verb</td>
+			  <td colspan="4">URI</td>
+			  <td colspan="3">Description</td>
+			</tr>
+		  </thead>'>
+	<!ENTITY URI_REFHEAD '
+		  <thead xmlns="http://docbook.org/ns/docbook">
+			<tr>
+			  <td colspan="1">Verb</td>
+			  <td colspan="1">URI</td>
+			  <td colspan="4">Description</td>
+			</tr>
+		  </thead>'>
 ]>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:svg="http://www.w3.org/2000/svg"
@@ -44,1407 +44,1637 @@
   xmlns:db="http://docbook.org/ns/docbook" version="5.0" status="draft">
   <title>Keystone Developer Guide</title>
   <info>
-    <author>
-      <personname>
-        <firstname/>
-        <surname/>
-      </personname>
-      <affiliation>
-        <orgname>OpenStack</orgname>
-      </affiliation>
-    </author>
-    <copyright>
-      <year>2010</year>
-      <year>2011</year>
-      <holder>OpenStack</holder>
-    </copyright>
-    <releaseinfo>API v2.0</releaseinfo>
-    <productname>Keystone - OpenStack Identity</productname>
-    <pubdate>2011-04-23</pubdate>
-    <legalnotice role="apache2">
-        <annotation>
-            <remark>Copyright details are filled in by the template.</remark>
-        </annotation>
-    </legalnotice>
-    <abstract>
-      <para>
-          This document is intended for software developers interested
-          in developing applications which utilize the Cloud Identity
-          Service for authentication. This document also includes
-          details on how to integrate services with the Cloud Identity
-          Service.
-      </para>
-    </abstract>
+	<author>
+	  <personname>
+		<firstname/>
+		<surname/>
+	  </personname>
+	  <affiliation>
+		<orgname>OpenStack</orgname>
+	  </affiliation>
+	</author>
+	<copyright>
+	  <year>2010</year>
+	  <year>2011</year>
+	  <holder>OpenStack</holder>
+	</copyright>
+	<releaseinfo>API v2.0</releaseinfo>
+	<productname>Keystone - OpenStack Identity</productname>
+	<pubdate>2011-04-23</pubdate>
+	<legalnotice role="apache2">
+		<annotation>
+			<remark>Copyright details are filled in by the template.</remark>
+		</annotation>
+	</legalnotice>
+	<abstract>
+	  <para>
+		  This document is intended for software developers interested
+		  in developing applications which utilize the Cloud Identity
+		  Service for authentication. This document also includes
+		  details on how to integrate services with the Cloud Identity
+		  Service.
+	  </para>
+	</abstract>
   </info>
   <chapter>
-    <title>Overview</title>
-    <para>
-        The Keystone Identity Service allows applications to obtain
-        tokens that can be used to access OpenStack resources.  This
-        document is intended for software developers interested in
-        developing applications which utilize the Cloud Identity
-        Service for authentication. This document also includes
-        details on how to integrate services with the Cloud Identity
-        Service.
-    </para>
-    <para>
-        This Guide assumes the reader is familiar with RESTful web
-        services, HTTP/1.1, and JSON and/or XML serialization formats.
-    </para>
+	<title>Overview</title>
+	<para>
+		The Keystone Identity Service allows applications to obtain
+		tokens that can be used to access OpenStack resources.  This
+		document is intended for software developers interested in
+		developing applications which utilize the Cloud Identity
+		Service for authentication. This document also includes
+		details on how to integrate services with the Cloud Identity
+		Service.
+	</para>
+	<para>
+		This Guide assumes the reader is familiar with RESTful web
+		services, HTTP/1.1, and JSON and/or XML serialization formats.
+	</para>
   </chapter>
   <chapter>
-    <title>Concepts</title>
-    <para>
-        The Keystone Identity Service has several key concepts that are
-        important to understand:
-    </para>
-    <section>
-      <title>Token</title>
-      <para>
-          A token is an arbitrary bit of text that is used to access
-          resources. Each token has a scope which describes which
-          resources are accessible with it. A token may be
-          revoked at anytime and is valid for a finite duration.
-      </para>
-    </section>
-    <section>
-      <title>Tenant</title>
-      <para>
-          Depending on the operator, a tenant may map to a customer,
-          account, organization, or project.
-      </para>
-    </section>
-    <section>
-      <title>User</title>
-      <para>
-          Users have a login and may be assigned tokens to access
-          resources.
-      </para>
-    </section>
-    <section>
-      <title>Role</title>
-      <para>
-        A role that an identity is associated with that allows it
-        to perform certain operations. Roles are managed by services
-        and operators. Tenant administrators may assign roles to users.
-      </para>
-    </section>
-    <section>
-        <title>Group</title>
-        <para>
-            A group of users. Global groups are managed by
-            operators. They are used to organize and assign privileges
-            to a group of related users. For example, an operator may
-            create a "delinquent" group, which will assign limited
-            privileges to users who have past due bills.
-        </para>
-    </section>
+	<title>Concepts</title>
+	<para>
+		The Keystone Identity Service has several key concepts that are
+		important to understand:
+	</para>
+	<section>
+	  <title>Token</title>
+	  <para>
+		  A token is an arbitrary bit of text that is used to access
+		  resources. Each token has a scope which describes which
+		  resources are accessible with it. A token may be
+		  revoked at anytime and is valid for a finite duration.
+	  </para>
+	</section>
+	<section>
+	  <title>Tenant</title>
+	  <para>
+		  Depending on the operator, a tenant may map to a customer,
+		  account, organization, or project.
+	  </para>
+	</section>
+	<section>
+	  <title>User</title>
+	  <para>
+		  Users have a login and may be assigned tokens to access
+		  resources.
+	  </para>
+	  <note>
+			 This is a Rackspace extensions to support a local identity store.
+			 Extending this to work on any backing store is out of scope.
+	  </note>
+	</section>
+	<section>
+	  <title>Role</title>
+	  <para>
+		A role that an identity is associated with that allows it
+		to perform certain operations. Roles are managed by services
+		and operators. Tenant administrators may assign roles to users.
+	  </para>
+	</section>
+	<section>
+		<title>Group</title>
+		<para>
+			A group of users. Global groups are managed by
+			operators. They are used to organize and assign privileges
+			to a group of related users. For example, an operator may
+			create a "delinquent" group, which will assign limited
+			privileges to users who have past due bills.
+		</para>
+	</section>
   </chapter>
   <chapter>
-    <title>General API Information</title>
-    <para>The Keystone API is implemented using a RESTful web service interface. All requests to
-      authenticate and operate against the Keystone API are performed using SSL over HTTP (HTTPS) on TCP
-      port 443.</para>
-    <section>
-      <title>Request/Response Types</title>
-      <para> The Keystone API supports both the JSON and XML data serialization formats. The request
-        format is specified using the <code>Content-Type</code> header and is required for
-        operations that have a request body. The response format can be specified in requests using
-        either the <code>Accept</code> header or adding an <code>.xml</code> or <code>.json</code>
-        extension to the request URI. Note that it is possible for a response to be serialized using
-        a format different from the request (see example below). If no response format is specified,
-        JSON is the default. If conflicting formats are specified using both an <code>Accept</code>
-        header and a query extension, the query extension takes precedence.</para>
-      <table rules="all">
-        <caption>Response Types</caption>
-        <thead>
-          <tr>
-            <td>Format</td>
-            <td>Accept Header</td>
-            <td>Query Extension</td>
-            <td>Default</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>JSON</td>
-            <td>application/json</td>
-            <td>.json</td>
-            <td>Yes</td>
-          </tr>
-          <tr>
-            <td>XML</td>
-            <td>application/xml</td>
-            <td>.xml</td>
-            <td>No</td>
-          </tr>
-        </tbody>
-      </table>
-      <example>
-        <title>JSON Request with Headers</title>
-        <programlisting language="xml">
+	<title>General API Information</title>
+	<para>The Keystone API is implemented using a RESTful web service interface. All requests to
+	  authenticate and operate against the Keystone API are performed using SSL over HTTP (HTTPS) on TCP
+	  port 443.</para>
+	<section>
+	  <title>Request/Response Types</title>
+	  <para> The Keystone API supports both the JSON and XML data serialization formats. The request
+		format is specified using the <code>Content-Type</code> header and is required for
+		operations that have a request body. The response format can be specified in requests using
+		either the <code>Accept</code> header or adding an <code>.xml</code> or <code>.json</code>
+		extension to the request URI. Note that it is possible for a response to be serialized using
+		a format different from the request (see example below). If no response format is specified,
+		JSON is the default. If conflicting formats are specified using both an <code>Accept</code>
+		header and a query extension, the query extension takes precedence.</para>
+	  <table rules="all">
+		<caption>Response Types</caption>
+		<thead>
+		  <tr>
+			<td>Format</td>
+			<td>Accept Header</td>
+			<td>Query Extension</td>
+			<td>Default</td>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr>
+			<td>JSON</td>
+			<td>application/json</td>
+			<td>.json</td>
+			<td>Yes</td>
+		  </tr>
+		  <tr>
+			<td>XML</td>
+			<td>application/xml</td>
+			<td>.xml</td>
+			<td>No</td>
+		  </tr>
+		</tbody>
+	  </table>
+	  <example>
+		<title>JSON Request with Headers</title>
+		<programlisting language="xml">
 <xi:include href="samples/samplerequestheader.json" parse="text"/>
 </programlisting>
-        <programlisting language="xml">
+		<programlisting language="xml">
 <xi:include href="samples/auth_credentials.xml" parse="text"/>
 </programlisting>
-      </example>
-      <example>
-        <title>XML Response with Headers</title>
-        <programlisting language="xml">
+	  </example>
+	  <example>
+		<title>XML Response with Headers</title>
+		<programlisting language="xml">
 <xi:include href="samples/sampleresponseheader.json" parse="text"/>
 </programlisting>
-        <programlisting language="xml">
+		<programlisting language="xml">
 <xi:include href="samples/auth.xml" parse="text"/>
 </programlisting>
-      </example>
-    </section>
-    <section>
-      <title>Content Compression</title>
-      <para>Request and response body data my be encoded with gzip compression in order to
-        accelerate interactive performance of API calls and responses. This is controlled using the
-          <code>Accept-Encoding</code> header on the request from the client and indicated by the
-          <code>Content-Encoding</code> header in the server response. Unless the header is
-        explicitly set, encoding defaults to disabled.</para>
-      <table rules="all">
-        <caption>Compression Headers</caption>
-        <thead>
-          <tr>
-            <td>Header Type</td>
-            <td>Name</td>
-            <td>Value</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>HTTP/1.1 Request</td>
-            <td>Accept-Encoding</td>
-            <td>gzip</td>
-          </tr>
-          <tr>
-            <td>HTTP/1.1 Response</td>
-            <td>Content-Encoding</td>
-            <td>gzip</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-    <section>
-        <title>Paginated Collections</title>
-        <para>
-            To reduce load on the service, list operations will
-            return a maximum number of items at a time. The
-            maximum number of items returned is determined by the
-            IDM provider. To navigate the collection, the
-            parameters <parameter>limit</parameter> and
-            <parameter>marker</parameter> can be set in the URI
-            (e.g.?<parameter>limit</parameter>=100&amp;<parameter>marker</parameter>=1234).
-            The <parameter>marker</parameter> parameter is the ID
-            of the last item in the previous list. Items are
-            sorted by update time. When an update time is not
-            available they are sorted by ID.  The
-            <parameter>limit</parameter> parameter sets the page
-            size.  Both parameters are optional.  If the client
-            requests a <parameter>limit</parameter> beyond that
-            which is supported by the deployment an overLimit
-            (<errorcode>413</errorcode>) fault may be thrown. A
-            marker with an invalid ID will return an itemNotFound
-            (<errorcode>404</errorcode>) fault.
-        </para>
-        <note>
-            <para>
-                Paginated collections never return itemNotFound
-                (<errorcode>404</errorcode>) faults when the
-                collection is empty &mdash; clients should expect
-                an empty collection.
-            </para>
-        </note>
-        <para>
-            For convenience, collections contain atom "next" and
-            "previous" links. The first page in the list will not
-            contain a "previous" link, the last page in the list
-            will not contain a "next" link. The following examples
-            illustrate three pages in a collection of tenants.  The
-            first page was retrieved via a &GET; to
-            http://identity.api.openstack.org/v2.0/1234/tenants?limit=1.
-            In these examples, the <parameter>limit</parameter>
-            parameter sets the page size to a single item.
-            Subsequent "next" and "previous" links will honor the
-            initial page size.  Thus, a client may follow links to
-            traverse a paginated collection without having to
-            input the <parameter>marker</parameter> parameter.
-        </para>
-        <example>
-            <title>Tenant Collection, First Page: XML</title>
-            <programlisting language="xml">
+	  </example>
+	</section>
+	<section>
+	  <title>Content Compression</title>
+	  <para>Request and response body data my be encoded with gzip compression in order to
+		accelerate interactive performance of API calls and responses. This is controlled using the
+		  <code>Accept-Encoding</code> header on the request from the client and indicated by the
+		  <code>Content-Encoding</code> header in the server response. Unless the header is
+		explicitly set, encoding defaults to disabled.</para>
+	  <table rules="all">
+		<caption>Compression Headers</caption>
+		<thead>
+		  <tr>
+			<td>Header Type</td>
+			<td>Name</td>
+			<td>Value</td>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr>
+			<td>HTTP/1.1 Request</td>
+			<td>Accept-Encoding</td>
+			<td>gzip</td>
+		  </tr>
+		  <tr>
+			<td>HTTP/1.1 Response</td>
+			<td>Content-Encoding</td>
+			<td>gzip</td>
+		  </tr>
+		</tbody>
+	  </table>
+	</section>
+	<section>
+		<title>Paginated Collections</title>
+		<para>
+			To reduce load on the service, list operations will
+			return a maximum number of items at a time. The
+			maximum number of items returned is determined by the
+			Identity provider. To navigate the collection, the
+			parameters <parameter>limit</parameter> and
+			<parameter>marker</parameter> can be set in the URI
+			(e.g.?<parameter>limit</parameter>=100&amp;<parameter>marker</parameter>=1234).
+			The <parameter>marker</parameter> parameter is the ID
+			of the last item in the previous list. Items are
+			sorted by update time. When an update time is not
+			available they are sorted by ID.  The
+			<parameter>limit</parameter> parameter sets the page
+			size.  Both parameters are optional.  If the client
+			requests a <parameter>limit</parameter> beyond that
+			which is supported by the deployment an overLimit
+			(<errorcode>413</errorcode>) fault may be thrown. A
+			marker with an invalid ID will return an itemNotFound
+			(<errorcode>404</errorcode>) fault.
+		</para>
+		<note>
+			<para>
+				Paginated collections never return itemNotFound
+				(<errorcode>404</errorcode>) faults when the
+				collection is empty &mdash; clients should expect
+				an empty collection.
+			</para>
+		</note>
+		<para>
+			For convenience, collections contain atom "next" and
+			"previous" links. The first page in the list will not
+			contain a "previous" link, the last page in the list
+			will not contain a "next" link. The following examples
+			illustrate three pages in a collection of tenants.  The
+			first page was retrieved via a &GET; to
+			http://identity.api.openstack.org/v2.0/1234/tenants?limit=1.
+			In these examples, the <parameter>limit</parameter>
+			parameter sets the page size to a single item.
+			Subsequent "next" and "previous" links will honor the
+			initial page size.  Thus, a client may follow links to
+			traverse a paginated collection without having to
+			input the <parameter>marker</parameter> parameter.
+		</para>
+		<example>
+			<title>Tenant Collection, First Page: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/tenants-1.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Tenant Collection, First Page: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/tenants-1.json" parse="text"/></programlisting>
-        </example>
-        <example>
-            <title>Tenant Collection, Second Page: XML</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Tenant Collection, First Page: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/tenants-1.json" parse="text"/></programlisting>
+		</example>
+		<example>
+			<title>Tenant Collection, Second Page: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/tenants-2.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Tenant Collection, Second Page: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/tenants-2.json" parse="text"/></programlisting>
-        </example>
-        <example>
-            <title>Tenant Collection, Last Page: XML</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Tenant Collection, Second Page: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/tenants-2.json" parse="text"/></programlisting>
+		</example>
+		<example>
+			<title>Tenant Collection, Last Page: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/tenants-3.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Tenant Collection, Last Page: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/tenants-3.json" parse="text"/></programlisting>
-        </example>
-        <para>
-            In the JSON representation, paginated collections contain
-            a <property>values</property> property that contains the
-            items in the collections.  Links are accessed via the
-            <property>links</property> property. The approach allows
-            for extensibility of both the collection members and of
-            the paginated collection itself. It also allows
-            collections to be embedded in other objects as illustrated
-            below. Here, a subset of grups are presented within a
-            user. Clients must follow the "next" link to continue to
-            retrive additonal groups belonging to a user.
-        </para>
-        <example>
-            <title>Paginated Groups in a User: XML</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Tenant Collection, Last Page: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/tenants-3.json" parse="text"/></programlisting>
+		</example>
+		<para>
+			In the JSON representation, paginated collections contain
+			a <property>values</property> property that contains the
+			items in the collections.  Links are accessed via the
+			<property>links</property> property. The approach allows
+			for extensibility of both the collection members and of
+			the paginated collection itself. It also allows
+			collections to be embedded in other objects as illustrated
+			below. Here, a subset of grups are presented within a
+			user. Clients must follow the "next" link to continue to
+			retrive additonal groups belonging to a user.
+		</para>
+		<example>
+			<title>Paginated Groups in a User: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/getuser-1.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Paginated Groups in an User: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/getuser-1.json" parse="text"/></programlisting>
-        </example>
-    </section>
-    <section>
-        <title>Versions</title>
-        <para>
-            The OpenStack Identity API uses both a URI and a MIME
-            type versioning scheme. In the URI scheme, the first
-            element of the path contains the target version
-            identifier (e.g. https://identity.api.openstack.org/
-            v2.0/&hellip;). The MIME type versioning scheme uses
-            HTTP content negotiation where the <code>Accept</code>
-            or <code>Content-Type</code> headers contains a MIME
-            type that identifies the version
-            (application/vnd.openstack.identity-v1.1+xml). A
-            version MIME type is always linked to a base MIME type
-            (application/xml or application/json). If conflicting
-            versions are specified using both an HTTP header and a
-            URI, the URI takes precedence.
-        </para>
-        <example>
-            <title>Request with MIME type versioning</title>
-            <literallayout class="monospaced">
+			</programlisting>
+		</example>
+		<example>
+			<title>Paginated Groups in an User: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/getuser-1.json" parse="text"/></programlisting>
+		</example>
+	</section>
+	<section>
+		<title>Versions</title>
+		<para>
+			The OpenStack Identity API uses both a URI and a MIME
+			type versioning scheme. In the URI scheme, the first
+			element of the path contains the target version
+			identifier (e.g. https://identity.api.openstack.org/
+			v2.0/&hellip;). The MIME type versioning scheme uses
+			HTTP content negotiation where the <code>Accept</code>
+			or <code>Content-Type</code> headers contains a MIME
+			type that identifies the version
+			(application/vnd.openstack.identity-v1.1+xml). A
+			version MIME type is always linked to a base MIME type
+			(application/xml or application/json). If conflicting
+			versions are specified using both an HTTP header and a
+			URI, the URI takes precedence.
+		</para>
+		<example>
+			<title>Request with MIME type versioning</title>
+			<literallayout class="monospaced">
 GET /tenants HTTP/1.1
 Host: identity.api.openstack.org
 Accept: application/vnd.openstack.identity-v1.1+xml
 X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
-            </literallayout>
-        </example>
-        <example>
-            <title>Request with URI versioning</title>
-            <literallayout class="monospaced">
+			</literallayout>
+		</example>
+		<example>
+			<title>Request with URI versioning</title>
+			<literallayout class="monospaced">
 GET /v1.1/tenants HTTP/1.1
 Host: identity.api.openstack.org
 Accept: application/xml
 X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
-            </literallayout>
-        </example>
-        <note>
-            <para>
-                The MIME type versioning approach allows for the
-                creating of permanent links, because the version
-                scheme is not specified in the URI path:
-                https://api.identity.openstack.org/tenants/12234.
-            </para>
-        </note>
-        <para>
-            If a request is made without a version specified in
-            the URI or via HTTP headers, then a multiple-choices
-            response (<returnvalue>300</returnvalue>) will follow
-            providing links and MIME types to available versions.
-        </para>
-        <example>
-            <title>Multiple Choices Response: XML</title>
-            <programlisting language="xml">
+			</literallayout>
+		</example>
+		<note>
+			<para>
+				The MIME type versioning approach allows for the
+				creating of permanent links, because the version
+				scheme is not specified in the URI path:
+				https://api.identity.openstack.org/tenants/12234.
+			</para>
+		</note>
+		<para>
+			If a request is made without a version specified in
+			the URI or via HTTP headers, then a multiple-choices
+			response (<returnvalue>300</returnvalue>) will follow
+			providing links and MIME types to available versions.
+		</para>
+		<example>
+			<title>Multiple Choices Response: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/choices.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Multiple Choices Response: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/choices.json" parse="text"/></programlisting>
-        </example>
-        <para>
-            New features and functionality that do not break
-            API-compatibility will be introduced in the current
-            version of the API as extensions (see below) and the
-            URI and MIME types will remain unchanged. Features or
-            functionality changes that would necessitate a break
-            in API-compatibility will require a new version, which
-            will result in URI and MIME type version being updated
-            accordingly. When new API versions are released, older
-            versions will be marked as
-            <code>DEPRECATED</code>. Providers should work with
-            developers and partners to ensure there is adequate
-            time to migrate to the new version before deprecated
-            versions are discontinued.
-        </para>
-        <para>
-            Your application can programmatically determine
-            available API versions by performing a &GET; on the
-            root URL (i.e. with the version and everything to the
-            right of it truncated) returned from the
-            authentication system.  Note that an Atom
-            representation of the versions resources is supported
-            when issuing a request with the <code>Accept</code>
-            header containing application/atom+xml or by adding a
-            .atom to the request URI.  This allows standard Atom
-            clients to track version changes.
-        </para>
-        <example>
-            <title>Versions List Request</title>
-            <literallayout class="monospaced">
+			</programlisting>
+		</example>
+		<example>
+			<title>Multiple Choices Response: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/choices.json" parse="text"/></programlisting>
+		</example>
+		<para>
+			New features and functionality that do not break
+			API-compatibility will be introduced in the current
+			version of the API as extensions (see below) and the
+			URI and MIME types will remain unchanged. Features or
+			functionality changes that would necessitate a break
+			in API-compatibility will require a new version, which
+			will result in URI and MIME type version being updated
+			accordingly. When new API versions are released, older
+			versions will be marked as
+			<code>DEPRECATED</code>. Providers should work with
+			developers and partners to ensure there is adequate
+			time to migrate to the new version before deprecated
+			versions are discontinued.
+		</para>
+		<para>
+			Your application can programmatically determine
+			available API versions by performing a &GET; on the
+			root URL (i.e. with the version and everything to the
+			right of it truncated) returned from the
+			authentication system.  Note that an Atom
+			representation of the versions resources is supported
+			when issuing a request with the <code>Accept</code>
+			header containing application/atom+xml or by adding a
+			.atom to the request URI.  This allows standard Atom
+			clients to track version changes.
+		</para>
+		<example>
+			<title>Versions List Request</title>
+			<literallayout class="monospaced">
 GET HTTP/1.1
 Host: identity.api.openstack.org
-            </literallayout>
-        </example>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; badRequest
-        (<errorcode>400</errorcode>), identityFault
-        (<errorcode>500</errorcode>),
-        serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-            <title>Versions List Response: XML</title>
-            <programlisting language="xml">
+			</literallayout>
+		</example>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; badRequest
+		(<errorcode>400</errorcode>), identityFault
+		(<errorcode>500</errorcode>),
+		serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		&NO_REQUEST;
+		<example>
+			<title>Versions List Response: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/versions.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Versions List Response: Atom</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Versions List Response: Atom</title>
+			<programlisting language="xml">
 <xi:include href="samples/versions-atom.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Versions List Response: JSON</title>
-            <programlisting language="javascript"><xi:include 
-            href="samples/versions.json" parse="text"/></programlisting>
-        </example>
-        <para>
-            You can also obtain additional information about a
-            specific version by performing a &GET; on the base
-            version URL
-            (e.g. https://identity.api.openstack.org/v1.1/).
-            Version request URLs should always end with a trailing
-            slash (/). If the slash is omitted, the server may
-            respond with a <returnvalue>302</returnvalue>
-            redirection request. Format extensions may be placed
-            after the slash
-            (e.g. https://identity.api.openstack.org/v1.1/.xml). Note
-            that this is a special case that does not hold true
-            for other API requests. In general, requests such as
-            /tenants.xml and /tenants/.xml are handled
-            equivalently.
-        </para>
-        <example>
-            <title>Version Details Request</title>
-            <literallayout class="monospaced">
+			</programlisting>
+		</example>
+		<example>
+			<title>Versions List Response: JSON</title>
+			<programlisting language="javascript"><xi:include 
+			href="samples/versions.json" parse="text"/></programlisting>
+		</example>
+		<para>
+			You can also obtain additional information about a
+			specific version by performing a &GET; on the base
+			version URL
+			(e.g. https://identity.api.openstack.org/v1.1/).
+			Version request URLs should always end with a trailing
+			slash (/). If the slash is omitted, the server may
+			respond with a <returnvalue>302</returnvalue>
+			redirection request. Format extensions may be placed
+			after the slash
+			(e.g. https://identity.api.openstack.org/v1.1/.xml). Note
+			that this is a special case that does not hold true
+			for other API requests. In general, requests such as
+			/tenants.xml and /tenants/.xml are handled
+			equivalently.
+		</para>
+		<example>
+			<title>Version Details Request</title>
+			<literallayout class="monospaced">
 GET HTTP/1.1
 Host: identity.api.openstack.org/v1.1/
-            </literallayout>
-        </example>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; badRequest
-        (<errorcode>400</errorcode>), identityFault
-        (<errorcode>500</errorcode>),
-        serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-            <title>Version Details Response: XML</title>
-            <programlisting language="xml">
+			</literallayout>
+		</example>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; badRequest
+		(<errorcode>400</errorcode>), identityFault
+		(<errorcode>500</errorcode>),
+		serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		&NO_REQUEST;
+		<example>
+			<title>Version Details Response: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/version.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Version Details Response: Atom</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Version Details Response: Atom</title>
+			<programlisting language="xml">
 <xi:include href="samples/version-atom.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Version Details Response: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/version.json" parse="text"/></programlisting>
-        </example>
-        <para>
-            The detailed version response contains pointers to
-            both a human-readable and a machine-processable
-            description of the API service. The machine-processable description is written in the Web
-            Application Description Language (WADL).
-        </para>
-        <note>
-            <para>If there is a discrepancy between the two specifications, the WADL is
-            authoritative as it contains the most accurate and up-to-date description of the
-            API service. </para>
-        </note>
-    </section>
-    <section>
-        <title>Extensions</title>
-        <para>
-            The OpenStack Identity API is extensible. Extensions
-            serve two purposes: They allow the introduction of new
-            features in the API without requiring a version change
-            and they allow the introduction of vendor specific
-            niche functionality. Applications can programmatically
-            determine what extensions are available by performing
-            a &GET; on the /extensions URI. Note that this is a
-            versioned request &mdash; that is, an extension
-            available in one API version may not be available in
-            another.
-        </para>
-        <informaltable rules="all">
-            <thead>
-                <tr>
-                    <td colspan="1">Verb</td>
-                    <td colspan="2">URI</td>
-                    <td colspan="3">Description</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="1">&GET;</td>
-                    <td colspan="2">/extensions</td>
-                    <td colspan="3">Returns a list of available extensions</td>
-                </tr>
-            </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; badRequest
-        (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <para>
-            Each extension is identified by two unique identifiers, a
-            <property>namespace</property> and an
-            <property>alias</property>.  Additionally an extension
-            contains documentation links in various formats.
-        </para>
-        <example>
-            <title>Extensions Response: XML</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Version Details Response: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/version.json" parse="text"/></programlisting>
+		</example>
+		<para>
+			The detailed version response contains pointers to
+			both a human-readable and a machine-processable
+			description of the API service. The machine-processable description is written in the Web
+			Application Description Language (WADL).
+		</para>
+		<note>
+			<para>If there is a discrepancy between the two specifications, the WADL is
+			authoritative as it contains the most accurate and up-to-date description of the
+			API service. </para>
+		</note>
+	</section>
+	<section>
+		<title>Extensions</title>
+		<para>
+			The OpenStack Identity API is extensible. Extensions
+			serve two purposes: They allow the introduction of new
+			features in the API without requiring a version change
+			and they allow the introduction of vendor specific
+			niche functionality. Applications can programmatically
+			determine what extensions are available by performing
+			a &GET; on the /extensions URI. Note that this is a
+			versioned request &mdash; that is, an extension
+			available in one API version may not be available in
+			another.
+		</para>
+		<informaltable rules="all">
+			<thead>
+				<tr>
+					<td colspan="1">Verb</td>
+					<td colspan="2">URI</td>
+					<td colspan="3">Description</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="1">&GET;</td>
+					<td colspan="2">/extensions</td>
+					<td colspan="3">Returns a list of available extensions</td>
+				</tr>
+			</tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; badRequest
+		(<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		&NO_REQUEST;
+		<para>
+			Each extension is identified by two unique identifiers, a
+			<property>namespace</property> and an
+			<property>alias</property>.  Additionally an extension
+			contains documentation links in various formats.
+		</para>
+		<example>
+			<title>Extensions Response: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/extensions.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Extensions Response: JSON</title>
-            <programlisting language="javascript"><xi:include
-                href="samples/extensions.json" parse="text"/></programlisting>
-        </example>
-        <para>
-            Extensions may also be queried individually by their
-            unique alias.  This provides the simplest method of
-            checking if an extension is available as an unavailable
-            extension will issue an itemNotFound
-            (<errorcode>404</errorcode>) response.
-        </para>
-        <informaltable rules="all">
-            <thead>
-                <tr>
-                    <td colspan="1">Verb</td>
-                    <td colspan="2">URI</td>
-                    <td colspan="3">Description</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="1">&GET;</td>
-                    <td colspan="2">/extensions/<parameter>alias</parameter></td>
-                    <td colspan="3">Return details of a single extension</td>
-                </tr>
-            </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; itemNotFound
-        (<errorcode>404</errorcode>), badRequest
-        (<errorcode>400</errorcode>), identityFault
-        (<errorcode>500</errorcode>),
-        serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-            <title>Extension Response: xml</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Extensions Response: JSON</title>
+			<programlisting language="javascript"><xi:include
+				href="samples/extensions.json" parse="text"/></programlisting>
+		</example>
+		<para>
+			Extensions may also be queried individually by their
+			unique alias.  This provides the simplest method of
+			checking if an extension is available as an unavailable
+			extension will issue an itemNotFound
+			(<errorcode>404</errorcode>) response.
+		</para>
+		<informaltable rules="all">
+			<thead>
+				<tr>
+					<td colspan="1">Verb</td>
+					<td colspan="2">URI</td>
+					<td colspan="3">Description</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="1">&GET;</td>
+					<td colspan="2">/extensions/<parameter>alias</parameter></td>
+					<td colspan="3">Return details of a single extension</td>
+				</tr>
+			</tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; itemNotFound
+		(<errorcode>404</errorcode>), badRequest
+		(<errorcode>400</errorcode>), identityFault
+		(<errorcode>500</errorcode>),
+		serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		&NO_REQUEST;
+		<example>
+			<title>Extension Response: xml</title>
+			<programlisting language="xml">
 <xi:include href="samples/extension.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example>
-            <title>Extensions Response: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/extension.json" parse="text"/></programlisting>
-        </example>
-        <para>
-            Extensions may define new data types, parameters, actions,
-            headers, states, and resources. In XML, additional
-            elements and attributes may be defined.  These elements
-            must be defined in the extension's namespace. In JSON, the
-            alias must be used.  The volumes element in the <xref
-            linkend="UserEXT" xrefstyle="template: Examples %n"/> and
-            <xref linkend="UserEXTJ" xrefstyle="select: labelnumber"/>
-            is defined in the <code>RS-META</code> namespace. Extended
-            headers are always prefixed with <code>X-</code> followed
-            by the alias and a dash: (<code>X-RS-META-HEADER1</code>).
-            Parameters must be prefixed with the extension alias
-            followed by a colon.
-        </para>
-        <important>
-            <para>
-                Applications should be prepared to ignore response
-                data that contains extension elements. Also,
-                applications should also verify that an extension is
-                available before submitting an extended request.
-            </para>
-        </important>
-        <example xml:id="UserEXT">
-            <title>Extended User Response: XML</title>
-            <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example>
+			<title>Extensions Response: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/extension.json" parse="text"/></programlisting>
+		</example>
+		<para>
+			Extensions may define new data types, parameters, actions,
+			headers, states, and resources. In XML, additional
+			elements and attributes may be defined.  These elements
+			must be defined in the extension's namespace. In JSON, the
+			alias must be used.  The volumes element in the <xref
+			linkend="UserEXT" xrefstyle="template: Examples %n"/> and
+			<xref linkend="UserEXTJ" xrefstyle="select: labelnumber"/>
+			is defined in the <code>RS-META</code> namespace. Extended
+			headers are always prefixed with <code>X-</code> followed
+			by the alias and a dash: (<code>X-RS-META-HEADER1</code>).
+			Parameters must be prefixed with the extension alias
+			followed by a colon.
+		</para>
+		<important>
+			<para>
+				Applications should be prepared to ignore response
+				data that contains extension elements. Also,
+				applications should also verify that an extension is
+				available before submitting an extended request.
+			</para>
+		</important>
+		<example xml:id="UserEXT">
+			<title>Extended User Response: XML</title>
+			<programlisting language="xml">
 <xi:include href="samples/ext-getuser.xml" parse="text"/>
-            </programlisting>
-        </example>
-        <example xml:id="UserEXTJ">
-            <title>Extended User Response: JSON</title>
-            <programlisting language="javascript"><xi:include
-            href="samples/ext-getuser.json" parse="text"/></programlisting>
-        </example>
-    </section>
-    <section>
-      <title>Faults</title>
-      <para>When an error occurs the system will return an HTTP error response code denoting the
-        type of error. The system will also return additional information about the fault in the
-        body of the response. </para>
-      <example>
-        <title>XML Fault Response</title>
-        <programlisting language="xml">
+			</programlisting>
+		</example>
+		<example xml:id="UserEXTJ">
+			<title>Extended User Response: JSON</title>
+			<programlisting language="javascript"><xi:include
+			href="samples/ext-getuser.json" parse="text"/></programlisting>
+		</example>
+	</section>
+	<section>
+	  <title>Faults</title>
+	  <para>When an error occurs the system will return an HTTP error response code denoting the
+		type of error. The system will also return additional information about the fault in the
+		body of the response. </para>
+	  <example>
+		<title>XML Fault Response</title>
+		<programlisting language="xml">
 <xi:include href="samples/identity_fault.xml" parse="text"/>
 </programlisting>
-      </example>
-      <example>
-        <title>JSON Fault Response</title>
-        <programlisting language="javascript">
+	  </example>
+	  <example>
+		<title>JSON Fault Response</title>
+		<programlisting language="javascript">
 <xi:include href="samples/identity_fault.json" parse="text"/>
 </programlisting>
-      </example>
-      <para>The error code is returned in the body of the response for convenience. The message
-        section returns a human readable message. The details section is optional and may contain
-        useful information for tracking down an error (e.g a stack trace). </para>
-      <para>The root element of the fault (e.g. identityFault) may change depending on the type of error.
-        The following is an example of an itemNotFound error. </para>
-      <example>
-        <title>XML Not Found Fault</title>
-        <programlisting language="xml">
+	  </example>
+	  <para>The error code is returned in the body of the response for convenience. The message
+		section returns a human readable message. The details section is optional and may contain
+		useful information for tracking down an error (e.g a stack trace). </para>
+	  <para>The root element of the fault (e.g. identityFault) may change depending on the type of error.
+		The following is an example of an itemNotFound error. </para>
+	  <example>
+		<title>XML Not Found Fault</title>
+		<programlisting language="xml">
 <xi:include href="samples/item_not_found.xml" parse="text"/>
 </programlisting>
-      </example>
-      <example>
-        <title>JSON Not Found Fault</title>
-        <programlisting language="javascript">
+	  </example>
+	  <example>
+		<title>JSON Not Found Fault</title>
+		<programlisting language="javascript">
 <xi:include href="samples/item_not_found.json" parse="text"/>
 </programlisting>
-      </example>
-      <para> The following is a list of possible fault types along with their associated error
-        codes. </para>
-      <table rules="all">
-        <caption>Fault Types</caption>
-        <thead>
-          <tr>
-            <td>Fault Element</td>
-            <td>Associated Error Code</td>
-            <td>Expected in All Requests</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr align="center">
-            <td>identityFault</td>
-            <td>500, 400</td>
-            <td> &CHECK; </td>
-          </tr>
-          <tr align="center">
-            <td>serviceUnavailable</td>
-            <td>503</td>
-            <td> &CHECK; </td>
-          </tr>
-          <tr align="center">
-            <td>badRequest</td>
-            <td>400</td>
-            <td> &CHECK; </td>
-          </tr>         
-          <tr align="center">
-            <td>unauthorized</td>
-            <td>401</td>
-            <td> &CHECK; </td>
-          </tr>
-          <tr align="center">
-            <td>overLimit</td>
-            <td>413</td>
-            <td/>
-          </tr>
-          <tr align="center">
-            <td>userDisabled</td>
-            <td>403</td>
-            <td/>
-          </tr>
-          <tr align="center">
-            <td>forbidden</td>
-            <td>403</td>
-            <td/>
-          </tr>
-          <tr align="center">
-            <td>itemNotFound</td>
-            <td>404</td>
-            <td/>
-          </tr>
-          <tr align="center">
-            <td>tenantConflict</td>
-            <td>409</td>
-            <td/>
-          </tr>
-        </tbody>
-      </table>
-      <para>From an XML schema perspective, all API faults are extensions of the base fault type
-          <type>identityFault</type>. When working with a system that binds XML to actual classes (such
-        as JAXB), one should be capable of using <type>identityFault</type> as a “catch-all” if
-        there&apos;s no interest in distinguishing between individual fault types. </para>
-    </section>
+	  </example>
+	  <para> The following is a list of possible fault types along with their associated error
+		codes. </para>
+	  <table rules="all">
+		<caption>Fault Types</caption>
+		<thead>
+		  <tr>
+			<td>Fault Element</td>
+			<td>Associated Error Code</td>
+			<td>Expected in All Requests</td>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr align="center">
+			<td>identityFault</td>
+			<td>500, 400</td>
+			<td> &CHECK; </td>
+		  </tr>
+		  <tr align="center">
+			<td>serviceUnavailable</td>
+			<td>503</td>
+			<td> &CHECK; </td>
+		  </tr>
+		  <tr align="center">
+			<td>badRequest</td>
+			<td>400</td>
+			<td> &CHECK; </td>
+		  </tr>         
+		  <tr align="center">
+			<td>unauthorized</td>
+			<td>401</td>
+			<td> &CHECK; </td>
+		  </tr>
+		  <tr align="center">
+			<td>overLimit</td>
+			<td>413</td>
+			<td/>
+		  </tr>
+		  <tr align="center">
+			<td>userDisabled</td>
+			<td>403</td>
+			<td/>
+		  </tr>
+		  <tr align="center">
+			<td>forbidden</td>
+			<td>403</td>
+			<td/>
+		  </tr>
+		  <tr align="center">
+			<td>itemNotFound</td>
+			<td>404</td>
+			<td/>
+		  </tr>
+		  <tr align="center">
+			<td>tenantConflict</td>
+			<td>409</td>
+			<td/>
+		  </tr>
+		</tbody>
+	  </table>
+	  <para>From an XML schema perspective, all API faults are extensions of the base fault type
+		  <type>identityFault</type>. When working with a system that binds XML to actual classes (such
+		as JAXB), one should be capable of using <type>identityFault</type> as a “catch-all” if
+		there&apos;s no interest in distinguishing between individual fault types. </para>
+	</section>
   </chapter>
   <chapter>
-    <title>Service Developer Operations</title>
-    <section>
-      <title>Overview</title>
-      <para>The operations described in this chapter allow service developers to get and validate
-        access tokens, manage users, and manage tenants. </para>
-    </section>
-    <section>
-      <title>Token Operations</title>
-      <section>
-        <title>Authenticate</title>
-        <informaltable rules="all">
-          &URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &POST; </td>
-              <td colspan="1">/tokens</td>
-              <td colspan="4">Authenticate to generate a token.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), userDisabled
-            (<errorcode>403</errorcode>), badRequest (<errorcode>400</errorcode>), identityFault
-            (<errorcode>500</errorcode>), serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-            <para>
-                TenantID is optional and may be used to specify that a
-                token should be returned that has access for resources
-                that particular tenant.
-            </para>
-        <example>
-          <title>XML Auth Request</title>
-          <programlisting language="xml">
+	<title>Service API (Client Operations)</title>
+	<section>
+	  <title>Overview</title>
+	  <para>The operations described in this chapter allow clients to authenticate and get 
+		access tokens and endpoints. </para>
+	</section>
+	  <section>
+	  <title>Core Service API Proposal</title>
+	  <note>The following table of calls is proposed as code Keystone APIs</note>
+			 <informaltable rules="all">
+			 &URI_REFHEAD;
+			 <tbody>
+			   <tr>
+				 <td colspan="1"> &POST; </td>
+				 <td colspan="1">/tokens</td>
+				 <td colspan="4">Authenticate to generate a token.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="1">/tenants</td>
+				 <td colspan="4">Get a list of tenants accessible with suplied token.</td>
+			   </tr>
+			 </tbody>
+			 </informaltable>
+			 <important>Any other Service APIs listed in this section will be extensions used for this
+			 reference implementation of Keystone</important>
+	  </section>
+
+	  <section>
+		<title>Authenticate</title>
+		<informaltable rules="all">
+		  &URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &POST; </td>
+			  <td colspan="1">/tokens</td>
+			  <td colspan="4">Authenticate to generate a token.</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), userDisabled
+			(<errorcode>403</errorcode>), badRequest (<errorcode>400</errorcode>), identityFault
+			(<errorcode>500</errorcode>), serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+			<para>
+				TenantID is optional and may be used to specify that a
+				token should be returned that has access to the resources
+				of that particular tenant.
+			</para>
+		<example>
+		  <title>XML Auth Request</title>
+		  <programlisting language="xml">
  <xi:include href="samples/auth_credentials.xml" parse="text"/>
 </programlisting>
-        </example>
-        <example>
-          <title>JSON Auth Request</title>
-          <programlisting language="javascript">
+		</example>
+		<example>
+		  <title>JSON Auth Request</title>
+		  <programlisting language="javascript">
 <xi:include href="samples/auth_credentials.json" parse="text"/>
 </programlisting>
-        </example>
-        <example>
-          <title>XML Auth Response</title>
-          <programlisting language="xml">
+		</example>
+		<example>
+		  <title>XML Auth Response</title>
+		  <programlisting language="xml">
 <xi:include href="samples/auth.xml" parse="text"/>
 </programlisting>
-        </example>
-        <example>
-          <title>JSON Auth Response</title>
-          <programlisting language="javascript">
+		</example>
+		<example>
+		  <title>JSON Auth Response</title>
+		  <programlisting language="javascript">
 <xi:include href="samples/auth.json" parse="text"/>
 </programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Validate Token</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4"
-                  >/tokens/<parameter>tokenId</parameter>?belongsTo=<parameter>tenantId</parameter></td>
-              <td colspan="3">Check that a token is valid and that it belongs to a particular user
-                and return the permissions relevant to a particular client.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), forbidden
-            (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
-          badRequest (<errorcode>400</errorcode>), itemNotFound (<errorcode>404</errorcode>),
-            identityFault(<returnvalue>500</returnvalue>),
-            serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
-        &NO_REQUEST;
-        <para>
-            Valid tokens will exist in the
-            /tokens/<parameter>tokenId</parameter> path and invalid
-            tokens will not.  In other words, a user should expect an
-            itemNotFound (<errorcode>404</errorcode>) fault for an
-            invalid token.
-        </para>
-        <example>
-          <title>XML Validate Token Response</title>
-          <programlisting language="xml">
-<xi:include href="samples/validatetoken.xml" parse="text"/>
-</programlisting>
-        </example>
-        <example>
-          <title>JSON Validate Token Response</title>
-          <programlisting language="javascript">
-<xi:include href="samples/validatetoken.json" parse="text"/>
-</programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Revoke Token</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &DELETE; </td>
-              <td colspan="4">/tokens/<parameter>tokenId</parameter></td>
-              <td colspan="3"> Revoke an existing token.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), forbidden
-            (<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
-          badRequest (<errorcode>400</errorcode>), itemNotFound (<errorcode>404</errorcode>),
-            identityFault(<returnvalue>500</returnvalue>),
-            serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
-        &NO_REQUEST;
-      </section>
-    </section>
-    <section>
-      <title>Tenant Operations </title>
-      <section>
-        <title>Create a Tenant</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &POST; </td>
-              <td colspan="4">/tenants</td>
-              <td colspan="3">Create a tenant</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>201</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
-            forbidden(<errorcode>403</errorcode>),
-          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-      <example>
-        <title>XML Tenant Create Request</title>
-        <programlisting language="xml">
-<xi:include href="samples/tenant.xml" parse="text"/>
-</programlisting>
-      </example>
-      <example>
-        <title>JSON Tenant Create Request</title>
-        <programlisting language="javascript">
-<xi:include href="samples/tenant.json" parse="text"/>
-</programlisting>
-      </example>
-      <example>
-        <title>XML Tenant Create Response</title>
-        <programlisting language="xml">
-<xi:include href="samples/tenant.xml" parse="text"/>
-</programlisting>
-      </example>
-      <example>
-        <title>JSON Tenant Create Response</title>
-        <programlisting language="javascript">
-<xi:include href="samples/tenant.json" parse="text"/>
-</programlisting>
-      </example>
-       </section>
-      <section>
-        <title>Get Tenants</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4">/tenants</td>
-              <td colspan="3">Get a list of tenants.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
-            forbidden(<errorcode>403</errorcode>), overLimit(<errorcode>413</errorcode>),
-          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        <para>
-            The operation returns a list of tenants. The list may be
-            filtered to return only those tenants which the caller has
-            access to.
-        </para>
-        &NO_REQUEST;
-        <example>
-          <title>XML Tenants Response</title>
-          <programlisting language="xml">
+		</example>
+	  </section>
+			<section>
+		<title>Get Tenants</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &GET; </td>
+			  <td colspan="4">/tenants</td>
+			  <td colspan="3">Get a list of tenants.</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
+			forbidden(<errorcode>403</errorcode>), overLimit(<errorcode>413</errorcode>),
+		  badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		<para>
+			The operation returns a list of tenants which the caller has
+			access to.
+		</para>
+		&NO_REQUEST;
+		<example>
+		  <title>XML Tenants Response</title>
+		  <programlisting language="xml">
 <xi:include href="samples/tenants.xml" parse="text"/>
 </programlisting>
-        </example>
-        <example>
-          <title>JSON Tenants Response</title>
-          <programlisting language="javascript">
+		</example>
+		<example>
+		  <title>JSON Tenants Response</title>
+		  <programlisting language="javascript">
 <xi:include href="samples/tenants.json" parse="text"/>
 </programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Get a Tenant</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &GET; </td>
-              <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
-              <td colspan="3">Get a tenant.</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
-            forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-        &NO_REQUEST;
-        <example>
-          <title>XML Tenant Response</title>
-          <programlisting language="xml">
+		</example>
+	  </section>
+
+  </chapter>
+
+  <chapter>
+	<title>Admin API (Service Developer Operations)</title>
+	<section>
+	  <title>Overview</title>
+	  <para>The operations described in this chapter allow service developers to get and validate
+		access tokens, manage users, and manage tenants. </para>
+	</section>
+	<section>
+	  <title>Core Admin API Proposal</title>
+	  <note>The following table of calls is proposed as core Keystone Admin APIs</note>
+          <section>
+             <title>Tokens</title>
+			 <informaltable rules="all">
+			 &LONG_URI_REFHEAD;
+			 <tbody>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/tokens</td>
+				 <td colspan="3">Validate a token.</td>
+			   </tr>
+             <tr>
+               <td colspan="1"> &DELETE; </td>
+               <td colspan="4">/tokens/<parameter>tokenId</parameter></td>
+               <td colspan="3"> Revoke an existing token.</td>
+             </tr>
+			 </tbody>
+			 </informaltable>
+          </section>   
+
+          <section>
+             <title>Tenants</title>
+			 <informaltable rules="all">
+			 &LONG_URI_REFHEAD;
+			 <tbody>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/tenants</td>
+				 <td colspan="3">Get a list of tenants.</td>
+			   </tr>
+			<tr>
+			  <td colspan="1"> &GET; </td>
+			  <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+			  <td colspan="3">Get a tenant.</td>
+			</tr>
+			 </tbody>
+			 </informaltable>
+          </section>   
+
+          <section>
+             <title>Endpoints (BaseURLs)</title>
+			 <informaltable rules="all">
+			 &LONG_URI_REFHEAD;
+			 <tbody>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/baseURLs?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                 </td>
+                 <td colspan="3">
+                     Get a list of base URLs.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/baseURLs/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                 </td>
+                 <td colspan="3">
+                     Get a list of enabled base URLs.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/baseURLs/<parameter>baseURLId</parameter>
+                 </td>
+                 <td colspan="3">
+                     Get a base URL.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+                 </td>
+                 <td colspan="3">
+                     Get a list of base URLs for a tenant.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&POST;
+                 </td>
+                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+                 </td>
+                 <td colspan="3">
+                     Add a base URL to a tenant.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&DELETE;
+                 </td>
+                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
+                 <td colspan="3">
+                     Remove Base URL from a tenant.
+                 </td>
+             </tr>
+			 </tbody>
+			 </informaltable>
+          </section>   
+
+          <section>
+             <title>Roles</title>
+			 <informaltable rules="all">
+			 &LONG_URI_REFHEAD;
+			 <tbody>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/roles                            </td>
+                 <td colspan="3">
+                     Get a list of roles.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/roles/<parameter>roleId</parameter></td>
+                 <td colspan="3">
+                     Get a a role.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&GET;
+                 </td>
+                 <td colspan="4">/users/<parameter>userId</parameter>/roleRefs
+                 </td>
+                 <td colspan="3">
+                     Get a list of roles for a user.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&POST;
+                 </td>
+                 <td colspan="4">/users/<parameter>userId</parameter>/roleRefs
+                 </td>
+                 <td colspan="3">
+                     Add a role to a user.
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="1">&DELETE;
+                 </td>
+                 <td colspan="4">/users/<parameter>userId</parameter>/roleRefs/<parameter>roleRefId</parameter></td>
+                 <td colspan="3">
+                     Remove a role from a user.
+                 </td>
+             </tr>
+			 </tbody>
+			 </informaltable>
+          </section>
+			 <important>All other APIs listed in this section will be extensions used for this
+			 reference implementation of Keystone to support user and tenant management</important>
+	  </section>
+	<section>
+	  <title>Token Operations</title>
+	  <section>
+			 <title>Authenticate</title>
+			 <para>All client operations are supported on the admin API</para>
+	  </section>
+	  <section>
+		<title>Validate Token</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &GET; </td>
+			  <td colspan="4"
+				  >/tokens/<parameter>tokenId</parameter>?belongsTo=<parameter>tenantId</parameter></td>
+			  <td colspan="3">Check that a token is valid and that it belongs to a particular user
+				and return the permissions relevant to a particular client.</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), forbidden
+			(<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
+		  badRequest (<errorcode>400</errorcode>), itemNotFound (<errorcode>404</errorcode>),
+			identityFault(<returnvalue>500</returnvalue>),
+			serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
+		&NO_REQUEST;
+		<para>
+			Valid tokens will exist in the
+			/tokens/<parameter>tokenId</parameter> path and invalid
+			tokens will not.  In other words, a user should expect an
+			itemNotFound (<errorcode>404</errorcode>) fault for an
+			invalid token.
+		</para>
+		<example>
+		  <title>XML Validate Token Response</title>
+		  <programlisting language="xml">
+<xi:include href="samples/validatetoken.xml" parse="text"/>
+</programlisting>
+		</example>
+		<example>
+		  <title>JSON Validate Token Response</title>
+		  <programlisting language="javascript">
+<xi:include href="samples/validatetoken.json" parse="text"/>
+</programlisting>
+		</example>
+	  </section>
+	  <section>
+		<title>Revoke Token</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &DELETE; </td>
+			  <td colspan="4">/tokens/<parameter>tokenId</parameter></td>
+			  <td colspan="3"> Revoke an existing token.</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>204</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), forbidden
+			(<returnvalue>403</returnvalue>), userDisabled(<returnvalue>403</returnvalue>),
+		  badRequest (<errorcode>400</errorcode>), itemNotFound (<errorcode>404</errorcode>),
+			identityFault(<returnvalue>500</returnvalue>),
+			serviceUnavailable(<returnvalue>503</returnvalue>)</simpara>
+		&NO_REQUEST;
+	  </section>
+	</section>
+	<section>
+	  <title>Tenant Operations </title>
+	  <section>
+		<title>Create a Tenant</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &POST; </td>
+			  <td colspan="4">/tenants</td>
+			  <td colspan="3">Create a tenant</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>201</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
+			forbidden(<errorcode>403</errorcode>),
+		  badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+	  <example>
+		<title>XML Tenant Create Request</title>
+		<programlisting language="xml">
 <xi:include href="samples/tenant.xml" parse="text"/>
 </programlisting>
-        </example>
-        <example>
-          <title>JSON Tenant Response</title>
-          <programlisting language="javascript">
+	  </example>
+	  <example>
+		<title>JSON Tenant Create Request</title>
+		<programlisting language="javascript">
 <xi:include href="samples/tenant.json" parse="text"/>
 </programlisting>
-        </example>
-      </section>
-      <section>
-        <title>Update a Tenant</title>
-        <informaltable rules="all">
-          &LONG_URI_REFHEAD;
-          <tbody>
-            <tr>
-              <td colspan="1"> &PUT; </td>
-              <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
-              <td colspan="3">Update a tenant..</td>
-            </tr>
-          </tbody>
-        </informaltable>
-        <simpara>&CODES;<returnvalue>200</returnvalue></simpara>
-        <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
-            forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
-          badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-      <example>
-        <title>XML Tenant Update Request</title>
-        <programlisting language="xml">
+	  </example>
+	  <example>
+		<title>XML Tenant Create Response</title>
+		<programlisting language="xml">
+<xi:include href="samples/tenant.xml" parse="text"/>
+</programlisting>
+	  </example>
+	  <example>
+		<title>JSON Tenant Create Response</title>
+		<programlisting language="javascript">
+<xi:include href="samples/tenant.json" parse="text"/>
+</programlisting>
+	  </example>
+	   </section>
+	  <section>
+		<title>Get Tenants</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &GET; </td>
+			  <td colspan="4">/tenants</td>
+			  <td colspan="3">Get a list of tenants.</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
+			forbidden(<errorcode>403</errorcode>), overLimit(<errorcode>413</errorcode>),
+		  badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		<para>
+			The operation returns a list of tenants. The list may be
+			filtered to return only those tenants which the caller has
+			access to.
+		</para>
+		&NO_REQUEST;
+		<example>
+		  <title>XML Tenants Response</title>
+		  <programlisting language="xml">
+<xi:include href="samples/tenants.xml" parse="text"/>
+</programlisting>
+		</example>
+		<example>
+		  <title>JSON Tenants Response</title>
+		  <programlisting language="javascript">
+<xi:include href="samples/tenants.json" parse="text"/>
+</programlisting>
+		</example>
+	  </section>
+	  <section>
+		<title>Get a Tenant</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &GET; </td>
+			  <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+			  <td colspan="3">Get a tenant.</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue>, <returnvalue>203</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
+			forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
+		  badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+		&NO_REQUEST;
+		<example>
+		  <title>XML Tenant Response</title>
+		  <programlisting language="xml">
+<xi:include href="samples/tenant.xml" parse="text"/>
+</programlisting>
+		</example>
+		<example>
+		  <title>JSON Tenant Response</title>
+		  <programlisting language="javascript">
+<xi:include href="samples/tenant.json" parse="text"/>
+</programlisting>
+		</example>
+	  </section>
+	  <section>
+		<title>Update a Tenant</title>
+		<informaltable rules="all">
+		  &LONG_URI_REFHEAD;
+		  <tbody>
+			<tr>
+			  <td colspan="1"> &PUT; </td>
+			  <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+			  <td colspan="3">Update a tenant..</td>
+			</tr>
+		  </tbody>
+		</informaltable>
+		<simpara>&CODES;<returnvalue>200</returnvalue></simpara>
+		<simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>),
+			forbidden(<errorcode>403</errorcode>), itemNotFound(<errorcode>404</errorcode>),
+		  badRequest (<errorcode>400</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+	  <example>
+		<title>XML Tenant Update Request</title>
+		<programlisting language="xml">
 <xi:include href="samples/tenantlock.xml" parse="text"/>
 </programlisting>
-      </example>
-      <example>
-        <title>JSON Tenant Update Request</title>
-        <programlisting language="javascript">
+	  </example>
+	  <example>
+		<title>JSON Tenant Update Request</title>
+		<programlisting language="javascript">
 <xi:include href="samples/tenantlock.json" parse="text"/>
 </programlisting>
-      </example>
-      <example>
-        <title>XML Tenant Update Response</title>
-        <programlisting language="xml">
+	  </example>
+	  <example>
+		<title>XML Tenant Update Response</title>
+		<programlisting language="xml">
 <xi:include href="samples/updatedtenant.xml" parse="text"/>
 </programlisting>
-      </example>
-      <example>
-        <title>JSON Tenant Update Response</title>
-        <programlisting language="javascript">
+	  </example>
+	  <example>
+		<title>JSON Tenant Update Response</title>
+		<programlisting language="javascript">
 <xi:include href="samples/updatedtenant.json" parse="text"/>
 </programlisting>
-      </example>
-       </section>     
-      <section>
-          <title>Delete a Tenant</title>
-          <informaltable rules="all">
-            &LONG_URI_REFHEAD;
-            <tbody>
-              <tr>
-                <td colspan="1"> &DELETE; </td>
-                <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
-                <td colspan="3">Delete a Tenant.</td>
-              </tr>
-            </tbody>
-          </informaltable>
-          <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
-          <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
-            (<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
-            (<errorcode>404</errorcode>), identityFault (<errorcode>500</errorcode>),
-            serviceUnavailable(<errorcode>503</errorcode>)</simpara>
-            &NO_REQUEST;       
-        </section>
-    </section>
-     <section>
-            <title>Base URLs</title>
-            <section>
-                <title>Get Base URLs</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/baseURLs?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
-                            </td>
-                            <td colspan="3">
-                                Get a list of base URLs.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/baseURLs/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
-                            </td>
-                            <td colspan="3">
-                                Get a list of enabled base URLs.
-                            </td>
-                        </tr>
-                        
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES; <returnvalue>200</returnvalue>,
-                    <returnvalue>203</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-                <example>
-                    <title>Base URLs Response: XML</title>
-                    <programlisting language="xml">
+	  </example>
+	   </section>     
+	  <section>
+		  <title>Delete a Tenant</title>
+		  <informaltable rules="all">
+			&LONG_URI_REFHEAD;
+			<tbody>
+			  <tr>
+				<td colspan="1"> &DELETE; </td>
+				<td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+				<td colspan="3">Delete a Tenant.</td>
+			  </tr>
+			</tbody>
+		  </informaltable>
+		  <simpara>&CODES;<returnvalue>204</returnvalue></simpara>
+		  <simpara>&ERROR_CODES; unauthorized (<errorcode>401</errorcode>), badRequest
+			(<errorcode>400</errorcode>), forbidden (<errorcode>403</errorcode>), itemNotFound
+			(<errorcode>404</errorcode>), identityFault (<errorcode>500</errorcode>),
+			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
+			&NO_REQUEST;       
+		</section>
+	</section>
+	 <section>
+			<title>Base URLs</title>
+			<section>
+				<title>Get Base URLs</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/baseURLs?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+							</td>
+							<td colspan="3">
+								Get a list of base URLs.
+							</td>
+						</tr>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/baseURLs/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+							</td>
+							<td colspan="3">
+								Get a list of enabled base URLs.
+							</td>
+						</tr>
+						
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES; <returnvalue>200</returnvalue>,
+					<returnvalue>203</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+				<example>
+					<title>Base URLs Response: XML</title>
+					<programlisting language="xml">
 <xi:include href="samples/baseURLs.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Base URLs Response: JSON</title>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Base URLs Response: JSON</title>
+					<programlisting language="javascript">
 <xi:include href="samples/baseURLs.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Get Base URL</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/baseURLs/<parameter>baseURLId</parameter>
-                            </td>
-                            <td colspan="3">
-                                Get a base URL.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES; <returnvalue>200</returnvalue>,
-                    <returnvalue>203</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-                <example>
-                    <title>Base URL Response: XML</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Get Base URL</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/baseURLs/<parameter>baseURLId</parameter>
+							</td>
+							<td colspan="3">
+								Get a base URL.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES; <returnvalue>200</returnvalue>,
+					<returnvalue>203</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+				<example>
+					<title>Base URL Response: XML</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="xml">
 <xi:include href="samples/baseURL.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Base URL Response: JSON</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Base URL Response: JSON</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="javascript">
 <xi:include href="samples/baseURL.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Get Base URLs for a Tenant</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
-                            </td>
-                            <td colspan="3">
-                                Get a list of base URLs for a tenant.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES; <returnvalue>200</returnvalue>,
-                    <returnvalue>203</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-                <example>
-                    <title>Base URL Refs Response: XML</title>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Get Base URLs for a Tenant</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+							</td>
+							<td colspan="3">
+								Get a list of base URLs for a tenant.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES; <returnvalue>200</returnvalue>,
+					<returnvalue>203</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+				<example>
+					<title>Base URL Refs Response: XML</title>
+					<programlisting language="xml">
 <xi:include href="samples/baseURLRefs.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Base URL Refs Response: JSON</title>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Base URL Refs Response: JSON</title>
+					<programlisting language="javascript">
 <xi:include href="samples/baseURLRefs.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Add Base URL to a Tenant.</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&POST;
-                            </td>
-                            <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
-                            </td>
-                            <td colspan="3">
-                                Add a base URL to a tenant.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES;
-                    <returnvalue>201</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    itemNotFound (<errorcode>404</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                <para xmlns="http://docbook.org/ns/docbook">
-                    Expect a badRequest (400) response if a disabled base URL is added or if the base URL had been previously added.       
-                </para>
-                <example>
-                    <title>Add Base URL Request: XML</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Add Base URL to a Tenant.</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&POST;
+							</td>
+							<td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+							</td>
+							<td colspan="3">
+								Add a base URL to a tenant.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES;
+					<returnvalue>201</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					itemNotFound (<errorcode>404</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				<para xmlns="http://docbook.org/ns/docbook">
+					Expect a badRequest (400) response if a disabled base URL is added or if the base URL had been previously added.       
+				</para>
+				<example>
+					<title>Add Base URL Request: XML</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="xml">
 <xi:include href="samples/baseURL.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Add Base URL Request: JSON</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Add Base URL Request: JSON</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="javascript">
 <xi:include href="samples/baseURL.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Remove Base URLs from a Tennat</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&DELETE;
-                            </td>
-                            <td colspan="4">/tenant/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
-                            <td colspan="3">
-                                Remove Base URL from a user.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES;
-                    <returnvalue>204</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    itemNotFound (<errorcode>404</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-            </section>
-       </section>
-       <!-- Roles -->
-            <section>
-            <title>Roles</title>
-            <section>
-                <title>Get roles</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/roles                            </td>
-                            <td colspan="3">
-                                Get a list of roles.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES; <returnvalue>200</returnvalue>,
-                    <returnvalue>203</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-                <example>
-                    <title>Roles Response: XML</title>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Remove Base URLs from a Tennat</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&DELETE;
+							</td>
+							<td colspan="4">/tenant/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
+							<td colspan="3">
+								Remove Base URL from a tenant.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES;
+					<returnvalue>204</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					itemNotFound (<errorcode>404</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+			</section>
+	   </section>
+	   <!-- Roles -->
+			<section>
+			<title>Roles</title>
+			<section>
+				<title>Get roles</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/roles                            </td>
+							<td colspan="3">
+								Get a list of roles.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES; <returnvalue>200</returnvalue>,
+					<returnvalue>203</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+				<example>
+					<title>Roles Response: XML</title>
+					<programlisting language="xml">
 <xi:include href="samples/roles.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Roles Response: JSON</title>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Roles Response: JSON</title>
+					<programlisting language="javascript">
 <xi:include href="samples/roles.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Get Role</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/roles/<parameter>roleId</parameter>
-                            </td>
-                            <td colspan="3">
-                                Get a role.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES; <returnvalue>200</returnvalue>,
-                    <returnvalue>203</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-                <example>
-                    <title>Role Response: XML</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Get Role</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/roles/<parameter>roleId</parameter>
+							</td>
+							<td colspan="3">
+								Get a role.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES; <returnvalue>200</returnvalue>,
+					<returnvalue>203</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+				<example>
+					<title>Role Response: XML</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="xml">
 <xi:include href="samples/role.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Role Response: JSON</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Role Response: JSON</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="javascript">
 <xi:include href="samples/role.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Get roles for a User</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&GET;
-                            </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs
-                            </td>
-                            <td colspan="3">
-                                Get a list of roles for a user.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES; <returnvalue>200</returnvalue>,
-                    <returnvalue>203</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-                <example>
-                    <title>Role Refs Response: XML</title>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Get roles for a User</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&GET;
+							</td>
+							<td colspan="4">/users/<parameter>userId</parameter>/roleRefs
+							</td>
+							<td colspan="3">
+								Get a list of roles for a user.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES; <returnvalue>200</returnvalue>,
+					<returnvalue>203</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+				<example>
+					<title>Role Refs Response: XML</title>
+					<programlisting language="xml">
 <xi:include href="samples/roleRefs.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Role Refs Response: JSON</title>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Role Refs Response: JSON</title>
+					<programlisting language="javascript">
 <xi:include href="samples/roleRefs.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Add Role to a User</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&POST;
-                            </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs
-                            </td>
-                            <td colspan="3">
-                                Add a role to a user.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES;
-                    <returnvalue>201</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    itemNotFound (<errorcode>404</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                <example>
-                    <title>Add Role Request: XML</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="xml">
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Add Role to a User</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&POST;
+							</td>
+							<td colspan="4">/users/<parameter>userId</parameter>/roleRefs
+							</td>
+							<td colspan="3">
+								Add a role to a user.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES;
+					<returnvalue>201</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					itemNotFound (<errorcode>404</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				<example>
+					<title>Add Role Request: XML</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="xml">
 <xi:include href="samples/roleRef.xml" parse="text"/>
-                    </programlisting>
-                </example>
-                <example>
-                    <title>Add Role Request: JSON</title>
-                    <?dbfo keep-together="always"?>
-                    <programlisting language="javascript">
+					</programlisting>
+				</example>
+				<example>
+					<title>Add Role Request: JSON</title>
+					<?dbfo keep-together="always"?>
+					<programlisting language="javascript">
 <xi:include href="samples/roleRef.json" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section>
-                <title>Remove roles from a User</title>
-                <informaltable rules="all">
-                    &LONG_URI_REFHEAD;
-                    <tbody>
-                        <tr>
-                            <td colspan="1">&DELETE;
-                            </td>
-                            <td colspan="4">/users/<parameter>userId</parameter>/roleRefs/<parameter>roleRefId</parameter></td>
-                            <td colspan="3">
-                                Remove a role from a user.
-                            </td>
-                        </tr>
-                    </tbody>
-                </informaltable>
-                <simpara>
-                    &CODES;
-                    <returnvalue>204</returnvalue>
-                </simpara>
-                <simpara>
-                    &ERROR_CODES;
-                    unauthorized (<errorcode>401</errorcode>),
-                    forbidden (<errorcode>403</errorcode>),
-                    badRequest (<errorcode>400</errorcode>),
-                    itemNotFound (<errorcode>404</errorcode>),
-                    authFault (<errorcode>500</errorcode>),
-                    serviceUnavailable (<errorcode>503</errorcode>)
-                </simpara>
-                &NO_REQUEST;
-            </section>
-       </section>
-       
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>Remove roles from a User</title>
+				<informaltable rules="all">
+					&LONG_URI_REFHEAD;
+					<tbody>
+						<tr>
+							<td colspan="1">&DELETE;
+							</td>
+							<td colspan="4">/users/<parameter>userId</parameter>/roleRefs/<parameter>roleRefId</parameter></td>
+							<td colspan="3">
+								Remove a role from a user.
+							</td>
+						</tr>
+					</tbody>
+				</informaltable>
+				<simpara>
+					&CODES;
+					<returnvalue>204</returnvalue>
+				</simpara>
+				<simpara>
+					&ERROR_CODES;
+					unauthorized (<errorcode>401</errorcode>),
+					forbidden (<errorcode>403</errorcode>),
+					badRequest (<errorcode>400</errorcode>),
+					itemNotFound (<errorcode>404</errorcode>),
+					authFault (<errorcode>500</errorcode>),
+					serviceUnavailable (<errorcode>503</errorcode>)
+				</simpara>
+				&NO_REQUEST;
+			</section>
+	   </section>
   </chapter>
 </book>
