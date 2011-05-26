@@ -509,7 +509,7 @@ Host: identity.api.openstack.org/v1.1/
     <section>
         <title>Extensions</title>
         <para>
-            The OpenStack IDM API is extensible. Extensions
+            The OpenStack Identity API is extensible. Extensions
             serve two purposes: They allow the introduction of new
             features in the API without requiring a version change
             and they allow the introduction of vendor specific

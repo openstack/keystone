@@ -1,4 +1,4 @@
-POST /v2.0/token HTTP/1.1
-Host: identity.api.rackspace.com
+POST /v2.0/tokens HTTP/1.1
+Host: identity.api.openstack.org
 Content-Type: application/json
 Accept: application/xml

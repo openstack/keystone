@@ -647,9 +647,9 @@ class KeystoneAPI(wsgi.Router):
                        conditions=dict(method=["POST"]))
 
         # Token Operations
-        mapper.connect("/v2.0/token", controller=auth_controller,
+        mapper.connect("/v2.0/tokens", controller=auth_controller,
                        action="authenticate")
-        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 
@@ -713,12 +713,12 @@ class KeystoneAdminAPI(wsgi.Router):
 
         # Token Operations
         auth_controller = AuthController(options)
-        mapper.connect("/v2.0/token", controller=auth_controller,
+        mapper.connect("/v2.0/tokens", controller=auth_controller,
                        action="authenticate")
-        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="validate_token",
                         conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 
@@ -740,23 +740,23 @@ class KeystoneAdminAPI(wsgi.Router):
 
         # Tenant Group Operations
 
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="create_tenant_group",
                     conditions=dict(method=["POST"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="get_tenant_groups",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="get_tenant_group",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="update_tenant_group",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="delete_tenant_group",
                     conditions=dict(method=["DELETE"]))
