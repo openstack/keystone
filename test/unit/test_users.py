@@ -795,9 +795,9 @@ class UpdateUserTest(UserTest):
     def test_user_update_email_conflict(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.tenant,
-                                              self.user,
+                                              "joeuser",
                                               self.auth_token,
-                                              "joe@rackspace.com")
+                                              "test_user@rackspace.com")
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -809,9 +809,9 @@ class UpdateUserTest(UserTest):
     def test_user_update_email_conflict_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.tenant,
-                                              self.user,
+                                              "joeuser",
                                               self.auth_token,
-                                              "joe@rackspace.com")
+                                              "test_user@rackspace.com")
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1392,11 +1392,11 @@ class SetEnabledTest(UserTest):
 class AddUserTest(UserTest):
 
     def setUp(self):
-        self.token = utils.get_token('joeuser', 'secrete', '1234')
+        self.token = utils.get_token('joeuser1', 'secrete', '1234')
         self.tenant = utils.get_another_tenant()
         self.password = utils.get_password()
         self.email = utils.get_email()
-        self.user = 'joeuser'
+        self.user = 'joeuser1'
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
@@ -1410,7 +1410,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_json(self.tenant,
+        resp, content = utils.create_user(self.tenant,
                                             self.user,
                                             str(self.auth_token))
         resp_val = int(resp['status'])
@@ -1418,11 +1418,11 @@ class AddUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        self.assertEqual(200, resp_val)
+        self.assertEqual(201, resp_val)
 
     def test_add_user_tenant_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_xml(self.tenant,
+        resp, content = utils.create_user_xml(self.tenant,
                                            self.user,
                                            str(self.auth_token))
         resp_val = int(resp['status'])
@@ -1430,12 +1430,12 @@ class AddUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        self.assertEqual(200, resp_val)
+        self.assertEqual(201, resp_val)
 
     def test_add_user_tenant_conflict(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        utils.add_user_json(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.add_user_json(self.tenant,
+        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        resp, content = utils.create_user(self.tenant,
                                             self.user,
                                             str(self.auth_token))
 
@@ -1448,8 +1448,8 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_conflict_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        utils.add_user_xml(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.add_user_xml(self.tenant,
+        utils.create_user_xml(self.tenant, self.user, str(self.auth_token))
+        resp, content = utils.create_user_xml(self.tenant,
                                            self.user,
                                            str(self.auth_token))
         resp_val = int(resp['status'])
@@ -1458,10 +1458,11 @@ class AddUserTest(UserTest):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, resp_val)
+        
 
     def test_add_user_tenant_expired_token(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_json(self.tenant,
+        resp, content = utils.create_user(self.tenant,
                                             self.user,
                                             str(self.exp_auth_token))
         resp_val = int(resp['status'])
@@ -1473,7 +1474,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_expired_token_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_xml(self.tenant,
+        resp, content = utils.create_user_xml(self.tenant,
                                             self.user,
                                             str(self.exp_auth_token))
         resp_val = int(resp['status'])
@@ -1485,7 +1486,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_disabled_token(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_json(self.tenant,
+        resp, content = utils.create_user(self.tenant,
                                             self.user,
                                             str(self.disabled_token))
         resp_val = int(resp['status'])
@@ -1497,7 +1498,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_disabled_token_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_xml(self.tenant,
+        resp, content = utils.create_user_xml(self.tenant,
                                             self.user,
                                             str(self.disabled_token))
         resp_val = int(resp['status'])
@@ -1509,7 +1510,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_invalid_token(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_json(self.tenant,
+        resp, content = utils.create_user(self.tenant,
                                             self.user,
                                             str(self.invalid_token))
         resp_val = int(resp['status'])
@@ -1521,7 +1522,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_invalid_token_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_xml(self.tenant,
+        resp, content = utils.create_user_xml(self.tenant,
                                             self.user,
                                             str(self.invalid_token))
         resp_val = int(resp['status'])
@@ -1533,7 +1534,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_missing_token(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_json(self.tenant,
+        resp, content = utils.create_user(self.tenant,
                                             self.user,
                                             str(self.missing_token))
         resp_val = int(resp['status'])
@@ -1545,7 +1546,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_missing_token_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_xml(self.tenant,
+        resp, content = utils.create_user_xml(self.tenant,
                                             self.user,
                                             str(self.missing_token))
         resp_val = int(resp['status'])
@@ -1557,7 +1558,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_disabled_tenant(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_json('0000',
+        resp, content = utils.create_user('0000',
                                             self.user,
                                             str(self.auth_token))
         resp_val = int(resp['status'])
@@ -1569,7 +1570,7 @@ class AddUserTest(UserTest):
 
     def test_add_user_tenant_disabled_tenant_xml(self):
         utils.create_tenant(self.tenant, str(self.auth_token))
-        resp, content = utils.add_user_xml('0000',
+        resp, content = utils.create_user_xml('0000',
                                             self.user,
                                             str(self.auth_token))
         resp_val = int(resp['status'])

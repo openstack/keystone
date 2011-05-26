@@ -450,7 +450,7 @@ class IdentityService(object):
         ts = []
         dtenantusers = db_api.users_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
-        for dtenantuser, dtenantuserAsso in dtenantusers:
+        for dtenantuser in dtenantusers:
             ts.append(users.User(None, dtenantuser.id, tenant_id,
                                    dtenantuser.email, dtenantuser.enabled))
         links = []
@@ -480,10 +480,7 @@ class IdentityService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
-        if len(duser.tenants) > 0:
-            tenant_user = duser.tenants[0].tenant_id
-        else:
-            tenant_user = tenant_id
+        tenant_user = tenant_id
 
         ts = []
         dusergroups = db_api.user_groups_get_all(user_id)

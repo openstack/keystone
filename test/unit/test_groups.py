@@ -42,6 +42,7 @@ class GlobalGroupTest(unittest.TestCase):
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
         self.disabled_token = utils.get_disabled_token()
+        self.missing_token = utils.get_none_token()
         self.global_group = 'test_global_group_add'
         utils.create_tenant(self.globaltenant, str(self.auth_token))
         utils.create_user(self.globaltenant, self.user, self.auth_token)
@@ -107,15 +108,9 @@ class CreateGlobalGroupTest(GlobalGroupTest):
 
     def test_global_group_create_unauthorized_token(self):
         header = httplib2.Http(".cache")
-        resp_new, content_new = utils.create_global_group_xml(\
+        resp, content = utils.create_global_group(\
                                                     self.global_group,
-                                                    str(self.auth_token))
-        url = '%sgroups' % (utils.URL)
-        body = {"group": {"id": self.global_group,
-                          "description": "A description ..."}}
-        resp, content = header.request(url, "POST", body=json.dumps(body),
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.token})
+                                                    str(self.missing_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -124,16 +119,9 @@ class CreateGlobalGroupTest(GlobalGroupTest):
 
     def test_global_group_create_unauthorized_token_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sgroups' % (utils.URL)
-        body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                id="%s"> \
-                <description>A description...</description> \
-                </group>' % self.global_group
-        resp, content = header.request(url, "POST", body=body,
-                                  headers={"Content-Type": "application/xml",
-                                           "X-Auth-Token": self.token,
-                                           "ACCEPT": "application/xml"})
+        resp, content = utils.create_global_group_xml(\
+                                                    self.global_group,
+                                                    str(self.missing_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -305,7 +293,7 @@ class GetGlobalGroupsTest(GlobalGroupTest):
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.token})
+                                           "X-Auth-Token": self.missing_token})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -321,7 +309,7 @@ class GetGlobalGroupsTest(GlobalGroupTest):
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
-                                           "X-Auth-Token": self.token,
+                                           "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
@@ -581,7 +569,6 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
         resp_new, content_new = utils.delete_global_group_xml(\
                                                   'test_global_group_delete',
                                                   str(self.auth_token))
-
         utils.delete_tenant_xml(self.globaltenant, str(self.auth_token))
 
         self.assertEqual(204, int(resp_new['status']))
@@ -602,7 +589,8 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         utils.add_user_json(self.tenant, self.user, self.auth_token)
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
-
+        self.missing_token = utils.get_none_token()
+        
     def tearDown(self):
         utils.delete_user_global_group(self.global_group, self.user,
                                        str(self.auth_token))
@@ -683,7 +671,7 @@ class AddUserGlobalGroupTest(unittest.TestCase):
 
         resp_new, content_new = utils.add_user_global_group(self.global_group,
                                                 self.user,
-                                                str(self.token))
+                                                str(self.missing_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -697,7 +685,7 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         resp_new, content_new = utils.add_user_global_group_xml(\
                                                     self.global_group,
                                                     self.user,
-                                                    str(self.token))
+                                                    str(self.missing_token))
 
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
@@ -750,6 +738,7 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         utils.add_user_json(self.tenant, self.user, self.auth_token)
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
+        self.missing_token = utils.get_none_token()
 
     def tearDown(self):
         utils.delete_user_global_group(self.global_group, self.user,
@@ -797,7 +786,7 @@ class GetUsersTenantGroupTest(unittest.TestCase):
 
         resp_new, content_new = utils.get_user_global_group(\
                                                 self.global_group,
-                                                str(self.token))
+                                                str(self.missing_token))
 
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
@@ -813,7 +802,7 @@ class GetUsersTenantGroupTest(unittest.TestCase):
                                     str(self.auth_token))
         resp_new, content_new = utils.get_user_global_group_xml(\
                                                 self.global_group,
-                                                str(self.token))
+                                                str(self.missing_token))
 
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
