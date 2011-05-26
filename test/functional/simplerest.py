@@ -133,8 +133,8 @@ class RESTClient(object):
         parsed = urlparse.urlparse(baseurl)
 
         # Make sure the scheme makes sense
-        if self._scheme not in ('http', 'https'):
-            raise httplib.InvalidURL("invalid scheme: '%s'" % self._scheme)
+        if parsed.scheme not in ('http', 'https'):
+            raise httplib.InvalidURL("invalid scheme: '%s'" % parsed.scheme)
 
         # We're only concerned with the scheme, netloc, and path...
         self._scheme = parsed.scheme
