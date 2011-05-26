@@ -198,7 +198,7 @@ Initial support for using keystone as nova's identity component has been started
 
     # clone projects
     bzr clone lp:nova
-    git clone git://github.com/khussein/keystone.git
+    git clone git://github.com/rackspace/keystone.git
 
     # link keystone into the nova root dir
     ln -s keystone/keystone nova/keystone
