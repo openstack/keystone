@@ -11,7 +11,7 @@ This initial proof of concept aims to address the current use cases in Swift and
 DEVELOPER GUIDE/CONCEPTS:
 ------------------------
 
-The [dev guide](raw/master/keystone/content/identitydevguide.pdf) is automatically
+The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
 generated from XML and other artifacts in the keystone/docs/src folder.
 
 To build the API dev guide, you need Maven. To build the docs, run the following from the
@@ -21,48 +21,6 @@ keystone/docs folder:
 
 The output will go into the keystone/docs/target folder (the source is in keystone/docs/src). Output
 generated is PDF and webhelp.
-
-
-SERVICES:
----------
-
-* Keystone    - authentication service
-* Auth_Token  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
-* Echo        - A sample service that responds by returning call details
-
-Also included:
-
-* Keystone    - Service and Admin API are available separately. Admin API allows management of tenants, roles, and users as well.
-* Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
-* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
-* RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
-
-
-RUNNING KEYSTONE:
------------------
-
-Starting both Admin and Service API endpoints:
-
-    $ cd bin
-    $ ./keystone
-
-Starting the auth server only (exposes the Service API):
-
-    $ cd bin
-    $ ./keystone-auth
-
-Starting the admin server only (exposes the Admin API):
-
-    $ cd bin
-    $ ./keystone-admin
-
-All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
-
-
-
-DEPENDENCIES:
-=======
-Keystone is an open-source authentication service built to be integrated into [OpenStack](http://www.openstack.org).
 
 
 Core Concepts:
@@ -89,8 +47,21 @@ Core Concepts:
 </table>
 
 
+SERVICES:
+---------
+
+* Keystone    - authentication service
+* Auth_Token  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
+* Echo        - A sample service that responds by returning call details
+
+Also included:
+
+* Keystone    - Service and Admin API are available separately. Admin API allows management of tenants, roles, and users as well.
+* Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
+* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
+* RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
+
 Built-In Services:
-------------------
 
 * bin/keystone  - Provides HTTP API for users and administrators
 * bin/keystone-admin - Provides HTTP API for administrators
@@ -100,8 +71,31 @@ Built-In Services:
 By default, configuration parameters are parsed from etc/keystone.conf.
 
 
-Dependencies:
--------------
+RUNNING KEYSTONE:
+-----------------
+
+Starting both Admin and Service API endpoints:
+
+    $ cd bin
+    $ ./keystone
+
+Starting the auth server only (exposes the Service API):
+
+    $ cd bin
+    $ ./keystone-auth
+
+Starting the admin server only (exposes the Admin API):
+
+    $ cd bin
+    $ ./keystone-admin
+
+All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
+
+
+
+DEPENDENCIES:
+=======
+
 <pre>
 # Show Dependencies
 $ cat tools/pip-requires
