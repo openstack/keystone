@@ -886,11 +886,11 @@ class KeystoneAdminAPI(wsgi.Router):
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/xsd/{xsd}",
                     controller=static_files_controller,
-                    action="get_pdf_contract",
+                    action="get_xsd_contract",
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/xsd/atom/{xsd}",
                     controller=static_files_controller,
-                    action="get_pdf_contract",
+                    action="get_xsd_atom_contract",
                     conditions=dict(method=["GET"]))
 
         super(KeystoneAdminAPI, self).__init__(mapper)

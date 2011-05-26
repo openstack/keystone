@@ -19,6 +19,8 @@
 #    under the License.
 #
 # Author: Ziad Sawalha (http://launchpad.net/~ziad-sawalha)
+# Original maintained at: https://github.com/ziadsawalha/Python-tracer
+#
 
 """
 OpenStack Call Tracing Tool
@@ -26,8 +28,8 @@ OpenStack Call Tracing Tool
 To use this:
 1. include the tools dirextory in your project (__init__.py and tracer.py)
 2. import tools.tracer as early as possible into your module
-3. add --trace-calls to any argument parsers you use so the argument doesn't get
-flagged as invalid.
+3. add --trace-calls to any argument parsers you use so the argument doesn't
+get flagged as invalid.
 
 Usage:
 # Add this as early as possible in the first module called in your service
@@ -88,9 +90,11 @@ if '--trace-calls' in sys.argv:
         if 'macosx' in func_filename:
             return
         func_line_no = frame.f_lineno
-        # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
-        # it will override what happens to be installed in /usr/(local/)lib/python...
-        possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+        # If ../../keystone/__init__.py exists, add ../ to Python search path,
+        # so that it will override what happens to be installed in
+        # /usr/(local/)lib/python...
+        possible_topdir = os.path.normpath(os.path.join(
+                                           os.path.abspath(sys.argv[0]),
                                            os.pardir,
                                            os.pardir))
         func_filename = func_filename.replace(possible_topdir, '')
