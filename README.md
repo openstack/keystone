@@ -11,7 +11,16 @@ This initial proof of concept aims to address the current use cases in Swift and
 DEVELOPER GUIDE/CONCEPTS:
 ------------------------
 
-This [dev guide](https://github.com/khussein/keystone/raw/master/keystone/content/identitydevguide.pdf) is built from the source on this repo.
+The [dev guide](https://github.com/khussein/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
+generated from XML and other artifacts in the keystone/docs/src folder.
+
+To build the API dev guide, you need Maven. To build the docs, run the following from the
+keystone/docs folder:
+
+    $ mvn clean generate-sources
+
+The output will go into the keystone/docs/target folder (the source is in keystone/docs/src). Output
+generated is PDF and webhelp.
 
 
 SERVICES:
@@ -52,44 +61,58 @@ All above files take parameters from etc/keystone.conf file under the Keystone r
 
 
 DEPENDENCIES:
+=======
+Keystone is an open-source authentication service built to be integrated into [OpenStack](http://www.openstack.org).
+
+
+Core Concepts:
+--------------
+<table>
+  <tr>
+    <th>Concept</th><th align="left">Description</th>
+  </tr>
+  <tr>
+    <td>User</td><td>A 'user' is a client who has been registered with Keystone.</td>
+  </tr>
+  <tr>
+    <td>Role</td><td>A 'role' describes a responsibility which is linked to a given user.</td>
+  </tr>
+  <tr>
+    <td>Token</td><td>A 'token' describes a temporary object which helps users authenticate themselves.</td>
+  </tr>
+  <tr>
+    <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
+  </tr>
+  <tr>
+    <td>Group</td><td>Unknown</td>
+  </tr>
+</table>
+
+
+Built-In Services:
+------------------
+
+* bin/keystone  - Provides HTTP API for users and administrators
+* bin/keystone-admin - Provides HTTP API for administrators
+* bin/keystone-service - Provides HTTP API for users
+* bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
+
+By default, configuration parameters are parsed from etc/keystone.conf.
+
+
+Dependencies:
 -------------
-See pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
+<pre>
+# Show Dependencies
+$ cat tools/pip-requires
 
-Setup:
-
-    # Install http://pypi.python.org/pypi/setuptools
-    sudo easy_install pip
-    sudo pip install -r pip-requires
-
-
-RUNNING THE TEST SERVICE (Echo.py):
-----------------------------------
-
-    Standalone stack (with Auth_Token)
-    $ cd echo/bin
-    $ ./echod
-
-    Distributed stack (with RemoteAuth local and Auth_Token remote)
-    $ cd echo/bin
-    $ ./echod --remote
-
-    in separate session
-    $ cd keystone/auth_protocols
-    $ python auth_token.py
+# Install Dependencies
+$ sudo pip install -r tools/pip-requires
+</pre>
 
 
-DEMO CLIENT:
-------------
-A sample client that gets a token from Keystone and then uses it to call Echo (and a few other example calls):
-
-    $ cd echo/echo
-    $ python echo_client.py
-    Note: this requires test data. See section TESTING for initializing data
-
-
-
-TESTING:
---------
+Running Tests:
+--------------
 A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
@@ -137,19 +160,9 @@ To Test Keystone Service:
 * Select tests/IdentitySOAPUI.xml
 * Double click on "Keystone Tests" and press the green play (>) button
 
-DOCUMENTATION:
---------------
-
-The dev guide is automatically generated from XML and other artifacts in the keystone/docs/src folder.
-To build the API dev guide, you need Maven. To build the docs, run the following from the
-keystone/docs folder:
-
-    $ mvn clean generate-sources
-
-The output will go into the keystone/docs/target folder (the source is in keystone/docs/src)
 
 
-ADDITIONAL INFORMATION:
+Additional Information:
 -----------------------
 
 Configuration:
