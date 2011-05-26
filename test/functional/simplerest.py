@@ -139,7 +139,7 @@ class RESTClient(object):
         # We're only concerned with the scheme, netloc, and path...
         self._scheme = parsed.scheme
         self._netloc = parsed.netloc
-        self._path = parsed.path
+        self._path = parsed.path or '/'
 
         # We'll keep a cached HTTPConnection for our baseurl around...
         self._connect = None
