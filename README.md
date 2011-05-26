@@ -11,7 +11,7 @@ This initial proof of concept aims to address the current use cases in Swift and
 DEVELOPER GUIDE/CONCEPTS:
 ------------------------
 
-The [dev guide](https://github.com/khussein/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
+The [dev guide](./raw/master/keystone/content/identitydevguide.pdf) is automatically
 generated from XML and other artifacts in the keystone/docs/src folder.
 
 To build the API dev guide, you need Maven. To build the docs, run the following from the
