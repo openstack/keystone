@@ -221,3 +221,13 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
     # nova's patched libvirt ppa doesn't work on cloud servers, revert to old libvirt
     apt-get install -y --force-yes libvirt0=0.8.3-1ubuntu14.1 libvirt-bin=0.8.3-1ubuntu14.1 python-libvirt=0.8.3-1ubuntu14.1
     ./nova.sh run
+
+
+INTERESTING TECHNOLOGIES/STANDARDS:
+-----------------------------------
+
+WebID
+http://www.w3.org/2005/Incubator/webid/spec/
+http://www.w3.org/wiki/Foaf+ssl
+
+
