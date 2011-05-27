@@ -477,9 +477,9 @@ class RESTMethod(object):
             # For query arguments, required defaults to False
             if required is None:
                 if type_ == 'query':
-                    required = True
-                else:
                     required = False
+                else:
+                    required = True
 
             # Add the field
             self.kwargs[field] = (type_, required)
