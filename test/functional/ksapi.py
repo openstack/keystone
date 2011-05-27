@@ -75,8 +75,9 @@ class KeystoneAPI20(simplerest.RESTAPI):
                                              ['tenantId', 'id', 'region',
                                               'default', 'serviceName',
                                               'publicURL', 'internalURL',
-                                              'enabled'], id='req',
-                                             region='req', default='req',
+                                              'enabled'], 'baseURL',
+                                             id='req', region='req',
+                                             default='req',
                                              serviceName='req',
                                              publicURL='req',
                                              internalURL='req', enabled='req')
