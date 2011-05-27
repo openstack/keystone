@@ -408,7 +408,7 @@ class RESTMethod(object):
 
     """
 
-    def __init__(self, name, method, uri, reqwrapper=None, argorder=None,
+    def __init__(self, name, method, uri, argorder=None, reqwrapper=None,
                  **kwargs):
         """Initialize a REST method.
 
