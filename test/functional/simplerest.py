@@ -187,10 +187,13 @@ class RESTClient(object):
         """
 
         # First, let's compose the path with the reluri
-        if self._path[-1] != '/':
-            fulluri = '%s/%s' % self._path, reluri
-        else:
+        joincond = (self._path[-1], reluri[0])
+        if joincond == ('/', '/'):
+            fulluri = self._path + reluri[1:]
+        elif '/' in joincond:
             fulluri = self._path + reluri
+        else:
+            fulluri = self._path + '/' + reluri
 
         # Add the query, if there is one
         if query:
