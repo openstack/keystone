@@ -46,5 +46,14 @@ if __name__ == '__main__':
     # them
     (base.options, args) = opts.parse_args()
 
+    # Ensure required options are present
+    if (not base.options.username or not base.options.password or
+        not base.options.keystone):
+        print >>sys.stderr, "Missing required options"
+        print >>sys.stderr, ("At a minimum, --username, --password, and "
+                             "--keystone must be specified.")
+        opts.print_help(sys.stderr)
+        sys.exit(1)
+
     # Execute the test suite
     sys.exit(dtest.main(**dtest.opts_to_args(base.options)))
