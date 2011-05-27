@@ -15,4 +15,63 @@
 # limitations under the License.
 
 
+import dtest
+
+import ksapi
+
+
 options = None
+
+
+def _get_ksapi():
+    """Get an instance of KeystoneAPI20."""
+
+    # If debug mode has been enabled, let's select a debug stream
+    dbstream = None
+    if options.debug:
+        dbstream = dtest.status
+
+    # Build and return the API object
+    return ksapi.KeystoneAPI20(options.keystone, dbstream)
+
+
+class BaseKeystoneTest(dtest.DTestCase):
+    """Base class for Keystone tests."""
+
+    def setUp(self):
+        """Initialize tests by setting up a KeystoneAPI20 to call."""
+
+        # Build the API object
+        self.ks = _get_ksapi()
+
+
+class KeystoneTest(BaseKeystoneTest):
+    """Base class for Keystone tests."""
+
+    token = None
+
+    @classmethod
+    def setUpClass(cls):
+        """Initialize tests by setting up a keystone token."""
+
+        # Get an API object
+        ks = _get_ksapi()
+
+        # Next, let's authenticate
+        resp = ks.authenticate(options.username, options.password)
+
+        # Finally, save the authentication token
+        cls.token = resp.obj['auth']['token']['id']
+
+    @classmethod
+    def tearDownClass(cls):
+        """Revoke the authentication token."""
+
+        # Get an API object
+        ks = _get_ksapi()
+
+        # Now, let's revoke the token
+        resp = ks.revoke_token(cls.token, cls.token)
+
+        # For completeness sake...
+        cls.token = None
