@@ -4,7 +4,7 @@
 ## scheme "test_[...].py", i.e., "test_tokens.py".
 ##
 ## I don't think I need to explain the copyright notice :)
-
+##
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 # Copyright (c) 2011 OpenStack, LLC.
 #
