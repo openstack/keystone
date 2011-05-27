@@ -6,5 +6,5 @@
     </tenant>
     <atom:link
         rel="previous"
-        href="http://identity.api.openstack.org/v2.0/1234/tenants?limit=1&amp;marker=1234"/>
+        href="http://identity.api.openstack.org/v2.0/tenants?limit=1&amp;marker=1234"/>
 </tenants>

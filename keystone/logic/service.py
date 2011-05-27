@@ -25,7 +25,7 @@ import keystone.logic.types.fault as fault
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
 import keystone.logic.types.user as users
-
+import keystone.logic.types.baseURL as baseURLs
 
 class IdentityService(object):
     "This is the logical implemenation of the Identity service"
@@ -450,7 +450,7 @@ class IdentityService(object):
         ts = []
         dtenantusers = db_api.users_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
-        for dtenantuser, dtenantuserAsso in dtenantusers:
+        for dtenantuser in dtenantusers:
             ts.append(users.User(None, dtenantuser.id, tenant_id,
                                    dtenantuser.email, dtenantuser.enabled))
         links = []
@@ -480,10 +480,7 @@ class IdentityService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
-        if len(duser.tenants) > 0:
-            tenant_user = duser.tenants[0].tenant_id
-        else:
-            tenant_user = tenant_id
+        tenant_user = tenant_id
 
         ts = []
         dusergroups = db_api.user_groups_get_all(user_id)
@@ -856,14 +853,13 @@ class IdentityService(object):
         if not user.enabled:
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
-        '''TODO(Ziad): return roles
         if admin:
-            for roles in user.roles:
-                if ug.group_id == "Admin":
+            roleRefs = db_api.role_ref_get_all_global_roles(user.id)
+            for roleRef in roleRefs:
+                if roleRef.role_id == "Admin":
                     return (token, user)
             raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
-        '''
         return (token, user)
         
     def create_role(self, admin_token, role):
@@ -892,7 +888,7 @@ class IdentityService(object):
         for drole in droles:
             ts.append(roles.Role(drole.id,
                                      drole.desc))
-        prev, next = db_api.tenant_get_page_markers(marker, limit)
+        prev, next = db_api.role_get_page_markers(marker, limit)
         links = []
         if prev:
             links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -927,17 +923,16 @@ class IdentityService(object):
         if drole == None:
             raise fault.ItemNotFoundFault("The role not found")
             
-        if roleRef.tenant_id == None:
-            raise fault.BadRequestFault("Expecting a Tenant Id")
-        
-        dtenant = db_api.tenant_get(roleRef.tenant_id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
+        if roleRef.tenant_id != None:
+            dtenant = db_api.tenant_get(roleRef.tenant_id)
+            if dtenant == None:
+                raise fault.ItemNotFoundFault("The tenant not found")
 
         drole_ref = db_models.UserRoleAssociation()
         drole_ref.user_id = duser.id
         drole_ref.role_id = drole.id
-        drole_ref.tenant_id = dtenant.id
+        if roleRef.tenant_id != None:
+            drole_ref.tenant_id = dtenant.id
         user_role_ref = db_api.user_role_add(drole_ref)
         roleRef.role_ref_id = user_role_ref.id
         return roleRef
@@ -959,7 +954,7 @@ class IdentityService(object):
         for droleRef in droleRefs:
             ts.append(roles.RoleRef(droleRef.id,droleRef.role_id,
                                      droleRef.tenant_id))
-        prev, next = db_api.tenant_get_page_markers(marker, limit)
+        prev, next = db_api.role_ref_get_page_markers(user_id, marker, limit)
         links = []
         if prev:
             links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -968,4 +963,29 @@ class IdentityService(object):
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
         return roles.RoleRefs(ts, links)
+        
+    def get_baseurls(self, admin_token, marker, limit, url):
+        self.__validate_token(admin_token)
+
+        ts = []
+        dbaseurls = db_api.baseurls_get_page(marker, limit)
+        for dbaseurl in dbaseurls:
+            ts.append(baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled))
+        prev, next = db_api.baseurls_get_page_markers(marker, limit)
+        links = []
+        if prev:
+            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
+                                                % (url, prev, limit)))
+        if next:
+            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
+                                                % (url, next, limit)))
+        return baseURLs.BaseURLs(ts, links)
+
+    def get_baseurl(self, admin_token, baseurl_id):
+        self.__validate_token(admin_token)
+
+        dbaseurl = db_api.baseurls_get(baseurl_id)
+        if not dbaseurl:
+            raise fault.ItemNotFoundFault("The role could not be found")
+        return baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled)       
     

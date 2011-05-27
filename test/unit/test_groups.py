@@ -63,7 +63,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
                                               str(self.auth_token))
 
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
         if int(resp_new['status']) not in (200, 201):
@@ -76,7 +76,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
                                                   str(self.auth_token))
 
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
 
@@ -88,7 +88,7 @@ class CreateGlobalGroupTest(GlobalGroupTest):
         resp_new, content_new = utils.create_global_group(self.global_group,
                                               str(self.auth_token))
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp_new['status']))
@@ -100,22 +100,16 @@ class CreateGlobalGroupTest(GlobalGroupTest):
                                                 str(self.auth_token))
         content_new = etree.fromstring(content_new)
         if int(resp_new['status']) == 500:
-            self.fail('IDM fault')
+            self.fail('Identity fault')
         elif int(resp_new['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, int(resp_new['status']))
 
     def test_global_group_create_unauthorized_token(self):
         header = httplib2.Http(".cache")
-        resp_new, content_new = utils.create_global_group_xml(\
+        resp, content = utils.create_global_group(\
                                                     self.global_group,
-                                                    str(self.auth_token))
-        url = '%sgroups' % (utils.URL)
-        body = {"group": {"id": self.global_group,
-                          "description": "A description ..."}}
-        resp, content = header.request(url, "POST", body=json.dumps(body),
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": self.token})
+                                                    str(self.token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -124,16 +118,9 @@ class CreateGlobalGroupTest(GlobalGroupTest):
 
     def test_global_group_create_unauthorized_token_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sgroups' % (utils.URL)
-        body = '<?xml version="1.0" encoding="UTF-8"?> \
-                <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                id="%s"> \
-                <description>A description...</description> \
-                </group>' % self.global_group
-        resp, content = header.request(url, "POST", body=body,
-                                  headers={"Content-Type": "application/xml",
-                                           "X-Auth-Token": self.token,
-                                           "ACCEPT": "application/xml"})
+        resp, content = utils.create_global_group_xml(\
+                                                    self.global_group,
+                                                    str(self.token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -581,7 +568,6 @@ class DeleteGlobalGroupTest(GlobalGroupTest):
         resp_new, content_new = utils.delete_global_group_xml(\
                                                   'test_global_group_delete',
                                                   str(self.auth_token))
-
         utils.delete_tenant_xml(self.globaltenant, str(self.auth_token))
 
         self.assertEqual(204, int(resp_new['status']))
@@ -602,7 +588,7 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         utils.add_user_json(self.tenant, self.user, self.auth_token)
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
-
+        
     def tearDown(self):
         utils.delete_user_global_group(self.global_group, self.user,
                                        str(self.auth_token))

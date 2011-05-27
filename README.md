@@ -11,7 +11,40 @@ This initial proof of concept aims to address the current use cases in Swift and
 DEVELOPER GUIDE/CONCEPTS:
 ------------------------
 
-This [dev guide](https://github.com/khussein/keystone/raw/master/keystone/content/identitydevguide.pdf) is built from the source on this repo.
+The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
+generated from XML and other artifacts in the keystone/docs/src folder.
+
+To build the API dev guide, you need Maven. To build the docs, run the following from the
+keystone/docs folder:
+
+    $ mvn clean generate-sources
+
+The output will go into the keystone/docs/target folder (the source is in keystone/docs/src). Output
+generated is PDF and webhelp.
+
+
+Core Concepts:
+--------------
+<table>
+  <tr>
+    <th>Concept</th><th align="left">Description</th>
+  </tr>
+  <tr>
+    <td>User</td><td>A 'user' is a client who has been registered with Keystone.</td>
+  </tr>
+  <tr>
+    <td>Role</td><td>A 'role' describes a responsibility which is linked to a given user.</td>
+  </tr>
+  <tr>
+    <td>Token</td><td>A 'token' describes a temporary object which helps users authenticate themselves.</td>
+  </tr>
+  <tr>
+    <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
+  </tr>
+  <tr>
+    <td>Group</td><td>Unknown</td>
+  </tr>
+</table>
 
 
 SERVICES:
@@ -27,6 +60,15 @@ Also included:
 * Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
 * Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
+
+Built-In Services:
+
+* bin/keystone  - Provides HTTP API for users and administrators
+* bin/keystone-admin - Provides HTTP API for administrators
+* bin/keystone-service - Provides HTTP API for users
+* bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
+
+By default, configuration parameters are parsed from etc/keystone.conf.
 
 
 RUNNING KEYSTONE:
@@ -52,44 +94,19 @@ All above files take parameters from etc/keystone.conf file under the Keystone r
 
 
 DEPENDENCIES:
--------------
-See pip-requires for dependency list. The list of dependencies should not add to what already is needed to run other OpenStack services.
+=======
 
-Setup:
+<pre>
+# Show Dependencies
+$ cat tools/pip-requires
 
-    # Install http://pypi.python.org/pypi/setuptools
-    sudo easy_install pip
-    sudo pip install -r pip-requires
-
-
-RUNNING THE TEST SERVICE (Echo.py):
-----------------------------------
-
-    Standalone stack (with Auth_Token)
-    $ cd echo/bin
-    $ ./echod
-
-    Distributed stack (with RemoteAuth local and Auth_Token remote)
-    $ cd echo/bin
-    $ ./echod --remote
-
-    in separate session
-    $ cd keystone/auth_protocols
-    $ python auth_token.py
+# Install Dependencies
+$ sudo pip install -r tools/pip-requires
+</pre>
 
 
-DEMO CLIENT:
-------------
-A sample client that gets a token from Keystone and then uses it to call Echo (and a few other example calls):
-
-    $ cd echo/echo
-    $ python echo_client.py
-    Note: this requires test data. See section TESTING for initializing data
-
-
-
-TESTING:
---------
+Running Tests:
+--------------
 A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
@@ -137,19 +154,9 @@ To Test Keystone Service:
 * Select tests/IdentitySOAPUI.xml
 * Double click on "Keystone Tests" and press the green play (>) button
 
-DOCUMENTATION:
---------------
-
-The dev guide is automatically generated from XML and other artifacts in the keystone/docs/src folder.
-To build the API dev guide, you need Maven. To build the docs, run the following from the
-keystone/docs folder:
-
-    $ mvn clean generate-sources
-
-The output will go into the keystone/docs/target folder (the source is in keystone/docs/src)
 
 
-ADDITIONAL INFORMATION:
+Additional Information:
 -----------------------
 
 Configuration:
@@ -163,9 +170,9 @@ in troubleshooting:
 
 CURL commands:
 
-   $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
+   $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
 
-   $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/token
+   $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
 
 Load Testing:
 
@@ -175,7 +182,7 @@ Load Testing:
 
    $ # Call Apache Bench
 
-   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/token
+   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/tokens
 
 
 NOVA Integration:
@@ -185,7 +192,7 @@ Initial support for using keystone as nova's identity component has been started
 
     # clone projects
     bzr clone lp:nova
-    git clone git://github.com/khussein/keystone.git
+    git clone git://github.com/rackspace/keystone.git
 
     # link keystone into the nova root dir
     ln -s keystone/keystone nova/keystone
@@ -199,14 +206,33 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
 I WANT OPENSTACK:
 -----------------
 
-    $ # create a maverick cloud server
-    $ curl -O https://github.com/cloudbuilders/deploy.sh/raw/master/nova.sh
-    $ chmod 755 nova.sh
-    $ export USE_GIT=1         # checkout source using github mirror
-    $ export ENABLE_VOLUMES=0  # disable volumes
-    $ export ENABLE_DASH=1     # install & configure dashboard
-    $ export ENABLE_GLANCE=1   # install & configure glance image service
-    $ export ENABLE_KEYSTONE=1 # install & configure keystone (unified auth)
-    $ ./nova.sh branch
-    $ ./nova.sh install
-    $ ./nova.sh run
+To get an opinionated install of nova, keystone, dashboard and glance using openstack apis:
+
+    # create a maverick cloud server
+    curl -O https://github.com/cloudbuilders/deploy.sh/raw/master/nova.sh
+    chmod 755 nova.sh
+    export USE_GIT=1         # checkout source using github mirror
+    export ENABLE_VOLUMES=0  # disable volumes
+    export ENABLE_DASH=1     # install & configure dashboard
+    export ENABLE_GLANCE=1   # install & configure glance image service
+    export ENABLE_KEYSTONE=1 # install & configure keystone (unified auth)
+    ./nova.sh branch
+    ./nova.sh install
+    # nova's patched libvirt ppa doesn't work on cloud servers, revert to old libvirt
+    apt-get install -y --force-yes libvirt0=0.8.3-1ubuntu14.1 libvirt-bin=0.8.3-1ubuntu14.1 python-libvirt=0.8.3-1ubuntu14.1
+    ./nova.sh run
+
+
+INTERESTING TECHNOLOGIES/STANDARDS:
+-----------------------------------
+Protocols we could potentially integrate:
+
+WebID
+
+    http://www.w3.org/2005/Incubator/webid/spec/
+    http://www.w3.org/wiki/Foaf+ssl
+
+OpenID or OpenIDConnect
+
+SAML
+

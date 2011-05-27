@@ -124,7 +124,12 @@ def role_ref_get_page(marker, limit, user_id, session=None):
     else:
         return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
                             models.UserRoleAssociation.id.desc()).limit(limit).all()
-        
+
+def role_ref_get_all_global_roles(user_id,session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("tenant_id is null").all()
+    
 def role_ref_get(id, session=None):
     if not session:
         session = get_session()
@@ -209,6 +214,7 @@ def tenant_get_page_markers(marker, limit, session=None):
     else:
         next = next.id
     return (prev, next)
+
 
 
 def tenant_is_empty(id, session=None):
@@ -721,47 +727,43 @@ def user_get_update(id, session=None):
 def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
     if not session:
         session = get_session()
-    uta = aliased(models.UserTenantAssociation)
     user = aliased(models.User)
     if marker:
-        return session.query(user, uta).join(
-                            (uta, uta.user_id == user.id)).\
-                            filter(uta.tenant_id == tenant_id).\
+        return session.query(user).\
+                            filter("tenant_id = :tenant_id").\
+                            params(tenant_id='%s' % tenant_id).\
                             filter("id>=:marker").params(
                             marker='%s' % marker).order_by(
-                            user.id).limit(limit).all()
+                            "id").limit(limit).all()
     else:
-        return session.query(user, uta).\
-                            join((uta, uta.user_id == user.id)).\
-                            filter(uta.tenant_id == tenant_id).order_by(
-                            user.id).limit(limit).all()
+        return session.query(user).\
+                             filter("tenant_id = :tenant_id").\
+                            params(tenant_id='%s' % tenant_id).order_by(
+                            "id").limit(limit).all()
 
 
 def users_get_by_tenant_get_page_markers(tenant_id, marker, limit,\
         session=None):
     if not session:
         session = get_session()
-    uta = aliased(models.UserTenantAssociation)
     user = aliased(models.User)
-    first, firstassoc = session.query(user, uta).\
-                        join((uta, uta.user_id == user.id)).\
-                        filter(uta.tenant_id == tenant_id).\
-                        order_by(user.id).first()
-    last, lastassoc = session.query(user, uta).\
-                        join((uta, uta.user_id == user.id)).\
-                        filter(uta.tenant_id == tenant_id).\
+    first = session.query(user).\
+                    filter(user.tenant_id == tenant_id).\
+                    order_by(user.id).first()
+    last = session.query(user).\
+                        filter(user.tenant_id == tenant_id).\
                         order_by(user.id.desc()).first()
     if first is None:
         return (None, None)
     if marker is None:
         marker = first.id
-    next = session.query(user, uta).join((uta, uta.user_id == user.id)).\
-                    filter(uta.tenant_id == tenant_id).\
+    next = session.query(user).\
+                    filter(user.tenant_id == tenant_id).\
                     filter("id > :marker").params(\
                     marker='%s' % marker).order_by(user.id).\
                     limit(int(limit)).all()
-    prev = session.query(user, uta).join((uta, uta.user_id == user.id)).\
-                    filter(uta.tenant_id == tenant_id).\
+    prev = session.query(user).\
+                    filter(user.tenant_id == tenant_id).\
                     filter("id < :marker").params(
                     marker='%s' % marker).order_by(
                     user.id.desc()).limit(int(limit)).all()
@@ -771,12 +773,12 @@ def users_get_by_tenant_get_page_markers(tenant_id, marker, limit,\
     if next_len == 0:
         next = last
     else:
-        for t, a in next:
+        for t in next:
             next = t
     if prev_len == 0:
         prev = first
     else:
-        for t, a in prev:
+        for t in prev:
             prev = t
     if first.id == marker:
         prev = None
@@ -867,6 +869,150 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
     else:
         prev = prev.id
     if marker == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
+
+def role_get_page_markers(marker, limit, session=None):
+    if not session:
+        session = get_session()
+    first = session.query(models.Role).order_by(\
+                        models.Role.id).first()
+    last = session.query(models.Role).order_by(\
+                        models.Role.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = session.query(models.Role).filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.Role.id).limit(limit).all()
+    prev = session.query(models.Role).filter("id < :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.Role.id.desc()).limit(int(limit)).all()
+    if len(next) == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if len(prev) == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if prev.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if next.id == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
+    
+def role_ref_get_page_markers(user_id, marker, limit, session=None):
+    if not session:
+        session = get_session()
+    first = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
+                        models.UserRoleAssociation.id).first()
+    last = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
+                        models.UserRoleAssociation.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.UserRoleAssociation.id).limit(limit).all()
+    prev = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("id < :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.UserRoleAssociation.id.desc()).limit(int(limit)).all()
+    if len(next) == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if len(prev) == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if prev.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if next.id == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
+
+#
+# BaseURL API operations
+#
+
+def baseurls_create(values):
+    baseurls_ref = models.BaseUrls()
+    baseurls_ref.update(values)
+    baseurls_ref.save()
+    return baseurls_ref
+
+def baseurls_get(id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.BaseUrls).filter_by(id=id).first()
+    return result
+
+def baseurls_get_all(session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.BaseUrls).all()
+
+def baseurls_get_page(marker, limit, session=None):
+    if not session:
+        session = get_session()
+
+    if marker:
+        return session.query(models.BaseUrls).filter("id>:marker").params(\
+                marker='%s' % marker).order_by(\
+                models.BaseUrls.id.desc()).limit(limit).all()
+    else:
+        return session.query(models.BaseUrls).order_by(\
+                            models.BaseUrls.id.desc()).limit(limit).all()
+    
+def baseurls_get_page_markers(marker, limit, session=None):
+    if not session:
+        session = get_session()
+    first = session.query(models.BaseUrls).order_by(\
+                        models.BaseUrls.id).first()
+    last = session.query(models.BaseUrls).order_by(\
+                        models.BaseUrls.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = session.query(models.BaseUrls).filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.BaseUrls.id).limit(limit).all()
+    prev = session.query(models.BaseUrls).filter("id < :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.BaseUrls.id.desc()).limit(int(limit)).all()
+    if len(next) == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if len(prev) == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if prev.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if next.id == last.id:
         next = None
     else:
         next = next.id

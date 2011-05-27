@@ -184,7 +184,7 @@ class AuthProtocol(object):
                                           "tenantId": "1"}}
         conn = httplib.HTTPConnection("%s:%s" \
             % (self.auth_host, self.auth_port))
-        conn.request("POST", "/v2.0/token", json.dumps(params), \
+        conn.request("POST", "/v2.0/tokens", json.dumps(params), \
             headers=headers)
         response = conn.getresponse()
         data = response.read()
@@ -226,7 +226,7 @@ class AuthProtocol(object):
                     # "X-Auth-Token": admin_token}
                     # we're using a test token from the ini file for now
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                            '/v2.0/token/%s' % claims, headers=headers)
+                            '/v2.0/tokens/%s' % claims, headers=headers)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()
@@ -252,7 +252,7 @@ class AuthProtocol(object):
                     # "X-Auth-Token": admin_token}
                     # we're using a test token from the ini file for now
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                            '/v2.0/token/%s' % self.claims, headers=headers)
+                            '/v2.0/tokens/%s' % self.claims, headers=headers)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()

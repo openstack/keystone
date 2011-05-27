@@ -29,7 +29,7 @@ URLv1 = 'http://localhost:8081/v1.0/'
 
 def get_token(user, pswd, tenant_id, kind=''):
     header = httplib2.Http(".cache")
-    url = '%stoken' % URL
+    url = '%stokens' % URL
 
     if not tenant_id:
         body = {"passwordCredentials": {"username": user,
@@ -96,7 +96,7 @@ def create_tenant(tenantid, auth_token):
 def create_tenant_group(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%stenant/%s/groups' % (URL, tenantid)
+    url = '%stenants/%s/groups' % (URL, tenantid)
     body = {"group": {"id": groupid,
                        "description": "A description ..."}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -116,7 +116,7 @@ def delete_tenant(tenantid, auth_token):
 
 def delete_tenant_group(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenant/%s/groups/%s' % (URL, tenantid, groupid)
+    url = '%stenants/%s/groups/%s' % (URL, tenantid, groupid)
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -171,7 +171,7 @@ def delete_global_group_xml(groupid, auth_token):
 
 def get_token_xml(user, pswd, tenant_id, type=''):
         header = httplib2.Http(".cache")
-        url = '%stoken' % URL
+        url = '%stokens' % URL
         # to test multi token, removing below code
         """if tenant_id:
             body = '<?xml version="1.0" encoding="UTF-8"?> \
@@ -235,7 +235,7 @@ def create_tenant_xml(tenantid, auth_token):
 
 def create_tenant_group_xml(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenant/%s/groups' % (URL, tenantid)
+    url = '%stenants/%s/groups' % (URL, tenantid)
     body = '<?xml version="1.0" encoding="UTF-8"?> \
             <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
              id="%s"> \
@@ -725,7 +725,6 @@ def create_role_ref(user_id, role_id, tenant_id, auth_token):
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
-    print url, resp, content    
     return (resp, content)
     
 def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):

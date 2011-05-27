@@ -15,7 +15,7 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
-from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -88,8 +88,14 @@ class UserRoleAssociation(Base, KeystoneBase):
     user_id = Column(String(255), ForeignKey('users.id'))
     role_id = Column(String(255), ForeignKey('roles.id'))
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
-    UniqueConstraint('user_id', 'role_id', 'tenant_id', name='user_role_tenant_uniquness')
+    __table_args__ = (UniqueConstraint("user_id", "role_id", "tenant_id"), {} ) 
 
+class TenantBaseURLAssociation(Base, KeystoneBase):
+    __tablename__ = 'tenant_baseURLs'
+    id = Column(Integer, primary_key=True)
+    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    baseURLs_id = Column(Integer, ForeignKey('urlbase.id'))
+    __table_args__ = (UniqueConstraint("baseURLs_id", "tenant_id"), {} ) 
 
 # Define objects
 class Role(Base, KeystoneBase):
@@ -106,6 +112,7 @@ class Tenant(Base, KeystoneBase):
     desc = Column(String(255))
     enabled = Column(Integer)
     groups = relationship('Group', backref='tenants')
+    endpoints = relationship('TenantBaseURLAssociation', backref='tenant',cascade="all")
 
 
 class User(Base, KeystoneBase):
@@ -118,7 +125,7 @@ class User(Base, KeystoneBase):
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
     
     groups = relationship(UserGroupAssociation, backref='users')
-    roles = relationship(UserRoleAssociation,cascade="all,delete")
+    roles = relationship(UserRoleAssociation, cascade="all")
 
 class Credentials(Base, KeystoneBase):
     __tablename__ = 'credentials'
@@ -146,9 +153,13 @@ class Token(Base, KeystoneBase):
     expires = Column(DateTime)
 
 
-class Endpoints(Base, KeystoneBase):
-    __tablename__ = 'endpoints'
-
-    id = Column(String(255), primary_key=True, unique=True)
+class BaseUrls(Base, KeystoneBase):
+    __tablename__ = 'urlbase'
+    
+    id = Column(Integer, primary_key=True)
+    region = Column(String(255))
     service = Column(String(255))
-    desc = Column(String(255))
+    public_url =  Column(String(2000))
+    admin_url  =  Column(String(2000))
+    internal_url  =  Column(String(2000))
+    enabled = Column(Boolean)

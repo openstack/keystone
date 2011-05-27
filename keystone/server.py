@@ -549,7 +549,6 @@ class RolesController(wsgi.Controller):
                          req.environ['PATH_INFO'])
         roles = service.get_roles(utils.get_auth_token(req),
                                          marker, limit, url)
-
         return utils.send_result(200, req, roles)
     
     @utils.wrap_error    
@@ -582,10 +581,46 @@ class RolesController(wsgi.Controller):
 
         return utils.send_result(200, req, roleRefs)
     
+    @utils.wrap_error
     def delete_role_ref(self, req, user_id, role_ref_id):
         rval = service.delete_role_ref(utils.get_auth_token(req),
                                         role_ref_id)
         return utils.send_result(204, req, rval)
+        
+class BaseURLsController(wsgi.Controller):
+    """
+        BaseURL Controller -
+        Controller for BaseURL related operations
+    """
+
+    def __init__(self, options):
+        self.options = options
+        
+    @utils.wrap_error
+    def get_baseurls(self, req):
+        marker = None
+        if "marker" in req.GET:
+            marker = req.GET["marker"]
+
+        if "limit" in req.GET:
+            limit = req.GET["limit"]
+        else:
+            limit = 10
+
+        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                         req.environ.get("SERVER_NAME"),
+                         req.environ.get("SERVER_PORT"),
+                         req.environ['PATH_INFO'])
+        baseURLs = service.get_baseurls(utils.get_auth_token(req),
+                                         marker, limit, url)
+        return utils.send_result(200, req, baseURLs)
+
+    @utils.wrap_error
+    def get_baseurl(self, req, baseURLId):
+        baseurl = service.get_baseurl(utils.get_auth_token(req), baseURLId)
+        return utils.send_result(200, req, baseurl)
+
+    
         
 class KeystoneAPI(wsgi.Router):
     """WSGI entry point for public Keystone API requests."""
@@ -612,9 +647,9 @@ class KeystoneAPI(wsgi.Router):
                        conditions=dict(method=["POST"]))
 
         # Token Operations
-        mapper.connect("/v2.0/token", controller=auth_controller,
+        mapper.connect("/v2.0/tokens", controller=auth_controller,
                        action="authenticate")
-        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 
@@ -678,12 +713,12 @@ class KeystoneAdminAPI(wsgi.Router):
 
         # Token Operations
         auth_controller = AuthController(options)
-        mapper.connect("/v2.0/token", controller=auth_controller,
+        mapper.connect("/v2.0/tokens", controller=auth_controller,
                        action="authenticate")
-        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="validate_token",
                         conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/token/{token_id}", controller=auth_controller,
+        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 
@@ -704,24 +739,23 @@ class KeystoneAdminAPI(wsgi.Router):
                     action="delete_tenant", conditions=dict(method=["DELETE"]))
 
         # Tenant Group Operations
-
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="create_tenant_group",
                     conditions=dict(method=["POST"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="get_tenant_groups",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="get_tenant_group",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="update_tenant_group",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/tenant/{tenant_id}/groups/{group_id}",
+        mapper.connect("/v2.0/tenants/{tenant_id}/groups/{group_id}",
                     controller=tenant_controller,
                     action="delete_tenant_group",
                     conditions=dict(method=["DELETE"]))
@@ -806,7 +840,7 @@ class KeystoneAdminAPI(wsgi.Router):
                     action="delete_user_global_group",
                     conditions=dict(method=["DELETE"]))
 
-        #Roles
+        #Roles and RoleRefs
         roles_controller = RolesController(options)
         mapper.connect("/v2.0/roles", controller=roles_controller,
                     action="get_roles", conditions=dict(method=["GET"]))
@@ -821,6 +855,13 @@ class KeystoneAdminAPI(wsgi.Router):
         mapper.connect("/v2.0/users/{user_id}/roleRefs/{role_ref_id}",
             controller=roles_controller, action="delete_role_ref",
             conditions=dict(method=["DELETE"]))
+
+        #BaseURLs and BaseURLRefs
+        baseurls_controller = BaseURLsController(options)
+        mapper.connect("/v2.0/baseURLs", controller=baseurls_controller,
+                    action="get_baseurls", conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/baseURLs/{baseURLId}", controller=baseurls_controller,
+                    action="get_baseurl", conditions=dict(method=["GET"]))
        
 
         # Miscellaneous Operations
@@ -844,11 +885,11 @@ class KeystoneAdminAPI(wsgi.Router):
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/xsd/{xsd}",
                     controller=static_files_controller,
-                    action="get_pdf_contract",
+                    action="get_xsd_contract",
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/xsd/atom/{xsd}",
                     controller=static_files_controller,
-                    action="get_pdf_contract",
+                    action="get_xsd_atom_contract",
                     conditions=dict(method=["GET"]))
 
         super(KeystoneAdminAPI, self).__init__(mapper)
