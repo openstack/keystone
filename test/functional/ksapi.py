@@ -34,48 +34,70 @@ class KeystoneAPI20(simplerest.RESTAPI):
                                          tenantId=('req', False))
     validate_token = simplerest.RESTMethod('validate_token', 'GET',
                                            '/tokens/{tokenId}',
-                                           ['tokenId', 'belongsTo'],
+                                           ['x_auth_token',
+                                            'tokenId', 'belongsTo'],
+                                           x_auth_token='header',
                                            belongsTo='query')
     revoke_token = simplerest.RESTMethod('revoke_token', 'DELETE',
                                          '/tokens/{tokenId}',
-                                         ['tokenId'])
+                                         ['x_auth_token', 'tokenId'],
+                                         x_auth_token='header')
 
     create_tenant = simplerest.RESTMethod('create_tenant', 'POST', '/tenants',
-                                          ['id', 'description', 'enabled'],
+                                          ['x_auth_token', 'id',
+                                           'description', 'enabled'],
                                           'tenant',
+                                          x_auth_token='header',
                                           id='req', description='req',
                                           enabled='req')
-    get_tenants = simplerest.RESTMethod('get_tenants', 'GET', '/tenants')
+    get_tenants = simplerest.RESTMethod('get_tenants', 'GET', '/tenants',
+                                        ['x_auth_token'],
+                                        x_auth_token='header')
     get_tenant = simplerest.RESTMethod('get_tenant', 'GET',
                                        '/tenants/{tenantId}',
-                                       ['tenantId'])
+                                       ['x_auth_token', 'tenantId'],
+                                       x_auth_token='header')
     update_tenant = simplerest.RESTMethod('update_tenant', 'PUT',
                                           '/tenants/{tenantId}',
-                                          ['tenantId', 'description'],
-                                          'tenant', description='req')
+                                          ['x_auth_token', 'tenantId',
+                                           'description'],
+                                          'tenant',
+                                          x_auth_token='header',
+                                          description='req')
     delete_tenant = simplerest.RESTMethod('delete_tenant', 'DELETE',
-                                          '/tenants/{tenantId}', ['tenantId'])
+                                          '/tenants/{tenantId}',
+                                          ['x_auth_token', 'tenantId'],
+                                          x_auth_token='header')
 
     get_base_urls = simplerest.RESTMethod('get_base_urls', 'GET',
-                                          '/baseURLs', ['serviceName'],
+                                          '/baseURLs',
+                                          ['x_auth_token', 'serviceName'],
+                                          x_auth_token='header',
                                           serviceName='query')
     get_enabled_base_urls = simplerest.RESTMethod('get_enabled_base_urls',
                                                   'GET', '/baseURLs/enabled',
-                                                  ['serviceName'],
+                                                  ['x_auth_token',
+                                                   'serviceName'],
+                                                  x_auth_token='header',
                                                   serviceName='query')
     get_base_url = simplerest.RESTMethod('get_base_url', 'GET',
                                          '/baseURLs/{baseURLId}',
-                                         ['baseURLId'])
+                                         ['x_auth_token', 'baseURLId'],
+                                         x_auth_token='header')
     get_base_url_refs = simplerest.RESTMethod('get_base_url_refs', 'GET',
                                               '/tenants/{tenantId}/'
-                                              'baseURLRefs', ['tenantId'])
+                                              'baseURLRefs',
+                                              ['x_auth_token', 'tenantId'],
+                                              x_auth_token='header')
     add_base_url_ref = simplerest.RESTMethod('add_base_url_ref', 'POST',
                                              '/tenants/{tenantId}/'
                                              'baseURLRefs',
-                                             ['tenantId', 'id', 'region',
+                                             ['x_auth_token',
+                                              'tenantId', 'id', 'region',
                                               'default', 'serviceName',
                                               'publicURL', 'internalURL',
                                               'enabled'], 'baseURL',
+                                             x_auth_token='header',
                                              id='req', region='req',
                                              default='req',
                                              serviceName='req',
@@ -84,28 +106,41 @@ class KeystoneAPI20(simplerest.RESTAPI):
     get_base_url_ref = simplerest.RESTMethod('get_base_url_ref', 'GET',
                                              '/tenants/{tenantId}/'
                                              'baseURLRefs/{baseURLId}',
-                                             ['tenantId', 'baseURLId'])
+                                             ['x_auth_token', 'tenantId',
+                                              'baseURLId'],
+                                             x_auth_token='header')
     delete_base_url_ref = simplerest.RESTMethod('delete_base_url_ref',
                                                 'DELETE',
                                                 '/tenants/{tenantId}/'
                                                 'baseURLRefs/{baseURLId}',
-                                                ['tenantId', 'baseURLId'])
+                                                ['x_auth_token', 'tenantId',
+                                                 'baseURLId'],
+                                                x_auth_token='header')
 
     get_roles = simplerest.RESTMethod('get_roles', 'GET', '/roles',
-                                      ['serviceName'], serviceName='query')
+                                      ['x_auth_token', 'serviceName'],
+                                      x_auth_token='header',
+                                      serviceName='query')
     get_role = simplerest.RESTMethod('get_role', 'GET', '/roles/{roleId}',
-                                     ['roleId'])
+                                     ['x_auth_token', 'roleId'],
+                                     x_auth_token='header')
     get_role_refs = simplerest.RESTMethod('get_role_refs', 'GET',
                                           '/users/{userId}/roleRefs',
-                                          ['userId'])
+                                          ['x_auth_token', 'userId'],
+                                          x_auth_token='header')
     add_role_ref = simplerest.RESTMethod('add_role_ref', 'POST',
                                          '/users/{userId}/roleRefs',
-                                         'roleRef',
-                                         ['userId', 'id', 'href', 'tenantId'],
+                                         ['x_auth_token', 'userId', 'id',
+                                          'href', 'tenantId'],
+                                         'roleRef', x_auth_token='header',
                                          id='req', href='req', tenantId='req')
     get_role_ref = simplerest.RESTMethod('get_role_ref', 'GET',
                                          '/users/{userId}/roleRefs/{roleId}',
-                                         ['userId', 'roleId'])
+                                         ['x_auth_token', 'userId', 'roleId'],
+                                         x_auth_token='header')
     delete_role_ref = simplerest.RESTMethod('delete_role_ref', 'DELETE',
                                             '/users/{userId}/roleRefs/'
-                                            '{roleId}', ['userId', 'roleId'])
+                                            '{roleId}',
+                                            ['x_auth_token', 'userId',
+                                             'roleId'],
+                                            x_auth_token='header')
