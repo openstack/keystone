@@ -120,14 +120,16 @@ class RESTClient(object):
     # Maximum number of redirects we'll follow
     max_redirects = 10
 
-    def __init__(self, baseurl):
+    def __init__(self, baseurl, debug_stream=None):
         """Initialize a REST client.
 
         :param baseurl: The base URL for the client connection.
+        :param debug_stream: An optional stream for receiving debug.
         """
 
-        # Save the base URL
+        # Save the base URL and debug stream
         self._baseurl = baseurl
+        self._debug_stream = debug_stream
 
         # Pull it apart, also...
         parsed = urlparse.urlparse(baseurl)
@@ -174,6 +176,13 @@ class RESTClient(object):
 
         return connect
 
+    def _debug(self, msg, *args, **kwargs):
+        """Generate debugging output."""
+
+        # If we have a declared debug stream, output to it
+        if self._debug_stream:
+            print >>self._debug_stream, msg % (kwargs if kwargs else args)
+
     def make_req(self, method, reluri, query=None, obj=None, headers=None):
         """Makes an HTTPRequest.
 
@@ -199,6 +208,8 @@ class RESTClient(object):
         if query:
             fulluri += '?%s' % urllib.urlencode(query)
 
+        self._debug("Creating %s request for %s", method, fulluri)
+
         # Set up a default for the accept header
         if headers is None:
             headers = {}
@@ -211,6 +222,7 @@ class RESTClient(object):
         if obj is not None:
             json.dump(obj, req)
             req['content-type'] = 'application/json'
+            self._debug("  Request body: %r" % req.body)
 
         # Now, return the request
         return req
@@ -227,6 +239,9 @@ class RESTClient(object):
         object is available in the body, the obj attribute of the
         response will be set to it; otherwise, obj is None.
         """
+
+        self._debug("Sending request on client %s: (%r, %r, %r, %r)",
+                    self._baseurl, req.method, req.uri, req.body, req.headers)
 
         # First, get a connection
         if self._connect is None:
@@ -249,6 +264,7 @@ class RESTClient(object):
         seen = set([fullurl])
         for i in range(self.max_redirects):
             # Make the request
+            self._debug("  Issuing request to %s (%s)", fullurl, uri)
             connect.request(req.method, uri, req.body, req.headers)
 
             # Get the response
@@ -268,8 +284,11 @@ class RESTClient(object):
                 # Canonicalize it; it could be relative
                 fullurl = urlparse.urljoin(fullurl, newurl)
 
+                self._debug("  Got redirected to %s" % fullurl)
+
                 # Make sure we haven't seen it before...
                 if fullurl in seen:
+                    self._debug("    Redirected URL already seen!")
                     break
 
                 seen.add(fullurl)
@@ -289,20 +308,28 @@ class RESTClient(object):
 
             # We have a response and it's not a redirection; let's
             # interpret the JSON in the response (safely)...
+            self._debug("  Received %s response (%s)", resp.status,
+                        resp.reason)
             try:
                 resp.obj = json.load(resp)
+                self._debug("    Received entity: %r", resp.obj)
             except ValueError:
                 resp.obj = None
+                self._debug("    No received entity")
 
             # If this is an error response, let's raise an appropriate
             # exception
             if resp.status >= 400:
-                raise exceptions.get(resp.status, HTTPException)(resp)
+                exc = exceptions.get(resp.status, HTTPException)
+                self._debug("    Response was a fault, raising %s",
+                            exc.__name__)
+                raise exc(resp)
 
             # Return the response
             return resp
 
         # Exceeded the maximum number of redirects
+        self._debug("  Redirect loop detected")
         raise RESTException("Redirect loop detected")
 
     def get(self, reluri, query=None, headers=None):
@@ -520,6 +547,8 @@ class RESTMethod(object):
         :param kwargs: A dictionary of arguments to this REST method.
         """
 
+        rc._debug("Called %s(%r)", self.name, kwargs)
+
         # We're going to build an object, a query, and headers
         headers = {}
         query = {}
@@ -538,21 +567,30 @@ class RESTMethod(object):
             if field not in kwargs:
                 # Is it required?
                 if required:
+                    rc._debug("  Required %r argument %r missing",
+                              type_, field)
                     raise RESTException("Missing required argument "
                                         "%r of %s()" %
                                         (field, self.name))
 
                 # Not required, don't worry about it
+                rc._debug("  Optional %r argument %r missing",
+                          type_, field)
                 continue
 
             # Send it to the right place
             if type_ == 'query':
+                rc._debug("  Query argument %r: %r", field, kwargs[field])
                 query[field] = kwargs[field]
             elif type_ == 'req':
+                rc._debug("  Request object argument %r: %r", field,
+                          kwargs[field])
                 obj[field] = kwargs[field]
             elif type_ == 'header':
                 # Reformulate the name
                 hdr = '-'.join(field.split('_')).title()
+                rc._debug("  Header %r argument %r: %r", hdr, field,
+                          kwargs[field])
                 headers[hdr] = kwargs[field]
 
             # Keep track of arguments we've used
@@ -561,10 +599,13 @@ class RESTMethod(object):
         # Deal with unprocessed arguments
         if obj is not None:
             for arg in set(kwargs.keys()) - seen:
+                rc._debug("  Extra request object argument %r: %r",
+                          arg, kwargs[arg])
                 obj[arg] = kwargs[arg]
 
         # Format the URI
         uri = self.uri.format(**kwargs)
+        rc._debug("  Request URI: %s", uri)
 
         # We now have all the pieces we need; create a request...
         req = rc.make_req(self.method, uri, query, reqobj, headers)
@@ -582,7 +623,7 @@ class RESTAPI(object):
 
     """
 
-    def __init__(self, baseurl):
+    def __init__(self, baseurl, debug_stream=None):
         """Initialize a REST API.
 
         Creates a RESTClient instance from the baseurl and attaches it
@@ -590,7 +631,7 @@ class RESTAPI(object):
         """
 
         # Create and save a RESTClient for our use
-        self._rc = RESTClient(baseurl)
+        self._rc = RESTClient(baseurl, debug_stream)
 
     @property
     def rc(self):
