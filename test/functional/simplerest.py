@@ -187,7 +187,7 @@ class RESTClient(object):
         """
 
         # First, let's compose the path with the reluri
-        joincond = (self._path[-1], reluri[0])
+        joincond = (self._path[-1:], reluri[:1])
         if joincond == ('/', '/'):
             fulluri = self._path + reluri[1:]
         elif '/' in joincond:
