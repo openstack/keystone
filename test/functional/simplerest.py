@@ -200,6 +200,8 @@ class RESTClient(object):
             fulluri += '?%s' % urllib.urlencode(query)
 
         # Set up a default for the accept header
+        if headers is None:
+            headers = {}
         headers.setdefault('accept', 'application/json')
 
         # Build a request
