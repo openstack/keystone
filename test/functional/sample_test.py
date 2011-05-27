@@ -47,7 +47,7 @@ from dtest import util
 import base
 
 
-## Tests should be gathered together in classes, not to dissimilar
+## Tests should be gathered together in classes, not too dissimilar
 ## from how unittest works.  Extend base.KeystoneTest, so you get
 ## self.token and self.ks.  If you override setUp(), make sure you
 ## call the superclass's setUp() method (it's responsible for setting
