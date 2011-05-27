@@ -60,7 +60,7 @@
 	</copyright>
 	<releaseinfo>API v2.0</releaseinfo>
 	<productname>Keystone - OpenStack Identity</productname>
-	<pubdate>2011-04-23</pubdate>
+	<pubdate>2011-05-27</pubdate>
 	<legalnotice role="apache2">
 		<annotation>
 			<remark>Copyright details are filled in by the template.</remark>
@@ -136,10 +136,9 @@
 	<section>
 		<title>Group</title>
 		<para>
-			A group of users. Global groups are managed by
-			operators. They are used to organize and assign privileges
-			to a group of related users. For example, an operator may
-			create a "delinquent" group, which will assign limited
+			A group of users. Groups may be used to organize and assign
+            privileges to a group of related users. For example, an operator
+            may create a "delinquent" group, which will assign limited
 			privileges to users who have past due bills.
 		</para>
 	</section>
