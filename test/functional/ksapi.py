@@ -27,17 +27,17 @@ class KeystoneAPI20(simplerest.RESTAPI):
                                           '/extensions/{alias}', ['alias'])
 
     authenticate = simplerest.RESTMethod('authenticate', 'POST',
-                                         '/token',
+                                         '/tokens',
                                          ['username', 'password', 'tenantId'],
                                          'passwordCredentials',
                                          username='req', password='req',
                                          tenantId=('req', False))
     validate_token = simplerest.RESTMethod('validate_token', 'GET',
-                                           '/token/{tokenId}',
+                                           '/tokens/{tokenId}',
                                            ['tokenId', 'belongsTo'],
                                            belongsTo='query')
     revoke_token = simplerest.RESTMethod('revoke_token', 'DELETE',
-                                         '/token/{tokenId}',
+                                         '/tokens/{tokenId}',
                                          ['tokenId'])
 
     create_tenant = simplerest.RESTMethod('create_tenant', 'POST', '/tenants',
