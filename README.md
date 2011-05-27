@@ -225,9 +225,14 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
 
 INTERESTING TECHNOLOGIES/STANDARDS:
 -----------------------------------
+Protocols we could potentially integrate:
 
 WebID
-http://www.w3.org/2005/Incubator/webid/spec/
-http://www.w3.org/wiki/Foaf+ssl
 
+    http://www.w3.org/2005/Incubator/webid/spec/
+    http://www.w3.org/wiki/Foaf+ssl
+
+OpenID or OpenIDConnect
+
+SAML
 

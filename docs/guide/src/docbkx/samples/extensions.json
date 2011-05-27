@@ -3,7 +3,7 @@
         "values" : [
             {
                 "name" : "Reset Password Extension",
-                "namespace" : "http://docs.rackspacecloud.com/identity/api/ext/rpe/v1.0",
+                "namespace" : "http://docs.rackspacecloud.com/identity/api/ext/rpe/v2.0",
                 "alias" : "RS-RPE",
                 "updated" : "2011-01-22T13:25:27-06:00",
                 "description" : "Adds the capability to reset a user's password. The user is emailed when the password has been reset.",

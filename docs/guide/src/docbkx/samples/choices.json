@@ -47,7 +47,7 @@
             },
             {
                 "id" : "v2.0",
-                "status" : "CURRENT",
+                "status" : "BETA",
                 "links": [
                     {
                         "rel" : "self",
