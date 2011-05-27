@@ -310,12 +310,13 @@ class RESTClient(object):
             # interpret the JSON in the response (safely)...
             self._debug("  Received %s response (%s)", resp.status,
                         resp.reason)
+            resp.body = resp.read()
             try:
-                resp.obj = json.load(resp)
+                resp.obj = json.loads(resp.body)
                 self._debug("    Received entity: %r", resp.obj)
             except ValueError:
                 resp.obj = None
-                self._debug("    No received entity")
+                self._debug("    No received entity; body %r", resp.body)
 
             # If this is an error response, let's raise an appropriate
             # exception
