@@ -116,7 +116,7 @@ def delete_tenant(tenantid, auth_token):
 
 def delete_tenant_group(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenant/%s/groups/%s' % (URL, tenantid, groupid)
+    url = '%stenants/%s/groups/%s' % (URL, tenantid, groupid)
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -171,7 +171,7 @@ def delete_global_group_xml(groupid, auth_token):
 
 def get_token_xml(user, pswd, tenant_id, type=''):
         header = httplib2.Http(".cache")
-        url = '%stoken' % URL
+        url = '%stokens' % URL
         # to test multi token, removing below code
         """if tenant_id:
             body = '<?xml version="1.0" encoding="UTF-8"?> \

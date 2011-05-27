@@ -739,7 +739,6 @@ class KeystoneAdminAPI(wsgi.Router):
                     action="delete_tenant", conditions=dict(method=["DELETE"]))
 
         # Tenant Group Operations
-
         mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="create_tenant_group",

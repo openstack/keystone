@@ -62,7 +62,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_disabled(self):
         header = httplib2.Http(".cache")
-        url = '%stoken' % utils.URL
+        url = '%stokens' % utils.URL
         body = {"passwordCredentials": {"username": self.userdisabled,
                                         "password": "secrete",
                                         "tenantId": self.tenant}}
@@ -79,7 +79,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_disabled_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stoken' % utils.URL
+        url = '%stokens' % utils.URL
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -99,7 +99,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_wrong(self):
         header = httplib2.Http(".cache")
-        url = '%stoken' % utils.URL
+        url = '%stokens' % utils.URL
         body = {"passwordCredentials": {"username-w": "disabled",
                                         "password": "secrete",
                                         "tenantId": self.tenant}}
@@ -115,7 +115,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_wrong_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stoken' % utils.URL
+        url = '%stokens' % utils.URL
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -178,9 +178,9 @@ class MultiToken(unittest.TestCase):
 
     def test_unassigned_user(self):
         resp, content = utils.get_token('test_user2', 'secrete', \
-                                'test_tenant2')
+                                'test_tenant')
 
-        self.assertEqual(403, int(resp['status']))
+        self.assertEqual(401, int(resp['status']))
 
 if __name__ == '__main__':
     unittest.main()

@@ -43,7 +43,7 @@ class ValidateToken(unittest.TestCase):
     def test_validate_token_true(self):
         header = httplib2.Http(".cache")
 
-        url = '%stoken/%s?belongsTo=%s' % (utils.URL, self.token, self.tenant)
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL, self.token, self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
@@ -56,7 +56,7 @@ class ValidateToken(unittest.TestCase):
 
     def test_validate_token_true_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stoken/%s?belongsTo=%s' % (utils.URL, self.token, self.tenant)
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL, self.token, self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
@@ -70,7 +70,7 @@ class ValidateToken(unittest.TestCase):
 
     def test_validate_token_expired(self):
         header = httplib2.Http(".cache")
-        url = '%stoken/%s?belongsTo=%s' % (utils.URL, self.exp_auth_token,
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL, self.exp_auth_token,
                                            self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
@@ -85,7 +85,7 @@ class ValidateToken(unittest.TestCase):
     def test_validate_token_expired_xml(self):
         header = httplib2.Http(".cache")
 
-        url = '%stoken/%s?belongsTo=%s' % (utils.URL, self.exp_auth_token,
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL, self.exp_auth_token,
                                            self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -100,7 +100,7 @@ class ValidateToken(unittest.TestCase):
 
     def test_validate_token_invalid(self):
         header = httplib2.Http(".cache")
-        url = '%stoken/%s?belongsTo=%s' % (utils.URL, 'NonExistingToken',
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL, 'NonExistingToken',
                                            self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
@@ -115,7 +115,7 @@ class ValidateToken(unittest.TestCase):
 
     def test_validate_token_invalid_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stoken/%s?belongsTo=%s' % (utils.URL, 'NonExistingToken',
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL, 'NonExistingToken',
                                            self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",

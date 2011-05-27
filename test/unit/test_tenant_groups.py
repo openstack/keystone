@@ -30,13 +30,13 @@ import test_common as util
 class TenantGroupTest(unittest.TestCase):
 
     def setUp(self):
-        self.tenant = util.get_tenant()
+        self.tenant = util.get_another_tenant()
         self.user = util.get_user()
         self.userdisabled = util.get_userdisabled()
         self.auth_token = util.get_auth_token()
         self.exp_auth_token = util.get_exp_auth_token()
         self.disabled_token = util.get_disabled_token()
-        self.tenant_group = 'test_tenant_group_add'
+        self.tenant_group = 'test_tenant_group_new'
         util.create_tenant(self.tenant, str(self.auth_token))
         util.create_user(self.tenant, self.user, self.auth_token)
         util.add_user_json(self.tenant, self.user, self.auth_token)
@@ -44,18 +44,20 @@ class TenantGroupTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        util.delete_tenant_group(self.tenant_group,
+        resp = util.delete_user(self.tenant, self.user,
+                                      str(self.auth_token))
+
+        resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
                                             self.auth_token)
-        util.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        util.delete_tenant(self.tenant, self.auth_token)
+        resp = util.delete_tenant(self.tenant, self.auth_token)
 
 
 class CreateTenantGroupTest(TenantGroupTest):
 
     def test_tenant_group_create(self):
-
+        util.delete_user(self.tenant, self.user,
+                                      str(self.auth_token))
         resp = util.delete_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
@@ -73,6 +75,8 @@ class CreateTenantGroupTest(TenantGroupTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_group_create_xml(self):
+        util.delete_user(self.tenant, self.user,
+                                      str(self.auth_token))
         resp = util.delete_tenant_xml(self.tenant,
                                                str(self.auth_token))
         resp, content = util.create_tenant_xml(self.tenant,
@@ -136,7 +140,7 @@ class CreateTenantGroupTest(TenantGroupTest):
 
         if int(resp['status']) == 200:
             self.tenant_group = resp['group']['id']
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = {"group": {"id": self.tenant_group,
                           "description": "A description ..."}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -153,7 +157,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"><description>A description...</description> \
@@ -173,7 +177,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = {"group": {"id": self.tenant_group,
                 "description": "A description ..."}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -192,7 +196,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                  id="%s"> \
@@ -213,7 +217,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = {"group": {"id": self.tenant_group,
                 "description": "A description ..."}}
         resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -231,7 +235,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 id="%s"> \
@@ -252,7 +256,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '{"group": { "id": "%s", \
             "description": "A description ..." } }' % self.tenant_group
         resp, content = header.request(url, "POST", body=body,
@@ -273,7 +277,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
 
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
         <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
         id="%s"> \
@@ -295,7 +299,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '{"group": { "id": "%s", \
             "description": "A description ..." } }' % self.tenant
         resp, content = header.request(url, "POST", body=body,
@@ -316,7 +320,7 @@ class CreateTenantGroupTest(TenantGroupTest):
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
 
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                  <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
                  id="%s"> \
@@ -344,7 +348,7 @@ class GetTenantGroupsTest(TenantGroupTest):
                                               self.tenant,
                                               str(self.auth_token))
 
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
 
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -362,7 +366,7 @@ class GetTenantGroupsTest(TenantGroupTest):
         resp, content = util.create_tenant_group_xml(self.tenant_group,
                                                   self.tenant,
                                                   str(self.auth_token))
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
@@ -380,7 +384,7 @@ class GetTenantGroupsTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -397,7 +401,7 @@ class GetTenantGroupsTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -415,7 +419,7 @@ class GetTenantGroupsTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -432,7 +436,7 @@ class GetTenantGroupsTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups' % (util.URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -453,7 +457,7 @@ class GetTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          self.tenant_group)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
@@ -471,7 +475,7 @@ class GetTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          self.tenant_group)
         #test for Content-Type = application/xml
         resp, content = header.request(url, "GET", body='',
@@ -490,7 +494,7 @@ class GetTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, 'tenant_bad',
+        url = '%stenants/%s/groups/%s' % (util.URL, 'tenant_bad',
                                          self.tenant_group)
 
         #test for Content-Type = application/json
@@ -509,7 +513,7 @@ class GetTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, 'tenant_bad',
+        url = '%stenants/%s/groups/%s' % (util.URL, 'tenant_bad',
                                          self.tenant_group)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{',
@@ -528,7 +532,7 @@ class GetTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          'nonexistinggroup')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
@@ -546,7 +550,7 @@ class GetTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          'nonexistinggroup')
 
         #test for Content-Type = application/json
@@ -572,7 +576,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          self.tenant_group)
 
         data = '{"group": { "id":"%s","description": "A NEW description..." ,\
@@ -594,7 +598,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
 
     def test_update_tenant_group_xml(self):
         header = httplib2.Http(".cache")
-        util.delete_tenant(self.tenant, str(self.auth_token))
+        resp = util.delete_tenant(self.tenant, str(self.auth_token))
 
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
 
@@ -606,7 +610,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
                                               self.tenant,
                                               str(self.auth_token))
 
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          self.tenant_group)
 
         data = '<group xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -641,7 +645,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          self.tenant_group)
         data = '{"group": { "description_bad": "A NEW description...",\
             "id":"%s","tenantId":"%s"  }}' % (self.tenant_group, self.tenant)
@@ -665,7 +669,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/%s' % (util.URL, self.tenant,
+        url = '%stenants/%s/groups/%s' % (util.URL, self.tenant,
                                          self.tenant_group)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
              <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -692,7 +696,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
         resp, content = util.create_tenant_group(self.tenant_group,
                                               self.tenant,
                                               str(self.auth_token))
-        url = '%stenant/%s/groups/NonexistingID' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups/NonexistingID' % (util.URL, self.tenant)
 
         data = '{"group": { "description": "A NEW description...",\
             "id":"NonexistingID", "tenantId"="test_tenant"  }}'
@@ -709,7 +713,7 @@ class UpdateTenantGroupTest(TenantGroupTest):
     def test_update_tenant_group_not_found_xml(self):
         header = httplib2.Http(".cache")
         resp, content = util.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenant/%s/groups/NonexistingID' % (util.URL, self.tenant)
+        url = '%stenants/%s/groups/NonexistingID' % (util.URL, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
              <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
              id="NonexistingID", "tenant_id"="test_tenant"> \
@@ -744,27 +748,15 @@ class DeleteTenantGroupTest(TenantGroupTest):
     def test_delete_tenant_group(self):
         resp, content = util.create_tenant("test_tenant_delete",
                                       str(self.auth_token))
-        resp, content = util.create_tenant_group('test_tenant_group_delete',
-                                              "test_tenant_delete",
+        resp, content = util.create_tenant_group(self.tenant_group,
+                                              'test_tenant_delete',
                                               str(self.auth_token))
-        resp, content = util.delete_tenant_group('test_tenant_group_delete',
-                                              "test_tenant_delete",
+        resp, content = util.delete_tenant_group(self.tenant_group,
+                                                 'test_tenant_delete',
                                               str(self.auth_token))
+        self.assertEqual(204, int(resp['status']))
         resp = util.delete_tenant("test_tenant_delete",
                                       str(self.auth_token))
-        self.assertEqual(204, int(resp['status']))
-
-    def test_delete_tenant_group_xml(self):
-        resp, content = util.create_tenant("test_tenant_delete",
-                                      str(self.auth_token))
-        resp, content = util.create_tenant_group('test_tenant_group_delete',
-                                              "test_tenant_delete",
-                                              str(self.auth_token))
-        resp, content = util.delete_tenant_group('test_tenant_group_delete',
-                                              "test_tenant_delete",
-                                              str(self.auth_token))
-        resp = util.delete_tenant_xml("test_tenant_delete",
-                                          str(self.auth_token))
         self.assertEqual(204, int(resp['status']))
 
 
