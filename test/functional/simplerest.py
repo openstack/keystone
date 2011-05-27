@@ -591,3 +591,9 @@ class RESTAPI(object):
 
         # Create and save a RESTClient for our use
         self._rc = RESTClient(baseurl)
+
+    @property
+    def rc(self):
+        """Retrieve the RESTClient instance."""
+
+        return self._rc
