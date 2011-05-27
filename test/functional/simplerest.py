@@ -314,7 +314,7 @@ class RESTClient(object):
         """
 
         # Make a GET request...
-        req = self.make_req('GET', reluri, query, obj, headers)
+        req = self.make_req('GET', reluri, query=query, headers=headers)
 
         # And issue it
         return self.send(req)
@@ -329,7 +329,8 @@ class RESTClient(object):
         """
 
         # Make a PUT request...
-        req = self.make_req('PUT', reluri, query, obj, headers)
+        req = self.make_req('PUT', reluri, query=query, obj=obj,
+                            headers=headers)
 
         # And issue it
         return self.send(req)
@@ -344,7 +345,8 @@ class RESTClient(object):
         """
 
         # Make a POST request...
-        req = self.make_req('POST', reluri, query, obj, headers)
+        req = self.make_req('POST', reluri, query=query, obj=obj,
+                            headers=headers)
 
         # And issue it
         return self.send(req)
@@ -358,7 +360,7 @@ class RESTClient(object):
         """
 
         # Make a DELETE request...
-        req = self.make_req('DELETE', reluri, query, obj, headers)
+        req = self.make_req('DELETE', reluri, query=query, headers=headers)
 
         # And issue it
         return self.send(req)
