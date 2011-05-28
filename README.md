@@ -14,7 +14,7 @@ This initial proof of concept aims to address the current use cases in Swift and
 The [`Developer Guide`](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) 
 documents the APIs to call and how to use them.
 
-### Core Concepts:
+#### Core Concepts:
 <table>
   <tr>
     <th>Concept</th><th align="left">Description</th>
@@ -110,7 +110,7 @@ Starting the admin server only (exposes the Admin API):
 All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
 
 
-### Running Tests
+## Running Tests
 
 #### Test data
 A set of sample data can be added by running a shell script:
@@ -191,23 +191,28 @@ in troubleshooting:
 2. If the keystone package is also intalled on the system,
     /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
 
-CURL commands:
+#### CURL commands
 <pre>
-   $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    # Get an unscoped token
+    
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
 
-   $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    # Get a token for a tenant
+
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
 </pre>
 
-#### Load Testing:
+#### Load Testing
 
-   $ # Create post data
+<pre>
+   # Create post data
 
    $ echo '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' > post_data
 
-   $ # Call Apache Bench
+   # Call Apache Bench
 
    $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/tokens
-
+</pre>
 
 ## NOVA Integration
 
@@ -249,9 +254,7 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
 ### Protocols
 We could potentially integrate with those:
 
-[WebID](http://www.w3.org/2005/Incubator/webid/spec/)
-
-    See also: http://www.w3.org/wiki/Foaf+ssl
+[WebID](http://www.w3.org/2005/Incubator/webid/spec/) - See also: (http://www.w3.org/wiki/Foaf+ssl)
 
 [OpenID](http://openid.net/) and/or [OpenIDConnect](http://openidconnect.com/)
 
