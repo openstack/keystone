@@ -1,4 +1,4 @@
-Keystone: OpenStack Identity Service
+# Keystone: OpenStack Identity Service
 ====================================
 
 Keystone is a proposed independent authentication service for [OpenStack](http://www.openstack.org).
@@ -8,8 +8,8 @@ This initial proof of concept aims to address the current use cases in Swift and
 * REST-based, token auth for Swift
 * many-to-many relationship between identity and tenant for Nova.
 
-DEVELOPER GUIDE/CONCEPTS:
-------------------------
+## DEVELOPER GUIDE/CONCEPTS:
+----------------------------
 
 The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
 generated from XML and other artifacts in the keystone/docs/src folder.
@@ -22,35 +22,32 @@ keystone/docs folder:
 The output will go into the keystone/docs/target folder (the source is in keystone/docs/src). Output
 generated is PDF and webhelp.
 
-
-Core Concepts:
---------------
+### Core Concepts:
 <table>
   <tr>
     <th>Concept</th><th align="left">Description</th>
   </tr>
   <tr>
-    <td>User</td><td>A 'user' is a client who has been registered with Keystone.</td>
+    <td>User</td><td>An identity stored in the Keystone identoty store used by a client to authenticate to Keystone.</td>
   </tr>
   <tr>
-    <td>Role</td><td>A 'role' describes a responsibility which is linked to a given user.</td>
+    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenent.</td>
   </tr>
   <tr>
-    <td>Token</td><td>A 'token' describes a temporary object which helps users authenticate themselves.</td>
+    <td>Role</td><td>A responsibility which is linked to a given user (and optionally scoped to a particular tenant).</td>
   </tr>
   <tr>
-    <td>Tenant</td><td>A 'tenant' describes an entity which houses multiple users. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of users.</td>
+    <td>Group</td><td>A group of users. Group use cases are not yet defined in Keystone.</td>
   </tr>
   <tr>
-    <td>Group</td><td>Unknown</td>
+    <td>Token</td><td>A 'token' describes a temporary object obtained by clients from Keystone and used to identify themselves to an OpenStack service.</td>
   </tr>
 </table>
 
+## SERVICES:
+------------
 
-SERVICES:
----------
-
-* Keystone    - authentication service
+* Keystone    - identity store and authentication service
 * Auth_Token  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
 * Echo        - A sample service that responds by returning call details
 
@@ -58,10 +55,10 @@ Also included:
 
 * Keystone    - Service and Admin API are available separately. Admin API allows management of tenants, roles, and users as well.
 * Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
-* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol
+* Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol (to be implemented)
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
 
-Built-In Services:
+Built-In commands:
 
 * bin/keystone  - Provides HTTP API for users and administrators
 * bin/keystone-admin - Provides HTTP API for administrators
@@ -70,9 +67,8 @@ Built-In Services:
 
 By default, configuration parameters are parsed from etc/keystone.conf.
 
-
-RUNNING KEYSTONE:
------------------
+## RUNNING KEYSTONE:
+--------------------
 
 Starting both Admin and Service API endpoints:
 
@@ -91,10 +87,8 @@ Starting the admin server only (exposes the Admin API):
 
 All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
 
-
-
-DEPENDENCIES:
-=======
+## DEPENDENCIES:
+----------------
 
 <pre>
 # Show Dependencies
@@ -104,9 +98,9 @@ $ cat tools/pip-requires
 $ sudo pip install -r tools/pip-requires
 </pre>
 
+###Running Tests:
+-----------------
 
-Running Tests:
---------------
 A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
@@ -154,10 +148,8 @@ To Test Keystone Service:
 * Select tests/IdentitySOAPUI.xml
 * Double click on "Keystone Tests" and press the green play (>) button
 
-
-
-Additional Information:
------------------------
+## Additional Information:
+--------------------------
 
 Configuration:
 Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
@@ -185,8 +177,8 @@ Load Testing:
    $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/tokens
 
 
-NOVA Integration:
------------------
+## NOVA Integration:
+--------------------
 
 Initial support for using keystone as nova's identity component has been started.
 
@@ -202,9 +194,8 @@ Initial support for using keystone as nova's identity component has been started
 
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
 
-
-I WANT OPENSTACK:
------------------
+## I WANT OPENSTACK:
+--------------------
 
 To get an opinionated install of nova, keystone, dashboard and glance using openstack apis:
 
@@ -223,8 +214,8 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
     ./nova.sh run
 
 
-INTERESTING TECHNOLOGIES/STANDARDS:
------------------------------------
+## INTERESTING TECHNOLOGIES/STANDARDS/LINKS:
+--------------------------------------------
 Protocols we could potentially integrate:
 
 WebID
