@@ -1,5 +1,4 @@
 # Keystone: OpenStack Identity Service
-======================================
 
 Keystone is a proposed independent authentication service for [OpenStack](http://www.openstack.org).
 
@@ -9,10 +8,8 @@ This initial proof of concept aims to address the current use cases in Swift and
 * many-to-many relationship between identity and tenant for Nova.
 
 # For Users
-===========
 
 ## User Guide & Concepts
-------------------------
 
 The [`Developer Guide`](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) 
 documents the APIs to call and how to use them.
@@ -40,7 +37,6 @@ documents the APIs to call and how to use them.
 </table>
 
 ## Running Keystone
--------------------
 
 #### Setup
 
@@ -55,10 +51,8 @@ Starting both Admin and Service API endpoints:
 
 
 # For Keystone Contributors
-===========================
 
 ## Components
--------------
 
 #### Services
 
@@ -83,7 +77,6 @@ Starting both Admin and Service API endpoints:
 By default, configuration parameters are parsed from etc/keystone.conf.
 
 ## Dependencies
----------------
 
 <pre>
 # Show Dependencies
@@ -98,7 +91,6 @@ $ sudo pip install DTest
 </pre>
 
 ## Running Keystone
--------------------
 
 Starting both Admin and Service API endpoints:
 
@@ -119,7 +111,6 @@ All above files take parameters from etc/keystone.conf file under the Keystone r
 
 
 ### Running Tests
------------------
 
 #### Test data
 A set of sample data can be added by running a shell script:
@@ -172,7 +163,6 @@ Using SOAPUI:
 
 
 ## Editing and Compiling the Developer Guide
---------------------------------------------
 
 Users of the Keystone API are often developers making ReSTfull calls to Keystone. The guide to provide them
 information is therefore called a `Developer Guide`. Developer in this case is not to be confused with developers
@@ -191,7 +181,6 @@ generated is PDF and webhelp.
 
 
 ## Additional Information:
---------------------------
 
 #### Configuration:
 Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
@@ -221,7 +210,6 @@ CURL commands:
 
 
 ## NOVA Integration
--------------------
 
 Initial support for using keystone as nova's identity component has been started.
 
@@ -238,7 +226,6 @@ Initial support for using keystone as nova's identity component has been started
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
 
 ## I want OpenStack (all of it)
--------------------------------
 
 To get an opinionated install of nova, keystone, dashboard and glance using openstack apis:
 
@@ -258,7 +245,6 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
 
 
 ## Relevant Technologies, Standards, and Links
---------------------------------------------
 
 ### Protocols
 We could potentially integrate with those:
@@ -272,4 +258,3 @@ We could potentially integrate with those:
 [OAUTH2](http://oauth.net/2/)
 
 [SAML] (http://saml.xml.org/)
-
