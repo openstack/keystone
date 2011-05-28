@@ -178,7 +178,9 @@ def app_factory(global_conf, ** local_conf):
 
 if __name__ == "__main__":
     app = loadapp("config:" + \
-                  os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                  "auth_basic.ini"),
+        os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                     os.pardir,
+                     os.pardir,
+                    "examples/paste/auth_basic.ini"),
                   global_conf={"log_name": "auth_basic.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)

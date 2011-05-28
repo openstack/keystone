@@ -96,6 +96,10 @@ $ cat tools/pip-requires
 
 # Install Dependencies
 $ sudo pip install -r tools/pip-requires
+
+# Keystone uses the DTest test framework for testing. Install that separately using:
+$ sudo pip install DTest
+
 </pre>
 
 ###Running Tests:

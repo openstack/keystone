@@ -319,5 +319,8 @@ def app_factory(global_conf, **local_conf):
 if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
-        "auth_token.ini"), global_conf={"log_name": "auth_token.log"})
+                     os.pardir,
+                     os.pardir,
+                    "examples/paste/auth_token.ini"),
+                    global_conf={"log_name": "auth_token.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)
