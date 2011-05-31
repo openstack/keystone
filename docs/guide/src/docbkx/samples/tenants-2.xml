@@ -6,8 +6,8 @@
     </tenant>
     <atom:link
         rel="previous"
-        href="http://identity.api.openstack.org/v2.0/1234/tenants?limit=1"/>
+        href="http://identity.api.openstack.org/v2.0/tenants?limit=1"/>
     <atom:link
         rel="next"
-        href="http://identity.api.openstack.org/v2.0/1234/tenants?limit=1&amp;marker=3645"/>
+        href="http://identity.api.openstack.org/v2.0/tenants?limit=1&amp;marker=3645"/>
 </tenants>

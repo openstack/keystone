@@ -22,21 +22,21 @@
      "region"   : "DFW",
      "default"  : true,
      "serviceName" : "service1",
-     "publicURL" : "https://service.public.com/v1",
+     "publicURL" : "https://service.public.com/v1.0",
      "enabled"  : true
      },
      {
      "id" : 4,
      "region"   : "ORD",
      "serviceName" : "service2",
-     "publicURL" : "https://service2.public.com/v1",
+     "publicURL" : "https://service2.public.com/v2",
      "enabled"  : true
      },
      {
      "id" : 5,
      "default"  : true,
      "serviceName" : "service3",
-     "publicURL" : "https://service3.public.com/v1.0",
+     "publicURL" : "https://service3.public.com/v3.2",
      "enabled"  : true
      }
  ]

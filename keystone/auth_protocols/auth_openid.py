@@ -108,6 +108,8 @@ def app_factory(global_conf, **local_conf):
 if __name__ == "__main__":
     app = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
-            "auth_openid.ini"),
-            global_conf={"log_name": "auth_openid.log"})
+                     os.pardir,
+                     os.pardir,
+                    "examples/paste/auth_openid.ini"),
+                    global_conf={"log_name": "auth_openid.log"})
     wsgi.server(eventlet.listen(('', 8090)), app)
