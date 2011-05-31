@@ -56,6 +56,7 @@ from keystone.db.sqlalchemy import api as db_api
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
+import keystone.logic.types.baseURL as baseURLs
 import keystone.logic.types.auth as auth
 import keystone.logic.types.user as users
 import keystone.common.template as template
@@ -619,7 +620,44 @@ class BaseURLsController(wsgi.Controller):
     def get_baseurl(self, req, baseURLId):
         baseurl = service.get_baseurl(utils.get_auth_token(req), baseURLId)
         return utils.send_result(200, req, baseurl)
+        
+    @utils.wrap_error
+    def get_baseurls_for_tenant(self, req, tenant_id):
+        marker, limit, url = get_marker_limit_and_url(req)
+        baseURLRefs = service.get_tenant_baseURLs(utils.get_auth_token(req),
+                                         marker, limit, url, tenant_id)
+        return utils.send_result(200, req, baseURLRefs)
+        
+    @utils.wrap_error    
+    def add_baseurls_to_tenant(self, req, tenant_id):
+        baseurl = utils.get_normalized_request_content(baseURLs.BaseURL, req)
+        return utils.send_result(201, req,
+                       service.create_baseurl_ref_to_tenant(utils.get_auth_token(req),
+                                                   tenant_id, baseurl, get_url(req)))
+    @utils.wrap_error    
+    def remove_baseurls_from_tenant(self, req, tenant_id, baseurls_ref_id):
+        rval = service.delete_baseurls_ref(utils.get_auth_token(req),
+                                        baseurls_ref_id)
+        return utils.send_result(204, req, rval)
 
+def get_marker_limit_and_url(req):
+    marker = None
+    limit = 10
+
+    if "marker" in req.GET:
+        marker = req.GET["marker"]
+
+    if "limit" in req.GET:
+        limit = req.GET["limit"]
+    url = get_url(req)
+    return (marker, limit, url)
+    
+def get_url(req):
+    url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
+                     req.environ.get("SERVER_NAME"),
+                     req.environ.get("SERVER_PORT"),
+                     req.environ['PATH_INFO'])
+    return url
     
         
 class KeystoneAPI(wsgi.Router):
@@ -862,7 +900,14 @@ class KeystoneAdminAPI(wsgi.Router):
                     action="get_baseurls", conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/baseURLs/{baseURLId}", controller=baseurls_controller,
                     action="get_baseurl", conditions=dict(method=["GET"]))
-       
+        mapper.connect("/v2.0/tenants/{tenant_id}/baseURLRefs", controller=baseurls_controller,
+                    action="get_baseurls_for_tenant", conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/tenants/{tenant_id}/baseURLRefs", controller=baseurls_controller,
+                     action="add_baseurls_to_tenant", conditions=dict(method=["POST"]))
+        mapper.connect("/v2.0/tenants/{tenant_id}/baseURLRefs/{baseurls_ref_id}", controller=baseurls_controller,
+                action="remove_baseurls_from_tenant", conditions=dict(method=["DELETE"]))
+
+
 
         # Miscellaneous Operations
         version_controller = VersionController(options)
