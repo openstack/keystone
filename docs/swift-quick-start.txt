@@ -1,0 +1,121 @@
+Quick Start to Integrating Swift and Keystone
+---------------------------------------------
+
+1.  Install Swift with the included TempAuth. This step is beyond the scope of
+    this quick start; see http://swift.openstack.org/development_saio.html for
+    a Swift development set up guide.
+
+2.  Obtain and install a source copy of Keystone::
+
+        git clone https://github.com/khussein/keystone.git ~/keystone
+        cd ~/keystone && sudo python setup.py develop
+
+3.  Move included configuration out of the way::
+
+        mv ~/keystone/etc ~/keystone/etc-orig
+
+4.  Create /etc/keystone configuration directory::
+
+        sudo mkdir /etc/keystone
+        sudo chmod <user>:<user> /etc/keystone
+
+5.  Create /etc/keystone/keystone.conf::
+
+        [DEFAULT]
+        verbose = True
+        debug = True
+        default_store = sqlite
+        log_file = /etc/keystone/keystone.log
+        sql_connection = sqlite:////etc/keystone/keystone.db
+        sql_idle_timeout = 30
+
+        [app:admin]
+        paste.app_factory = keystone.server:admin_app_factory
+        bind_host = 0.0.0.0
+        bind_port = 8081
+
+        [app:server]
+        paste.app_factory = keystone.server:app_factory
+        bind_host = 0.0.0.0
+        bind_port = 8080
+
+6.  Start up the Keystone service::
+
+        ~/keystone/bin/keystone
+
+7.  Create the sample data entries::
+
+        cd ~/keystone/bin && ./sampledata.sh
+
+8.  Configure Swift's proxy server to use Keystone instead of TempAuth. Here's
+    an example /etc/swift/proxy-server.conf::
+
+        [DEFAULT]
+        bind_port = 8888
+        user = <user>
+
+        [pipeline:main]
+        pipeline = catch_errors cache keystone proxy-server
+
+        [app:proxy-server]
+        use = egg:swift#proxy
+        allow_account_management = true
+
+        [filter:keystone]
+        use = egg:keystone#tokenauth
+        auth_protocol = http
+        auth_host = 127.0.0.1
+        auth_port = 8081
+        admin_token = 999888777666
+        delay_auth_decision = 0
+        service_protocol = http
+        service_host = 127.0.0.1
+        service_port = 8100
+        service_pass = dTpw
+
+        [filter:cache]
+        use = egg:swift#memcache
+        set log_name = cache
+
+        [filter:catch_errors]
+        use = egg:swift#catch_errors
+
+9.  Restart the Swift proxy to invoke the new configuration::
+
+        swift-init proxy restart
+
+10. Obtain an x-auth-token to use::
+
+        curl -i http://127.0.0.1:8080/v1.0 \
+             -H 'x-auth-user: joeuser' -H 'x-auth-key: secrete'
+
+11. Create an account in Swift using the x-auth-token from above::
+
+        curl -X PUT http://127.0.0.1:8888/v1/joeuser \
+             -H 'x-auth-token: <token>'
+
+12. Create a container in Swift::
+
+        curl -X PUT http://127.0.0.1:8888/v1/joeuser/container \
+             -H 'x-auth-token: <token>'
+
+13. Upload an object::
+
+        curl -X PUT http://127.0.0.1:8888/v1/joeuser/container/object \
+             -H 'x-auth-token: <token>' --data-binary 'test object'
+
+14. Do some listings::
+
+        curl http://127.0.0.1:8888/v1/joeuser -H 'x-auth-token: <token>'
+        curl http://127.0.0.1:8888/v1/joeuser/container \
+             -H 'x-auth-token: <token>'
+
+
+Notes
+-----
+
+* Keystone does not yet return x-storage-url, so standard Swift tools won't
+  work yet.
+* Keystone currently allows any valid token to do anything.
+
+But, it works as a demo!
