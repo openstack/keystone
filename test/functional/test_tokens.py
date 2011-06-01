@@ -40,19 +40,8 @@ class AuthenticateTest(base.BaseKeystoneTest):
         # Squirrel away the admin token ID
         admin_tok = resp.obj['auth']['token']['id']
 
-        # Now, issue a secondary authentication request
-        resp = self.ks.authenticate(base.options.username,
-                                    base.options.password)
-
-        # Verify that resp is correct
-        util.assert_equal(resp.status, 200)
-        util.assert_in('auth', resp.obj)
-        util.assert_in('token', resp.obj['auth'])
-        util.assert_in('id', resp.obj['auth']['token'])
-
         # Now ensure we can revoke an authentication token
-        auth_tok = resp.obj['auth']['token']['id']
-        resp = self.ks_admin.revoke_token(admin_tok, auth_tok)
+        resp = self.ks_admin.revoke_token(admin_tok, admin_tok)
         util.assert_equal(resp.status, 204)
 
 
