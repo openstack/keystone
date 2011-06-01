@@ -35,11 +35,6 @@ class AuthenticateTest(base.BaseKeystoneTest):
         util.assert_in('token', resp.obj['auth'])
         util.assert_in('expires', resp.obj['auth']['token'])
         util.assert_in('id', resp.obj['auth']['token'])
-        util.assert_in('user', resp.obj['auth'])
-        util.assert_in('username', resp.obj['auth']['user'])
-        util.assert_in('tenantId', resp.obj['auth']['user'])
-        util.assert_equal(resp.obj['auth']['user']['username'],
-                          base.options.username)
 
         # Now ensure we can revoke an authentication token
         auth_tok = resp.obj['auth']['token']['id']
