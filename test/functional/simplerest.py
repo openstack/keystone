@@ -431,7 +431,7 @@ for _status, _name in httplib.responses.items():
     _cls = type(_exname, (HTTPException,), {'__doc__': _name})
 
     # Now, put it in the right places
-    vars()[_name] = _cls
+    vars()[_exname] = _cls
     exceptions[_status] = _cls
 
 
