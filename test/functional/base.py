@@ -51,7 +51,9 @@ class KeystoneTest(BaseKeystoneTest):
     """Base class for Keystone tests."""
 
     user_tok = None
+    user_expire = None
     admin_tok = None
+    admin_expire = None
 
     @classmethod
     def setUpClass(cls):
@@ -63,14 +65,16 @@ class KeystoneTest(BaseKeystoneTest):
         # Next, let's authenticate and get a user token
         resp = ks.authenticate(options.username, options.password)
 
-        # Save the authentication token
+        # Save the authentication token and other data
         cls.user_tok = resp.obj['auth']['token']['id']
+        cls.user_expire = resp.obj['auth']['token']['expires']
 
         # Now, let's get an admin token
         resp = ks.authenticate(options.adminuser, options.adminpass)
 
-        # Save the authentication token
+        # Save the authentication token and other data
         cls.admin_tok = resp.obj['auth']['token']['id']
+        cls.admin_expire = resp.obj['auth']['token']['expires']
 
     @classmethod
     def tearDownClass(cls):
