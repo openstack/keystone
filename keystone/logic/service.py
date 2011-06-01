@@ -838,7 +838,13 @@ class IdentityService(object):
                     gs.append(auth.Group(dgroup.id))
         user = auth.User(duser.id, dtoken.tenant_id, gs)
         """
-        user = auth.User(duser.id, duser.tenant_id, None)
+        ts=[]
+        if dtoken.tenant_id:
+            droleRefs = db_api.role_ref_get_all_tenant_roles(duser.id, dtoken.tenant_id)
+            for droleRef in droleRefs:
+                ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+                                         droleRef.tenant_id))
+        user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts, []))
         return auth.AuthData(token, user)
 
     def __validate_token(self, token_id, admin=True):

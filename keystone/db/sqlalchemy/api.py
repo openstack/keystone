@@ -129,6 +129,11 @@ def role_ref_get_all_global_roles(user_id,session=None):
     if not session:
         session = get_session()
     return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("tenant_id is null").all()
+
+def role_ref_get_all_tenant_roles(user_id, tenant_id, session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter_by(tenant_id = tenant_id).all()
     
 def role_ref_get(id, session=None):
     if not session:
