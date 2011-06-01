@@ -573,10 +573,8 @@ class KeystoneAPI(wsgi.Router):
 
         # Token Operations
         mapper.connect("/v2.0/tokens", controller=auth_controller,
-                       action="authenticate")
-        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
-                        action="delete_token",
-                        conditions=dict(method=["DELETE"]))
+                       action="authenticate",
+                       conditions=dict(method=["POST"]))
 
         # Tenant Operations
         tenant_controller = TenantController(options)
@@ -639,7 +637,8 @@ class KeystoneAdminAPI(wsgi.Router):
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,
-                       action="authenticate")
+                       action="authenticate",
+                       conditions=dict(method=["POST"]))
         mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
                         action="validate_token",
                         conditions=dict(method=["GET"]))

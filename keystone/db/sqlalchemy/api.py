@@ -711,6 +711,7 @@ def user_role_add(values):
 
 
 def user_tenant_create(values):
+    #TODO(ZIAD): Update model / fix this
     user_tenant_ref = models.UserTenantAssociation()
     user_tenant_ref.update(values)
     user_tenant_ref.save()

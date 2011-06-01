@@ -60,7 +60,7 @@
 	</copyright>
 	<releaseinfo>API v2.0</releaseinfo>
 	<productname>Keystone - OpenStack Identity</productname>
-	<pubdate>2011-05-27</pubdate>
+	<pubdate>2011-06-01</pubdate>
 	<legalnotice role="apache2">
 		<annotation>
 			<remark>Copyright details are filled in by the template.</remark>
@@ -756,7 +756,7 @@ Host: identity.api.openstack.org/v1.1/
 			   <tr>
 				 <td colspan="1"> &GET; </td>
 				 <td colspan="1">/tenants</td>
-				 <td colspan="4">Get a list of tenants accessible with suplied token.</td>
+				 <td colspan="4">Get a list of tenants accessible with supplied token.</td>
 			   </tr>
 			 </tbody>
 			 </informaltable>
@@ -865,7 +865,7 @@ Host: identity.api.openstack.org/v1.1/
 			 <tbody>
 			   <tr>
 				 <td colspan="1"> &GET; </td>
-				 <td colspan="4">/tokens</td>
+				 <td colspan="4">/tokens/<parameter>tokenId</parameter></td>
 				 <td colspan="3">Validate a token.</td>
 			   </tr>
              <tr>
