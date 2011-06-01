@@ -50,7 +50,8 @@ class BaseKeystoneTest(dtest.DTestCase):
 class KeystoneTest(BaseKeystoneTest):
     """Base class for Keystone tests."""
 
-    token = None
+    user_tok = None
+    admin_tok = None
 
     @classmethod
     def setUpClass(cls):
@@ -59,11 +60,17 @@ class KeystoneTest(BaseKeystoneTest):
         # Get an API object
         ks = _get_ksapi(options.keystone)
 
-        # Next, let's authenticate
+        # Next, let's authenticate and get a user token
         resp = ks.authenticate(options.username, options.password)
 
-        # Finally, save the authentication token
-        cls.token = resp.obj['auth']['token']['id']
+        # Save the authentication token
+        cls.user_tok = resp.obj['auth']['token']['id']
+
+        # Now, let's get an admin token
+        resp = ks.authenticate(options.adminuser, options.adminpass)
+
+        # Save the authentication token
+        cls.admin_tok = resp.obj['auth']['token']['id']
 
     @classmethod
     def tearDownClass(cls):
@@ -73,8 +80,15 @@ class KeystoneTest(BaseKeystoneTest):
         ks = _get_ksapi(options.keystone_admin)
 
         try:
-            # Now, let's revoke the user token
-            resp = ks.revoke_token(cls.token, cls.token)
+            # First, let's revoke the user token
+            resp = ks.revoke_token(cls.admin_tok, cls.user_tok)
+        except simplerest.RESTException:
+            # Ignore errors revoking the token
+            pass
+
+        try:
+            # Now, let's revoke the admin token
+            resp = ks.revoke_token(cls.admin_tok, cls.admin_tok)
         except simplerest.RESTException:
             # Ignore errors revoking the token
             pass
