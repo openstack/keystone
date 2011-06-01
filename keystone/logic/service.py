@@ -849,9 +849,6 @@ class IdentityService(object):
                 ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
                                          droleRef.tenant_id))
         user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts, []))
-        return auth.AuthData(token, user)
-        user = auth.User(duser.id, duser.tenant_id, None)
-
         return auth.ValidateData(token, user)
 
     def __validate_token(self, token_id, admin=True):
