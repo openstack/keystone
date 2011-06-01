@@ -52,9 +52,8 @@ class AuthenticateTest(base.BaseKeystoneTest):
 
         # Now ensure we can revoke an authentication token
         auth_tok = resp.obj['auth']['token']['id']
-        with util.assert_raises(simplerest.UnauthorizedException):
-            resp = self.ks_admin.revoke_token(admin_tok, auth_tok)
-            util.assert_equal(resp.status, 204)
+        resp = self.ks_admin.revoke_token(admin_tok, auth_tok)
+        util.assert_equal(resp.status, 204)
 
 
 # Ensure that all remaining tests wait for test_authenticate
