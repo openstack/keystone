@@ -167,6 +167,8 @@ class AuthProtocol(object):
                     self._decorate_request('X_USER', claims['user'])
                     if 'group' in claims:
                         self._decorate_request('X_GROUP', claims['group'])
+                    if 'roles' in claims:
+                        self._decorate_request('X_ROLES', claims['roles'])
                     self.expanded = True
 
             #Send request downstream
@@ -263,8 +265,15 @@ class AuthProtocol(object):
         token_info = json.loads(data)
         #TODO(Ziad): make this more robust
         #first_group = token_info['auth']['user']['groups']['group'][0]
+        roles =[]
+        role_refs =token_info["auth"]["user"]["roleRefs"]
+        for role_ref in role_refs:
+            roles.append(role_ref["roleId"])
+
         verified_claims = {'user': token_info['auth']['user']['username'],
-                    'tenant': token_info['auth']['user']['tenantId']}
+                    'tenant': token_info['auth']['user']['tenantId'], 'roles':roles}
+        
+
         # TODO(Ziad): removed groups for now
         #            ,'group': '%s/%s' % (first_group['id'],
         #                                first_group['tenantId'])}

@@ -129,7 +129,7 @@ class IdentityService(object):
     ##    GET Tenants with Pagination
     ##
     def get_tenants(self, admin_token, marker, limit, url):
-        self.__validate_token(admin_token)
+        (token, user) = self.__validate_token(admin_token, False)
 
         ts = []
         dtenants = db_api.tenant_get_page(marker, limit)
@@ -848,6 +848,10 @@ class IdentityService(object):
             for droleRef in droleRefs:
                 ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
                                          droleRef.tenant_id))
+        droleRefs = db_api.role_ref_get_all_global_roles(duser.id)
+        for droleRef in droleRefs:
+            ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+                                     droleRef.tenant_id))
         user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts, []))
         return auth.ValidateData(token, user)
 
