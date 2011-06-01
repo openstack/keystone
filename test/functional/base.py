@@ -18,12 +18,13 @@
 import dtest
 
 import ksapi
+import simplerest
 
 
 options = None
 
 
-def _get_ksapi():
+def _get_ksapi(url):
     """Get an instance of KeystoneAPI20."""
 
     # If debug mode has been enabled, let's select a debug stream
@@ -32,7 +33,7 @@ def _get_ksapi():
         dbstream = dtest.status
 
     # Build and return the API object
-    return ksapi.KeystoneAPI20(options.keystone, dbstream)
+    return ksapi.KeystoneAPI20(url, dbstream)
 
 
 class BaseKeystoneTest(dtest.DTestCase):
@@ -41,8 +42,9 @@ class BaseKeystoneTest(dtest.DTestCase):
     def setUp(self):
         """Initialize tests by setting up a KeystoneAPI20 to call."""
 
-        # Build the API object
-        self.ks = _get_ksapi()
+        # Build the API objects
+        self.ks = _get_ksapi(options.keystone)
+        self.ks_admin = _get_ksapi(options.keystone_admin)
 
 
 class KeystoneTest(BaseKeystoneTest):
@@ -55,7 +57,7 @@ class KeystoneTest(BaseKeystoneTest):
         """Initialize tests by setting up a keystone token."""
 
         # Get an API object
-        ks = _get_ksapi()
+        ks = _get_ksapi(options.keystone)
 
         # Next, let's authenticate
         resp = ks.authenticate(options.username, options.password)
@@ -68,10 +70,14 @@ class KeystoneTest(BaseKeystoneTest):
         """Revoke the authentication token."""
 
         # Get an API object
-        ks = _get_ksapi()
+        ks = _get_ksapi(options.keystone_admin)
 
-        # Now, let's revoke the token
-        resp = ks.revoke_token(cls.token, cls.token)
+        try:
+            # Now, let's revoke the user token
+            resp = ks.revoke_token(cls.token, cls.token)
+        except simplerest.RESTException:
+            # Ignore errors revoking the token
+            pass
 
         # For completeness sake...
         cls.token = None
