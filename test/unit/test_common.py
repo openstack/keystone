@@ -753,5 +753,49 @@ def create_role_xml(role_id, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
     
+def create_baseurls_ref(tenant_id, baseurl_id, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%stenants/%s/baseURLRefs' % (URL, tenant_id)
+    body = {"baseURL": {"id": baseurl_id}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+    
+def create_baseurls_ref_xml(tenant_id, baseurl_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%stenants/%s/baseURLRefs' % (URL, tenant_id)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+            <baseURL xmlns="http://docs.openstack.org/identity/api/v2.0" \
+            id="%s"/>\
+                    ' % (baseurl_id)
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+   
+def delete_all_baseurls_ref(tenant_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%stenants/%s/baseURLRefs' % (URL, tenant_id)
+    #test for Content-Type = application/json
+    resp, content = header.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/json",
+                                     "X-Auth-Token": auth_token})
+    if int(resp['status']) == 500:
+        self.fail('Identity Fault')
+    elif int(resp['status']) == 503:
+        self.fail('Service Not Available')
+    
+    #verify content
+    obj = json.loads(content)
+    base_url_refs = obj["baseURLRefs"]["values"]
+    for base_url_ref in base_url_refs:
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, tenant_id, base_url_ref["id"])
+        header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(auth_token)})
+
 if __name__ == '__main__':
     unittest.main()

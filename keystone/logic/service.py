@@ -856,7 +856,7 @@ class IdentityService(object):
         if admin:
             roleRefs = db_api.role_ref_get_all_global_roles(user.id)
             for roleRef in roleRefs:
-                if roleRef.role_id == "Admin":
+                if roleRef.role_id == "Admin" and roleRef.tenant_id is None:
                     return (token, user)
             raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
@@ -986,6 +986,56 @@ class IdentityService(object):
 
         dbaseurl = db_api.baseurls_get(baseurl_id)
         if not dbaseurl:
-            raise fault.ItemNotFoundFault("The role could not be found")
+            raise fault.ItemNotFoundFault("The base URL could not be found")
         return baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled)       
     
+    def get_tenant_baseURLs(self, admin_token, marker, limit, url, tenant_id):        
+        self.__validate_token(admin_token)
+        if tenant_id == None:
+            raise fault.BadRequestFault("Expecting a Tenant Id")
+
+        if db_api.tenant_get(tenant_id) == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+
+        ts = []
+        
+        dtenantBaseURLAssociations = db_api.baseurls_ref_get_by_tenant_get_page(tenant_id, marker,
+                                                          limit)
+        for dtenantBaseURLAssociation in dtenantBaseURLAssociations:
+            ts.append(baseURLs.BaseURLRef(dtenantBaseURLAssociation.id, url + '/baseURLs/' + str(dtenantBaseURLAssociation.baseURLs_id)))
+        links = []
+        if ts.__len__():
+            prev, next = db_api.baseurls_ref_get_by_tenant_get_page_markers(tenant_id,
+                                                        marker, limit)
+            if prev:
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+                                      (url, prev, limit)))
+            if next:
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+                                      (url, next, limit)))
+        return baseURLs.BaseURLRefs(ts, links)
+
+    def create_baseurl_ref_to_tenant(self, admin_token, tenant_id, baseurl, url):
+        self.__validate_token(admin_token)
+        if tenant_id == None:
+            raise fault.BadRequestFault("Expecting a Tenant Id")
+
+        if db_api.tenant_get(tenant_id) == None:
+            raise fault.ItemNotFoundFault("The tenant not found")
+
+        dbaseurl = db_api.baseurls_get(baseurl.id)
+        if not dbaseurl:
+            raise fault.ItemNotFoundFault("The base URL could not be found")
+        dbaseurl_ref = db_models.TenantBaseURLAssociation()
+        dbaseurl_ref.tenant_id = tenant_id
+        dbaseurl_ref.baseURLs_id = baseurl.id
+        dbaseurl_ref = db_api.baseurls_ref_add(dbaseurl_ref)
+        baseurlRef = baseURLs.BaseURLRef(dbaseurl_ref.id, url + '/baseURLs/' + dbaseurl_ref.baseURLs_id)
+        return baseurlRef
+    
+    def delete_baseurls_ref(self, admin_token, baseurls_id):
+        self.__validate_token(admin_token)
+        db_api.baseurls_ref_delete(baseurls_id)
+        return None
+    
+            
