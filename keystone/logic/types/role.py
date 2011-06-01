@@ -19,10 +19,12 @@ import string
 
 import keystone.logic.types.fault as fault
 
+
 class Role(object):
     def __init__(self, role_id, desc):
         self.role_id = role_id
         self.desc = desc
+
     @staticmethod
     def from_xml(xml_str):
         try:
@@ -52,7 +54,7 @@ class Role(object):
             else:
                 role_id = role["id"]
             if role_id == None:
-                raise fault.BadRequestFault("Expecting Role")                
+                raise fault.BadRequestFault("Expecting Role")
             desc = role["description"]
             return Role(role_id, desc)
         except (ValueError, TypeError) as e:
@@ -80,7 +82,8 @@ class Role(object):
 
     def to_json(self):
         return json.dumps(self.to_dict())
-        
+
+
 class Roles(object):
     "A collection of roles."
 
@@ -104,8 +107,8 @@ class Roles(object):
         values = [t.to_dict()["role"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
         return json.dumps({"roles": {"values": values, "links": links}})
-        
-        
+
+
 class RoleRef(object):
     def __init__(self, role_ref_id, role_id, tenant_id):
         self.role_ref_id = role_ref_id
@@ -149,8 +152,8 @@ class RoleRef(object):
             else:
                 tenant_id = roleRef["tenantId"]
             if tenant_id == None:
-                raise fault.BadRequestFault("Expecting Tenant")    
-            return RoleRef('',role_id, tenant_id)
+                raise fault.BadRequestFault("Expecting Tenant")
+            return RoleRef('', role_id, tenant_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))
 
@@ -180,7 +183,8 @@ class RoleRef(object):
 
     def to_json(self):
         return json.dumps(self.to_dict())
-        
+
+
 class RoleRefs(object):
     "A collection of role refs."
 

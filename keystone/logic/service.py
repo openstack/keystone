@@ -831,7 +831,6 @@ class IdentityService(object):
 
         token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
 
-<<<<<<< HEAD
         """gs = []
         for ug in duser.groups:
             dgroup = db_api.group_get(ug.group_id)
@@ -851,11 +850,9 @@ class IdentityService(object):
                                          droleRef.tenant_id))
         user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts, []))
         return auth.AuthData(token, user)
-=======
         user = auth.User(duser.id, duser.tenant_id, None)
 
         return auth.ValidateData(token, user)
->>>>>>> rackspace/master
 
     def __validate_token(self, token_id, admin=True):
         if not token_id:

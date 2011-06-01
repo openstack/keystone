@@ -199,7 +199,7 @@ in troubleshooting:
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
 </pre>
 
 #### Load Testing
@@ -207,7 +207,7 @@ in troubleshooting:
 <pre>
    # Create post data
 
-   $ echo '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenant": "1234"}}' > post_data
+   $ echo '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' > post_data
 
    # Call Apache Bench
 
@@ -229,6 +229,10 @@ Initial support for using keystone as nova's identity component has been started
     nova/bin/nova-api --api_paste_config=keystone/docs/nova-api-paste.ini
 
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
+
+## SWIFT Integration
+
+See swift-quick-start.txt in docs folder
 
 ## I want OpenStack (all of it)
 
