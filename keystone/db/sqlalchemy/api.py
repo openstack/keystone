@@ -354,6 +354,11 @@ def tenant_group_delete(id, tenant_id, session=None):
         tenantgroup_ref = tenant_group_get(id, tenant_id, session)
         session.delete(tenantgroup_ref)
 
+def tenant_role_assignments_get(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.UserRoleAssociation).\
+                        filter_by(tenant_id=tenant_id)
 
 #
 # User Operations
