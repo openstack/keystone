@@ -68,6 +68,58 @@ class GetBaseURLsTest(BaseURLsTest):
         if not "baseURLs" in obj:
             raise self.fail("Expecting BaseURLs")
 
+    def test_get_baseURLs_using_expired_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.exp_auth_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403 , int(resp['status']))            
+
+    def test_get_baseURLs_using_disabled_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.disabled_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403 , int(resp['status']))
+
+    def test_get_baseURLs_using_missing_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.missing_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401 , int(resp['status']))
+
+    def test_get_baseURLs_using_invalid_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.invalid_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404 , int(resp['status']))
+
     def test_get_baseURLs_xml(self):
         header = httplib2.Http(".cache")
         url = '%sbaseURLs' % (utils.URL)
@@ -90,6 +142,62 @@ class GetBaseURLsTest(BaseURLsTest):
         if baseURLs == None:
             self.fail("Expecting BaseURLs")
 
+    def test_get_baseURLs_xml_expired_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": self.exp_auth_token,
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+        
+    def test_get_baseURLs_xml_disabled_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": self.disabled_token,
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_baseURLs_xml_missing_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": self.missing_token,
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_get_baseURLs_xml_invalid_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs' % (utils.URL)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": self.invalid_token,
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+                         
 class GetBaseURLTest(BaseURLsTest):
     def test_get_baseURL(self):
         header = httplib2.Http(".cache")
@@ -108,6 +216,59 @@ class GetBaseURLTest(BaseURLsTest):
         obj = json.loads(content)
         if not "baseURL" in obj:
             raise self.fail("Expecting BaseURL")
+
+    def test_get_baseURL_using_expired_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.exp_auth_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_baseURL_using_disabled_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.disabled_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_baseURL_using_missing_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.missing_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+
+    def test_get_baseURL_using_invalid_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.invalid_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
 
     def test_get_baseURL_xml(self):
         header = httplib2.Http(".cache")
@@ -132,7 +293,7 @@ class GetBaseURLTest(BaseURLsTest):
             self.fail("Expecting BaseURL")
 
             
-class BaseURLRefsTest(BaseURLsTest):
+class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_json(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_baseurls_ref(self.tenant,"1",
@@ -140,6 +301,33 @@ class BaseURLRefsTest(BaseURLsTest):
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
 
+    def test_baseurls_ref_create_json_using_expired_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.exp_auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
+
+    def test_baseurls_ref_create_json_using_disabled_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.disabled_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
+
+    def test_baseurls_ref_create_json_using_missing_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.missing_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(401, resp_val)
+
+    def test_baseurls_ref_create_json_using_invalid_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.invalid_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(404, resp_val)
     
     def test_baseurls_ref_create_xml(self):
         header = httplib2.Http(".cache")
@@ -154,8 +342,64 @@ class BaseURLRefsTest(BaseURLsTest):
                                            "X-Auth-Token": str(self.auth_token)})
         resp_val = int(resp['status'])
         self.assertEqual(204, resp_val)
+
+    def test_baseurls_ref_create_xml_using_expired_token(self):
+        header = httplib2.Http(".cache")
         
-    
+        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.exp_auth_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
+        
+    def test_baseurls_ref_create_xml_using_disabled_token(self):
+        header = httplib2.Http(".cache")
+        
+        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.disabled_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
+
+    def test_baseurls_ref_create_xml_using_missing_token(self):
+        header = httplib2.Http(".cache")
+        
+        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.missing_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(401, resp_val)
+
+    def test_baseurls_ref_create_xml_using_invalid_token(self):
+        header = httplib2.Http(".cache")
+        
+        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.invalid_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(404, resp_val)
+
+class GetBaseURLRefsTest(BaseURLsTest):    
     def test_get_baseurls_ref_xml(self):
         header = httplib2.Http(".cache")
         url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
@@ -170,6 +414,61 @@ class BaseURLRefsTest(BaseURLsTest):
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
         
+    def test_get_baseurls_ref_xml_using_expired_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/xml
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": str(self.exp_auth_token),
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_baseurls_ref_xml_using_disabled_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/xml
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": str(self.disabled_token),
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+
+    def test_get_baseurls_ref_xml_using_missing_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/xml
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": str(self.missing_token),
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+
+    def test_get_baseurls_ref_xml_using_invalid_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/xml
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": str(self.invalid_token),
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
         
     def test_get_baseurls_ref_json(self):
         header = httplib2.Http(".cache")
@@ -187,7 +486,68 @@ class BaseURLRefsTest(BaseURLsTest):
         obj = json.loads(content)
         if not "baseURLRefs" in obj:
             raise self.fail("Expecting BaseURLRefs")
-        
+
+    def test_get_baseurls_ref_json_using_expired_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": str(self.exp_auth_token),
+                                         "ACCEPT": "application/json"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+        obj = json.loads(content)
+
+    def test_get_baseurls_ref_json_using_disabled_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": str(self.disabled_token),
+                                         "ACCEPT": "application/json"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(403, int(resp['status']))
+        obj = json.loads(content)
+
+    def test_get_baseurls_ref_json_using_missing_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": str(self.missing_token),
+                                         "ACCEPT": "application/json"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(401, int(resp['status']))
+        obj = json.loads(content)
+
+    def test_get_baseurls_ref_json_using_invalid_auth_token(self):
+        header = httplib2.Http(".cache")
+        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": str(self.invalid_token),
+                                         "ACCEPT": "application/json"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(404, int(resp['status']))
+        obj = json.loads(content)
+
+class DeleteBaseURLRefsTest(BaseURLsTest):            
     def test_delete_baseurlref(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_baseurls_ref(self.tenant,"1",
@@ -211,7 +571,97 @@ class BaseURLRefsTest(BaseURLsTest):
         resp_val = int(resp['status'])
         self.assertEqual(204, resp_val)
 
-    #TODO
-    #To add failure cases using disabled token,expired token and invalid token.
+    def test_delete_baseurlref_using_expired_auth_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        obj = json.loads(content)
+        if not "baseURLRef" in obj:
+            raise fault.BadRequestFault("Expecting baseURLRef")
+        base_url_ref = obj["baseURLRef"]
+        if not "id" in base_url_ref:
+                base_url_ref_id = None
+        else:
+            base_url_ref_id = base_url_ref["id"]
+        if base_url_ref_id is None:
+            raise fault.BadRequestFault("Expecting baseURLRefID")
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.exp_auth_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
+
+    def test_delete_baseurlref_using_disabled_auth_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        obj = json.loads(content)
+        if not "baseURLRef" in obj:
+            raise fault.BadRequestFault("Expecting baseURLRef")
+        base_url_ref = obj["baseURLRef"]
+        if not "id" in base_url_ref:
+                base_url_ref_id = None
+        else:
+            base_url_ref_id = base_url_ref["id"]
+        if base_url_ref_id is None:
+            raise fault.BadRequestFault("Expecting baseURLRefID")
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.disabled_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
+ 
+    def test_delete_baseurlref_using_missing_auth_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        obj = json.loads(content)
+        if not "baseURLRef" in obj:
+            raise fault.BadRequestFault("Expecting baseURLRef")
+        base_url_ref = obj["baseURLRef"]
+        if not "id" in base_url_ref:
+                base_url_ref_id = None
+        else:
+            base_url_ref_id = base_url_ref["id"]
+        if base_url_ref_id is None:
+            raise fault.BadRequestFault("Expecting baseURLRefID")
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.missing_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(401, resp_val)
+
+    def test_delete_baseurlref_using_invalid_auth_token(self):
+        header = httplib2.Http(".cache")
+        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+        obj = json.loads(content)
+        if not "baseURLRef" in obj:
+            raise fault.BadRequestFault("Expecting baseURLRef")
+        base_url_ref = obj["baseURLRef"]
+        if not "id" in base_url_ref:
+                base_url_ref_id = None
+        else:
+            base_url_ref_id = base_url_ref["id"]
+        if base_url_ref_id is None:
+            raise fault.BadRequestFault("Expecting baseURLRefID")
+        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        resp, content = header.request(url, "DELETE", body='',
+                                  headers={"Content-Type": "application/json",
+                                           "X-Auth-Token": str(self.invalid_token)})
+        resp_val = int(resp['status'])
+        self.assertEqual(404, resp_val)
+
 if __name__ == '__main__':
     unittest.main()

@@ -223,20 +223,7 @@ class TenantController(wsgi.Controller):
 
     @utils.wrap_error
     def get_tenants(self, req):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                            req.environ.get("SERVER_NAME"),
-                            req.environ.get("SERVER_PORT"),
-                            req.environ['PATH_INFO'])
-
+        marker, limit, url = get_marker_limit_and_url(req)    
         tenants = service.get_tenants(utils.get_auth_token(req), marker,
                                     limit, url)
         return utils.send_result(200, req, tenants)
@@ -267,20 +254,7 @@ class TenantController(wsgi.Controller):
 
     @utils.wrap_error
     def get_tenant_groups(self, req, tenant_id):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                             req.environ.get("SERVER_NAME"),
-                             req.environ.get("SERVER_PORT"),
-                             req.environ['PATH_INFO'])
-
+        marker, limit, url = get_marker_limit_and_url(req)
         groups = service.get_tenant_groups(utils.get_auth_token(req),
                                         tenant_id, marker, limit, url)
         return utils.send_result(200, req, groups)
@@ -306,20 +280,7 @@ class TenantController(wsgi.Controller):
 
     @utils.wrap_error
     def get_users_tenant_group(self, req, tenant_id, group_id):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                             req.environ.get("SERVER_NAME"),
-                             req.environ.get("SERVER_PORT"),
-                             req.environ['PATH_INFO'])
-
+        marker, limit, url = get_marker_limit_and_url(req)
         users = service.get_users_tenant_group(utils.get_auth_token(req),
                                               tenant_id, group_id, marker,
                                               limit, url)
@@ -356,36 +317,14 @@ class UserController(wsgi.Controller):
 
     @utils.wrap_error
     def get_tenant_users(self, req, tenant_id):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                                req.environ.get("SERVER_NAME"),
-                                req.environ.get("SERVER_PORT"),
-                                req.environ['PATH_INFO'])
+        marker, limit, url = get_marker_limit_and_url(req)
         users = service.get_tenant_users(utils.get_auth_token(req), \
                                     tenant_id, marker, limit, url)
         return utils.send_result(200, req, users)
 
     @utils.wrap_error
     def get_user_groups(self, req, tenant_id, user_id):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                             req.environ.get("SERVER_NAME"),
-                             req.environ.get("SERVER_PORT"),
-                             req.environ['PATH_INFO'])
-
+        marker, limit, url = get_marker_limit_and_url(req)
         groups = service.get_user_groups(utils.get_auth_token(req),
                                         tenant_id, user_id, marker, limit, url)
         return utils.send_result(200, req, groups)
@@ -447,19 +386,7 @@ class GroupsController(wsgi.Controller):
 
     @utils.wrap_error
     def get_groups(self, req):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                         req.environ.get("SERVER_NAME"),
-                         req.environ.get("SERVER_PORT"),
-                         req.environ['PATH_INFO'])
+        marker, limit, url = get_marker_limit_and_url(req)
         groups = service.get_global_groups(utils.get_auth_token(req),
                                          marker, limit, url)
 
@@ -484,21 +411,7 @@ class GroupsController(wsgi.Controller):
 
     @utils.wrap_error
     def get_users_global_group(self, req, group_id):
-
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                             req.environ.get("SERVER_NAME"),
-                             req.environ.get("SERVER_PORT"),
-                             req.environ['PATH_INFO'])
-
+        marker, limit, url = get_marker_limit_and_url(req)
         users = service.get_users_global_group(utils.get_auth_token(req),
                                              group_id, marker, limit, url)
         return utils.send_result(200, req, users)
@@ -535,19 +448,7 @@ class RolesController(wsgi.Controller):
 
     @utils.wrap_error
     def get_roles(self, req):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                         req.environ.get("SERVER_NAME"),
-                         req.environ.get("SERVER_PORT"),
-                         req.environ['PATH_INFO'])
+        marker, limit, url = get_marker_limit_and_url(req)
         roles = service.get_roles(utils.get_auth_token(req),
                                          marker, limit, url)
         return utils.send_result(200, req, roles)
@@ -564,19 +465,7 @@ class RolesController(wsgi.Controller):
     
     @utils.wrap_error
     def get_role_refs(self, req, user_id):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                         req.environ.get("SERVER_NAME"),
-                         req.environ.get("SERVER_PORT"),
-                         req.environ['PATH_INFO'])
+        marker, limit, url = get_marker_limit_and_url(req)
         roleRefs = service.get_user_roles(utils.get_auth_token(req),
                                          marker, limit, url,user_id)
 
@@ -599,19 +488,7 @@ class BaseURLsController(wsgi.Controller):
         
     @utils.wrap_error
     def get_baseurls(self, req):
-        marker = None
-        if "marker" in req.GET:
-            marker = req.GET["marker"]
-
-        if "limit" in req.GET:
-            limit = req.GET["limit"]
-        else:
-            limit = 10
-
-        url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                         req.environ.get("SERVER_NAME"),
-                         req.environ.get("SERVER_PORT"),
-                         req.environ['PATH_INFO'])
+        marker, limit, url = get_marker_limit_and_url(req)
         baseURLs = service.get_baseurls(utils.get_auth_token(req),
                                          marker, limit, url)
         return utils.send_result(200, req, baseURLs)
@@ -652,6 +529,16 @@ def get_marker_limit_and_url(req):
     url = get_url(req)
     return (marker, limit, url)
     
+def get_marker_and_limit(req):
+    marker = None
+    limit = 10
+
+    if "marker" in req.GET:
+        marker = req.GET["marker"]
+
+    if "limit" in req.GET:
+        limit = req.GET["limit"]
+
 def get_url(req):
     url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
                      req.environ.get("SERVER_NAME"),

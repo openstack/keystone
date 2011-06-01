@@ -793,10 +793,9 @@ def delete_all_baseurls_ref(tenant_id, auth_token):
     base_url_refs = obj["baseURLRefs"]["values"]
     for base_url_ref in base_url_refs:
         url = '%stenants/%s/baseURLRefs/%s' % (URL, tenant_id, base_url_ref["id"])
-        resp, content = header.request(url, "DELETE", body='',
+        header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(auth_token)})
-        return (resp, content)
 
 if __name__ == '__main__':
     unittest.main()

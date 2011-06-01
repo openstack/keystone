@@ -202,7 +202,6 @@ class BaseURLRefs(object):
         return etree.tostring(dom)
 
     def to_json(self):
-        print "Values" , str(self.values)
         values = [t.to_dict()["baseURLRef"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
         return json.dumps({"baseURLRefs": {"values": values, "links": links}})        
