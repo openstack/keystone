@@ -41,19 +41,20 @@ import dtest
 from dtest import util
 
 ## The "base" module contains KeystoneTest, which ensures that there's
-## a Keystone authentication token in self.token and an API accessor
-## in self.ks.  See ksapi.py for a list of what methods are available
-## on self.ks.
+## a Keystone authentication token in self.token and API accessors in
+## self.ks and self.ks_admin.  See ksapi.py for a list of what methods
+## are available on self.ks/self.ks_admin.
 import base
 
 
 ## Tests should be gathered together in classes, not too dissimilar
 ## from how unittest works.  Extend base.KeystoneTest, so you get
-## self.token and self.ks.  If you override setUp(), make sure you
-## call the superclass's setUp() method (it's responsible for setting
-## self.ks).  Try to avoid overriding setUpClass() or tearDownClass()
-## if you can help it (they're responsible for setting up and
-## destroying self.token).
+## self.user_tok, self.ks, self.admin_tok, and self.ks_admin.  If you
+## override setUp(), make sure you call the superclass's setUp()
+## method (it's responsible for setting self.ks and self.ks_admin).
+## Try to avoid overriding setUpClass() or tearDownClass() if you can
+## help it (they're responsible for setting up and destroying
+## self.admin_tok and self.user_tok).
 class SampleTest(base.KeystoneTest):
     def test_sample(self):
         """Test that we can do sample."""
@@ -70,7 +71,7 @@ class SampleTest(base.KeystoneTest):
         ## attached to the 'response' attribute of the exception, and
         ## the status will be on the 'status' attribute of the
         ## exception.  Note that redirects are followed.
-        resp = self.ks.sample_call(self.token, 'argument 1', 'argument 2')
+        resp = self.ks.sample_call(self.user_tok, 'argument 1', 'argument 2')
 
         # Verify that resp is correct
         util.assert_equal(resp.status, 200)
