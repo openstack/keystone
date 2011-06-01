@@ -118,6 +118,32 @@ class User(object):
 class AuthData(object):
     "Authentation Information returned upon successful login."
 
+    def __init__(self, token):
+        self.token = token
+
+    def to_xml(self):
+        dom = etree.Element("auth",
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
+        token = etree.Element("token",
+                             expires=self.token.expires.isoformat())
+        token.set("id", self.token.token_id)
+        dom.append(token)
+        return etree.tostring(dom)
+
+    def to_json(self):
+        token = {}
+        token["id"] = self.token.token_id
+        token["expires"] = self.token.expires.isoformat()
+        auth = {}
+        auth["token"] = token
+        ret = {}
+        ret["auth"] = auth
+        return json.dumps(ret)
+
+
+class ValidateData(object):
+    "Authentation Information returned upon successful token validation."
+
     def __init__(self, token, user):
         self.token = token
         self.user = user

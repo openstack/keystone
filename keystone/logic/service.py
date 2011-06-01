@@ -73,7 +73,7 @@ class IdentityService(object):
             dtoken.expires = datetime.now() + timedelta(days=1)
             db_api.token_create(dtoken)
 
-        return self.__get_auth_data(dtoken, duser)
+        return self.__get_auth_data(dtoken)
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_token(admin_token)
@@ -88,7 +88,7 @@ class IdentityService(object):
         if not user.enabled:
             raise fault.UserDisabledFault("The user %s has been disabled!"
                                           % user.id)
-        return self.__get_auth_data(token, user)
+        return self.__get_validate_data(token, user)
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_token(admin_token)
@@ -822,24 +822,21 @@ class IdentityService(object):
 
     #
 
-    def __get_auth_data(self, dtoken, duser):
-        """return AuthData object for a token/user pair"""
+    def __get_auth_data(self, dtoken):
+        """return AuthData object for a token"""
 
         token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
 
-        """gs = []
-        for ug in duser.groups:
-            dgroup = db_api.group_get(ug.group_id)
-            if dtoken.tenant_id:
-                if dgroup.tenant_id == dtoken.tenant_id:
-                    gs.append(auth.Group(dgroup.id, dgroup.tenant_id))
-            else:
-                if dgroup.tenant_id == None:
-                    gs.append(auth.Group(dgroup.id))
-        user = auth.User(duser.id, dtoken.tenant_id, gs)
-        """
+        return auth.AuthData(token)
+
+    def __get_validate_data(self, dtoken, duser):
+        """return ValidateData object for a token/user pair"""
+
+        token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
+
         user = auth.User(duser.id, duser.tenant_id, None)
-        return auth.AuthData(token, user)
+
+        return auth.ValidateData(token, user)
 
     def __validate_token(self, token_id, admin=True):
         if not token_id:

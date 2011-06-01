@@ -476,7 +476,8 @@ class RolesController(wsgi.Controller):
         rval = service.delete_role_ref(utils.get_auth_token(req),
                                         role_ref_id)
         return utils.send_result(204, req, rval)
-        
+
+
 class BaseURLsController(wsgi.Controller):
     """
         BaseURL Controller -
