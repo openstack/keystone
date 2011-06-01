@@ -27,6 +27,7 @@ import keystone.logic.types.role as roles
 import keystone.logic.types.user as users
 import keystone.logic.types.baseURL as baseURLs
 
+
 class IdentityService(object):
     "This is the logical implemenation of the Identity service"
 
@@ -383,7 +384,6 @@ class IdentityService(object):
         db_api.user_tenant_group_delete(user, group)
         return None
 
-
     #
     # Private Operations
     #
@@ -397,7 +397,6 @@ class IdentityService(object):
             if token:
                 user = db_api.user_get(token.user_id)
         return (token, user)
-
 
     #
     #   User Operations
@@ -432,10 +431,8 @@ class IdentityService(object):
         duser.enabled = user.enabled
         duser.tenant_id = tenant_id
         db_api.user_create(duser)
-        
 
         return user
-
 
     def get_tenant_users(self, admin_token, tenant_id, marker, limit, url):
         self.__validate_token(admin_token)
@@ -858,7 +855,7 @@ class IdentityService(object):
             raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
         return (token, user)
-        
+
     def create_role(self, admin_token, role):
         self.__validate_token(admin_token)
 
@@ -876,7 +873,7 @@ class IdentityService(object):
         drole.desc = role.desc
         db_api.role_create(drole)
         return role
-        
+
     def get_roles(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
 
@@ -902,24 +899,24 @@ class IdentityService(object):
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
         return roles.Role(drole.id, drole.desc)
-        
+
     def create_role_ref(self, admin_token, user_id, roleRef):
         self.__validate_token(admin_token)
         duser = db_api.user_get(user_id)
 
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
-            
+
         if not isinstance(roleRef, roles.RoleRef):
             raise fault.BadRequestFault("Expecting a Role Ref")
 
         if roleRef.role_id == None:
             raise fault.BadRequestFault("Expecting a Role Id")
-            
+
         drole = db_api.role_get(roleRef.role_id)
         if drole == None:
             raise fault.ItemNotFoundFault("The role not found")
-            
+
         if roleRef.tenant_id != None:
             dtenant = db_api.tenant_get(roleRef.tenant_id)
             if dtenant == None:
@@ -933,12 +930,12 @@ class IdentityService(object):
         user_role_ref = db_api.user_role_add(drole_ref)
         roleRef.role_ref_id = user_role_ref.id
         return roleRef
-    
+
     def delete_role_ref(self, admin_token, role_ref_id):
         self.__validate_token(admin_token)
         db_api.role_ref_delete(role_ref_id)
         return None
-    
+
     def get_user_roles(self, admin_token, marker, limit, url, user_id):
         self.__validate_token(admin_token)
         duser = db_api.user_get(user_id)
@@ -949,7 +946,7 @@ class IdentityService(object):
         ts = []
         droleRefs = db_api.role_ref_get_page(marker, limit, user_id)
         for droleRef in droleRefs:
-            ts.append(roles.RoleRef(droleRef.id,droleRef.role_id,
+            ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
                                      droleRef.tenant_id))
         prev, next = db_api.role_ref_get_page_markers(user_id, marker, limit)
         links = []
@@ -960,14 +957,18 @@ class IdentityService(object):
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
         return roles.RoleRefs(ts, links)
-        
+
     def get_baseurls(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
 
         ts = []
         dbaseurls = db_api.baseurls_get_page(marker, limit)
         for dbaseurl in dbaseurls:
-            ts.append(baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled))
+            ts.append(baseURLs.BaseURL(dbaseurl.id, dbaseurl.region,
+                                       dbaseurl.service, dbaseurl.public_url,
+                                       dbaseurl.admin_url,
+                                       dbaseurl.internal_url,
+                                       dbaseurl.enabled))
         prev, next = db_api.baseurls_get_page_markers(marker, limit)
         links = []
         if prev:
@@ -984,9 +985,11 @@ class IdentityService(object):
         dbaseurl = db_api.baseurls_get(baseurl_id)
         if not dbaseurl:
             raise fault.ItemNotFoundFault("The base URL could not be found")
-        return baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service, dbaseurl.public_url, dbaseurl.admin_url, dbaseurl.internal_url, dbaseurl.enabled)       
-    
-    def get_tenant_baseURLs(self, admin_token, marker, limit, url, tenant_id):        
+        return baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service,
+                                dbaseurl.public_url, dbaseurl.admin_url,
+                                dbaseurl.internal_url, dbaseurl.enabled)
+
+    def get_tenant_baseURLs(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_token(admin_token)
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
@@ -995,14 +998,18 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The tenant not found")
 
         ts = []
-        
-        dtenantBaseURLAssociations = db_api.baseurls_ref_get_by_tenant_get_page(tenant_id, marker,
+
+        dtenantBaseURLAssociations = \
+            db_api.baseurls_ref_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
         for dtenantBaseURLAssociation in dtenantBaseURLAssociations:
-            ts.append(baseURLs.BaseURLRef(dtenantBaseURLAssociation.id, url + '/baseURLs/' + str(dtenantBaseURLAssociation.baseURLs_id)))
+            ts.append(baseURLs.BaseURLRef(dtenantBaseURLAssociation.id,
+                    url + '/baseURLs/' + \
+                    str(dtenantBaseURLAssociation.baseURLs_id)))
         links = []
         if ts.__len__():
-            prev, next = db_api.baseurls_ref_get_by_tenant_get_page_markers(tenant_id,
+            prev, next = \
+                db_api.baseurls_ref_get_by_tenant_get_page_markers(tenant_id,
                                                         marker, limit)
             if prev:
                 links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
@@ -1012,7 +1019,8 @@ class IdentityService(object):
                                       (url, next, limit)))
         return baseURLs.BaseURLRefs(ts, links)
 
-    def create_baseurl_ref_to_tenant(self, admin_token, tenant_id, baseurl, url):
+    def create_baseurl_ref_to_tenant(self, admin_token,
+                                     tenant_id, baseurl, url):
         self.__validate_token(admin_token)
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
@@ -1027,12 +1035,12 @@ class IdentityService(object):
         dbaseurl_ref.tenant_id = tenant_id
         dbaseurl_ref.baseURLs_id = baseurl.id
         dbaseurl_ref = db_api.baseurls_ref_add(dbaseurl_ref)
-        baseurlRef = baseURLs.BaseURLRef(dbaseurl_ref.id, url + '/baseURLs/' + dbaseurl_ref.baseURLs_id)
+        baseurlRef = baseURLs.BaseURLRef(dbaseurl_ref.id, url + \
+                                         '/baseURLs/' + \
+                                         dbaseurl_ref.baseURLs_id)
         return baseurlRef
-    
+
     def delete_baseurls_ref(self, admin_token, baseurls_id):
         self.__validate_token(admin_token)
         db_api.baseurls_ref_delete(baseurls_id)
         return None
-    
-            

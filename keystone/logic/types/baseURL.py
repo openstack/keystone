@@ -18,6 +18,8 @@ from lxml import etree
 import string
 
 import keystone.logic.types.fault as fault
+
+
 class BaseURL(object):
     @staticmethod
     def from_xml(xml_str):
@@ -35,7 +37,8 @@ class BaseURL(object):
             admin_url = root.get("adminURL")
             internal_url = root.get("internalURL")
             enabled = root.get("enabled")
-            return BaseURL(id, region, service, public_url, admin_url, internal_url, enabled)
+            return BaseURL(id, region, service, public_url, admin_url,
+                           internal_url, enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse baseURL", str(e))
 
@@ -62,22 +65,24 @@ class BaseURL(object):
 
             if 'region' in baseURL:
                 region = baseURL["region"]
-            if 'serviceName' in baseURL:    
+            if 'serviceName' in baseURL:
                 service = baseURL["serviceName"]
-            if 'publicURL' in baseURL:    
+            if 'publicURL' in baseURL:
                 public_url = baseURL["publicURL"]
             if 'adminURL' in baseURL:
                 admin_url = baseURL["adminURL"]
-            if 'internalURL' in baseURL:    
+            if 'internalURL' in baseURL:
                 internal_url = baseURL["internalURL"]
             if 'enabled' in baseURL:
                 enabled = baseURL["enabled"]
-                
-            return BaseURL(id, region, service, public_url, admin_url, internal_url, enabled)
+
+            return BaseURL(id, region, service, public_url, admin_url,
+                           internal_url, enabled)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse baseURL", str(e))
 
-    def __init__(self, id, region, service, public_url, admin_url, internal_url, enabled):
+    def __init__(self, id, region, service, public_url, admin_url,
+                 internal_url, enabled):
         self.id = id
         self.region = region
         self.service = service
@@ -85,7 +90,7 @@ class BaseURL(object):
         self.admin_url = admin_url
         self.internal_url = internal_url
         self.enabled = enabled
-        
+
     def to_dom(self):
         dom = etree.Element("baseURL",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
@@ -128,7 +133,8 @@ class BaseURL(object):
 
     def to_json(self):
         return json.dumps(self.to_dict())
-        
+
+
 class BaseURLs(object):
     "A collection of baseURls."
 
@@ -151,14 +157,14 @@ class BaseURLs(object):
     def to_json(self):
         values = [t.to_dict()["baseURL"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"baseURLs": {"values": values, "links": links}})        
-        
+        return json.dumps({"baseURLs": {"values": values, "links": links}})
+
 
 class BaseURLRef(object):
     def __init__(self, id, href):
         self.id = id
         self.href = href
-        
+
     def to_dom(self):
         dom = etree.Element("baseURLRef",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
@@ -178,9 +184,10 @@ class BaseURLRef(object):
         if self.href:
             baseURLRef["href"] = self.href
         return {'baseURLRef': baseURLRef}
-  
+
     def to_json(self):
         return json.dumps(self.to_dict())
+
 
 class BaseURLRefs(object):
     "A collection of baseURlRefs."
@@ -204,4 +211,4 @@ class BaseURLRefs(object):
     def to_json(self):
         values = [t.to_dict()["baseURLRef"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"baseURLRefs": {"values": values, "links": links}})        
+        return json.dumps({"baseURLRefs": {"values": values, "links": links}})
