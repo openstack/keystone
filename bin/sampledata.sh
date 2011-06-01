@@ -26,16 +26,20 @@
 
 # Users
 ./keystone-manage $* user add joeuser secrete 1234
+./keystone-manage $* user add joeadmin secrete 1234
 ./keystone-manage $* user add admin secrete 1234
 ./keystone-manage $* user add disabled secrete 1234
 ./keystone-manage $* user disable disabled
 
 # Roles
 ./keystone-manage $* role add Admin
-./keystone-manage $* role grant Admin admin 
+./keystone-manage $* role grant Admin admin
+./keystone-manage $* role grant Admin joeadmin 1234
+./keystone-manage $* role grant Admin joeadmin ANOTHER:TENANT
 
 #BaseURLs
 ./keystone-manage $* baseURLs add DFW cloudFiles public.cloudfiles.com admin.cloudfiles.com internal.cloudfiles.com 1
+
 # Groups
 #./keystone-manage $* group add Admin 1234
 #./keystone-manage $* group add Default 1234
