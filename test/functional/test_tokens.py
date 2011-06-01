@@ -47,3 +47,25 @@ class AuthenticateTest(base.BaseKeystoneTest):
 
 # Ensure that all remaining tests wait for test_authenticate
 dtest.depends(AuthenticateTest.test_authenticate)(base.KeystoneTest.setUpClass)
+
+
+class ValidateTest(base.KeystoneTest):
+    def test_validate(self):
+        """Test that we can validate tokens using Keystone."""
+
+        # Issue the validation request
+        resp = self.ks_admin.validate_token(self.admin_tok, self.user_tok)
+
+        # Verify that resp is correct
+        util.assert_equal(resp.status, 200)
+        util.assert_in('auth', resp.obj)
+        util.assert_in('token', resp.obj['auth'])
+        util.assert_in('expires', resp.obj['auth']['token'])
+        util.assert_equal(resp.obj['auth']['token']['expires'],
+                          self.user_expire)
+        util.assert_in('id', resp.obj['auth']['token'])
+        util.assert_equal(resp.obj['auth']['token']['id'], self.user_tok)
+        util.assert_in('user', resp.obj['auth'])
+        util.assert_in('username', resp.obj['auth']['user'])
+        util.assert_equal(resp.obj['auth']['user']['username'],
+                          base.options.username)
