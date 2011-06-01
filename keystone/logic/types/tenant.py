@@ -33,7 +33,8 @@ class Tenant(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}tenant")
+            root = dom.find(
+                "{http://docs.openstack.org/identity/api/v2.0}tenant")
             if root == None:
                 raise fault.BadRequestFault("Expecting Tenant")
             tenant_id = root.get("id")
@@ -77,8 +78,8 @@ class Tenant(object):
 
     def to_dom(self):
         dom = etree.Element("tenant",
-                            xmlns="http://docs.openstack.org/identity/api/v2.0",
-                            enabled=string.lower(str(self.enabled)))
+                        xmlns="http://docs.openstack.org/identity/api/v2.0",
+                        enabled=string.lower(str(self.enabled)))
         if self.tenant_id:
             dom.set("id", self.tenant_id)
         desc = etree.Element("description")
@@ -142,7 +143,8 @@ class Group(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}group")
+            root = dom.find( \
+                        "{http://docs.openstack.org/identity/api/v2.0}group")
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
@@ -188,7 +190,7 @@ class Group(object):
 
     def to_dom(self):
         dom = etree.Element("group",
-                            xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.group_id:
             dom.set("id", self.group_id)
         if self.tenant_id:
@@ -251,7 +253,8 @@ class GlobalGroup(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}group")
+            root = dom.find(\
+                        "{http://docs.openstack.org/identity/api/v2.0}group")
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
             group_id = root.get("id")
@@ -287,7 +290,7 @@ class GlobalGroup(object):
 
     def to_dom(self):
         dom = etree.Element("group",
-                            xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.group_id:
             dom.set("id", self.group_id)
 
@@ -354,7 +357,7 @@ class User(object):
 
     def to_dom(self):
         dom = etree.Element("user",
-                            xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.group_id != None:
             dom.set("group_id", self.group_id)
         if self.user_id:

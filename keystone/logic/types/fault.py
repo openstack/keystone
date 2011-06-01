@@ -33,7 +33,7 @@ class IdentityFault(Exception):
 
     def to_xml(self):
         dom = etree.Element(self.key,
-                            xmlns="http://docs.openstack.org/identity/api/v2.0")
+                        xmlns="http://docs.openstack.org/identity/api/v2.0")
         dom.set("code", str(self.code))
         msg = etree.Element("message")
         msg.text = self.msg
@@ -159,6 +159,7 @@ class UserGroupConflictFault(IdentityFault):
     def __init__(self, msg, details=None, code=409):
         super(UserGroupConflictFault, self).__init__(msg, details, code)
         self.key = "userGroupConflict"
+
 
 class RoleConflictFault(IdentityFault):
     "The User already exists?"

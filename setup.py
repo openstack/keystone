@@ -16,7 +16,7 @@
 
 from setuptools import setup, find_packages
 
-version = '1.0' 
+version = '1.0'
 
 setup(
     name='keystone',
@@ -38,7 +38,7 @@ setup(
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
             'remoteauth=keystone:remoteauth_factory',
-            'tokenauth=keystone:tokenauth_factory',
+            'tokenauth=keystone.auth_protocols.auth_token:filter_factory',
             ],
         },
     )
