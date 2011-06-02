@@ -32,10 +32,27 @@ class TestAuthnV2(base.ServiceAPITest):
 
     api_version = '2.0'
 
+    def test_authn_get_fails(self):
+        """
+        Test for GH issue #5. GET /tokens works when it should not
+        """
+        url = "/tokens"
+        req = self.get_request('GET', url)
+        body = {
+            "passwordCredentials": {
+                "username": self.auth_user['id'],
+                "password": self.auth_user['password'],
+                "tenantId": self.auth_user['tenant_id']
+            }
+        }
+        req.body = json.dumps(body)
+        self.get_response()
+        self.status_not_found()
+
     @jsonify
     def test_authn_json(self):
         url = "/tokens"
-        req = self.get_request('GET', url)
+        req = self.get_request('POST', url)
         body = {
             "passwordCredentials": {
                 "username": self.auth_user['id'],
@@ -51,12 +68,7 @@ class TestAuthnV2(base.ServiceAPITest):
             u'auth': {
                 u'token': {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                    u'id': self.auth_token_id,
-                    u'tenantId': self.auth_user['tenant_id']
-                }, 
-                u'user': {
-                    u'username': self.auth_user['id'],
-                    u'tenantId': self.auth_user['tenant_id']
+                    u'id': self.auth_token_id
                 }
             }
         }
@@ -65,7 +77,7 @@ class TestAuthnV2(base.ServiceAPITest):
     @xmlify
     def test_authn_xml(self):
         url = "/tokens"
-        req = self.get_request('GET', url)
+        req = self.get_request('POST', url)
         req.body = '<?xml version="1.0" encoding="UTF-8"?> \
                     <passwordCredentials \
                     xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -78,12 +90,8 @@ class TestAuthnV2(base.ServiceAPITest):
 
         expected = """
             <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
-                <token expires="%s" id="%s" tenantId="%s"/>
-                <user username="%s" tenantId="%s"/>
+                <token expires="%s" id="%s" />
             </auth>
             """ % (self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                   self.auth_token_id,
-                   self.auth_user['tenant_id'],
-                   self.auth_user['id'],
-                   self.auth_user['tenant_id'])
+                   self.auth_token_id)
         self.assert_xml_strings_equal(expected, self.res.body)
