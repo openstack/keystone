@@ -848,18 +848,6 @@ class IdentityService(object):
         """return ValidateData object for a token/user pair"""
 
         token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
-
-        """gs = []
-        for ug in duser.groups:
-            dgroup = db_api.group_get(ug.group_id)
-            if dtoken.tenant_id:
-                if dgroup.tenant_id == dtoken.tenant_id:
-                    gs.append(auth.Group(dgroup.id, dgroup.tenant_id))
-            else:
-                if dgroup.tenant_id == None:
-                    gs.append(auth.Group(dgroup.id))
-        user = auth.User(duser.id, dtoken.tenant_id, gs)
-        """
         ts=[]
         if dtoken.tenant_id:
             droleRefs = db_api.role_ref_get_all_tenant_roles(duser.id, dtoken.tenant_id)
