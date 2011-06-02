@@ -214,6 +214,10 @@ class ServiceAPITest(unittest.TestCase):
                                            httplib.OK)
         self.status_not_found = functools.partial(self.verify_status,
                                            httplib.NOT_FOUND)
+        self.status_unauthorized = functools.partial(self.verify_status,
+                                           httplib.UNAUTHORIZED)
+        self.status_bad_request = functools.partial(self.verify_status,
+                                           httplib.BAD_REQUEST)
 
     def assert_dict_equal(self, expected, got):
         """
