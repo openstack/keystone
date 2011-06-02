@@ -167,8 +167,14 @@ class AuthProtocol(object):
                     self._decorate_request('X_USER', claims['user'])
                     if 'group' in claims:
                         self._decorate_request('X_GROUP', claims['group'])
-                    if 'roles' in claims:
-                        self._decorate_request('X_ROLES', claims['roles'])
+                    if 'roles' in claims and len(claims['roles']) > 0:
+                        if claims['roles'] != None:
+                            roles = ''
+                            for role in claims['roles']:
+                                if len(roles) > 0:
+                                    roles += ','
+                                roles += role
+                            self._decorate_request('X_ROLE', roles)
                     self.expanded = True
 
             #Send request downstream
@@ -267,8 +273,9 @@ class AuthProtocol(object):
         #first_group = token_info['auth']['user']['groups']['group'][0]
         roles =[]
         role_refs =token_info["auth"]["user"]["roleRefs"]
-        for role_ref in role_refs:
-            roles.append(role_ref["roleId"])
+        if role_refs != None:
+            for role_ref in role_refs:
+                roles.append(role_ref["roleId"])
 
         verified_claims = {'user': token_info['auth']['user']['username'],
                     'tenant': token_info['auth']['user']['tenantId'], 'roles':roles}

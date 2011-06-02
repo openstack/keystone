@@ -76,8 +76,8 @@ class EchoApp(object):
             print '  Tenant     :', self.envr['HTTP_X_TENANT']
         if 'HTTP_X_GROUP' in self.envr:
             print '  Group      :', self.envr['HTTP_X_GROUP']
-        if 'HTTP_X_ROLES' in self.envr:
-            print '  Roles      :', self.envr['HTTP_X_ROLES']
+        if 'HTTP_X_ROLE' in self.envr:
+            print '  Roles      :', self.envr['HTTP_X_ROLE']
 
 
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
