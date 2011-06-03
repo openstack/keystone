@@ -89,7 +89,6 @@ class AuthenticationTest(unittest.TestCase):
         self.assertTrue(resp['x-server-management-url'])
         self.assertTrue(resp['x-storage-url'])
         self.assertTrue(resp['x-cdn-management-url'])
-        print resp['x-server-management-url']
 
     def test_a_authorize_user_disabled(self):
         header = httplib2.Http(".cache")
