@@ -19,7 +19,7 @@ import json
 from lxml import etree
 
 import keystone.logic.types.fault as fault
-
+import keystone.logic.types.role as roles
 
 class PasswordCredentials(object):
     """Credentials based on username, password, and (optional) tenant_id.
@@ -109,10 +109,11 @@ class Groups(object):
 class User(object):
     "A user."
 
-    def __init__(self, username, tenant_id, groups):
+    def __init__(self, username, tenant_id, groups , role_refs = None):
         self.username = username
         self.tenant_id = tenant_id
         self.groups = groups
+        self.role_refs = role_refs
 
 
 class AuthData(object):
@@ -167,6 +168,8 @@ class ValidateData(object):
             groups.append(g)
         user.append(groups)
         """
+        if self.user.role_refs != None:
+            user.append(self.user.role_refs.to_dom())
         dom.append(token)
         dom.append(user)
         return etree.tostring(dom)
@@ -180,6 +183,9 @@ class ValidateData(object):
         user = {}
         user["username"] = self.user.username
         user["tenantId"] = self.user.tenant_id
+        if self.user.role_refs != None:
+            user["roleRefs"] = self.user.role_refs.to_json_values()
+
         """group = []
         for g in self.user.groups.values:
             grp = {}
