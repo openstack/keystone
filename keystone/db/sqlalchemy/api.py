@@ -129,6 +129,11 @@ def role_ref_get_all_global_roles(user_id,session=None):
     if not session:
         session = get_session()
     return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("tenant_id is null").all()
+
+def role_ref_get_all_tenant_roles(user_id, tenant_id, session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter_by(tenant_id = tenant_id).all()
     
 def role_ref_get(id, session=None):
     if not session:
@@ -164,6 +169,65 @@ def tenant_get_all(session=None):
         session = get_session()
     return session.query(models.Tenant).all()
 
+def tenants_for_user_get_page(user, marker, limit, session=None):
+    if not session:
+        session = get_session()
+    ura = aliased(models.UserRoleAssociation)
+    tenant = aliased(models.Tenant)
+    q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
+        filter(ura.user_id == user.id)
+    q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
+    q3 = q1.union(q2)
+    if marker:
+        return q3.filter("tenant.id>:marker").params(\
+                marker='%s' % marker).order_by(\
+                tenant.id.desc()).limit(limit).all()
+    else:
+        return q3.order_by(\
+                            tenant.id.desc()).limit(limit).all()
+        
+def tenants_for_user_get_page_markers(user, marker, limit, session=None):
+    if not session:
+        session = get_session()
+    ura = aliased(models.UserRoleAssociation)    
+    tenant = aliased(models.Tenant)        
+    q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
+        filter(ura.user_id == user.id)
+    q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
+    q3 = q1.union(q2)
+        
+    first = q3.order_by(\
+                        tenant.id).first()
+    last =  q3.order_by(\
+                        tenant.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = q3.filter(tenant.id > marker).order_by(\
+                    tenant.id).limit(limit).all()
+    prev = q3.filter(tenant.id > marker).order_by(\
+                    tenant.id.desc()).limit(int(limit)).all()
+    if len(next) == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if len(prev) == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if prev.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if next.id == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
+
 
 def tenant_get_page(marker, limit, session=None):
     if not session:
@@ -176,8 +240,7 @@ def tenant_get_page(marker, limit, session=None):
     else:
         return session.query(models.Tenant).order_by(\
                             models.Tenant.id.desc()).limit(limit).all()
-
-
+        
 def tenant_get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()

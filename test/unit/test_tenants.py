@@ -328,7 +328,7 @@ class CreateTenantTest(TenantTest):
 
 class GetTenantsTest(TenantTest):
 
-    def test_get_tenants(self):
+    def test_get_tenants_using_admin_token(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (utils.URL)
@@ -342,7 +342,7 @@ class GetTenantsTest(TenantTest):
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
 
-    def test_get_tenants_xml(self):
+    def test_get_tenants_using_admin_token_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (utils.URL)
@@ -357,7 +357,7 @@ class GetTenantsTest(TenantTest):
             self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
 
-    def test_get_tenants_unauthorized_token(self):
+    def test_get_tenants_using_user_token(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (utils.URL)
@@ -369,9 +369,9 @@ class GetTenantsTest(TenantTest):
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        self.assertEqual(401, int(resp['status']))
+        self.assertEqual(200, int(resp['status']))
 
-    def test_get_tenants_unauthorized_token_xml(self):
+    def test_get_tenants_using_user_token_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         url = '%stenants' % (utils.URL)
@@ -384,7 +384,7 @@ class GetTenantsTest(TenantTest):
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
-        self.assertEqual(401, int(resp['status']))
+        self.assertEqual(200, int(resp['status']))
 
     def test_get_tenants_exp_token(self):
         header = httplib2.Http(".cache")

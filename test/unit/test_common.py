@@ -739,6 +739,14 @@ def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
+
+def delete_role_ref(user, role_ref_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/roleRefs/%s' % (URL, user, role_ref_id)
+    resp, content = header.request(url, "DELETE", body='',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": str(auth_token)})
+    return (resp, content)
     
 def create_role_xml(role_id, auth_token):
     header = httplib2.Http(".cache")
