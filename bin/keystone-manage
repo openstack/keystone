@@ -281,6 +281,34 @@ def Main():
             except Exception as exc:
                 print "ERROR: Failed to create BaseURLs: %s" % exc
                 return
+        elif command == "list":
+            if len(args) == 3:
+                tenant = args[2]
+                try:
+                    objects = db_api.baseurls_ref_get_by_tenant(tenant)
+                    if objects == None:
+                        raise IndexError("URLs not found")
+                    print 'service', 'region', 'Public URL'
+                    print '-' * 20
+                    for row in objects:
+                        print row.service, row.region, row.public_url
+                except Exception, e:
+                    print 'Error getting all URL refs for %s:' % \
+                        tenant, str(e)
+                return
+            else:
+                tenant = None
+                try:
+                    objects = db_api.baseurls_get_all()
+                    if objects == None:
+                        raise IndexError("URLs not found")
+                    print 'service', 'region', 'Public URL'
+                    print '-' * 20
+                    for row in objects:
+                        print row.service, row.region, row.public_url
+                except Exception, e:
+                    print 'Error getting all BaseURLs:', str(e)
+                return
     elif object_type == "token":
         if command == "add":
             if len(args) < 6:

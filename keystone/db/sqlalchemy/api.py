@@ -1161,6 +1161,12 @@ def baseurls_ref_get(id, session=None):
     result = session.query(models.TenantBaseURLAssociation).filter_by(id=id).first()
     return result
 
+def baseurls_ref_get_by_tenant(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.TenantBaseURLAssociation).filter_by(tenant_id=tenant_id).first()
+    return result
+
 def baseurls_ref_delete(id, session=None):
     if not session:
         session = get_session()
