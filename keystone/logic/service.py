@@ -839,10 +839,9 @@ class IdentityService(object):
 
     def __get_auth_data(self, dtoken):
         """return AuthData object for a token"""
-
+        base_urls = db_api.tenant_baseurls_get_all(dtoken.tenant_id)
         token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
-
-        return auth.AuthData(token)
+        return auth.AuthData(token, base_urls)
 
     def __get_validate_data(self, dtoken, duser):
         """return ValidateData object for a token/user pair"""

@@ -123,7 +123,7 @@ class AuthData(object):
         self.token = token
         self.base_urls = base_urls
         self.d = {}
-        if base_urls != None:
+        if self.base_urls != None:
             self.__convert_baseurls_to_dict()
 
     def to_xml(self):
@@ -133,7 +133,7 @@ class AuthData(object):
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)
         dom.append(token)
-        if base_urls != None:
+        if self.base_urls != None:
             service_catalog = etree.Element("serviceCatalog")
             for key, key_base_urls in self.d.items():
                 service = etree.Element("service",
@@ -143,18 +143,17 @@ class AuthData(object):
                     if base_url.region:
                         endpoint.set("region", base_url.region)
                     if base_url.public_url:
-                        endpoint.set("publicURL", base_url.public_url)
+                        endpoint.set("publicURL", base_url.public_url.replace('%tenant_id%',self.token.tenant_id))
                     if base_url.admin_url:
-                        endpoint.set("adminURL", base_url.admin_url)
+                        endpoint.set("adminURL", base_url.admin_url.replace('%tenant_id%',self.token.tenant_id))
                     if base_url.internal_url:
-                        endpoint.set("internalURL", base_url.internal_url)
+                        endpoint.set("internalURL", base_url.internal_url.replace('%tenant_id%',self.token.tenant_id))
                     service.append(endpoint)
                 service_catalog.append(service)
             dom.append(service_catalog)
         return etree.tostring(dom)
     
     def __convert_baseurls_to_dict(self):
-        print self.base_urls
         for base_url in self.base_urls:
             if base_url.service not in self.d:
                 self.d[base_url.service] = list()
@@ -167,20 +166,20 @@ class AuthData(object):
         token["expires"] = self.token.expires.isoformat()
         auth = {}
         auth["token"] = token
-        if base_urls != None:
+        if self.base_urls != None:
             service_catalog = {}
             for key, key_base_urls in self.d.items():
                 endpoints = []
                 for base_url in key_base_urls:
                     endpoint = {}
                     if base_url.region:
-                        endpoint["region"] = base_url.region
+                        endpoint["region"] = base_url.region 
                     if base_url.public_url:
-                        endpoint["publicURL"] = base_url.public_url
+                        endpoint["publicURL"] = base_url.public_url.replace('%tenant_id%',self.token.tenant_id)
                     if base_url.admin_url:
-                        endpoint["adminURL"] = base_url.admin_url
+                        endpoint["adminURL"] =  base_url.admin_url.replace('%tenant_id%',self.token.tenant_id)
                     if base_url.internal_url:
-                        endpoint["internalURL"] = base_url.internal_url
+                        endpoint["internalURL"] = base_url.internal_url.replace('%tenant_id%',self.token.tenant_id)
                     endpoints.append(endpoint)
                 service_catalog[key] = endpoints
             auth["serviceCatalog"] = service_catalog
