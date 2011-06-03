@@ -154,7 +154,8 @@ class IdentityService(object):
             for dtenant in dtenants:
                 ts.append(tenants.Tenant(dtenant.id,
                                          dtenant.desc, dtenant.enabled))
-            prev, next = db_api.tenants_for_user_get_page_markers(user, marker, limit)
+            prev, next = db_api.tenants_for_user_get_page_markers(user, marker,
+                                                                  limit)
             links = []
             if prev:
                 links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -847,9 +848,10 @@ class IdentityService(object):
         """return ValidateData object for a token/user pair"""
 
         token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
-        ts=[]
+        ts = []
         if dtoken.tenant_id:
-            droleRefs = db_api.role_ref_get_all_tenant_roles(duser.id, dtoken.tenant_id)
+            droleRefs = db_api.role_ref_get_all_tenant_roles(duser.id,
+                                                             dtoken.tenant_id)
             for droleRef in droleRefs:
                 ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
                                          droleRef.tenant_id))
@@ -857,7 +859,8 @@ class IdentityService(object):
         for droleRef in droleRefs:
             ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
                                      droleRef.tenant_id))
-        user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts, []))
+        user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts,
+                                                                         []))
         return auth.ValidateData(token, user)
 
     def __validate_token(self, token_id, admin=True):

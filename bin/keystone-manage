@@ -51,6 +51,8 @@ def Main():
         users    : password, tenant
         tokens   : user, tenant, expiration
     
+      role list [tenant] will list roles granted on that tenant
+      
     options
       -c | --config-file : config file to use
       -d | --debug : debug mode
@@ -206,17 +208,33 @@ def Main():
                 print "ERROR: Failed to create role: %s" % exc
                 return
         elif command == "list":
-            try:
-                objects = db_api.role_get_all()
-                if objects == None:
-                    raise IndexError("Roles not found")
-                print 'role'
-                print '-' * 20
-                for row in objects:
-                    print row.id
-            except Exception, e:
-                print 'Error getting all roles:', str(e)
-            return
+            if len(args) == 3:
+                tenant = args[2]
+                try:
+                    objects = db_api.tenant_role_assignments_get(tenant)
+                    if objects == None:
+                        raise IndexError("Assignments not found")
+                    print 'user', 'role'
+                    print '-' * 20
+                    for row in objects:
+                        print row.user_id, row.role_id
+                except Exception, e:
+                    print 'Error getting all role assignments for %s:' % \
+                        tenant, str(e)
+                return
+            else:
+                tenant = None
+                try:
+                    objects = db_api.role_get_all()
+                    if objects == None:
+                        raise IndexError("Roles not found")
+                    print 'role'
+                    print '-' * 20
+                    for row in objects:
+                        print row.id
+                except Exception, e:
+                    print 'Error getting all roles:', str(e)
+                return
         elif command == "grant":
             if len(args) < 4:
                 parser.error("Missing arguments: role grant 'role' 'user'"\
@@ -262,6 +280,34 @@ def Main():
                 return
             except Exception as exc:
                 print "ERROR: Failed to create BaseURLs: %s" % exc
+                return
+        elif command == "list":
+            if len(args) == 3:
+                tenant = args[2]
+                try:
+                    objects = db_api.baseurls_ref_get_by_tenant(tenant)
+                    if objects == None:
+                        raise IndexError("URLs not found")
+                    print 'service', 'region', 'Public URL'
+                    print '-' * 20
+                    for row in objects:
+                        print row.service, row.region, row.public_url
+                except Exception, e:
+                    print 'Error getting all URL refs for %s:' % \
+                        tenant, str(e)
+                return
+            else:
+                tenant = None
+                try:
+                    objects = db_api.baseurls_get_all()
+                    if objects == None:
+                        raise IndexError("URLs not found")
+                    print 'service', 'region', 'Public URL'
+                    print '-' * 20
+                    for row in objects:
+                        print row.service, row.region, row.public_url
+                except Exception, e:
+                    print 'Error getting all BaseURLs:', str(e)
                 return
     elif object_type == "token":
         if command == "add":

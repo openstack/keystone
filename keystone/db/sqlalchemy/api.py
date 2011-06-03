@@ -101,6 +101,7 @@ def role_get_all(session=None):
         session = get_session()
     return session.query(models.Role).all()
 
+
 def role_get_page(marker, limit, session=None):
     if not session:
         session = get_session()
@@ -113,33 +114,42 @@ def role_get_page(marker, limit, session=None):
         return session.query(models.Role).order_by(\
                             models.Role.id.desc()).limit(limit).all()
 
+
 def role_ref_get_page(marker, limit, user_id, session=None):
     if not session:
         session = get_session()
 
     if marker:
-        return session.query(models.UserRoleAssociation).filter("id>:marker").params(\
+        return session.query(models.UserRoleAssociation).\
+                filter("id>:marker").params(\
                 marker='%s' % marker).filter_by(user_id=user_id).order_by(\
                 models.UserRoleAssociation.id.desc()).limit(limit).all()
     else:
-        return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
-                            models.UserRoleAssociation.id.desc()).limit(limit).all()
+        return session.query(models.UserRoleAssociation).\
+                filter_by(user_id=user_id).order_by(\
+                models.UserRoleAssociation.id.desc()).limit(limit).all()
 
-def role_ref_get_all_global_roles(user_id,session=None):
+
+def role_ref_get_all_global_roles(user_id, session=None):
     if not session:
         session = get_session()
-    return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("tenant_id is null").all()
+    return session.query(models.UserRoleAssociation).\
+                filter_by(user_id=user_id).filter("tenant_id is null").all()
+
 
 def role_ref_get_all_tenant_roles(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
-    return session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter_by(tenant_id = tenant_id).all()
-    
+    return session.query(models.UserRoleAssociation).\
+            filter_by(user_id=user_id).filter_by(tenant_id=tenant_id).all()
+
+
 def role_ref_get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.UserRoleAssociation).filter_by(id=id).first()
     return result
+
 
 def role_ref_delete(id, session=None):
     if not session:
@@ -147,6 +157,8 @@ def role_ref_delete(id, session=None):
     with session.begin():
         role_ref = role_ref_get(id, session)
         session.delete(role_ref)
+
+
 #
 # Tenant API operations
 #
@@ -169,6 +181,7 @@ def tenant_get_all(session=None):
         session = get_session()
     return session.query(models.Tenant).all()
 
+
 def tenants_for_user_get_page(user, marker, limit, session=None):
     if not session:
         session = get_session()
@@ -185,20 +198,21 @@ def tenants_for_user_get_page(user, marker, limit, session=None):
     else:
         return q3.order_by(\
                             tenant.id.desc()).limit(limit).all()
-        
+
+
 def tenants_for_user_get_page_markers(user, marker, limit, session=None):
     if not session:
         session = get_session()
-    ura = aliased(models.UserRoleAssociation)    
-    tenant = aliased(models.Tenant)        
+    ura = aliased(models.UserRoleAssociation)
+    tenant = aliased(models.Tenant)
     q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
         filter(ura.user_id == user.id)
     q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
     q3 = q1.union(q2)
-        
+
     first = q3.order_by(\
                         tenant.id).first()
-    last =  q3.order_by(\
+    last = q3.order_by(\
                         tenant.id.desc()).first()
     if first is None:
         return (None, None)
@@ -240,7 +254,8 @@ def tenant_get_page(marker, limit, session=None):
     else:
         return session.query(models.Tenant).order_by(\
                             models.Tenant.id.desc()).limit(limit).all()
-        
+
+
 def tenant_get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
@@ -279,7 +294,6 @@ def tenant_get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-
 def tenant_is_empty(id, session=None):
     if not session:
         session = get_session()
@@ -311,7 +325,6 @@ def tenant_delete(id, session=None):
     with session.begin():
         tenant_ref = tenant_get(id, session)
         session.delete(tenant_ref)
-
 
 
 #
@@ -418,6 +431,13 @@ def tenant_group_delete(id, tenant_id, session=None):
         session.delete(tenantgroup_ref)
 
 
+def tenant_role_assignments_get(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.UserRoleAssociation).\
+                        filter_by(tenant_id=tenant_id)
+
+
 #
 # User Operations
 #
@@ -462,8 +482,8 @@ def user_get(id, session=None):
     if not session:
         session = get_session()
     #TODO(Ziad): finish cleaning up model
-    #    result = session.query(models.User).options(joinedload('groups')).options(\
-    #            joinedload('tenants')).filter_by(id=id).first()
+    #    result = session.query(models.User).options(joinedload('groups')).\
+    #              options(joinedload('tenants')).filter_by(id=id).first()
     result = session.query(models.User).filter_by(id=id).first()
     return result
 
@@ -581,7 +601,7 @@ def user_get_by_tenant(id, tenant_id, session=None):
                     filter_by(id=id, tenant_id=tenant_id).first()
     if user:
         return user
-    
+
     # Find user through grants to this tenant
     user_tenant = session.query(models.UserRoleAssociation).filter_by(\
         tenant_id=tenant_id, user_id=id).first()
@@ -617,6 +637,7 @@ def user_delete_tenant(id, tenant_id, session=None):
                 for group_user in group_users:
                     session.delete(group_user)
 
+
 def user_get_by_tenant(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
@@ -624,12 +645,14 @@ def user_get_by_tenant(user_id, tenant_id, session=None):
                                                   tenant_id=tenant_id).first()
     return result
 
+
 def users_get_by_tenant(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.User).filter_by(id=user_id,
                                                   tenant_id=tenant_id)
     return result
+
 
 #
 # Group Operations
@@ -938,6 +961,7 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
         next = next.id
     return (prev, next)
 
+
 def role_get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
@@ -974,24 +998,30 @@ def role_get_page_markers(marker, limit, session=None):
     else:
         next = next.id
     return (prev, next)
-    
+
+
 def role_ref_get_page_markers(user_id, marker, limit, session=None):
     if not session:
         session = get_session()
-    first = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
+    first = session.query(models.UserRoleAssociation).filter_by(\
+                                        user_id=user_id).order_by(\
                         models.UserRoleAssociation.id).first()
-    last = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).order_by(\
+    last = session.query(models.UserRoleAssociation).filter_by(\
+                                        user_id=user_id).order_by(\
                         models.UserRoleAssociation.id.desc()).first()
     if first is None:
         return (None, None)
     if marker is None:
         marker = first.id
-    next = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("id > :marker").params(\
+    next = session.query(models.UserRoleAssociation).filter_by(\
+                    user_id=user_id).filter("id > :marker").params(\
                     marker='%s' % marker).order_by(\
                     models.UserRoleAssociation.id).limit(limit).all()
-    prev = session.query(models.UserRoleAssociation).filter_by(user_id=user_id).filter("id < :marker").params(\
+    prev = session.query(models.UserRoleAssociation).filter_by(\
+                            user_id=user_id).filter("id < :marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.UserRoleAssociation.id.desc()).limit(int(limit)).all()
+                    models.UserRoleAssociation.id.desc()).limit(int(limit)).\
+                    all()
     if len(next) == 0:
         next = last
     else:
@@ -1012,15 +1042,16 @@ def role_ref_get_page_markers(user_id, marker, limit, session=None):
         next = next.id
     return (prev, next)
 
+
 #
 # BaseURL API operations
 #
-
 def baseurls_create(values):
     baseurls_ref = models.BaseUrls()
     baseurls_ref.update(values)
     baseurls_ref.save()
     return baseurls_ref
+
 
 def baseurls_get(id, session=None):
     if not session:
@@ -1028,10 +1059,12 @@ def baseurls_get(id, session=None):
     result = session.query(models.BaseUrls).filter_by(id=id).first()
     return result
 
+
 def baseurls_get_all(session=None):
     if not session:
         session = get_session()
     return session.query(models.BaseUrls).all()
+
 
 def baseurls_get_page(marker, limit, session=None):
     if not session:
@@ -1044,7 +1077,8 @@ def baseurls_get_page(marker, limit, session=None):
     else:
         return session.query(models.BaseUrls).order_by(\
                             models.BaseUrls.id.desc()).limit(limit).all()
-    
+
+
 def baseurls_get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
@@ -1082,42 +1116,46 @@ def baseurls_get_page_markers(marker, limit, session=None):
         next = next.id
     return (prev, next)
 
-def baseurls_ref_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
+
+def baseurls_ref_get_by_tenant_get_page(tenant_id, marker, limit,
+                                        session=None):
     if not session:
         session = get_session()
     if marker:
         return session.query(models.TenantBaseURLAssociation).\
-                filter(models.TenantBaseURLAssociation.tenant_id == tenant_id).\
-                filter("id >= :marker").params(
-                marker='%s' % marker).order_by(
-                models.TenantBaseURLAssociation.id).limit(limit).all()
+            filter(models.TenantBaseURLAssociation.tenant_id == tenant_id).\
+            filter("id >= :marker").params(
+            marker='%s' % marker).order_by(
+            models.TenantBaseURLAssociation.id).limit(limit).all()
     else:
         return session.query(models.TenantBaseURLAssociation).\
-                filter(models.TenantBaseURLAssociation.tenant_id == tenant_id).\
-                order_by(models.TenantBaseURLAssociation.id).limit(limit).all()
-        
-def baseurls_ref_get_by_tenant_get_page_markers(tenant_id, marker, limit, session=None):
+            filter(models.TenantBaseURLAssociation.tenant_id == tenant_id).\
+            order_by(models.TenantBaseURLAssociation.id).limit(limit).all()
+
+
+def baseurls_ref_get_by_tenant_get_page_markers(tenant_id, marker, limit,
+                                                session=None):
     if not session:
         session = get_session()
     tba = aliased(models.TenantBaseURLAssociation)
     first = session.query(tba).\
-                    filter(tba.tenant_id ==tenant_id).\
+                    filter(tba.tenant_id == tenant_id).\
                     order_by(tba.id).first()
     last = session.query(tba).\
-                filter(tba.tenant_id ==tenant_id).\
+                filter(tba.tenant_id == tenant_id).\
                 order_by(tba.id.desc()).first()
     if first is None:
         return (None, None)
     if marker is None:
         marker = first.id
     next = session.query(tba).\
-                filter(tba.tenant_id ==tenant_id).\
+                filter(tba.tenant_id == tenant_id).\
                 filter("id>=:marker").params(
                 marker='%s' % marker).order_by(
                 tba.id).limit(int(limit)).all()
 
-    prev =session.query(tba).\
-                    filter(tba.tenant_id ==tenant_id).\
+    prev = session.query(tba).\
+                    filter(tba.tenant_id == tenant_id).\
                     filter("id < :marker").params(
                     marker='%s' % marker).order_by(
                     tba.id).limit(int(limit) + 1).all()
@@ -1144,17 +1182,29 @@ def baseurls_ref_get_by_tenant_get_page_markers(tenant_id, marker, limit, sessio
         next = next.id
     return (prev, next)
 
+
 def baseurls_ref_add(values):
     baseurls_ref = models.TenantBaseURLAssociation()
     baseurls_ref.update(values)
     baseurls_ref.save()
     return baseurls_ref
 
+
 def baseurls_ref_get(id, session=None):
     if not session:
         session = get_session()
-    result = session.query(models.TenantBaseURLAssociation).filter_by(id=id).first()
+    result = session.query(models.TenantBaseURLAssociation).\
+                    filter_by(id=id).first()
     return result
+
+
+def baseurls_ref_get_by_tenant(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    result = session.query(models.TenantBaseURLAssociation).\
+                    filter_by(tenant_id=tenant_id).first()
+    return result
+
 
 def baseurls_ref_delete(id, session=None):
     if not session:
