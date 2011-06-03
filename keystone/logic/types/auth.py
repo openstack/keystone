@@ -159,7 +159,6 @@ class AuthData(object):
             if base_url.service not in self.d:
                 self.d[base_url.service] = list()
             self.d[base_url.service].append(base_url)
-        print self.d
 
     def to_json(self):
         token = {}

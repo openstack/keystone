@@ -203,6 +203,39 @@ class LegacyAuthController(wsgi.Controller):
 
         result = service.authenticate(creds)
         headers = {"X-Auth-Token": result.token.token_id}
+        server_urls = ''
+        files_urls = ''
+        files_cdn_urls = ''
+        if result.base_urls != None:
+            for base_url in result.base_urls:
+                if base_url.service == 'cloudServers':
+                    if base_url.public_url:
+                        if(len(server_urls) > 0):
+                             server_urls += ','
+                        server_urls += base_url.public_url.replace('%tenant_id%', result.token.tenant_id)
+    
+                if base_url.service == 'cloudFiles':
+                    if base_url.public_url:
+                        if(len(files_urls) > 0):
+                             files_urls += ','
+                        files_urls += base_url.public_url.replace('%tenant_id%', result.token.tenant_id)
+    
+                if base_url.service == 'cloudFilesCDN':
+                    if base_url.public_url:
+                        if(len(files_cdn_urls) > 0):
+                             files_cdn_urls += ','
+                        files_cdn_urls += base_url.public_url.replace('%tenant_id%', result.token.tenant_id)
+    
+    
+            if len(server_urls) > 0:
+                headers["X-Server-Management-Url"] = server_urls
+    
+            if len(files_urls) > 0:
+                headers["X-Storage-Url"] = files_urls
+    
+            if len(files_cdn_urls) > 0:
+                headers["X-CDN-Management-Url"] = files_cdn_urls
+ 
         return utils.send_legacy_result(204, headers)
 
 

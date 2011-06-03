@@ -64,17 +64,23 @@ class IdentityService(object):
         else:
             dtoken = db_api.token_for_user_tenant(duser.id,
                                                   credentials.tenant_id)
+        tenant_id = None
+        if credentials.tenant_id:
+            tenant_id = credentials.tenant_id
+        else:
+            tenant_id = duser.tenant_id
+
         if not dtoken or dtoken.expires < datetime.now():
             # Create new token
             dtoken = db_models.Token()
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
             if credentials.tenant_id:
-                dtoken.tenant_id = credentials.tenant_id
+                tenant_id = credentials.tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
             db_api.token_create(dtoken)
-
-        return self.__get_auth_data(dtoken)
+        #if tenant_id is passed in the call that tenant_id is passed else user's default tenant_id is used.
+        return self.__get_auth_data(dtoken, tenant_id)
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_token(admin_token)
@@ -838,10 +844,12 @@ class IdentityService(object):
 
     #
 
-    def __get_auth_data(self, dtoken):
+    def __get_auth_data(self, dtoken, tenant_id):
         """return AuthData object for a token"""
-        base_urls = db_api.tenant_baseurls_get_all(dtoken.tenant_id)
-        token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
+        base_urls = None
+        if tenant_id != None:
+            base_urls = db_api.tenant_baseurls_get_all(tenant_id)
+        token = auth.Token(dtoken.expires, dtoken.token_id, tenant_id)
         return auth.AuthData(token, base_urls)
 
     def __get_validate_data(self, dtoken, duser):
