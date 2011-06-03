@@ -21,6 +21,7 @@ from lxml import etree
 import keystone.logic.types.fault as fault
 import keystone.logic.types.role as roles
 
+
 class PasswordCredentials(object):
     """Credentials based on username, password, and (optional) tenant_id.
         To handle multiple token for a user depending on tenants.
@@ -109,7 +110,7 @@ class Groups(object):
 class User(object):
     "A user."
 
-    def __init__(self, username, tenant_id, groups , role_refs = None):
+    def __init__(self, username, tenant_id, groups, role_refs=None):
         self.username = username
         self.tenant_id = tenant_id
         self.groups = groups

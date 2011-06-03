@@ -208,7 +208,6 @@ class RoleRefs(object):
 
         return dom
 
-
     def to_json(self):
         values = [t.to_dict()["roleRef"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
