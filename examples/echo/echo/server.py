@@ -31,6 +31,7 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'echo', '__init__.py')):
     # also use the local keystone
     KEYSTONE_TOPDIR = os.path.normpath(os.path.join(POSSIBLE_TOPDIR,
+                                                    os.pardir,
                                                     os.pardir))
     if os.path.exists(os.path.join(KEYSTONE_TOPDIR,
                                    'keystone',
@@ -75,6 +76,9 @@ class EchoApp(object):
             print '  Tenant     :', self.envr['HTTP_X_TENANT']
         if 'HTTP_X_GROUP' in self.envr:
             print '  Group      :', self.envr['HTTP_X_GROUP']
+        if 'HTTP_X_ROLE' in self.envr:
+            print '  Roles      :', self.envr['HTTP_X_ROLE']
+
 
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
         if accept == "application/xml":

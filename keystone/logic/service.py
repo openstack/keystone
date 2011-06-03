@@ -129,22 +129,41 @@ class IdentityService(object):
     ##    GET Tenants with Pagination
     ##
     def get_tenants(self, admin_token, marker, limit, url):
-        self.__validate_token(admin_token)
-
-        ts = []
-        dtenants = db_api.tenant_get_page(marker, limit)
-        for dtenant in dtenants:
-            ts.append(tenants.Tenant(dtenant.id,
-                                     dtenant.desc, dtenant.enabled))
-        prev, next = db_api.tenant_get_page_markers(marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
-                                                % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
-                                                % (url, next, limit)))
-        return tenants.Tenants(ts, links)
+        try:
+            (token, user) = self.__validate_token(admin_token)
+            # If Global admin return all tenants.
+            ts = []
+            dtenants = db_api.tenant_get_page(marker, limit)
+            for dtenant in dtenants:
+                ts.append(tenants.Tenant(dtenant.id,
+                                         dtenant.desc, dtenant.enabled))
+            prev, next = db_api.tenant_get_page_markers(marker, limit)
+            links = []
+            if prev:
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
+                                                    % (url, prev, limit)))
+            if next:
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
+                                                    % (url, next, limit)))
+            return tenants.Tenants(ts, links)
+        except fault.UnauthorizedFault:
+            #If not global admin ,return tenants specific to user.
+            (token, user) = self.__validate_token(admin_token, False)
+            ts = []
+            dtenants = db_api.tenants_for_user_get_page(user, marker, limit)
+            for dtenant in dtenants:
+                ts.append(tenants.Tenant(dtenant.id,
+                                         dtenant.desc, dtenant.enabled))
+            prev, next = db_api.tenants_for_user_get_page_markers(user, marker,
+                                                                  limit)
+            links = []
+            if prev:
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
+                                                    % (url, prev, limit)))
+            if next:
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
+                                                    % (url, next, limit)))
+            return tenants.Tenants(ts, links)
 
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
@@ -830,9 +849,19 @@ class IdentityService(object):
         """return ValidateData object for a token/user pair"""
 
         token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
-
-        user = auth.User(duser.id, duser.tenant_id, None)
-
+        ts = []
+        if dtoken.tenant_id:
+            droleRefs = db_api.role_ref_get_all_tenant_roles(duser.id,
+                                                             dtoken.tenant_id)
+            for droleRef in droleRefs:
+                ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+                                         droleRef.tenant_id))
+        droleRefs = db_api.role_ref_get_all_global_roles(duser.id)
+        for droleRef in droleRefs:
+            ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+                                     droleRef.tenant_id))
+        user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts,
+                                                                         []))
         return auth.ValidateData(token, user)
 
     def __validate_token(self, token_id, admin=True):

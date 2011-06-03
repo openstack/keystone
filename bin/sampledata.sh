@@ -39,6 +39,9 @@
 
 #BaseURLs
 ./keystone-manage $* baseURLs add DFW cloudFiles public.cloudfiles.com admin.cloudfiles.com internal.cloudfiles.com 1
+#v1.0 URLs
+./keystone-manage $* baseURLs add DFW X-Storage-Url https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% 1
+./keystone-manage $* baseURLs add DFW X-Server-Management-Url https://servers.api.rackspacecloud.com/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id%  1
 
 # Groups
 #./keystone-manage $* group add Admin 1234

@@ -210,7 +210,14 @@ class ServiceAPITest(unittest.TestCase):
         """
         Adds some convenience helpers using partials...
         """
-        self.status_ok = functools.partial(self.verify_status, httplib.OK)
+        self.status_ok = functools.partial(self.verify_status,
+                                           httplib.OK)
+        self.status_not_found = functools.partial(self.verify_status,
+                                           httplib.NOT_FOUND)
+        self.status_unauthorized = functools.partial(self.verify_status,
+                                           httplib.UNAUTHORIZED)
+        self.status_bad_request = functools.partial(self.verify_status,
+                                           httplib.BAD_REQUEST)
 
     def assert_dict_equal(self, expected, got):
         """
