@@ -17,9 +17,9 @@
 import json
 import logging
 
+from keystone import server
 from test.unit import base
 from test.unit.decorators import jsonify, xmlify
-from test.unit import test_common as utils
 
 logger = logging.getLogger('test.unit.test_authn_v2')
 
@@ -27,12 +27,12 @@ logger = logging.getLogger('test.unit.test_authn_v2')
 class TestAuthnV2(base.ServiceAPITest):
 
     """
-    Tests for the /v2.0/tokens auth endpoint
+    Tests for the /v2.0/tokens auth endpoint with main service API
     """
 
     api_version = '2.0'
 
-    def test_get_fails(self):
+    def test_authn_get_fails(self):
         """
         Test for GH issue #5. GET /tokens works when it should not
         """
@@ -50,7 +50,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_not_found()
 
     @jsonify
-    def test_success_json(self):
+    def test_authn_success_json(self):
         """
         Test that good password credentials returns a 200 OK
         """
@@ -78,7 +78,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
-    def test_success_missing_tenant_json(self):
+    def test_authn_success_missing_tenant_json(self):
         """
         Test that supplying an existing user/pass, with a missing tenant ID
         in the password credentials results in a 200 OK but a token not
@@ -114,7 +114,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
-    def test_success_none_tenant_json(self):
+    def test_authn_success_none_tenant_json(self):
         """
         Test that supplying an existing user/pass, with a tenant ID of None
         in the password credentials results in a 200 OK but a token not
@@ -151,7 +151,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
-    def test_malformed_creds_json(self):
+    def test_authn_malformed_creds_json(self):
         """
         Test that supplying a malformed password credentials
         results in a 400 Bad Request
@@ -170,7 +170,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_bad_request()
 
     @jsonify
-    def test_user_not_found_json(self):
+    def test_authn_user_not_found_json(self):
         """
         Test that supplying a non-existing user in the password credentials
         results in a 401 Unauthorized
@@ -189,7 +189,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @jsonify
-    def test_user_missing_json(self):
+    def test_authn_user_missing_json(self):
         """
         Test that supplying a missing user in the password credentials
         results in a 401 Unauthorized
@@ -208,7 +208,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @jsonify
-    def test_bad_pass_json(self):
+    def test_authn_bad_pass_json(self):
         """
         Test that supplying an existing user and a bad password
         in the password credentials results in a 401 Unauthorized
@@ -227,7 +227,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @jsonify
-    def test_bad_tenant_json(self):
+    def test_authn_bad_tenant_json(self):
         """
         Test that supplying an existing user/pass, with a bad tenant ID
         in the password credentials results in a 401 Unauthorized
@@ -246,7 +246,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @xmlify
-    def test_success_xml(self):
+    def test_authn_success_xml(self):
         """
         Test that good password credentials returns a 200 OK
         """
@@ -271,7 +271,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_xml_strings_equal(expected, self.res.body)
 
     @xmlify
-    def test_success_missing_tenant_xml(self):
+    def test_authn_success_missing_tenant_xml(self):
         """
         Test that supplying an existing user/pass, with a missing tenant ID
         in the password credentials results in a 200 OK but a token not
@@ -322,7 +322,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_bad_request()
 
     @xmlify
-    def test_user_not_found_xml(self):
+    def test_authn_user_not_found_xml(self):
         """
         Test that supplying a non-existing user in the password credentials
         results in a 401 Unauthorized
@@ -340,7 +340,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @xmlify
-    def test_user_missing_xml(self):
+    def test_authn_user_missing_xml(self):
         """
         Test that supplying a missing user in the password credentials
         results in a 400 Bad Request
@@ -357,7 +357,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_bad_request()
 
     @xmlify
-    def test_bad_pass_xml(self):
+    def test_authn_bad_pass_xml(self):
         """
         Test that supplying a bad password in the password credentials
         results in a 401 Unauthorized
@@ -375,7 +375,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @xmlify
-    def test_bad_tenant_xml(self):
+    def test_authn_bad_tenant_xml(self):
         """
         Test that supplying a bad tenant in the password credentials
         results in a 401 Unauthorized
@@ -391,3 +391,12 @@ class TestAuthnV2(base.ServiceAPITest):
                                          'badtenant')
         self.get_response()
         self.status_unauthorized()
+
+
+class TestAdminAuthnV2(TestAuthnV2):
+
+    """
+    Tests for the /v2.0/tokens auth endpoint with admin API
+    """
+
+    api_class = server.KeystoneAdminAPI
