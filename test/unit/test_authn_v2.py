@@ -96,6 +96,42 @@ class TestAuthnV2(base.ServiceAPITest):
         body = {
             "passwordCredentials": {
                 "username": self.auth_user['id'],
+                "password": self.auth_user['password']
+            }
+        }
+        req.body = json.dumps(body)
+        self.get_response()
+        self.status_ok()
+
+        expected = {
+            u'auth': {
+                u'token': {
+                    u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                    u'id': 'NOTENANTTOKEN'
+                }
+            }
+        }
+        self.assert_dict_equal(expected, json.loads(self.res.body))
+
+    @jsonify
+    def test_success_none_tenant_json(self):
+        """
+        Test that supplying an existing user/pass, with a tenant ID of None
+        in the password credentials results in a 200 OK but a token not
+        matching the token with a tenant attached to it.
+        """
+        # Create a special token for user with no tenant
+        auth_token = self.fixture_create_token(
+            user_id=self.auth_user['id'],
+            tenant_id=None,
+            expires=self.expires,
+            token_id='NOTENANTTOKEN')
+
+        url = "/tokens"
+        req = self.get_request('POST', url)
+        body = {
+            "passwordCredentials": {
+                "username": self.auth_user['id'],
                 "password": self.auth_user['password'],
                 "tenantId": None
             }
