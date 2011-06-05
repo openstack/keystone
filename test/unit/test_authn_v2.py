@@ -24,13 +24,7 @@ from test.unit.decorators import jsonify, xmlify
 logger = logging.getLogger('test.unit.test_authn_v2')
 
 
-class TestAuthnV2(base.ServiceAPITest):
-
-    """
-    Tests for the /v2.0/tokens auth endpoint with main service API
-    """
-
-    api_version = '2.0'
+class AuthnMethods(object):
 
     def test_authn_get_fails(self):
         """
@@ -393,10 +387,77 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
 
-class TestAdminAuthnV2(TestAuthnV2):
+class TestAuthnV2(base.ServiceAPITest, AuthnMethods):
+
+    """
+    Tests for the /v2.0/tokens auth endpoint with main service API
+    """
+
+
+class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
 
     """
     Tests for the /v2.0/tokens auth endpoint with admin API
     """
 
-    api_class = server.KeystoneAdminAPI
+    @jsonify
+    def test_validate_token_json(self):
+        """
+        Test successful validation of the token we use in authn
+        """
+        url = "/tokens/%s" % self.auth_token_id
+        headers = {"X-Auth-Token": self.auth_token_id}
+        req = self.get_request('GET', url, headers)
+        self.get_response()
+        self.status_ok()
+
+        expected = {
+            "auth": {
+                "token": {
+                    u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                    u'id': self.auth_token_id,
+                    "tenantId": self.auth_user['tenant_id']
+                },
+                "user": {
+                    "username": self.auth_user['id'],
+                    "tenantId": self.auth_user['tenant_id'],
+                    "roleRefs": []
+                }
+            }
+        }
+        for user_role in self.auth_user['roles']:
+            expected["auth"]["user"]["roleRefs"].append(
+                {"roleId": user_role['role_id'], "id": user_role['id']})
+        self.assert_dict_equal(expected, json.loads(self.res.body))
+
+    @xmlify
+    def test_validate_token_xml(self):
+        """
+        Test successful validation of the token we use in authn
+        """
+        url = "/tokens/%s" % self.auth_token_id
+        headers = {"X-Auth-Token": self.auth_token_id}
+        req = self.get_request('GET', url, headers)
+        self.get_response()
+        self.status_ok()
+
+        expected = """<auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+                  <token expires="%s" id="%s" tenantId="%s"/>
+                  <user username="%s" tenantId="%s">
+                    <roleRefs xmlns="http://docs.openstack.org/identity/api/v2.0">
+                    """ % (
+                      self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                      self.auth_token_id,
+                      self.auth_user['tenant_id'],
+                      self.auth_user['id'],
+                      self.auth_user['tenant_id'])
+
+        for user_role in self.auth_user['roles']:
+            expected = expected + """
+            <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" 
+            id="%s" roleId="%s"/>""" % (user_role['id'],
+                                        user_role['role_id'])
+        expected = expected + """</roleRefs>
+                  </user>
+                 </auth>"""
+        self.assert_xml_strings_equal(expected, self.res.body)
