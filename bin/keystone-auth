@@ -62,7 +62,7 @@ if __name__ == '__main__':
         # Load Service API server
         conf, app = config.load_paste_app('server', options, args)
         server = wsgi.Server()
-        server.start(app, int(conf['bind_port']), conf['bind_host'])
+        server.start(app, int(conf['server_bind_port']), conf['server_bind_host'])
         print "Service API listening on %s:%s" % (conf['bind_host'],
                                               conf['bind_port'])
         server.wait()

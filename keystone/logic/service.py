@@ -76,10 +76,11 @@ class IdentityService(object):
             dtoken.token_id = str(uuid.uuid4())
             dtoken.user_id = duser.id
             if credentials.tenant_id:
-                 dtoken.tenant_id = credentials.tenant_id
+                dtoken.tenant_id = credentials.tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
             db_api.token_create(dtoken)
-        #if tenant_id is passed in the call that tenant_id is passed else user's default tenant_id is used.
+        #if tenant_id is passed in the call that tenant_id is passed else
+        #user's default tenant_id is used.
         return self.__get_auth_data(dtoken, tenant_id)
 
     def validate_token(self, admin_token, token_id, belongs_to=None):

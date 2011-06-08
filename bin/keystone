@@ -50,7 +50,12 @@ if __name__ == '__main__':
     common_group.add_option('-a', '--admin-port', default=8081,
                             dest="admin_port", metavar="PORT",
                      help = "specifies port for Admin API to listen"
-                            "on (default is 8080)")
+                            "on (default is 8081)")
+
+    common_group.add_option('-r', '--rackspace-legacy-port', default=8082,
+                            dest="rackspace_legacy_port", metavar="PORT",
+                     help = "specifies port for Rackspace Legacy API to listen"
+                            "on (default is 8082)")
 
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
@@ -58,7 +63,7 @@ if __name__ == '__main__':
     # Start services
     try:
         # Load Service API server
-        conf, app = config.load_paste_app('server', options, args)
+        conf, app = config.load_paste_app('keystone-legacy-auth', options, args)
 
         debug = options.get('debug') or conf.get('debug', False)
         debug = debug in [True, "True", "1"]
@@ -69,21 +74,20 @@ if __name__ == '__main__':
             print "Using config file:", config_file
 
         server = wsgi.Server()
-        server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Service API listening on %s:%s" % (conf['bind_host'],
-                                              conf['bind_port'])
+        server.start(app, int(conf['server_bind_port']), conf['server_bind_host'])
+        print "Service API listening on %s:%s" % (conf['server_bind_host'],
+                                              conf['server_bind_port'])
 
         # Load Admin API server
         admin_conf, admin_app = config.load_paste_app('admin', options, args)
         admin_server = wsgi.Server()
         admin_bind = options.get('admin_port') or admin_conf.get('bind_port')
-        if conf['bind_port'] == admin_bind:
+        if conf['server_bind_host'] == admin_bind:
             admin_bind += 1
         admin_server.start(admin_app, int(admin_bind),
                            admin_conf['bind_host'])
         print "Admin API listening on %s:%s" % (admin_conf['bind_host'],
                                               admin_bind)
-
         # Wait until done
         server.wait()
     except RuntimeError, e:

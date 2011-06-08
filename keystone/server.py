@@ -175,70 +175,6 @@ class AuthController(wsgi.Controller):
                      service.revoke_token(utils.get_auth_token(req), token_id))
 
 
-class LegacyAuthController(wsgi.Controller):
-    """
-        Auth Controller for v1.x -
-        Controller for token related operations
-    """
-
-    def __init__(self, options):
-        self.options = options
-        self.request = None
-
-    @utils.wrap_error
-    def authenticate(self, req):
-        self.request = req
-
-        creds = auth.PasswordCredentials(utils.get_auth_user(req),
-                                         utils.get_auth_key(req),
-                                         None)
-
-        """HTTP/1.1 204 No Content
-        Date: Mon, 12 Nov 2007 15:32:21 GMT
-        X-Storage-Url: https://storage.clouddrive.com/v1/CF_xer7_34
-        X-CDN-Management-Url: https://cdn.clouddrive.com/v1/CF_xer7_34
-        X-Auth-Token: eaaafd18-0fed-4b3a-81b4-663c99ec1cbb
-        Content-Length: 0
-        Content-Type: text/plain; charset=UTF-8"""
-
-        result = service.authenticate(creds)
-        headers = {"X-Auth-Token": result.token.token_id}
-        server_urls = ''
-        files_urls = ''
-        files_cdn_urls = ''
-        if result.base_urls != None:
-            for base_url in result.base_urls:
-                if base_url.service == 'cloudServers':
-                    if base_url.public_url:
-                        if(len(server_urls) > 0):
-                             server_urls += ','
-                        server_urls += base_url.public_url.replace('%tenant_id%', result.token.tenant_id)
-    
-                if base_url.service == 'cloudFiles':
-                    if base_url.public_url:
-                        if(len(files_urls) > 0):
-                             files_urls += ','
-                        files_urls += base_url.public_url.replace('%tenant_id%', result.token.tenant_id)
-    
-                if base_url.service == 'cloudFilesCDN':
-                    if base_url.public_url:
-                        if(len(files_cdn_urls) > 0):
-                             files_cdn_urls += ','
-                        files_cdn_urls += base_url.public_url.replace('%tenant_id%', result.token.tenant_id)
-    
-    
-            if len(server_urls) > 0:
-                headers["X-Server-Management-Url"] = server_urls
-    
-            if len(files_urls) > 0:
-                headers["X-Storage-Url"] = files_urls
-    
-            if len(files_cdn_urls) > 0:
-                headers["X-CDN-Management-Url"] = files_cdn_urls
- 
-        return utils.send_legacy_result(204, headers)
-
-
 class TenantController(wsgi.Controller):
     """
         Tenant Controller -
@@ -596,22 +532,8 @@ class KeystoneAPI(wsgi.Router):
 
         db_api.configure_db(options)
 
-        # Legacy Token Operations
-        auth_controller = AuthController(options)
-        legacy_auth_controller = LegacyAuthController(options)
-        mapper.connect("/v1.0", controller=legacy_auth_controller,
-                       action="authenticate")
-        mapper.connect("/v1.0/", controller=legacy_auth_controller,
-                       action="authenticate")
-
-        mapper.connect("/v1.1/tokens", controller=auth_controller,
-                       action="authenticate",
-                       conditions=dict(method=["POST"]))
-        mapper.connect("/v1.1/tokens/", controller=auth_controller,
-                       action="authenticate",
-                       conditions=dict(method=["POST"]))
-
         # Token Operations
+	auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
@@ -660,20 +582,6 @@ class KeystoneAdminAPI(wsgi.Router):
         mapper = routes.Mapper()
 
         db_api.configure_db(options)
-
-        # Legacy Token Operations
-        legacy_auth_controller = LegacyAuthController(options)
-        mapper.connect("/v1.0", controller=legacy_auth_controller,
-                       action="authenticate")
-        mapper.connect("/v1.0/", controller=legacy_auth_controller,
-                       action="authenticate")
-        mapper.connect("/v1.1/tokens", controller=legacy_auth_controller,
-                       action="authenticate",
-                       conditions=dict(method=["POST"]))
-        mapper.connect("/v1.1/tokens/", controller=legacy_auth_controller,
-                       action="authenticate",
-                       conditions=dict(method=["POST"]))
-
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,
