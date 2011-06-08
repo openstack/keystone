@@ -7,7 +7,7 @@ Quick Start to Integrating Swift and Keystone
 
 2.  Obtain and install a source copy of Keystone::
 
-        git clone https://github.com/khussein/keystone.git ~/keystone
+        git clone https://github.com/rackspace/keystone.git ~/keystone
         cd ~/keystone && sudo python setup.py develop
 
 3.  Move included configuration out of the way::
