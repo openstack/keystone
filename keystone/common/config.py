@@ -227,7 +227,7 @@ def find_config_file(options, args):
     We search for the paste config file in the following order:
     * If --config-file option is used, use that
     * If args[0] is a file, use that
-    * Search for keystone.conf in standard directories:
+    * Search for config file in standard directories:
         * .
         * ~.keystone/
         * ~
@@ -242,14 +242,16 @@ def find_config_file(options, args):
                     os.pardir,
                     os.pardir))
     fix_path = lambda p: os.path.abspath(os.path.expanduser(p))
+    file_name = 'keystone.conf'
     if options.get('config_file'):
+        file_name = options.get('config_file')   
         if os.path.exists(options['config_file']):
             return fix_path(options['config_file'])
     elif args:
         if os.path.exists(args[0]):
             return fix_path(args[0])
 
-    # Handle standard directory search for keystone.conf
+    # Handle standard directory search for keystone.conf or passed conf file.
     config_file_dirs = [fix_path(os.getcwd()),
                         fix_path(os.path.join('~', '.keystone')),
                         fix_path('~'),
@@ -257,15 +259,15 @@ def find_config_file(options, args):
                         '/etc']
 
     for cfg_dir in config_file_dirs:
-        cfg_file = os.path.join(cfg_dir, 'keystone.conf')
+        cfg_file = os.path.join(cfg_dir, file_name)
         if os.path.exists(cfg_file):
             return cfg_file
         else:
             if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'etc', \
-                    'keystone.conf')):
+                    file_name)):
                 # For debug only
                 config_file = os.path.join(POSSIBLE_TOPDIR, 'etc', \
-                        'keystone.conf')
+                        file_name)
                 return config_file
 
 

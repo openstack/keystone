@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2010 United States Government as represented by the
+# Administrator of the National Aeronautics and Space Administration.
+# Copyright 2011 OpenStack LLC.
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+"""
+Keystone Identity Server - Admin and Service API
+"""
+
+import optparse
+import os
+import sys
+
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
+    sys.path.insert(0, possible_topdir)
+
+import tools.tracer   #load this first
+import keystone
+from keystone.common import config
+from keystone.common import wsgi
+
+
+if __name__ == '__main__':
+    # Initialize a parser for our configuration paramaters
+    parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
+    common_group = config.add_common_options(parser)
+    config.add_log_options(parser)
+
+    # Handle a special argument to support starting two endpoints
+    common_group.add_option('-a', '--admin-port', default=8081,
+                            dest="admin_port", metavar="PORT",
+                     help = "specifies port for Admin API to listen"
+                            "on (default is 8081)")
+
+    common_group.add_option('-r', '--rackspace-legacy-port', default=8082,
+                            dest="rackspace_legacy_port", metavar="PORT",
+                     help = "specifies port for Rackspace Legacy API to listen"
+                            "on (default is 8082)")
+
+    # Parse arguments and load config
+    (options, args) = config.parse_options(parser)
+
+    # Start services
+    try:
+        # Load Service API server
+        conf, app = config.load_paste_app('server', options, args)
+
+        debug = options.get('debug') or conf.get('debug', False)
+        debug = debug in [True, "True", "1"]
+        verbose = options.get('verbose') or conf.get('verbose', False)
+        verbose = verbose in [True, "True", "1"]
+        if debug or verbose:
+            config_file = config.find_config_file(options, args)
+            print "Using config file:", config_file
+
+        server = wsgi.Server()
+        server.start(app, int(conf['bind_port']), conf['bind_host'])
+        print "Service API listening on %s:%s" % (conf['bind_host'],
+                                              conf['bind_port'])
+
+        # Load Admin API server
+        admin_conf, admin_app = config.load_paste_app('admin', options, args)
+        admin_server = wsgi.Server()
+        admin_bind = options.get('admin_port') or admin_conf.get('bind_port')
+        if conf['bind_port'] == admin_bind:
+            admin_bind += 1
+        admin_server.start(admin_app, int(admin_bind),
+                           admin_conf['bind_host'])
+        print "Admin API listening on %s:%s" % (admin_conf['bind_host'],
+                                              admin_bind)
+
+        #Load Rackspace Legacy API
+        options['config_file'] = 'rackspace_legacy_auth.conf'
+        print options.get('config_file')
+        conf, app = config.load_paste_app('rackspace_legacy_auth', options, args)
+        server = wsgi.Server()
+        server.start(app, int(conf['bind_port']), conf['bind_host'])
+        print "Rackspace Legacy Service API listening on %s:%s" % (conf['bind_host'],
+                                              conf['bind_port'])
+        
+        # Wait until done
+        server.wait()
+    except RuntimeError, e:
+        sys.exit("ERROR: %s" % e)
