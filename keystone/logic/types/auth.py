@@ -144,14 +144,16 @@ class AuthData(object):
                     if base_url.region:
                         endpoint.set("region", base_url.region)
                     if base_url.public_url:
-                        endpoint.set("publicURL", base_url.public_url.replace(
-                            '%tenant_id%', self.token.tenant_id))
+                        endpoint.set("publicURL",
+                            base_url.public_url.replace('%tenant_id%',\
+                                self.token.tenant_id))
                     if base_url.admin_url:
-                        endpoint.set("adminURL", base_url.admin_url.replace(
-                            '%tenant_id%', self.token.tenant_id))
+                        endpoint.set("adminURL",
+                            base_url.admin_url.replace('%tenant_id%',\
+                                self.token.tenant_id))
                     if base_url.internal_url:
                         endpoint.set("internalURL",
-                            base_url.internal_url.replace('%tenant_id%',
+                            base_url.internal_url.replace('%tenant_id%',\
                                 self.token.tenant_id))
                     service.append(endpoint)
                 service_catalog.append(service)
@@ -179,14 +181,14 @@ class AuthData(object):
                     if base_url.region:
                         endpoint["region"] = base_url.region
                     if base_url.public_url:
-                        endpoint["publicURL"] = base_url.public_url.replace(
+                        endpoint["publicURL"] = base_url.public_url.replace( \
                             '%tenant_id%', self.token.tenant_id)
                     if base_url.admin_url:
-                        endpoint["adminURL"] = base_url.admin_url.replace(
+                        endpoint["adminURL"] = base_url.admin_url.replace( \
                             '%tenant_id%', self.token.tenant_id)
                     if base_url.internal_url:
-                        endpoint["internalURL"] = base_url.internal_url.replace
-                        ('%tenant_id%', self.token.tenant_id)
+                        endpoint["internalURL"] = base_url.internal_url.\
+                            replace('%tenant_id%', self.token.tenant_id)
                     endpoints.append(endpoint)
                 service_catalog[key] = endpoints
             auth["serviceCatalog"] = service_catalog

@@ -79,7 +79,7 @@ if __name__ == '__main__':
         admin_conf, admin_app = config.load_paste_app('admin', options, args)
         admin_server = wsgi.Server()
         admin_bind = options.get('admin_port') or admin_conf.get('bind_port')
-        if conf['server_bind_host'] == admin_bind:
+        if conf['server_bind_port'] == admin_bind:
             admin_bind += 1
         admin_server.start(admin_app, int(admin_bind),
                            admin_conf['bind_host'])
