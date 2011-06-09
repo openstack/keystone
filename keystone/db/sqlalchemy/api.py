@@ -1212,3 +1212,13 @@ def baseurls_ref_delete(id, session=None):
     with session.begin():
         baseurls_ref = baseurls_ref_get(id, session)
         session.delete(baseurls_ref)
+
+
+def tenant_baseurls_get_all(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    tba = aliased(models.TenantBaseURLAssociation)
+    baseUrls = aliased(models.BaseUrls)
+    return session.query(baseUrls).join((tba,
+        tba.baseURLs_id == baseUrls.id)).\
+            filter(tba.tenant_id == tenant_id).all()

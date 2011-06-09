@@ -120,17 +120,51 @@ class User(object):
 class AuthData(object):
     "Authentation Information returned upon successful login."
 
-    def __init__(self, token):
+    def __init__(self, token, base_urls=None):
         self.token = token
+        self.base_urls = base_urls
+        self.d = {}
+        if self.base_urls != None:
+            self.__convert_baseurls_to_dict()
 
     def to_xml(self):
         dom = etree.Element("auth",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
+            xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)
         dom.append(token)
+        if self.base_urls != None:
+            service_catalog = etree.Element("serviceCatalog")
+            for key, key_base_urls in self.d.items():
+                service = etree.Element("service",
+                                 name=key)
+                for base_url in key_base_urls:
+                    endpoint = etree.Element("endpoint")
+                    if base_url.region:
+                        endpoint.set("region", base_url.region)
+                    if base_url.public_url:
+                        endpoint.set("publicURL",
+                            base_url.public_url.replace('%tenant_id%',\
+                                self.token.tenant_id))
+                    if base_url.admin_url:
+                        endpoint.set("adminURL",
+                            base_url.admin_url.replace('%tenant_id%',\
+                                self.token.tenant_id))
+                    if base_url.internal_url:
+                        endpoint.set("internalURL",
+                            base_url.internal_url.replace('%tenant_id%',\
+                                self.token.tenant_id))
+                    service.append(endpoint)
+                service_catalog.append(service)
+            dom.append(service_catalog)
         return etree.tostring(dom)
+
+    def __convert_baseurls_to_dict(self):
+        for base_url in self.base_urls:
+            if base_url.service not in self.d:
+                self.d[base_url.service] = list()
+            self.d[base_url.service].append(base_url)
 
     def to_json(self):
         token = {}
@@ -138,6 +172,26 @@ class AuthData(object):
         token["expires"] = self.token.expires.isoformat()
         auth = {}
         auth["token"] = token
+        if self.base_urls != None:
+            service_catalog = {}
+            for key, key_base_urls in self.d.items():
+                endpoints = []
+                for base_url in key_base_urls:
+                    endpoint = {}
+                    if base_url.region:
+                        endpoint["region"] = base_url.region
+                    if base_url.public_url:
+                        endpoint["publicURL"] = base_url.public_url.replace( \
+                            '%tenant_id%', self.token.tenant_id)
+                    if base_url.admin_url:
+                        endpoint["adminURL"] = base_url.admin_url.replace( \
+                            '%tenant_id%', self.token.tenant_id)
+                    if base_url.internal_url:
+                        endpoint["internalURL"] = base_url.internal_url.\
+                            replace('%tenant_id%', self.token.tenant_id)
+                    endpoints.append(endpoint)
+                service_catalog[key] = endpoints
+            auth["serviceCatalog"] = service_catalog
         ret = {}
         ret["auth"] = auth
         return json.dumps(ret)
