@@ -52,11 +52,6 @@ if __name__ == '__main__':
                      help="specifies port for Admin API to listen"
                             "on (default is 8081)")
 
-    common_group.add_option('-r', '--rackspace-legacy-port', default=8082,
-                            dest="rackspace_legacy_port", metavar="PORT",
-                     help="specifies port for Rackspace Legacy API to listen"
-                            "on (default is 8082)")
-
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
 

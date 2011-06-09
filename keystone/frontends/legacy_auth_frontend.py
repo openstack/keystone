@@ -60,6 +60,9 @@ class AuthProtocol(object):
         self.conf = conf
         self.app = app
 
+    """Handle 1.0 and 1.1 calls via middleware.
+    Right now Iam treating every call of 1.0 and 1.1 as call
+    to authenticate"""
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
         self.start_response = start_response
@@ -67,11 +70,10 @@ class AuthProtocol(object):
         self.request = Request(env)
         if self.request.path.startswith('/v1.0'
                 ) or self.request.path.startswith('/v1.1'):
-            #Handle 1.0 and 1.1 calls via wrapper.
             params = {"passwordCredentials":
                 {"username": utils.get_auth_user(self.request),
                     "password": utils.get_auth_key(self.request)}}
-
+            #Make request to keystone        
             new_request = Request.blank('/v2.0/tokens')
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'text/json'
@@ -88,18 +90,6 @@ class AuthProtocol(object):
         else:
             # Other calls pass to downstream WSGI component
             return self.app(self.env, self.start_response)
-
-    def get_auth_user(self):
-        auth_user = None
-        if "X-Auth-User" in self.request.headers:
-            auth_user = self.request.headers["X-Auth-User"]
-        return auth_user
-
-    def get_auth_key(self):
-        auth_key = None
-        if "X-Auth-Key" in self.request.headers:
-            auth_key = self.request.headers["X-Auth-Key"]
-        return auth_key
 
     def transform_keystone_auth_to_legacy_headers(self, content):
         headers = {}

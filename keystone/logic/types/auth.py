@@ -129,7 +129,7 @@ class AuthData(object):
 
     def to_xml(self):
         dom = etree.Element("auth",
-                xmlns="http://docs.openstack.org/identity/api/v2.0")
+            xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.token_id)
