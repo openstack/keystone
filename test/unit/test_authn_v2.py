@@ -17,22 +17,16 @@
 import json
 import logging
 
+from keystone import server
 from test.unit import base
 from test.unit.decorators import jsonify, xmlify
-from test.unit import test_common as utils
 
 logger = logging.getLogger('test.unit.test_authn_v2')
 
 
-class TestAuthnV2(base.ServiceAPITest):
+class AuthnMethods(object):
 
-    """
-    Tests for the /v2.0/tokens auth endpoint
-    """
-
-    api_version = '2.0'
-
-    def test_get_fails(self):
+    def test_authn_get_fails(self):
         """
         Test for GH issue #5. GET /tokens works when it should not
         """
@@ -50,7 +44,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_not_found()
 
     @jsonify
-    def test_success_json(self):
+    def test_authn_success_json(self):
         """
         Test that good password credentials returns a 200 OK
         """
@@ -78,9 +72,45 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
-    def test_success_missing_tenant_json(self):
+    def test_authn_success_missing_tenant_json(self):
         """
         Test that supplying an existing user/pass, with a missing tenant ID
+        in the password credentials results in a 200 OK but a token not
+        matching the token with a tenant attached to it.
+        """
+        # Create a special token for user with no tenant
+        auth_token = self.fixture_create_token(
+            user_id=self.auth_user['id'],
+            tenant_id=None,
+            expires=self.expires,
+            token_id='NOTENANTTOKEN')
+
+        url = "/tokens"
+        req = self.get_request('POST', url)
+        body = {
+            "passwordCredentials": {
+                "username": self.auth_user['id'],
+                "password": self.auth_user['password']
+            }
+        }
+        req.body = json.dumps(body)
+        self.get_response()
+        self.status_ok()
+
+        expected = {
+            u'auth': {
+                u'token': {
+                    u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                    u'id': 'NOTENANTTOKEN'
+                }
+            }
+        }
+        self.assert_dict_equal(expected, json.loads(self.res.body))
+
+    @jsonify
+    def test_authn_success_none_tenant_json(self):
+        """
+        Test that supplying an existing user/pass, with a tenant ID of None
         in the password credentials results in a 200 OK but a token not
         matching the token with a tenant attached to it.
         """
@@ -115,7 +145,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
-    def test_malformed_creds_json(self):
+    def test_authn_malformed_creds_json(self):
         """
         Test that supplying a malformed password credentials
         results in a 400 Bad Request
@@ -134,7 +164,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_bad_request()
 
     @jsonify
-    def test_user_not_found_json(self):
+    def test_authn_user_not_found_json(self):
         """
         Test that supplying a non-existing user in the password credentials
         results in a 401 Unauthorized
@@ -153,7 +183,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @jsonify
-    def test_user_missing_json(self):
+    def test_authn_user_missing_json(self):
         """
         Test that supplying a missing user in the password credentials
         results in a 401 Unauthorized
@@ -172,7 +202,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @jsonify
-    def test_bad_pass_json(self):
+    def test_authn_bad_pass_json(self):
         """
         Test that supplying an existing user and a bad password
         in the password credentials results in a 401 Unauthorized
@@ -191,7 +221,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @jsonify
-    def test_bad_tenant_json(self):
+    def test_authn_bad_tenant_json(self):
         """
         Test that supplying an existing user/pass, with a bad tenant ID
         in the password credentials results in a 401 Unauthorized
@@ -210,7 +240,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @xmlify
-    def test_success_xml(self):
+    def test_authn_success_xml(self):
         """
         Test that good password credentials returns a 200 OK
         """
@@ -235,7 +265,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.assert_xml_strings_equal(expected, self.res.body)
 
     @xmlify
-    def test_success_missing_tenant_xml(self):
+    def test_authn_success_missing_tenant_xml(self):
         """
         Test that supplying an existing user/pass, with a missing tenant ID
         in the password credentials results in a 200 OK but a token not
@@ -286,7 +316,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_bad_request()
 
     @xmlify
-    def test_user_not_found_xml(self):
+    def test_authn_user_not_found_xml(self):
         """
         Test that supplying a non-existing user in the password credentials
         results in a 401 Unauthorized
@@ -304,7 +334,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @xmlify
-    def test_user_missing_xml(self):
+    def test_authn_user_missing_xml(self):
         """
         Test that supplying a missing user in the password credentials
         results in a 400 Bad Request
@@ -321,7 +351,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_bad_request()
 
     @xmlify
-    def test_bad_pass_xml(self):
+    def test_authn_bad_pass_xml(self):
         """
         Test that supplying a bad password in the password credentials
         results in a 401 Unauthorized
@@ -339,7 +369,7 @@ class TestAuthnV2(base.ServiceAPITest):
         self.status_unauthorized()
 
     @xmlify
-    def test_bad_tenant_xml(self):
+    def test_authn_bad_tenant_xml(self):
         """
         Test that supplying a bad tenant in the password credentials
         results in a 401 Unauthorized
@@ -355,3 +385,79 @@ class TestAuthnV2(base.ServiceAPITest):
                                          'badtenant')
         self.get_response()
         self.status_unauthorized()
+
+
+class TestAuthnV2(base.ServiceAPITest, AuthnMethods):
+
+    """
+    Tests for the /v2.0/tokens auth endpoint with main service API
+    """
+
+
+class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
+
+    """
+    Tests for the /v2.0/tokens auth endpoint with admin API
+    """
+
+    @jsonify
+    def test_validate_token_json(self):
+        """
+        Test successful validation of the token we use in authn
+        """
+        url = "/tokens/%s" % self.auth_token_id
+        headers = {"X-Auth-Token": self.auth_token_id}
+        req = self.get_request('GET', url, headers)
+        self.get_response()
+        self.status_ok()
+
+        expected = {
+            "auth": {
+                "token": {
+                    u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                    u'id': self.auth_token_id,
+                    "tenantId": self.auth_user['tenant_id']
+                },
+                "user": {
+                    "username": self.auth_user['id'],
+                    "tenantId": self.auth_user['tenant_id'],
+                    "roleRefs": []
+                }
+            }
+        }
+        for user_role in self.auth_user['roles']:
+            expected["auth"]["user"]["roleRefs"].append(
+                {"roleId": user_role['role_id'], "id": user_role['id']})
+        self.assert_dict_equal(expected, json.loads(self.res.body))
+
+    @xmlify
+    def test_validate_token_xml(self):
+        """
+        Test successful validation of the token we use in authn
+        """
+        url = "/tokens/%s" % self.auth_token_id
+        headers = {"X-Auth-Token": self.auth_token_id}
+        req = self.get_request('GET', url, headers)
+        self.get_response()
+        self.status_ok()
+
+        expected = """<auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+                  <token expires="%s" id="%s" tenantId="%s"/>
+                  <user username="%s" tenantId="%s">
+                    <roleRefs xmlns="http://docs.openstack.org/identity/api/v2.0">
+                    """ % (
+                      self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                      self.auth_token_id,
+                      self.auth_user['tenant_id'],
+                      self.auth_user['id'],
+                      self.auth_user['tenant_id'])
+
+        for user_role in self.auth_user['roles']:
+            expected = expected + """
+            <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" 
+            id="%s" roleId="%s"/>""" % (user_role['id'],
+                                        user_role['role_id'])
+        expected = expected + """</roleRefs>
+                  </user>
+                 </auth>"""
+        self.assert_xml_strings_equal(expected, self.res.body)
