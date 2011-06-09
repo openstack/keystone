@@ -27,7 +27,6 @@ the response.
 """
 import os
 import sys
-import eventlet
 import optparse
 import httplib
 import json
@@ -51,8 +50,8 @@ from keystone.common import config
 
 PROTOCOL_NAME = "Legacy Authentication"
 
+
 class AuthProtocol(object):
-    
     """Legacy Auth Middleware that handles authenticating client calls"""
 
     def __init__(self, app, conf):
@@ -61,16 +60,17 @@ class AuthProtocol(object):
         self.conf = conf
         self.app = app
 
-
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
         self.start_response = start_response
         self.env = env
         self.request = Request(env)
-        if self.request.path.startswith('/v1.0') or self.request.path.startswith('/v1.1'):
+        if self.request.path.startswith('/v1.0'
+                ) or self.request.path.startswith('/v1.1'):
             #Handle 1.0 and 1.1 calls via wrapper.
-            params = {"passwordCredentials": {"username": utils.get_auth_user(self.request),
-                                              "password": utils.get_auth_key(self.request)}}
+            params = {"passwordCredentials":
+                {"username": utils.get_auth_user(self.request),
+                    "password": utils.get_auth_key(self.request)}}
 
             new_request = Request.blank('/v2.0/tokens')
             new_request.headers['Content-type'] = 'application/json'
@@ -78,12 +78,11 @@ class AuthProtocol(object):
             new_request.body = json.dumps(params)
             new_request.method = 'POST'
             response = new_request.get_response(self.app)
-            
             #Handle failures.
             if not str(response.status).startswith('20'):
-                return response(env, start_response)           
-            
-            headers = self.transform_keystone_auth_to_legacy_headers(json.loads(response.body))
+                return response(env, start_response)
+            headers = self.transform_keystone_auth_to_legacy_headers(
+                json.loads(response.body))
             resp = utils.send_legacy_result(204, headers)
             return resp(env, start_response)
         else:
@@ -101,8 +100,7 @@ class AuthProtocol(object):
         if "X-Auth-Key" in self.request.headers:
             auth_key = self.request.headers["X-Auth-Key"]
         return auth_key
-    
-        
+
     def transform_keystone_auth_to_legacy_headers(self, content):
         headers = {}
         if "auth" in content:
@@ -129,7 +127,8 @@ class AuthProtocol(object):
                             #use X- prefix followed by service name.
                             headers['X-' + service_name.upper()] = service_urls
         return headers
-    
+
+
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""
     conf = global_conf.copy()
@@ -137,4 +136,4 @@ def filter_factory(global_conf, **local_conf):
 
     def auth_filter(app):
         return AuthProtocol(app, conf)
-    return auth_filter        
+    return auth_filter

@@ -38,11 +38,11 @@ class AuthenticationTest(unittest.TestCase):
         #self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
-        utils.create_baseurls_ref(self.tenant,"1",
+        utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
-        utils.create_baseurls_ref(self.tenant,"2",
-            str(self.auth_token))        
-        utils.create_baseurls_ref(self.tenant,"3",
+        utils.create_baseurls_ref(self.tenant, "2",
+            str(self.auth_token))
+        utils.create_baseurls_ref(self.tenant, "3",
             str(self.auth_token))
         #self.exp_auth_token = utils.get_exp_auth_token()
         #self.disabled_token = utils.get_disabled_token()
@@ -68,7 +68,6 @@ class AuthenticationTest(unittest.TestCase):
                                              self.tenant)
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
-        
         #verify content
         dom = etree.Element("root")
         dom.append(etree.fromstring(content))
@@ -76,11 +75,11 @@ class AuthenticationTest(unittest.TestCase):
             "auth")
         if auth == None:
             self.fail("Expecting Auth")
-        service_catalog = auth.find("{http://docs.openstack.org/identity/api/v2.0}" \
-                                    "serviceCatalog")
+        service_catalog = auth.find(
+            "{http://docs.openstack.org/identity/api/v2.0}" \
+                "serviceCatalog")
         if service_catalog == None:
             self.fail("Expecting Service Catalog")
-
 
     def test_a_authorize_legacy(self):
         resp, content = utils.get_token_legacy('joeuser', 'secrete')
