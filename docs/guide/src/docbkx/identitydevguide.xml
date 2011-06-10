@@ -60,7 +60,7 @@
 	</copyright>
 	<releaseinfo>API v2.0</releaseinfo>
 	<productname>Keystone - OpenStack Identity</productname>
-	<pubdate>2011-06-01</pubdate>
+	<pubdate>2011-06-10</pubdate>
 	<legalnotice role="apache2">
 		<annotation>
 			<remark>Copyright details are filled in by the template.</remark>
@@ -106,11 +106,18 @@
 		  resources are accessible with it. A token may be
 		  revoked at anytime and is valid for a finite duration.
 	  </para>
+	  <para>
+		  While Keystone supports token-based authentication in this release,
+          the intention is for it to support additional protocols in the
+          future. The desire is to have it be an integration service, and not
+          a full-fledged identoty store and management solution.
+	  </para>
 	</section>
 	<section>
 	  <title>Tenant</title>
 	  <para>
-		  Depending on the operator, a tenant may map to a customer,
+		  A container used to group or isolate resources and/or identity
+          objects. Depending on the operator, a tenant may map to a customer,
 		  account, organization, or project.
 	  </para>
 	</section>
@@ -118,12 +125,9 @@
 	  <title>User</title>
 	  <para>
 		  Users have a login and may be assigned tokens to access
-		  resources.
+		  resources. Users may be directly assigned to a particular tenant and
+          behave as if they are contained in that tenant.
 	  </para>
-	  <note>
-			 This is a Rackspace extensions to support a local identity store.
-			 Extending this to work on any backing store is out of scope.
-	  </note>
 	</section>
 	<section>
 	  <title>Role</title>
@@ -731,11 +735,11 @@ Host: identity.api.openstack.org/v1.1/
 	<section>
 	  <title>Overview</title>
 	  <para>The operations described in this chapter allow clients to authenticate and get 
-		access tokens and endpoints. </para>
+		access tokens and service endpoints. </para>
 	</section>
 	  <section>
 	  <title>Core Service API Proposal</title>
-	  <note>The following table of calls is proposed as code Keystone APIs</note>
+	  <note>The following table of calls is proposed as core Keystone APIs</note>
 			 <informaltable rules="all">
 			 &URI_REFHEAD;
 			 <tbody>
@@ -844,7 +848,7 @@ Host: identity.api.openstack.org/v1.1/
 	<section>
 	  <title>Overview</title>
 	  <para>The operations described in this chapter allow service developers to get and validate
-		access tokens, manage users, and manage tenants. </para>
+		access tokens, manage users, tenants, roles, and service endpoints. </para>
 	</section>
 	<section>
 	  <title>Core Admin API Proposal</title>
@@ -910,7 +914,7 @@ Host: identity.api.openstack.org/v1.1/
              <tr>
                <td colspan="1"> &DELETE; </td>
                <td colspan="4">/tokens/<parameter>tokenId</parameter></td>
-               <td colspan="3"> Revoke an existing token.</td>
+               <td colspan="3">Revoke an existing token.</td>
              </tr>
 			 </tbody>
 			 </informaltable>
@@ -949,7 +953,7 @@ Host: identity.api.openstack.org/v1.1/
 			   <tr>
 				 <td colspan="1"> &GET; </td>
 				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/users</td>
-				 <td colspan="3">get tenant users.</td>
+				 <td colspan="3">Get a tenant's users.</td>
 			   </tr>
 			   
 			 </tbody>
@@ -1259,7 +1263,7 @@ Host: identity.api.openstack.org/v1.1/
 			<tr>
 			  <td colspan="1"> &PUT; </td>
 			  <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
-			  <td colspan="3">Update a tenant..</td>
+			  <td colspan="3">Update a tenant.</td>
 			</tr>
 		  </tbody>
 		</informaltable>
@@ -1745,7 +1749,7 @@ Host: identity.api.openstack.org/v1.1/
 			 <section>
 			   <title>Concepts</title>
 			     <para>
-				 The concepts that are specific to rackspace extensions are:
+				 The concepts that are specific to Rackspace extensions are:
 			       </para>
 				<section>		  
 				 <title>Group</title>
@@ -1758,7 +1762,8 @@ Host: identity.api.openstack.org/v1.1/
 				 </section>
 			 </section>
 
-			 <note>The following table of calls is proposed as rackspace specific extensions for Keystone APIs</note>
+			 <note>The following table of calls is proposed as Rackspace-specific
+             extensions for Keystone APIs in this version (2.0)</note>
 			 	  
 			 <section>
 				 <title>Global Groups</title>
