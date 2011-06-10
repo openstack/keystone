@@ -533,7 +533,7 @@ class KeystoneAPI(wsgi.Router):
         db_api.configure_db(options)
 
         # Token Operations
-	auth_controller = AuthController(options)
+        auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
@@ -676,7 +676,7 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=user_controller,
                     action="set_user_password",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v1.0/tenants/{tenant_id}/users/{user_id}/add",
+        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/add",
                     controller=user_controller,
                     action="add_user_tenant",
                     conditions=dict(method=["PUT"]))

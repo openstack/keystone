@@ -859,6 +859,49 @@ Host: identity.api.openstack.org/v1.1/
 	  <title>Core Admin API Proposal</title>
 	  <note>The following table of calls is proposed as core Keystone Admin APIs</note>
           <section>
+             <title>Users</title>
+			 <informaltable rules="all">
+			 &LONG_URI_REFHEAD;
+			 <tbody>
+			   <tr>
+				 <td colspan="1"> &POST; </td>
+				 <td colspan="4">/users</td>
+				 <td colspan="3">Get a list of users.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/users/<parameter>userId</parameter></td>
+				 <td colspan="3">Get a user.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/users/<parameter>userId</parameter></td>
+				 <td colspan="3">Update a user.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &DELETE; </td>
+				 <td colspan="4">/users/<parameter>userId</parameter></td>
+				 <td colspan="3">Delete a user.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/users/<parameter>userId</parameter>/<parameter>password</parameter></td>
+				 <td colspan="3">Update a user password.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/users/<parameter>userId</parameter>/<parameter>enabled</parameter></td>
+				 <td colspan="3">Enable/Disable user.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/users/<parameter>userId</parameter>/<parameter>tenant</parameter></td>
+				 <td colspan="3">Update user tenant.</td>
+			   </tr>			   
+			 </tbody>
+			 </informaltable>
+          </section>   
+          <section>
              <title>Tokens</title>
 			 <informaltable rules="all">
 			 &LONG_URI_REFHEAD;
@@ -887,15 +930,65 @@ Host: identity.api.openstack.org/v1.1/
 				 <td colspan="4">/tenants</td>
 				 <td colspan="3">Get a list of tenants.</td>
 			   </tr>
-			<tr>
-			  <td colspan="1"> &GET; </td>
-			  <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
-			  <td colspan="3">Get a tenant.</td>
-			</tr>
+			 <tr>
+			   <td colspan="1"> &GET; </td>
+			   <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+			   <td colspan="3">Get a tenant.</td>
+			 </tr>
+			   <tr>
+				 <td colspan="1"> &POST; </td>
+				 <td colspan="4">/tenants</td>
+				 <td colspan="3">Create a tenant.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+				 <td colspan="3">Update a tenant.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &DELETE; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter></td>
+				 <td colspan="3">Delete a tenant.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups</td>
+				 <td colspan="3">Get a list of tenant groups.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &POST; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups</td>
+				 <td colspan="3">Create a tenant group.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter></td>
+				 <td colspan="3">Get a tenant group with the specified id.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter></td>
+				 <td colspan="3">Update a tenant group.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users</td>
+				 <td colspan="3">get tenant group users.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users/<parameter>userId</parameter></td>
+				 <td colspan="3">Add a user to a tenant group.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &DELETE; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users/<parameter>userId</parameter></td>
+				 <td colspan="3">Delete  user tenant group.</td>
+			   </tr>
 			 </tbody>
 			 </informaltable>
-          </section>   
-
+          </section>
+	  
           <section>
              <title>Endpoints (BaseURLs)</title>
 			 <informaltable rules="all">
@@ -1008,6 +1101,56 @@ Host: identity.api.openstack.org/v1.1/
 			 </tbody>
 			 </informaltable>
           </section>
+	  
+			 <section>
+				 <title>Global Groups</title>
+					     <informaltable rules="all">
+					     &LONG_URI_REFHEAD;
+					     <tbody>
+					       <tr>
+						     <td colspan="1"> &POST; </td>
+						     <td colspan="4">/groups</td>
+						     <td colspan="3">Create a global group.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &GET; </td>
+						     <td colspan="4">/groups</td>
+						     <td colspan="3">Get a list of global groups.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &GET; </td>
+						     <td colspan="4">/groups/<parameter>groupId</parameter></td>
+						     <td colspan="3">Get a global group.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &PUT; </td>
+						     <td colspan="4">/groups/<parameter>groupId</parameter></td>
+						     <td colspan="3">Update a global group.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &DELETE; </td>
+						     <td colspan="4">/groups<parameter>/groupId</parameter></td>
+						     <td colspan="3">Delete a global group.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &GET; </td>
+						     <td colspan="4">/groups/<parameter>groupId</parameter>/users</td>
+						     <td colspan="3">Get a list of users of a global group.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &PUT; </td>
+						     <td colspan="4">/groups/<parameter>groupId</parameter>/users/<parameter>userId</parameter></td>
+						     <td colspan="3">Add user to a global group.</td>
+					       </tr>
+					       <tr>
+						     <td colspan="1"> &DELETE; </td>
+						     <td colspan="4">/groups/<parameter>groupId</parameter>/users/<parameter>userId</parameter></td>
+						     <td colspan="3">Delete user from a global group.</td>
+					       </tr>
+					     </tbody>
+					     </informaltable>
+			      </section>   	  
+
 			 <important>All other APIs listed in this section will be extensions used for this
 			 reference implementation of Keystone to support user and tenant management</important>
 	  </section>
