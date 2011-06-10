@@ -864,7 +864,12 @@ Host: identity.api.openstack.org/v1.1/
 			 &LONG_URI_REFHEAD;
 			 <tbody>
 			   <tr>
-				 <td colspan="1"> &POST; </td>
+				 <td colspan="1"> &PUT; </td>
+				 <td colspan="4">/users</td>
+				 <td colspan="3">Create a User.</td>
+			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
 				 <td colspan="4">/users</td>
 				 <td colspan="3">Get a list of users.</td>
 			   </tr>
@@ -936,7 +941,7 @@ Host: identity.api.openstack.org/v1.1/
 			   <td colspan="3">Get a tenant.</td>
 			 </tr>
 			   <tr>
-				 <td colspan="1"> &POST; </td>
+				 <td colspan="1"> &PUT; </td>
 				 <td colspan="4">/tenants</td>
 				 <td colspan="3">Create a tenant.</td>
 			   </tr>
@@ -985,6 +990,12 @@ Host: identity.api.openstack.org/v1.1/
 				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users/<parameter>userId</parameter></td>
 				 <td colspan="3">Delete  user tenant group.</td>
 			   </tr>
+			   <tr>
+				 <td colspan="1"> &GET; </td>
+				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/users</td>
+				 <td colspan="3">get tenant users.</td>
+			   </tr>
+			   
 			 </tbody>
 			 </informaltable>
           </section>
