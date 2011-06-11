@@ -110,7 +110,7 @@
 		  While Keystone supports token-based authentication in this release,
           the intention is for it to support additional protocols in the
           future. The desire is to have it be an integration service, and not
-          a full-fledged identoty store and management solution.
+          a full-fledged identity store and management solution.
 	  </para>
 	</section>
 	<section>
@@ -824,19 +824,26 @@ Host: identity.api.openstack.org/v1.1/
 			serviceUnavailable(<errorcode>503</errorcode>)</simpara>
 		<para>
 			The operation returns a list of tenants which the caller has
-			access to.
+			access to. This call must be authenticated, so a valid token must
+            be passed in as a header.
 		</para>
-		&NO_REQUEST;
 		<example>
-		  <title>XML Tenants Response</title>
-		  <programlisting language="xml">
-<xi:include href="samples/tenants.xml" parse="text"/>
+		  <title>Tenants Request with Auth Token</title>
+		  <programlisting language="text">
+<xi:include href="samples/tenants-request.txt" parse="text"/>
 </programlisting>
 		</example>
+		&NO_REQUEST;
 		<example>
 		  <title>JSON Tenants Response</title>
 		  <programlisting language="javascript">
 <xi:include href="samples/tenants.json" parse="text"/>
+</programlisting>
+		</example>
+		<example>
+		  <title>XML Tenants Response</title>
+		  <programlisting language="xml">
+<xi:include href="samples/tenants.xml" parse="text"/>
 </programlisting>
 		</example>
 	  </section>
@@ -853,6 +860,36 @@ Host: identity.api.openstack.org/v1.1/
 	<section>
 	  <title>Core Admin API Proposal</title>
 	  <note>The following table of calls is proposed as core Keystone Admin APIs</note>
+			
+<section>
+						 <title>Admin Access</title>
+						 <para>Most calls on the Admin API require authentication. The only calls available without authentication are the calls to discover the service (getting version info, WADL contract, dev guide, help, etc…) and the call to authenticate and get a token.</para>
+<para>
+Authentication is performed by passing in a valid token in the <code>X-Auth-Token</code> header on the request from the client.
+Keystone will verify the token has (or belongs to a user that has) the <code>Admin</code> role.
+</para>
+<para>
+             See the readme file or administrator guides for how to bootstrap Keystone and create your first administrator.
+</para>
+						 <table rules="all">
+													<caption>Authentication Header</caption>
+													<thead>
+																			 <tr>
+																										<td>Header Type</td>
+																										<td>Name</td>
+																										<td>Value</td>
+																			 </tr>
+													</thead>
+													<tbody>
+																			 <tr>
+																										<td>HTTP/1.1 Request</td>
+																										<td>X-Auth-Token</td>
+																										<td>txfa8426a08eaf</td>
+																			 </tr>
+													</tbody>
+						 </table>
+</section>
+			
           <section>
              <title>Users</title>
 			 <informaltable rules="all">
@@ -1841,7 +1878,7 @@ Host: identity.api.openstack.org/v1.1/
 			   <tr>
 				 <td colspan="1"> &GET; </td>
 				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users</td>
-				 <td colspan="3">get tenant group users.</td>
+				 <td colspan="3">List tenant group users.</td>
 			   </tr>
 			   <tr>
 				 <td colspan="1"> &PUT; </td>
@@ -1851,7 +1888,7 @@ Host: identity.api.openstack.org/v1.1/
 			   <tr>
 				 <td colspan="1"> &DELETE; </td>
 				 <td colspan="4">/tenants/<parameter>tenantId</parameter>/groups/<parameter>groupId</parameter>/users/<parameter>userId</parameter></td>
-				 <td colspan="3">Delete  user tenant group.</td>
+				 <td colspan="3">Remove user from tenant group.</td>
 			   </tr>
 			 </tbody>
 			 </informaltable>
