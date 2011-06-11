@@ -37,7 +37,7 @@ setup(
     entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
-            'remoteauth=keystone:remoteauth_factory',
+            'remoteauth=keystone.middleware.remoteauth:remoteauth_factory',
             'tokenauth=keystone.auth_protocols.auth_token:filter_factory',
             ],
         },
