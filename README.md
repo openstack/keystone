@@ -230,9 +230,100 @@ Initial support for using keystone as nova's identity component has been started
 
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
 
-## SWIFT Integration
+## Swift Integration - Quick Start
 
-See swift-quick-start.txt in docs folder
+1.  Install Swift, either from trunk or version 1.4.1 (once it's released) or
+    higher. Do the standard SAIO install with the included TempAuth to be sure
+    you have a working system to start with. This step is beyond the scope of
+    this quick start; see http://swift.openstack.org/development_saio.html for
+    a Swift development set up guide. Once you have a working Swift install, go
+    ahead and shut it down for now (the default Swift install uses the same
+    ports Keystone wants):
+
+        $ swift-init all stop
+
+2.  Obtain and install a source copy of Keystone:
+
+        $ git clone https://github.com/rackspace/keystone.git ~/keystone
+        ...
+        $ cd ~/keystone && sudo python setup.py develop
+        ...
+
+3.  Start up the Keystone service:
+
+        $ cd ~/keystone/bin && ./keystone
+        Starting the Legacy Authentication component
+        Service API listening on 0.0.0.0:8080
+        Admin API listening on 0.0.0.0:8081
+
+4.  In another window, edit the `~/keystone/bin/sampledata.sh` file, find the
+    `public.cloudfiles.com` text and replace it with the URL to your Swift
+    cluster using the following format (note that we're going to change Swift
+    to run on port 8888 later): `http://127.0.0.1:8888/v1/AUTH_%tenant_id%`
+
+5.  Create the sample data entries:
+
+        $ cd ~/keystone/bin && ./sampledata.sh
+        ...
+
+6.  Reconfigure Swift's proxy server to use Keystone instead of TempAuth.
+    Here's an example `/etc/swift/proxy-server.conf`:
+
+        [DEFAULT]
+        bind_port = 8888
+        user = <user>
+
+        [pipeline:main]
+        pipeline = catch_errors cache keystone proxy-server
+
+        [app:proxy-server]
+        use = egg:swift#proxy
+        account_autocreate = true
+
+        [filter:keystone]
+        use = egg:keystone#tokenauth
+        auth_protocol = http
+        auth_host = 127.0.0.1
+        auth_port = 8081
+        admin_token = 999888777666
+        delay_auth_decision = 0
+        service_protocol = http
+        service_host = 127.0.0.1
+        service_port = 8100
+        service_pass = dTpw
+
+        [filter:cache]
+        use = egg:swift#memcache
+        set log_name = cache
+
+        [filter:catch_errors]
+        use = egg:swift#catch_errors
+
+7.  Start Swift back up with the new configuration:
+
+        $ swift-init main start
+        ...
+
+8.  Use `st` to check everything works (note: you currently have to create a
+    container or upload something as your first action to have the account
+    created; there's a Swift bug to be fixed soon):
+
+        $ st -A http://127.0.0.1:8080/v1.0 -U joeuser -K secrete post container
+        $ st -A http://127.0.0.1:8080/v1.0 -U joeuser -K secrete stat -v
+        StorageURL: http://127.0.0.1:8888/v1/AUTH_1234
+        Auth Token: 74ce1b05-e839-43b7-bd76-85ef178726c3
+           Account: AUTH_1234
+        Containers: 1
+           Objects: 0
+             Bytes: 0
+        Accept-Ranges: bytes
+        X-Trans-Id: tx25c1a6969d8f4372b63912f411de3c3b
+
+**Note: Keystone currently allows any valid token to do anything with any
+account.**
+
+But, it works as a demo!
+
 
 ## I want OpenStack (all of it)
 
