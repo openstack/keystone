@@ -125,26 +125,25 @@ After starting keystone or running `keystone-manage` a keystone.db sqlite databa
 #### Demo
 To run client demo (with all auth middleware running locally on sample service):
 
-    $ ./echo/bin/echod
-    $ python echo/echo/echo_client.py
+    $ ./examples/echo/bin/echod
+    $ python examples/echo/echo_client.py
 
 NOTE: NOT ALL TESTS CONVERTED TO NEW MODEL YET. MANY FAIL. THIS WILL BE ADDRESSED SOON.
 
 #### Unit Tests
-To run unit tests:
+Prepare to run unit tests by changing to the unit test directory:
 
-* go to unit test/unit directory
-* run tests: python test_keystone
+    $ cd keystone/test/unit
 
-There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run
+There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run:
 
     $ python test_keystone.py
 
-A test can also be run individually e.g.
+A test can also be run individually, e.g.:
 
     $ python test_token.py
 
-For more on unit testing please refer
+For more on unit testing please refer to:
 
     $ python test_keystone.py --help
 
