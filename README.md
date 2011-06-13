@@ -74,7 +74,7 @@ Starting both Admin and Service API endpoints:
 * bin/keystone-service - Provides HTTP API for users
 * bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
 
-By default, configuration parameters are parsed from etc/keystone.conf.
+By default, configuration parameters are parsed from `etc/keystone.conf`.
 
 ## Dependencies
 
@@ -107,8 +107,7 @@ Starting the admin server only (exposes the Admin API):
     $ cd bin
     $ ./keystone-admin
 
-All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
-
+By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
 ## Running Tests
 
@@ -118,9 +117,9 @@ A set of sample data can be added by running a shell script:
     $ cd bin
     $ ./sampledata.sh
 
-The script calls keystone-manage to create the sample data.
+The script calls `keystone-manage` to create the sample data.
 
-After starting keystone or running `keystone-manage` a keystone.db sqlite database should be created in the keystone folder.
+After starting keystone or running `keystone-manage` a `keystone.db` sqlite database should be created in the keystone folder.
 
 #### Demo
 To run client demo (with all auth middleware running locally on sample service):
