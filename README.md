@@ -115,7 +115,8 @@ All above files take parameters from etc/keystone.conf file under the Keystone r
 #### Test data
 A set of sample data can be added by running a shell script:
 
-    $ ./bin/sampledata.sh
+    $ cd bin
+    $ ./sampledata.sh
 
 The script calls keystone-manage to create the sample data.
 
