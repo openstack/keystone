@@ -15,15 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base
 try:
     import dtest
 except:
     print "DTest framework needed. Try running 'pip install dtest'"
     exit()
-
 import sys
-
-import base
 
 
 def add_opts(opts):

@@ -38,10 +38,9 @@
 ./keystone-manage $* role grant Admin joeadmin ANOTHER:TENANT
 
 #BaseURLs
-./keystone-manage $* baseURLs add DFW cloudFiles public.cloudfiles.com admin.cloudfiles.com internal.cloudfiles.com 1
-#v1.0 URLs
-./keystone-manage $* baseURLs add DFW X-Storage-Url https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% 1
-./keystone-manage $* baseURLs add DFW X-Server-Management-Url https://servers.api.rackspacecloud.com/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id%  1
+./keystone-manage $* baseURLs add DFW cloudFiles http://127.0.0.1:8888/v1/AUTH_%tenant_id% admin.cloudfiles.com internal.cloudfiles.com 1
+./keystone-manage $* baseURLs add DFW cloudFilesCDN https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% 1
+./keystone-manage $* baseURLs add DFW cloudServers http://localhost:8008/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id%  1
 
 # Groups
 #./keystone-manage $* group add Admin 1234
@@ -58,3 +57,8 @@
 ./keystone-manage $* token add 999888777666 admin 1234 2015-02-05T00:00
 ./keystone-manage $* token add 000999 admin 1234 2010-02-05T00:00
 ./keystone-manage $* token add 999888777 disabled 1234 2015-02-05T00:00
+
+#Tenant Role
+./keystone-manage $*tenant_baseURL add 1234 1
+./keystone-manage $*tenant_baseURL add 1234 2
+./keystone-manage $*tenant_baseURL add 1234 3

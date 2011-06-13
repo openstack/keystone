@@ -38,15 +38,29 @@ class AuthenticationTest(unittest.TestCase):
         #self.user = utils.get_user()
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
+        utils.create_baseurls_ref(self.tenant, "1",
+            str(self.auth_token))
+        utils.create_baseurls_ref(self.tenant, "2",
+            str(self.auth_token))
+        utils.create_baseurls_ref(self.tenant, "3",
+            str(self.auth_token))
         #self.exp_auth_token = utils.get_exp_auth_token()
         #self.disabled_token = utils.get_disabled_token()
 
     def tearDown(self):
+        utils.delete_all_baseurls_ref(self.tenant, self.auth_token)
         utils.delete_token(self.token, self.auth_token)
 
     def test_a_authorize(self):
         resp, content = utils.get_token('joeuser', 'secrete', self.tenant)
         self.assertEqual(200, int(resp['status']))
+        obj = content
+        if not "auth" in obj:
+            raise fault.BadRequestFault("Expecting Auth")
+        auth = obj["auth"]
+        if not "serviceCatalog" in auth:
+                raise fault.BadRequestFault("Expecting Service Catalog")
+
         self.assertEqual('application/json', utils.content_type(resp))
 
     def test_a_authorize_xml(self):
@@ -54,11 +68,26 @@ class AuthenticationTest(unittest.TestCase):
                                              self.tenant)
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
+        #verify content
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        auth = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+            "auth")
+        if auth == None:
+            self.fail("Expecting Auth")
+        service_catalog = auth.find(
+            "{http://docs.openstack.org/identity/api/v2.0}" \
+                "serviceCatalog")
+        if service_catalog == None:
+            self.fail("Expecting Service Catalog")
 
     def test_a_authorize_legacy(self):
         resp, content = utils.get_token_legacy('joeuser', 'secrete')
         self.assertEqual(204, int(resp['status']))
         self.assertTrue(resp['x-auth-token'])
+        self.assertTrue(resp['x-server-management-url'])
+        self.assertTrue(resp['x-storage-url'])
+        self.assertTrue(resp['x-cdn-management-url'])
 
     def test_a_authorize_user_disabled(self):
         header = httplib2.Http(".cache")
