@@ -23,7 +23,7 @@ documents the APIs to call and how to use them.
     <td>User</td><td>An identity stored in the Keystone identity store used by a client to authenticate to Keystone.</td>
   </tr>
   <tr>
-    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenent.</td>
+    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenant.</td>
   </tr>
   <tr>
     <td>Role</td><td>A responsibility which is linked to a given user (and optionally scoped to a particular tenant).</td>
