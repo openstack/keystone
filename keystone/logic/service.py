@@ -433,6 +433,7 @@ class IdentityService(object):
         dtenant = db_api.tenant_get(user.tenant_id)
         if dtenant == None:
             raise fault.UnauthorizedFault("Unauthorized")
+
         if not dtenant.enabled:
             raise fault.TenantDisabledFault("Your account has been disabled")
 
@@ -518,9 +519,6 @@ class IdentityService(object):
 
         dtenant = db_api.tenant_get(duser.tenant_id)
 
-        if dtenant != None and not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
         ts = []
         dusergroups = db_api.user_groups_get_all(user_id)
 
@@ -540,10 +538,6 @@ class IdentityService(object):
 
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
-
-        dtenant = db_api.tenant_get(user.tenant_id)
-        if dtenant != None and not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
 
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
@@ -612,10 +606,18 @@ class IdentityService(object):
         if duser == None:
             raise fault.ItemNotFoundFault("The user could not be found")
 
+        
+        dtenant = db_api.tenant_get(user.tenant_id)
+
+        #Check if tenant exists.If user has passed a tenant that does not exist throw error.
+        #If user is trying to update to a tenant that is disabled throw an error.
+        if dtenant == None and len(user.tenant_id) > 0:
+            raise fault.ItemNotFoundFault("The tenant not found")
+        elif not dtenant.enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
+
         values = {'tenant_id': user.tenant_id}
-
         db_api.user_update(user_id, values)
-
         return users.User_Update(None, None, user.tenant_id, None, None, None)
 
     def delete_user(self, admin_token, user_id):
@@ -625,8 +627,6 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The user could not be found")
 
         dtenant = db_api.tenant_get(duser.tenant_id)
-        if dtenant != None and not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
         db_api.user_delete_tenant(user_id, dtenant.id)
         return None
 

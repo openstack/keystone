@@ -226,7 +226,7 @@ class User_Update(object):
 
         if self.user_id:
             user["id"] = self.user_id
-        if self.user_id:
+        if self.tenant_id:
             user["tenantId"] = self.tenant_id
         if self.password:
             user["password"] = self.password

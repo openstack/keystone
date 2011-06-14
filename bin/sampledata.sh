@@ -58,7 +58,7 @@
 ./keystone-manage $* token add 000999 admin 1234 2010-02-05T00:00
 ./keystone-manage $* token add 999888777 disabled 1234 2015-02-05T00:00
 
-#Tenant Role
+#Tenant base urls
 ./keystone-manage $*tenant_baseURL add 1234 1
 ./keystone-manage $*tenant_baseURL add 1234 2
 ./keystone-manage $*tenant_baseURL add 1234 3

@@ -441,6 +441,28 @@ def user_enabled_xml(user_id, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+def user_tenant_update_json(user_id, tenant_id, auth_token):
+    h = httplib2.Http(".cache")
+    url = '%susers/%s/tenant' % (URL, user_id)
+    data = {"user": {"tenantId": tenant_id}}
+    resp, content = h.request(url, "PUT", body=json.dumps(data),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def user_tenant_update_xml(user_id, tenant_id, auth_token):
+    h = httplib2.Http(".cache")
+    url = '%susers/%s/tenant' % (URL, user_id)
+    data = '<?xml version="1.0" encoding="UTF-8"?> \
+            <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
+            tenantId="%s" />' % (tenant_id)
+    resp, content = h.request(url, "PUT", body=data,
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+
 
 def user_get_xml(user_id, auth_token):
     h = httplib2.Http(".cache")

@@ -325,7 +325,7 @@ class UserController(wsgi.Controller):
     @utils.wrap_error    
     def update_user_tenant(self, req, user_id):
         user = utils.get_normalized_request_content(users.User_Update, req)
-        service.set_user_tenant(utils.get_auth_token(req), user_id,
+        rval = service.set_user_tenant(utils.get_auth_token(req), user_id,
                                            user)
         return utils.send_result(200, req, rval)
 
@@ -681,7 +681,7 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=user_controller,
                     action="set_user_password",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/{tenant_id}/users/{user_id}",
+        mapper.connect("/v2.0/users/{user_id}/tenant",
                     controller=user_controller,
                     action="update_user_tenant",
                     conditions=dict(method=["PUT"]))
