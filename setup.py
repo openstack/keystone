@@ -18,6 +18,25 @@ from setuptools import setup, find_packages
 
 version = '1.0'
 
+cmdclass = {}
+
+# If Sphinx is installed on the box running setup.py,
+# enable setup.py to build the documentation, otherwise,
+# just ignore it
+try:
+    from sphinx.setup_command import BuildDoc
+
+    class local_BuildDoc(BuildDoc):
+        def run(self):
+            for builder in ['html', 'man']:
+                self.builder = builder
+                self.finalize_options()
+                BuildDoc.run(self)
+    cmdclass['build_sphinx'] = local_BuildDoc
+
+except:
+    pass
+
 setup(
     name='keystone',
     version=version,
@@ -33,6 +52,7 @@ setup(
     scripts=['bin/keystone', 'bin/keystone-auth', 'bin/keystone-admin',
              'bin/keystone-manage'],
     zip_safe=False,
+    cmdclass=cmdclass,
     install_requires=['setuptools'],
     entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
