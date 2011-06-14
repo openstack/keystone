@@ -427,10 +427,10 @@ class IdentityService(object):
     #
     #   User Operations
     #
-    def create_user(self, admin_token, tenant_id, user):
+    def create_user(self, admin_token, user):
         self.__validate_token(admin_token)
 
-        dtenant = db_api.tenant_get(tenant_id)
+        dtenant = db_api.tenant_get(user.tenant_id)
         if dtenant == None:
             raise fault.UnauthorizedFault("Unauthorized")
         if not dtenant.enabled:
@@ -455,7 +455,7 @@ class IdentityService(object):
         duser.password = user.password
         duser.email = user.email
         duser.enabled = user.enabled
-        duser.tenant_id = tenant_id
+        duser.tenant_id = user.tenant_id
         db_api.user_create(duser)
 
         return user
@@ -488,14 +488,8 @@ class IdentityService(object):
                                       (url, next, limit)))
         return users.Users(ts, links)
 
-    def get_user(self, admin_token, tenant_id, user_id):
+    def get_user(self, admin_token, user_id):
         self.__validate_token(admin_token)
-        dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
         duser = db_api.user_get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -503,7 +497,10 @@ class IdentityService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
-        tenant_user = tenant_id
+        dtenant = db_api.tenant_get(duser.tenant_id)
+
+        if dtenant != None and not dtenant.enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
 
         ts = []
         dusergroups = db_api.user_groups_get_all(user_id)
@@ -511,17 +508,11 @@ class IdentityService(object):
         for dusergroup, dusergroupAsso in dusergroups:
             ts.append(tenants.Group(dusergroup.id, dusergroup.tenant_id, None))
 
-        return users.User_Update(None, duser.id, tenant_user, duser.email,
+        return users.User_Update(None, duser.id, duser.tenant_id, duser.email,
                                  duser.enabled, ts)
 
-    def update_user(self, admin_token, user_id, user, tenant_id):
+    def update_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
-
-        dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
 
         duser = db_api.user_get(user_id)
 
@@ -531,28 +522,26 @@ class IdentityService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
+        dtenant = db_api.tenant_get(user.tenant_id)
+        if dtenant != None and not dtenant.enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
+
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
 
-        if db_api.user_get_email(user.email) is not None:
+        if user.email != duser.email and \
+            db_api.user_get_email(user.email) is not None:
             raise fault.EmailConflictFault(
                 "Email already exists")
 
         values = {'email': user.email}
-
         db_api.user_update(user_id, values)
         duser = db_api.user_get_update(user_id)
-        return users.User(duser.password, duser.id, tenant_id, duser.email,
-                          duser.enabled)
+        return users.User(duser.password, duser.id, duser.tenant_id,
+                          duser.email, duser.enabled)
 
-    def set_user_password(self, admin_token, user_id, user, tenant_id):
+    def set_user_password(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
-
-        dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
 
         duser = db_api.user_get(user_id)
         if not duser:
@@ -574,14 +563,8 @@ class IdentityService(object):
 
         return users.User_Update(user.password, None, None, None, None, None)
 
-    def enable_disable_user(self, admin_token, user_id, user, tenant_id):
+    def enable_disable_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
-        dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
         duser = db_api.user_get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -598,23 +581,34 @@ class IdentityService(object):
 
         return users.User_Update(None, None, None, None, user.enabled, None)
 
-    def delete_user(self, admin_token, user_id, tenant_id):
+    def set_user_tenant(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
-        dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
         duser = db_api.user_get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
-        duser = db_api.user_get_by_tenant(user_id, tenant_id)
-        if not duser:
-            raise fault.ItemNotFoundFault("The user could not be "
-                                        "found under given tenant")
+        if not isinstance(user, users.User):
+            raise fault.BadRequestFault("Expecting a User")
 
-        db_api.user_delete_tenant(user_id, tenant_id)
+        duser = db_api.user_get(user_id)
+        if duser == None:
+            raise fault.ItemNotFoundFault("The user could not be found")
+
+        values = {'tenant_id': user.tenant_id}
+
+        db_api.user_update(user_id, values)
+
+        return users.User_Update(None, None, user.tenant_id, None, None, None)
+
+    def delete_user(self, admin_token, user_id):
+        self.__validate_token(admin_token)
+        duser = db_api.user_get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+
+        dtenant = db_api.tenant_get(duser.tenant_id)
+        if dtenant != None and not dtenant.enabled:
+            raise fault.TenantDisabledFault("Your account has been disabled")
+        db_api.user_delete_tenant(user_id, dtenant.id)
         return None
 
     def get_user_groups(self, admin_token, tenant_id, user_id, marker, limit,
@@ -624,10 +618,11 @@ class IdentityService(object):
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
 
-        if db_api.tenant_get(tenant_id) == None:
+        dtenant = db_api.tenant_get(tenant_id)
+        if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant not found")
 
-        if not db_api.tenant_get(tenant_id).enabled:
+        if not dtenant.enabled:
             raise fault.TenantDisabledFault("Your account has been disabled")
 
         ts = []

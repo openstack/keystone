@@ -4,7 +4,7 @@ import sys
 import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
     
 from keystone import server
 import keystone.logic.types.auth as auth
