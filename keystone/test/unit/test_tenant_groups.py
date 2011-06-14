@@ -21,7 +21,7 @@ from lxml import etree
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..',    'keystone')))
 import unittest
 
 import test_common as util
@@ -44,7 +44,7 @@ class TenantGroupTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        resp = util.delete_user(self.tenant, self.user,
+        resp = util.delete_user(self.user,
                                       str(self.auth_token))
 
         resp, content = util.delete_tenant_group(self.tenant_group,
@@ -56,8 +56,7 @@ class TenantGroupTest(unittest.TestCase):
 class CreateTenantGroupTest(TenantGroupTest):
 
     def test_tenant_group_create(self):
-        util.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
+        util.delete_user(self.user, str(self.auth_token))
         resp = util.delete_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
@@ -75,10 +74,8 @@ class CreateTenantGroupTest(TenantGroupTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_group_create_xml(self):
-        util.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp = util.delete_tenant_xml(self.tenant,
-                                               str(self.auth_token))
+        util.delete_user(self.user, str(self.auth_token))
+        resp = util.delete_tenant_xml(self.tenant, str(self.auth_token))
         resp, content = util.create_tenant_xml(self.tenant,
                                                str(self.auth_token))
         resp, content = util.delete_tenant_group_xml(self.tenant_group,
@@ -782,7 +779,7 @@ class AddUserTenantGroupTest(TenantGroupTest):
                                                    self.user,
                                                    str(self.auth_token))
 
-        resp = util.delete_user(self.tenant, self.user,
+        resp = util.delete_user(self.user,
                                       str(self.auth_token))
         resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,
@@ -968,7 +965,7 @@ class GetUsersTenantGroupTest(TenantGroupTest):
                                                    self.user,
                                                    str(self.auth_token))
 
-        resp = util.delete_user(self.tenant, self.user,
+        resp = util.delete_user(self.user,
                                       str(self.auth_token))
         resp, content = util.delete_tenant_group(self.tenant_group,
                                             self.tenant,

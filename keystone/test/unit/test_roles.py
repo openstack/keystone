@@ -21,7 +21,7 @@ from lxml import etree
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
 
 import test_common as utils
@@ -45,7 +45,7 @@ class RolesTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_user(self.user, self.auth_token)
         utils.delete_tenant(self.tenant, self.auth_token)
         
 class GetRolesTest(RolesTest):
