@@ -9,3 +9,5 @@ keystone.db
 *.pid
 pidfile
 *.komodoproject
+docs/build/
+build/
