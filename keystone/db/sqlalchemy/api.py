@@ -796,14 +796,6 @@ def user_role_add(values):
     return user_role_ref
 
 
-def user_tenant_create(values):
-    #TODO(ZIAD): Update model / fix this
-    user_tenant_ref = models.UserTenantAssociation()
-    user_tenant_ref.update(values)
-    user_tenant_ref.save()
-    return user_tenant_ref
-
-
 def user_get_update(id, session=None):
     if not session:
         session = get_session()
