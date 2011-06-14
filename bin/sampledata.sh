@@ -38,9 +38,8 @@
 ./keystone-manage $* role grant Admin joeadmin ANOTHER:TENANT
 
 #BaseURLs
-./keystone-manage $* baseURLs add DFW cloudFiles http://127.0.0.1:8888/v1/AUTH_%tenant_id% admin.cloudfiles.com internal.cloudfiles.com 1
-./keystone-manage $* baseURLs add DFW cloudFilesCDN https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% https://storage.clouddrive.com/v1/%tenant_id% 1
-./keystone-manage $* baseURLs add DFW cloudServers http://localhost:8008/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id% https://servers.api.rackspacecloud.com/v1.0/%tenant_id%  1
+./keystone-manage $* baseURLs add ZONE1 swift http://localhost:8888/v1/AUTH_%tenant_id% admin.swift.local internal.swift.local 1
+./keystone-manage $* baseURLs add ZONE1 nova http://localhost:8008/v1.1/%tenant_id% https://api.openstack.local/v1.1/%tenant_id% https://api.openstack.local/v1.1/%tenant_id%  1
 
 # Groups
 #./keystone-manage $* group add Admin 1234
