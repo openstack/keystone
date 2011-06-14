@@ -488,6 +488,25 @@ class IdentityService(object):
                                       (url, next, limit)))
         return users.Users(ts, links)
 
+    def get_users(self, admin_token, marker, limit, url):
+        self.__validate_token(admin_token)
+        ts = []
+        dusers = db_api.users_get_page(marker, limit)
+        for duser in dusers:
+            ts.append(users.User(None, duser.id, duser.tenant_id,
+                                   duser.email, duser.enabled))
+        links = []
+        if ts.__len__():
+            prev, next = db_api.users_get_page_markers(marker, limit)
+            if prev:
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+                                      (url, prev, limit)))
+            if next:
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+                                      (url, next, limit)))
+        return users.Users(ts, links)
+
+
     def get_user(self, admin_token, user_id):
         self.__validate_token(admin_token)
         duser = db_api.user_get(user_id)
@@ -611,20 +630,9 @@ class IdentityService(object):
         db_api.user_delete_tenant(user_id, dtenant.id)
         return None
 
-    def get_user_groups(self, admin_token, tenant_id, user_id, marker, limit,
+    def get_user_groups(self, admin_token, user_id, marker, limit,
                         url):
         self.__validate_token(admin_token)
-
-        if tenant_id == None:
-            raise fault.BadRequestFault("Expecting a Tenant Id")
-
-        dtenant = db_api.tenant_get(tenant_id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
         ts = []
         dusergroups = db_api.groups_get_by_user_get_page(user_id, marker,
                                                           limit)

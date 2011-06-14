@@ -811,6 +811,64 @@ def user_get_update(id, session=None):
     return result
 
 
+def users_get_page(marker, limit, session=None):
+    if not session:
+        session = get_session()
+    user = aliased(models.User)
+    if marker:
+        return session.query(user).\
+                            filter("id>=:marker").params(
+                            marker='%s' % marker).order_by(
+                            "id").limit(limit).all()
+    else:
+        return session.query(user).\
+                            order_by("id").limit(limit).all()
+
+def users_get_page_markers(marker, limit,\
+        session=None):
+    if not session:
+        session = get_session()
+    user = aliased(models.User)
+    first = session.query(user).\
+                    order_by(user.id).first()
+    last = session.query(user).\
+                        order_by(user.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = session.query(user).\
+                    filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(user.id).\
+                    limit(int(limit)).all()
+    prev = session.query(user).\
+                    filter("id < :marker").params(
+                    marker='%s' % marker).order_by(
+                    user.id.desc()).limit(int(limit)).all()
+    next_len = len(next)
+    prev_len = len(prev)
+
+    if next_len == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if prev_len == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if first.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if marker == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
+
+
 def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
     if not session:
         session = get_session()

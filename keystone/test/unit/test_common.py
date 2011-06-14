@@ -461,6 +461,26 @@ def users_get_json(user_id, auth_token):
     return (resp, content)
 
 
+def users_get_all_xml(auth_token):
+    h = httplib2.Http(".cache")
+    url = '%susers' % (URL)
+    resp, content = h.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def users_get_all_json(auth_token):
+    h = httplib2.Http(".cache")
+    url = '%susers' % (URL)
+    resp, content = h.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+
 def users_get_xml(tenant_id, auth_token):
     h = httplib2.Http(".cache")
     url = '%susers/%s' % (URL, tenant_id)
@@ -471,18 +491,18 @@ def users_get_xml(tenant_id, auth_token):
     return (resp, content)
 
 
-def users_group_get_json(tenant_id, user_id, auth_token):
+def users_group_get_json(user_id, auth_token):
     h = httplib2.Http(".cache")
-    url = '%stenants/%s/users/%s/groups' % (URL, tenant_id, user_id)
+    url = '%susers/%s/groups' % (URL, user_id)
     resp, content = h.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
-def users_group_get_xml(tenant_id, user_id, auth_token):
+def users_group_get_xml(user_id, auth_token):
     h = httplib2.Http(".cache")
-    url = '%stenants/%s/users/%s/groups' % (URL, tenant_id, user_id)
+    url = '%susers/%s/groups' % (URL, user_id)
     resp, content = h.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,

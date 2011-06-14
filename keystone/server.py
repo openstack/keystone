@@ -285,6 +285,13 @@ class UserController(wsgi.Controller):
                                         user))
 
     @utils.wrap_error
+    def get_users(self, req):
+        marker, limit, url = get_marker_limit_and_url(req)
+        users = service.get_users(utils.get_auth_token(req), \
+                                    marker, limit, url)
+        return utils.send_result(200, req, users)
+
+    @utils.wrap_error
     def get_user(self, req, user_id):
         user = service.get_user(utils.get_auth_token(req), user_id)
         return utils.send_result(200, req, user)
@@ -330,10 +337,10 @@ class UserController(wsgi.Controller):
         return utils.send_result(200, req, users)
 
     @utils.wrap_error
-    def get_user_groups(self, req, tenant_id, user_id):
+    def get_user_groups(self, req, user_id):
         marker, limit, url = get_marker_limit_and_url(req)
         groups = service.get_user_groups(utils.get_auth_token(req),
-                                        tenant_id, user_id, marker, limit, url)
+                                        user_id, marker, limit, url)
         return utils.send_result(200, req, groups)
 
 
@@ -653,6 +660,11 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=user_controller,
                     action="create_user",
                     conditions=dict(method=["PUT"]))
+        mapper.connect("/v2.0/users",
+            controller=user_controller,
+            action="get_users",
+            conditions=dict(method=["GET"]))
+
         mapper.connect("/v2.0/users/{user_id}",
                     controller=user_controller,
                     action="get_user",
@@ -678,16 +690,16 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=user_controller,
                     action="set_user_enabled",
                     conditions=dict(method=["PUT"]))
-
+        mapper.connect("/v2.0/users/{user_id}/groups",
+                    controller=user_controller,
+                    action="get_user_groups",
+                    conditions=dict(method=["GET"]))
         
         mapper.connect("/v2.0/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/groups",
-                    controller=user_controller,
-                    action="get_user_groups",
-                    conditions=dict(method=["GET"]))
+        
 
         #Global Groups
         groups_controller = GroupsController(options)
