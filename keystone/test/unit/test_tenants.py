@@ -63,8 +63,8 @@ class CreateTenantTest(TenantTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_xml(self):
-        utils.delete_user(self.tenant, self.user, self.auth_token)
-        utils.delete_tenant_xml(str(self.auth_token))
+        utils.delete_user(self.user, self.auth_token)
+        utils.delete_tenant_xml(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant_xml(self.tenant,
                                                 str(self.auth_token))
         content = etree.fromstring(content)

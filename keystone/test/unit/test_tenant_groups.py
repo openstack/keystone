@@ -56,9 +56,8 @@ class TenantGroupTest(unittest.TestCase):
 class CreateTenantGroupTest(TenantGroupTest):
 
     def test_tenant_group_create(self):
-        util.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp = util.delete_tenant(str(self.auth_token))
+        util.delete_user(self.user, str(self.auth_token))
+        resp = util.delete_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -75,9 +74,8 @@ class CreateTenantGroupTest(TenantGroupTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_group_create_xml(self):
-        util.delete_user(self.tenant, self.user,
-                                      str(self.auth_token))
-        resp = util.delete_tenant_xml(str(self.auth_token))
+        util.delete_user(self.user, str(self.auth_token))
+        resp = util.delete_tenant_xml(self.tenant, str(self.auth_token))
         resp, content = util.create_tenant_xml(self.tenant,
                                                str(self.auth_token))
         resp, content = util.delete_tenant_group_xml(self.tenant_group,
