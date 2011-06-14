@@ -22,7 +22,7 @@ import os
 import sys
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..','keystone')))
 import unittest
 from webtest import TestApp
 
@@ -182,9 +182,9 @@ class MultiToken(unittest.TestCase):
         #self.disabled_token = utils.get_disabled_token()
 
     def tearDown(self):
-        utils.delete_user('test_tenant1', 'test_user1', self.auth_token)
-        utils.delete_user('test_tenant1', 'test_user2', self.auth_token)
-        utils.delete_user('test_tenant2', 'test_user1', self.auth_token)
+        utils.delete_user('test_user1', self.auth_token)
+        utils.delete_user('test_user2', self.auth_token)
+        utils.delete_user('test_user1', self.auth_token)
         utils.delete_tenant('test_tenant1', self.auth_token)
         utils.delete_tenant('test_tenant2', self.auth_token)
 

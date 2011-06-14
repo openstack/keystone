@@ -278,11 +278,49 @@ class UserController(wsgi.Controller):
         self.options = options
 
     @utils.wrap_error
-    def create_user(self, req, tenant_id):
+    def create_user(self, req):
         user = utils.get_normalized_request_content(users.User, req)
         return utils.send_result(201, req,
                        service.create_user(utils.get_auth_token(req), \
-                                        tenant_id, user))
+                                        user))
+
+    @utils.wrap_error
+    def get_user(self, req, user_id):
+        user = service.get_user(utils.get_auth_token(req), user_id)
+        return utils.send_result(200, req, user)
+
+    @utils.wrap_error
+    def update_user(self, req, user_id):
+        user = utils.get_normalized_request_content(users.User_Update, req)
+        rval = service.update_user(utils.get_auth_token(req),
+                user_id, user)
+        return utils.send_result(200, req, rval)
+
+    @utils.wrap_error
+    def delete_user(self, req, user_id):
+        rval = service.delete_user(utils.get_auth_token(req), user_id)
+        return utils.send_result(204, req, rval)
+
+    @utils.wrap_error
+    def set_user_password(self, req, user_id):
+        user = utils.get_normalized_request_content(users.User_Update, req)
+        rval = service.set_user_password(utils.get_auth_token(req), user_id,
+                                        user)
+        return utils.send_result(200, req, rval)
+
+    @utils.wrap_error
+    def set_user_enabled(self, req, user_id):
+        user = utils.get_normalized_request_content(users.User_Update, req)
+        rval = service.enable_disable_user(utils.get_auth_token(req), user_id,
+                                           user)
+        return utils.send_result(200, req, rval)
+    
+    @utils.wrap_error    
+    def update_user_tenant(self, req, user_id):
+        user = utils.get_normalized_request_content(users.User_Update, req)
+        service.set_user_tenant(utils.get_auth_token(req), user_id,
+                                           user)
+        return utils.send_result(200, req, rval)
 
     @utils.wrap_error
     def get_tenant_users(self, req, tenant_id):
@@ -298,43 +336,6 @@ class UserController(wsgi.Controller):
                                         tenant_id, user_id, marker, limit, url)
         return utils.send_result(200, req, groups)
 
-    @utils.wrap_error
-    def get_user(self, req, tenant_id, user_id):
-        user = service.get_user(utils.get_auth_token(req), tenant_id, user_id)
-        return utils.send_result(200, req, user)
-
-    @utils.wrap_error
-    def update_user(self, req, user_id, tenant_id):
-        user = utils.get_normalized_request_content(users.User_Update, req)
-        rval = service.update_user(utils.get_auth_token(req),
-                user_id, user, tenant_id)
-        return utils.send_result(200, req, rval)
-
-    @utils.wrap_error
-    def delete_user(self, req, user_id, tenant_id):
-        rval = service.delete_user(utils.get_auth_token(req), user_id,
-                                  tenant_id)
-        return utils.send_result(204, req, rval)
-
-    @utils.wrap_error
-    def set_user_password(self, req, user_id, tenant_id):
-        user = utils.get_normalized_request_content(users.User_Update, req)
-        rval = service.set_user_password(utils.get_auth_token(req), user_id,
-                                        user, tenant_id)
-        return utils.send_result(200, req, rval)
-
-    @utils.wrap_error
-    def set_user_enabled(self, req, user_id, tenant_id):
-        user = utils.get_normalized_request_content(users.User_Update, req)
-        rval = service.enable_disable_user(utils.get_auth_token(req), user_id,
-                                           user, tenant_id)
-        return utils.send_result(200, req, rval)
-
-    @utils.wrap_error
-    def add_user_tenant(self, req, user_id, tenant_id):
-        rval = service.add_user_tenant(utils.get_auth_token(req), user_id,
-                                       tenant_id)
-        return utils.send_result(200, req, rval)
 
 
 class GroupsController(wsgi.Controller):
@@ -648,10 +649,37 @@ class KeystoneAdminAPI(wsgi.Router):
 
         # User Operations
         user_controller = UserController(options)
-        mapper.connect("/v2.0/tenants/{tenant_id}/users",
+        mapper.connect("/v2.0/users",
                     controller=user_controller,
                     action="create_user",
-                    conditions=dict(method=["POST"]))
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v2.0/users/{user_id}",
+                    controller=user_controller,
+                    action="get_user",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/users/{user_id}",
+                    controller=user_controller,
+                    action="update_user",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v2.0/users/{user_id}",
+                    controller=user_controller,
+                    action="delete_user",
+                    conditions=dict(method=["DELETE"]))
+        mapper.connect("/v2.0/users/{user_id}/password",
+                    controller=user_controller,
+                    action="set_user_password",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/v2.0/{tenant_id}/users/{user_id}",
+                    controller=user_controller,
+                    action="update_user_tenant",
+                    conditions=dict(method=["PUT"]))
+        # Test this, test failed
+        mapper.connect("/v2.0/users/{user_id}/enabled",
+                    controller=user_controller,
+                    action="set_user_enabled",
+                    conditions=dict(method=["PUT"]))
+
+        
         mapper.connect("/v2.0/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="get_tenant_users",
@@ -660,32 +688,6 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=user_controller,
                     action="get_user_groups",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}",
-                    controller=user_controller,
-                    action="get_user",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}",
-                    controller=user_controller,
-                    action="update_user",
-                    conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}",
-                    controller=user_controller,
-                    action="delete_user",
-                    conditions=dict(method=["DELETE"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/password",
-                    controller=user_controller,
-                    action="set_user_password",
-                    conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/add",
-                    controller=user_controller,
-                    action="add_user_tenant",
-                    conditions=dict(method=["PUT"]))
-
-        # Test this, test failed
-        mapper.connect("/v2.0/tenants/{tenant_id}/users/{user_id}/enabled",
-                    controller=user_controller,
-                    action="set_user_enabled",
-                    conditions=dict(method=["PUT"]))
 
         #Global Groups
         groups_controller = GroupsController(options)

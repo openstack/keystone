@@ -21,7 +21,7 @@ from lxml import etree
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
 from webtest import TestApp
 
@@ -50,7 +50,7 @@ class GlobalGroupTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        utils.delete_user(self.globaltenant, self.user, str(self.auth_token))
+        utils.delete_user(self.user, str(self.auth_token))
         utils.delete_global_group(self.global_group, self.auth_token)
         utils.delete_tenant(self.globaltenant, self.auth_token)
 
@@ -593,8 +593,8 @@ class AddUserGlobalGroupTest(unittest.TestCase):
         utils.delete_user_global_group(self.global_group, self.user,
                                        str(self.auth_token))
 
-        utils.delete_user(self.tenant, self.user, str(self.auth_token))
-        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_user(self.user, str(self.auth_token))
+        utils.delete_user(self.user, self.auth_token)
         utils.delete_global_group(self.global_group, self.auth_token)
 
     def test_add_user_global_group(self):
@@ -740,7 +740,7 @@ class GetUsersTenantGroupTest(unittest.TestCase):
     def tearDown(self):
         utils.delete_user_global_group(self.global_group, self.user,
                                        str(self.auth_token))
-        utils.delete_user(self.tenant, self.user, str(self.auth_token))
+        utils.delete_user(self.user, str(self.auth_token))
         utils.delete_global_group(self.global_group, self.auth_token)
 
     def test_get_users_global_group(self):
@@ -890,7 +890,7 @@ class DeleteUsersGlobalGroupTest(unittest.TestCase):
         utils.delete_user_global_group(self.global_group, self.user,
                                        str(self.auth_token))
 
-        utils.delete_user(self.tenant, self.user, str(self.auth_token))
+        utils.delete_user(self.user, str(self.auth_token))
         utils.delete_global_group(self.global_group, self.auth_token)
 
     def test_delete_user_global_group(self):
