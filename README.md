@@ -78,16 +78,17 @@ By default, configuration parameters are parsed from `etc/keystone.conf`.
 
 ## Dependencies
 
+You may need to prefix your `pip install` commands with `sudo`, depending on your environment.
+
 <pre>
-# Show Dependencies
+# Show dependencies
 $ cat tools/pip-requires
 
-# Install Dependencies
-$ sudo pip install -r tools/pip-requires
+# Install dependencies
+$ pip install -r tools/pip-requires
 
-# Keystone uses the DTest test framework for testing. Install that separately using:
-$ sudo pip install DTest
-
+# Install unit/functional test dependencies
+$ pip install -r tools/pip-requires-testing
 </pre>
 
 ## Running Keystone
@@ -110,6 +111,8 @@ Starting the admin server only (exposes the Admin API):
 By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
 ## Running Tests
+
+Before running tests, ensure you have installed the testing dependencies as described in the Dependencies section above.
 
 #### Test data
 A set of sample data can be added by running a shell script:
