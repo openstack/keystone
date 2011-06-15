@@ -27,7 +27,7 @@
 # Users
 ./keystone-manage $* user add joeuser secrete 1234
 ./keystone-manage $* user add joeadmin secrete 1234
-./keystone-manage $* user add admin secrete
+./keystone-manage $* user add admin secrete 1234
 ./keystone-manage $* user add disabled secrete 1234
 ./keystone-manage $* user disable disabled
 
