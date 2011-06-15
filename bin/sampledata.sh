@@ -27,7 +27,7 @@
 # Users
 ./keystone-manage $* user add joeuser secrete 1234
 ./keystone-manage $* user add joeadmin secrete 1234
-./keystone-manage $* user add admin secrete 1234
+./keystone-manage $* user add admin secrete
 ./keystone-manage $* user add disabled secrete 1234
 ./keystone-manage $* user disable disabled
 
@@ -40,6 +40,7 @@
 #BaseURLs
 ./keystone-manage $* baseURLs add ZONE1 swift http://localhost:8888/v1/AUTH_%tenant_id% admin.swift.local internal.swift.local 1
 ./keystone-manage $* baseURLs add ZONE1 nova http://localhost:8008/v1.1/%tenant_id% https://api.openstack.local/v1.1/%tenant_id% https://api.openstack.local/v1.1/%tenant_id%  1
+./keystone-manage $* baseURLs add ZONE1 cdn http://localhost:8080/v1.1/%tenant_id% https://api.openstack.local/v1.1/%tenant_id% https://api.openstack.local/v1.1/%tenant_id%  1
 
 # Groups
 #./keystone-manage $* group add Admin 1234

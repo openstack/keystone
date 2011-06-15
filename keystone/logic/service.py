@@ -210,7 +210,6 @@ class IdentityService(object):
     #
     #   Tenant Group Operations
     #
-
     def create_tenant_group(self, admin_token, tenant, group):
         self.__validate_token(admin_token)
 
@@ -510,6 +509,30 @@ class IdentityService(object):
 
         return users.User_Update(None, duser.id, duser.tenant_id, duser.email,
                                  duser.enabled, ts)
+
+    ##
+    ##    GET Users with Pagination
+    ##
+    def get_users(self, admin_token, marker, limit, url):
+        (token, user) = self.__validate_token(admin_token)
+        # If Global admin return all tenants.
+        us = []
+        dusers = db_api.user_get_page(marker, limit)
+        for duser in dusers:
+            us.append(users.User(None,
+                                duser.id,
+                                duser.tenant_id,
+                                duser.email,
+                                duser.enabled))
+        prev, next = db_api.user_get_page_markers(marker, limit)
+        links = []
+        if prev:
+            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
+                                                % (url, prev, limit)))
+        if next:
+            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
+                                                % (url, next, limit)))
+        return users.Users(us, links)
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
