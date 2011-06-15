@@ -15,7 +15,7 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
-from sqlalchemy import create_engine, Column, String, Integer, ForeignKey,\
+from sqlalchemy import Column, String, Integer, ForeignKey, \
             UniqueConstraint, Boolean
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError

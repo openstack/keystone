@@ -1006,11 +1006,11 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
         session = get_session()
     uga = aliased(models.UserGroupAssociation)
     group = aliased(models.Group)
-    first, firstassoc = session.query(group, uga).\
+    first, _firstassoc = session.query(group, uga).\
                         join((uga, uga.group_id == group.id)).\
                         filter(uga.user_id == user_id).\
                         order_by(group.id).first()
-    last, lastassoc = session.query(group, uga).\
+    last, _lastassoc = session.query(group, uga).\
                         join((uga, uga.group_id == group.id)).\
                         filter(uga.user_id == user_id).\
                         order_by(group.id.desc()).first()
@@ -1037,12 +1037,12 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
     if next_len == 0:
         next = last
     else:
-        for t, a in next:
+        for t, _a in next:
             next = t
     if prev_len == 0:
         prev = first
     else:
-        for t, a in prev:
+        for t, _a in prev:
             prev = t
     if first.id == marker:
         prev = None
