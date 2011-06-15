@@ -2,7 +2,9 @@
 .project
 .project/
 .cache/
+.pydevproject
 .pydevproject/
+.settings/
 keystone.db
 .*.swp
 *.log
