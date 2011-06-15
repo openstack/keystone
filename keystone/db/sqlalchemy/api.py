@@ -488,6 +488,57 @@ def user_get(id, session=None):
     return result
 
 
+def user_get_page(marker, limit, session=None):
+    if not session:
+        session = get_session()
+
+    if marker:
+        return session.query(models.User).filter("id>:marker").params(\
+                marker='%s' % marker).order_by(\
+                models.User.id.desc()).limit(limit).all()
+    else:
+        return session.query(models.User).order_by(\
+                            models.User.id.desc()).limit(limit).all()
+
+
+def user_get_page_markers(marker, limit, session=None):
+    if not session:
+        session = get_session()
+    first = session.query(models.User).order_by(\
+                        models.User.id).first()
+    last = session.query(models.User).order_by(\
+                        models.User.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = session.query(models.User).filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.User.id).limit(limit).all()
+    prev = session.query(models.User).filter("id < :marker").params(\
+                    marker='%s' % marker).order_by(\
+                    models.User.id.desc()).limit(int(limit)).all()
+    if len(next) == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if len(prev) == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if prev.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if next.id == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
+
+
 def user_get_email(email, session=None):
     if not session:
         session = get_session()
@@ -796,19 +847,69 @@ def user_role_add(values):
     return user_role_ref
 
 
-def user_tenant_create(values):
-    #TODO(ZIAD): Update model / fix this
-    user_tenant_ref = models.UserTenantAssociation()
-    user_tenant_ref.update(values)
-    user_tenant_ref.save()
-    return user_tenant_ref
-
-
 def user_get_update(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.User).filter_by(id=id).first()
     return result
+
+
+def users_get_page(marker, limit, session=None):
+    if not session:
+        session = get_session()
+    user = aliased(models.User)
+    if marker:
+        return session.query(user).\
+                            filter("id>=:marker").params(
+                            marker='%s' % marker).order_by(
+                            "id").limit(limit).all()
+    else:
+        return session.query(user).\
+                            order_by("id").limit(limit).all()
+
+def users_get_page_markers(marker, limit,\
+        session=None):
+    if not session:
+        session = get_session()
+    user = aliased(models.User)
+    first = session.query(user).\
+                    order_by(user.id).first()
+    last = session.query(user).\
+                        order_by(user.id.desc()).first()
+    if first is None:
+        return (None, None)
+    if marker is None:
+        marker = first.id
+    next = session.query(user).\
+                    filter("id > :marker").params(\
+                    marker='%s' % marker).order_by(user.id).\
+                    limit(int(limit)).all()
+    prev = session.query(user).\
+                    filter("id < :marker").params(
+                    marker='%s' % marker).order_by(
+                    user.id.desc()).limit(int(limit)).all()
+    next_len = len(next)
+    prev_len = len(prev)
+
+    if next_len == 0:
+        next = last
+    else:
+        for t in next:
+            next = t
+    if prev_len == 0:
+        prev = first
+    else:
+        for t in prev:
+            prev = t
+    if first.id == marker:
+        prev = None
+    else:
+        prev = prev.id
+    if marker == last.id:
+        next = None
+    else:
+        next = next.id
+    return (prev, next)
 
 
 def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
