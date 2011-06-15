@@ -6,3 +6,5 @@ pastescript
 pysqlite
 sqlalchemy
 webob
+Routes
+httplib2
