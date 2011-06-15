@@ -1,1 +1,2 @@
 Sphinx # required to build documentation
+coverage # computes code coverage percentages
