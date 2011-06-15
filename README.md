@@ -85,8 +85,9 @@ $ cat tools/pip-requires
 # Install Dependencies
 $ sudo pip install -r tools/pip-requires
 
-# Keystone uses the DTest test framework for testing. Install that separately using:
-$ sudo pip install DTest
+# Installing Development Dependencies
+This will install libraries used for development and testing
+$ sudo pip install -r tools/pip-requires-dev
 
 </pre>
 
@@ -127,7 +128,6 @@ To run client demo (with all auth middleware running locally on sample service):
     $ ./examples/echo/bin/echod
     $ python examples/echo/echo_client.py
 
-NOTE: NOT ALL TESTS CONVERTED TO NEW MODEL YET. MANY FAIL. THIS WILL BE ADDRESSED SOON.
 
 #### Unit Tests
 Prepare to run unit tests by changing to the unit test directory:
@@ -161,7 +161,9 @@ Using SOAPUI:
 * Double click on "Keystone Tests" and press the green play (>) button
 
 
-## Editing and Compiling the Developer Guide
+## Writing Documentation
+
+### Editing and Compiling the Developer Guide
 
 Users of the Keystone API are often developers making ReSTfull calls to Keystone. The guide to provide them
 information is therefore called a `Developer Guide`. Developer in this case is not to be confused with developers
@@ -177,6 +179,12 @@ run the following from the `Keystone/docs` folder:
 
 The output will go into the `keystone/docs/target` folder (the source is in `keystone/docs/src`). Output
 generated is PDF and webhelp.
+
+### Editing and Compiling the Admin Guide
+
+The Admin guide is written in RST and compiled using sphinx. From the `keystone` folder:
+
+   $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
 
 
 ## Additional Information:
@@ -194,11 +202,15 @@ in troubleshooting:
 <pre>
     # Get an unscoped token
     
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
+
+    # Get an admin token
+
+    $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
 </pre>
 
 #### Load Testing
