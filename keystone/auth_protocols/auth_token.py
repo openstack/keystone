@@ -57,7 +57,6 @@ import httplib
 import json
 import os
 from paste.deploy import loadapp
-import sys
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
@@ -98,7 +97,7 @@ class AuthProtocol(object):
     def _init_protocol(self, app, conf):
         """ Protocol specific initialization """
 
-         # where to find the auth service (we use this to validate tokens)
+        # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port'))
         self.auth_protocol = conf.get('auth_protocol', 'https')
@@ -236,7 +235,7 @@ class AuthProtocol(object):
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
                             '/v2.0/tokens/%s' % claims, headers=headers)
         resp = conn.getresponse()
-        data = resp.read()
+        # data = resp.read()
         conn.close()
 
         if not str(resp.status).startswith('20'):
@@ -271,8 +270,8 @@ class AuthProtocol(object):
         token_info = json.loads(data)
         #TODO(Ziad): make this more robust
         #first_group = token_info['auth']['user']['groups']['group'][0]
-        roles =[]
-        role_refs =token_info["auth"]["user"]["roleRefs"]
+        roles = []
+        role_refs = token_info["auth"]["user"]["roleRefs"]
         if role_refs != None:
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])

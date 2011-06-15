@@ -31,11 +31,14 @@ This is an Auth component as per: http://wiki.openstack.org/openstack-authn
 
 """
 
-from paste.deploy import loadapp
+import os
+import urlparse
 import eventlet
 from eventlet import wsgi
-import os
-from webob.exc import HTTPUnauthorized, HTTPInternalServerError
+from paste.deploy import loadapp
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
+from webob.exc import Request, Response
+from webob.exc import HTTPUnauthorized
 
 PROTOCOL_NAME = "Basic Authentication"
 
@@ -100,7 +103,7 @@ class AuthProtocol(object):
             # Claims were provided - validate them
             import base64
             auth_header = env['HTTP_AUTHORIZATION']
-            auth_type, encoded_creds = auth_header.split(None, 1)
+            _auth_type, encoded_creds = auth_header.split(None, 1)
             user, password = base64.b64decode(encoded_creds).split(':', 1)
             if not self.validateCreds(user, password):
                 #Claims were rejected
@@ -148,8 +151,8 @@ class AuthProtocol(object):
 
     def validateCreds(self, username, password):
         #stub for password validation.
-        import ConfigParser
-        import hashlib
+        # import ConfigParser
+        # import hashlib
         #usersConfig = ConfigParser.ConfigParser()
         #usersConfig.readfp(open('/etc/openstack/users.ini'))
         #password = hashlib.sha1(password).hexdigest()
