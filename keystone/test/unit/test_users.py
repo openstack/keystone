@@ -748,7 +748,7 @@ class UpdateUserTest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(200, resp_val)
-        self.assertEqual('updatedjoeuser@rackspace.com',
+        self.assertEqual('updatedjoeuser@openstack.org',
                          content['user']['email'])
 
     def test_user_update_xml(self):
@@ -762,7 +762,7 @@ class UpdateUserTest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(200, resp_val)
-        self.assertEqual('updatedjoeuser@rackspace.com',
+        self.assertEqual('updatedjoeuser@openstack.org',
                           content.get("email"))
         self.assertEqual('application/xml', utils.content_type(resp))
 
@@ -795,7 +795,7 @@ class UpdateUserTest(UserTest):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.auth_token,
                                                 "joeuser",
-                                                "test_user@rackspace.com")
+                                                "test_user@openstack.org")
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -808,7 +808,7 @@ class UpdateUserTest(UserTest):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.auth_token,
                                               "joeuser",
-                                              "test_user@rackspace.com")
+                                              "test_user@openstack.org")
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -823,7 +823,7 @@ class UpdateUserTest(UserTest):
         resp, content = utils.create_user(self.tenant, self.user,
                                     str(self.auth_token))
         url = '%susers/%s' % (URL, self.user)
-        data = '{"user_bad": { "bad": "updatedjoeuser@rackspace.com"}}'
+        data = '{"user_bad": { "bad": "updatedjoeuser@openstack.org"}}'
         resp, content = h.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
@@ -843,7 +843,7 @@ class UpdateUserTest(UserTest):
         url = '%susers/%s' % (URL, self.user)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
                 user xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                email="updatedjoeuser@rackspace.com" />'
+                email="updatedjoeuser@openstack.org" />'
         resp, content = h.request(url, "PUT", body=data,
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,

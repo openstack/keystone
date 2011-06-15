@@ -605,7 +605,8 @@ class KeystoneAdminAPI(wsgi.Router):
         # Tenant Operations
         tenant_controller = TenantController(options)
         mapper.connect("/v2.0/tenants", controller=tenant_controller,
-                    action="create_tenant", conditions=dict(method=["POST"]))
+                    action="create_tenant",
+                    conditions=dict(method=["PUT", "POST"]))
         mapper.connect("/v2.0/tenants", controller=tenant_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/tenants/{tenant_id}",
@@ -622,7 +623,7 @@ class KeystoneAdminAPI(wsgi.Router):
         mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="create_tenant_group",
-                    conditions=dict(method=["POST"]))
+                    conditions=dict(method=["PUT", "POST"]))
         mapper.connect("/v2.0/tenants/{tenant_id}/groups",
                     controller=tenant_controller,
                     action="get_tenant_groups",
@@ -659,7 +660,7 @@ class KeystoneAdminAPI(wsgi.Router):
         mapper.connect("/v2.0/users",
                     controller=user_controller,
                     action="create_user",
-                    conditions=dict(method=["PUT"]))
+                    conditions=dict(method=["PUT", "POST"]))
         mapper.connect("/v2.0/users",
                     controller=user_controller,
                     action="get_users",
@@ -703,7 +704,8 @@ class KeystoneAdminAPI(wsgi.Router):
         #Global Groups
         groups_controller = GroupsController(options)
         mapper.connect("/v2.0/groups", controller=groups_controller,
-                    action="create_group", conditions=dict(method=["POST"]))
+                    action="create_group",
+                    conditions=dict(method=["PUT", "POST"]))
         mapper.connect("/v2.0/groups", controller=groups_controller,
                     action="get_groups", conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/groups/{group_id}", controller=groups_controller,
