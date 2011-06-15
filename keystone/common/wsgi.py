@@ -26,10 +26,8 @@ import logging
 import sys
 import datetime
 
-import eventlet
 import eventlet.wsgi
 eventlet.patcher.monkey_patch(all=False, socket=True)
-import routes
 import routes.middleware
 import webob.dec
 import webob.exc

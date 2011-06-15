@@ -22,8 +22,6 @@ OpenStack-type exceptions. SHOULD include dedicated exception logging.
 """
 
 import logging
-import sys
-import traceback
 
 
 class ProcessExecutionError(IOError):
