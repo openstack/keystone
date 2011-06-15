@@ -23,7 +23,7 @@ documents the APIs to call and how to use them.
     <td>User</td><td>An identity stored in the Keystone identity store used by a client to authenticate to Keystone.</td>
   </tr>
   <tr>
-    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenent.</td>
+    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenant.</td>
   </tr>
   <tr>
     <td>Role</td><td>A responsibility which is linked to a given user (and optionally scoped to a particular tenant).</td>
@@ -74,7 +74,7 @@ Starting both Admin and Service API endpoints:
 * bin/keystone-service - Provides HTTP API for users
 * bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
 
-By default, configuration parameters are parsed from etc/keystone.conf.
+By default, configuration parameters are parsed from `etc/keystone.conf`.
 
 ## Dependencies
 
@@ -107,43 +107,42 @@ Starting the admin server only (exposes the Admin API):
     $ cd bin
     $ ./keystone-admin
 
-All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
-
+By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
 ## Running Tests
 
 #### Test data
 A set of sample data can be added by running a shell script:
 
-    $ ./bin/sampledata.sh
+    $ cd bin
+    $ ./sampledata.sh
 
-The script calls keystone-manage to create the sample data.
+The script calls `keystone-manage` to create the sample data.
 
-After starting keystone or running `keystone-manage` a keystone.db sqlite database should be created in the keystone folder.
+After starting keystone or running `keystone-manage` a `keystone.db` sqlite database should be created in the keystone folder.
 
 #### Demo
 To run client demo (with all auth middleware running locally on sample service):
 
-    $ ./echo/bin/echod
-    $ python echo/echo/echo_client.py
+    $ ./examples/echo/bin/echod
+    $ python examples/echo/echo_client.py
 
 NOTE: NOT ALL TESTS CONVERTED TO NEW MODEL YET. MANY FAIL. THIS WILL BE ADDRESSED SOON.
 
 #### Unit Tests
-To run unit tests:
+Prepare to run unit tests by changing to the unit test directory:
 
-* go to unit test/unit directory
-* run tests: python test_keystone
+    $ cd keystone/test/unit
 
-There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run
+There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run:
 
     $ python test_keystone.py
 
-A test can also be run individually e.g.
+A test can also be run individually, e.g.:
 
     $ python test_token.py
 
-For more on unit testing please refer
+For more on unit testing please refer to:
 
     $ python test_keystone.py --help
 
