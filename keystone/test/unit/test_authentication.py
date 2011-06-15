@@ -44,6 +44,8 @@ class AuthenticationTest(unittest.TestCase):
             str(self.auth_token))
         utils.create_baseurls_ref(self.tenant, "3",
             str(self.auth_token))
+        utils.create_baseurls_ref(self.tenant, "4",
+            str(self.auth_token))
         #self.exp_auth_token = utils.get_exp_auth_token()
         #self.disabled_token = utils.get_disabled_token()
 

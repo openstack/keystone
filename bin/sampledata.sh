@@ -63,3 +63,4 @@
 ./keystone-manage $* tenant_baseURL add 1234 1
 ./keystone-manage $* tenant_baseURL add 1234 2
 ./keystone-manage $* tenant_baseURL add 1234 3
+./keystone-manage $* tenant_baseURL add 1234 4
