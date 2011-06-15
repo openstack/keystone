@@ -689,14 +689,6 @@ def user_delete_tenant(id, tenant_id, session=None):
                     session.delete(group_user)
 
 
-def user_get_by_tenant(user_id, tenant_id, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.User).filter_by(id=user_id,
-                                                  tenant_id=tenant_id).first()
-    return result
-
-
 def users_get_by_tenant(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
@@ -867,7 +859,7 @@ def users_get_page(marker, limit, session=None):
         return session.query(user).\
                             order_by("id").limit(limit).all()
 
-def users_get_page_markers(marker, limit,\
+def users_get_page_markers(marker, limit, \
         session=None):
     if not session:
         session = get_session()
@@ -930,7 +922,7 @@ def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
                             "id").limit(limit).all()
 
 
-def users_get_by_tenant_get_page_markers(tenant_id, marker, limit,\
+def users_get_by_tenant_get_page_markers(tenant_id, marker, limit, \
         session=None):
     if not session:
         session = get_session()
