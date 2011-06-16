@@ -27,6 +27,8 @@ import unittest
 import test_common as utils
 from test_common import URL
 
+from keystone.logic.types import fault
+
 class BaseURLsTest(unittest.TestCase):
     def setUp(self):
         self.tenant = utils.get_tenant()
@@ -272,7 +274,7 @@ class GetBaseURLTest(BaseURLsTest):
 
     def test_get_baseURL_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL,'1')
+        url = '%sbaseURLs/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -296,35 +298,35 @@ class GetBaseURLTest(BaseURLsTest):
 class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_json(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
 
     def test_baseurls_ref_create_json_using_expired_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.exp_auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
 
     def test_baseurls_ref_create_json_using_disabled_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.disabled_token))
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
 
     def test_baseurls_ref_create_json_using_missing_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.missing_token))
         resp_val = int(resp['status'])
         self.assertEqual(401, resp_val)
 
     def test_baseurls_ref_create_json_using_invalid_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.invalid_token))
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
@@ -332,7 +334,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_xml(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -346,7 +348,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_xml_using_expired_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -360,7 +362,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_xml_using_disabled_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -374,7 +376,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_xml_using_missing_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -388,7 +390,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
     def test_baseurls_ref_create_xml_using_invalid_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_baseurls_ref_xml(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -550,7 +552,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 class DeleteBaseURLRefsTest(BaseURLsTest):            
     def test_delete_baseurlref(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -573,7 +575,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
 
     def test_delete_baseurlref_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -596,7 +598,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
 
     def test_delete_baseurlref_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -619,7 +621,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
  
     def test_delete_baseurlref_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
@@ -642,7 +644,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
 
     def test_delete_baseurlref_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        resp, content = utils.create_baseurls_ref(self.tenant,"1",
+        resp, content = utils.create_baseurls_ref(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
