@@ -9,8 +9,9 @@
     xmlns="http://www.w3.org/2001/XMLSchema"
     xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://docs.openstack.org/identity/api/v2.0"    
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"   
     xmlns:atom="http://www.w3.org/2005/Atom"
+    targetNamespace="http://docs.openstack.org/identity/api/v2.0" 
 >
 
     <!-- Import ATOM specific schema definitions -->
@@ -21,7 +22,7 @@
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
-                    xmlns="http://www.w3.org/1999/xhtml">
+                    xmlns="http://www.w3.org/2001/XMLSchema">
                 <p>
                     A list of Users.
                 </p>
@@ -33,7 +34,7 @@
         <annotation>
             <xsd:documentation
                 xml:lang="EN"
-                xmlns="http://www.w3.org/1999/xhtml">
+                xmlns="http://www.w3.org/2001/XMLSchema">
                 <p>
                     A Keystone User.
                 </p>
@@ -48,7 +49,7 @@
         <attribute name="tenantId" type="xsd:string" use="optional"/>
         <attribute name="email" type="xsd:string" use="optional"/>
         <attribute name="enabled" type="xsd:boolean" default="true" use="optional"/>
-        <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        <anyAttribute namespace="##other" processContents="lax"/>        
     </complexType>
 
     <complexType name="UserWithOnlyEnabled">
@@ -90,8 +91,10 @@
     <complexType name="UserList">
         <sequence>
             <element name="user" type="identity:User" minOccurs="0" maxOccurs="unbounded"/>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
     
 </schema>
