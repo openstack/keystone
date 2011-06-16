@@ -17,6 +17,13 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 
+import os
+import urlparse
+import eventlet
+from eventlet import wsgi
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
+from webob.exc import Request, Response
+from paste.deploy import loadapp
 
 """
 OPENID AUTH MIDDLEWARE - STUB
@@ -75,13 +82,14 @@ class AuthProtocol(object):
             env['HTTP_AUTHORIZATION'] = "Basic %s" % self.service_pass
             return self.app(env, custom_start_response)
 
+        proxy_headers = []
         proxy_headers['AUTHORIZATION'] = "Basic %s" % self.service_pass
         # We are forwarding to a remote service (no downstream WSGI app)
         req = Request(proxy_headers)
         parsed = urlparse(req.url)
         conn = http_connect(self.service_host, self.service_port, \
              req.method, parsed.path, \
-             proxy_headers,\
+             proxy_headers, \
              ssl=(self.service_protocol == 'https'))
         resp = conn.getresponse()
         data = resp.read()

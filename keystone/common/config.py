@@ -20,17 +20,11 @@
 Routines for configuring OpenStack Service
 """
 
-import ConfigParser
-import logging
 import logging.config
-import logging.handlers
 import optparse
 import os
 from paste import deploy
-import re
 import sys
-
-import keystone.common.exception as exception
 
 DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"

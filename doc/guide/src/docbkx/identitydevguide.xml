@@ -69,7 +69,7 @@
 	<abstract>
 	  <para>
 		  This document is intended for software developers interested
-		  in developing applications which utilize the Cloud Identity
+		  in developing applications that utilize the Cloud Identity
 		  Service for authentication. This document also includes
 		  details on how to integrate services with the Cloud Identity
 		  Service.
@@ -82,7 +82,7 @@
 		The Keystone Identity Service allows applications to obtain
 		tokens that can be used to access OpenStack resources.  This
 		document is intended for software developers interested in
-		developing applications which utilize the Cloud Identity
+		developing applications that utilize the Cloud Identity
 		Service for authentication. This document also includes
 		details on how to integrate services with the Cloud Identity
 		Service.
@@ -95,7 +95,7 @@
   <chapter>
 	<title>Concepts</title>
 	<para>
-		The Keystone Identity Service has several key concepts that are
+		The Keystone Identity Service has several key concepts which are
 		important to understand:
 	</para>
 	<section>
@@ -109,7 +109,7 @@
 	  <para>
 		  While Keystone supports token-based authentication in this release,
           the intention is for it to support additional protocols in the
-          future. The desire is to have it be an integration service, and not
+          future. The desire is for it to be an integration service, and not
           a full-fledged identity store and management solution.
 	  </para>
 	</section>
@@ -117,7 +117,7 @@
 	  <title>Tenant</title>
 	  <para>
 		  A container used to group or isolate resources and/or identity
-          objects. Depending on the operator, a tenant may map to a customer,
+          objects. Depending on the service operator, a tenant may map to a customer,
 		  account, organization, or project.
 	  </para>
 	</section>

@@ -689,14 +689,6 @@ def user_delete_tenant(id, tenant_id, session=None):
                     session.delete(group_user)
 
 
-def user_get_by_tenant(user_id, tenant_id, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.User).filter_by(id=user_id,
-                                                  tenant_id=tenant_id).first()
-    return result
-
-
 def users_get_by_tenant(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
@@ -867,7 +859,7 @@ def users_get_page(marker, limit, session=None):
         return session.query(user).\
                             order_by("id").limit(limit).all()
 
-def users_get_page_markers(marker, limit,\
+def users_get_page_markers(marker, limit, \
         session=None):
     if not session:
         session = get_session()
@@ -930,7 +922,7 @@ def users_get_by_tenant_get_page(tenant_id, marker, limit, session=None):
                             "id").limit(limit).all()
 
 
-def users_get_by_tenant_get_page_markers(tenant_id, marker, limit,\
+def users_get_by_tenant_get_page_markers(tenant_id, marker, limit, \
         session=None):
     if not session:
         session = get_session()
@@ -1014,11 +1006,11 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
         session = get_session()
     uga = aliased(models.UserGroupAssociation)
     group = aliased(models.Group)
-    first, firstassoc = session.query(group, uga).\
+    first, _firstassoc = session.query(group, uga).\
                         join((uga, uga.group_id == group.id)).\
                         filter(uga.user_id == user_id).\
                         order_by(group.id).first()
-    last, lastassoc = session.query(group, uga).\
+    last, _lastassoc = session.query(group, uga).\
                         join((uga, uga.group_id == group.id)).\
                         filter(uga.user_id == user_id).\
                         order_by(group.id.desc()).first()
@@ -1045,12 +1037,12 @@ def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
     if next_len == 0:
         next = last
     else:
-        for t, a in next:
+        for t, _a in next:
             next = t
     if prev_len == 0:
         prev = first
     else:
-        for t, a in prev:
+        for t, _a in prev:
             prev = t
     if first.id == marker:
         prev = None

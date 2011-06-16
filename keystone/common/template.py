@@ -45,6 +45,7 @@ import re
 import os
 import functools
 import time
+import tokenize
 from webob import Response
 
 import keystone.logic.types.fault as fault
@@ -124,7 +125,7 @@ class BaseTemplate(object):
 
 
 class SimpleTemplate(BaseTemplate):
-    blocks = ('if','elif','else','try','except','finally','for','while','with','def','class')
+    blocks = ('if', 'elif', 'else', 'try', 'except', 'finally', 'for', 'while', 'with', 'def', 'class')
     dedent_blocks = ('elif', 'else', 'except', 'finally')
 
     def prepare(self, escape_func=cgi.escape, noescape=False):
@@ -163,7 +164,7 @@ class SimpleTemplate(BaseTemplate):
             try:
                 tokens = list(tokenize.generate_tokens(iter(line).next))
             except tokenize.TokenError:
-                return line.rsplit('#',1) if '#' in line else (line, '')
+                return line.rsplit('#', 1) if '#' in line else (line, '')
             for token in tokens:
                 if token[0] == tokenize.COMMENT:
                     start, end = token[2][1], token[3][1]
@@ -181,7 +182,7 @@ class SimpleTemplate(BaseTemplate):
                         cline += '_str(%s)' % value
                     elif token == 'CMD':
                         cline += '_escape(%s)' % value
-                    cline +=  ', '
+                    cline += ', '
                 cline = cline[:-2] + '\\\n'
             cline = cline[:-2]
             if cline[:-1].endswith('\\\\\\\\\\n'):
@@ -201,9 +202,9 @@ class SimpleTemplate(BaseTemplate):
             if lineno <= 2:
                 m = re.search(r"%.*coding[:=]\s*([-\w\.]+)", line)
                 if m: self.encoding = m.group(1)
-                if m: line = line.replace('coding','coding (removed)')
+                if m: line = line.replace('coding', 'coding (removed)')
             if line.strip()[:2].count('%') == 1:
-                line = line.split('%',1)[1].lstrip() # Full line following the %
+                line = line.split('%', 1)[1].lstrip() # Full line following the %
                 cline = split_comment(line)[0].strip()
                 cmd = re.split(r'[^a-zA-Z0-9_]', cline)[0]
                 flush() ##encodig (TODO: why?)
@@ -319,7 +320,7 @@ def template(tpl, template_adapter=SimpleTemplate, **kwargs):
     You can use a name, a filename or a template string as first parameter.
     '''
     if tpl not in TEMPLATES or DEBUG:
-        settings = kwargs.get('template_settings',{})
+        settings = kwargs.get('template_settings', {})
         lookup = kwargs.get('template_lookup', TEMPLATE_PATH)
         if isinstance(tpl, template_adapter):
             TEMPLATES[tpl] = tpl
