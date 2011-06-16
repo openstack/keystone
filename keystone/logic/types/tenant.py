@@ -60,6 +60,14 @@ class Tenant(object):
             if not "tenant" in obj:
                 raise fault.BadRequestFault("Expecting tenant")
             tenant = obj["tenant"]
+            
+            # Check that fields are valid
+            invalid = [key for key in tenant if key not in
+                       ['id', 'description', 'enabled']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             if not "id" in tenant:
                 tenant_id = None
             else:
@@ -170,6 +178,12 @@ class Group(object):
             if not "group" in obj:
                 raise fault.BadRequestFault("Expecting group")
             group = obj["group"]
+
+            # Check that fields are valid
+            invalid = [key for key in group if key not in
+                       ['id', 'description', 'tenantId']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s")
 
             if not "id" in group:
                 group_id = None

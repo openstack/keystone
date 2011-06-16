@@ -56,6 +56,15 @@ class BaseURL(object):
             if not "baseURL" in obj:
                 raise fault.BadRequestFault("Expecting baseURL")
             baseURL = obj["baseURL"]
+
+            # Check that fields are valid
+            invalid = [key for key in baseURL if key not in
+                       ['id', 'region', 'serviceName', 'publicURL',
+                        'adminURL', 'internalURL', 'enabled']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             if not "id" in baseURL:
                 id = None
             else:
