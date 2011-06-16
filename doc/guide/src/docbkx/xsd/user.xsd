@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2010 Rackspace Hosting, All Rights Reserved -->
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://docs.openstack.org/identity/api/v2.0"    
+    xmlns:atom="http://www.w3.org/2005/Atom"
+>
+
+    <!-- Import ATOM specific schema definitions -->
+    <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
+            schemaLocation="atom/atom.xsd" />
+
+    <element name="users" type="identity:UserList"  >
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A list of Users.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </element>
+
+    <element name="user" type="identity:User">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A Keystone User.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </element>
+
+    <!-- Complex Types -->
+    <complexType name="User">
+        <attribute name="id" type="xsd:ID" use="optional"/>
+        <attribute name="password" type="xsd:string" use="optional"/>
+        <attribute name="tenantId" type="xsd:string" use="optional"/>
+        <attribute name="email" type="xsd:string" use="optional"/>
+        <attribute name="enabled" type="xsd:boolean" default="true" use="optional"/>
+        <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+    </complexType>
+
+    <complexType name="UserWithOnlyEnabled">
+        <complexContent>
+            <restriction base="identity:User">
+                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="password" type="xsd:string" use="prohibited"/>
+                <attribute name="tenantId" type="xsd:string" use="prohibited"/>
+                <attribute name="email" type="xsd:string" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="required"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UserWithOnlyPassword">
+        <complexContent>
+            <restriction base="identity:User">
+                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="tenantId" type="xsd:string" use="prohibited"/>
+                <attribute name="email" type="xsd:string" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
+                <attribute name="password" type="xsd:string" use="required"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UserWithOnlyTenant">
+        <complexContent>
+            <restriction base="identity:User">
+                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="email" type="xsd:string" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
+                <attribute name="password" type="xsd:string" use="prohibited"/>
+                <attribute name="tenantId" type="xsd:string" use="required"/>
+            </restriction>
+        </complexContent>
+    </complexType>
+    
+    <complexType name="UserList">
+        <sequence>
+            <element name="user" type="identity:User" minOccurs="0" maxOccurs="unbounded"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+    </complexType>
+    
+</schema>
