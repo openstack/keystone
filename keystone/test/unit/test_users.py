@@ -35,6 +35,7 @@ class UserTest(unittest.TestCase):
         self.password = utils.get_password()
         self.email = utils.get_email()
         self.user = utils.get_user()
+        self.user1 = 'test_user1'
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         self.exp_auth_token = utils.get_exp_auth_token()
@@ -56,19 +57,29 @@ class CreateUserTest(UserTest):
 
         resp = utils.delete_user(self.user, str(self.auth_token))
 
-        resp, content = utils.create_user(self.tenant, 'test_user1',
+        resp, content = utils.create_user(self.tenant, self.user1,
                                            str(self.auth_token))
-        self.user = 'test_user1'
+        self.user = self.user1
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
         self.assertEqual(201, resp_val)
+        
+    def test_a_user_witn_no_tenant(self):
+        resp = utils.delete_user(self.user1, str(self.auth_token))
+        resp, content = utils.create_user(None, self.user1,
+                                           str(self.auth_token))
+        self.user = self.user1
+        resp_val = int(resp['status'])
+        utils.handle_user_resp(self, content, resp_val,
+                               utils.content_type(resp))
+        self.assertEqual(201, resp_val)
+        
 
     def test_a_user_create_xml(self):
-        utils.delete_user_xml(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.create_user_xml(self.tenant, 'test_user1',
+        utils.delete_user_xml(self.tenant, self.user1, str(self.auth_token))
+        resp, content = utils.create_user_xml(self.tenant, self.user1,
                                            str(self.auth_token))
-        self.user = 'test_user1'
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
                                 utils.content_type(resp))
@@ -1584,6 +1595,7 @@ class AddUserTest(UserTest):
         self.assertEqual(201, resp_val)
 
     def test_add_user_tenant_xml(self):
+        utils.delete_user(self.user, str(self.auth_token))
         utils.create_tenant(self.tenant, str(self.auth_token))
         resp, content = utils.create_user_xml(self.tenant,
                                            self.user,

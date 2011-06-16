@@ -210,6 +210,7 @@ class IdentityService(object):
     #
     #   Tenant Group Operations
     #
+
     def create_tenant_group(self, admin_token, tenant, group):
         self.__validate_token(admin_token)
 
@@ -429,12 +430,7 @@ class IdentityService(object):
     def create_user(self, admin_token, user):
         self.__validate_token(admin_token)
 
-        dtenant = db_api.tenant_get(user.tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
+        dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
 
         if not isinstance(user, users.User):
             raise fault.BadRequestFault("Expecting a User")
@@ -459,7 +455,19 @@ class IdentityService(object):
         db_api.user_create(duser)
 
         return user
+    
+    def validate_and_fetch_user_tenant(self, tenant_id):
+        if tenant_id != None and len(tenant_id) > 0:
+            dtenant = db_api.tenant_get(tenant_id)
+            if dtenant == None:
+                raise fault.ItemNotFoundFault("The tenant is not found")
+            elif not dtenant.enabled:
+                raise fault.TenantDisabledFault("Your account has been disabled")
+            return dtenant
+        else:
+            return None
 
+    
     def get_tenant_users(self, admin_token, tenant_id, marker, limit, url):
         self.__validate_token(admin_token)
 
@@ -526,30 +534,6 @@ class IdentityService(object):
 
         return users.User_Update(None, duser.id, duser.tenant_id, duser.email,
                                  duser.enabled, ts)
-
-    ##
-    ##    GET Users with Pagination
-    ##
-    def get_users(self, admin_token, marker, limit, url):
-        (token, user) = self.__validate_token(admin_token)
-        # If Global admin return all tenants.
-        us = []
-        dusers = db_api.user_get_page(marker, limit)
-        for duser in dusers:
-            us.append(users.User(None,
-                                duser.id,
-                                duser.tenant_id,
-                                duser.email,
-                                duser.enabled))
-        prev, next = db_api.user_get_page_markers(marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
-                                                % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
-                                                % (url, next, limit)))
-        return users.Users(us, links)
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
@@ -630,15 +614,7 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The user could not be found")
 
         
-        dtenant = db_api.tenant_get(user.tenant_id)
-
-        #Check if tenant exists.If user has passed a tenant that does not exist throw error.
-        #If user is trying to update to a tenant that is disabled throw an error.
-        if dtenant == None and len(user.tenant_id) > 0:
-            raise fault.ItemNotFoundFault("The tenant not found")
-        elif not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
+        dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
         values = {'tenant_id': user.tenant_id}
         db_api.user_update(user_id, values)
         return users.User_Update(None, None, user.tenant_id, None, None, None)
@@ -650,7 +626,10 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The user could not be found")
 
         dtenant = db_api.tenant_get(duser.tenant_id)
-        db_api.user_delete_tenant(user_id, dtenant.id)
+        if dtenant != None:
+            db_api.user_delete_tenant_user(user_id, dtenant.id)
+        else:
+            db_api.user_delete(user_id)
         return None
 
     def get_user_groups(self, admin_token, user_id, marker, limit,

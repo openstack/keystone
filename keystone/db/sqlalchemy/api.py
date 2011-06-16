@@ -669,7 +669,7 @@ def user_get_by_group(id, session=None):
     return user_group
 
 
-def user_delete_tenant(id, tenant_id, session=None):
+def user_delete_tenant_user(id, tenant_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
