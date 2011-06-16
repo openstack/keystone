@@ -15,7 +15,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not Yet PEP8 standardized
+
 """
 RACKSPACE LEGACY AUTH - STUB
 
@@ -25,16 +25,13 @@ and makes an authentication call on keystone.- transforms response it
 receives into custom headers defined in properties and returns
 the response.
 """
+
 import os
 import sys
-import optparse
-import httplib
 import json
 import ast
 
-from webob.exc import Request, Response
-from paste.deploy import loadapp
-from webob.exc import HTTPUnauthorized, HTTPInternalServerError
+from webob.exc import Request
 
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
@@ -43,10 +40,7 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
 
-import keystone
 import keystone.utils as utils
-from keystone.common import wsgi
-from keystone.common import config
 
 PROTOCOL_NAME = "Legacy Authentication"
 

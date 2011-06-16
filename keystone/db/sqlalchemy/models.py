@@ -16,12 +16,11 @@
 # Not Yet PEP8 standardized
 
 from sqlalchemy import Column, String, Integer, ForeignKey, \
-            UniqueConstraint, Boolean
-from sqlalchemy import DateTime
+            UniqueConstraint, Boolean, DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_mapper
-import api as db_api
+
 Base = declarative_base()
 
 
@@ -30,8 +29,10 @@ class KeystoneBase(object):
 
     def save(self, session=None):
         """Save this object."""
+        
         if not session:
-            session = db_api.get_session()
+            from keystone.db.sqlalchemy import get_session
+            session = get_session()
         session.add(self)
         try:
             session.flush()
