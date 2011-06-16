@@ -4,12 +4,12 @@
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:idm="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <!-- Elements -->
-    <element name="roles" type="idm:RoleList"  >
+    <element name="roles" type="identity:RoleList"  >
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -21,7 +21,7 @@
         </annotation>
     </element>
     
-    <element name="role" type="idm:Role"  >
+    <element name="role" type="identity:Role"  >
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -34,7 +34,7 @@
     </element>
     
     
-    <element name="roleRefs" type="idm:RoleRefList"  >
+    <element name="roleRefs" type="identity:RoleRefList"  >
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -46,7 +46,7 @@
         </annotation>
     </element>
     
-    <element name="roleRef" type="idm:RoleRef"  >
+    <element name="roleRef" type="identity:RoleRef"  >
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
@@ -67,7 +67,7 @@
     
     <complexType name="RoleList">
         <sequence>
-            <element name="role" type="idm:Role" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="role" type="identity:Role" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
     
@@ -91,7 +91,7 @@
 
     <complexType name="RoleRefList">
         <sequence>
-            <element name="role" type="idm:RoleRef" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="role" type="identity:RoleRef" minOccurs="0" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
 </schema>
