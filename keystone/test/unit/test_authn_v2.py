@@ -17,9 +17,8 @@
 import json
 import logging
 
-from keystone import server
-from test.unit import base
-from test.unit.decorators import jsonify, xmlify
+from keystone.test.unit import base
+from keystone.test.unit.decorators import jsonify, xmlify
 
 logger = logging.getLogger('test.unit.test_authn_v2')
 
