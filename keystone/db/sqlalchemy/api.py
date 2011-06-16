@@ -859,6 +859,7 @@ def users_get_page(marker, limit, session=None):
         return session.query(user).\
                             order_by("id").limit(limit).all()
 
+
 def users_get_page_markers(marker, limit, \
         session=None):
     if not session:

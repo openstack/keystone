@@ -455,19 +455,19 @@ class IdentityService(object):
         db_api.user_create(duser)
 
         return user
-    
+
     def validate_and_fetch_user_tenant(self, tenant_id):
         if tenant_id != None and len(tenant_id) > 0:
             dtenant = db_api.tenant_get(tenant_id)
             if dtenant == None:
                 raise fault.ItemNotFoundFault("The tenant is not found")
             elif not dtenant.enabled:
-                raise fault.TenantDisabledFault("Your account has been disabled")
+                raise fault.TenantDisabledFault(
+                    "Your account has been disabled")
             return dtenant
         else:
             return None
 
-    
     def get_tenant_users(self, admin_token, tenant_id, marker, limit, url):
         self.__validate_token(admin_token)
 
@@ -513,7 +513,6 @@ class IdentityService(object):
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return users.Users(ts, links)
-
 
     def get_user(self, admin_token, user_id):
         self.__validate_token(admin_token)
@@ -612,8 +611,6 @@ class IdentityService(object):
         duser = db_api.user_get(user_id)
         if duser == None:
             raise fault.ItemNotFoundFault("The user could not be found")
-
-        
         dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
         values = {'tenant_id': user.tenant_id}
         db_api.user_update(user_id, values)
