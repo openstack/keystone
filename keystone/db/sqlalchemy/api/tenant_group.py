@@ -17,14 +17,14 @@
 
 from keystone.db.sqlalchemy import get_session, models
 
-def tenant_group_create(values):
+def create(values):
     group_ref = models.Group()
     group_ref.update(values)
     group_ref.save()
     return group_ref
 
 
-def tenant_group_is_empty(id, session=None):
+def is_empty(id, session=None):
     if not session:
         session = get_session()
     a_user = session.query(models.UserGroupAssociation).filter_by(
@@ -34,7 +34,7 @@ def tenant_group_is_empty(id, session=None):
     return True
 
 
-def tenant_group_get(id, tenant, session=None):
+def get(id, tenant, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Group).filter_by(id=id, \
@@ -43,7 +43,7 @@ def tenant_group_get(id, tenant, session=None):
     return result
 
 
-def tenant_group_get_page(tenantId, marker, limit, session=None):
+def get_page(tenantId, marker, limit, session=None):
     if not session:
         session = get_session()
 
@@ -58,7 +58,7 @@ def tenant_group_get_page(tenantId, marker, limit, session=None):
     #return session.query(models.Tenant).all()
 
 
-def tenant_group_get_page_markers(tenantId, marker, limit, session=None):
+def get_page_markers(tenantId, marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.Group).filter_by(\
@@ -101,11 +101,11 @@ def tenant_group_get_page_markers(tenantId, marker, limit, session=None):
     return (prev, next)
 
 
-def tenant_group_update(id, tenant_id, values, session=None):
+def update(id, tenant_id, values, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        tenant_ref = tenant_group_get(id, tenant_id, session)
+        tenant_ref = get(id, tenant_id, session)
         tenant_ref.update(values)
         tenant_ref.save(session=session)
 
@@ -114,12 +114,5 @@ def delete(id, tenant_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        tenantgroup_ref = tenant_group_get(id, tenant_id, session)
+        tenantgroup_ref = get(id, tenant_id, session)
         session.delete(tenantgroup_ref)
-
-
-def tenant_role_assignments_get(tenant_id, session=None):
-    if not session:
-        session = get_session()
-    return session.query(models.UserRoleAssociation).\
-                        filter_by(tenant_id=tenant_id)

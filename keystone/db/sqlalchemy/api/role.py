@@ -17,27 +17,27 @@
 
 from keystone.db.sqlalchemy import get_session, models
 
-def role_create(values):
+def create(values):
     role_ref = models.Role()
     role_ref.update(values)
     role_ref.save()
     return role_ref
 
 
-def role_get(id, session=None):
+def get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Role).filter_by(id=id).first()
     return result
 
 
-def role_get_all(session=None):
+def get_all(session=None):
     if not session:
         session = get_session()
     return session.query(models.Role).all()
 
 
-def role_get_page(marker, limit, session=None):
+def get_page(marker, limit, session=None):
     if not session:
         session = get_session()
 
@@ -50,7 +50,7 @@ def role_get_page(marker, limit, session=None):
                             models.Role.id.desc()).limit(limit).all()
 
 
-def role_ref_get_page(marker, limit, user_id, session=None):
+def ref_get_page(marker, limit, user_id, session=None):
     if not session:
         session = get_session()
 
@@ -65,35 +65,35 @@ def role_ref_get_page(marker, limit, user_id, session=None):
                 models.UserRoleAssociation.id.desc()).limit(limit).all()
 
 
-def role_ref_get_all_global_roles(user_id, session=None):
+def ref_get_all_global_roles(user_id, session=None):
     if not session:
         session = get_session()
     return session.query(models.UserRoleAssociation).\
                 filter_by(user_id=user_id).filter("tenant_id is null").all()
 
 
-def role_ref_get_all_tenant_roles(user_id, tenant_id, session=None):
+def ref_get_all_tenant_roles(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
     return session.query(models.UserRoleAssociation).\
             filter_by(user_id=user_id).filter_by(tenant_id=tenant_id).all()
 
 
-def role_ref_get(id, session=None):
+def ref_get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.UserRoleAssociation).filter_by(id=id).first()
     return result
 
 
-def role_ref_delete(id, session=None):
+def ref_delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        role_ref = role_ref_get(id, session)
+        role_ref = ref_get(id, session)
         session.delete(role_ref)
 
-def role_get_page_markers(marker, limit, session=None):
+def get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.Role).order_by(\
@@ -131,7 +131,7 @@ def role_get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-def role_ref_get_page_markers(user_id, marker, limit, session=None):
+def ref_get_page_markers(user_id, marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.UserRoleAssociation).filter_by(\

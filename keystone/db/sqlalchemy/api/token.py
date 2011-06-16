@@ -17,29 +17,29 @@
 
 from keystone.db.sqlalchemy import get_session, models
 
-def token_create(values):
+def create(values):
     token_ref = models.Token()
     token_ref.update(values)
     token_ref.save()
     return token_ref
 
 
-def token_get(id, session=None):
+def get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Token).filter_by(token_id=id).first()
     return result
 
 
-def token_delete(id, session=None):
+def delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        token_ref = token_get(id, session)
+        token_ref = get(id, session)
         session.delete(token_ref)
 
 
-def token_for_user(user_id, session=None):
+def get_for_user(user_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Token).filter_by(
@@ -47,7 +47,7 @@ def token_for_user(user_id, session=None):
     return result
 
 
-def token_for_user_tenant(user_id, tenant_id, session=None):
+def get_for_user_by_tenant(user_id, tenant_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Token).filter_by(
@@ -55,7 +55,7 @@ def token_for_user_tenant(user_id, tenant_id, session=None):
     return result
 
 
-def token_get_all(session=None):
+def get_all(session=None):
     if not session:
         session = get_session()
     return session.query(models.Token).all()

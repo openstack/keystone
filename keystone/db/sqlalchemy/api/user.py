@@ -17,14 +17,14 @@
 
 from keystone.db.sqlalchemy import get_session, models, aliased, joinedload
 
-def user_get_all(session=None):
+def get_all(session=None):
     if not session:
         session = get_session()
     result = session.query(models.User)
     return result
 
 
-def get_user_by_group(user_id, group_id, session=None):
+def get_by_group(user_id, group_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.UserGroupAssociation).filter_by(\
@@ -32,29 +32,29 @@ def get_user_by_group(user_id, group_id, session=None):
     return result
 
 
-def user_tenant_group(values):
+def tenant_group(values):
     user_ref = models.UserGroupAssociation()
     user_ref.update(values)
     user_ref.save()
     return user_ref
 
 
-def user_tenant_group_delete(id, group_id, session=None):
+def tenant_group_delete(id, group_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        usertenantgroup_ref = get_user_by_group(id, group_id, session)
+        usertenantgroup_ref = get_by_group(id, group_id, session)
         session.delete(usertenantgroup_ref)
 
 
-def user_create(values):
+def create(values):
     user_ref = models.User()
     user_ref.update(values)
     user_ref.save()
     return user_ref
 
 
-def user_get(id, session=None):
+def get(id, session=None):
     if not session:
         session = get_session()
     #TODO(Ziad): finish cleaning up model
@@ -64,7 +64,7 @@ def user_get(id, session=None):
     return result
 
 
-def user_get_page(marker, limit, session=None):
+def get_page(marker, limit, session=None):
     if not session:
         session = get_session()
 
@@ -77,7 +77,7 @@ def user_get_page(marker, limit, session=None):
                             models.User.id.desc()).limit(limit).all()
 
 
-def user_get_page_markers(marker, limit, session=None):
+def get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.User).order_by(\
@@ -115,14 +115,14 @@ def user_get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-def user_get_email(email, session=None):
+def get_by_email(email, session=None):
     if not session:
         session = get_session()
     result = session.query(models.User).filter_by(email=email).first()
     return result
 
 
-def user_groups(id, session=None):
+def get_groups(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Group).filter_by(\
@@ -138,11 +138,11 @@ def user_roles_by_tenant(user_id, tenant_id, session=None):
     return result
 
 
-def user_update(id, values, session=None):
+def update(id, values, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        user_ref = user_get(id, session)
+        user_ref = get(id, session)
         user_ref.update(values)
         user_ref.save(session=session)
 
@@ -212,15 +212,15 @@ def users_tenant_group_get_page_markers(group_id, marker, limit, session=None):
     return (prev, next)
 
 
-def user_delete(id, session=None):
+def delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        user_ref = user_get(id, session)
+        user_ref = get(id, session)
         session.delete(user_ref)
 
 
-def user_get_by_tenant(id, tenant_id, session=None):
+def get_by_tenant(id, tenant_id, session=None):
     if not session:
         session = get_session()
     # Most common use case: user lives in tenant
@@ -233,19 +233,19 @@ def user_get_by_tenant(id, tenant_id, session=None):
     user_tenant = session.query(models.UserRoleAssociation).filter_by(\
         tenant_id=tenant_id, user_id=id).first()
     if user_tenant:
-        return user_get(id, session)
+        return get(id, session)
     else:
         return None
 
 
-def user_get_by_group(id, session=None):
+def get_group_by_tenant(id, session=None):
     if not session:
         session = get_session()
     user_group = session.query(models.Group).filter_by(tenant_id=id).all()
     return user_group
 
 
-def user_delete_tenant(id, tenant_id, session=None):
+def delete_tenant(id, tenant_id, session=None):
     if not session:
         session = get_session()
     with session.begin():
@@ -254,14 +254,14 @@ def user_delete_tenant(id, tenant_id, session=None):
             for user_tenant_ref in users_tenant_ref:
                 session.delete(user_tenant_ref)
 
-        user_group_ref = user_get_by_group(tenant_id, session)
+        user_group_ref = get_group_by_tenant(tenant_id, session)
 
         if user_group_ref is not None:
             for user_group in user_group_ref:
-                group_users = session.query(models.UserGroupAssociation)\
+                get_users = session.query(models.UserGroupAssociation)\
                                 .filter_by(user_id=id,
                                         group_id=user_group.id).all()
-                for group_user in group_users:
+                for group_user in get_users:
                     session.delete(group_user)
 
 

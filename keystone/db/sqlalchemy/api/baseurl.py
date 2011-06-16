@@ -17,27 +17,27 @@
 
 from keystone.db.sqlalchemy import get_session, models, aliased
 
-def baseurls_create(values):
+def create(values):
     baseurls_ref = models.BaseUrls()
     baseurls_ref.update(values)
     baseurls_ref.save()
     return baseurls_ref
 
 
-def baseurls_get(id, session=None):
+def get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.BaseUrls).filter_by(id=id).first()
     return result
 
 
-def baseurls_get_all(session=None):
+def get_all(session=None):
     if not session:
         session = get_session()
     return session.query(models.BaseUrls).all()
 
 
-def baseurls_get_page(marker, limit, session=None):
+def get_page(marker, limit, session=None):
     if not session:
         session = get_session()
 
@@ -50,7 +50,7 @@ def baseurls_get_page(marker, limit, session=None):
                             models.BaseUrls.id.desc()).limit(limit).all()
 
 
-def baseurls_get_page_markers(marker, limit, session=None):
+def get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.BaseUrls).order_by(\
@@ -88,7 +88,7 @@ def baseurls_get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-def baseurls_ref_get_by_tenant_get_page(tenant_id, marker, limit,
+def ref_get_by_tenant_get_page(tenant_id, marker, limit,
                                         session=None):
     if not session:
         session = get_session()
@@ -104,7 +104,7 @@ def baseurls_ref_get_by_tenant_get_page(tenant_id, marker, limit,
             order_by(models.TenantBaseURLAssociation.id).limit(limit).all()
 
 
-def baseurls_ref_get_by_tenant_get_page_markers(tenant_id, marker, limit,
+def ref_get_by_tenant_get_page_markers(tenant_id, marker, limit,
                                                 session=None):
     if not session:
         session = get_session()
@@ -154,14 +154,14 @@ def baseurls_ref_get_by_tenant_get_page_markers(tenant_id, marker, limit,
     return (prev, next)
 
 
-def baseurls_ref_add(values):
+def ref_add(values):
     baseurls_ref = models.TenantBaseURLAssociation()
     baseurls_ref.update(values)
     baseurls_ref.save()
     return baseurls_ref
 
 
-def baseurls_ref_get(id, session=None):
+def ref_get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.TenantBaseURLAssociation).\
@@ -169,7 +169,7 @@ def baseurls_ref_get(id, session=None):
     return result
 
 
-def baseurls_ref_get_by_tenant(tenant_id, session=None):
+def ref_get_by_tenant(tenant_id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.TenantBaseURLAssociation).\
@@ -177,9 +177,9 @@ def baseurls_ref_get_by_tenant(tenant_id, session=None):
     return result
 
 
-def baseurls_ref_delete(id, session=None):
+def ref_delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        baseurls_ref = baseurls_ref_get(id, session)
+        baseurls_ref = ref_get(id, session)
         session.delete(baseurls_ref)

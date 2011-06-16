@@ -17,14 +17,14 @@
 
 from keystone.db.sqlalchemy import get_session, models, aliased
 
-def group_get(id, session=None):
+def get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Group).filter_by(id=id).first()
     return result
 
 
-def group_users(id, session=None):
+def get_users(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.User).filter_by(\
@@ -32,14 +32,14 @@ def group_users(id, session=None):
     return result
 
 
-def group_get_all(session=None):
+def get_all(session=None):
     if not session:
         session = get_session()
     result = session.query(models.Group)
     return result
 
 
-def group_get_page(marker, limit, session=None):
+def get_page(marker, limit, session=None):
     if not session:
         session = get_session()
 
@@ -52,7 +52,7 @@ def group_get_page(marker, limit, session=None):
                             models.Group.id.desc()).limit(limit).all()
 
 
-def group_get_page_markers(marker, limit, session=None):
+def get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.Group).order_by(\
@@ -90,14 +90,14 @@ def group_get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-def group_delete(id, session=None):
+def delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        group_ref = group_get(id, session)
+        group_ref = get(id, session)
         session.delete(group_ref)
 
-def groups_get_by_user_get_page(user_id, marker, limit, session=None):
+def get_by_user_get_page(user_id, marker, limit, session=None):
     if not session:
         session = get_session()
     uga = aliased(models.UserGroupAssociation)
@@ -116,7 +116,7 @@ def groups_get_by_user_get_page(user_id, marker, limit, session=None):
                             group.id).limit(limit).all()
 
 
-def groups_get_by_user_get_page_markers(user_id, marker, limit, session=None):
+def get_by_user_get_page_markers(user_id, marker, limit, session=None):
     if not session:
         session = get_session()
     uga = aliased(models.UserGroupAssociation)

@@ -17,21 +17,21 @@
 
 from keystone.db.sqlalchemy import get_session, models, aliased
 
-def tenant_create(values):
+def create(values):
     tenant_ref = models.Tenant()
     tenant_ref.update(values)
     tenant_ref.save()
     return tenant_ref
 
 
-def tenant_get(id, session=None):
+def get(id, session=None):
     if not session:
         session = get_session()
     result = session.query(models.Tenant).filter_by(id=id).first()
     return result
 
 
-def tenant_get_all(session=None):
+def get_all(session=None):
     if not session:
         session = get_session()
     return session.query(models.Tenant).all()
@@ -51,8 +51,7 @@ def tenants_for_user_get_page(user, marker, limit, session=None):
                 marker='%s' % marker).order_by(\
                 tenant.id.desc()).limit(limit).all()
     else:
-        return q3.order_by(\
-                            tenant.id.desc()).limit(limit).all()
+        return q3.order_by(tenant.id.desc()).limit(limit).all()
 
 
 def tenants_for_user_get_page_markers(user, marker, limit, session=None):
@@ -98,7 +97,7 @@ def tenants_for_user_get_page_markers(user, marker, limit, session=None):
     return (prev, next)
 
 
-def tenant_get_page(marker, limit, session=None):
+def get_page(marker, limit, session=None):
     if not session:
         session = get_session()
 
@@ -111,7 +110,7 @@ def tenant_get_page(marker, limit, session=None):
                             models.Tenant.id.desc()).limit(limit).all()
 
 
-def tenant_get_page_markers(marker, limit, session=None):
+def get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
     first = session.query(models.Tenant).order_by(\
@@ -149,7 +148,7 @@ def tenant_get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-def tenant_is_empty(id, session=None):
+def is_empty(id, session=None):
     if not session:
         session = get_session()
     a_user = session.query(models.UserRoleAssociation).filter_by(\
@@ -165,24 +164,24 @@ def tenant_is_empty(id, session=None):
     return True
 
 
-def tenant_update(id, values, session=None):
+def update(id, values, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        tenant_ref = tenant_get(id, session)
+        tenant_ref = get(id, session)
         tenant_ref.update(values)
         tenant_ref.save(session=session)
 
 
-def tenant_delete(id, session=None):
+def delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        tenant_ref = tenant_get(id, session)
+        tenant_ref = get(id, session)
         session.delete(tenant_ref)
 
 
-def tenant_baseurls_get_all(tenant_id, session=None):
+def get_all_baseurls(tenant_id, session=None):
     if not session:
         session = get_session()
     tba = aliased(models.TenantBaseURLAssociation)
@@ -190,3 +189,9 @@ def tenant_baseurls_get_all(tenant_id, session=None):
     return session.query(baseUrls).join((tba,
         tba.baseURLs_id == baseUrls.id)).\
             filter(tba.tenant_id == tenant_id).all()
+
+def get_role_assignments(tenant_id, session=None):
+    if not session:
+        session = get_session()
+    return session.query(models.UserRoleAssociation).\
+                        filter_by(tenant_id=tenant_id)
