@@ -253,7 +253,7 @@ def Main():
                 if tenant != None:
                     object.tenant_id = tenant
                 db_api.user_role_add(object)
-                print "SUCCESS: Granted %s the %s role on %s." %\
+                print "SUCCESS: Granted %s the %s role on %s." % \
                         (object.user_id, object.role_id, object.tenant_id)
             except Exception as exc:
                 print "ERROR: Failed to grant role %s to %s on %s: %s" % (object_id, user, tenant, exc)

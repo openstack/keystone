@@ -40,9 +40,6 @@ import os
 import routes
 import sys
 from webob import Response
-from webob.exc import (HTTPNotFound,
-                       HTTPConflict,
-                       HTTPBadRequest)
 
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
@@ -52,7 +49,7 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
 
 
 from keystone.common import wsgi
-from keystone.db.sqlalchemy import api as db_api
+import keystone.db.sqlalchemy as db
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
@@ -538,7 +535,7 @@ class KeystoneAPI(wsgi.Router):
         self.options = options
         mapper = routes.Mapper()
 
-        db_api.configure_db(options)
+        db.configure_db(options)
 
         # Token Operations
         auth_controller = AuthController(options)
@@ -589,7 +586,7 @@ class KeystoneAdminAPI(wsgi.Router):
         self.options = options
         mapper = routes.Mapper()
 
-        db_api.configure_db(options)
+        db.configure_db(options)
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,

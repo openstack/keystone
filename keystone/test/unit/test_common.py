@@ -21,8 +21,10 @@ from lxml import etree
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', '..','keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
+
+
 
 URL = 'http://localhost:8081/v2.0/'
 URLv1 = 'http://localhost:8080/v1.0/'
@@ -358,7 +360,7 @@ def user_update_json(auth_token, user_id, email=None):
     return (resp, content)
 
 
-def user_update_xml(auth_token,  user_id, email=None):
+def user_update_xml(auth_token, user_id, email=None):
     h = httplib2.Http(".cache")
     url = '%susers/%s' % (URL, user_id)
     if email is None:
@@ -807,9 +809,11 @@ def delete_all_baseurls_ref(tenant_id, auth_token):
                               headers={"Content-Type": "application/json",
                                      "X-Auth-Token": auth_token})
     if int(resp['status']) == 500:
-        self.fail('Identity Fault')
+        assert False
+        # self.fail('Identity Fault')
     elif int(resp['status']) == 503:
-        self.fail('Service Not Available')
+        assert False
+        # self.fail('Service Not Available')
     
     #verify content
     obj = json.loads(content)

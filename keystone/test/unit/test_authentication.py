@@ -22,12 +22,11 @@ import os
 import sys
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', '..','keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
-from webtest import TestApp
-
 import test_common  as utils
 
+from keystone.logic.types import fault 
 
 class AuthenticationTest(unittest.TestCase):
 
