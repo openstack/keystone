@@ -628,7 +628,7 @@ class IdentityService(object):
         if dtenant != None:
             db_api.user.delete_tenant_user(user_id, dtenant.id)
         else:
-            db_api.user.user_delete(user_id)
+            db_api.user.delete(user_id)
         return None
 
     def get_user_groups(self, admin_token, user_id, marker, limit,
