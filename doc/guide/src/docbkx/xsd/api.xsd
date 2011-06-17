@@ -13,4 +13,5 @@
     <include schemaLocation="fault.xsd"/>
     <include schemaLocation="baseURLs.xsd"/>
     <include schemaLocation="roles.xsd"/>
+    <include schemaLocation="user.xsd"/>
 </schema>

@@ -19,7 +19,6 @@ import uuid
 
 import keystone.logic.types.auth as auth
 import keystone.logic.types.atom as atom
-import keystone.db.sqlalchemy as db
 import keystone.db.sqlalchemy.api as db_api
 import keystone.db.sqlalchemy.models as db_models
 import keystone.logic.types.fault as fault
@@ -211,6 +210,7 @@ class IdentityService(object):
     #
     #   Tenant Group Operations
     #
+
     def create_tenant_group(self, admin_token, tenant, group):
         self.__validate_token(admin_token)
 
@@ -430,12 +430,7 @@ class IdentityService(object):
     def create_user(self, admin_token, user):
         self.__validate_token(admin_token)
 
-        dtenant = db_api.tenant.get(user.tenant_id)
-        if dtenant == None:
-            raise fault.UnauthorizedFault("Unauthorized")
-
-        if not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
+        dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
 
         if not isinstance(user, get_users.User):
             raise fault.BadRequestFault("Expecting a User")
@@ -460,6 +455,18 @@ class IdentityService(object):
         db_api.user.create(duser)
 
         return user
+
+    def validate_and_fetch_user_tenant(self, tenant_id):
+        if tenant_id != None and len(tenant_id) > 0:
+            dtenant = db_api.tenant.get(tenant_id)
+            if dtenant == None:
+                raise fault.ItemNotFoundFault("The tenant is not found")
+            elif not dtenant.enabled:
+                raise fault.TenantDisabledFault(
+                    "Your account has been disabled")
+            return dtenant
+        else:
+            return None
 
     def get_tenant_users(self, admin_token, tenant_id, marker, limit, url):
         self.__validate_token(admin_token)
@@ -507,7 +514,6 @@ class IdentityService(object):
                                       (url, next, limit)))
         return get_users.Users(ts, links)
 
-
     def get_user(self, admin_token, user_id):
         self.__validate_token(admin_token)
         duser = db_api.user.get(user_id)
@@ -527,10 +533,6 @@ class IdentityService(object):
 
         return get_users.User_Update(None, duser.id, duser.tenant_id, duser.email,
                                  duser.enabled, ts)
-
-    ##
-    ##    GET Users with Pagination
-    ##
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
@@ -610,16 +612,7 @@ class IdentityService(object):
         if duser == None:
             raise fault.ItemNotFoundFault("The user could not be found")
 
-        
-        dtenant = db_api.tenant.get(user.tenant_id)
-
-        #Check if tenant exists.If user has passed a tenant that does not exist throw error.
-        #If user is trying to update to a tenant that is disabled throw an error.
-        if dtenant == None and len(user.tenant_id) > 0:
-            raise fault.ItemNotFoundFault("The tenant not found")
-        elif not dtenant.enabled:
-            raise fault.TenantDisabledFault("Your account has been disabled")
-
+        dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
         values = {'tenant_id': user.tenant_id}
         db_api.user.update(user_id, values)
         return get_users.User_Update(None, None, user.tenant_id, None, None, None)
@@ -631,7 +624,10 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The user could not be found")
 
         dtenant = db_api.tenant.get(duser.tenant_id)
-        db_api.user.delete_tenant(user_id, dtenant.id)
+        if dtenant != None:
+            db_api.user.delete_tenant_user(user_id, dtenant.id)
+        else:
+            db_api.user.delete(user_id)
         return None
 
     def get_user_groups(self, admin_token, user_id, marker, limit,

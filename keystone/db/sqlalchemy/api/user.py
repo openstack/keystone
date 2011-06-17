@@ -245,7 +245,7 @@ def get_group_by_tenant(id, session=None):
     return user_group
 
 
-def delete_tenant(id, tenant_id, session=None):
+def delete_tenant_user(id, tenant_id, session=None):
     if not session:
         session = get_session()
     with session.begin():

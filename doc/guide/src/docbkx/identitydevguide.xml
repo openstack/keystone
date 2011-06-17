@@ -1782,7 +1782,7 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
   <chapter>
 	<title>Appendix</title>
 	  <section>
-	  <title>Rackspace Extenison Proposal</title>
+	  <title>Rackspace Extension Proposal</title>
 			 <section>
 			   <title>Concepts</title>
 			     <para>
@@ -1791,7 +1791,7 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
 				<section>		  
 				 <title>Group</title>
 				 <para>
-					 A group of users. Groups may be used to organize and assign
+					 Groups may be used to organize and assign
 			     privileges to a group of related users. For example, an operator
 			     may create a "delinquent" group, which will assign limited
 					 privileges to users who have past due bills.
