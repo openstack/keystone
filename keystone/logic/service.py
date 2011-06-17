@@ -26,7 +26,7 @@ import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
 import keystone.logic.types.user as get_users
 import keystone.logic.types.baseURL as baseURLs
-
+import keystone.utils as utils
 
 class IdentityService(object):
     "This is the logical implemenation of the Identity service"
@@ -52,7 +52,7 @@ class IdentityService(object):
 
         if not duser.enabled:
             raise fault.UserDisabledFault("Your account has been disabled")
-        if duser.password != credentials.password:
+        if duser.password != utils.get_hashed_password(credentials.password):
             raise fault.UnauthorizedFault("Unauthorized")
 
         #
