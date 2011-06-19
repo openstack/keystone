@@ -22,6 +22,7 @@ import logging
 import os
 import routes
 import sys
+import hashlib
 from webob import Response
 from webob import Request
 from webob import descriptors
@@ -160,3 +161,10 @@ def send_legacy_result(code, headers):
     resp.content_type_params = {'charset': 'UTF-8'}
 
     return resp
+
+#Currently using sha1 to hash.Need to figure if there is an openstack standard.Not using salt val as of now.
+def get_hashed_password(password):
+    if password != None and len(password) > 0:
+        return hashlib.sha1(password).hexdigest()
+    else:
+        return None
