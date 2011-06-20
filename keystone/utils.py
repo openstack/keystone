@@ -39,7 +39,6 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
 from queryext import exthandler
 import keystone.logic.types.fault as fault
 
-
 def is_xml_response(req):
     if not "Accept" in req.headers:
         return False
