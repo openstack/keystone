@@ -197,11 +197,11 @@ in troubleshooting:
 <pre>
     # Get an unscoped token
     
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
 </pre>
 
 #### Load Testing
@@ -213,7 +213,7 @@ in troubleshooting:
 
    # Call Apache Bench
 
-   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/tokens
+   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8080/v2.0/tokens
 </pre>
 
 ## NOVA Integration
@@ -255,8 +255,8 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
 
         $ cd ~/keystone/bin && ./keystone
         Starting the Legacy Authentication component
-        Service API listening on 0.0.0.0:8080
-        Admin API listening on 0.0.0.0:8081
+        Service API listening on 0.0.0.0:80
+        Admin API listening on 0.0.0.0:8080
 
 4.  In another window, edit the `~/keystone/bin/sampledata.sh` file, find the
     `public.cloudfiles.com` text and replace it with the URL to your Swift
