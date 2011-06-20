@@ -778,30 +778,30 @@ def create_role_xml(role_id, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
     
-def create_baseurls_ref(tenant_id, baseurl_id, auth_token):
+def create_endpoint(tenant_id, endpoint_templates_id, auth_token):
     header = httplib2.Http(".cache")
 
     url = '%stenants/%s/endpoints' % (URL, tenant_id)
-    body = {"baseURL": {"id": baseurl_id}}
+    body = {"endpointTemplate": {"id": endpoint_templates_id}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
     
-def create_baseurls_ref_xml(tenant_id, baseurl_id, auth_token):
+def create_endpoint_xml(tenant_id, endpoint_templates_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/endpoints' % (URL, tenant_id)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
-            <baseURL xmlns="http://docs.openstack.org/identity/api/v2.0" \
+            <endpointTemplate xmlns="http://docs.openstack.org/identity/api/v2.0" \
             id="%s"/>\
-                    ' % (baseurl_id)
+                    ' % (endpoint_templates_id)
     resp, content = header.request(url, "POST", body=body,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
    
-def delete_all_baseurls_ref(tenant_id, auth_token):
+def delete_all_endpoint(tenant_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/endpoints' % (URL, tenant_id)
     #test for Content-Type = application/json
@@ -817,9 +817,9 @@ def delete_all_baseurls_ref(tenant_id, auth_token):
     
     #verify content
     obj = json.loads(content)
-    base_url_refs = obj["baseURLRefs"]["values"]
-    for base_url_ref in base_url_refs:
-        url = '%stenants/%s/endpoints/%s' % (URL, tenant_id, base_url_ref["id"])
+    endpoints = obj["endpoints"]["values"]
+    for endpoint in endpoints:
+        url = '%stenants/%s/endpoints/%s' % (URL, tenant_id, endpoint["id"])
         header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(auth_token)})

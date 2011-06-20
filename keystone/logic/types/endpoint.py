@@ -20,16 +20,16 @@ import string
 import keystone.logic.types.fault as fault
 
 
-class BaseURL(object):
+class EndpointTemplate(object):
     @staticmethod
     def from_xml(xml_str):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
-                            "baseURL")
+                            "endpointTemplate")
             if root == None:
-                raise fault.BadRequestFault("Expecting baseURL")
+                raise fault.BadRequestFault("Expecting endpointTemplate")
             id = root.get("id")
             region = root.get("region")
             service = root.get("serviceName")
@@ -37,10 +37,10 @@ class BaseURL(object):
             admin_url = root.get("adminURL")
             internal_url = root.get("internalURL")
             enabled = root.get("enabled")
-            return BaseURL(id, region, service, public_url, admin_url,
+            return EndpointTemplate(id, region, service, public_url, admin_url,
                            internal_url, enabled)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse baseURL", str(e))
+            raise fault.BadRequestFault("Cannot parse endpointTemplate", str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -53,33 +53,33 @@ class BaseURL(object):
             internal_url = None
             enabled = None
 
-            if not "baseURL" in obj:
-                raise fault.BadRequestFault("Expecting baseURL")
-            baseURL = obj["baseURL"]
-            if not "id" in baseURL:
+            if not "endpointTemplate" in obj:
+                raise fault.BadRequestFault("Expecting endpointTemplate")
+            endpoint_template = obj["endpointTemplate"]
+            if not "id" in endpoint_template:
                 id = None
             else:
-                id = baseURL["id"]
+                id = endpoint_template["id"]
             if id == None:
-                raise fault.BadRequestFault("Expecting BaseURL")
+                raise fault.BadRequestFault("Expecting endpointTemplate")
 
-            if 'region' in baseURL:
-                region = baseURL["region"]
-            if 'serviceName' in baseURL:
-                service = baseURL["serviceName"]
-            if 'publicURL' in baseURL:
-                public_url = baseURL["publicURL"]
-            if 'adminURL' in baseURL:
-                admin_url = baseURL["adminURL"]
-            if 'internalURL' in baseURL:
-                internal_url = baseURL["internalURL"]
-            if 'enabled' in baseURL:
-                enabled = baseURL["enabled"]
+            if 'region' in endpoint_template:
+                region = endpoint_template["region"]
+            if 'serviceName' in endpoint_template:
+                service = endpoint_template["serviceName"]
+            if 'publicURL' in endpoint_template:
+                public_url = endpoint_template["publicURL"]
+            if 'adminURL' in endpoint_template:
+                admin_url = endpoint_template["adminURL"]
+            if 'internalURL' in endpoint_template:
+                internal_url = endpoint_template["internalURL"]
+            if 'enabled' in endpoint_template:
+                enabled = endpoint_template["enabled"]
 
-            return BaseURL(id, region, service, public_url, admin_url,
+            return EndpointTemplate(id, region, service, public_url, admin_url,
                            internal_url, enabled)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse baseURL", str(e))
+            raise fault.BadRequestFault("Cannot parse endpointTemplate", str(e))
 
     def __init__(self, id, region, service, public_url, admin_url,
                  internal_url, enabled):
@@ -92,7 +92,7 @@ class BaseURL(object):
         self.enabled = enabled
 
     def to_dom(self):
-        dom = etree.Element("baseURL",
+        dom = etree.Element("endpointTemplate",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.id:
             dom.set("id", str(self.id))
@@ -114,36 +114,36 @@ class BaseURL(object):
         return etree.tostring(self.to_dom())
 
     def to_dict(self):
-        baseURL = {}
+        endpoint_template = {}
         if self.id:
-            baseURL["id"] = self.id
+            endpoint_template["id"] = self.id
         if self.region:
-            baseURL["region"] = self.region
+            endpoint_template["region"] = self.region
         if self.service:
-            baseURL["serviceName"] = self.service
+            endpoint_template["serviceName"] = self.service
         if self.public_url:
-            baseURL["publicURL"] = self.public_url
+            endpoint_template["publicURL"] = self.public_url
         if self.admin_url:
-            baseURL["adminURL"] = self.admin_url
+            endpoint_template["adminURL"] = self.admin_url
         if self.internal_url:
-            baseURL["internalURL"] = self.internal_url
+            endpoint_template["internalURL"] = self.internal_url
         if self.enabled:
-            baseURL["enabled"] = self.enabled
-        return {'baseURL': baseURL}
+            endpoint_template["enabled"] = self.enabled
+        return {'endpointTemplate': endpoint_template}
 
     def to_json(self):
         return json.dumps(self.to_dict())
 
 
-class BaseURLs(object):
-    "A collection of baseURls."
+class EndpointTemplates(object):
+    "A collection of endpointTemplates."
 
     def __init__(self, values, links):
         self.values = values
         self.links = links
 
     def to_xml(self):
-        dom = etree.Element("baseURLs")
+        dom = etree.Element("endpointTemplates")
         dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
@@ -155,18 +155,18 @@ class BaseURLs(object):
         return etree.tostring(dom)
 
     def to_json(self):
-        values = [t.to_dict()["baseURL"] for t in self.values]
+        values = [t.to_dict()["endpointTemplate"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"baseURLs": {"values": values, "links": links}})
+        return json.dumps({"endpointTemplates": {"values": values, "links": links}})
 
 
-class BaseURLRef(object):
+class Endpoint(object):
     def __init__(self, id, href):
         self.id = id
         self.href = href
 
     def to_dom(self):
-        dom = etree.Element("baseURLRef",
+        dom = etree.Element("endpoint",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.id:
             dom.set("id", str(self.id))
@@ -178,26 +178,26 @@ class BaseURLRef(object):
         return etree.tostring(self.to_dom())
 
     def to_dict(self):
-        baseURLRef = {}
+        endpoint = {}
         if self.id:
-            baseURLRef["id"] = self.id
+            endpoint["id"] = self.id
         if self.href:
-            baseURLRef["href"] = self.href
-        return {'baseURLRef': baseURLRef}
+            endpoint["href"] = self.href
+        return {'endpoint': endpoint}
 
     def to_json(self):
         return json.dumps(self.to_dict())
 
 
-class BaseURLRefs(object):
-    "A collection of baseURlRefs."
+class Endpoints(object):
+    "A collection of endpoints."
 
     def __init__(self, values, links):
         self.values = values
         self.links = links
 
     def to_xml(self):
-        dom = etree.Element("baseURLRefs")
+        dom = etree.Element("endpoints")
         dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
@@ -209,6 +209,6 @@ class BaseURLRefs(object):
         return etree.tostring(dom)
 
     def to_json(self):
-        values = [t.to_dict()["baseURLRef"] for t in self.values]
+        values = [t.to_dict()["endpoint"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"baseURLRefs": {"values": values, "links": links}})
+        return json.dumps({"endpoints": {"values": values, "links": links}})

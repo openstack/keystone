@@ -93,12 +93,12 @@ class UserRoleAssociation(Base, KeystoneBase):
     __table_args__ = (UniqueConstraint("user_id", "role_id", "tenant_id"), {})
 
 
-class TenantBaseURLAssociation(Base, KeystoneBase):
-    __tablename__ = 'tenant_baseURLs'
+class Endpoints(Base, KeystoneBase):
+    __tablename__ = 'endpoints'
     id = Column(Integer, primary_key=True)
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
-    baseURLs_id = Column(Integer, ForeignKey('urlbase.id'))
-    __table_args__ = (UniqueConstraint("baseURLs_id", "tenant_id"), {})
+    endpoint_template_id = Column(Integer, ForeignKey('endpoint_templates.id'))
+    __table_args__ = (UniqueConstraint("endpoint_template_id", "tenant_id"), {})
 
 
 # Define objects
@@ -116,7 +116,7 @@ class Tenant(Base, KeystoneBase):
     desc = Column(String(255))
     enabled = Column(Integer)
     groups = relationship('Group', backref='tenants')
-    endpoints = relationship('TenantBaseURLAssociation', backref='tenant',
+    endpoints = relationship('Endpoints', backref='tenant',
                              cascade="all")
 
 
@@ -159,8 +159,8 @@ class Token(Base, KeystoneBase):
     expires = Column(DateTime)
 
 
-class BaseUrls(Base, KeystoneBase):
-    __tablename__ = 'urlbase'
+class EndpointTemplates(Base, KeystoneBase):
+    __tablename__ = 'endpoint_templates'
 
     id = Column(Integer, primary_key=True)
     region = Column(String(255))

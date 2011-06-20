@@ -53,7 +53,7 @@ import keystone.db.sqlalchemy as db
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
-import keystone.logic.types.baseURL as baseURLs
+import keystone.logic.types.endpoint as endpoints
 import keystone.logic.types.auth as auth
 import keystone.logic.types.user as users
 import keystone.common.template as template
@@ -465,33 +465,33 @@ class EndpointTemplatesController(wsgi.Controller):
     @utils.wrap_error
     def get_endpoint_templates(self, req):
         marker, limit, url = get_marker_limit_and_url(req)
-        baseURLs = service.get_baseurls(utils.get_auth_token(req),
+        endpoint_templates = service.get_endpoint_templates(utils.get_auth_token(req),
                                          marker, limit, url)
-        return utils.send_result(200, req, baseURLs)
+        return utils.send_result(200, req, endpoint_templates)
 
     @utils.wrap_error
     def get_endpoint_template(self, req, endpoint_templates_id):
-        baseurl = service.get_baseurl(utils.get_auth_token(req), endpoint_templates_id)
-        return utils.send_result(200, req, baseurl)
+        endpoint_template = service.get_endpoint_template(utils.get_auth_token(req), endpoint_templates_id)
+        return utils.send_result(200, req, endpoint_template)
 
     @utils.wrap_error
     def get_endpoints_for_tenant(self, req, tenant_id):
         marker, limit, url = get_marker_limit_and_url(req)
-        endpoints = service.get_tenant_baseURLs(utils.get_auth_token(req),
+        endpoints = service.get_tenant_endpoints(utils.get_auth_token(req),
                                          marker, limit, url, tenant_id)
         return utils.send_result(200, req, endpoints)
 
     @utils.wrap_error
     def add_endpoint_to_tenant(self, req, tenant_id):
-        endpoint = utils.get_normalized_request_content(baseURLs.BaseURL, req)
+        endpoint = utils.get_normalized_request_content(endpoints.EndpointTemplate, req)
         return utils.send_result(201, req,
-                       service.create_baseurl_ref_to_tenant(
+                       service.create_endpoint_for_tenant(
                                             utils.get_auth_token(req),
                                             tenant_id, endpoint, get_url(req)))
 
     @utils.wrap_error
     def remove_endpoint_from_tenant(self, req, tenant_id, endpoints_id):
-        rval = service.delete_baseurls_ref(utils.get_auth_token(req),
+        rval = service.delete_endpoint(utils.get_auth_token(req),
                                         endpoints_id)
         return utils.send_result(204, req, rval)
 
