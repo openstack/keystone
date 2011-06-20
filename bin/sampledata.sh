@@ -33,9 +33,13 @@
 
 # Roles
 ./keystone-manage $* role add Admin
+./keystone-manage $* role add Member
 ./keystone-manage $* role grant Admin admin
 ./keystone-manage $* role grant Admin joeadmin 1234
 ./keystone-manage $* role grant Admin joeadmin ANOTHER:TENANT
+
+# Add a user to a tenant with role Member
+./keystone-manage $* role grant Member joeuser 0000
 
 #BaseURLs
 ./keystone-manage $* baseURLs add RegionOne swift http://swift.publicinternets.com/v1/AUTH_%tenant_id% http://swift.admin-nets.local:8080/ http://127.0.0.1:8080/v1/AUTH_%tenant_id% 1
