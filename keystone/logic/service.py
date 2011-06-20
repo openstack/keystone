@@ -853,7 +853,7 @@ class IdentityService(object):
         endpoints = None
         if tenant_id != None:
             endpoints = db_api.tenant.get_all_endpoints(tenant_id)
-        token = auth.Token(dtoken.expires, dtoken.token_id, tenant_id)
+        token = auth.Token(dtoken.expires, dtoken.id, tenant_id)
         return auth.AuthData(token, endpoints)
 
     def __get_validate_data(self, dtoken, duser):

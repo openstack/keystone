@@ -281,11 +281,11 @@ def Main():
                 object.internal_url = internal_url
                 object.enabled = enabled
                 object = db_api.endpoint_template.create(object)
-                print "SUCCESS: Created EndPointTemplates for %s pointing to %s." % \
+                print "SUCCESS: Created EndpointTemplates for %s pointing to %s." % \
                     (object.service, object.public_url)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create EndPointTemplates for %s: %s" % (service,
+                print "ERROR: Failed to create EndpointTemplates for %s: %s" % (service,
                                                                       exc)
                 return
         elif command == "list":
@@ -310,13 +310,13 @@ def Main():
                     objects = db_api.endpoint_template.get_all()
                     if objects == None:
                         raise IndexError("URLs not found")
-                    print 'All EndPointTemplates'
+                    print 'All EndpointTemplates'
                     print 'service', 'region', 'Public URL'
                     print '-' * 20
                     for row in objects:
                         print row.service, row.region, row.public_url
                 except Exception, e:
-                    print 'Error getting all EndPointTemplates:', str(e)
+                    print 'Error getting all EndpointTemplates:', str(e)
                 return
     elif object_type == "endpoint":
         if command == "add":
@@ -331,11 +331,11 @@ def Main():
                 object.tenant_id = tenant_id
                 object.endpoint_template_id = endpoint_template_id
                 object = db_api.endpoint_template.endpoint_add(object)
-                print "SUCCESS: EndPointTemplate %s added to tenant %s." % \
+                print "SUCCESS: EndpointTemplate %s added to tenant %s." % \
                             (endpoint_template_id, tenant_id)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create EndPoint: %s" % exc
+                print "ERROR: Failed to create Endpoint: %s" % exc
                 return
     elif object_type == "token":
         if command == "add":
