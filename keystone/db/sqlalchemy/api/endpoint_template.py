@@ -18,23 +18,23 @@
 from keystone.db.sqlalchemy import get_session, models, aliased
 
 def create(values):
-    baseurls_ref = models.BaseUrls()
-    baseurls_ref.update(values)
-    baseurls_ref.save()
-    return baseurls_ref
+    endpoint_template = models.EndpointTemplates()
+    endpoint_template.update(values)
+    endpoint_template.save()
+    return endpoint_template
 
 
 def get(id, session=None):
     if not session:
         session = get_session()
-    result = session.query(models.BaseUrls).filter_by(id=id).first()
+    result = session.query(models.EndpointTemplates).filter_by(id=id).first()
     return result
 
 
 def get_all(session=None):
     if not session:
         session = get_session()
-    return session.query(models.BaseUrls).all()
+    return session.query(models.EndpointTemplates).all()
 
 
 def get_page(marker, limit, session=None):
@@ -42,31 +42,31 @@ def get_page(marker, limit, session=None):
         session = get_session()
 
     if marker:
-        return session.query(models.BaseUrls).filter("id>:marker").params(\
+        return session.query(models.EndpointTemplates).filter("id>:marker").params(\
                 marker='%s' % marker).order_by(\
-                models.BaseUrls.id.desc()).limit(limit).all()
+                models.EndpointTemplates.id.desc()).limit(limit).all()
     else:
-        return session.query(models.BaseUrls).order_by(\
-                            models.BaseUrls.id.desc()).limit(limit).all()
+        return session.query(models.EndpointTemplates).order_by(\
+                            models.EndpointTemplates.id.desc()).limit(limit).all()
 
 
 def get_page_markers(marker, limit, session=None):
     if not session:
         session = get_session()
-    first = session.query(models.BaseUrls).order_by(\
-                        models.BaseUrls.id).first()
-    last = session.query(models.BaseUrls).order_by(\
-                        models.BaseUrls.id.desc()).first()
+    first = session.query(models.EndpointTemplates).order_by(\
+                        models.EndpointTemplates.id).first()
+    last = session.query(models.EndpointTemplates).order_by(\
+                        models.EndpointTemplates.id.desc()).first()
     if first is None:
         return (None, None)
     if marker is None:
         marker = first.id
-    next = session.query(models.BaseUrls).filter("id > :marker").params(\
+    next = session.query(models.EndpointTemplates).filter("id > :marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.BaseUrls.id).limit(limit).all()
-    prev = session.query(models.BaseUrls).filter("id < :marker").params(\
+                    models.EndpointTemplates.id).limit(limit).all()
+    prev = session.query(models.EndpointTemplates).filter("id < :marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.BaseUrls.id.desc()).limit(int(limit)).all()
+                    models.EndpointTemplates.id.desc()).limit(int(limit)).all()
     if len(next) == 0:
         next = last
     else:
@@ -88,27 +88,27 @@ def get_page_markers(marker, limit, session=None):
     return (prev, next)
 
 
-def ref_get_by_tenant_get_page(tenant_id, marker, limit,
+def endpoint_get_by_tenant_get_page(tenant_id, marker, limit,
                                         session=None):
     if not session:
         session = get_session()
     if marker:
-        return session.query(models.TenantBaseURLAssociation).\
-            filter(models.TenantBaseURLAssociation.tenant_id == tenant_id).\
+        return session.query(models.Endpoints).\
+            filter(models.Endpoints.tenant_id == tenant_id).\
             filter("id >= :marker").params(
             marker='%s' % marker).order_by(
-            models.TenantBaseURLAssociation.id).limit(limit).all()
+            models.Endpoints.id).limit(limit).all()
     else:
-        return session.query(models.TenantBaseURLAssociation).\
-            filter(models.TenantBaseURLAssociation.tenant_id == tenant_id).\
-            order_by(models.TenantBaseURLAssociation.id).limit(limit).all()
+        return session.query(models.Endpoints).\
+            filter(models.Endpoints.tenant_id == tenant_id).\
+            order_by(models.Endpoints.id).limit(limit).all()
 
 
-def ref_get_by_tenant_get_page_markers(tenant_id, marker, limit,
+def endpoint_get_by_tenant_get_page_markers(tenant_id, marker, limit,
                                                 session=None):
     if not session:
         session = get_session()
-    tba = aliased(models.TenantBaseURLAssociation)
+    tba = aliased(models.Endpoints)
     first = session.query(tba).\
                     filter(tba.tenant_id == tenant_id).\
                     order_by(tba.id).first()
@@ -154,32 +154,32 @@ def ref_get_by_tenant_get_page_markers(tenant_id, marker, limit,
     return (prev, next)
 
 
-def ref_add(values):
-    baseurls_ref = models.TenantBaseURLAssociation()
-    baseurls_ref.update(values)
-    baseurls_ref.save()
-    return baseurls_ref
+def endpoint_add(values):
+    endpoints = models.Endpoints()
+    endpoints.update(values)
+    endpoints.save()
+    return endpoints
 
 
-def ref_get(id, session=None):
+def endpoint_get(id, session=None):
     if not session:
         session = get_session()
-    result = session.query(models.TenantBaseURLAssociation).\
+    result = session.query(models.Endpoints).\
                     filter_by(id=id).first()
     return result
 
 
-def ref_get_by_tenant(tenant_id, session=None):
+def endpoint_get_by_tenant(tenant_id, session=None):
     if not session:
         session = get_session()
-    result = session.query(models.TenantBaseURLAssociation).\
+    result = session.query(models.Endpoints).\
                     filter_by(tenant_id=tenant_id).first()
     return result
 
 
-def ref_delete(id, session=None):
+def endpoint_delete(id, session=None):
     if not session:
         session = get_session()
     with session.begin():
-        baseurls_ref = ref_get(id, session)
-        session.delete(baseurls_ref)
+        endpoints = endpoint_get(id, session)
+        session.delete(endpoints)
