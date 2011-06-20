@@ -54,7 +54,7 @@ class BaseURLsTest(unittest.TestCase):
 class GetBaseURLsTest(BaseURLsTest):
     def test_get_baseURLs(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -72,7 +72,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -85,7 +85,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -98,7 +98,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -111,7 +111,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -124,7 +124,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -146,7 +146,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_xml_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -160,7 +160,7 @@ class GetBaseURLsTest(BaseURLsTest):
         
     def test_get_baseURLs_xml_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -174,7 +174,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_xml_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -188,7 +188,7 @@ class GetBaseURLsTest(BaseURLsTest):
 
     def test_get_baseURLs_xml_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -203,7 +203,7 @@ class GetBaseURLsTest(BaseURLsTest):
 class GetBaseURLTest(BaseURLsTest):
     def test_get_baseURL(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -221,7 +221,7 @@ class GetBaseURLTest(BaseURLsTest):
 
     def test_get_baseURL_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -234,7 +234,7 @@ class GetBaseURLTest(BaseURLsTest):
 
     def test_get_baseURL_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -247,7 +247,7 @@ class GetBaseURLTest(BaseURLsTest):
 
     def test_get_baseURL_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -261,7 +261,7 @@ class GetBaseURLTest(BaseURLsTest):
 
     def test_get_baseURL_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -274,7 +274,7 @@ class GetBaseURLTest(BaseURLsTest):
 
     def test_get_baseURL_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sbaseURLs/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -338,7 +338,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.auth_token)})
@@ -352,7 +352,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.exp_auth_token)})
@@ -366,7 +366,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.disabled_token)})
@@ -380,7 +380,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.missing_token)})
@@ -394,7 +394,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, '1')
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.invalid_token)})
@@ -404,7 +404,7 @@ class CreateBaseURLRefsTest(BaseURLsTest):
 class GetBaseURLRefsTest(BaseURLsTest):    
     def test_get_baseurls_ref_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/xml
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -418,7 +418,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
         
     def test_get_baseurls_ref_xml_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/xml
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -432,7 +432,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_xml_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/xml
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -446,7 +446,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_xml_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/xml
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -460,7 +460,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_xml_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/xml
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -474,7 +474,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
         
     def test_get_baseurls_ref_json(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -491,7 +491,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_json_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -506,7 +506,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_json_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -521,7 +521,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_json_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -536,7 +536,7 @@ class GetBaseURLRefsTest(BaseURLsTest):
 
     def test_get_baseurls_ref_json_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/baseURLRefs' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -566,7 +566,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
             base_url_ref_id = base_url_ref["id"]
         if base_url_ref_id is None:
             raise fault.BadRequestFault("Expecting baseURLRefID")
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, base_url_ref_id)
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.auth_token)})
@@ -589,7 +589,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
             base_url_ref_id = base_url_ref["id"]
         if base_url_ref_id is None:
             raise fault.BadRequestFault("Expecting baseURLRefID")
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, base_url_ref_id)
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.exp_auth_token)})
@@ -612,7 +612,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
             base_url_ref_id = base_url_ref["id"]
         if base_url_ref_id is None:
             raise fault.BadRequestFault("Expecting baseURLRefID")
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, base_url_ref_id)
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.disabled_token)})
@@ -635,7 +635,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
             base_url_ref_id = base_url_ref["id"]
         if base_url_ref_id is None:
             raise fault.BadRequestFault("Expecting baseURLRefID")
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, base_url_ref_id)
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.missing_token)})
@@ -658,7 +658,7 @@ class DeleteBaseURLRefsTest(BaseURLsTest):
             base_url_ref_id = base_url_ref["id"]
         if base_url_ref_id is None:
             raise fault.BadRequestFault("Expecting baseURLRefID")
-        url = '%stenants/%s/baseURLRefs/%s' % (URL, self.tenant, base_url_ref_id)
+        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, base_url_ref_id)
         resp, content = header.request(url, "DELETE", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": str(self.invalid_token)})
