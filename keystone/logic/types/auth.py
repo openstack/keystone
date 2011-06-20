@@ -87,7 +87,7 @@ class Token(object):
 
     def __init__(self, expires, token_id, tenant_id=None):
         self.expires = expires
-        self.token_id = token_id
+        self.id = token_id
         self.tenant_id = tenant_id
 
 
@@ -132,7 +132,7 @@ class AuthData(object):
             xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
-        token.set("id", self.token.token_id)
+        token.set("id", self.token.id)
         dom.append(token)
         if self.base_urls != None:
             service_catalog = etree.Element("serviceCatalog")
@@ -168,7 +168,7 @@ class AuthData(object):
 
     def to_json(self):
         token = {}
-        token["id"] = self.token.token_id
+        token["id"] = self.token.id
         token["expires"] = self.token.expires.isoformat()
         auth = {}
         auth["token"] = token
@@ -209,7 +209,7 @@ class ValidateData(object):
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
-        token.set("id", self.token.token_id)
+        token.set("id", self.token.id)
         if self.token.tenant_id:
             token.set("tenantId", self.token.tenant_id)
         user = etree.Element("user",
@@ -231,7 +231,7 @@ class ValidateData(object):
 
     def to_json(self):
         token = {}
-        token["id"] = self.token.token_id
+        token["id"] = self.token.id
         token["expires"] = self.token.expires.isoformat()
         if self.token.tenant_id:
             token["tenantId"] = self.token.tenant_id
