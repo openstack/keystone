@@ -15,6 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import keystone.utils as utils
 from keystone.db.sqlalchemy import get_session, models, aliased, joinedload
 
 def get_all(session=None):
@@ -49,10 +50,16 @@ def tenant_group_delete(id, group_id, session=None):
 
 def create(values):
     user_ref = models.User()
+    check_and_use_hashed_password(values)
     user_ref.update(values)
     user_ref.save()
     return user_ref
 
+def check_and_use_hashed_password(values):
+    if type(values) is dict and 'password' in values.keys():
+        values['password'] = utils.get_hashed_password(values['password'])
+    elif type(values) is models.User:
+        values.password = utils.get_hashed_password(values.password)
 
 def get(id, session=None):
     if not session:
@@ -143,6 +150,7 @@ def update(id, values, session=None):
         session = get_session()
     with session.begin():
         user_ref = get(id, session)
+        check_and_use_hashed_password(values)
         user_ref.update(values)
         user_ref.save(session=session)
 
