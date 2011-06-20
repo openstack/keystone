@@ -153,7 +153,7 @@ class Group(Base, KeystoneBase):
 class Token(Base, KeystoneBase):
     __tablename__ = 'token'
 
-    token_id = Column(String(255), primary_key=True, unique=True)
+    id = Column(String(255), primary_key=True, unique=True)
     user_id = Column(String(255))
     tenant_id = Column(String(255))
     expires = Column(DateTime)
