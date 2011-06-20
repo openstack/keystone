@@ -27,7 +27,7 @@ def create(values):
 def get(id, session=None):
     if not session:
         session = get_session()
-    result = session.query(models.Token).filter_by(token_id=id).first()
+    result = session.query(models.Token).filter_by(id=id).first()
     return result
 
 

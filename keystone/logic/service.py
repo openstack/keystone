@@ -73,7 +73,7 @@ class IdentityService(object):
         if not dtoken or dtoken.expires < datetime.now():
             # Create new token
             dtoken = db_models.Token()
-            dtoken.token_id = str(uuid.uuid4())
+            dtoken.id = str(uuid.uuid4())
             dtoken.user_id = duser.id
             if credentials.tenant_id:
                 dtoken.tenant_id = credentials.tenant_id
@@ -850,16 +850,16 @@ class IdentityService(object):
 
     def __get_auth_data(self, dtoken, tenant_id):
         """return AuthData object for a token"""
-        base_urls = None
+        endpoints = None
         if tenant_id != None:
-            base_urls = db_api.tenant.get_all_endpoints(tenant_id)
+            endpoints = db_api.tenant.get_all_endpoints(tenant_id)
         token = auth.Token(dtoken.expires, dtoken.token_id, tenant_id)
-        return auth.AuthData(token, base_urls)
+        return auth.AuthData(token, endpoints)
 
     def __get_validate_data(self, dtoken, duser):
         """return ValidateData object for a token/user pair"""
 
-        token = auth.Token(dtoken.expires, dtoken.token_id, dtoken.tenant_id)
+        token = auth.Token(dtoken.expires, dtoken.id, dtoken.tenant_id)
         ts = []
         if dtoken.tenant_id:
             droleRefs = db_api.role.ref_get_all_tenant_roles(duser.id,

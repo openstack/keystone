@@ -344,7 +344,7 @@ def Main():
                              ', tenant, and expiration')
             try:
                 object = db_models.Token()
-                object.token_id = object_id
+                object.id = object_id
                 object.user_id = args[3]
                 object.tenant_id = args[4]
                 tuple_time = datetime.datetime.strptime(args[5]
@@ -352,7 +352,7 @@ def Main():
                                                         "%Y%m%dT%H:%M")
                 object.expires = tuple_time
                 db_api.token.create(object)
-                print "SUCCESS: Token %s created." % object.token_id
+                print "SUCCESS: Token %s created." % object.id
                 return
             except Exception as exc:
                 print "ERROR: Failed to create token %s: %s" % (object_id, exc)
@@ -365,7 +365,7 @@ def Main():
                 print 'token', 'user', 'expiration', 'tenant'
                 print '-' * 20
                 for row in objects:
-                    print row.token_id, row.user_id, row.expires, row.tenant_id
+                    print row.id, row.user_id, row.expires, row.tenant_id
             except Exception, e:
                 print 'Error getting all tokens:', str(e)
             return
