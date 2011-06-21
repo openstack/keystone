@@ -89,6 +89,11 @@ $ pip install -r tools/pip-requires
 
 # Install unit/functional test dependencies
 $ pip install -r tools/pip-requires-testing
+
+# Installing Development Dependencies
+This will install libraries used for development and testing
+$ pip install -r tools/pip-requires-dev
+
 </pre>
 
 ## Running Keystone
@@ -130,7 +135,6 @@ To run client demo (with all auth middleware running locally on sample service):
     $ ./examples/echo/bin/echod
     $ python examples/echo/echo_client.py
 
-NOTE: NOT ALL TESTS CONVERTED TO NEW MODEL YET. MANY FAIL. THIS WILL BE ADDRESSED SOON.
 
 #### Unit Tests
 Prepare to run unit tests by changing to the unit test directory:
@@ -164,22 +168,29 @@ Using SOAPUI:
 * Double click on "Keystone Tests" and press the green play (>) button
 
 
-## Editing and Compiling the Developer Guide
+## Writing Documentation
+
+### Editing and Compiling the Developer Guide
 
 Users of the Keystone API are often developers making ReSTfull calls to Keystone. The guide to provide them
 information is therefore called a `Developer Guide`. Developer in this case is not to be confused with developers
 working on the Keystone source code itself.
 
 The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
-generated from XML and other artifacts in the `keystone/docs/src` folder.
+generated from XML and other artifacts in the `doc/guide` folder.
 
-To build the API `dev guide` from source, you need [Maven](http://maven.apache.org/). To build the docs,
-run the following from the `Keystone/docs` folder:
+To build the Developer Guide from source, you need [Maven](http://maven.apache.org/). To build the docs and publish a new PDF:
 
-    $ mvn clean generate-sources
+    $ cd doc/guide
+    $ mvn clean generate-sources && cp target/docbkx/pdf/identitydevguide.pdf ../../keystone/content/identitydevguide.pdf
 
-The output will go into the `keystone/docs/target` folder (the source is in `keystone/docs/src`). Output
-generated is PDF and webhelp.
+The output will go into the `doc/guide/target` folder (the source is in `doc/guide/src`). Output generated is PDF and webhelp.
+
+### Editing and Compiling the Admin Guide
+
+The Admin guide is written in RST and compiled using sphinx. From the `keystone` folder:
+
+    $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
 
 
 ## Additional Information:
@@ -202,6 +213,13 @@ in troubleshooting:
     # Get a token for a tenant
 
     $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
+<<<<<<< HEAD
+=======
+
+    # Get an admin token
+
+    $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+>>>>>>> c8de07620830c3d9f5bfb7c8d818a0440d1076c4
 </pre>
 
 #### Load Testing
