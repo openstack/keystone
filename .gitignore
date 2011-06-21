@@ -11,5 +11,6 @@ keystone.db
 *.pid
 pidfile
 *.komodoproject
-docs/build/
+doc/build/
 build/
+doc/guide/target
