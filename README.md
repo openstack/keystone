@@ -46,8 +46,7 @@ documents the APIs to call and how to use them.
 #### Starting services
 Starting both Admin and Service API endpoints:
 
-    $ cd bin
-    $ ./keystone
+    $ ./bin/keystone
 
 
 # For Keystone Contributors
@@ -100,18 +99,15 @@ $ pip install -r tools/pip-requires-dev
 
 Starting both Admin and Service API endpoints:
 
-    $ cd bin
-    $ ./keystone
+    $ ./bin/keystone
 
 Starting the auth server only (exposes the Service API):
 
-    $ cd bin
-    $ ./keystone-auth
+    $ ./bin/keystone-auth
 
 Starting the admin server only (exposes the Admin API):
 
-    $ cd bin
-    $ ./keystone-admin
+    $ ./bin/keystone-admin
 
 By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
@@ -122,8 +118,7 @@ Before running tests, ensure you have installed the testing dependencies as desc
 #### Test data
 A set of sample data can be added by running a shell script:
 
-    $ cd bin
-    $ ./sampledata.sh
+    $ ./bin/sampledata.sh
 
 The script calls `keystone-manage` to create the sample data.
 
@@ -137,21 +132,17 @@ To run client demo (with all auth middleware running locally on sample service):
 
 
 #### Unit Tests
-Prepare to run unit tests by changing to the unit test directory:
-
-    $ cd keystone/test/unit
-
 There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run:
 
-    $ python test_keystone.py
+    $ python keystone/test/unit/test_keystone.py
 
 A test can also be run individually, e.g.:
 
-    $ python test_token.py
+    $ python keystone/test/unit/test_token.py
 
 For more on unit testing please refer to:
 
-    $ python test_keystone.py --help
+    $ python keystone/test/unit/test_keystone.py --help
 
 
 #### API Validation
