@@ -11,11 +11,16 @@ class PamIdentity(object):
     Tenant is always the same as User, root user has admin role.
     """
 
-    def authenticate(self, username, password):
+    def authenticate(self, username, password, **kwargs):
         if pam.authenticate(username, password):
             extras = {}
             if username == 'root':
                 extras['is_admin'] == True
-            # NOTE(termie): (tenant, user, extras)
-            return (username, username, extras)
+
+            tenant = {'id': username,
+                      'name': username}
+            user = {'id': username,
+                    'name': username}
+
+            return (tenant, user, extras)
 

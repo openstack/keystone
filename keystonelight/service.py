@@ -76,6 +76,38 @@ class PostParamsMiddleware(wsgi.Middleware):
         request.environ['openstack.params'] = params
 
 
+class JsonBodyMiddleware(wsgi.Middleware):
+    """Middleware to allow method arguments to be passed as serialized JSON.
+
+    Accepting arguments as JSON is useful for accepting data that may be more
+    complex than simple primitives.
+
+    In this case we accept it as urlencoded data under the key 'json' as in
+    json=<urlencoded_json> but this could be extended to accept raw JSON
+    in the POST body.
+
+    Filters out the parameters `self`, `context` and anything beginning with
+    an underscore.
+
+    """
+
+    def process_request(self, request):
+        #if 'json' not in request.params:
+        #    return
+
+        params_json = request.body
+        params_parsed = json.loads(params_json)
+        params = {}
+        for k, v in params_parsed.iteritems():
+            if k in ('self', 'context'):
+                continue
+            if k.startswith('_'):
+                continue
+            params[k] = v
+
+        request.environ['openstack.params'] = params
+
+
 class TokenController(BaseApplication):
     """Validate and pass through calls to TokenManager."""
 
@@ -83,8 +115,8 @@ class TokenController(BaseApplication):
         self.token_api = token.Manager()
 
     def validate_token(self, context, token_id):
-        token = self.token_api.validate_token(context, token_id)
-        return token
+        token_info = self.token_api.validate_token(context, token_id)
+        return token_info
 
 
 class IdentityController(BaseApplication):
@@ -108,16 +140,15 @@ class IdentityController(BaseApplication):
         return token
 
 
-
 class Router(wsgi.Router):
     def __init__(self):
         token_controller = utils.import_object(FLAGS.token_controller)
         identity_controller = utils.import_object(FLAGS.identity_controller)
         mapper = routes.Mapper()
 
-        mapper.connect('/v2.0/token', controller=identity_controller,
+        mapper.connect('/v2.0/tokens', controller=identity_controller,
                        action='authenticate')
-        mapper.connect('/v2.0/token/{token_id}', controller=token_controller,
+        mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
         super(Router, self).__init__(mapper)
@@ -129,12 +160,12 @@ class AdminRouter(wsgi.Router):
         identity_controller = utils.import_object(FLAGS.identity_controller)
         mapper = routes.Mapper()
 
-        mapper.connect('/v2.0/token', controller=identity_controller,
+        mapper.connect('/v2.0/tokens', controller=identity_controller,
                        action='authenticate')
-        mapper.connect('/v2.0/token/{token_id}', controller=token_controller,
+        mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
                        action='validate_token',
                        conditions=dict(method=['GET']))
-        mapper.connect('/v2.0/token/{token_id}', controller=token_controller,
+        mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
         super(AdminRouter, self).__init__(mapper)

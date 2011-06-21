@@ -23,6 +23,7 @@ from keystonelight import wsgi
 FLAGS = flags.FLAGS
 
 flags.DEFINE_boolean('verbose', True, 'verbose logging')
+flags.DEFINE_flag(flags.HelpFlag())
 
 if __name__ == '__main__':
     args = FLAGS(sys.argv)
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     public = service.Router()
     admin = service.AdminRouter()
 
-    public = service.PostParamsMiddleware(public)
+    public = service.JsonBodyMiddleware(public)
 
     server = wsgi.Server()
     server.start(public, 8080)
