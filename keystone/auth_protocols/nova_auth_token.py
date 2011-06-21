@@ -52,7 +52,7 @@ class KeystoneAuthShim(wsgi.Middleware):
 
     @webob.dec.wsgify(RequestClass=wsgi.Request)
     def __call__(self, req):
-        # Parse out user_id
+        # find or create user
         try:
             user_id = req.headers['X_USER']
         except:
@@ -61,19 +61,21 @@ class KeystoneAuthShim(wsgi.Middleware):
             user_ref = self.auth.get_user(user_id)
         except:
             user_ref = self.auth.create_user(user_id)
-        # set admin if user has admin role
+
+        # set user admin-ness to keystone admin-ness
         if user_ref.is_admin() != (req.headers.get('X_ROLE', None) == 'Admin'):
             self.auth.modify_user(user_ref, admin=req.headers.get('X_ROLE') == 'Admin')
+
+        # create a project for tenant
         project_id = req.headers['X_TENANT']
         try:
             project_ref = self.auth.get_project(project_id)
         except:
             project_ref = self.auth.create_project(project_id, user_id)
 
+        # ensure user is a member of project
         if not self.auth.is_project_member(user_id, project_id):
             self.auth.add_to_project(user_id, project_id)
-
-        # groups = req.headers['X_GROUP']
 
         req.environ['nova.context'] = context.RequestContext(user_ref, project_ref)
         return self.application
