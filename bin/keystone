@@ -36,6 +36,8 @@ if __name__ == '__main__':
     public = service.TokenAuthMiddleware(public)
     public = service.JsonBodyMiddleware(public)
 
+    admin = service.TokenAuthMiddleware(admin)
+
     server = wsgi.Server()
     server.start(public, 8080)
     server.start(admin, 8081)

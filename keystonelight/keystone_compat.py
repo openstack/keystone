@@ -22,6 +22,12 @@ class KeystoneIdentityController(service.IdentityController):
         return {'auth': {'token': _token_to_keystone(token),
                          'serviceCatalog': SERVICE_CATALOG}}
 
+    def get_tenants(self, context):
+        tenants = super(KeystoneIdentityController, self).get_tenants(context)
+        return {'tenants': {'values': [{'id': x['id'], 'description': x['name'], 'enabled': True}
+                                       for x in tenants]}}
+
+
 
 class KeystoneTokenController(service.TokenController):
     def validate_token(self, context, token_id):

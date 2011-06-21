@@ -8,6 +8,7 @@ import logging
 import hflags as flags
 import routes
 import webob.dec
+import webob.exc
 
 from keystonelight import identity
 from keystonelight import token
@@ -57,7 +58,8 @@ class BaseApplication(wsgi.Application):
 
 class TokenAuthMiddleware(wsgi.Middleware):
     def process_request(self, request):
-        token = requeset.headers.get('X-Auth-Token')
+        logging.info('GOT HEADERS %s', request.headers)
+        token = request.headers.get('X-Auth-Token')
         logging.info('GOT TOKEN %s', token)
         request.environ['openstack.context'] = {'token': token}
 
@@ -103,6 +105,9 @@ class JsonBodyMiddleware(wsgi.Middleware):
         #    return
 
         params_json = request.body
+        if not params_json:
+            return
+
         params_parsed = json.loads(params_json)
         params = {}
         for k, v in params_parsed.iteritems():
@@ -123,6 +128,8 @@ class TokenController(BaseApplication):
 
     def validate_token(self, context, token_id):
         token_info = self.token_api.validate_token(context, token_id)
+        if not token_info:
+            raise webob.exc.HTTPUnauthorized()
         return token_info
 
 
@@ -148,10 +155,12 @@ class IdentityController(BaseApplication):
 
     def get_tenants(self, context):
         token_id = context.get('token')
+        logging.info("GET TENANTS %s", token_id)
         token = self.token_api.validate_token(context, token_id)
 
         return self.identity_api.get_tenants(context,
                                              user_id=token['user']['id'])
+
 
 class Router(wsgi.Router):
     def __init__(self):
