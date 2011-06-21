@@ -58,7 +58,7 @@ import json
 import os
 from paste.deploy import loadapp
 from urlparse import urlparse
-from webob.exc import HTTPUnauthorized, HTTPUseProxy
+from webob.exc import HTTPUnauthorized, HTTPUseProxy, HTTPExpectationFailed
 from webob.exc import Request, Response
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
@@ -157,6 +157,10 @@ class AuthProtocol(object):
             #Collect information about valid claims
             if valid:
                 claims = self._expound_claims()
+
+                # Store authentication data
+                self.env['keystone.claims'] = claims
+                self.env['swift.authorize'] = self.authorize
                 if claims:
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
@@ -174,11 +178,25 @@ class AuthProtocol(object):
                                     roles += ','
                                 roles += role
                             self._decorate_request('X_ROLE', roles)
+
+                    # NOTE(todd): unused
                     self.expanded = True
 
             #Send request downstream
             return self._forward_request()
 
+    def authorize(self, req):
+        env = req.environ
+        tenant = env.get('keystone.claims', {}).get('tenant')
+        if not tenant:
+            return HTTPExpectationFailed('Unable to locate auth claim',
+                                         request=req)
+        if req.path.startswith('/v1/AUTH_%s' % tenant):
+            return None
+        return HTTPUnauthorized(request=req)
+
+
+    # NOTE(todd): unused
     def get_admin_auth_token(self, username, password, tenant):
         """
         This function gets an admin auth token to be used by this service to
