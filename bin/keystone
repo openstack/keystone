@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+import os
+import sys
+
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(possible_topdir, 'keystonelight', '__init__.py')):
+    sys.path.insert(0, possible_topdir)
+
+import logging
+
+import hflags as flags
+
+from keystonelight import service
+from keystonelight import wsgi
+
+
+FLAGS = flags.FLAGS
+
+flags.DEFINE_boolean('verbose', True, 'verbose logging')
+
+if __name__ == '__main__':
+    args = FLAGS(sys.argv)
+    if FLAGS.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    public = service.Router()
+    admin = service.AdminRouter()
+
+    public = service.PostParamsMiddleware(public)
+
+    server = wsgi.Server()
+    server.start(public, 8080)
+    server.start(admin, 8081)
+    server.wait()

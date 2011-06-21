@@ -11,11 +11,11 @@ from keystonelight import utils
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('identity_driver',
-                    'keystonelight.backends.dummy.DummyIdentity',
+                    'keystonelight.backends.pam.PamIdentity',
                     'identity driver to handle identity requests')
 
 
-class IdentityManager(object):
+class Manager(object):
     def __init__(self):
         self.driver = utils.import_object(FLAGS.identity_driver)
 

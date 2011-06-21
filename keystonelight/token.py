@@ -2,15 +2,21 @@
 
 # the token interfaces
 
+import uuid
+
 from keystonelight import identity
 
-class TokenManager(object):
+STORE = {}
+
+class Manager(object):
     def create_token(self, context, data):
-        pass
+        token = uuid.uuid4().hex
+        STORE[token] = data
+        return token
 
     def validate_token(self, context, token_id):
         """Return info for a token if it is valid."""
-        pass
+        return STORE.get(token_id)
 
     def revoke_token(self, context, token_id):
-        pass
+        STORE.pop(token_id)

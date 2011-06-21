@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-from __future__ import absolute_imports
+from __future__ import absolute_import
 
 import pam
 

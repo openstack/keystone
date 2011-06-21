@@ -17,6 +17,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import logging
+import sys
+
 
 def import_class(import_str):
     """Returns a class from a string including module and class."""
@@ -25,8 +28,8 @@ def import_class(import_str):
         __import__(mod_str)
         return getattr(sys.modules[mod_str], class_str)
     except (ImportError, ValueError, AttributeError), exc:
-        LOG.debug(_('Inner Exception: %s'), exc)
-        raise exception.ClassNotFound(class_name=class_str)
+        logging.debug('Inner Exception: %s', exc)
+        raise
 
 
 def import_object(import_str):
