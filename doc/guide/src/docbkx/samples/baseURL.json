@@ -1,12 +1,11 @@
 {
-  "baseURL" :
-   {
-       "id" : 1,
-       "region"   : "DFW",
-       "default"  : true,
-       "serviceName" : "service1",
-       "publicURL" : "https://service-public.com/v1",
-       "internalURL" : "https://service-internal.com/v1",
-       "enabled"  : true
-   }
+  "baseURL":{
+    "id":1,
+    "region":"DFW",
+    "default":true,
+    "serviceName":"service1",
+    "publicURL":"https://service-public.com/v1",
+    "internalURL":"https://service-internal.com/v1",
+    "enabled":true
+  }
 }
