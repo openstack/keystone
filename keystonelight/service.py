@@ -55,6 +55,13 @@ class BaseApplication(wsgi.Application):
         return json.dumps(result)
 
 
+class TokenAuthMiddleware(wsgi.Middleware):
+    def process_request(self, request):
+        token = requeset.headers.get('X-Auth-Token')
+        logging.info('GOT TOKEN %s', token)
+        request.environ['openstack.context'] = {'token': token}
+
+
 class PostParamsMiddleware(wsgi.Middleware):
     """Middleware to allow method arguments to be passed as POST parameters.
 
@@ -139,6 +146,12 @@ class IdentityController(BaseApplication):
         logging.info(token)
         return token
 
+    def get_tenants(self, context):
+        token_id = context.get('token')
+        token = self.token_api.validate_token(context, token_id)
+
+        return self.identity_api.get_tenants(context,
+                                             user_id=token['user']['id'])
 
 class Router(wsgi.Router):
     def __init__(self):
@@ -151,6 +164,10 @@ class Router(wsgi.Router):
         mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
+
+        mapper.connect("/v2.0/tenants", controller=identity_controller,
+                    action="get_tenants", conditions=dict(method=["GET"]))
+
         super(Router, self).__init__(mapper)
 
 

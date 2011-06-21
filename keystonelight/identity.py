@@ -26,3 +26,6 @@ class Manager(object):
         This call will basically just result in getting a token.
         """
         return self.driver.authenticate(**kwargs)
+
+    def get_tenants(self, context, user_id):
+        return self.driver.get_tenants(user_id)

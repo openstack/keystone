@@ -24,3 +24,6 @@ class PamIdentity(object):
 
             return (tenant, user, extras)
 
+    def get_tenants(self, username):
+        return [{'id': username,
+                 'name': username}]

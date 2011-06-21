@@ -33,6 +33,7 @@ if __name__ == '__main__':
     public = service.Router()
     admin = service.AdminRouter()
 
+    public = service.TokenAuthMiddleware(public)
     public = service.JsonBodyMiddleware(public)
 
     server = wsgi.Server()
