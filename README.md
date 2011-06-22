@@ -29,9 +29,6 @@ documents the APIs to call and how to use them.
     <td>Role</td><td>A responsibility which is linked to a given user (and optionally scoped to a particular tenant).</td>
   </tr>
   <tr>
-    <td>Group</td><td>A group of users. Group use cases are not yet defined in Keystone.</td>
-  </tr>
-  <tr>
     <td>Token</td><td>A 'token' describes a temporary object obtained by clients from Keystone and used to identify themselves to an OpenStack service.</td>
   </tr>
 </table>
@@ -204,13 +201,10 @@ in troubleshooting:
     # Get a token for a tenant
 
     $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
-<<<<<<< HEAD
-=======
 
     # Get an admin token
 
     $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
->>>>>>> c8de07620830c3d9f5bfb7c8d818a0440d1076c4
 </pre>
 
 #### Load Testing
