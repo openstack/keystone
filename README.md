@@ -88,7 +88,7 @@ $ pip install -r tools/pip-requires-testing
 
 # Installing Development Dependencies
 This will install libraries used for development and testing
-$ pip install -r tools/pip-requires-dev
+$ pip install -r tools/pip-requires-development
 
 </pre>
 
