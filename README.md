@@ -88,7 +88,7 @@ $ pip install -r tools/pip-requires-testing
 
 # Installing Development Dependencies
 This will install libraries used for development and testing
-$ pip install -r tools/pip-requires-dev
+$ pip install -r tools/pip-requires-development
 
 </pre>
 
@@ -231,7 +231,7 @@ Initial support for using keystone as nova's identity component has been started
     ln -s keystone/keystone nova/keystone
 
     # run nova-api based on the paste config in keystone
-    nova/bin/nova-api --api_paste_config=keystone/docs/nova-api-paste.ini
+    nova/bin/nova-api --api_paste_config=keystone/examples/paste/nova-api-paste.ini
 
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
 
