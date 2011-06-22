@@ -65,10 +65,9 @@
 `dirname $0`/keystone-manage $* token add 000999 admin 1234 2010-02-05T00:00
 `dirname $0`/keystone-manage $* token add 999888777 disabled 1234 2015-02-05T00:00
 
-#Tenant endpoints
+#Tenant endpointsGlobal endpoint not added
 `dirname $0`/keystone-manage $* endpoint add 1234 1
 `dirname $0`/keystone-manage $* endpoint add 1234 2
 `dirname $0`/keystone-manage $* endpoint add 1234 3
 `dirname $0`/keystone-manage $* endpoint add 1234 4
 `dirname $0`/keystone-manage $* endpoint add 1234 5
-`dirname $0`/keystone-manage $* endpoint add 1234 6
