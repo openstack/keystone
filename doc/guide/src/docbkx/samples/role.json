@@ -1,7 +1,7 @@
 {
-  "role" :
-   {
-       "id" : "Admin",
-       "description" : "All access"
-   }
+  "itemNotFound":{
+    "message":"Item not found.",
+    "details":"Error Details...",
+    "code":404
+  }
 }

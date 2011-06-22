@@ -78,7 +78,7 @@ def Main():
         parser.error('No object type specified for first argument')
 
     object_type = args[0]
-    if object_type in ['user', 'tenant', 'role', 'endpointTemplates' , 'token', 'endpoint']:
+    if object_type in ['user', 'tenant', 'role', 'baseURLs' , 'token', 'tenant_baseURL']:
         pass
     else:
         parser.error('%s is not a supported object type' % object_type)
@@ -260,10 +260,10 @@ def Main():
             except Exception as exc:
                 print "ERROR: Failed to grant role %s to %s on %s: %s" % (object_id, user, tenant, exc)
             return
-    elif object_type == "endpointTemplates":
+    elif object_type == "baseURLs":
         if command == "add":
             if len(args) < 8:
-                parser.error("Missing arguments: endpointTemplates add " \
+                parser.error("Missing arguments: baseURLs add " \
                             "'region' 'service'" \
                             "'publicURL' 'adminURL' 'internalURL' 'enabled'")
             region = args[2]
@@ -273,29 +273,29 @@ def Main():
             internal_url = args[6]
             enabled = args[7]
             try:
-                object = db_models.EndpointTemplates()
+                object = db_models.BaseUrls()
                 object.region = region
                 object.service = service
                 object.public_url = public_url
                 object.admin_url = admin_url
                 object.internal_url = internal_url
                 object.enabled = enabled
-                object = db_api.endpoint_template.create(object)
-                print "SUCCESS: Created EndpointTemplates for %s pointing to %s." % \
+                object = db_api.baseurl.create(object)
+                print "SUCCESS: Created BaseURL for %s pointing to %s." % \
                     (object.service, object.public_url)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create EndpointTemplates for %s: %s" % (service,
+                print "ERROR: Failed to create BaseURL for %s: %s" % (service,
                                                                       exc)
                 return
         elif command == "list":
             if len(args) == 3:
                 tenant = args[2]
                 try:
-                    objects = db_api.endpoint_template.endpoint_get_by_tenant(tenant)
+                    objects = db_api.baseurl.ref_get_by_tenant(tenant)
                     if objects == None:
                         raise IndexError("URLs not found")
-                    print 'Endpoints for tenant %s' % tenant
+                    print 'Endpoints (BaseURLs) for tenant %s' % tenant
                     print 'service', 'region', 'Public URL'
                     print '-' * 30
                     for row in objects:
@@ -307,35 +307,35 @@ def Main():
             else:
                 tenant = None
                 try:
-                    objects = db_api.endpoint_template.get_all()
+                    objects = db_api.baseurl.get_all()
                     if objects == None:
                         raise IndexError("URLs not found")
-                    print 'All EndpointTemplates'
+                    print 'All Endpoints (BaseURLs)'
                     print 'service', 'region', 'Public URL'
                     print '-' * 20
                     for row in objects:
                         print row.service, row.region, row.public_url
                 except Exception, e:
-                    print 'Error getting all EndpointTemplates:', str(e)
+                    print 'Error getting all BaseURLs:', str(e)
                 return
-    elif object_type == "endpoint":
+    elif object_type == "tenant_baseURL":
         if command == "add":
             if len(args) < 4:
-                parser.error("Missing arguments: endPoint add 'tenant'\
-                             'endPointTemplate'")
+                parser.error("Missing arguments: baseURLs add 'tenant'\
+                             'baseURL'")
                             
             tenant_id = args[2]
-            endpoint_template_id = args[3]
+            baseURLs_id = args[3]
             try:
-                object = db_models.Endpoints()
+                object = db_models.TenantBaseURLAssociation()
                 object.tenant_id = tenant_id
-                object.endpoint_template_id = endpoint_template_id
-                object = db_api.endpoint_template.endpoint_add(object)
-                print "SUCCESS: EndpointTemplate %s added to tenant %s." % \
-                            (endpoint_template_id, tenant_id)
+                object.baseURLs_id = baseURLs_id
+                object = db_api.baseurl.ref_add(object)
+                print "SUCCESS: BaseURL %s added to tenant %s." % \
+                            (baseURLs_id, tenant_id)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create Endpoint: %s" % exc
+                print "ERROR: Failed to create BaseURL Ref: %s" % exc
                 return
     elif object_type == "token":
         if command == "add":

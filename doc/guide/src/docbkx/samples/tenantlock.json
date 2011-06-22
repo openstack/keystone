@@ -1,5 +1,5 @@
-{"tenant":
-    {
-      "description": "A NEW description..."
-    }
+{
+  "tenant":{
+    "description":"A NEW description..."
+  }
 }

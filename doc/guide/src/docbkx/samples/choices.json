@@ -1,72 +1,72 @@
 {
-    "choices" : {
-        "values" : [
+  "choices":{
+    "values":[
+      {
+        "id":"v1.0",
+        "status":"DEPRECATED",
+        "links":[
+          {
+            "rel":"self",
+            "href":"http://identity.api.openstack.org/v2.0"
+          }
+        ],
+        "media-types":{
+          "values":[
             {
-                "id" : "v1.0",
-                "status" : "DEPRECATED",
-                "links": [
-                    {
-                        "rel" : "self",
-                        "href" : "http://identity.api.openstack.org/v2.0"
-                    }
-                ],
-                "media-types": {
-                    "values" : [
-                        {
-                            "base" : "application/xml",
-                            "type" : "application/vnd.openstack.identity-v1.0+xml"
-                        },
-                        {
-                            "base" : "application/json",
-                            "type" : "application/vnd.openstack.identity-v1.0+json"
-                        }
-                    ]
-                }
+              "base":"application/xml",
+              "type":"application/vnd.openstack.identity-v1.0+xml"
             },
             {
-                "id" : "v1.1",
-                "status" : "CURRENT",
-                "links": [
-                    {
-                        "rel" : "self",
-                        "href" : "http://identity.api.openstack.org/v1.1"
-                    }
-                ],
-                "media-types": {
-                    "values" : [
-                        {
-                            "base" : "application/xml",
-                            "type" : "application/vnd.openstack.identity-v1.1+xml"
-                        },
-                        {
-                            "base" : "application/json",
-                            "type" : "application/vnd.openstack.identity-v1.1+json"
-                        }
-                    ]
-                }
-            },
-            {
-                "id" : "v2.0",
-                "status" : "BETA",
-                "links": [
-                    {
-                        "rel" : "self",
-                        "href" : "http://identity.api.openstack.org/v2.0"
-                    }
-                ],
-                "media-types": {
-                    "values" : [
-                        {
-                            "base" : "application/xml",
-                            "type" : "application/vnd.openstack.identity-v2.0+xml"
-                        },
-                        {
-                            "base" : "application/json",
-                            "type" : "application/vnd.openstack.identity-v2.0+json"
-                        }
-                    ]
-                }
+              "base":"application/json",
+              "type":"application/vnd.openstack.identity-v1.0+json"
             }
-        ]
-    }
+          ]
+        }
+      },
+      {
+        "id":"v1.1",
+        "status":"CURRENT",
+        "links":[
+          {
+            "rel":"self",
+            "href":"http://identity.api.openstack.org/v1.1"
+          }
+        ],
+        "media-types":{
+          "values":[
+            {
+              "base":"application/xml",
+              "type":"application/vnd.openstack.identity-v1.1+xml"
+            },
+            {
+              "base":"application/json",
+              "type":"application/vnd.openstack.identity-v1.1+json"
+            }
+          ]
+        }
+      },
+      {
+        "id":"v2.0",
+        "status":"BETA",
+        "links":[
+          {
+            "rel":"self",
+            "href":"http://identity.api.openstack.org/v2.0"
+          }
+        ],
+        "media-types":{
+          "values":[
+            {
+              "base":"application/xml",
+              "type":"application/vnd.openstack.identity-v2.0+xml"
+            },
+            {
+              "base":"application/json",
+              "type":"application/vnd.openstack.identity-v2.0+json"
+            }
+          ]
+        }
+      }
+    ]
+  }
 }

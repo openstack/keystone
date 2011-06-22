@@ -46,8 +46,7 @@ documents the APIs to call and how to use them.
 #### Starting services
 Starting both Admin and Service API endpoints:
 
-    $ cd bin
-    $ ./keystone
+    $ ./bin/keystone
 
 
 # For Keystone Contributors
@@ -100,18 +99,15 @@ $ pip install -r tools/pip-requires-dev
 
 Starting both Admin and Service API endpoints:
 
-    $ cd bin
-    $ ./keystone
+    $ ./bin/keystone
 
 Starting the auth server only (exposes the Service API):
 
-    $ cd bin
-    $ ./keystone-auth
+    $ ./bin/keystone-auth
 
 Starting the admin server only (exposes the Admin API):
 
-    $ cd bin
-    $ ./keystone-admin
+    $ ./bin/keystone-admin
 
 By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
@@ -122,8 +118,7 @@ Before running tests, ensure you have installed the testing dependencies as desc
 #### Test data
 A set of sample data can be added by running a shell script:
 
-    $ cd bin
-    $ ./sampledata.sh
+    $ ./bin/sampledata.sh
 
 The script calls `keystone-manage` to create the sample data.
 
@@ -137,21 +132,17 @@ To run client demo (with all auth middleware running locally on sample service):
 
 
 #### Unit Tests
-Prepare to run unit tests by changing to the unit test directory:
-
-    $ cd keystone/test/unit
-
 There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run:
 
-    $ python test_keystone.py
+    $ python keystone/test/unit/test_keystone.py
 
 A test can also be run individually, e.g.:
 
-    $ python test_token.py
+    $ python keystone/test/unit/test_token.py
 
 For more on unit testing please refer to:
 
-    $ python test_keystone.py --help
+    $ python keystone/test/unit/test_keystone.py --help
 
 
 #### API Validation
@@ -177,21 +168,20 @@ information is therefore called a `Developer Guide`. Developer in this case is n
 working on the Keystone source code itself.
 
 The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
-generated from XML and other artifacts in the `keystone/docs/src` folder.
+generated from XML and other artifacts in the `doc/guide` folder.
 
-To build the API `dev guide` from source, you need [Maven](http://maven.apache.org/). To build the docs,
-run the following from the `Keystone/docs` folder:
+To build the Developer Guide from source, you need [Maven](http://maven.apache.org/). To build the docs and publish a new PDF:
 
-    $ mvn clean generate-sources
+    $ cd doc/guide
+    $ mvn clean generate-sources && cp target/docbkx/pdf/identitydevguide.pdf ../../keystone/content/identitydevguide.pdf
 
-The output will go into the `keystone/docs/target` folder (the source is in `keystone/docs/src`). Output
-generated is PDF and webhelp.
+The output will go into the `doc/guide/target` folder (the source is in `doc/guide/src`). Output generated is PDF and webhelp.
 
 ### Editing and Compiling the Admin Guide
 
 The Admin guide is written in RST and compiled using sphinx. From the `keystone` folder:
 
-   $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
+    $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
 
 
 ## Additional Information:
@@ -214,10 +204,13 @@ in troubleshooting:
     # Get a token for a tenant
 
     $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
+<<<<<<< HEAD
+=======
 
     # Get an admin token
 
     $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+>>>>>>> c8de07620830c3d9f5bfb7c8d818a0440d1076c4
 </pre>
 
 #### Load Testing

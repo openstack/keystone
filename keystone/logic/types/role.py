@@ -49,14 +49,6 @@ class Role(object):
             if not "role" in obj:
                 raise fault.BadRequestFault("Expecting Role")
             role = obj["role"]
-            
-            # Check that fields are valid
-            invalid = [key for key in role if key not in
-                       ['id', 'description']]
-            if invalid != []:
-                raise fault.BadRequestFault("Invalid attribute(s): %s"
-                                            % invalid)
-
             if not "id" in role:
                 role_id = None
             else:

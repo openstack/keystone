@@ -25,7 +25,7 @@ import keystone.logic.types.fault as fault
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
 import keystone.logic.types.user as get_users
-import keystone.logic.types.endpoint as endpoints
+import keystone.logic.types.baseURL as baseURLs
 import keystone.utils as utils
 
 class IdentityService(object):
@@ -850,11 +850,11 @@ class IdentityService(object):
 
     def __get_auth_data(self, dtoken, tenant_id):
         """return AuthData object for a token"""
-        endpoints = None
+        base_urls = None
         if tenant_id != None:
-            endpoints = db_api.tenant.get_all_endpoints(tenant_id)
+            base_urls = db_api.tenant.get_all_baseurls(tenant_id)
         token = auth.Token(dtoken.expires, dtoken.id, tenant_id)
-        return auth.AuthData(token, endpoints)
+        return auth.AuthData(token, base_urls)
 
     def __get_validate_data(self, dtoken, duser):
         """return ValidateData object for a token/user pair"""
@@ -998,18 +998,18 @@ class IdentityService(object):
                                                 % (url, next, limit)))
         return roles.RoleRefs(ts, links)
 
-    def get_endpoint_templates(self, admin_token, marker, limit, url):
+    def get_baseurls(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
 
         ts = []
-        dendpointTemplates = db_api.endpoint_template.get_page(marker, limit)
-        for dendpointTemplate in dendpointTemplates:
-            ts.append(endpoints.EndpointTemplate(dendpointTemplate.id, dendpointTemplate.region,
-                                       dendpointTemplate.service, dendpointTemplate.public_url,
-                                       dendpointTemplate.admin_url,
-                                       dendpointTemplate.internal_url,
-                                       dendpointTemplate.enabled))
-        prev, next = db_api.endpoint_template.get_page_markers(marker, limit)
+        dbaseurls = db_api.baseurl.get_page(marker, limit)
+        for dbaseurl in dbaseurls:
+            ts.append(baseURLs.BaseURL(dbaseurl.id, dbaseurl.region,
+                                       dbaseurl.service, dbaseurl.public_url,
+                                       dbaseurl.admin_url,
+                                       dbaseurl.internal_url,
+                                       dbaseurl.enabled))
+        prev, next = db_api.baseurl.get_page_markers(marker, limit)
         links = []
         if prev:
             links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -1017,19 +1017,19 @@ class IdentityService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
-        return endpoints.EndpointTemplates(ts, links)
+        return baseURLs.BaseURLs(ts, links)
 
-    def get_endpoint_template(self, admin_token, endpoint_template_id):
+    def get_baseurl(self, admin_token, baseurl_id):
         self.__validate_token(admin_token)
 
-        dendpointTemplate = db_api.endpoint_template.get(endpoint_template_id)
-        if not dendpointTemplate:
-            raise fault.ItemNotFoundFault("The endpoint template could not be found")
-        return endpoints.EndpointTemplate(dendpointTemplate.id, dendpointTemplate.region, dendpointTemplate.service,
-                                dendpointTemplate.public_url, dendpointTemplate.admin_url,
-                                dendpointTemplate.internal_url, dendpointTemplate.enabled)
+        dbaseurl = db_api.baseurl.get(baseurl_id)
+        if not dbaseurl:
+            raise fault.ItemNotFoundFault("The base URL could not be found")
+        return baseURLs.BaseURL(dbaseurl.id, dbaseurl.region, dbaseurl.service,
+                                dbaseurl.public_url, dbaseurl.admin_url,
+                                dbaseurl.internal_url, dbaseurl.enabled)
 
-    def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
+    def get_tenant_baseURLs(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_token(admin_token)
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
@@ -1039,17 +1039,17 @@ class IdentityService(object):
 
         ts = []
 
-        dtenantEndpoints = \
-            db_api.endpoint_template.endpoint_get_by_tenant_get_page(tenant_id, marker,
+        dtenantBaseURLAssociations = \
+            db_api.baseurl.ref_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
-        for dtenantEndpoint in dtenantEndpoints:
-            ts.append(endpoints.Endpoint(dtenantEndpoint.id,
-                    url + '/endpointTemplates/' + \
-                    str(dtenantEndpoint.endpoint_template_id)))
+        for dtenantBaseURLAssociation in dtenantBaseURLAssociations:
+            ts.append(baseURLs.BaseURLRef(dtenantBaseURLAssociation.id,
+                    url + '/baseURLs/' + \
+                    str(dtenantBaseURLAssociation.baseURLs_id)))
         links = []
         if ts.__len__():
             prev, next = \
-                db_api.endpoint_template.endpoint_get_by_tenant_get_page_markers(tenant_id,
+                db_api.baseurl.ref_get_by_tenant_get_page_markers(tenant_id,
                                                         marker, limit)
             if prev:
                 links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
@@ -1057,10 +1057,10 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
-        return endpoints.Endpoints(ts, links)
+        return baseURLs.BaseURLRefs(ts, links)
 
-    def create_endpoint_for_tenant(self, admin_token,
-                                     tenant_id, endpoint_template, url):
+    def create_baseurl_ref_to_tenant(self, admin_token,
+                                     tenant_id, baseurl, url):
         self.__validate_token(admin_token)
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
@@ -1068,19 +1068,19 @@ class IdentityService(object):
         if db_api.tenant.get(tenant_id) == None:
             raise fault.ItemNotFoundFault("The tenant not found")
 
-        dendpoint_template = db_api.endpoint_template.get(endpoint_template.id)
-        if not dendpoint_template:
-            raise fault.ItemNotFoundFault("The endpoint template could not be found")
-        dendpoint = db_models.Endpoints()
-        dendpoint.tenant_id = tenant_id
-        dendpoint.endpoints_template_id = endpoint_template.id
-        dendpoint = db_api.endpoint_template.endpoint_add(dendpoint)
-        dendpoint = endpoints.Endpoint(dendpoint.id, url + \
-                                         '/endpointTemplates/' + \
-                                         dendpoint.endpoints_template_id)
-        return dendpoint
+        dbaseurl = db_api.baseurl.get(baseurl.id)
+        if not dbaseurl:
+            raise fault.ItemNotFoundFault("The base URL could not be found")
+        dbaseurl_ref = db_models.TenantBaseURLAssociation()
+        dbaseurl_ref.tenant_id = tenant_id
+        dbaseurl_ref.baseURLs_id = baseurl.id
+        dbaseurl_ref = db_api.baseurl.ref_add(dbaseurl_ref)
+        baseurlRef = baseURLs.BaseURLRef(dbaseurl_ref.id, url + \
+                                         '/baseURLs/' + \
+                                         dbaseurl_ref.baseURLs_id)
+        return baseurlRef
 
-    def delete_endpoint(self, admin_token, endpoint_id):
+    def delete_baseurls_ref(self, admin_token, baseurls_id):
         self.__validate_token(admin_token)
-        db_api.endpoint_template.endpoint_delete(endpoint_id)
+        db_api.baseurl.ref_delete(baseurls_id)
         return None
