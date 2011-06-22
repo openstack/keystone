@@ -37,13 +37,16 @@
 `dirname $0`/keystone-manage $* role grant Admin joeadmin 1234
 `dirname $0`/keystone-manage $* role grant Admin joeadmin ANOTHER:TENANT
 
-#BaseURLs
-`dirname $0`/keystone-manage $* baseURLs add RegionOne swift http://swift.publicinternets.com/v1/AUTH_%tenant_id% http://swift.admin-nets.local:8080/ http://127.0.0.1:8080/v1/AUTH_%tenant_id% 1
-`dirname $0`/keystone-manage $* baseURLs add RegionOne nova_compat http://nova.publicinternets.com/v1.0/ http://127.0.0.1:8774/v1.0  http://localhost:8774/v1.0 1
-`dirname $0`/keystone-manage $* baseURLs add RegionOne nova http://nova.publicinternets.com/v1.1/ http://127.0.0.1:8774/v1.1  http://localhost:8774/v1.1 1
-`dirname $0`/keystone-manage $* baseURLs add RegionOne glance http://glance.publicinternets.com/v1.1/%tenant_id% http://nova.admin-nets.local/v1.1/%tenant_id% http://127.0.0.1:9292/v1.1/%tenant_id% 1
-`dirname $0`/keystone-manage $* baseURLs add RegionOne cdn http://cdn.publicinternets.com/v1.1/%tenant_id% http://cdn.admin-nets.local/v1.1/%tenant_id% http://127.0.0.1:7777/v1.1/%tenant_id% 1
-`dirname $0`/keystone-manage $* baseURLs add RegionOne keystone http://keystone.publicinternets.com/v2.0 http://127.0.0.1:8081/v2.0 http://127.0.0.1:8080/v2.0 1
+#endpointTemplates
+`dirname $0`/keystone-manage $* endpointTemplates add RegionOne swift http://swift.publicinternets.com/v1/AUTH_%tenant_id% http://swift.admin-nets.local:8080/ http://127.0.0.1:8080/v1/AUTH_%tenant_id% 1
+`dirname $0`/keystone-manage $* endpointTemplates add RegionOne nova_compat http://nova.publicinternets.com/v1.0/ http://127.0.0.1:8774/v1.0  http://localhost:8774/v1.0 1
+`dirname $0`/keystone-manage $* endpointTemplates add RegionOne nova http://nova.publicinternets.com/v1.1/ http://127.0.0.1:8774/v1.1  http://localhost:8774/v1.1 1
+`dirname $0`/keystone-manage $* endpointTemplates add RegionOne glance http://glance.publicinternets.com/v1.1/%tenant_id% http://nova.admin-nets.local/v1.1/%tenant_id% http://127.0.0.1:9292/v1.1/%tenant_id% 1
+`dirname $0`/keystone-manage $* endpointTemplates add RegionOne cdn http://cdn.publicinternets.com/v1.1/%tenant_id% http://cdn.admin-nets.local/v1.1/%tenant_id% http://127.0.0.1:7777/v1.1/%tenant_id% 1
+`dirname $0`/keystone-manage $* endpointTemplates add RegionOne keystone http://keystone.publicinternets.com/v2.0 http://127.0.0.1:8081/v2.0 http://127.0.0.1:8080/v2.0 1
+
+
+
 
 # Groups
 #`dirname $0`/keystone-manage $* group add Admin 1234
@@ -61,10 +64,10 @@
 `dirname $0`/keystone-manage $* token add 000999 admin 1234 2010-02-05T00:00
 `dirname $0`/keystone-manage $* token add 999888777 disabled 1234 2015-02-05T00:00
 
-#Tenant base urls
-`dirname $0`/keystone-manage $* tenant_baseURL add 1234 1
-`dirname $0`/keystone-manage $* tenant_baseURL add 1234 2
-`dirname $0`/keystone-manage $* tenant_baseURL add 1234 3
-`dirname $0`/keystone-manage $* tenant_baseURL add 1234 4
-`dirname $0`/keystone-manage $* tenant_baseURL add 1234 5
-`dirname $0`/keystone-manage $* tenant_baseURL add 1234 6
+#Tenant endpoints
+`dirname $0`/keystone-manage $* endpoint add 1234 1
+`dirname $0`/keystone-manage $* endpoint add 1234 2
+`dirname $0`/keystone-manage $* endpoint add 1234 3
+`dirname $0`/keystone-manage $* endpoint add 1234 4
+`dirname $0`/keystone-manage $* endpoint add 1234 5
+`dirname $0`/keystone-manage $* endpoint add 1234 6

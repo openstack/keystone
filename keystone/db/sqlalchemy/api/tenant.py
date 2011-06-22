@@ -181,15 +181,15 @@ def delete(id, session=None):
         session.delete(tenant_ref)
 
 
-def get_all_baseurls(tenant_id, session=None):
+def get_all_endpoints(tenant_id, session=None):
     if not session:
         session = get_session()
-    tba = aliased(models.TenantBaseURLAssociation)
-    baseUrls = aliased(models.BaseUrls)
-    return session.query(baseUrls).join((tba,
-        tba.baseURLs_id == baseUrls.id)).\
-            filter(tba.tenant_id == tenant_id).all()
-
+    ep = aliased(models.Endpoints)
+    endpointTemplates = aliased(models.EndpointTemplates)
+    return session.query(endpointTemplates).join((ep,
+        ep.endpoint_template_id == endpointTemplates.id)).\
+            filter(ep.tenant_id == tenant_id).all()
+    
 def get_role_assignments(tenant_id, session=None):
     if not session:
         session = get_session()
