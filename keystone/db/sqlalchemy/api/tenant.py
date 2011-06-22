@@ -17,6 +17,7 @@
 
 from keystone.db.sqlalchemy import get_session, models, aliased
 
+
 def create(values):
     tenant_ref = models.Tenant()
     tenant_ref.update(values)
@@ -186,10 +187,15 @@ def get_all_endpoints(tenant_id, session=None):
         session = get_session()
     ep = aliased(models.Endpoints)
     endpointTemplates = aliased(models.EndpointTemplates)
-    return session.query(endpointTemplates).join((ep,
+    q1 = session.query(endpointTemplates).join((ep,
         ep.endpoint_template_id == endpointTemplates.id)).\
-            filter(ep.tenant_id == tenant_id).all()
-    
+            filter(ep.tenant_id == tenant_id)
+    q2 = session.query(endpointTemplates).\
+        filter(endpointTemplates.is_global == 1)
+    q3 = q1.union(q2)
+    return q3.all()
+
+
 def get_role_assignments(tenant_id, session=None):
     if not session:
         session = get_session()

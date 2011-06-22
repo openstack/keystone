@@ -37,10 +37,12 @@ class EndpointTemplate(object):
             admin_url = root.get("adminURL")
             internal_url = root.get("internalURL")
             enabled = root.get("enabled")
+            is_global = root.get("global")
             return EndpointTemplate(id, region, service, public_url, admin_url,
-                           internal_url, enabled)
+                           internal_url, enabled, is_global)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse endpointTemplate", str(e))
+            raise fault.BadRequestFault(\
+                "Cannot parse endpointTemplate", str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -52,6 +54,7 @@ class EndpointTemplate(object):
             admin_url = None
             internal_url = None
             enabled = None
+            is_global = None
 
             if not "endpointTemplate" in obj:
                 raise fault.BadRequestFault("Expecting endpointTemplate")
@@ -60,7 +63,7 @@ class EndpointTemplate(object):
             # Check that fields are valid
             invalid = [key for key in endpoint_template if key not in
                        ['id', 'region', 'serviceName', 'publicURL',
-                        'adminURL', 'internalURL', 'enabled']]
+                        'adminURL', 'internalURL', 'enabled', 'global']]
             if invalid != []:
                 raise fault.BadRequestFault("Invalid attribute(s): %s"
                                             % invalid)
@@ -84,14 +87,17 @@ class EndpointTemplate(object):
                 internal_url = endpoint_template["internalURL"]
             if 'enabled' in endpoint_template:
                 enabled = endpoint_template["enabled"]
+            if 'global' in endpoint_template:
+                is_global = endpoint_template["global"]
 
             return EndpointTemplate(id, region, service, public_url, admin_url,
-                           internal_url, enabled)
+                           internal_url, enabled, is_global)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse endpointTemplate", str(e))
+            raise fault.BadRequestFault(\
+                "Cannot parse endpointTemplate", str(e))
 
     def __init__(self, id, region, service, public_url, admin_url,
-                 internal_url, enabled):
+                 internal_url, enabled, is_global):
         self.id = id
         self.region = region
         self.service = service
@@ -99,6 +105,7 @@ class EndpointTemplate(object):
         self.admin_url = admin_url
         self.internal_url = internal_url
         self.enabled = enabled
+        self.is_global = is_global
 
     def to_dom(self):
         dom = etree.Element("endpointTemplate",
@@ -117,6 +124,8 @@ class EndpointTemplate(object):
             dom.set("internalURL", self.internal_url)
         if self.enabled:
             dom.set("enabled", 'true')
+        if self.is_global:
+            dom.set("global", 'true')
         return dom
 
     def to_xml(self):
@@ -138,6 +147,8 @@ class EndpointTemplate(object):
             endpoint_template["internalURL"] = self.internal_url
         if self.enabled:
             endpoint_template["enabled"] = self.enabled
+        if self.is_global:
+            endpoint_template["global"] = self.is_global
         return {'endpointTemplate': endpoint_template}
 
     def to_json(self):
@@ -166,7 +177,8 @@ class EndpointTemplates(object):
     def to_json(self):
         values = [t.to_dict()["endpointTemplate"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"endpointTemplates": {"values": values, "links": links}})
+        return json.dumps({"endpointTemplates":\
+            {"values": values, "links": links}})
 
 
 class Endpoint(object):

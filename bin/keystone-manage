@@ -262,16 +262,17 @@ def Main():
             return
     elif object_type == "endpointTemplates":
         if command == "add":
-            if len(args) < 8:
+            if len(args) < 9:
                 parser.error("Missing arguments: endpointTemplates add " \
                             "'region' 'service'" \
-                            "'publicURL' 'adminURL' 'internalURL' 'enabled'")
+                            "'publicURL' 'adminURL' 'internalURL' 'enabled' 'global'")
             region = args[2]
             service = args[3]
             public_url = args[4]
             admin_url = args[5] 
             internal_url = args[6]
             enabled = args[7]
+            is_global = args[8]
             try:
                 object = db_models.EndpointTemplates()
                 object.region = region
@@ -280,6 +281,7 @@ def Main():
                 object.admin_url = admin_url
                 object.internal_url = internal_url
                 object.enabled = enabled
+                object.is_global = is_global
                 object = db_api.endpoint_template.create(object)
                 print "SUCCESS: Created EndpointTemplates for %s pointing to %s." % \
                     (object.service, object.public_url)

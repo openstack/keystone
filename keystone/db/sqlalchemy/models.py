@@ -29,7 +29,7 @@ class KeystoneBase(object):
 
     def save(self, session=None):
         """Save this object."""
-        
+
         if not session:
             from keystone.db.sqlalchemy import get_session
             session = get_session()
@@ -98,7 +98,8 @@ class Endpoints(Base, KeystoneBase):
     id = Column(Integer, primary_key=True)
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
     endpoint_template_id = Column(Integer, ForeignKey('endpoint_templates.id'))
-    __table_args__ = (UniqueConstraint("endpoint_template_id", "tenant_id"), {})
+    __table_args__ = (UniqueConstraint("endpoint_template_id",\
+                                       "tenant_id"), {})
 
 
 # Define objects
@@ -169,3 +170,4 @@ class EndpointTemplates(Base, KeystoneBase):
     admin_url = Column(String(2000))
     internal_url = Column(String(2000))
     enabled = Column(Boolean)
+    is_global = Column(Boolean)

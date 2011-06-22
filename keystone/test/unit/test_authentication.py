@@ -90,6 +90,8 @@ class AuthenticationTest(unittest.TestCase):
         #self.assertTrue(resp['x-server-management-url'])
         #self.assertTrue(resp['x-storage-url'])
         self.assertTrue(resp['x-glance'])
+        #Assert Existence of global endpoint
+        self.assertTrue(resp['x-keystone'])
 
     def test_a_authorize_user_disabled(self):
         header = httplib2.Http(".cache")

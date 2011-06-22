@@ -318,8 +318,8 @@ class UserController(wsgi.Controller):
         rval = service.enable_disable_user(utils.get_auth_token(req), user_id,
                                            user)
         return utils.send_result(200, req, rval)
-    
-    @utils.wrap_error    
+
+    @utils.wrap_error
     def update_user_tenant(self, req, user_id):
         user = utils.get_normalized_request_content(users.User_Update, req)
         rval = service.set_user_tenant(utils.get_auth_token(req), user_id,
@@ -339,7 +339,6 @@ class UserController(wsgi.Controller):
         groups = service.get_user_groups(utils.get_auth_token(req),
                                         user_id, marker, limit, url)
         return utils.send_result(200, req, groups)
-
 
 
 class GroupsController(wsgi.Controller):
@@ -465,12 +464,14 @@ class EndpointTemplatesController(wsgi.Controller):
     @utils.wrap_error
     def get_endpoint_templates(self, req):
         marker, limit, url = get_marker_limit_and_url(req)
-        endpoint_templates = service.get_endpoint_templates(utils.get_auth_token(req),
-                                         marker, limit, url)
+        endpoint_templates = service.get_endpoint_templates(\
+            utils.get_auth_token(req), marker, limit, url)
         return utils.send_result(200, req, endpoint_templates)
 
+    @utils.wrap_error
     def get_endpoint_template(self, req, endpoint_templates_id):
-        endpoint_template = service.get_endpoint_template(utils.get_auth_token(req), endpoint_templates_id)
+        endpoint_template = service.get_endpoint_template(\
+            utils.get_auth_token(req), endpoint_templates_id)
         return utils.send_result(200, req, endpoint_template)
 
     @utils.wrap_error
@@ -482,7 +483,8 @@ class EndpointTemplatesController(wsgi.Controller):
 
     @utils.wrap_error
     def add_endpoint_to_tenant(self, req, tenant_id):
-        endpoint = utils.get_normalized_request_content(endpoints.EndpointTemplate, req)
+        endpoint = utils.get_normalized_request_content(\
+            endpoints.EndpointTemplate, req)
         return utils.send_result(201, req,
                        service.create_endpoint_for_tenant(
                                             utils.get_auth_token(req),
@@ -690,13 +692,10 @@ class KeystoneAdminAPI(wsgi.Router):
                     controller=user_controller,
                     action="get_user_groups",
                     conditions=dict(method=["GET"]))
-        
         mapper.connect("/v2.0/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
-        
-
         #Global Groups
         groups_controller = GroupsController(options)
         mapper.connect("/v2.0/groups", controller=groups_controller,
@@ -738,14 +737,16 @@ class KeystoneAdminAPI(wsgi.Router):
         mapper.connect("/v2.0/users/{user_id}/roleRefs/{role_ref_id}",
             controller=roles_controller, action="delete_role_ref",
             conditions=dict(method=["DELETE"]))
-
         #EndpointTemplatesControllers and Endpoints
         endpoint_templates_controller = EndpointTemplatesController(options)
-        mapper.connect("/v2.0/endpointTemplates", controller=endpoint_templates_controller,
-                    action="get_endpoint_templates", conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/endpointTemplates",
+            controller=endpoint_templates_controller,
+                action="get_endpoint_templates",
+                    conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/endpointTemplates/{endpoint_templates_id}",
-                       controller=endpoint_templates_controller,
-                    action="get_endpoint_template", conditions=dict(method=["GET"]))
+                controller=endpoint_templates_controller,
+                    action="get_endpoint_template",
+                        conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/tenants/{tenant_id}/endpoints",
                        controller=endpoint_templates_controller,
                     action="get_endpoints_for_tenant",

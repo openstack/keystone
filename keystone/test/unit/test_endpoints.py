@@ -294,6 +294,52 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
         if endpoint == None:
             self.fail("Expecting endpointTemplate")
 
+    def test_get_global_endpoint(self):
+        header = httplib2.Http(".cache")
+        #Using endpoint set as global via init script.
+        url = '%sendpointTemplates/%s' % (utils.URL, '6')
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/json",
+                                         "X-Auth-Token": self.auth_token})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        
+        #verify content
+        obj = json.loads(content)
+        if not "endpointTemplate" in obj:
+            raise self.fail("Expecting endpointTemplate")            
+
+        endpoint_template = obj["endpointTemplate"]
+        if not "global" in endpoint_template:
+                is_global = None
+        else:
+            is_global = endpoint_template["global"]
+        self.assertEqual(True, is_global)
+        
+    def test_get_global_endpoint_xml(self):
+        header = httplib2.Http(".cache")
+        #Using endpoint set as global via init script.
+        url = '%sendpointTemplates/%s' % (utils.URL, '6')
+        #test for Content-Type = application/json
+        resp, content = header.request(url, "GET", body='{}',
+                                  headers={"Content-Type": "application/xml",
+                                         "X-Auth-Token": self.auth_token,
+                                         "ACCEPT": "application/xml"})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        
+        #verify content
+        dom = etree.fromstring(content)
+        is_global = dom.get('global')
+        self.assertEqual('true', is_global)
+        
             
 class CreateEndpointRefsTest(EndpointTemplatesTest):
     def test_endpoint_create_json(self):

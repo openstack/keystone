@@ -28,6 +28,7 @@ import keystone.logic.types.user as get_users
 import keystone.logic.types.endpoint as endpoints
 import keystone.utils as utils
 
+
 class IdentityService(object):
     "This is the logical implemenation of the Identity service"
 
@@ -157,12 +158,13 @@ class IdentityService(object):
             #If not global admin ,return tenants specific to user.
             (token, user) = self.__validate_token(admin_token, False)
             ts = []
-            dtenants = db_api.tenant.tenants_for_user_get_page(user, marker, limit)
+            dtenants = db_api.tenant.tenants_for_user_get_page(\
+                user, marker, limit)
             for dtenant in dtenants:
                 ts.append(tenants.Tenant(dtenant.id,
                                          dtenant.desc, dtenant.enabled))
-            prev, next = db_api.tenant.tenants_for_user_get_page_markers(user, marker,
-                                                                  limit)
+            prev, next = db_api.tenant.tenants_for_user_get_page_markers(\
+                user, marker, limit)
             links = []
             if prev:
                 links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
@@ -349,13 +351,13 @@ class IdentityService(object):
                                    tenantId, None))
         links = []
         if ts.__len__():
-            prev, next = db_api.user.users_tenant_group_get_page_markers(groupId,
-                                                             marker, limit)
+            prev, next = db_api.user.users_tenant_group_get_page_markers(
+                    groupId, marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return tenants.Users(ts, links)
 
@@ -1008,7 +1010,8 @@ class IdentityService(object):
                                        dendpointTemplate.service, dendpointTemplate.public_url,
                                        dendpointTemplate.admin_url,
                                        dendpointTemplate.internal_url,
-                                       dendpointTemplate.enabled))
+                                       dendpointTemplate.enabled,
+                                       dendpointTemplate.is_global))
         prev, next = db_api.endpoint_template.get_page_markers(marker, limit)
         links = []
         if prev:
@@ -1027,8 +1030,8 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The endpoint template could not be found")
         return endpoints.EndpointTemplate(dendpointTemplate.id, dendpointTemplate.region, dendpointTemplate.service,
                                 dendpointTemplate.public_url, dendpointTemplate.admin_url,
-                                dendpointTemplate.internal_url, dendpointTemplate.enabled)
-        
+                                dendpointTemplate.internal_url, dendpointTemplate.enabled, dendpointTemplate.is_global)
+
     def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_token(admin_token)
         if tenant_id == None:
@@ -1043,7 +1046,7 @@ class IdentityService(object):
             db_api.endpoint_template.endpoint_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
         for dtenantEndpoint in dtenantEndpoints:
-             ts.append(endpoints.Endpoint(dtenantEndpoint.id,
+            ts.append(endpoints.Endpoint(dtenantEndpoint.id,
                     url + '/endpointTemplates/' + \
                     str(dtenantEndpoint.endpoint_template_id)))
         links = []
@@ -1076,9 +1079,9 @@ class IdentityService(object):
         dendpoint = db_api.endpoint_template.endpoint_add(dendpoint)
         dendpoint = endpoints.Endpoint(dendpoint.id, url + \
                                          '/endpointTemplates/' + \
-                                         dendpoint.endpoints_template_id)
+                                         dendpoint.endpoint_template_id)
         return dendpoint
-    
+
     def delete_endpoint(self, admin_token, endpoint_id):
         self.__validate_token(admin_token)
         db_api.endpoint_template.endpoint_delete(endpoint_id)
