@@ -159,8 +159,6 @@ class AuthProtocol(object):
                 claims = self._expound_claims()
 
                 # Store authentication data
-                self.env['keystone.claims'] = claims
-                self.env['swift.authorize'] = self.authorize
                 if claims:
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
@@ -184,17 +182,6 @@ class AuthProtocol(object):
 
             #Send request downstream
             return self._forward_request()
-
-    def authorize(self, req):
-        env = req.environ
-        tenant = env.get('keystone.claims', {}).get('tenant')
-        if not tenant:
-            return HTTPExpectationFailed('Unable to locate auth claim',
-                                         request=req)
-        if req.path.startswith('/v1/AUTH_%s' % tenant):
-            return None
-        return HTTPUnauthorized(request=req)
-
 
     # NOTE(todd): unused
     def get_admin_auth_token(self, username, password, tenant):

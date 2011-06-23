@@ -196,15 +196,15 @@ in troubleshooting:
 <pre>
     # Get an unscoped token
     
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8080/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get an admin token
 
-    $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:5001/v2.0/tokens
 </pre>
 
 #### Load Testing
@@ -216,7 +216,7 @@ in troubleshooting:
 
    # Call Apache Bench
 
-   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/tokens
+   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:5001/v2.0/tokens
 </pre>
 
 ## NOVA Integration
@@ -258,8 +258,8 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
 
         $ cd ~/keystone/bin && ./keystone
         Starting the Legacy Authentication component
-        Service API listening on 0.0.0.0:8080
-        Admin API listening on 0.0.0.0:8081
+        Service API listening on 0.0.0.0:5000
+        Admin API listening on 0.0.0.0:5001
 
 4.  In another window, edit the `~/keystone/bin/sampledata.sh` file, find the
     `public.cloudfiles.com` text and replace it with the URL to your Swift
@@ -289,7 +289,7 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
         use = egg:keystone#tokenauth
         auth_protocol = http
         auth_host = 127.0.0.1
-        auth_port = 8081
+        auth_port = 5001
         admin_token = 999888777666
         delay_auth_decision = 0
         service_protocol = http
@@ -313,8 +313,8 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
     container or upload something as your first action to have the account
     created; there's a Swift bug to be fixed soon):
 
-        $ st -A http://127.0.0.1:8080/v1.0 -U joeuser -K secrete post container
-        $ st -A http://127.0.0.1:8080/v1.0 -U joeuser -K secrete stat -v
+        $ st -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete post container
+        $ st -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete stat -v
         StorageURL: http://127.0.0.1:8888/v1/AUTH_1234
         Auth Token: 74ce1b05-e839-43b7-bd76-85ef178726c3
            Account: AUTH_1234

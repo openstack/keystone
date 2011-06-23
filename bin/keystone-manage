@@ -303,7 +303,7 @@ def Main():
                     for row in objects:
                         print row.service, row.region, row.public_url
                 except Exception, e:
-                    print 'Error getting all URL refs for %s:' % \
+                    print 'Error getting all endpoints for %s:' % \
                         tenant, str(e)
                 return
             else:
@@ -333,7 +333,7 @@ def Main():
                 object.tenant_id = tenant_id
                 object.endpoint_template_id = endpoint_template_id
                 object = db_api.endpoint_template.endpoint_add(object)
-                print "SUCCESS: EndpointTemplate %s added to tenant %s." % \
+                print "SUCCESS: Endpoint %s added to tenant %s." % \
                             (endpoint_template_id, tenant_id)
                 return
             except Exception as exc:

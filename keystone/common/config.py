@@ -76,9 +76,9 @@ def add_common_options(parser):
                           "argument specified to be a config file, and if "\
                           "that is also missing, we search standard "\
                           "directories for a config file.")
-    group.add_option('-p', '--port', '--bind-port', default=8080,
+    group.add_option('-p', '--port', '--bind-port', default=5000,
                      dest="bind_port",
-                     help="specifies port to listen on (default is 8080)")
+                     help="specifies port to listen on (default is 5000)")
     group.add_option('--host', '--bind-host',
                      default="0.0.0.0", dest="bind_host",
                      help="specifies host address to listen on "\
