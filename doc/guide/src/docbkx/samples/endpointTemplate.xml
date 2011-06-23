@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<baseURL
+<endpointTemplate
   xmlns="http://docs.openstack.org/identity/api/v2.0"
   id="1" 
   region="DFW" 
-  default="true"
+  global="true"
   serviceName="service1"
   publicURL="https://service-public.com/v1"
   internalURL="https://service-internal.com/v1" 
