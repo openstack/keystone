@@ -1,5 +1,5 @@
 {
-  "baseURLRefs":[
+  "endpoints":[
     {
       "id":1,
       "href":"https://auth.keystone.com/v2.0/baseURLs/1"
