@@ -45,13 +45,13 @@
                     <method href="#getTenant" />
                     <method href="#updateTenant" />
                     <method href="#deleteTenant" />
-                    <resource id="baseURLRefs" path="baseURLRefs">
-		                <method href="#getBaseURLRefs"/>
-    		            <method href="#addBaseURLRef"/>
-	        	        <resource id="baseURLRef" path="{baseURLId}">
-    	        	        <param name="baseURLId" style="template" type="xsd:int"/>
-        	        	    <method href="#getBaseURLRef"/>
-            	        	<method href="#deleteBaseURLRef"/>
+                    <resource id="endpoints" path="endpoints">
+		                <method href="#getEndpoints"/>
+    		            <method href="#addEndpoint"/>
+	        	        <resource id="endpoint" path="{endpointId}">
+    	        	        <param name="endpointId" style="template" type="xsd:int"/>
+        	        	    <method href="#getEndpoint"/>
+            	        	<method href="#deleteEndpoint"/>
 	            	    </resource>
 	            	</resource>    
     	            <resource id="roleRefs" path="roleRefs">
@@ -88,13 +88,13 @@
 		</resource>
 	    </resource>
 	    
-            <resource id="baseURLs" path="baseURLs">
+            <resource id="endpointTemplates" path="endpointTemplates">
 		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
-                <method href="#getBaseURLs"/>
-                <resource id="baseURLId" path="{baseURLId}">
+                <method href="#getEndpointTemplates"/>
+                <resource id="endpointTemplateId" path="{endpointTemplateId}">
 		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
-                    <param name="baseURLId" style="template" type="xsd:int"/>
-                    <method href="#getBaseURL"/>
+                    <param name="endpointTemplateId" style="template" type="xsd:int"/>
+                    <method href="#getEndpointTemplate"/>
                 </resource>
             </resource>
 	    
@@ -679,13 +679,13 @@
         </response>
     </method>    
 
-    <method name="GET" id="getBaseURLs">
+    <method name="GET" id="getEndpointTemplates">
         <request>
             <param name="serviceName" style="query"
                    required="false" type="xsd:string"/>
         </request>
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:baseURLs"/>
+            <representation mediaType="application/xml" element="identity:endpointTemplates"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="400">
@@ -708,9 +708,9 @@
         </response>
     </method>
 
-    <method name="GET" id="getBaseURL">
+    <method name="GET" id="getEndpointTemplate">
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:baseURL"/>
+            <representation mediaType="application/xml" element="identity:endpointTemplate"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="400">
@@ -736,9 +736,9 @@
         </response>
     </method>
 
-    <method name="GET" id="getBaseURLRefs">
+    <method name="GET" id="getEndpoints">
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:baseURLRefs"/>
+            <representation mediaType="application/xml" element="identity:endpoints"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="400">
@@ -761,13 +761,13 @@
         </response>
     </method>
 
-    <method name="POST" id="addBaseURLRef">
+    <method name="POST" id="addEndpoint">
         <request>
-            <representation mediaType="application/xml" element="identity:baseURLRef"/>
+            <representation mediaType="application/xml" element="identity:endpoint"/>
             <representation mediaType="application/json"/>
         </request>
         <response status="201">
-            <representation mediaType="application/xml" element="identity:baseURLRef">
+            <representation mediaType="application/xml" element="identity:endpoint">
                 <param name="Location" type="xsd:anyURI" style="header"/>
             </representation>
             <representation mediaType="application/json">
@@ -797,9 +797,9 @@
         </response>
     </method>
 
-    <method name="GET" id="getBaseURLRef">
+    <method name="GET" id="getEndpoint">
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:baseURLRef"/>
+            <representation mediaType="application/xml" element="identity:endpoint"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="400">
@@ -825,7 +825,7 @@
         </response>
     </method>
 
-    <method name="DELETE" id="deleteBaseURLRef">
+    <method name="DELETE" id="deleteEndpoint">
         <response status="204"/>
         <response status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>

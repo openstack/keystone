@@ -14,61 +14,61 @@
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
 
-    <element name="baseURLs" type="idm:BaseURLList">
+    <element name="endpointTemplates" type="idm:EndpointTemplateList">
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                    A list of base URLs.
+                    A list of Endpoint Templates.
                 </p>
             </xsd:documentation>
         </annotation>
     </element>
     
-    <element name="baseURL" type="idm:BaseURL">
+    <element name="endpointTemplate" type="idm:EndpointTemplate">
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                    A base URLs.
+                    An Endpoint Template.
                 </p>
             </xsd:documentation>
         </annotation>
     </element>
-    <element name="baseURLRef" type="idm:BaseURLRef">
+    <element name="endpoint" type="idm:Endpoint">
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                    A refrence to a base URL.
+                    An Endpoint.
                 </p>
             </xsd:documentation>
         </annotation>
     </element>
-    <element name="baseURLRefs" type="idm:BaseURLRefList">
+    <element name="endpoints" type="idm:EndpointList">
         <annotation>
             <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
-                    A list of base URL refrences.
+                    A list of Endpoints.
                 </p>
             </xsd:documentation>
         </annotation>
     </element>
 
     <!-- Complex Types -->
-    <complexType name="BaseURL">
+    <complexType name="EndpointTemplate">
         <attribute name="id" type="xsd:int" use="required">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An ID uniquely identifying the base URL.
+                        An ID uniquely identifying the Endpoint Template.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -79,7 +79,7 @@
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The base URL's service name.
+                        The service name of Endpoint Template.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -90,7 +90,7 @@
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The URL's region.
+                        The region of Endpoint Template.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -101,7 +101,7 @@
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The public base URL.
+                        The public URL to access represented service.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -112,7 +112,7 @@
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The internal version of the public base URL.
+                        The internal version of the public URL.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -123,19 +123,18 @@
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The admin base URL.
+                        The admin URL.
                     </p>
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="default" type="xsd:boolean" default="false" use="optional">
+        <attribute name="global" type="xsd:boolean" default="false" use="optional">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        If true the baseURL is automatically added to
-                        new accounts.
+                        If true the Endpoint Template is automatically part of every account.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -146,8 +145,8 @@
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        True if the Base URL is enabled (active). 
-                        A Base URL cannot be added if it's disabled or inactive (false). 
+                        True if the Endpoint Template is enabled (active). 
+                        A Endpoint Template cannot be added if it's disabled or inactive (false). 
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -155,14 +154,14 @@
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
-    <complexType name="BaseURLRef">
+    <complexType name="Endpoint">
         <attribute name="id" type="xsd:int" use="required">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An ID uniquely identifying the base URL.
+                        An ID uniquely identifying the Endpoint.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -173,7 +172,7 @@
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        A hyperlink reference to the base URL.
+                        A hyperlink reference to the URL Endpoint Template.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -181,18 +180,18 @@
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
-    <complexType name="BaseURLList">
+    <complexType name="EndpointTemplateList">
         <sequence>
-            <element name="baseURL" type="idm:BaseURL" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="endpointTemplate" type="idm:EndpointTemplate" minOccurs="0" maxOccurs="unbounded"/>
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
          <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
-    <complexType name="BaseURLRefList">
+    <complexType name="EndpointList">
         <sequence>
-            <element name="baseURLRef" type="idm:BaseURLRef" minOccurs="0" maxOccurs="unbounded"/>
+            <element name="endpoint" type="idm:Endpoint" minOccurs="0" maxOccurs="unbounded"/>
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>

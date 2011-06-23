@@ -130,6 +130,19 @@
 	  </para>
 	</section>
 	<section>
+	  <title>Endpoint Template</title>
+	  <para>
+		  Endpoint Template represents the templates of all the consumable services
+		  that are available across the regions.
+	  </para>
+	</section>
+	<section>
+	  <title>Endpoint</title>
+	  <para>
+		  Endpoint represents a service that a tenant could consume.
+	  </para>
+	</section>
+	<section>
 	  <title>Role</title>
 	  <para>
 		A role that an identity is associated with that allows it
@@ -998,61 +1011,61 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
           </section>
 	  
           <section>
-             <title>Endpoints (BaseURLs)</title>
+             <title>Endpoint Templates and EndPoints</title>
 			 <informaltable rules="all">
 			 &LONG_URI_REFHEAD;
 			 <tbody>
              <tr>
                  <td colspan="1">&GET;
                  </td>
-                 <td colspan="4">/baseURLs?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                 <td colspan="4">/endpointTemplates?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
                  </td>
                  <td colspan="3">
-                     Get a list of base URLs.
+                     Get a list of endpoint templates.
                  </td>
              </tr>
              <tr>
                  <td colspan="1">&GET;
                  </td>
-                 <td colspan="4">/baseURLs/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+                 <td colspan="4">/endpointTemplates/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
                  </td>
                  <td colspan="3">
-                     Get a list of enabled base URLs.
+                     Get a list of enabled endpoint templates.
                  </td>
              </tr>
              <tr>
                  <td colspan="1">&GET;
                  </td>
-                 <td colspan="4">/baseURLs/<parameter>baseURLId</parameter>
+                 <td colspan="4">/endpointTemplates/<parameter>endpointTemplateId</parameter>
                  </td>
                  <td colspan="3">
-                     Get a base URL.
+                     Get an endpoint template.
                  </td>
              </tr>
              <tr>
                  <td colspan="1">&GET;
                  </td>
-                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/endpoints
                  </td>
                  <td colspan="3">
-                     Get a list of base URLs for a tenant.
+                     Get a list of endpoints for a tenant.
                  </td>
              </tr>
              <tr>
                  <td colspan="1">&POST;
                  </td>
-                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/endpoints
                  </td>
                  <td colspan="3">
-                     Add a base URL to a tenant.
+                     Add an endpoint to a tenant.
                  </td>
              </tr>
              <tr>
                  <td colspan="1">&DELETE;
                  </td>
-                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLId</parameter></td>
+                 <td colspan="4">/tenants/<parameter>tenantId</parameter>/endpoints/<parameter>endpointId</parameter></td>
                  <td colspan="3">
-                     Remove Base URL from a tenant.
+                     Remove endpoint from a tenant.
                  </td>
              </tr>
 			 </tbody>
@@ -1355,28 +1368,30 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
 		</section>
 	</section>
 	 <section>
-			<title>Base URLs</title>
+			<title>Endpoint Templates and Endpoints</title>
 			<section>
-				<title>Get Base URLs</title>
+				<title>Get Endpoint Templates</title>
 				<informaltable rules="all">
 					&LONG_URI_REFHEAD;
 					<tbody>
 						<tr>
 							<td colspan="1">&GET;
 							</td>
-							<td colspan="4">/baseURLs?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+							<td colspan="4">/endpointTemplates?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
 							</td>
 							<td colspan="3">
-								Get a list of base URLs.
+								Get a list of endpoint templates.Endpoint templates that have global set to true are
+								automatically available for every tenant.
 							</td>
 						</tr>
 						<tr>
 							<td colspan="1">&GET;
 							</td>
-							<td colspan="4">/baseURLs/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
+							<td colspan="4">/endpointTemplates/enabled?<parameter>serviceName</parameter>=<literal>ServiceName</literal>
 							</td>
 							<td colspan="3">
-								Get a list of enabled base URLs.
+								Get a list of enabled endpoint templates.Endpoint templates that have global set to true are
+								automatically available for every tenant.
 							</td>
 						</tr>
 						
@@ -1396,30 +1411,30 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
 				</simpara>
 				&NO_REQUEST;
 				<example>
-					<title>Base URLs Response: XML</title>
+					<title>Endpoint Templates Response: XML</title>
 					<programlisting language="xml">
-<xi:include href="samples/baseURLs.xml" parse="text"/>
+<xi:include href="samples/endpointTemplates.xml" parse="text"/>
 					</programlisting>
 				</example>
 				<example>
-					<title>Base URLs Response: JSON</title>
+					<title>Endpoint Templates Response: JSON</title>
 					<programlisting language="javascript">
-<xi:include href="samples/baseURLs.json" parse="text"/>
+<xi:include href="samples/endpointTemplates.json" parse="text"/>
 					</programlisting>
 				</example>
 			</section>
 			<section>
-				<title>Get Base URL</title>
+				<title>Get Endpoint Template</title>
 				<informaltable rules="all">
 					&LONG_URI_REFHEAD;
 					<tbody>
 						<tr>
 							<td colspan="1">&GET;
 							</td>
-							<td colspan="4">/baseURLs/<parameter>baseURLId</parameter>
+							<td colspan="4">/endpointTemplates/<parameter>endpointTemplateId</parameter>
 							</td>
 							<td colspan="3">
-								Get a base URL.
+								Get an endpoint template.
 							</td>
 						</tr>
 					</tbody>
@@ -1438,32 +1453,32 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
 				</simpara>
 				&NO_REQUEST;
 				<example>
-					<title>Base URL Response: XML</title>
+					<title>Endpoint Template Response: XML</title>
 					<?dbfo keep-together="always"?>
 					<programlisting language="xml">
-<xi:include href="samples/baseURL.xml" parse="text"/>
+<xi:include href="samples/endpointTemplate.xml" parse="text"/>
 					</programlisting>
 				</example>
 				<example>
-					<title>Base URL Response: JSON</title>
+					<title>Endpoint Template Response: JSON</title>
 					<?dbfo keep-together="always"?>
 					<programlisting language="javascript">
-<xi:include href="samples/baseURL.json" parse="text"/>
+<xi:include href="samples/endpointTemplate.json" parse="text"/>
 					</programlisting>
 				</example>
 			</section>
 			<section>
-				<title>Get Base URLs for a Tenant</title>
+				<title>Get Endpoints for a Tenant</title>
 				<informaltable rules="all">
 					&LONG_URI_REFHEAD;
 					<tbody>
 						<tr>
 							<td colspan="1">&GET;
 							</td>
-							<td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+							<td colspan="4">/tenants/<parameter>tenantId</parameter>/endpoints
 							</td>
 							<td colspan="3">
-								Get a list of base URLs for a tenant.
+								Get a list of endpoints for a tenant.
 							</td>
 						</tr>
 					</tbody>
@@ -1482,30 +1497,30 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
 				</simpara>
 				&NO_REQUEST;
 				<example>
-					<title>Base URL Refs Response: XML</title>
+					<title>Endpoints Response: XML</title>
 					<programlisting language="xml">
-<xi:include href="samples/baseURLRefs.xml" parse="text"/>
+<xi:include href="samples/endpoints.xml" parse="text"/>
 					</programlisting>
 				</example>
 				<example>
-					<title>Base URL Refs Response: JSON</title>
+					<title>Endpoints Response: JSON</title>
 					<programlisting language="javascript">
-<xi:include href="samples/baseURLRefs.json" parse="text"/>
+<xi:include href="samples/endpoints.json" parse="text"/>
 					</programlisting>
 				</example>
 			</section>
 			<section>
-				<title>Add Base URL to a Tenant.</title>
+				<title>Add Endpoint to a Tenant.</title>
 				<informaltable rules="all">
 					&LONG_URI_REFHEAD;
 					<tbody>
 						<tr>
 							<td colspan="1">&POST;
 							</td>
-							<td colspan="4">/tenants/<parameter>tenantId</parameter>/baseURLRefs
+							<td colspan="4">/tenants/<parameter>tenantId</parameter>/endpoints
 							</td>
 							<td colspan="3">
-								Add a base URL to a tenant.
+								Add an endpoint to a tenant.
 							</td>
 						</tr>
 					</tbody>
@@ -1524,34 +1539,34 @@ Keystone will verify the token has (or belongs to a user that has) the <code>Adm
 					serviceUnavailable (<errorcode>503</errorcode>)
 				</simpara>
 				<para xmlns="http://docbook.org/ns/docbook">
-					Expect a badRequest (400) response if a disabled base URL is added or if the base URL had been previously added.       
+					Expect a badRequest (400) response if a disabled endpoint is added or if the endpoint had been previously added.       
 				</para>
 				<example>
-					<title>Add Base URL Request: XML</title>
+					<title>Add Endpoint Request: XML</title>
 					<?dbfo keep-together="always"?>
 					<programlisting language="xml">
-<xi:include href="samples/baseURL.xml" parse="text"/>
+<xi:include href="samples/endpoint.xml" parse="text"/>
 					</programlisting>
 				</example>
 				<example>
-					<title>Add Base URL Request: JSON</title>
+					<title>Add Endpoint Request: JSON</title>
 					<?dbfo keep-together="always"?>
 					<programlisting language="javascript">
-<xi:include href="samples/baseURL.json" parse="text"/>
+<xi:include href="samples/endpoint.json" parse="text"/>
 					</programlisting>
 				</example>
 			</section>
 			<section>
-				<title>Remove Base URLs from a Tennat</title>
+				<title>Remove Endpoints from a Tenant</title>
 				<informaltable rules="all">
 					&LONG_URI_REFHEAD;
 					<tbody>
 						<tr>
 							<td colspan="1">&DELETE;
 							</td>
-							<td colspan="4">/tenant/<parameter>tenantId</parameter>/baseURLRefs/<parameter>baseURLRefId</parameter></td>
+							<td colspan="4">/tenants/<parameter>tenantId</parameter>/endpoints/<parameter>endpointId</parameter></td>
 							<td colspan="3">
-								Remove Base URL from a tenant.
+								Remove endpoint from a tenant.
 							</td>
 						</tr>
 					</tbody>

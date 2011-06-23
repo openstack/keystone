@@ -1,8 +1,8 @@
 {
-  "baseURL":{
+  "endpointTemplate":{
     "id":1,
     "region":"DFW",
-    "default":true,
+    "global":true,
     "serviceName":"service1",
     "publicURL":"https://service-public.com/v1",
     "internalURL":"https://service-internal.com/v1",
