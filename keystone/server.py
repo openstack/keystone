@@ -566,7 +566,7 @@ class KeystoneAPI(wsgi.Router):
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/identity.wadl",
                     controller=static_files_controller,
-                    action="get_identity_wadl",
+                    action="get_wadl_contract",
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/xsd/{xsd}",
                     controller=static_files_controller,
@@ -778,7 +778,7 @@ class KeystoneAdminAPI(wsgi.Router):
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/identity.wadl",
                     controller=static_files_controller,
-                    action="get_identity_wadl",
+                    action="get_wadl_contract",
                     conditions=dict(method=["GET"]))
         mapper.connect("/v2.0/xsd/{xsd}",
                     controller=static_files_controller,

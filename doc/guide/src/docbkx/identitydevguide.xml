@@ -60,7 +60,7 @@
 	</copyright>
 	<releaseinfo>API v2.0</releaseinfo>
 	<productname>Keystone - OpenStack Identity</productname>
-	<pubdate>2011-06-21</pubdate>
+	<pubdate>2011-06-22</pubdate>
 	<legalnotice role="apache2">
 		<annotation>
 			<remark>Copyright details are filled in by the template.</remark>
