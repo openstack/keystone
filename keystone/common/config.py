@@ -25,6 +25,7 @@ import optparse
 import os
 from paste import deploy
 import sys
+import ConfigParser
 
 DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -294,10 +295,35 @@ def load_paste_config(app_name, options, args):
                             "Cannot load application %s" % app_name)
     try:
         conf = deploy.appconfig("config:%s" % conf_file, name=app_name)
+        conf.global_conf.update(get_non_paste_configs(conf_file))
         return conf_file, conf
     except Exception, e:
         raise RuntimeError("Error trying to load config %s: %s"
                            % (conf_file, e))
+
+def get_non_paste_configs(conf_file):
+    load_config_files(conf_file)
+    complete_conf = load_config_files(conf_file)
+    #Add Non Paste global sections.Need to find a better way.
+    global_conf = {}
+    if complete_conf != None:
+        for section in complete_conf.sections():
+            if not (section.startswith('filter:') or section.startswith('app:') or section.startswith('pipeline:')):
+                section_items = complete_conf.items(section)
+                section_items_dict = {}
+                for section_item in section_items:
+                    section_items_dict[section_item[0]] = section_item[1]
+                global_conf[section] = section_items_dict
+    return global_conf
+
+
+def load_config_files(config_files):
+    '''Load the config files.'''
+    config = ConfigParser.ConfigParser()
+    if config_files is not None:
+        config.read(config_files)
+    return config
+
 
 
 def load_paste_app(app_name, options, args):
@@ -348,7 +374,7 @@ def load_paste_app(app_name, options, args):
             for key, value in sorted(items.items()):
                 logger.info("%(key)-20s %(value)s" % locals())
             logger.info("*" * 50)
-        app = deploy.loadapp("config:%s" % conf_file, name=app_name)
+        app = deploy.loadapp("config:%s" % conf_file, name=app_name, global_conf= conf.global_conf)
     except (LookupError, ImportError), e:
         raise RuntimeError("Unable to load %(app_name)s from "
                            "configuration file %(conf_file)s."

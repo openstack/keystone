@@ -19,8 +19,8 @@ import uuid
 
 import keystone.logic.types.auth as auth
 import keystone.logic.types.atom as atom
-import keystone.db.sqlalchemy.api as db_api
-import keystone.db.sqlalchemy.models as db_models
+import keystone.backends.api as db_api
+import keystone.backends.sqlalchemy.models as db_models
 import keystone.logic.types.fault as fault
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
@@ -35,7 +35,6 @@ class IdentityService(object):
     #
     #  Token Operations
     #
-
     def authenticate(self, credentials):
         # Check credentials
         if not isinstance(credentials, auth.PasswordCredentials):

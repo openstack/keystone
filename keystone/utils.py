@@ -165,6 +165,20 @@ def send_legacy_result(code, headers):
 #Currently using sha1 to hash.Need to figure if there is an openstack standard.Not using salt val as of now.
 def get_hashed_password(password):
     if password != None and len(password) > 0:
-        return hashlib.sha1(password).hexdigest()
+        return password
+        #return hashlib.sha1(password).hexdigest()
     else:
         return None
+    
+def import_module(module_name, class_name=None):
+    '''Import a class given a full module.class name or seperate
+    module and options. If no class_name is given, it is assumed to
+    be the last part of the module_name string.'''
+    if class_name is None:
+        module_name, _separator, class_name = module_name.rpartition('.')
+    try:
+        __import__(module_name)
+        return getattr(sys.modules[module_name], class_name)
+    except (ImportError, ValueError, AttributeError), exception:
+        raise ImportError(_('Class %s.%s cannot be found (%s)') %
+            (module_name, class_name, exception))   

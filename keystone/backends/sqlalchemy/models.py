@@ -20,18 +20,18 @@ from sqlalchemy import Column, String, Integer, ForeignKey, \
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_mapper
-
 Base = declarative_base()
 
 
 class KeystoneBase(object):
     """Base class for Keystone Models."""
+    __api__ = None
 
     def save(self, session=None):
         """Save this object."""
 
         if not session:
-            from keystone.db.sqlalchemy import get_session
+            from keystone.backends.sqlalchemy import get_session
             session = get_session()
         session.add(self)
         try:
@@ -79,7 +79,7 @@ class KeystoneBase(object):
 # Define associations first
 class UserGroupAssociation(Base, KeystoneBase):
     __tablename__ = 'user_group_association'
-
+    __api__ ='tenant_group'
     user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
     group_id = Column(String(255), ForeignKey('groups.id'), primary_key=True)
 
@@ -105,14 +105,14 @@ class Endpoints(Base, KeystoneBase):
 # Define objects
 class Role(Base, KeystoneBase):
     __tablename__ = 'roles'
-
+    __api__ ='role'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
 
 
 class Tenant(Base, KeystoneBase):
     __tablename__ = 'tenants'
-
+    __api__ ='tenant'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
@@ -123,7 +123,7 @@ class Tenant(Base, KeystoneBase):
 
 class User(Base, KeystoneBase):
     __tablename__ = 'users'
-
+    __api__ ='user'
     id = Column(String(255), primary_key=True, unique=True)
     password = Column(String(255))
     email = Column(String(255))
@@ -145,24 +145,22 @@ class Credentials(Base, KeystoneBase):
 
 class Group(Base, KeystoneBase):
     __tablename__ = 'groups'
-
+    __api__ ='group'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
 
-
 class Token(Base, KeystoneBase):
     __tablename__ = 'token'
-
+    __api__ ='token'
     id = Column(String(255), primary_key=True, unique=True)
     user_id = Column(String(255))
     tenant_id = Column(String(255))
     expires = Column(DateTime)
 
-
 class EndpointTemplates(Base, KeystoneBase):
     __tablename__ = 'endpoint_templates'
-
+    __api__ ='endpoint_template'
     id = Column(Integer, primary_key=True)
     region = Column(String(255))
     service = Column(String(255))

@@ -16,7 +16,7 @@
 #    under the License.
 
 import keystone.utils as utils
-from keystone.db.sqlalchemy import get_session, models, aliased, joinedload
+from keystone.backends.sqlalchemy import get_session, models, aliased, joinedload
 
 def get_all(session=None):
     if not session:
