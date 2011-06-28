@@ -27,6 +27,7 @@ import keystone.logic.types.role as roles
 import keystone.logic.types.user as get_users
 import keystone.logic.types.endpoint as endpoints
 import keystone.utils as utils
+#TODO(Yogi) Remove references to specific backend model and move them to generic models.
 
 
 class IdentityService(object):

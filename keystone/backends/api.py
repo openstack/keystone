@@ -13,7 +13,7 @@
 # limitations under the License.
 # Not Yet PEP8 standardized
 #API
-
+#TODO(Yogi) Refactor all API to separate classes specific to models.
 endpoint_template = None
 group = None
 role = None
