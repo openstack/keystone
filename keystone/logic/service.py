@@ -20,7 +20,7 @@ import uuid
 import keystone.logic.types.auth as auth
 import keystone.logic.types.atom as atom
 import keystone.backends.api as db_api
-import keystone.backends.sqlalchemy.models as db_models
+import keystone.backends.models as models
 import keystone.logic.types.fault as fault
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
@@ -73,7 +73,7 @@ class IdentityService(object):
 
         if not dtoken or dtoken.expires < datetime.now():
             # Create new token
-            dtoken = db_models.Token()
+            dtoken = models.Token()
             dtoken.id = str(uuid.uuid4())
             dtoken.user_id = duser.id
             if credentials.tenant_id:
@@ -125,7 +125,7 @@ class IdentityService(object):
             raise fault.TenantConflictFault(
                 "A tenant with that id already exists")
 
-        dtenant = db_models.Tenant()
+        dtenant = models.Tenant()
         dtenant.id = tenant.tenant_id
         dtenant.desc = tenant.description
         dtenant.enabled = tenant.enabled
@@ -233,7 +233,7 @@ class IdentityService(object):
             raise fault.TenantGroupConflictFault(
                 "A tenant group with that id already exists")
 
-        dtenant = db_models.Group()
+        dtenant = models.Group()
         dtenant.id = group.group_id
         dtenant.desc = group.description
         dtenant.tenant_id = tenant
@@ -381,7 +381,7 @@ class IdentityService(object):
             raise fault.UserGroupConflictFault(
                 "A user with that id already exists in group")
 
-        dusergroup = db_models.UserGroupAssociation()
+        dusergroup = models.UserGroupAssociation()
         dusergroup.user_id = user
         dusergroup.group_id = group
         db_api.user.tenant_group(dusergroup)
@@ -448,7 +448,7 @@ class IdentityService(object):
             raise fault.EmailConflictFault(
                 "Email already exists")
 
-        duser = db_models.User()
+        duser = models.User()
         duser.id = user.user_id
         duser.password = user.password
         duser.email = user.email
@@ -664,7 +664,7 @@ class IdentityService(object):
         dtenant = db_api.tenant.get('GlobalTenant')
 
         if dtenant is None:
-            dtenant = db_models.Tenant()
+            dtenant = models.Tenant()
             dtenant.id = 'GlobalTenant'
             dtenant.desc = 'GlobalTenant is Default tenant for global groups'
             dtenant.enabled = True
@@ -684,7 +684,7 @@ class IdentityService(object):
             raise fault.TenantGroupConflictFault(
                 "A tenant group with that id already exists")
         gtenant = self.__check_create_global_tenant()
-        dtenant = db_models.Group()
+        dtenant = models.Group()
         dtenant.id = group.group_id
         dtenant.desc = group.description
         dtenant.tenant_id = gtenant.id
@@ -816,7 +816,7 @@ class IdentityService(object):
             raise fault.UserGroupConflictFault(
                 "A user with that id already exists in group")
 
-        dusergroup = db_models.UserGroupAssociation()
+        dusergroup = models.UserGroupAssociation()
         dusergroup.user_id = user
         dusergroup.group_id = group
         db_api.user.tenant_group(dusergroup)
@@ -910,7 +910,7 @@ class IdentityService(object):
         if db_api.role.get(role.role_id) != None:
             raise fault.RoleConflictFault(
                 "A role with that id already exists")
-        drole = db_models.Role()
+        drole = models.Role()
         drole.id = role.role_id
         drole.desc = role.desc
         db_api.role.create(drole)
@@ -964,7 +964,7 @@ class IdentityService(object):
             if dtenant == None:
                 raise fault.ItemNotFoundFault("The tenant not found")
 
-        drole_ref = db_models.UserRoleAssociation()
+        drole_ref = models.UserRoleAssociation()
         drole_ref.user_id = duser.id
         drole_ref.role_id = drole.id
         if roleRef.tenant_id != None:
@@ -1073,7 +1073,7 @@ class IdentityService(object):
         dendpoint_template = db_api.endpoint_template.get(endpoint_template.id)
         if not dendpoint_template:
             raise fault.ItemNotFoundFault("The endpoint template could not be found")
-        dendpoint = db_models.Endpoints()
+        dendpoint = models.Endpoints()
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
         dendpoint = db_api.endpoint_template.endpoint_add(dendpoint)
