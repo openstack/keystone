@@ -16,103 +16,108 @@
 #    under the License.
 
 from keystone.backends.sqlalchemy import get_session, models
+from keystone.backends.api import BaseTenantGroupAPI
 
-def create(values):
-    group_ref = models.Group()
-    group_ref.update(values)
-    group_ref.save()
-    return group_ref
-
-
-def is_empty(id, session=None):
-    if not session:
-        session = get_session()
-    a_user = session.query(models.UserGroupAssociation).filter_by(
-        group_id=id).first()
-    if a_user != None:
-        return False
-    return True
-
-
-def get(id, tenant, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.Group).filter_by(id=id, \
-            tenant_id=tenant).first()
-
-    return result
-
-
-def get_page(tenantId, marker, limit, session=None):
-    if not session:
-        session = get_session()
-
-    if marker:
-        return session.query(models.Group).filter("id>:marker").params(\
-                marker='%s' % marker).filter_by(\
+class TenantGroupAPI(BaseTenantGroupAPI):
+    def create(self, values):
+        group_ref = models.Group()
+        group_ref.update(values)
+        group_ref.save()
+        return group_ref
+    
+    
+    def is_empty(self, id, session=None):
+        if not session:
+            session = get_session()
+        a_user = session.query(models.UserGroupAssociation).filter_by(
+            group_id=id).first()
+        if a_user != None:
+            return False
+        return True
+    
+    
+    def get(self, id, tenant, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.Group).filter_by(id=id, \
+                tenant_id=tenant).first()
+    
+        return result
+    
+    
+    def get_page(self, tenantId, marker, limit, session=None):
+        if not session:
+            session = get_session()
+    
+        if marker:
+            return session.query(models.Group).filter("id>:marker").params(\
+                    marker='%s' % marker).filter_by(\
+                    tenant_id=tenantId).order_by(\
+                    models.Group.id.desc()).limit(limit).all()
+        else:
+            return session.query(models.Group).filter_by(tenant_id=tenantId)\
+                            .order_by(models.Group.id.desc()).limit(limit).all()
+        #return session.query(models.Tenant).all()
+    
+    
+    def get_page_markers(self, tenantId, marker, limit, session=None):
+        if not session:
+            session = get_session()
+        first = session.query(models.Group).filter_by(\
                 tenant_id=tenantId).order_by(\
-                models.Group.id.desc()).limit(limit).all()
-    else:
-        return session.query(models.Group).filter_by(tenant_id=tenantId)\
-                        .order_by(models.Group.id.desc()).limit(limit).all()
-    #return session.query(models.Tenant).all()
+                models.Group.id).first()
+        last = session.query(models.Group).filter_by(\
+                tenant_id=tenantId).order_by(\
+                models.Group.id.desc()).first()
+    
+        if first is None:
+            return (None, None)
+        if marker is None:
+            marker = first.id
+        next = session.query(models.Group).filter("id > :marker").params(\
+                        marker='%s' % marker).filter_by(\
+                        tenant_id=tenantId).order_by(\
+                        models.Group.id).limit(limit).all()
+        prev = session.query(models.Group).filter("id < :marker").params(\
+                        marker='%s' % marker).filter_by(\
+                        tenant_id=tenantId).order_by(\
+                        models.Group.id.desc()).limit(int(limit)).all()
+        if len(next) == 0:
+            next = last
+        else:
+            for t in next:
+                next = t
+        if len(prev) == 0:
+            prev = first
+        else:
+            for t in prev:
+                prev = t
+        if prev.id == marker:
+            prev = None
+        else:
+            prev = prev.id
+        if next.id == last.id:
+            next = None
+        else:
+            next = next.id
+        return (prev, next)
+    
+    
+    def update(self, id, tenant_id, values, session=None):
+        if not session:
+            session = get_session()
+        with session.begin():
+            tenant_ref = self.get(id, tenant_id, session)
+            tenant_ref.update(values)
+            tenant_ref.save(session=session)
+    
+    
+    def delete(self, id, tenant_id, session=None):
+        if not session:
+            session = get_session()
+        with session.begin():
+            tenantgroup_ref = self.get(id, tenant_id, session)
+            session.delete(tenantgroup_ref)
 
-
-def get_page_markers(tenantId, marker, limit, session=None):
-    if not session:
-        session = get_session()
-    first = session.query(models.Group).filter_by(\
-            tenant_id=tenantId).order_by(\
-            models.Group.id).first()
-    last = session.query(models.Group).filter_by(\
-            tenant_id=tenantId).order_by(\
-            models.Group.id.desc()).first()
-
-    if first is None:
-        return (None, None)
-    if marker is None:
-        marker = first.id
-    next = session.query(models.Group).filter("id > :marker").params(\
-                    marker='%s' % marker).filter_by(\
-                    tenant_id=tenantId).order_by(\
-                    models.Group.id).limit(limit).all()
-    prev = session.query(models.Group).filter("id < :marker").params(\
-                    marker='%s' % marker).filter_by(\
-                    tenant_id=tenantId).order_by(\
-                    models.Group.id.desc()).limit(int(limit)).all()
-    if len(next) == 0:
-        next = last
-    else:
-        for t in next:
-            next = t
-    if len(prev) == 0:
-        prev = first
-    else:
-        for t in prev:
-            prev = t
-    if prev.id == marker:
-        prev = None
-    else:
-        prev = prev.id
-    if next.id == last.id:
-        next = None
-    else:
-        next = next.id
-    return (prev, next)
-
-
-def update(id, tenant_id, values, session=None):
-    if not session:
-        session = get_session()
-    with session.begin():
-        tenant_ref = get(id, tenant_id, session)
-        tenant_ref.update(values)
-        tenant_ref.save(session=session)
-
-
-def delete(id, tenant_id, session=None):
-    if not session:
-        session = get_session()
-    with session.begin():
-        tenantgroup_ref = get(id, tenant_id, session)
-        session.delete(tenantgroup_ref)
+def get():
+    return TenantGroupAPI()

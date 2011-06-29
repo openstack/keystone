@@ -33,6 +33,7 @@ BASE = models.Base
 MODEL_PREFIX = 'keystone.backends.sqlalchemy.models.'
 API_PREFIX = 'keystone.backends.sqlalchemy.api.'
 
+
 def configure_backend(options):
     """
     Establish the database, create an engine if needed, and
@@ -82,11 +83,11 @@ def register_models(options):
         top_models.set_value(supported_alchemy_model, model)
         if model.__api__ != None:
             model_api = utils.import_module(API_PREFIX + model.__api__)
-            top_api.set_value(model.__api__, model_api)
+            top_api.set_value(model.__api__, model_api.get())
     creation_tables = []
     for table in reversed(BASE.metadata.sorted_tables):
         if table in supported_alchemy_tables:
-          creation_tables.append(table)
+            creation_tables.append(table)
     BASE.metadata.create_all(_ENGINE, tables=creation_tables, checkfirst=True)
 
 
