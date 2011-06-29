@@ -38,9 +38,9 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 import tools.tracer #@UnusedImport # module runs on import
 import keystone
 from keystone.common import config
-import keystone.db.sqlalchemy as db
-import keystone.db.sqlalchemy.api as db_api
-import keystone.db.sqlalchemy.models as db_models
+import keystone.backends as db
+import keystone.backends.api as db_api
+import keystone.backends.sqlalchemy.models as db_models
 
 
 def Main():
@@ -72,7 +72,6 @@ def Main():
     # Parse command-line and load config
     (options, args) = config.parse_options(parser)
     config_file, conf = config.load_paste_config('admin', options, args)
-
     # Check arguments
     if len(args) == 0:
         parser.error('No object type specified for first argument')
@@ -105,11 +104,10 @@ def Main():
     verbose = verbose in [True, "True", "1"]
     if debug or verbose:
         config_file = config.find_config_file(options, args)
-        print "Using config file:", config_file
 
     config.setup_logging(options, conf)
     
-    db.configure_db(conf)
+    db.configure_backends(conf.global_conf)
 
     if object_type == "user":
         if command == "add":

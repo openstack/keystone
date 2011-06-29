@@ -49,7 +49,8 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
 
 
 from keystone.common import wsgi
-import keystone.db.sqlalchemy as db
+import keystone.backends as db
+import keystone.backends.alterdb
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
@@ -63,6 +64,7 @@ logger = logging.getLogger('keystone.server')
 
 VERSION_STATUS = "ALPHA"
 VERSION_DATE = "2011-04-23T00:00:00Z"
+
 
 service = serv.IdentityService()
 
@@ -530,14 +532,12 @@ def get_url(req):
 
 
 class KeystoneAPI(wsgi.Router):
-    """WSGI entry point for public Keystone API requests."""
 
+    """WSGI entry point for public Keystone API requests."""
     def __init__(self, options):
         self.options = options
         mapper = routes.Mapper()
-
-        db.configure_db(options)
-
+        db.configure_backends(options)
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,
@@ -587,7 +587,7 @@ class KeystoneAdminAPI(wsgi.Router):
         self.options = options
         mapper = routes.Mapper()
 
-        db.configure_db(options)
+        db.configure_backends(options)
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/v2.0/tokens", controller=auth_controller,

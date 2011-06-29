@@ -27,8 +27,8 @@ from lxml import etree, objectify
 import webob
 
 from keystone import server
-import keystone.db.sqlalchemy as db
-import keystone.db.sqlalchemy.api as db_api
+import keystone.backends.sqlalchemy as db
+import keystone.backends.sqlalchemy.api as db_api
 
 logger = logging.getLogger('test.unit.base')
 

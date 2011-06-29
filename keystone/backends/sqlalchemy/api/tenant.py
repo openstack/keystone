@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.db.sqlalchemy import get_session, models, aliased
+from keystone.backends.sqlalchemy import get_session, models, aliased
 
 
 def create(values):
