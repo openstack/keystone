@@ -25,12 +25,14 @@ from keystone.common import config
 from keystone.backends.alterdb import models
 import keystone.utils as utils
 import keystone.backends.api as top_api
+import keystone.backends.models as top_models
 
 _ENGINE = None
 _MAKER = None
 BASE = models.Base
 MODEL_PREFIX = 'keystone.backends.alterdb.models.'
 API_PREFIX = 'keystone.backends.alterdb.api.'
+
 
 def configure_backend(options):
     """
@@ -78,14 +80,16 @@ def register_models(options):
     for supported_alchemy_model in supported_alchemy_models:
         model = utils.import_module(MODEL_PREFIX + supported_alchemy_model)
         supported_alchemy_tables.append(model.__table__)
+        top_models.set_value(supported_alchemy_model, model)
         if model.__api__ != None:
             model_api = utils.import_module(API_PREFIX + model.__api__)
-            top_api.set_value(model.__api__, model_api)
+            top_api.set_value(model.__api__, model_api.get())
     creation_tables = []
     for table in reversed(BASE.metadata.sorted_tables):
         if table in supported_alchemy_tables:
-          creation_tables.append(table)
+            creation_tables.append(table)
     BASE.metadata.create_all(_ENGINE, tables=creation_tables, checkfirst=True)
+
 
 def unregister_models():
     """Unregister Models, useful clearing out data before testing"""

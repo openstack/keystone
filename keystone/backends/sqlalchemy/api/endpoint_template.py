@@ -16,170 +16,170 @@
 #    under the License.
 
 from keystone.backends.sqlalchemy import get_session, models, aliased
-
-def create(values):
-    endpoint_template = models.EndpointTemplates()
-    endpoint_template.update(values)
-    endpoint_template.save()
-    return endpoint_template
+from keystone.backends.api import BaseEndpointTemplateAPI
 
 
-def get(id, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.EndpointTemplates).filter_by(id=id).first()
-    return result
-
-
-def get_all(session=None):
-    if not session:
-        session = get_session()
-    return session.query(models.EndpointTemplates).all()
-
-
-def get_page(marker, limit, session=None):
-    if not session:
-        session = get_session()
-
-    if marker:
-        return session.query(models.EndpointTemplates).filter("id>:marker").params(\
-                marker='%s' % marker).order_by(\
-                models.EndpointTemplates.id.desc()).limit(limit).all()
-    else:
-        return session.query(models.EndpointTemplates).order_by(\
-                            models.EndpointTemplates.id.desc()).limit(limit).all()
-
-
-def get_page_markers(marker, limit, session=None):
-    if not session:
-        session = get_session()
-    first = session.query(models.EndpointTemplates).order_by(\
-                        models.EndpointTemplates.id).first()
-    last = session.query(models.EndpointTemplates).order_by(\
-                        models.EndpointTemplates.id.desc()).first()
-    if first is None:
-        return (None, None)
-    if marker is None:
-        marker = first.id
-    next = session.query(models.EndpointTemplates).filter("id > :marker").params(\
+class EndpointTemplateAPI(BaseEndpointTemplateAPI):
+    def create(self, values):
+        endpoint_template = models.EndpointTemplates()
+        endpoint_template.update(values)
+        endpoint_template.save()
+        return endpoint_template
+    
+    def get(self, id, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.EndpointTemplates).\
+            filter_by(id=id).first()
+        return result
+    
+    def get_all(self, session=None):
+        if not session:
+            session = get_session()
+        return session.query(models.EndpointTemplates).all()
+    
+    def get_page(self, marker, limit, session=None):
+        if not session:
+            session = get_session()
+    
+        if marker:
+            return session.query(models.EndpointTemplates).\
+                    filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.EndpointTemplates.id).limit(limit).all()
-    prev = session.query(models.EndpointTemplates).filter("id < :marker").params(\
-                    marker='%s' % marker).order_by(\
-                    models.EndpointTemplates.id.desc()).limit(int(limit)).all()
-    if len(next) == 0:
-        next = last
-    else:
-        for t in next:
-            next = t
-    if len(prev) == 0:
-        prev = first
-    else:
-        for t in prev:
-            prev = t
-    if prev.id == marker:
-        prev = None
-    else:
-        prev = prev.id
-    if next.id == last.id:
-        next = None
-    else:
-        next = next.id
-    return (prev, next)
-
-
-def endpoint_get_by_tenant_get_page(tenant_id, marker, limit,
-                                        session=None):
-    if not session:
-        session = get_session()
-    if marker:
-        return session.query(models.Endpoints).\
-            filter(models.Endpoints.tenant_id == tenant_id).\
-            filter("id >= :marker").params(
-            marker='%s' % marker).order_by(
-            models.Endpoints.id).limit(limit).all()
-    else:
-        return session.query(models.Endpoints).\
-            filter(models.Endpoints.tenant_id == tenant_id).\
-            order_by(models.Endpoints.id).limit(limit).all()
-
-
-def endpoint_get_by_tenant_get_page_markers(tenant_id, marker, limit,
-                                                session=None):
-    if not session:
-        session = get_session()
-    tba = aliased(models.Endpoints)
-    first = session.query(tba).\
-                    filter(tba.tenant_id == tenant_id).\
-                    order_by(tba.id).first()
-    last = session.query(tba).\
-                filter(tba.tenant_id == tenant_id).\
-                order_by(tba.id.desc()).first()
-    if first is None:
-        return (None, None)
-    if marker is None:
-        marker = first.id
-    next = session.query(tba).\
-                filter(tba.tenant_id == tenant_id).\
-                filter("id>=:marker").params(
+                    models.EndpointTemplates.id.desc()).limit(limit).all()
+        else:
+            return session.query(models.EndpointTemplates).order_by(\
+                                models.EndpointTemplates.id.desc()).\
+                                limit(limit).all()
+    
+    def get_page_markers(self, marker, limit, session=None):
+        if not session:
+            session = get_session()
+        first = session.query(models.EndpointTemplates).order_by(\
+                            models.EndpointTemplates.id).first()
+        last = session.query(models.EndpointTemplates).order_by(\
+                            models.EndpointTemplates.id.desc()).first()
+        if first is None:
+            return (None, None)
+        if marker is None:
+            marker = first.id
+        next = session.query(models.EndpointTemplates).filter("id > :marker").params(\
+                        marker='%s' % marker).order_by(\
+                        models.EndpointTemplates.id).limit(limit).all()
+        prev = session.query(models.EndpointTemplates).filter("id < :marker").params(\
+                        marker='%s' % marker).order_by(\
+                        models.EndpointTemplates.id.desc()).limit(int(limit)).all()
+        if len(next) == 0:
+            next = last
+        else:
+            for t in next:
+                next = t
+        if len(prev) == 0:
+            prev = first
+        else:
+            for t in prev:
+                prev = t
+        if prev.id == marker:
+            prev = None
+        else:
+            prev = prev.id
+        if next.id == last.id:
+            next = None
+        else:
+            next = next.id
+        return (prev, next)
+    
+    def endpoint_get_by_tenant_get_page(self, tenant_id, marker, limit,
+                                            session=None):
+        if not session:
+            session = get_session()
+        if marker:
+            return session.query(models.Endpoints).\
+                filter(models.Endpoints.tenant_id == tenant_id).\
+                filter("id >= :marker").params(
                 marker='%s' % marker).order_by(
-                tba.id).limit(int(limit)).all()
-
-    prev = session.query(tba).\
+                models.Endpoints.id).limit(limit).all()
+        else:
+            return session.query(models.Endpoints).\
+                filter(models.Endpoints.tenant_id == tenant_id).\
+                order_by(models.Endpoints.id).limit(limit).all()
+    
+    def endpoint_get_by_tenant_get_page_markers(self, tenant_id, marker, limit,
+                                                    session=None):
+        if not session:
+            session = get_session()
+        tba = aliased(models.Endpoints)
+        first = session.query(tba).\
+                        filter(tba.tenant_id == tenant_id).\
+                        order_by(tba.id).first()
+        last = session.query(tba).\
                     filter(tba.tenant_id == tenant_id).\
-                    filter("id < :marker").params(
+                    order_by(tba.id.desc()).first()
+        if first is None:
+            return (None, None)
+        if marker is None:
+            marker = first.id
+        next = session.query(tba).\
+                    filter(tba.tenant_id == tenant_id).\
+                    filter("id>=:marker").params(
                     marker='%s' % marker).order_by(
-                    tba.id).limit(int(limit) + 1).all()
-    next_len = len(next)
-    prev_len = len(prev)
+                    tba.id).limit(int(limit)).all()
+    
+        prev = session.query(tba).\
+                        filter(tba.tenant_id == tenant_id).\
+                        filter("id < :marker").params(
+                        marker='%s' % marker).order_by(
+                        tba.id).limit(int(limit) + 1).all()
+        next_len = len(next)
+        prev_len = len(prev)
+    
+        if next_len == 0:
+            next = last
+        else:
+            for t in next:
+                next = t
+        if prev_len == 0:
+            prev = first
+        else:
+            for t in prev:
+                prev = t
+        if first.id == marker:
+            prev = None
+        else:
+            prev = prev.id
+        if marker == last.id:
+            next = None
+        else:
+            next = next.id
+        return (prev, next)
+    
+    def endpoint_add(self, values):
+        endpoints = models.Endpoints()
+        endpoints.update(values)
+        endpoints.save()
+        return endpoints
+    
+    def endpoint_get(self, id, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.Endpoints).\
+                        filter_by(id=id).first()
+        return result
+    
+    def endpoint_get_by_tenant(self, tenant_id, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.Endpoints).\
+                        filter_by(tenant_id=tenant_id).first()
+        return result
+    
+    def endpoint_delete(self, id, session=None):
+        if not session:
+            session = get_session()
+        with session.begin():
+            endpoints = self.endpoint_get(id, session)
+            session.delete(endpoints)
 
-    if next_len == 0:
-        next = last
-    else:
-        for t in next:
-            next = t
-    if prev_len == 0:
-        prev = first
-    else:
-        for t in prev:
-            prev = t
-    if first.id == marker:
-        prev = None
-    else:
-        prev = prev.id
-    if marker == last.id:
-        next = None
-    else:
-        next = next.id
-    return (prev, next)
-
-
-def endpoint_add(values):
-    endpoints = models.Endpoints()
-    endpoints.update(values)
-    endpoints.save()
-    return endpoints
-
-
-def endpoint_get(id, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.Endpoints).\
-                    filter_by(id=id).first()
-    return result
-
-
-def endpoint_get_by_tenant(tenant_id, session=None):
-    if not session:
-        session = get_session()
-    result = session.query(models.Endpoints).\
-                    filter_by(tenant_id=tenant_id).first()
-    return result
-
-
-def endpoint_delete(id, session=None):
-    if not session:
-        session = get_session()
-    with session.begin():
-        endpoints = endpoint_get(id, session)
-        session.delete(endpoints)
+            
+def get():
+    return EndpointTemplateAPI()
