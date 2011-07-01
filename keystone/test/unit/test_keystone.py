@@ -1,12 +1,19 @@
 import logging
-from lxml import etree
 import os
 import unittest
 
 MODULE_EXTENSIONS = set('.py'.split())
-TEST_FILES = ['test_authentication.py', 'test_keystone.py', 'test_tenants.py',
-              'test_common.py', 'test_users.py', 'test_tenant_groups.py',
-              'test_token.py', 'test_version.py', 'test_groups.py']
+TEST_FILES = [
+    'test_auth.py',
+    'test_authentication.py',
+    'test_common.py',
+    'test_groups.py',
+    'test_keystone.py',
+    'test_tenants.py',
+    'test_tenant_groups.py',
+    'test_token.py',
+    'test_users.py',
+    'test_version.py']
 
 
 def unit_test_extractor(tup, path, filenames):
