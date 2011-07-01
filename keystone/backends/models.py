@@ -58,4 +58,4 @@ def set_value(variable_name, value):
         Token = value
     elif variable_name == 'EndpointTemplates':
         global EndpointTemplates
-        EndpointTemplates = value                
+        EndpointTemplates = value
