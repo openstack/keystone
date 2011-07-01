@@ -16,6 +16,7 @@
 
 import json
 import logging
+import unittest
 
 from keystone.test.unit import base
 from keystone.test.unit.decorators import jsonify, xmlify
@@ -460,3 +461,6 @@ class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
                   </user>
                  </auth>"""
         self.assert_xml_strings_equal(expected, self.res.body)
+
+if __name__ == '__main__':
+    unittest.main()
