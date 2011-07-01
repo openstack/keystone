@@ -19,6 +19,7 @@ import uuid
 
 import keystone.logic.types.auth as auth
 import keystone.logic.types.atom as atom
+import keystone.backends as backends
 import keystone.backends.api as api
 import keystone.backends.models as models
 import keystone.logic.types.fault as fault
@@ -27,7 +28,6 @@ import keystone.logic.types.role as roles
 import keystone.logic.types.user as get_users
 import keystone.logic.types.endpoint as endpoints
 import keystone.utils as utils
-#TODO(Yogi) Remove references to specific backend model and move them to generic models.
 
 
 class IdentityService(object):
@@ -488,13 +488,13 @@ class IdentityService(object):
                                    dtenantuser.email, dtenantuser.enabled))
         links = []
         if ts.__len__():
-            prev, next = api.user.users_get_by_tenant_get_page_markers(tenant_id,
-                                                             marker, limit)
+            prev, next = api.user.users_get_by_tenant_get_page_markers(
+                    tenant_id, marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return get_users.Users(ts, links)
 
@@ -509,10 +509,10 @@ class IdentityService(object):
         if ts.__len__():
             prev, next = api.user.users_get_page_markers(marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return get_users.Users(ts, links)
 
@@ -533,8 +533,8 @@ class IdentityService(object):
         for dusergroup, dusergroupAsso in dusergroups:
             ts.append(tenants.Group(dusergroup.id, dusergroup.tenant_id, None))
 
-        return get_users.User_Update(None, duser.id, duser.tenant_id, duser.email,
-                                 duser.enabled, ts)
+        return get_users.User_Update(None, duser.id, duser.tenant_id,
+                duser.email, duser.enabled, ts)
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
@@ -582,7 +582,8 @@ class IdentityService(object):
 
         api.user.update(user_id, values)
 
-        return get_users.User_Update(user.password, None, None, None, None, None)
+        return get_users.User_Update(user.password,
+            None, None, None, None, None)
 
     def enable_disable_user(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
@@ -600,7 +601,8 @@ class IdentityService(object):
 
         api.user.update(user_id, values)
 
-        return get_users.User_Update(None, None, None, None, user.enabled, None)
+        return get_users.User_Update(None,
+            None, None, None, user.enabled, None)
 
     def set_user_tenant(self, admin_token, user_id, user):
         self.__validate_token(admin_token)
@@ -617,7 +619,8 @@ class IdentityService(object):
         dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
         values = {'tenant_id': user.tenant_id}
         api.user.update(user_id, values)
-        return get_users.User_Update(None, None, user.tenant_id, None, None, None)
+        return get_users.User_Update(None,
+            None, user.tenant_id, None, None, None)
 
     def delete_user(self, admin_token, user_id):
         self.__validate_token(admin_token)
@@ -647,10 +650,10 @@ class IdentityService(object):
             prev, next = api.group.get_by_user_get_page_markers(user_id,
                                                         marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return tenants.Groups(ts, links)
 
@@ -704,10 +707,10 @@ class IdentityService(object):
                                                        marker, limit)
         links = []
         if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                   (url, prev, limit)))
         if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                   (url, next, limit)))
         return tenants.GlobalGroups(ts, links)
 
@@ -890,7 +893,8 @@ class IdentityService(object):
         if admin:
             roleRefs = api.role.ref_get_all_global_roles(user.id)
             for roleRef in roleRefs:
-                if roleRef.role_id == "Admin" and roleRef.tenant_id is None:
+                if roleRef.role_id == backends.KeyStoneAdminRole\
+                        and roleRef.tenant_id is None:
                     return (token, user)
             raise fault.UnauthorizedFault("You are not authorized "
                                        "to make this call")
@@ -1004,12 +1008,15 @@ class IdentityService(object):
         ts = []
         dendpointTemplates = api.endpoint_template.get_page(marker, limit)
         for dendpointTemplate in dendpointTemplates:
-            ts.append(endpoints.EndpointTemplate(dendpointTemplate.id, dendpointTemplate.region,
-                                       dendpointTemplate.service, dendpointTemplate.public_url,
-                                       dendpointTemplate.admin_url,
-                                       dendpointTemplate.internal_url,
-                                       dendpointTemplate.enabled,
-                                       dendpointTemplate.is_global))
+            ts.append(endpoints.EndpointTemplate(
+                dendpointTemplate.id,
+                dendpointTemplate.region,
+                dendpointTemplate.service,
+                dendpointTemplate.public_url,
+                dendpointTemplate.admin_url,
+                dendpointTemplate.internal_url,
+                dendpointTemplate.enabled,
+                dendpointTemplate.is_global))
         prev, next = api.endpoint_template.get_page_markers(marker, limit)
         links = []
         if prev:
@@ -1025,10 +1032,17 @@ class IdentityService(object):
 
         dendpointTemplate = api.endpoint_template.get(endpoint_template_id)
         if not dendpointTemplate:
-            raise fault.ItemNotFoundFault("The endpoint template could not be found")
-        return endpoints.EndpointTemplate(dendpointTemplate.id, dendpointTemplate.region, dendpointTemplate.service,
-                                dendpointTemplate.public_url, dendpointTemplate.admin_url,
-                                dendpointTemplate.internal_url, dendpointTemplate.enabled, dendpointTemplate.is_global)
+            raise fault.ItemNotFoundFault(
+                "The endpoint template could not be found")
+        return endpoints.EndpointTemplate(
+            dendpointTemplate.id,
+            dendpointTemplate.region,
+            dendpointTemplate.service,
+            dendpointTemplate.public_url,
+            dendpointTemplate.admin_url,
+            dendpointTemplate.internal_url,
+            dendpointTemplate.enabled,
+            dendpointTemplate.is_global)
 
     def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_token(admin_token)
@@ -1041,8 +1055,9 @@ class IdentityService(object):
         ts = []
 
         dtenantEndpoints = \
-            api.endpoint_template.endpoint_get_by_tenant_get_page(tenant_id, marker,
-                                                          limit)
+            api.endpoint_template.\
+                endpoint_get_by_tenant_get_page(
+                    tenant_id, marker, limit)
         for dtenantEndpoint in dtenantEndpoints:
             ts.append(endpoints.Endpoint(dtenantEndpoint.id,
                     url + '/endpointTemplates/' + \
