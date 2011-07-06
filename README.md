@@ -351,6 +351,11 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
 
 ## Relevant Technologies, Standards, and Links
 
+### Useful links
+
+https://sites.google.com/site/oauthgoog/Overlap
+
+
 ### Protocols
 We could potentially integrate with those:
 
