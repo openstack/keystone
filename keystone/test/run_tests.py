@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import time
 
@@ -20,7 +21,7 @@ if __name__ == '__main__':
         # blatent hack.
         time.sleep(3)
         if server.poll() is not None:
-            print >>sys.stderr, 'Failed to start server'
+            print >> sys.stderr, 'Failed to start server'
             sys.exit(-1)
         
         try:
