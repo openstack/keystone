@@ -27,19 +27,8 @@ overwrites the Accept header in the request, if present.
 
 """
 
-
-# Does this need to be configurable?
-DEFAULT_EXTS = {'xml': 'application/xml', 'json': 'application/json'}
-
-
-def scrub(uri, ext):
-    urisegs = uri.split('?')
-    first = urisegs[0][0: -(len(ext) + 1)]
-    if len(urisegs) > 1:
-        return '?'.join((first, urisegs[1], ))
-    else:
-        return first
-
+CONTENT_TYPES = {'json': 'application/json', 'xml': 'application/xml'}
+DEFAULT_CONTENT_TYPE = CONTENT_TYPES['json']
 
 class UrlExtensionFilter(object):
 
@@ -48,20 +37,22 @@ class UrlExtensionFilter(object):
         self.app = app
         self.conf = conf
 
-        print 'Starting extension handler middleware'
-
     def __call__(self, env, start_response):
         uri = env['PATH_INFO']
-        querysegs = uri.split('?')
-        ressegs = querysegs[0].split('.')
-        if len(ressegs) > 1:  # (Maybe) has an extension
-            ext = ressegs[-1]
-            if ext in DEFAULT_EXTS:
-                env['HTTP_ACCEPT'] = DEFAULT_EXTS[ext]
-                scrubbed = querysegs[0][0: -(len(ext) + 1)]  # Remove extension
-                if len(querysegs) > 1:  # Has query string
-                    env['PATH_INFO'] = '?'.join((scrubbed, querysegs[1], ))
-                else:
-                    env['PATH_INFO'] = scrubbed
-
+        (path, ext) = uri.rsplit('.', 1)
+        if ext in CONTENT_TYPES:
+            env['HTTP_ACCEPT'] = CONTENT_TYPES[ext]
+            env['PATH_INFO'] = path
+        elif 'HTTP_ACCEPT' not in env:
+            env['HTTP_ACCEPT'] = DEFAULT_CONTENT_TYPE
+        
         return self.app(env, start_response)
+
+def filter_factory(global_conf, **local_conf):
+    """Returns a WSGI filter app for use with paste.deploy."""
+    conf = global_conf.copy()
+    conf.update(local_conf)
+
+    def ext_filter(app):
+        return UrlExtensionFilter(app, conf)
+    return ext_filter
