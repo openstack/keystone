@@ -14,13 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
-# Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(
-    os.getcwd(), '..', '..', 'keystone')))
-from keystone.middleware.exthandler import UrlExtensionFilter
+
 import unittest
+from keystone.middleware.exthandler import UrlExtensionFilter
 
 
 class MockWsgiApp(object):
