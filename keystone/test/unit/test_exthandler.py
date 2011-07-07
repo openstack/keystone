@@ -19,7 +19,7 @@ import sys
 # Need to access identity module
 sys.path.append(os.path.abspath(os.path.join(
     os.getcwd(), '..', '..', 'keystone')))
-from keystone.queryext.exthandler import UrlExtensionFilter
+from keystone.middleware.exthandler import UrlExtensionFilter
 import unittest
 
 
