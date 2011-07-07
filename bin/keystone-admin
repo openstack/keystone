@@ -63,9 +63,10 @@ if __name__ == '__main__':
             print "Using config file:", config_file
 
         server = wsgi.Server()
-        server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Admin API listening on %s:%s" % (conf['bind_host'],
-                                              conf['bind_port'])
+        server.start(app, int(conf['admin_port']), conf['admin_host'])
+        
+        print "Admin API listening on %s:%s" % (
+            conf['admin_host'], conf['admin_port'])
 
         server.wait()
     except RuntimeError, e:
