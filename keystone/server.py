@@ -509,27 +509,18 @@ def get_marker_limit_and_url(req):
 
     if "limit" in req.GET:
         limit = req.GET["limit"]
+
     url = get_url(req)
+    
     return (marker, limit, url)
 
 
-def get_marker_and_limit(req):
-    marker = None
-    limit = 10
-
-    if "marker" in req.GET:
-        marker = req.GET["marker"]
-
-    if "limit" in req.GET:
-        limit = req.GET["limit"]
-
-
 def get_url(req):
-    url = '%s://%s:%s%s' % (req.environ['wsgi.url_scheme'],
-                     req.environ.get("SERVER_NAME"),
-                     req.environ.get("SERVER_PORT"),
-                     req.environ['PATH_INFO'])
-    return url
+    return '%s://%s:%s%s' % (
+        req.environ['wsgi.url_scheme'],
+        req.environ.get("SERVER_NAME"),
+        req.environ.get("SERVER_PORT"),
+        req.environ['PATH_INFO'])
 
 
 class KeystoneAPI(wsgi.Router):
