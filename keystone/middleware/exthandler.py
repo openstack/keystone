@@ -59,7 +59,7 @@ class UrlExtensionFilter(object):
             # Use the content type specified by the extension
             return (path, CONTENT_TYPES[ext])
         elif http_accept is None:
-            # No extension or Accept specified, use default
+            # No extension or Accept header specified, use default
             return (path_info, DEFAULT_CONTENT_TYPE)
         else:
             # Return what we were given
