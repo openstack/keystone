@@ -30,7 +30,8 @@ overwrites the Accept header in the request, if present.
 CONTENT_TYPES = {'json': 'application/json', 'xml': 'application/xml'}
 DEFAULT_CONTENT_TYPE = CONTENT_TYPES['json']
 
-class UrlExtensionFilter(object):
+class UrlRewriteFilter(object):
+    """Middleware filter to handle URL rewriting"""
 
     def __init__(self, app, conf):
         # app is the next app in WSGI chain - eventually the OpenStack service
@@ -78,5 +79,5 @@ def filter_factory(global_conf, **local_conf):
     conf.update(local_conf)
 
     def ext_filter(app):
-        return UrlExtensionFilter(app, conf)
+        return UrlRewriteFilter(app, conf)
     return ext_filter

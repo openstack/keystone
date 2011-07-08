@@ -57,7 +57,7 @@ setup(
     entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [
-            'extfilter=keystone.middleware.exthandler:filter_factory',
+            'extfilter=keystone.middleware.url:filter_factory',
             'remoteauth=keystone.middleware.remoteauth:remoteauth_factory',
             'tokenauth=keystone.auth_protocols.auth_token:filter_factory',
             'swiftauth=keystone.middleware.swift_auth:filter_factory',

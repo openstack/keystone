@@ -16,7 +16,7 @@
 
 
 import unittest
-from keystone.middleware.exthandler import UrlExtensionFilter
+from keystone.middleware.url import UrlRewriteFilter
 
 
 class MockWsgiApp(object):
@@ -35,7 +35,7 @@ def _start_response():
 class UrlExtensionFilterTest(unittest.TestCase):
 
     def setUp(self):
-        self.filter = UrlExtensionFilter(MockWsgiApp(), {})
+        self.filter = UrlRewriteFilter(MockWsgiApp(), {})
     
     def test_remove_trailing_slash(self):
         env = {'PATH_INFO': '/v2.0/'}
