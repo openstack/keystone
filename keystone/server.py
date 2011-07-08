@@ -543,9 +543,6 @@ class KeystoneAPI(wsgi.Router):
 
         # Miscellaneous Operations
         version_controller = VersionController(options)
-        mapper.connect("/v2.0/", controller=version_controller,
-                    action="get_version_info",
-                    conditions=dict(method=["GET"]))
         mapper.connect("/v2.0", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
@@ -755,9 +752,6 @@ class KeystoneAdminAPI(wsgi.Router):
 
         # Miscellaneous Operations
         version_controller = VersionController(options)
-        mapper.connect("/v2.0/", controller=version_controller,
-                    action="get_version_info",
-                    conditions=dict(method=["GET"]))
         mapper.connect("/v2.0", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
