@@ -355,28 +355,40 @@ class UserAPI(BaseUserAPI):
     
     
     def users_get_by_tenant_get_page(self, tenant_id, marker, limit, session=None):
+        # This is broken.  If a user has more than one role per project
+        # shit hits the fan because we're limiting the wrong model.
+        # Also the user lookup is nasty and potentially injectiable.
         if not session:
             session = get_session()
-        user = aliased(models.User)
+        user = aliased(models.UserRoleAssociation)
         if marker:
-            return session.query(user).\
-                                filter("tenant_id = :tenant_id").\
-                                params(tenant_id='%s' % tenant_id).\
-                                filter("id>=:marker").params(
-                                marker='%s' % marker).order_by(
-                                "id").limit(limit).all()
+            rv = session.query(user).\
+                         filter("tenant_id = :tenant_id").\
+                         params(tenant_id='%s' % tenant_id).\
+                         filter("id>=:marker").\
+                         params(marker='%s' % marker).\
+                         order_by("id").\
+                         limit(limit).\
+                         all()
         else:
-            return session.query(user).\
-                                 filter("tenant_id = :tenant_id").\
-                                params(tenant_id='%s' % tenant_id).order_by(
-                                "id").limit(limit).all()
+            rv = session.query(user).\
+                         filter("tenant_id = :tenant_id").\
+                         params(tenant_id='%s' % tenant_id).\
+                         order_by("id").\
+                         limit(limit).\
+                         all()
+        user_ids = set([assoc.user_id for assoc in rv])
+        users = session.query(models.User).\
+                      filter("id in ('%s')" % "','".join(user_ids)).\
+                      all()
+        return users
     
     
     def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit, \
             session=None):
         if not session:
             session = get_session()
-        user = aliased(models.User)
+        user = aliased(models.UserRoleAssociation)
         first = session.query(user).\
                         filter(user.tenant_id == tenant_id).\
                         order_by(user.id).first()
