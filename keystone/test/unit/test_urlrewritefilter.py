@@ -14,13 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
-# Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(
-    os.getcwd(), '..', '..', 'keystone')))
-from keystone.queryext.exthandler import UrlExtensionFilter
+
 import unittest
+from keystone.middleware.url import UrlRewriteFilter
 
 
 class MockWsgiApp(object):
@@ -39,7 +35,23 @@ def _start_response():
 class UrlExtensionFilterTest(unittest.TestCase):
 
     def setUp(self):
-        self.filter = UrlExtensionFilter(MockWsgiApp(), {})
+        self.filter = UrlRewriteFilter(MockWsgiApp(), {})
+    
+    def test_remove_trailing_slash(self):
+        env = {'PATH_INFO': '/v2.0/'}
+        self.filter(env, _start_response)
+        self.assertEqual('/v2.0', env['PATH_INFO'])
+    
+    def test_remove_trailing_slash_from_empty_path(self):
+        env = {'PATH_INFO': '/'}
+        self.filter(env, _start_response)
+        self.assertEqual('', env['PATH_INFO'])
+    
+    def test_no_extension(self):
+        env = {'PATH_INFO': '/v2.0/someresource'}
+        self.filter(env, _start_response)
+        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
+        self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
     def test_xml_extension(self):
         env = {'PATH_INFO': '/v2.0/someresource.xml'}
@@ -54,8 +66,9 @@ class UrlExtensionFilterTest(unittest.TestCase):
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
     def test_extension_overrides_header(self):
-        env = {'PATH_INFO': '/v2.0/someresource.json',
-                'HTTP_ACCEPT': 'application/xml'}
+        env = {
+            'PATH_INFO': '/v2.0/someresource.json',
+            'HTTP_ACCEPT': 'application/xml'}
         self.filter(env, _start_response)
         self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])

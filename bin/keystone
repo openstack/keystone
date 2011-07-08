@@ -69,20 +69,20 @@ if __name__ == '__main__':
             config_file = config.find_config_file(options, args)
             print "Using config file:", config_file
         
-        # Load API server
+        # Load Public API server
         server = wsgi.Server()
-        server.start(app, int(conf['server_bind_port']),
-                     conf['server_bind_host'])
-        print "Service API listening on %s:%s" % (conf['server_bind_host'],
-                                              conf['server_bind_port'])
-
+        server.start(app, int(conf['public_port']), conf['public_host'])
+        
+        print "Service API listening on %s:%s" % (
+            conf['public_host'], conf['public_port'])
+        
         # Load Admin API server
         admin_server = wsgi.Server()
-        admin_bind = options.get('admin_port') or admin_conf.get('bind_port')
-        admin_server.start(admin_app, int(admin_bind),
-                           admin_conf['bind_host'])
-        print "Admin API listening on %s:%s" % (admin_conf['bind_host'],
-                                              admin_bind)
+        admin_server.start(admin_app,
+            int(conf['admin_port']), conf['admin_host'])
+        
+        print "Admin API listening on %s:%s" % (
+            conf['admin_host'], conf['admin_port'])
         
         # Wait until done
         server.wait()

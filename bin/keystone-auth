@@ -54,6 +54,7 @@ if __name__ == '__main__':
     try:
         # Load Service API server
         conf, app = config.load_paste_app('keystone-legacy-auth', options, args)
+        
         debug = options.get('debug') or conf.get('debug', False)
         debug = debug in [True, "True", "1"]
         verbose = options.get('verbose') or conf.get('verbose', False)
@@ -63,10 +64,11 @@ if __name__ == '__main__':
             print "Using config file:", config_file
         
         server = wsgi.Server()
-        server.start(app, int(conf['server_bind_port']),
-                     conf['server_bind_host'])
-        print "Service API listening on %s:%s" % (conf['server_bind_host'],
-                                              conf['server_bind_port'])
+        server.start(app, int(conf['public_port']), conf['public_host'])
+        
+        print "Service API listening on %s:%s" % (
+            conf['public_host'], conf['public_port'])
+        
         server.wait()
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

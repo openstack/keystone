@@ -16,19 +16,10 @@
 
 
 import functools
-import httplib
-import json
 import logging
 import os
-import routes
 import sys
-import hashlib
 from webob import Response
-from webob import Request
-from webob import descriptors
-from webob.exc import (HTTPNotFound,
-                       HTTPConflict,
-                       HTTPBadRequest)
 
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
@@ -36,14 +27,12 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
 
-from queryext import exthandler
 import keystone.logic.types.fault as fault
 
 
 def is_xml_response(req):
-    if not "Accept" in req.headers:
-        return False
-    return req.content_type == "application/xml"
+    """Returns True when the request wants an XML response, False otherwise"""
+    return "Accept" in req.headers and "application/xml" in req.accept
 
 
 def get_app_root():
@@ -180,5 +169,5 @@ def import_module(module_name, class_name=None):
         __import__(module_name)
         return getattr(sys.modules[module_name], class_name)
     except (ImportError, ValueError, AttributeError), exception:
-        raise ImportError(_('Class %s.%s cannot be found (%s)') %
+        raise ImportError(_('Class %s.%s cannot be found (%s)') % 
             (module_name, class_name, exception))   
