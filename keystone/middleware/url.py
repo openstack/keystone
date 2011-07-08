@@ -59,7 +59,8 @@ class UrlRewriteFilter(object):
         if ext in CONTENT_TYPES:
             # Use the content type specified by the extension
             return (path, CONTENT_TYPES[ext])
-        elif http_accept is None:
+        elif http_accept is None or http_accept == '*/*':
+            # TODO: This probably isn't the best place to handle "Accept: */*"
             # No extension or Accept header specified, use default
             return (path_info, DEFAULT_CONTENT_TYPE)
         else:
