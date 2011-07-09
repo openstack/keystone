@@ -53,10 +53,13 @@ class AuthProtocol(object):
         print "Starting the %s component" % PROTOCOL_NAME
         self.conf = conf
         self.app = app
+        self.start_response = None
+        self.env = None
+        self.request = None
 
-    """Handle 1.0 and 1.1 calls via middleware.
-    Right now Iam treating every call of 1.0 and 1.1 as call
-    to authenticate"""
+    # Handle 1.0 and 1.1 calls via middleware.
+    # Right now I am treating every call of 1.0 and 1.1 as call
+    # to authenticate
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
         self.start_response = start_response
@@ -67,7 +70,7 @@ class AuthProtocol(object):
             params = {"passwordCredentials":
                 {"username": utils.get_auth_user(self.request),
                     "password": utils.get_auth_key(self.request)}}
-            #Make request to keystone        
+            #Make request to keystone
             new_request = Request.blank('/v2.0/tokens')
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'text/json'
@@ -77,7 +80,7 @@ class AuthProtocol(object):
             #Handle failures.
             if not str(response.status).startswith('20'):
                 return response(env, start_response)
-            headers = self.transform_keystone_auth_to_legacy_headers(
+            headers = self.__transform_headers(
                 json.loads(response.body))
             resp = utils.send_legacy_result(204, headers)
             return resp(env, start_response)
@@ -85,7 +88,8 @@ class AuthProtocol(object):
             # Other calls pass to downstream WSGI component
             return self.app(self.env, self.start_response)
 
-    def transform_keystone_auth_to_legacy_headers(self, content):
+    def __transform_headers(self, content):
+        """Transform Keystone auth to legacy headers"""
         headers = {}
         if "auth" in content:
             auth = content["auth"]
@@ -119,5 +123,6 @@ def filter_factory(global_conf, **local_conf):
     conf.update(local_conf)
 
     def auth_filter(app):
+        """Closure to return"""
         return AuthProtocol(app, conf)
     return auth_filter
