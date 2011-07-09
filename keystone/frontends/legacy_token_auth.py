@@ -71,8 +71,8 @@ class AuthProtocol(object):
             new_request = Request.blank('/v2.0/tokens')
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'text/json'
-            new_request.body = json.dumps(params)
             new_request.method = 'POST'
+            new_request.body = json.dumps(params)
             response = new_request.get_response(self.app)
             #Handle failures.
             if not str(response.status).startswith('20'):
