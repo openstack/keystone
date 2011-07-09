@@ -162,7 +162,7 @@ class AuthProtocol(object):
                 if claims:
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
-                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" % 
+                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
                         claims['user'])
                     self._decorate_request('X_TENANT', claims['tenant'])
                     self._decorate_request('X_USER', claims['user'])
@@ -203,16 +203,17 @@ class AuthProtocol(object):
         return data
 
     def _get_claims(self, env):
+        """Get claims from request"""
         claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         return claims
 
     def _reject_request(self):
-        # Redirect client to auth server
+        """Redirect client to auth server"""
         return HTTPUseProxy(location=self.auth_location)(self.env,
             self.start_response)
 
     def _reject_claims(self):
-        # Client sent bad claims
+        """Client sent bad claims"""
         return HTTPUnauthorized()(self.env,
             self.start_response)
 
@@ -282,8 +283,8 @@ class AuthProtocol(object):
                 roles.append(role_ref["roleId"])
 
         verified_claims = {'user': token_info['auth']['user']['username'],
-                    'tenant': token_info['auth']['user']['tenantId'], 'roles':roles}
-        
+                    'tenant': token_info['auth']['user']['tenantId'],
+                    'roles': roles}
 
         # TODO(Ziad): removed groups for now
         #            ,'group': '%s/%s' % (first_group['id'],
@@ -291,11 +292,12 @@ class AuthProtocol(object):
         return verified_claims
 
     def _decorate_request(self, index, value):
+        """Add headers to request"""
         self.proxy_headers[index] = value
         self.env["HTTP_%s" % index] = value
 
     def _forward_request(self):
-        #Token/Auth processed & claims added to headers
+        """Token/Auth processed & claims added to headers"""
         self._decorate_request('AUTHORIZATION',
                                   "Basic %s" % self.service_pass)
         #now decide how to pass on the call

@@ -64,7 +64,8 @@ class KeystoneAuthShim(wsgi.Middleware):
 
         # set user admin-ness to keystone admin-ness
         if user_ref.is_admin() != (req.headers.get('X_ROLE', None) == 'Admin'):
-            self.auth.modify_user(user_ref, admin=req.headers.get('X_ROLE') == 'Admin')
+            self.auth.modify_user(user_ref,
+                                  admin=req.headers.get('X_ROLE') == 'Admin')
 
         # create a project for tenant
         project_id = req.headers['X_TENANT']

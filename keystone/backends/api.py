@@ -132,81 +132,81 @@ class BaseUserAPI(object):
 class BaseTokenAPI(object):
     def create(self, values):
         pass
-    
+
     def get(self, id):
         pass
-    
+
     def delete(self, id):
         pass
-    
+
     def get_for_user(self, user_id):
         pass
-    
+
     def get_for_user_by_tenant(self, user_id, tenant_id):
         pass
 
     def get_all(self):
         pass
-    
+
 
 class BaseTenantGroupAPI(object):
     def create(self, values):
         pass
-    
+
     def is_empty(self, id):
         pass
-    
+
     def get(self, id, tenant):
         pass
-    
+
     def get_page(self, tenantId, marker, limit):
         pass
-    
+
     def get_page_markers(self, tenantId, marker, limit):
         pass
-    
+
     def update(self, id, tenant_id, values):
         pass
-    
+
     def delete(self, id, tenant_id):
         pass
-    
+
 
 class BaseTenantAPI(object):
-    
+
     def create(self, values):
         pass
-    
+
     def get(self, id):
         pass
-    
+
     def get_all(self):
         pass
-    
+
     def tenants_for_user_get_page(self, user, marker, limit):
         pass
-    
+
     def tenants_for_user_get_page_markers(self, user, marker, limit):
         pass
-    
+
     def get_page(self, marker, limit):
         pass
-    
+
     def get_page_markers(self, marker, limit):
         pass
-    
+
     def is_empty(self, id):
         pass
-    
+
     def update(self, id, values):
         pass
-    
+
     def delete(self, id):
         pass
-    
+
     def get_all_endpoints(self, tenant_id):
         pass
-    
+
     def get_role_assignments(self, tenant_id):
         pass
 
@@ -214,95 +214,95 @@ class BaseTenantAPI(object):
 class BaseRoleAPI(object):
     def create(self, values):
         pass
-    
+
     def get(self, id):
         pass
-    
+
     def get_all(self):
         pass
-    
+
     def get_page(self, marker, limit):
         pass
-    
+
     def ref_get_page(self, marker, limit, user_id):
         pass
-    
+
     def ref_get_all_global_roles(self, user_id):
         pass
-    
+
     def ref_get_all_tenant_roles(self, user_id, tenant_id):
         pass
-    
+
     def ref_get(self, id):
         pass
-    
+
     def ref_delete(self, id):
         pass
-    
+
     def get_page_markers(self, marker, limit):
         pass
-    
+
     def ref_get_page_markers(self, user_id, marker, limit):
         pass
 
-    
+
 class BaseGroupAPI(object):
     def get(self, id):
         pass
-    
+
     def get_users(self, id):
         pass
-    
+
     def get_all(self):
         pass
-    
+
     def get_page(self, marker, limit):
         pass
-    
+
     def get_page_markers(self, marker, limit):
         pass
-    
+
     def delete(self, id):
         pass
-    
+
     def get_by_user_get_page(self, user_id, marker, limit):
         pass
-    
+
     def get_by_user_get_page_markers(self, user_id, marker, limit):
         pass
-    
+
 
 class BaseEndpointTemplateAPI(object):
     def create(self, values):
         pass
-    
+
     def get(self, id):
         pass
-    
+
     def get_all(self):
         pass
-    
+
     def get_page(self, marker, limit):
         pass
-    
+
     def get_page_markers(self, marker, limit):
         pass
-    
+
     def endpoint_get_by_tenant_get_page(self, tenant_id, marker, limit):
         pass
-    
+
     def endpoint_get_by_tenant_get_page_markers(self, tenant_id, marker,
             limit):
         pass
-    
+
     def endpoint_add(self, values):
         pass
-    
+
     def endpoint_get(self, id):
         pass
-    
+
     def endpoint_get_by_tenant(self, tenant_id):
         pass
-    
+
     def endpoint_delete(self, id):
         pass
