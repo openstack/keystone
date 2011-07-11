@@ -30,7 +30,7 @@ import keystone.utils as utils
 
 
 class IdentityService(object):
-    "This is the logical implemenation of the Identity service"
+    """Implements Identity service"""
 
     #
     #  Token Operations
