@@ -36,8 +36,7 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 
 import tools.tracer #@UnusedImport # module runs on import
 import keystone
-from keystone.common import config
-from keystone.common import wsgi
+from keystone.common import config, wsgi
 
 
 if __name__ == '__main__':
