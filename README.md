@@ -83,11 +83,10 @@ $ cat tools/pip-requires
 # Install dependencies
 $ pip install -r tools/pip-requires
 
-# Install unit/functional test dependencies
+# Install test dependencies
 $ pip install -r tools/pip-requires-testing
 
-# Installing Development Dependencies
-This will install libraries used for development and testing
+# Install development dependencies
 $ pip install -r tools/pip-requires-development
 
 </pre>
