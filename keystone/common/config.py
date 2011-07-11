@@ -298,8 +298,7 @@ def load_paste_config(app_name, options, args):
         conf.global_conf.update(get_non_paste_configs(conf_file))
         return conf_file, conf
     except Exception, e:
-        raise RuntimeError("Error trying to load config %s: %s"
-                           % (conf_file, e))
+        raise RuntimeError("Error loading config %s: %s" % (conf_file, e))
 
 def get_non_paste_configs(conf_file):
     load_config_files(conf_file)
@@ -323,7 +322,6 @@ def load_config_files(config_files):
     if config_files is not None:
         config.read(config_files)
     return config
-
 
 
 def load_paste_app(app_name, options, args):
@@ -374,7 +372,7 @@ def load_paste_app(app_name, options, args):
             for key, value in sorted(items.items()):
                 logger.info("%(key)-20s %(value)s" % locals())
             logger.info("*" * 50)
-        app = deploy.loadapp("config:%s" % conf_file, name=app_name, global_conf= conf.global_conf)
+        app = deploy.loadapp("config:%s" % conf_file, name=app_name, global_conf=conf.global_conf)
     except (LookupError, ImportError), e:
         raise RuntimeError("Unable to load %(app_name)s from "
                            "configuration file %(conf_file)s."
