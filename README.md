@@ -111,6 +111,10 @@ By default, configuration parameters (such as the IP and port binding for each s
 
 Before running tests, ensure you have installed the testing dependencies as described in the Dependencies section above.
 
+To run the test suite in a single command:
+
+    $ python keystone/test/run_tests.py
+
 #### Test data
 A set of sample data can be added by running a shell script:
 
