@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import uuid
 
 import keystone.logic.types.auth as auth
@@ -354,10 +353,10 @@ class IdentityService(object):
             prev, next = api.user.users_tenant_group_get_page_markers(
                     groupId, marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
         return tenants.Users(ts, links)
 
@@ -491,10 +490,10 @@ class IdentityService(object):
             prev, next = api.user.users_get_by_tenant_get_page_markers(
                     tenant_id, marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
         return get_users.Users(ts, links)
 
@@ -509,10 +508,10 @@ class IdentityService(object):
         if ts.__len__():
             prev, next = api.user.users_get_page_markers(marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
         return get_users.Users(ts, links)
 
@@ -650,10 +649,10 @@ class IdentityService(object):
             prev, next = api.group.get_by_user_get_page_markers(user_id,
                                                         marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
         return tenants.Groups(ts, links)
 
@@ -707,10 +706,10 @@ class IdentityService(object):
                                                        marker, limit)
         links = []
         if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
+            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
                                   (url, prev, limit)))
         if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
+            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                   (url, next, limit)))
         return tenants.GlobalGroups(ts, links)
 
@@ -1065,8 +1064,8 @@ class IdentityService(object):
         links = []
         if ts.__len__():
             prev, next = \
-                api.endpoint_template.endpoint_get_by_tenant_get_page_markers(tenant_id,
-                                                        marker, limit)
+                api.endpoint_template.endpoint_get_by_tenant_get_page_markers(
+                    tenant_id, marker, limit)
             if prev:
                 links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
                                       (url, prev, limit)))
@@ -1085,7 +1084,8 @@ class IdentityService(object):
 
         dendpoint_template = api.endpoint_template.get(endpoint_template.id)
         if not dendpoint_template:
-            raise fault.ItemNotFoundFault("The endpoint template could not be found")
+            raise fault.ItemNotFoundFault(
+                "The endpoint template could not be found")
         dendpoint = models.Endpoints()
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
