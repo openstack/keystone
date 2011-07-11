@@ -227,10 +227,11 @@ class Router(object):
         or the routed WSGI app's response.
         """
         match = req.environ['wsgiorg.routing_args'][1]
+        
         if not match:
             return webob.exc.HTTPNotFound()
-        app = match['controller']
-        return app
+        
+        return match['controller']
 
 
 class Controller(object):
