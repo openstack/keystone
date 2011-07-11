@@ -58,7 +58,7 @@ import json
 import os
 from paste.deploy import loadapp
 from urlparse import urlparse
-from webob.exc import HTTPUnauthorized, HTTPUseProxy, HTTPExpectationFailed
+from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
@@ -162,7 +162,7 @@ class AuthProtocol(object):
                 if claims:
                     # TODO(Ziad): add additional details we may need,
                     #             like tenant and group info
-                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
+                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" % 
                         claims['user'])
                     self._decorate_request('X_TENANT', claims['tenant'])
                     self._decorate_request('X_USER', claims['user'])
