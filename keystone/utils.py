@@ -98,13 +98,10 @@ def send_error(code, req, result):
     resp.status = code
 
     if result:
-
         if is_xml_response(req):
-
             content = result.to_xml()
             resp.headers['content-type'] = "application/xml"
         else:
-
             content = result.to_json()
             resp.headers['content-type'] = "application/json"
 
@@ -123,7 +120,6 @@ def send_result(code, req, result):
         return resp
 
     if result:
-
         if is_xml_response(req):
             content = result.to_xml()
             resp.headers['content-type'] = "application/xml"
@@ -151,10 +147,12 @@ def send_legacy_result(code, headers):
 
     return resp
 
-#Currently using sha1 to hash.Need to figure if there is an openstack standard.Not using salt val as of now.
+# Currently using sha1 to hash, without a salt value.
+# Need to research relevant openstack standards.
 def get_hashed_password(password):
     if password != None and len(password) > 0:
         return password
+        # why is this disabled?
         #return hashlib.sha1(password).hexdigest()
     else:
         return None
