@@ -48,6 +48,7 @@ def app_factory(global_conf, **local_conf):
         print err
     return PublicApi(conf)
 
+
 def admin_app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating OpenStack API server apps"""
     try:

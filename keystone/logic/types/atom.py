@@ -16,7 +16,7 @@ from lxml import etree
 
 
 class Link(object):
-    "An atom link"
+    """An atom link"""
 
     def __init__(self, rel, href, link_type=None, hreflang=None, title=None):
         self.rel = rel
