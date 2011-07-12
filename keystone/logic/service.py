@@ -1107,9 +1107,8 @@ class IdentityService(object):
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
         dendpoint = api.endpoint_template.endpoint_add(dendpoint)
-        dendpoint = Endpoint(dendpoint.id, url + \
-                                         '/endpointTemplates/' + \
-                                         dendpoint.endpoint_template_id)
+        dendpoint = Endpoint(dendpoint.id, url + 
+            '/endpointTemplates/' + dendpoint.endpoint_template_id)
         return dendpoint
 
     def delete_endpoint(self, admin_token, endpoint_id):
