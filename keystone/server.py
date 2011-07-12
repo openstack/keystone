@@ -39,7 +39,7 @@ from keystone.backends import alterdb, sqlalchemy #@UnusedImport (?)
 from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
 
-def app_factory(global_conf, **local_conf):
+def service_app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating OpenStack API server apps"""
     try:
         conf = global_conf.copy()

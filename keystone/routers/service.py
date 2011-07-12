@@ -8,7 +8,7 @@ from keystone.controllers.version import VersionController
 from keystone.controllers.staticfiles import StaticFilesController
 
 class ServiceApi(wsgi.Router):
-    """WSGI entry point for public Keystone API requests."""
+    """WSGI entry point for Keystone Service API requests."""
     
     def __init__(self, options):
         self.options = options
