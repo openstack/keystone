@@ -18,37 +18,24 @@
 import httplib2
 import json
 from lxml import etree
-import os
-import sys
-# Need to access identity module
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
 import test_common  as utils
 
-from keystone.logic.types import fault 
+from keystone.logic.types import fault
 
 class AuthenticationTest(unittest.TestCase):
 
     def setUp(self):
-        
         self.tenant = utils.get_tenant()
-        self.token = utils.get_token('joeuser', 'secrete', self.tenant,
-                                     'token')
-        #self.user = utils.get_user()
+        self.token = utils.get_token(
+            'joeuser', 'secrete', self.tenant, 'token')
         self.userdisabled = utils.get_userdisabled()
         self.auth_token = utils.get_auth_token()
         utils.delete_all_endpoint(self.tenant, self.auth_token)
-        utils.create_endpoint(self.tenant, "1",
-            str(self.auth_token))
-        utils.create_endpoint(self.tenant, "2",
-            str(self.auth_token))
-        utils.create_endpoint(self.tenant, "3",
-            str(self.auth_token))
-        utils.create_endpoint(self.tenant, "4",
-            str(self.auth_token))
-        #self.exp_auth_token = utils.get_exp_auth_token()
-        #self.disabled_token = utils.get_disabled_token()
+        utils.create_endpoint(self.tenant, "1", str(self.auth_token))
+        utils.create_endpoint(self.tenant, "2", str(self.auth_token))
+        utils.create_endpoint(self.tenant, "3", str(self.auth_token))
+        utils.create_endpoint(self.tenant, "4", str(self.auth_token))
 
     def tearDown(self):
         utils.delete_token(self.token, self.auth_token)
@@ -84,11 +71,11 @@ class AuthenticationTest(unittest.TestCase):
             self.fail("Expecting Service Catalog")
 
     def test_a_authorize_legacy(self):
-        resp, content = utils.get_token_legacy('joeuser', 'secrete')
+        resp, _content = utils.get_token_legacy('joeuser', 'secrete')
         self.assertEqual(204, int(resp['status']))
         self.assertTrue(resp['x-auth-token'])
-        #self.assertTrue(resp['x-server-management-url'])
-        #self.assertTrue(resp['x-storage-url'])
+        self.assertTrue(resp['x-server-management-url'])
+        self.assertTrue(resp['x-storage-url'])
         self.assertTrue(resp['x-glance'])
         #Assert Existence of global endpoint
         self.assertTrue(resp['x-identity'])
@@ -171,19 +158,11 @@ class MultiToken(unittest.TestCase):
     def setUp(self):
         self.auth_token = utils.get_auth_token()
         self.userdisabled = utils.get_userdisabled()
-        resp1, content1 = utils.create_tenant('test_tenant1', self.auth_token)
-        #create tenant2
-        resp2, content2 = utils.create_tenant('test_tenant2', self.auth_token)
-        #create user1 with tenant1
-        resp3, content3 = utils.create_user('test_tenant1', 'test_user1',
-                                      self.auth_token)
-        resp3, content3 = utils.create_user('test_tenant1', 'test_user2',
-                                      self.auth_token)
-        #add user1 to tenant2
-        resp4, content4 = utils.add_user_json('test_tenant2', 'test_user1',
-                                      self.auth_token)
-        #self.exp_auth_token = utils.get_exp_auth_token()
-        #self.disabled_token = utils.get_disabled_token()
+        utils.create_tenant('test_tenant1', self.auth_token)
+        utils.create_tenant('test_tenant2', self.auth_token)
+        utils.create_user('test_tenant1', 'test_user1', self.auth_token)
+        utils.create_user('test_tenant1', 'test_user2', self.auth_token)
+        utils.add_user_json('test_tenant2', 'test_user1', self.auth_token)
 
     def tearDown(self):
         utils.delete_user('test_user1', self.auth_token)
@@ -192,26 +171,9 @@ class MultiToken(unittest.TestCase):
         utils.delete_tenant('test_tenant1', self.auth_token)
         utils.delete_tenant('test_tenant2', self.auth_token)
 
-    """ INVALID TEST - we're changing how we delegate access to second tenant
-    def test_multi_token(self):
-        #get token for user1 with tenant1
-        token1 = utils.get_token('test_user1', 'secrete', 'test_tenant1',\
-                                'token')
-        #get token for user 1 with tenant2
-        token2 = utils.get_token('test_user1', 'secrete', 'test_tenant2',\
-                                'token')
-        #test result :: both token should be different
-        self.assertNotEqual(token1, None)
-        self.assertNotEqual(token2, None)
-        self.assertNotEqual(token1, token2)
-
-        resp = utils.delete_token(token1, self.auth_token)
-        resp = utils.delete_token(token2, self.auth_token)
-    """
-
     def test_unassigned_user(self):
-        resp, content = utils.get_token('test_user2', 'secrete', \
-                                'test_tenant')
+        resp, _content = utils.get_token(
+            'test_user2', 'secrete', 'test_tenant')
 
         self.assertEqual(401, int(resp['status']))
 
