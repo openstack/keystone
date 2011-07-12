@@ -33,6 +33,6 @@ def configure_backends(options):
     for backend in backend_names.split(','):
         backend_module = utils.import_module(backend)
         backend_module.configure_backend(options[backend])
-        #Initialialize common configs general to all backends.
+        #Initialize common configs general to all backends.
         global KeyStoneAdminRole
         KeyStoneAdminRole = options["keystone-admin-role"]

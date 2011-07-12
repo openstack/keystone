@@ -83,11 +83,10 @@ $ cat tools/pip-requires
 # Install dependencies
 $ pip install -r tools/pip-requires
 
-# Install unit/functional test dependencies
+# Install test dependencies
 $ pip install -r tools/pip-requires-testing
 
-# Installing Development Dependencies
-This will install libraries used for development and testing
+# Install development dependencies
 $ pip install -r tools/pip-requires-development
 
 </pre>
@@ -111,6 +110,10 @@ By default, configuration parameters (such as the IP and port binding for each s
 ## Running Tests
 
 Before running tests, ensure you have installed the testing dependencies as described in the Dependencies section above.
+
+To run the test suite in a single command:
+
+    $ python keystone/test/run_tests.py
 
 #### Test data
 A set of sample data can be added by running a shell script:
