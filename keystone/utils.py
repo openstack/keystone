@@ -40,24 +40,18 @@ def get_app_root():
 
 
 def get_auth_token(req):
-    auth_token = None
     if "X-Auth-Token" in req.headers:
-        auth_token = req.headers["X-Auth-Token"]
-    return auth_token
+        return req.headers["X-Auth-Token"]
 
 
 def get_auth_user(req):
-    auth_user = None
     if "X-Auth-User" in req.headers:
-        auth_user = req.headers["X-Auth-User"]
-    return auth_user
+        return req.headers["X-Auth-User"]
 
 
 def get_auth_key(req):
-    auth_key = None
     if "X-Auth-Key" in req.headers:
-        auth_key = req.headers["X-Auth-Key"]
-    return auth_key
+        return req.headers["X-Auth-Key"]
 
 
 def wrap_error(func):
@@ -80,20 +74,19 @@ def wrap_error(func):
 def get_normalized_request_content(model, req):
     """Initialize a model from json/xml contents of request body"""
 
-    if  req.content_type == "application/xml":
-        ret = model.from_xml(req.body)
+    if req.content_type == "application/xml":
+        return model.from_xml(req.body)
     elif req.content_type == "application/json":
-        ret = model.from_json(req.body)
+        return model.from_json(req.body)
     else:
-        raise fault.IdentityFault("I don't understand the content type ",
+        raise fault.IdentityFault("I don't understand the content type",
                                   code=415)
-    return ret
 
 
 def send_error(code, req, result):
     content = None
-    resp = Response()
 
+    resp = Response()
     resp.headers['content-type'] = None
     resp.status = code
 
@@ -113,6 +106,7 @@ def send_error(code, req, result):
 
 def send_result(code, req, result):
     content = None
+    
     resp = Response()
     resp.headers['content-type'] = None
     resp.status = code
