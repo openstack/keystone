@@ -36,7 +36,7 @@ HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
 from keystone.backends import alterdb, sqlalchemy #@UnusedImport (?)
-from keystone.routers.public import PublicApi
+from keystone.routers.public import ServiceApi
 from keystone.routers.admin import AdminApi
 
 def app_factory(global_conf, **local_conf):
@@ -46,7 +46,7 @@ def app_factory(global_conf, **local_conf):
         conf.update(local_conf)
     except Exception as err:
         print err
-    return PublicApi(conf)
+    return ServiceApi(conf)
 
 
 def admin_app_factory(global_conf, **local_conf):

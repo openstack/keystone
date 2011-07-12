@@ -7,7 +7,7 @@ from keystone.controllers.tenant import TenantController
 from keystone.controllers.version import VersionController
 from keystone.controllers.staticfiles import StaticFilesController
 
-class PublicApi(wsgi.Router):
+class ServiceApi(wsgi.Router):
     """WSGI entry point for public Keystone API requests."""
     
     def __init__(self, options):
@@ -52,4 +52,4 @@ class PublicApi(wsgi.Router):
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))
 
-        super(PublicApi, self).__init__(mapper)
+        super(ServiceApi, self).__init__(mapper)
