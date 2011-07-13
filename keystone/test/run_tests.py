@@ -25,9 +25,13 @@ if __name__ == '__main__':
             sys.exit(-1)
         
         try:
-            # run tests
-            subprocess.check_call(['python',
-                          os.path.join(test_dir, 'unit/test_keystone.py')])
+            # run unit tests
+            subprocess.check_call(
+                ['python', os.path.join(test_dir, 'unit/test_keystone.py')])
+            
+            # run system tests
+            subprocess.check_call(
+                ['unit2', 'discover', 'keystone.test.system'])
         finally:
             #kill the keystone server
             server.kill()
