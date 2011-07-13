@@ -26,7 +26,7 @@ class Tenant(object):
     def __init__(self, tenant_id, description, enabled):
         self.tenant_id = tenant_id
         self.description = description
-        self.enabled = enabled and True or False
+        self.enabled = enabled
 
     @staticmethod
     def from_xml(xml_str):
