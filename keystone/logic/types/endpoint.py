@@ -15,12 +15,13 @@
 
 import json
 from lxml import etree
-import string
 
-import keystone.logic.types.fault as fault
+from keystone.logic.types import fault
 
 
 class EndpointTemplate(object):
+    """Document me!"""
+    
     @staticmethod
     def from_xml(xml_str):
         try:
@@ -156,7 +157,7 @@ class EndpointTemplate(object):
 
 
 class EndpointTemplates(object):
-    "A collection of endpointTemplates."
+    """A collection of endpointTemplates."""
 
     def __init__(self, values, links):
         self.values = values
@@ -182,6 +183,8 @@ class EndpointTemplates(object):
 
 
 class Endpoint(object):
+    """Document me!"""
+    
     def __init__(self, id, href):
         self.id = id
         self.href = href
@@ -211,7 +214,7 @@ class Endpoint(object):
 
 
 class Endpoints(object):
-    "A collection of endpoints."
+    """A collection of endpoints."""
 
     def __init__(self, values, links):
         self.values = values

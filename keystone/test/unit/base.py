@@ -28,7 +28,7 @@ import webob
 
 from keystone import server
 import keystone.backends.sqlalchemy as db
-import keystone.backends.sqlalchemy.api as db_api
+import keystone.backends.api as db_api
 
 logger = logging.getLogger('test.unit.base')
 
@@ -43,7 +43,7 @@ class ServiceAPITest(unittest.TestCase):
     The `api` attribute for this base class is the `server.KeystoneAPI`
     controller.
     """
-    api_class = server.KeystoneAPI
+    api_class = server.ServiceApi
 
     """
     Dict of configuration options to pass to the API controller
@@ -257,7 +257,7 @@ class AdminAPITest(ServiceAPITest):
     The `api` attribute for this base class is the `server.KeystoneAdminAPI`
     controller.
     """
-    api_class = server.KeystoneAdminAPI
+    api_class = server.AdminApi
 
     """
     Set of dicts of tenant attributes we start each test case with

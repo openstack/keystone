@@ -35,24 +35,17 @@ HTTP_AUTHORIZATION  : basic auth password used to validate the connection
 HTTP_X_AUTHORIZATION: the client identity being passed in
 
 """
-from keystone.backends import alterdb, sqlalchemy #@UnusedImport (?)
-from keystone.routers.public import PublicApi
+from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
 
-def app_factory(global_conf, **local_conf):
+def service_app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating OpenStack API server apps"""
-    try:
-        conf = global_conf.copy()
-        conf.update(local_conf)
-    except Exception as err:
-        print err
-    return PublicApi(conf)
+    conf = global_conf.copy()
+    conf.update(local_conf)
+    return ServiceApi(conf)
 
 def admin_app_factory(global_conf, **local_conf):
     """paste.deploy app factory for creating OpenStack API server apps"""
-    try:
-        conf = global_conf.copy()
-        conf.update(local_conf)
-    except Exception as err:
-        print err
+    conf = global_conf.copy()
+    conf.update(local_conf)
     return AdminApi(conf)

@@ -17,10 +17,11 @@ import json
 from lxml import etree
 import string
 
-import keystone.logic.types.fault as fault
+from keystone.logic.types import fault
 
 
 class User(object):
+    """Document me!"""
 
     def __init__(self, password, user_id, tenant_id, email, enabled):
         self.user_id = user_id
@@ -128,7 +129,8 @@ class User(object):
 
 
 class User_Update(object):
-
+    """Document me!"""
+    
     def __init__(self, password, user_id, tenant_id, email,
             enabled, group=None):
         self.user_id = user_id
@@ -244,7 +246,7 @@ class User_Update(object):
 
 
 class Users(object):
-    "A collection of users."
+    """A collection of users."""
 
     def __init__(self, values, links):
         self.values = values

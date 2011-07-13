@@ -15,17 +15,12 @@
 # limitations under the License.
 
 
-import functools
-import logging
 import os
 import sys
-from webob import Response
+import logging
+import functools
 
-POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir))
-if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
-    sys.path.insert(0, POSSIBLE_TOPDIR)
+from webob import Response
 
 import keystone.logic.types.fault as fault
 
@@ -40,24 +35,18 @@ def get_app_root():
 
 
 def get_auth_token(req):
-    auth_token = None
     if "X-Auth-Token" in req.headers:
-        auth_token = req.headers["X-Auth-Token"]
-    return auth_token
+        return req.headers["X-Auth-Token"]
 
 
 def get_auth_user(req):
-    auth_user = None
     if "X-Auth-User" in req.headers:
-        auth_user = req.headers["X-Auth-User"]
-    return auth_user
+        return req.headers["X-Auth-User"]
 
 
 def get_auth_key(req):
-    auth_key = None
     if "X-Auth-Key" in req.headers:
-        auth_key = req.headers["X-Auth-Key"]
-    return auth_key
+        return req.headers["X-Auth-Key"]
 
 
 def wrap_error(func):
@@ -80,31 +69,27 @@ def wrap_error(func):
 def get_normalized_request_content(model, req):
     """Initialize a model from json/xml contents of request body"""
 
-    if  req.content_type == "application/xml":
-        ret = model.from_xml(req.body)
+    if req.content_type == "application/xml":
+        return model.from_xml(req.body)
     elif req.content_type == "application/json":
-        ret = model.from_json(req.body)
+        return model.from_json(req.body)
     else:
-        raise fault.IdentityFault("I don't understand the content type ",
+        raise fault.IdentityFault("I don't understand the content type",
                                   code=415)
-    return ret
 
 
 def send_error(code, req, result):
     content = None
-    resp = Response()
 
+    resp = Response()
     resp.headers['content-type'] = None
     resp.status = code
 
     if result:
-
         if is_xml_response(req):
-
             content = result.to_xml()
             resp.headers['content-type'] = "application/xml"
         else:
-
             content = result.to_json()
             resp.headers['content-type'] = "application/json"
 
@@ -116,6 +101,7 @@ def send_error(code, req, result):
 
 def send_result(code, req, result):
     content = None
+    
     resp = Response()
     resp.headers['content-type'] = None
     resp.status = code
@@ -123,7 +109,6 @@ def send_result(code, req, result):
         return resp
 
     if result:
-
         if is_xml_response(req):
             content = result.to_xml()
             resp.headers['content-type'] = "application/xml"
@@ -151,10 +136,12 @@ def send_legacy_result(code, headers):
 
     return resp
 
-#Currently using sha1 to hash.Need to figure if there is an openstack standard.Not using salt val as of now.
+# Currently using sha1 to hash, without a salt value.
+# Need to research relevant openstack standards.
 def get_hashed_password(password):
     if password != None and len(password) > 0:
         return password
+        # why is this disabled?
         #return hashlib.sha1(password).hexdigest()
     else:
         return None

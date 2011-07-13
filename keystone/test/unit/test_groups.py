@@ -23,7 +23,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', '..', 'keystone')))
 import unittest
-from webtest import TestApp
 
 import test_common as utils
 
@@ -749,7 +748,7 @@ class GetUsersTenantGroupTest(unittest.TestCase):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         utils.add_user_global_group(self.global_group, self.user,
                                     str(self.auth_token))
-        resp_new, content_new = utils.get_user_global_group(\
+        resp_new, content_new = utils.get_user_global_group(
                                                 self.global_group,
                                                 str(self.auth_token))
 

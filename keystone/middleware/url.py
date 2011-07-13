@@ -69,7 +69,7 @@ class UrlRewriteFilter(object):
     
     def remove_trailing_slash(self, path_info):
         """Removes a trailing slash from the given path, if any"""
-        if path_info[-1] == '/':
+        if len(path_info) > 1 and path_info[-1] == '/':
             return path_info[:-1]
         else:
             return path_info

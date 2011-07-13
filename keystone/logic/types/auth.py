@@ -13,14 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta
-from datetime import datetime
 import json
 from lxml import etree
 
-import keystone.logic.types.fault as fault
-import keystone.logic.types.role as roles
-
+from keystone.logic.types import fault
 
 class PasswordCredentials(object):
     """Credentials based on username, password, and (optional) tenant_id.
@@ -83,7 +79,7 @@ class PasswordCredentials(object):
 
 
 class Token(object):
-    "An auth token."
+    """An auth token."""
 
     def __init__(self, expires, token_id, tenant_id=None):
         self.expires = expires
@@ -92,7 +88,7 @@ class Token(object):
 
 
 class Group(object):
-    "A group, optionally belonging to a tenant."
+    """A group, optionally belonging to a tenant."""
 
     def __init__(self, group_id, tenant_id):
         self.tenant_id = tenant_id
@@ -100,7 +96,7 @@ class Group(object):
 
 
 class Groups(object):
-    "A collection of groups."
+    """A collection of groups."""
 
     def __init__(self, values, links):
         self.values = values
@@ -108,7 +104,7 @@ class Groups(object):
 
 
 class User(object):
-    "A user."
+    """A user."""
 
     def __init__(self, username, tenant_id, groups, role_refs=None):
         self.username = username
@@ -118,7 +114,7 @@ class User(object):
 
 
 class AuthData(object):
-    "Authentation Information returned upon successful login."
+    """Authentation Information returned upon successful login."""
 
     def __init__(self, token, base_urls=None):
         self.token = token
@@ -145,15 +141,15 @@ class AuthData(object):
                         endpoint.set("region", base_url.region)
                     if base_url.public_url:
                         endpoint.set("publicURL",
-                            base_url.public_url.replace('%tenant_id%',\
+                            base_url.public_url.replace('%tenant_id%', \
                                 self.token.tenant_id))
                     if base_url.admin_url:
                         endpoint.set("adminURL",
-                            base_url.admin_url.replace('%tenant_id%',\
+                            base_url.admin_url.replace('%tenant_id%', \
                                 self.token.tenant_id))
                     if base_url.internal_url:
                         endpoint.set("internalURL",
-                            base_url.internal_url.replace('%tenant_id%',\
+                            base_url.internal_url.replace('%tenant_id%', \
                                 self.token.tenant_id))
                     service.append(endpoint)
                 service_catalog.append(service)
@@ -181,10 +177,10 @@ class AuthData(object):
                     if base_url.region:
                         endpoint["region"] = base_url.region
                     if base_url.public_url:
-                        endpoint["publicURL"] = base_url.public_url.replace( \
+                        endpoint["publicURL"] = base_url.public_url.replace(\
                             '%tenant_id%', self.token.tenant_id)
                     if base_url.admin_url:
-                        endpoint["adminURL"] = base_url.admin_url.replace( \
+                        endpoint["adminURL"] = base_url.admin_url.replace(\
                             '%tenant_id%', self.token.tenant_id)
                     if base_url.internal_url:
                         endpoint["internalURL"] = base_url.internal_url.\
@@ -198,7 +194,7 @@ class AuthData(object):
 
 
 class ValidateData(object):
-    "Authentation Information returned upon successful token validation."
+    """Authentation Information returned upon successful token validation."""
 
     def __init__(self, token, user):
         self.token = token

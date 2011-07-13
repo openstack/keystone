@@ -16,16 +16,17 @@
 from datetime import datetime, timedelta
 import uuid
 
-import keystone.logic.types.auth as auth
-import keystone.logic.types.atom as atom
+from keystone.logic.types import auth, atom
 import keystone.backends as backends
 import keystone.backends.api as api
 import keystone.backends.models as models
-import keystone.logic.types.fault as fault
-import keystone.logic.types.tenant as tenants
-import keystone.logic.types.role as roles
-import keystone.logic.types.user as get_users
-import keystone.logic.types.endpoint as endpoints
+from keystone.logic.types import fault
+from keystone.logic.types.tenant import GlobalGroup, GlobalGroups, Group, \
+    Groups, Tenant, Tenants, User as TenantUser
+from keystone.logic.types.role import Role, RoleRef, RoleRefs, Roles
+from keystone.logic.types.user import User, User_Update, Users
+from keystone.logic.types.endpoint import Endpoint, Endpoints, \
+    EndpointTemplate, EndpointTemplates
 import keystone.utils as utils
 
 
@@ -64,12 +65,9 @@ class IdentityService(object):
         else:
             dtoken = api.token.get_for_user_by_tenant(duser.id,
                                                   credentials.tenant_id)
-        tenant_id = None
-        if credentials.tenant_id:
-            tenant_id = credentials.tenant_id
-        else:
-            tenant_id = duser.tenant_id
-
+        
+        tenant_id = credentials.tenant_id or duser.tenant_id
+        
         if not dtoken or dtoken.expires < datetime.now():
             # Create new token
             dtoken = models.Token()
@@ -114,7 +112,7 @@ class IdentityService(object):
     def create_tenant(self, admin_token, tenant):
         self.__validate_token(admin_token)
 
-        if not isinstance(tenant, tenants.Tenant):
+        if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
         if tenant.tenant_id == None:
@@ -137,12 +135,12 @@ class IdentityService(object):
     ##
     def get_tenants(self, admin_token, marker, limit, url):
         try:
-            (token, user) = self.__validate_token(admin_token)
-            # If Global admin return all tenants.
+            (_token, user) = self.__validate_token(admin_token)
+            # If Global admin return all 
             ts = []
             dtenants = api.tenant.get_page(marker, limit)
             for dtenant in dtenants:
-                ts.append(tenants.Tenant(dtenant.id,
+                ts.append(Tenant(dtenant.id,
                                          dtenant.desc, dtenant.enabled))
             prev, next = api.tenant.get_page_markers(marker, limit)
             links = []
@@ -152,15 +150,15 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                     % (url, next, limit)))
-            return tenants.Tenants(ts, links)
+            return Tenants(ts, links)
         except fault.UnauthorizedFault:
             #If not global admin ,return tenants specific to user.
-            (token, user) = self.__validate_token(admin_token, False)
+            (_token, user) = self.__validate_token(admin_token, False)
             ts = []
             dtenants = api.tenant.tenants_for_user_get_page(\
                 user, marker, limit)
             for dtenant in dtenants:
-                ts.append(tenants.Tenant(dtenant.id,
+                ts.append(Tenant(dtenant.id,
                                          dtenant.desc, dtenant.enabled))
             prev, next = api.tenant.tenants_for_user_get_page_markers(\
                 user, marker, limit)
@@ -171,7 +169,7 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                     % (url, next, limit)))
-            return tenants.Tenants(ts, links)
+            return Tenants(ts, links)
 
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
@@ -179,12 +177,12 @@ class IdentityService(object):
         dtenant = api.tenant.get(tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-        return tenants.Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
+        return Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
 
     def update_tenant(self, admin_token, tenant_id, tenant):
         self.__validate_token(admin_token)
 
-        if not isinstance(tenant, tenants.Tenant):
+        if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
         dtenant = api.tenant.get(tenant_id)
@@ -192,7 +190,7 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The tenant cloud not be found")
         values = {'desc': tenant.description, 'enabled': tenant.enabled}
         api.tenant.update(tenant_id, values)
-        return tenants.Tenant(dtenant.id, tenant.description, tenant.enabled)
+        return Tenant(dtenant.id, tenant.description, tenant.enabled)
 
     def delete_tenant(self, admin_token, tenant_id):
         self.__validate_token(admin_token)
@@ -215,7 +213,7 @@ class IdentityService(object):
     def create_tenant_group(self, admin_token, tenant, group):
         self.__validate_token(admin_token)
 
-        if not isinstance(group, tenants.Group):
+        if not isinstance(group, Group):
             raise fault.BadRequestFault("Expecting a Group")
 
         if tenant == None:
@@ -237,7 +235,7 @@ class IdentityService(object):
         dtenant.desc = group.description
         dtenant.tenant_id = tenant
         api.tenant_group.create(dtenant)
-        return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
+        return Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
 
     def get_tenant_groups(self, admin_token, tenant_id, marker, limit, url):
         self.__validate_token(admin_token)
@@ -252,7 +250,7 @@ class IdentityService(object):
         dtenantgroups = api.tenant_group.get_page(tenant_id, marker, limit)
 
         for dtenantgroup in dtenantgroups:
-            ts.append(tenants.Group(dtenantgroup.id,
+            ts.append(Group(dtenantgroup.id,
                                      dtenantgroup.desc,
                                      dtenantgroup.tenant_id))
         prev, next = api.tenant_group.get_page_markers(tenant_id, marker,
@@ -265,7 +263,7 @@ class IdentityService(object):
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'"\
                                     % (url, next, limit)))
 
-        return tenants.Groups(ts, links)
+        return Groups(ts, links)
 
     def get_tenant_group(self, admin_token, tenant_id, group_id):
         self.__validate_token(admin_token)
@@ -278,12 +276,12 @@ class IdentityService(object):
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant group not found")
 
-        return tenants.Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
+        return Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
 
     def update_tenant_group(self, admin_token, tenant_id, group_id, group):
         self.__validate_token(admin_token)
 
-        if not isinstance(group, tenants.Group):
+        if not isinstance(group, Group):
             raise fault.BadRequestFault("Expecting a Group")
         True
 
@@ -307,7 +305,7 @@ class IdentityService(object):
 
         api.tenant_group.update(group_id, tenant_id, values)
 
-        return tenants.Group(group_id, group.description, tenant_id)
+        return Group(group_id, group.description, tenant_id)
 
     def delete_tenant_group(self, admin_token, tenant_id, group_id):
         self.__validate_token(admin_token)
@@ -343,11 +341,15 @@ class IdentityService(object):
         ts = []
         dgroupusers = api.user.users_tenant_group_get_page(groupId, marker,
                                                           limit)
-        for dgroupuser, dgroupuserAsso in dgroupusers:
-
-            ts.append(tenants.User(dgroupuser.id,
-                                   dgroupuser.email, dgroupuser.enabled,
-                                   tenantId, None))
+        for dgroupuser, _dgroupuserAsso in dgroupusers:
+            # TODO: TenantUser is deprecated, and a near-duplicate of 
+            #       keystone.logic.types.user.User
+            ts.append(TenantUser(
+                user_id=dgroupuser.id,
+                email=dgroupuser.email,
+                enabled=dgroupuser.enabled,
+                tenant_id=tenantId,
+                group_id=None))
         links = []
         if ts.__len__():
             prev, next = api.user.users_tenant_group_get_page_markers(
@@ -358,7 +360,7 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
-        return tenants.Users(ts, links)
+        return Users(ts, links)
 
     def add_user_tenant_group(self, admin_token, tenant, group, user):
         self.__validate_token(admin_token)
@@ -384,9 +386,15 @@ class IdentityService(object):
         dusergroup.user_id = user
         dusergroup.group_id = group
         api.user.tenant_group(dusergroup)
-
-        return tenants.User(duser.id, duser.email, duser.enabled,
-                            tenant, group)
+        
+        # TODO: TenantUser is deprecated, and a near-duplicate of 
+        #       keystone.logic.types.user.User
+        return TenantUser(
+            user_id=duser.id,
+            email=duser.email,
+            enabled=duser.enabled,
+            tenant_id=tenant,
+            group_id=group) #attribute no longer exists
 
     def delete_user_tenant_group(self, admin_token, tenant, group, user):
         self.__validate_token(admin_token)
@@ -433,7 +441,7 @@ class IdentityService(object):
 
         dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
 
-        if not isinstance(user, get_users.User):
+        if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
         if user.user_id == None:
@@ -483,7 +491,7 @@ class IdentityService(object):
         dtenantusers = api.user.users_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
         for dtenantuser in dtenantusers:
-            ts.append(get_users.User(None, dtenantuser.id, tenant_id,
+            ts.append(User(None, dtenantuser.id, tenant_id,
                                    dtenantuser.email, dtenantuser.enabled))
         links = []
         if ts.__len__():
@@ -495,14 +503,14 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
-        return get_users.Users(ts, links)
+        return Users(ts, links)
 
     def get_users(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
         ts = []
         dusers = api.user.users_get_page(marker, limit)
         for duser in dusers:
-            ts.append(get_users.User(None, duser.id, duser.tenant_id,
+            ts.append(User(None, duser.id, duser.tenant_id,
                                    duser.email, duser.enabled))
         links = []
         if ts.__len__():
@@ -513,7 +521,7 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
-        return get_users.Users(ts, links)
+        return Users(ts, links)
 
     def get_user(self, admin_token, user_id):
         self.__validate_token(admin_token)
@@ -529,10 +537,10 @@ class IdentityService(object):
         ts = []
         dusergroups = api.user.user_groups_get_all(user_id)
 
-        for dusergroup, dusergroupAsso in dusergroups:
-            ts.append(tenants.Group(dusergroup.id, dusergroup.tenant_id, None))
+        for dusergroup, _dusergroupAsso in dusergroups:
+            ts.append(Group(dusergroup.id, dusergroup.tenant_id, None))
 
-        return get_users.User_Update(None, duser.id, duser.tenant_id,
+        return User_Update(None, duser.id, duser.tenant_id,
                 duser.email, duser.enabled, ts)
 
     def update_user(self, admin_token, user_id, user):
@@ -546,7 +554,7 @@ class IdentityService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
-        if not isinstance(user, get_users.User):
+        if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
         if user.email != duser.email and \
@@ -557,7 +565,7 @@ class IdentityService(object):
         values = {'email': user.email}
         api.user.update(user_id, values)
         duser = api.user.user_get_update(user_id)
-        return get_users.User(duser.password, duser.id, duser.tenant_id,
+        return User(duser.password, duser.id, duser.tenant_id,
                           duser.email, duser.enabled)
 
     def set_user_password(self, admin_token, user_id, user):
@@ -570,7 +578,7 @@ class IdentityService(object):
         if not duser.enabled:
             raise fault.UserDisabledFault("User has been disabled")
 
-        if not isinstance(user, get_users.User):
+        if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
         duser = api.user.get(user_id)
@@ -581,7 +589,7 @@ class IdentityService(object):
 
         api.user.update(user_id, values)
 
-        return get_users.User_Update(user.password,
+        return User_Update(user.password,
             None, None, None, None, None)
 
     def enable_disable_user(self, admin_token, user_id, user):
@@ -589,7 +597,7 @@ class IdentityService(object):
         duser = api.user.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
-        if not isinstance(user, get_users.User):
+        if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
         duser = api.user.get(user_id)
@@ -600,7 +608,7 @@ class IdentityService(object):
 
         api.user.update(user_id, values)
 
-        return get_users.User_Update(None,
+        return User_Update(None,
             None, None, None, user.enabled, None)
 
     def set_user_tenant(self, admin_token, user_id, user):
@@ -608,7 +616,7 @@ class IdentityService(object):
         duser = api.user.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
-        if not isinstance(user, get_users.User):
+        if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
         duser = api.user.get(user_id)
@@ -618,7 +626,7 @@ class IdentityService(object):
         dtenant = self.validate_and_fetch_user_tenant(user.tenant_id)
         values = {'tenant_id': user.tenant_id}
         api.user.update(user_id, values)
-        return get_users.User_Update(None,
+        return User_Update(None,
             None, user.tenant_id, None, None, None)
 
     def delete_user(self, admin_token, user_id):
@@ -641,8 +649,8 @@ class IdentityService(object):
         dusergroups = api.group.get_by_user_get_page(user_id, marker,
                                                           limit)
 
-        for dusergroup, dusergroupAsso in dusergroups:
-            ts.append(tenants.Group(dusergroup.id, dusergroup.desc,
+        for dusergroup, _dusergroupAsso in dusergroups:
+            ts.append(Group(dusergroup.id, dusergroup.desc,
                                     dusergroup.tenant_id))
         links = []
         if ts.__len__():
@@ -654,7 +662,7 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
-        return tenants.Groups(ts, links)
+        return Groups(ts, links)
 
     #
     # Global Group Operations
@@ -676,7 +684,7 @@ class IdentityService(object):
     def create_global_group(self, admin_token, group):
         self.__validate_token(admin_token)
 
-        if not isinstance(group, tenants.GlobalGroup):
+        if not isinstance(group, GlobalGroup):
             raise fault.BadRequestFault("Expecting a Group")
 
         if group.group_id == None:
@@ -691,7 +699,7 @@ class IdentityService(object):
         dtenant.desc = group.description
         dtenant.tenant_id = gtenant.id
         api.tenant_group.create(dtenant)
-        return tenants.GlobalGroup(dtenant.id, dtenant.desc, None)
+        return GlobalGroup(dtenant.id, dtenant.desc, None)
 
     def get_global_groups(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
@@ -700,7 +708,7 @@ class IdentityService(object):
         dtenantgroups = api.tenant_group.get_page(gtenant.id, \
                                                       marker, limit)
         for dtenantgroup in dtenantgroups:
-            ts.append(tenants.GlobalGroup(dtenantgroup.id,
+            ts.append(GlobalGroup(dtenantgroup.id,
                                      dtenantgroup.desc))
         prev, next = api.tenant_group.get_page_markers(gtenant.id,
                                                        marker, limit)
@@ -711,7 +719,7 @@ class IdentityService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                   (url, next, limit)))
-        return tenants.GlobalGroups(ts, links)
+        return GlobalGroups(ts, links)
 
     def get_global_group(self, admin_token, group_id):
         self.__validate_token(admin_token)
@@ -724,12 +732,12 @@ class IdentityService(object):
 
         if not dtenant:
             raise fault.ItemNotFoundFault("The Global tenant group not found")
-        return tenants.GlobalGroup(dtenant.id, dtenant.desc)
+        return GlobalGroup(dtenant.id, dtenant.desc)
 
     def update_global_group(self, admin_token, group_id, group):
         self.__validate_token(admin_token)
         gtenant = self.__check_create_global_tenant()
-        if not isinstance(group, tenants.GlobalGroup):
+        if not isinstance(group, GlobalGroup):
             raise fault.BadRequestFault("Expecting a Group")
 
         dtenant = api.tenant.get(gtenant.id)
@@ -745,7 +753,7 @@ class IdentityService(object):
 
         values = {'desc': group.description}
         api.tenant_group.update(group_id, gtenant.id, values)
-        return tenants.GlobalGroup(group_id, group.description, gtenant.id)
+        return GlobalGroup(group_id, group.description, gtenant.id)
 
     def delete_global_group(self, admin_token, group_id):
         self.__validate_token(admin_token)
@@ -782,9 +790,13 @@ class IdentityService(object):
         ts = []
         dgroupusers = api.user.users_tenant_group_get_page(groupId, marker,
                                                          limit)
-        for dgroupuser, dgroupuserassoc in dgroupusers:
-            ts.append(tenants.User(dgroupuser.id, dgroupuser.email,
-                                   dgroupuser.enabled))
+        for dgroupuser, _dgroupuserassoc in dgroupusers:
+            # TODO: TenantUser is deprecated, and a near-duplicate of 
+            #       keystone.logic.types.user.User
+            ts.append(TenantUser(
+                user_id=dgroupuser.id,
+                email=dgroupuser.email,
+                enabled=dgroupuser.enabled))
         links = []
         if ts.__len__():
             prev, next = api.user.users_tenant_group_get_page_markers(groupId,
@@ -795,7 +807,7 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'"
                                        % (url, next, limit)))
-        return tenants.Users(ts, links)
+        return Users(ts, links)
 
     def add_user_global_group(self, admin_token, group, user):
         self.__validate_token(admin_token)
@@ -823,8 +835,13 @@ class IdentityService(object):
         dusergroup.group_id = group
         api.user.tenant_group(dusergroup)
 
-        return tenants.User(duser.id, duser.email, duser.enabled,
-                           group_id=group)
+        # TODO: TenantUser is deprecated, and a near-duplicate of 
+        #       keystone.logic.types.user.User
+        return TenantUser(
+            user_id=duser.id,
+            email=duser.email,
+            enabled=duser.enabled,
+            group_id=group) # attribute no longer exists!
 
     def delete_user_global_group(self, admin_token, group, user):
         self.__validate_token(admin_token)
@@ -867,13 +884,13 @@ class IdentityService(object):
             droleRefs = api.role.ref_get_all_tenant_roles(duser.id,
                                                              dtoken.tenant_id)
             for droleRef in droleRefs:
-                ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+                ts.append(RoleRef(droleRef.id, droleRef.role_id,
                                          droleRef.tenant_id))
         droleRefs = api.role.ref_get_all_global_roles(duser.id)
         for droleRef in droleRefs:
-            ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+            ts.append(RoleRef(droleRef.id, droleRef.role_id,
                                      droleRef.tenant_id))
-        user = auth.User(duser.id, duser.tenant_id, None, roles.RoleRefs(ts,
+        user = auth.User(duser.id, duser.tenant_id, None, RoleRefs(ts,
                                                                          []))
         return auth.ValidateData(token, user)
 
@@ -902,7 +919,7 @@ class IdentityService(object):
     def create_role(self, admin_token, role):
         self.__validate_token(admin_token)
 
-        if not isinstance(role, roles.Role):
+        if not isinstance(role, Role):
             raise fault.BadRequestFault("Expecting a Role")
 
         if role.role_id == None:
@@ -923,7 +940,7 @@ class IdentityService(object):
         ts = []
         droles = api.role.get_page(marker, limit)
         for drole in droles:
-            ts.append(roles.Role(drole.id,
+            ts.append(Role(drole.id,
                                      drole.desc))
         prev, next = api.role.get_page_markers(marker, limit)
         links = []
@@ -933,7 +950,7 @@ class IdentityService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
-        return roles.Roles(ts, links)
+        return Roles(ts, links)
 
     def get_role(self, admin_token, role_id):
         self.__validate_token(admin_token)
@@ -941,7 +958,7 @@ class IdentityService(object):
         drole = api.role.get(role_id)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
-        return roles.Role(drole.id, drole.desc)
+        return Role(drole.id, drole.desc)
 
     def create_role_ref(self, admin_token, user_id, roleRef):
         self.__validate_token(admin_token)
@@ -950,7 +967,7 @@ class IdentityService(object):
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
-        if not isinstance(roleRef, roles.RoleRef):
+        if not isinstance(roleRef, RoleRef):
             raise fault.BadRequestFault("Expecting a Role Ref")
 
         if roleRef.role_id == None:
@@ -989,7 +1006,7 @@ class IdentityService(object):
         ts = []
         droleRefs = api.role.ref_get_page(marker, limit, user_id)
         for droleRef in droleRefs:
-            ts.append(roles.RoleRef(droleRef.id, droleRef.role_id,
+            ts.append(RoleRef(droleRef.id, droleRef.role_id,
                                      droleRef.tenant_id))
         prev, next = api.role.ref_get_page_markers(user_id, marker, limit)
         links = []
@@ -999,7 +1016,7 @@ class IdentityService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
-        return roles.RoleRefs(ts, links)
+        return RoleRefs(ts, links)
 
     def get_endpoint_templates(self, admin_token, marker, limit, url):
         self.__validate_token(admin_token)
@@ -1007,7 +1024,7 @@ class IdentityService(object):
         ts = []
         dendpointTemplates = api.endpoint_template.get_page(marker, limit)
         for dendpointTemplate in dendpointTemplates:
-            ts.append(endpoints.EndpointTemplate(
+            ts.append(EndpointTemplate(
                 dendpointTemplate.id,
                 dendpointTemplate.region,
                 dendpointTemplate.service,
@@ -1024,7 +1041,7 @@ class IdentityService(object):
         if next:
             links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
                                                 % (url, next, limit)))
-        return endpoints.EndpointTemplates(ts, links)
+        return EndpointTemplates(ts, links)
 
     def get_endpoint_template(self, admin_token, endpoint_template_id):
         self.__validate_token(admin_token)
@@ -1033,7 +1050,7 @@ class IdentityService(object):
         if not dendpointTemplate:
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
-        return endpoints.EndpointTemplate(
+        return EndpointTemplate(
             dendpointTemplate.id,
             dendpointTemplate.region,
             dendpointTemplate.service,
@@ -1058,7 +1075,7 @@ class IdentityService(object):
                 endpoint_get_by_tenant_get_page(
                     tenant_id, marker, limit)
         for dtenantEndpoint in dtenantEndpoints:
-            ts.append(endpoints.Endpoint(dtenantEndpoint.id,
+            ts.append(Endpoint(dtenantEndpoint.id,
                     url + '/endpointTemplates/' + \
                     str(dtenantEndpoint.endpoint_template_id)))
         links = []
@@ -1072,7 +1089,7 @@ class IdentityService(object):
             if next:
                 links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
                                       (url, next, limit)))
-        return endpoints.Endpoints(ts, links)
+        return Endpoints(ts, links)
 
     def create_endpoint_for_tenant(self, admin_token,
                                      tenant_id, endpoint_template, url):
@@ -1090,9 +1107,8 @@ class IdentityService(object):
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
         dendpoint = api.endpoint_template.endpoint_add(dendpoint)
-        dendpoint = endpoints.Endpoint(dendpoint.id, url + \
-                                         '/endpointTemplates/' + \
-                                         dendpoint.endpoint_template_id)
+        dendpoint = Endpoint(dendpoint.id, url + 
+            '/endpointTemplates/' + dendpoint.endpoint_template_id)
         return dendpoint
 
     def delete_endpoint(self, admin_token, endpoint_id):

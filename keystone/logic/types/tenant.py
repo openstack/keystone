@@ -17,16 +17,16 @@ import json
 from lxml import etree
 import string
 
-import keystone.logic.types.fault as fault
+from keystone.logic.types import fault
 
 
 class Tenant(object):
-    "Describes a tenant in the auth system"
+    """Describes a tenant in the auth system"""
 
     def __init__(self, tenant_id, description, enabled):
         self.tenant_id = tenant_id
         self.description = description
-        self.enabled = enabled and True or False
+        self.enabled = enabled
 
     @staticmethod
     def from_xml(xml_str):
@@ -103,7 +103,7 @@ class Tenant(object):
 
 
 class Tenants(object):
-    "A collection of tenants."
+    """A collection of tenants."""
 
     def __init__(self, values, links):
         self.values = values
@@ -128,7 +128,7 @@ class Tenants(object):
 
 
 class Group(object):
-    "Describes a group in the auth system"
+    """Describes a group in the auth system"""
 
     def __init__(self, group_id, description, tenant_id):
         self.description = description
@@ -143,7 +143,7 @@ class Group(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find( \
+            root = dom.find(\
                         "{http://docs.openstack.org/identity/api/v2.0}group")
             if root == None:
                 raise fault.BadRequestFault("Expecting Group")
@@ -217,7 +217,7 @@ class Group(object):
 
 
 class Groups(object):
-    "A collection of groups."
+    """A collection of groups."""
 
     def __init__(self, values, links):
         self.values = values
@@ -242,7 +242,7 @@ class Groups(object):
 
 
 class GlobalGroup(object):
-    "Describes a group in the auth system"
+    """Describes a group in the auth system"""
 
     def __init__(self, group_id, description, tenant_id=None):
         self.description = description
@@ -315,7 +315,7 @@ class GlobalGroup(object):
 
 
 class GlobalGroups(object):
-    "A collection of groups."
+    """A collection of groups."""
 
     def __init__(self, values, links):
         self.values = values
@@ -340,7 +340,11 @@ class GlobalGroups(object):
 
 
 class User(object):
-    "Describes a user in the auth system"
+    """Describes a user in the auth system
+    
+    TODO: This is basically a duplicate of keystone.logic.types.user.User and
+    should be considered deprecated.
+    """
 
     def __init__(self, user_id, email, enabled, tenant_id='', group_id=''):
         self.user_id = user_id
@@ -386,28 +390,3 @@ class User(object):
 
     def to_json(self):
         return json.dumps(self.to_dict())
-
-
-class Users(object):
-    "A collection of users."
-
-    def __init__(self, values, links):
-        self.values = values
-        self.links = links
-
-    def to_xml(self):
-        dom = etree.Element("users")
-        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
-
-        for t in self.values:
-            dom.append(t.to_dom())
-
-        for t in self.links:
-            dom.append(t.to_dom())
-
-        return etree.tostring(dom)
-
-    def to_json(self):
-        values = [t.to_dict()["user"] for t in self.values]
-        links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"users": {"values": values, "links": links}})
