@@ -124,8 +124,8 @@ class KeystoneTestCase(RestfulTestCase):
     admin_token = None
     admin_credentials = {
         'passwordCredentials':{
-            'username':'admin',
-            'password':'secrete',
+            'username': 'admin',
+            'password': 'secrete',
         }
     }
     
