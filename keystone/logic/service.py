@@ -187,7 +187,7 @@ class IdentityService(object):
 
         dtenant = api.tenant.get(tenant_id)
         if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant cloud not be found")
+            raise fault.ItemNotFoundFault("The tenant could not be found")
         values = {'desc': tenant.description, 'enabled': tenant.enabled}
         api.tenant.update(tenant_id, values)
         return Tenant(dtenant.id, tenant.description, tenant.enabled)
@@ -197,7 +197,7 @@ class IdentityService(object):
 
         dtenant = api.tenant.get(tenant_id)
         if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant cloud not be found")
+            raise fault.ItemNotFoundFault("The tenant could not be found")
 
         if not api.tenant.is_empty(tenant_id):
             raise fault.ForbiddenFault("You may not delete a tenant that "
