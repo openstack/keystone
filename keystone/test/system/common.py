@@ -4,13 +4,8 @@ import httplib
 class RestfulTestCase(unittest.TestCase):
     """Performs generic HTTP request testing"""
     
-    def setUp(self):
-        """Sets default connection settings"""
-        self.host = '127.0.0.1'
-        self.port = 80
-    
-    def request(self, method='GET', path='/', headers={}, body=None,
-            expect_exception=False):
+    def request(self, host='127.0.0.1', port=80, method='GET', path='/',
+            headers={}, body=None, expect_exception=False,):
         """Perform request and fetch httplib.HTTPResponse from the server
         
         Dynamically includes 'json' and 'xml' attributes based on the detected
@@ -21,7 +16,7 @@ class RestfulTestCase(unittest.TestCase):
         """
         
         # Initialize a connection
-        connection = httplib.HTTPConnection(self.host, self.port, timeout=3)
+        connection = httplib.HTTPConnection(host, port, timeout=3)
         
         # Perform the request
         connection.request(method, path, body, headers)
@@ -42,7 +37,7 @@ class RestfulTestCase(unittest.TestCase):
         # Attempt to parse JSON and XML automatically, if detected
         response = self._parseResponseBody(response)
         
-        # This contains the response headers, body, parsed json/xml, etc
+        # Contains the response headers, body, parsed json/xml, etc
         return response
 
     def assertSuccessfulResponse(self, status_code):
@@ -77,22 +72,19 @@ class RestfulTestCase(unittest.TestCase):
         except Exception as e:
             self.fail(e)
 
-class ServiceTestCase(RestfulTestCase):
-    """Perform generic HTTP request testing against Service API"""
+class KeystoneTestCase(RestfulTestCase):
+    """Perform generic HTTP request against Keystone APIs"""
     
-    def setUp(self):
-        """Sets custom connection settings"""
-        super(ServiceTestCase, self).setUp()
+    def service_request(self, **kwargs):
+        """Returns a request to the service API"""
+        # Override request with expected service port
+        kwargs['port'] = 5000
         
-        # Override parent's connection settings
-        self.port = 5000 # The port the service API is expected to run on
-        
-class AdminTestCase(RestfulTestCase):
-    """Perform generic HTTP request testing against Admin API"""
+        return self.request(**kwargs)
     
-    def setUp(self):
-        """Sets custom connection settings"""
-        super(AdminTestCase, self).setUp()
+    def admin_request(self, **kwargs):
+        """Returns a request to the admin API"""
+        # Override request with expected admin port
+        kwargs['port'] = 5001
         
-        # Override parent's connection settings
-        self.port = 5001 # The port the admin API is expected to run on
+        return self.request(**kwargs)
