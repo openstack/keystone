@@ -46,9 +46,13 @@ import os
 import functools
 import time
 import tokenize
+import mimetypes
 from webob import Response
+from paste.util.template import TemplateError
+from paste.util.datetimeutil import parse_date
 
 import keystone.logic.types.fault as fault
+from keystone.logic.types.fault import ForbiddenFault
 
 TEMPLATES = {}
 DEBUG = False
@@ -148,7 +152,7 @@ class SimpleTemplate(BaseTemplate):
         lineno = 0 # Current line of code
         ptrbuffer = [] # Buffer for printable strings and token tuple instances
         codebuffer = [] # Buffer for generated python code
-        touni = functools.partial(unicode, encoding=self.encoding)
+        functools.partial(unicode, encoding=self.encoding)
         multiline = dedent = False
 
         def yield_tokens(line):
@@ -211,7 +215,7 @@ class SimpleTemplate(BaseTemplate):
                 if cmd in self.blocks or multiline:
                     cmd = multiline or cmd
                     dedent = cmd in self.dedent_blocks # "else:"
-                    if dedent and not oneline and not multiline:
+                    if dedent and not multiline:
                         cmd = stack.pop()
                     code(line)
                     oneline = not cline.endswith(':') # "if 1: pass"
@@ -276,7 +280,6 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     """
     root = os.path.abspath(root) + os.sep
     filename = os.path.abspath(os.path.join(root, filename.strip('/\\')))
-    header = {}
     if not filename.startswith(root):
         #return HTTPError(403, "Access denied.")
         return ForbiddenFault("Access denied.")
@@ -290,7 +293,7 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     if not mimetype and guessmime:
         resp.content_type = mimetypes.guess_type(filename)[0]
     else:
-        resp.content_type = mimetype if mimetype else 'text/plain'
+        resp.content_type = mimetype or 'text/plain'
 
     if download == True:
         download = os.path.basename(filename)
@@ -303,6 +306,7 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     ims = req.environ.get('HTTP_IF_MODIFIED_SINCE')
     if ims:
         ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
+        
         ims = parse_date(ims)
         if ims is not None and ims >= int(stats.st_mtime):
             resp.date = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
@@ -329,8 +333,6 @@ def template(tpl, template_adapter=SimpleTemplate, **kwargs):
             TEMPLATES[tpl] = template_adapter(source=tpl, lookup=lookup, **settings)
         else:
             TEMPLATES[tpl] = template_adapter(name=tpl, lookup=lookup, **settings)
-    if not TEMPLATES[tpl]:
-        abort(500, 'Template (%s) not found' % tpl)
     return TEMPLATES[tpl].render(**kwargs)
 
 
