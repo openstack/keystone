@@ -121,11 +121,13 @@ class KeystoneTestCase(RestfulTestCase):
     """Perform generic HTTP request against Keystone APIs"""
     service_token = None
     
-    admin_credentials = {'passwordCredentials':{
-        'username':'admin',
-        'password':'secrete',
-    }}
     admin_token = None
+    admin_credentials = {
+        'passwordCredentials':{
+            'username':'admin',
+            'password':'secrete',
+        }
+    }
     
     def service_request(self, port=5000, headers={}, **kwargs):
         """Returns a request to the service API"""
