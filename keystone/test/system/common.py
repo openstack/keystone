@@ -3,7 +3,7 @@ import httplib
 
 class RestfulTestCase(unittest.TestCase):
     """Performs generic HTTP request testing"""
-    
+
     def request(self, host='127.0.0.1', port=80, method='GET', path='/',
             headers={}, body=None, expect_exception=False,):
         """Perform request and fetch httplib.HTTPResponse from the server
@@ -41,12 +41,12 @@ class RestfulTestCase(unittest.TestCase):
         return response
 
     def assertSuccessfulResponse(self, status_code):
-        """Asserts that a status code lies in the 2xx range"""
+        """Asserts that a status code lies inside the 2xx range"""
         self.assertTrue(status_code >= 200 and status_code <= 299)
 
     def assertExceptionalResponse(self, status_code):
         """Asserts that a status code lies outside the 2xx range"""
-        self.assertTrue(status_code < 200 or status_code > 299)
+        self.assertFalse(status_code >= 200 and status_code <= 299)
     
     def _parseResponseBody(self, response):
         """Detects response body type, and attempts to decode it"""
@@ -74,17 +74,21 @@ class RestfulTestCase(unittest.TestCase):
 
 class KeystoneTestCase(RestfulTestCase):
     """Perform generic HTTP request against Keystone APIs"""
+    service_token = None
+    admin_token = None
     
-    def service_request(self, **kwargs):
+    def service_request(self, port=5000, headers={}, **kwargs):
         """Returns a request to the service API"""
-        # Override request with expected service port
-        kwargs['port'] = 5000
         
-        return self.request(**kwargs)
+        if self.service_token:
+            headers['X-Auth-Token'] = self.service_token
+        
+        return self.request(port=port, headers=headers, **kwargs)
     
-    def admin_request(self, **kwargs):
+    def admin_request(self, port=5001, headers={}, **kwargs):
         """Returns a request to the admin API"""
-        # Override request with expected admin port
-        kwargs['port'] = 5001
         
-        return self.request(**kwargs)
+        if self.admin_token:
+            headers['X-Auth-Token'] = self.admin_token
+        
+        return self.request(port=port, headers=headers, **kwargs)
