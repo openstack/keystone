@@ -276,14 +276,14 @@ class Serializer(object):
     Serializes a dictionary to a Content Type specified by a WSGI environment.
     """
 
-    def __init__(self, environ, metadata=None):
+    def __init__(self, environ, metadata={}):
         """
         Create a serializer based on the given WSGI environment.
         'metadata' is an optional dict mapping MIME types to information
         needed to serialize a dictionary to that type.
         """
         self.environ = environ
-        self.metadata = metadata or {}
+        self.metadata = metadata
         self._methods = {
             'application/json': self._to_json,
             'application/xml': self._to_xml}
