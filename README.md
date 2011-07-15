@@ -168,14 +168,14 @@ information is therefore called a `Developer Guide`. Developer in this case is n
 working on the Keystone source code itself.
 
 The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
-generated from XML and other artifacts in the `doc/guide` folder.
+generated from XML and other artifacts that live in the [OpenStack Manuals project](https://launchpad.net/openstack-manuals).
 
 To build the Developer Guide from source, you need [Maven](http://maven.apache.org/). To build the docs and publish a new PDF:
 
-    $ cd doc/guide
+    $ cd to folder with the pom.xml file
     $ mvn clean generate-sources && cp target/docbkx/pdf/identitydevguide.pdf ../../keystone/content/identitydevguide.pdf
 
-The output will go into the `doc/guide/target` folder (the source is in `doc/guide/src`). Output generated is PDF and webhelp.
+The output will go into the `target` folder (the source is in `src`). Output generated is PDF and webhelp.
 
 ### Editing and Compiling the Admin Guide
 
