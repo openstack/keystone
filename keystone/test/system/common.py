@@ -10,7 +10,7 @@ class HttpTestCase(unittest.TestCase):
         
         # Initialize a connection
         connection = httplib.HTTPConnection(host, port, timeout=3)
-        
+
         # Perform the request
         connection.request(method, path, body, headers)
         
@@ -129,18 +129,41 @@ class KeystoneTestCase(RestfulTestCase):
         }
     }
     
-    def service_request(self, port=5000, headers={}, **kwargs):
+    def setUp(self):
+        """Prepare keystone for system tests"""
+        # Authenticate as admin user to establish admin_token
+        r = self.admin_request(method='POST', path='/tokens',
+            json=self.admin_credentials)
+        self.admin_token = r.json['auth']['token']['id']
+    
+    def service_request(self, path='', port=5000, headers={}, **kwargs):
         """Returns a request to the service API"""
+        
+        path = KeystoneTestCase._prepend_path(path)
         
         if self.service_token:
             headers['X-Auth-Token'] = self.service_token
         
-        return self.restful_request(port=port, headers=headers, **kwargs)
+        return self.restful_request(port=port, path=path, headers=headers,
+            **kwargs)
     
-    def admin_request(self, port=5001, headers={}, **kwargs):
+    def admin_request(self, path='', port=5001, headers={}, **kwargs):
         """Returns a request to the admin API"""
+        
+        path = KeystoneTestCase._prepend_path(path)
         
         if self.admin_token:
             headers['X-Auth-Token'] = self.admin_token
         
-        return self.restful_request(port=port, headers=headers, **kwargs)
+        return self.restful_request(port=port, path=path, headers=headers, **kwargs)
+    
+    @staticmethod
+    def _prepend_path(path):
+        """Prepend the given path with the API version"""
+        return '/v2.0' + str(path)
+    
+    @staticmethod
+    def _uuid():
+        """Generate and return a unique identifier"""
+        import uuid
+        return str(uuid.uuid4())
