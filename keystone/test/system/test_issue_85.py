@@ -36,7 +36,7 @@ class TestIssue85(KeystoneTestCase):
                 }
             })
         
-        # Authenticate for tenant to get a token
+        # Authenticate as user to get a token
         r = self.service_request(method='POST', path='/v2.0/tokens',
             json={
                 'passwordCredentials':{
@@ -53,9 +53,8 @@ class TestIssue85(KeystoneTestCase):
         r = self.admin_request(method='PUT',
             path='/v2.0/tenants/%s' % tenant_id,
             json={
-                'tenant':{
-                    'id': tenant_id,
-                    'description': 'dont care',
+                'tenant': {
+                    'description': 'description',
                     'enabled': False,
                 }
             })
