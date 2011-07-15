@@ -77,7 +77,8 @@ def Main():
         parser.error('No object type specified for first argument')
 
     object_type = args[0]
-    if object_type in ['user', 'tenant', 'role', 'endpointTemplates' , 'token', 'endpoint']:
+    if object_type in ['user', 'tenant', 'role', 'endpointTemplates', 'token',
+            'endpoint']:
         pass
     else:
         parser.error('%s is not a supported object type' % object_type)
@@ -171,7 +172,8 @@ def Main():
                 print "SUCCESS: Tenant %s created." % object.id
                 return
             except Exception as exc:
-                print "ERROR: Failed to create tenant %s: %s" % (object_id, exc)
+                print "ERROR: Failed to create tenant %s: %s" % (
+                    object_id, exc)
                 return
         elif command == "list":
             try:
@@ -194,7 +196,8 @@ def Main():
                 db_api.tenant.update(object_id, object)
                 print "SUCCESS: Tenant %s disabled." % object.id
             except Exception as exc:
-                print "ERROR: Failed to disable tenant %s: %s" % (object_id, exc)
+                print "ERROR: Failed to disable tenant %s: %s" % (
+                    object_id, exc)
             return
     elif object_type == "role":
         if command == "add":
@@ -256,14 +259,16 @@ def Main():
                 print "SUCCESS: Granted %s the %s role on %s." % \
                         (object.user_id, object.role_id, object.tenant_id)
             except Exception as exc:
-                print "ERROR: Failed to grant role %s to %s on %s: %s" % (object_id, user, tenant, exc)
+                print "ERROR: Failed to grant role %s to %s on %s: %s" % (
+                    object_id, user, tenant, exc)
             return
     elif object_type == "endpointTemplates":
         if command == "add":
             if len(args) < 9:
                 parser.error("Missing arguments: endpointTemplates add " \
-                            "'region' 'service'" \
-                            "'publicURL' 'adminURL' 'internalURL' 'enabled' 'global'")
+                            "'region' 'service' " \
+                            "'publicURL' 'adminURL' 'internalURL' 'enabled' " \
+                            "'global'")
             region = args[2]
             service = args[3]
             public_url = args[4]
@@ -281,18 +286,19 @@ def Main():
                 object.enabled = enabled
                 object.is_global = is_global
                 object = db_api.endpoint_template.create(object)
-                print "SUCCESS: Created EndpointTemplates for %s pointing to %s." % \
-                    (object.service, object.public_url)
+                print "SUCCESS: Created EndpointTemplates for %s pointing " \
+                    "to %s." % (object.service, object.public_url)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create EndpointTemplates for %s: %s" % (service,
-                                                                      exc)
+                print "ERROR: Failed to create EndpointTemplates for " \
+                    "%s: %s" % (service, exc)
                 return
         elif command == "list":
             if len(args) == 3:
                 tenant = args[2]
                 try:
-                    objects = db_api.endpoint_template.endpoint_get_by_tenant(tenant)
+                    objects = db_api.endpoint_template.endpoint_get_by_tenant(
+                        tenant)
                     if objects == None:
                         raise IndexError("URLs not found")
                     print 'Endpoints for tenant %s' % tenant
@@ -384,7 +390,6 @@ def Main():
 
     # Command not handled
     print ("ERROR: %s %s not yet supported" % (object_type, command))
-
 
 if __name__ == '__main__':
     Main()
