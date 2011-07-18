@@ -51,258 +51,258 @@ def set_value(variable_name, value):
 #Base APIs
 class BaseUserAPI(object):
     def get_all(self):
-        pass
+        raise NotImplementedError
 
     def get_by_group(self, user_id, group_id):
-        pass
+        raise NotImplementedError
 
     def tenant_group(self, values):
-        pass
+        raise NotImplementedError
 
     def tenant_group_delete(self, id, group_id):
-        pass
+        raise NotImplementedError
 
     def create(self, values):
-        pass
+        raise NotImplementedError
 
     def get(self, id):
-        pass
+        raise NotImplementedError
 
     def get_page(self, marker, limit):
-        pass
+        raise NotImplementedError
 
     def get_page_markers(self, marker, limit):
-        pass
+        raise NotImplementedError
 
     def get_by_email(self, email):
-        pass
+        raise NotImplementedError
 
     def get_groups(self, id):
-        pass
+        raise NotImplementedError
 
     def user_roles_by_tenant(self, user_id, tenant_id):
-        pass
+        raise NotImplementedError
 
     def update(self, id, values):
-        pass
+        raise NotImplementedError
 
-    def users_tenant_group_get_page(self, group_id, marker):
-        pass
+    def users_tenant_group_get_page(self, group_id, marker, limit):
+        raise NotImplementedError
 
     def users_tenant_group_get_page_markers(self, group_id, marker, limit):
-        pass
+        raise NotImplementedError
 
     def delete(self, id):
-        pass
+        raise NotImplementedError
 
     def get_by_tenant(self, id, tenant_id):
-        pass
+        raise NotImplementedError
 
     def get_group_by_tenant(self, id):
-        pass
+        raise NotImplementedError
 
     def delete_tenant_user(self, id, tenant_id):
-        pass
+        raise NotImplementedError
 
     def users_get_by_tenant(self, user_id, tenant_id):
-        pass
+        raise NotImplementedError
 
     def user_role_add(self, values):
-        pass
+        raise NotImplementedError
 
     def user_get_update(self, id):
-        pass
+        raise NotImplementedError
 
     def users_get_page(self, marker, limit):
-        pass
+        raise NotImplementedError
 
     def users_get_page_markers(self, marker, limit):
-        pass
+        raise NotImplementedError
 
     def users_get_by_tenant_get_page(self, tenant_id, marker, limit):
-        pass
+        raise NotImplementedError
 
     def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit):
-        pass
+        raise NotImplementedError
 
     def user_groups_get_all(self, user_id):
-        pass
+        raise NotImplementedError
 
 
 class BaseTokenAPI(object):
     def create(self, values):
-        pass
+        raise NotImplementedError
     
     def get(self, id):
-        pass
+        raise NotImplementedError
     
     def delete(self, id):
-        pass
+        raise NotImplementedError
     
     def get_for_user(self, user_id):
-        pass
+        raise NotImplementedError
     
     def get_for_user_by_tenant(self, user_id, tenant_id):
-        pass
+        raise NotImplementedError
 
     def get_all(self):
-        pass
+        raise NotImplementedError
     
 
 class BaseTenantGroupAPI(object):
     def create(self, values):
-        pass
+        raise NotImplementedError
     
     def is_empty(self, id):
-        pass
+        raise NotImplementedError
     
     def get(self, id, tenant):
-        pass
+        raise NotImplementedError
     
     def get_page(self, tenantId, marker, limit):
-        pass
+        raise NotImplementedError
     
     def get_page_markers(self, tenantId, marker, limit):
-        pass
+        raise NotImplementedError
     
     def update(self, id, tenant_id, values):
-        pass
+        raise NotImplementedError
     
     def delete(self, id, tenant_id):
-        pass
+        raise NotImplementedError
     
 
 class BaseTenantAPI(object):
     
     def create(self, values):
-        pass
+        raise NotImplementedError
     
     def get(self, id):
-        pass
+        raise NotImplementedError
     
     def get_all(self):
-        pass
+        raise NotImplementedError
     
     def tenants_for_user_get_page(self, user, marker, limit):
-        pass
+        raise NotImplementedError
     
     def tenants_for_user_get_page_markers(self, user, marker, limit):
-        pass
+        raise NotImplementedError
     
     def get_page(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def get_page_markers(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def is_empty(self, id):
-        pass
+        raise NotImplementedError
     
     def update(self, id, values):
-        pass
+        raise NotImplementedError
     
     def delete(self, id):
-        pass
+        raise NotImplementedError
     
     def get_all_endpoints(self, tenant_id):
-        pass
+        raise NotImplementedError
     
     def get_role_assignments(self, tenant_id):
-        pass
+        raise NotImplementedError
 
 
 class BaseRoleAPI(object):
     def create(self, values):
-        pass
+        raise NotImplementedError
     
     def get(self, id):
-        pass
+        raise NotImplementedError
     
     def get_all(self):
-        pass
+        raise NotImplementedError
     
     def get_page(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def ref_get_page(self, marker, limit, user_id):
-        pass
+        raise NotImplementedError
     
     def ref_get_all_global_roles(self, user_id):
-        pass
+        raise NotImplementedError
     
     def ref_get_all_tenant_roles(self, user_id, tenant_id):
-        pass
+        raise NotImplementedError
     
     def ref_get(self, id):
-        pass
+        raise NotImplementedError
     
     def ref_delete(self, id):
-        pass
+        raise NotImplementedError
     
     def get_page_markers(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def ref_get_page_markers(self, user_id, marker, limit):
-        pass
+        raise NotImplementedError
 
     
 class BaseGroupAPI(object):
     def get(self, id):
-        pass
+        raise NotImplementedError
     
     def get_users(self, id):
-        pass
+        raise NotImplementedError
     
     def get_all(self):
-        pass
+        raise NotImplementedError
     
     def get_page(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def get_page_markers(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def delete(self, id):
-        pass
+        raise NotImplementedError
     
     def get_by_user_get_page(self, user_id, marker, limit):
-        pass
+        raise NotImplementedError
     
     def get_by_user_get_page_markers(self, user_id, marker, limit):
-        pass
+        raise NotImplementedError
     
 
 class BaseEndpointTemplateAPI(object):
     def create(self, values):
-        pass
+        raise NotImplementedError
     
     def get(self, id):
-        pass
+        raise NotImplementedError
     
     def get_all(self):
-        pass
+        raise NotImplementedError
     
     def get_page(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def get_page_markers(self, marker, limit):
-        pass
+        raise NotImplementedError
     
     def endpoint_get_by_tenant_get_page(self, tenant_id, marker, limit):
-        pass
+        raise NotImplementedError
     
     def endpoint_get_by_tenant_get_page_markers(self, tenant_id, marker,
             limit):
-        pass
+        raise NotImplementedError
     
     def endpoint_add(self, values):
-        pass
+        raise NotImplementedError
     
     def endpoint_get(self, id):
-        pass
+        raise NotImplementedError
     
     def endpoint_get_by_tenant(self, tenant_id):
-        pass
+        raise NotImplementedError
     
     def endpoint_delete(self, id):
-        pass
+        raise NotImplementedError
