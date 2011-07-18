@@ -817,12 +817,16 @@ def delete_all_endpoint(tenant_id, auth_token):
     
     #verify content
     obj = json.loads(content)
-    endpoints = obj["endpoints"]["values"]
-    for endpoint in endpoints:
-        url = '%stenants/%s/endpoints/%s' % (URL, tenant_id, endpoint["id"])
-        header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(auth_token)})
+    try:
+        endpoints = obj["endpoints"]["values"]
+    except KeyError:
+        pass
+    else:
+        for endpoint in endpoints:
+            url = '%stenants/%s/endpoints/%s' % (URL, tenant_id, endpoint["id"])
+            header.request(url, "DELETE", body='',
+                                      headers={"Content-Type": "application/json",
+                                               "X-Auth-Token": str(auth_token)})
 
 if __name__ == '__main__':
     unittest.main()
