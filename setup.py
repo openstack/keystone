@@ -59,7 +59,7 @@ setup(
         'paste.filter_factory': [
             'extfilter=keystone.middleware.url:filter_factory',
             'remoteauth=keystone.middleware.remoteauth:remoteauth_factory',
-            'tokenauth=keystone.auth_protocols.auth_token:filter_factory',
+            'tokenauth=keystone.middleware.auth_token:filter_factory',
             'swiftauth=keystone.middleware.swift_auth:filter_factory',
             ],
         },
