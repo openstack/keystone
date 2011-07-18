@@ -175,10 +175,16 @@ def import_module(module_name, class_name=None):
     module and options. If no class_name is given, it is assumed to
     be the last part of the module_name string.'''
     if class_name is None:
-        module_name, _separator, class_name = module_name.rpartition('.')
+        try:
+            __import__(module_name)
+            return sys.modules[module_name]
+        except ImportError as exc:
+            module_name, _separator, class_name = module_name.rpartition('.')
+            if not exc.message.startswith('No module named %s' % (class_name,)):
+                raise
     try:
         __import__(module_name)
         return getattr(sys.modules[module_name], class_name)
     except (ImportError, ValueError, AttributeError), exception:
         raise ImportError(_('Class %s.%s cannot be found (%s)') %
-            (module_name, class_name, exception))   
+            (module_name, class_name, exception))
