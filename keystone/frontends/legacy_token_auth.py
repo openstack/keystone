@@ -69,10 +69,10 @@ class AuthProtocol(object):
                     "password": utils.get_auth_key(self.request)}}
             #Make request to keystone        
             new_request = Request.blank('/v2.0/tokens')
+            new_request.method = 'POST'
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'text/json'
             new_request.body = json.dumps(params)
-            new_request.method = 'POST'
             response = new_request.get_response(self.app)
             #Handle failures.
             if not str(response.status).startswith('20'):
