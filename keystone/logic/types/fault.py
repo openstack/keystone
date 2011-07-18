@@ -18,7 +18,7 @@ from lxml import etree
 
 
 class IdentityFault(Exception):
-    "Base Exception type for all auth exceptions"
+    """Base Exception type for all auth exceptions"""
 
     def __init__(self, msg, details=None, code=500):
         self.args = (code, msg, details)
@@ -56,7 +56,7 @@ class IdentityFault(Exception):
 
 
 class ServiceUnavailableFault(IdentityFault):
-    "The auth service is unavailable"
+    """The auth service is unavailable"""
 
     def __init__(self, msg, details=None, code=503):
         super(ServiceUnavailableFault, self).__init__(msg, details, code)
@@ -64,7 +64,7 @@ class ServiceUnavailableFault(IdentityFault):
 
 
 class BadRequestFault(IdentityFault):
-    "Bad user request"
+    """Bad user request"""
 
     def __init__(self, msg, details=None, code=400):
         super(BadRequestFault, self).__init__(msg, details, code)
@@ -72,7 +72,7 @@ class BadRequestFault(IdentityFault):
 
 
 class UnauthorizedFault(IdentityFault):
-    "User is unauthorized"
+    """User is unauthorized"""
 
     def __init__(self, msg, details=None, code=401):
         super(UnauthorizedFault, self).__init__(msg, details, code)
@@ -80,7 +80,7 @@ class UnauthorizedFault(IdentityFault):
 
 
 class ForbiddenFault(IdentityFault):
-    "The user is forbidden"
+    """The user is forbidden"""
 
     def __init__(self, msg, details=None, code=403):
         super(ForbiddenFault, self).__init__(msg, details, code)
@@ -88,7 +88,7 @@ class ForbiddenFault(IdentityFault):
 
 
 class ItemNotFoundFault(IdentityFault):
-    "The item is not found"
+    """The item is not found"""
 
     def __init__(self, msg, details=None, code=404):
         super(ItemNotFoundFault, self).__init__(msg, details, code)
@@ -96,7 +96,7 @@ class ItemNotFoundFault(IdentityFault):
 
 
 class TenantDisabledFault(IdentityFault):
-    "The tenant is disabled"
+    """The tenant is disabled"""
 
     def __init__(self, msg, details=None, code=403):
         super(TenantDisabledFault, self).__init__(msg, details, code)
@@ -104,7 +104,7 @@ class TenantDisabledFault(IdentityFault):
 
 
 class TenantConflictFault(IdentityFault):
-    "The tenant already exists?"
+    """The tenant already exists?"""
 
     def __init__(self, msg, details=None, code=409):
         super(TenantConflictFault, self).__init__(msg, details, code)
@@ -112,7 +112,7 @@ class TenantConflictFault(IdentityFault):
 
 
 class TenantGroupConflictFault(IdentityFault):
-    "The tenant Group already exists?"
+    """The tenant Group already exists?"""
 
     def __init__(self, msg, details=None, code=409):
         super(TenantGroupConflictFault, self).__init__(msg, details, code)
@@ -120,7 +120,7 @@ class TenantGroupConflictFault(IdentityFault):
 
 
 class OverlimitFault(IdentityFault):
-    "A limit has been exceeded"
+    """A limit has been exceeded"""
 
     def __init__(self, msg, details=None, code=409, retry_at=None):
         super(OverlimitFault, self).__init__(msg, details, code)
@@ -130,7 +130,7 @@ class OverlimitFault(IdentityFault):
 
 
 class UserConflictFault(IdentityFault):
-    "The User already exists?"
+    """The User already exists?"""
 
     def __init__(self, msg, details=None, code=409):
         super(UserConflictFault, self).__init__(msg, details, code)
@@ -138,7 +138,7 @@ class UserConflictFault(IdentityFault):
 
 
 class UserDisabledFault(IdentityFault):
-    "The user is disabled"
+    """The user is disabled"""
 
     def __init__(self, msg, details=None, code=403):
         super(UserDisabledFault, self).__init__(msg, details, code)
@@ -146,7 +146,7 @@ class UserDisabledFault(IdentityFault):
 
 
 class EmailConflictFault(IdentityFault):
-    "The Email already exists?"
+    """The Email already exists?"""
 
     def __init__(self, msg, details=None, code=409):
         super(EmailConflictFault, self).__init__(msg, details, code)
@@ -154,7 +154,7 @@ class EmailConflictFault(IdentityFault):
 
 
 class UserGroupConflictFault(IdentityFault):
-    "The user already exists in group?"
+    """The user already exists in group?"""
 
     def __init__(self, msg, details=None, code=409):
         super(UserGroupConflictFault, self).__init__(msg, details, code)
@@ -162,7 +162,7 @@ class UserGroupConflictFault(IdentityFault):
 
 
 class RoleConflictFault(IdentityFault):
-    "The User already exists?"
+    """The User already exists?"""
 
     def __init__(self, msg, details=None, code=409):
         super(RoleConflictFault, self).__init__(msg, details, code)

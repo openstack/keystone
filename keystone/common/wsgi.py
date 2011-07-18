@@ -26,10 +26,8 @@ import logging
 import sys
 import datetime
 
-import eventlet
 import eventlet.wsgi
 eventlet.patcher.monkey_patch(all=False, socket=True)
-import routes
 import routes.middleware
 import webob.dec
 import webob.exc
@@ -229,10 +227,11 @@ class Router(object):
         or the routed WSGI app's response.
         """
         match = req.environ['wsgiorg.routing_args'][1]
+        
         if not match:
             return webob.exc.HTTPNotFound()
-        app = match['controller']
-        return app
+        
+        return match['controller']
 
 
 class Controller(object):
@@ -277,14 +276,14 @@ class Serializer(object):
     Serializes a dictionary to a Content Type specified by a WSGI environment.
     """
 
-    def __init__(self, environ, metadata=None):
+    def __init__(self, environ, metadata={}):
         """
         Create a serializer based on the given WSGI environment.
         'metadata' is an optional dict mapping MIME types to information
         needed to serialize a dictionary to that type.
         """
         self.environ = environ
-        self.metadata = metadata or {}
+        self.metadata = metadata
         self._methods = {
             'application/json': self._to_json,
             'application/xml': self._to_xml}

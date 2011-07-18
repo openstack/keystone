@@ -21,7 +21,7 @@ from lxml import etree
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
 
 import test_common as utils
@@ -43,14 +43,14 @@ class TenantTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_user(self.user, self.auth_token)
         utils.delete_tenant(self.tenant, self.auth_token)
 
 
 class CreateTenantTest(TenantTest):
 
     def test_tenant_create(self):
-        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_user(self.user, self.auth_token)
         utils.delete_tenant(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
         if int(resp['status']) == 500:
@@ -63,9 +63,8 @@ class CreateTenantTest(TenantTest):
             self.fail('Failed due to %d' % int(resp['status']))
 
     def test_tenant_create_xml(self):
-        utils.delete_user(self.tenant, self.user, self.auth_token)
-        utils.delete_tenant_xml(self.tenant,
-                                                str(self.auth_token))
+        utils.delete_user(self.user, self.auth_token)
+        utils.delete_tenant_xml(self.tenant, str(self.auth_token))
         resp, content = utils.create_tenant_xml(self.tenant,
                                                 str(self.auth_token))
         content = etree.fromstring(content)

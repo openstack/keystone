@@ -45,9 +45,14 @@ import re
 import os
 import functools
 import time
+import tokenize
+import mimetypes
 from webob import Response
+from paste.util.template import TemplateError
+from paste.util.datetimeutil import parse_date
 
 import keystone.logic.types.fault as fault
+from keystone.logic.types.fault import ForbiddenFault
 
 TEMPLATES = {}
 DEBUG = False
@@ -124,7 +129,7 @@ class BaseTemplate(object):
 
 
 class SimpleTemplate(BaseTemplate):
-    blocks = ('if','elif','else','try','except','finally','for','while','with','def','class')
+    blocks = ('if', 'elif', 'else', 'try', 'except', 'finally', 'for', 'while', 'with', 'def', 'class')
     dedent_blocks = ('elif', 'else', 'except', 'finally')
 
     def prepare(self, escape_func=cgi.escape, noescape=False):
@@ -147,7 +152,7 @@ class SimpleTemplate(BaseTemplate):
         lineno = 0 # Current line of code
         ptrbuffer = [] # Buffer for printable strings and token tuple instances
         codebuffer = [] # Buffer for generated python code
-        touni = functools.partial(unicode, encoding=self.encoding)
+        functools.partial(unicode, encoding=self.encoding)
         multiline = dedent = False
 
         def yield_tokens(line):
@@ -163,7 +168,7 @@ class SimpleTemplate(BaseTemplate):
             try:
                 tokens = list(tokenize.generate_tokens(iter(line).next))
             except tokenize.TokenError:
-                return line.rsplit('#',1) if '#' in line else (line, '')
+                return line.rsplit('#', 1) if '#' in line else (line, '')
             for token in tokens:
                 if token[0] == tokenize.COMMENT:
                     start, end = token[2][1], token[3][1]
@@ -181,7 +186,7 @@ class SimpleTemplate(BaseTemplate):
                         cline += '_str(%s)' % value
                     elif token == 'CMD':
                         cline += '_escape(%s)' % value
-                    cline +=  ', '
+                    cline += ', '
                 cline = cline[:-2] + '\\\n'
             cline = cline[:-2]
             if cline[:-1].endswith('\\\\\\\\\\n'):
@@ -201,16 +206,16 @@ class SimpleTemplate(BaseTemplate):
             if lineno <= 2:
                 m = re.search(r"%.*coding[:=]\s*([-\w\.]+)", line)
                 if m: self.encoding = m.group(1)
-                if m: line = line.replace('coding','coding (removed)')
+                if m: line = line.replace('coding', 'coding (removed)')
             if line.strip()[:2].count('%') == 1:
-                line = line.split('%',1)[1].lstrip() # Full line following the %
+                line = line.split('%', 1)[1].lstrip() # Full line following the %
                 cline = split_comment(line)[0].strip()
                 cmd = re.split(r'[^a-zA-Z0-9_]', cline)[0]
                 flush() ##encodig (TODO: why?)
                 if cmd in self.blocks or multiline:
                     cmd = multiline or cmd
                     dedent = cmd in self.dedent_blocks # "else:"
-                    if dedent and not oneline and not multiline:
+                    if dedent and not multiline:
                         cmd = stack.pop()
                     code(line)
                     oneline = not cline.endswith(':') # "if 1: pass"
@@ -275,7 +280,6 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     """
     root = os.path.abspath(root) + os.sep
     filename = os.path.abspath(os.path.join(root, filename.strip('/\\')))
-    header = {}
     if not filename.startswith(root):
         #return HTTPError(403, "Access denied.")
         return ForbiddenFault("Access denied.")
@@ -289,7 +293,7 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     if not mimetype and guessmime:
         resp.content_type = mimetypes.guess_type(filename)[0]
     else:
-        resp.content_type = mimetype if mimetype else 'text/plain'
+        resp.content_type = mimetype or 'text/plain'
 
     if download == True:
         download = os.path.basename(filename)
@@ -302,6 +306,7 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     ims = req.environ.get('HTTP_IF_MODIFIED_SINCE')
     if ims:
         ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
+        
         ims = parse_date(ims)
         if ims is not None and ims >= int(stats.st_mtime):
             resp.date = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
@@ -319,7 +324,7 @@ def template(tpl, template_adapter=SimpleTemplate, **kwargs):
     You can use a name, a filename or a template string as first parameter.
     '''
     if tpl not in TEMPLATES or DEBUG:
-        settings = kwargs.get('template_settings',{})
+        settings = kwargs.get('template_settings', {})
         lookup = kwargs.get('template_lookup', TEMPLATE_PATH)
         if isinstance(tpl, template_adapter):
             TEMPLATES[tpl] = tpl
@@ -328,8 +333,6 @@ def template(tpl, template_adapter=SimpleTemplate, **kwargs):
             TEMPLATES[tpl] = template_adapter(source=tpl, lookup=lookup, **settings)
         else:
             TEMPLATES[tpl] = template_adapter(name=tpl, lookup=lookup, **settings)
-    if not TEMPLATES[tpl]:
-        abort(500, 'Template (%s) not found' % tpl)
     return TEMPLATES[tpl].render(**kwargs)
 
 

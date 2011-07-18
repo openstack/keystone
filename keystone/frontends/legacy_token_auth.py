@@ -15,7 +15,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not Yet PEP8 standardized
+
 """
 RACKSPACE LEGACY AUTH - STUB
 
@@ -25,16 +25,13 @@ and makes an authentication call on keystone.- transforms response it
 receives into custom headers defined in properties and returns
 the response.
 """
+
 import os
 import sys
-import optparse
-import httplib
 import json
 import ast
 
-from webob.exc import Request, Response
-from paste.deploy import loadapp
-from webob.exc import HTTPUnauthorized, HTTPInternalServerError
+from webob.exc import Request
 
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
@@ -43,10 +40,7 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
     sys.path.insert(0, POSSIBLE_TOPDIR)
 
-import keystone
 import keystone.utils as utils
-from keystone.common import wsgi
-from keystone.common import config
 
 PROTOCOL_NAME = "Legacy Authentication"
 
@@ -59,10 +53,13 @@ class AuthProtocol(object):
         print "Starting the %s component" % PROTOCOL_NAME
         self.conf = conf
         self.app = app
+        self.start_response = None
+        self.env = None
+        self.request = None
 
-    """Handle 1.0 and 1.1 calls via middleware.
-    Right now Iam treating every call of 1.0 and 1.1 as call
-    to authenticate"""
+    # Handle 1.0 and 1.1 calls via middleware.
+    # Right now I am treating every call of 1.0 and 1.1 as call
+    # to authenticate
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
         self.start_response = start_response
@@ -73,17 +70,17 @@ class AuthProtocol(object):
             params = {"passwordCredentials":
                 {"username": utils.get_auth_user(self.request),
                     "password": utils.get_auth_key(self.request)}}
-            #Make request to keystone        
+            #Make request to keystone
             new_request = Request.blank('/v2.0/tokens')
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'text/json'
-            new_request.body = json.dumps(params)
             new_request.method = 'POST'
+            new_request.body = json.dumps(params)
             response = new_request.get_response(self.app)
             #Handle failures.
             if not str(response.status).startswith('20'):
                 return response(env, start_response)
-            headers = self.transform_keystone_auth_to_legacy_headers(
+            headers = self.__transform_headers(
                 json.loads(response.body))
             resp = utils.send_legacy_result(204, headers)
             return resp(env, start_response)
@@ -91,7 +88,8 @@ class AuthProtocol(object):
             # Other calls pass to downstream WSGI component
             return self.app(self.env, self.start_response)
 
-    def transform_keystone_auth_to_legacy_headers(self, content):
+    def __transform_headers(self, content):
+        """Transform Keystone auth to legacy headers"""
         headers = {}
         if "auth" in content:
             auth = content["auth"]
@@ -125,5 +123,6 @@ def filter_factory(global_conf, **local_conf):
     conf.update(local_conf)
 
     def auth_filter(app):
+        """Closure to return"""
         return AuthProtocol(app, conf)
     return auth_filter

@@ -18,7 +18,6 @@
 
 import datetime
 import functools
-import json
 import httplib
 import logging
 import pprint
@@ -28,7 +27,8 @@ from lxml import etree, objectify
 import webob
 
 from keystone import server
-from keystone.db.sqlalchemy import api as db_api
+import keystone.backends.sqlalchemy as db
+import keystone.backends.api as db_api
 
 logger = logging.getLogger('test.unit.base')
 
@@ -43,12 +43,12 @@ class ServiceAPITest(unittest.TestCase):
     The `api` attribute for this base class is the `server.KeystoneAPI`
     controller.
     """
-    api_class = server.KeystoneAPI
+    api_class = server.ServiceApi
 
     """
     Dict of configuration options to pass to the API controller
     """
-    options = {'sql_connection': 'sqlite:///',  # in-memory db
+    options = {'sql_connection': 'sqlite:///', # in-memory db
                'verbose': False,
                'debug': False}
 
@@ -117,9 +117,9 @@ class ServiceAPITest(unittest.TestCase):
         """
         Purges the database of all data
         """
-        db_api.unregister_models()
+        db.unregister_models()
         logger.debug("Cleared all data from database")
-        db_api.register_models()
+        db.register_models()
 
     def fixture_create_tenant(self, **kwargs):
         """
@@ -128,7 +128,7 @@ class ServiceAPITest(unittest.TestCase):
         :params **kwargs: Attributes of the tenant to create
         """
         values = kwargs.copy()
-        tenant = db_api.tenant_create(values)
+        tenant = db_api.tenant.create(values)
         logger.debug("Created tenant fixture %s", values['id'])
         return tenant
 
@@ -142,11 +142,11 @@ class ServiceAPITest(unittest.TestCase):
         values = kwargs.copy()
         tenant_id = values.get('tenant_id')
         if tenant_id:
-            if not db_api.tenant_get(tenant_id):
-                db_api.tenant_create({'id': tenant_id,
+            if not db_api.tenant.get(tenant_id):
+                db_api.tenant.create({'id': tenant_id,
                                       'enabled': True,
                                       'desc': tenant_id})
-        user = db_api.user_create(values)
+        user = db_api.user.create(values)
         logger.debug("Created user fixture %s", values['id'])
         return user
 
@@ -157,7 +157,7 @@ class ServiceAPITest(unittest.TestCase):
         :params **kwargs: Attributes of the token to create
         """
         values = kwargs.copy()
-        token = db_api.token_create(values)
+        token = db_api.token.create(values)
         logger.debug("Created token fixture %s", values['token_id'])
         return token
     
@@ -225,7 +225,7 @@ class ServiceAPITest(unittest.TestCase):
         nicely formatted for easy comparison if there is a failure.
         """
         self.assertEqual(expected, got, "Mappings are not equal.\n"
-                         "Got:\n%s\nExpected:\n%s" %
+                         "Got:\n%s\nExpected:\n%s" % 
                          (pprint.pformat(got),
                           pprint.pformat(expected)))
 
@@ -242,7 +242,7 @@ class ServiceAPITest(unittest.TestCase):
         expected = objectify.fromstring(expected)
         self.assertEqual(etree.tostring(expected),
                          etree.tostring(got), "DOMs are not equal.\n"
-                         "Got:\n%s\nExpected:\n%s" %
+                         "Got:\n%s\nExpected:\n%s" % 
                          (etree.tostring(got, pretty_print=True),
                           etree.tostring(expected, pretty_print=True)))
 
@@ -257,7 +257,7 @@ class AdminAPITest(ServiceAPITest):
     The `api` attribute for this base class is the `server.KeystoneAdminAPI`
     controller.
     """
-    api_class = server.KeystoneAdminAPI
+    api_class = server.AdminApi
 
     """
     Set of dicts of tenant attributes we start each test case with

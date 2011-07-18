@@ -23,13 +23,10 @@ documents the APIs to call and how to use them.
     <td>User</td><td>An identity stored in the Keystone identity store used by a client to authenticate to Keystone.</td>
   </tr>
   <tr>
-    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenent.</td>
+    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenant.</td>
   </tr>
   <tr>
     <td>Role</td><td>A responsibility which is linked to a given user (and optionally scoped to a particular tenant).</td>
-  </tr>
-  <tr>
-    <td>Group</td><td>A group of users. Group use cases are not yet defined in Keystone.</td>
   </tr>
   <tr>
     <td>Token</td><td>A 'token' describes a temporary object obtained by clients from Keystone and used to identify themselves to an OpenStack service.</td>
@@ -46,8 +43,7 @@ documents the APIs to call and how to use them.
 #### Starting services
 Starting both Admin and Service API endpoints:
 
-    $ cd bin
-    $ ./keystone
+    $ ./bin/keystone
 
 
 # For Keystone Contributors
@@ -74,19 +70,24 @@ Starting both Admin and Service API endpoints:
 * bin/keystone-service - Provides HTTP API for users
 * bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
 
-By default, configuration parameters are parsed from etc/keystone.conf.
+By default, configuration parameters are parsed from `etc/keystone.conf`.
 
 ## Dependencies
 
+You may need to prefix your `pip install` commands with `sudo`, depending on your environment.
+
 <pre>
-# Show Dependencies
+# Show dependencies
 $ cat tools/pip-requires
 
-# Install Dependencies
-$ sudo pip install -r tools/pip-requires
+# Install dependencies
+$ pip install -r tools/pip-requires
 
-# Keystone uses the DTest test framework for testing. Install that separately using:
-$ sudo pip install DTest
+# Install test dependencies
+$ pip install -r tools/pip-requires-testing
+
+# Install development dependencies
+$ pip install -r tools/pip-requires-development
 
 </pre>
 
@@ -94,58 +95,54 @@ $ sudo pip install DTest
 
 Starting both Admin and Service API endpoints:
 
-    $ cd bin
-    $ ./keystone
+    $ ./bin/keystone
 
 Starting the auth server only (exposes the Service API):
 
-    $ cd bin
-    $ ./keystone-auth
+    $ ./bin/keystone-auth
 
 Starting the admin server only (exposes the Admin API):
 
-    $ cd bin
-    $ ./keystone-admin
+    $ ./bin/keystone-admin
 
-All above files take parameters from etc/keystone.conf file under the Keystone root folder by default
-
+By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
 ## Running Tests
+
+Before running tests, ensure you have installed the testing dependencies as described in the Dependencies section above.
+
+To run the test suite in a single command:
+
+    $ python keystone/test/run_tests.py
 
 #### Test data
 A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
 
-The script calls keystone-manage to create the sample data.
+The script calls `keystone-manage` to create the sample data.
 
-After starting keystone or running `keystone-manage` a keystone.db sqlite database should be created in the keystone folder.
+After starting keystone or running `keystone-manage` a `keystone.db` sqlite database should be created in the keystone folder.
 
 #### Demo
 To run client demo (with all auth middleware running locally on sample service):
 
-    $ ./echo/bin/echod
-    $ python echo/echo/echo_client.py
+    $ ./examples/echo/bin/echod
+    $ python examples/echo/echo_client.py
 
-NOTE: NOT ALL TESTS CONVERTED TO NEW MODEL YET. MANY FAIL. THIS WILL BE ADDRESSED SOON.
 
 #### Unit Tests
-To run unit tests:
+There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run:
 
-* go to unit test/unit directory
-* run tests: python test_keystone
+    $ python keystone/test/unit/test_keystone.py
 
-There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run
+A test can also be run individually, e.g.:
 
-    $ python test_keystone.py
+    $ python keystone/test/unit/test_token.py
 
-A test can also be run individually e.g.
+For more on unit testing please refer to:
 
-    $ python test_token.py
-
-For more on unit testing please refer
-
-    $ python test_keystone.py --help
+    $ python keystone/test/unit/test_keystone.py --help
 
 
 #### API Validation
@@ -162,22 +159,29 @@ Using SOAPUI:
 * Double click on "Keystone Tests" and press the green play (>) button
 
 
-## Editing and Compiling the Developer Guide
+## Writing Documentation
+
+### Editing and Compiling the Developer Guide
 
 Users of the Keystone API are often developers making ReSTfull calls to Keystone. The guide to provide them
 information is therefore called a `Developer Guide`. Developer in this case is not to be confused with developers
 working on the Keystone source code itself.
 
 The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
-generated from XML and other artifacts in the `keystone/docs/src` folder.
+generated from XML and other artifacts that live in the [OpenStack Manuals project](https://launchpad.net/openstack-manuals).
 
-To build the API `dev guide` from source, you need [Maven](http://maven.apache.org/). To build the docs,
-run the following from the `Keystone/docs` folder:
+To build the Developer Guide from source, you need [Maven](http://maven.apache.org/). To build the docs and publish a new PDF:
 
-    $ mvn clean generate-sources
+    $ cd to folder with the pom.xml file
+    $ mvn clean generate-sources && cp target/docbkx/pdf/identitydevguide.pdf ../../keystone/content/identitydevguide.pdf
 
-The output will go into the `keystone/docs/target` folder (the source is in `keystone/docs/src`). Output
-generated is PDF and webhelp.
+The output will go into the `target` folder (the source is in `src`). Output generated is PDF and webhelp.
+
+### Editing and Compiling the Admin Guide
+
+The Admin guide is written in RST and compiled using sphinx. From the `keystone` folder:
+
+    $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
 
 
 ## Additional Information:
@@ -195,11 +199,15 @@ in troubleshooting:
 <pre>
     # Get an unscoped token
     
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:8081/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
+
+    # Get an admin token
+
+    $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:5001/v2.0/tokens
 </pre>
 
 #### Load Testing
@@ -211,7 +219,7 @@ in troubleshooting:
 
    # Call Apache Bench
 
-   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:8081/v2.0/tokens
+   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:5001/v2.0/tokens
 </pre>
 
 ## NOVA Integration
@@ -226,7 +234,7 @@ Initial support for using keystone as nova's identity component has been started
     ln -s keystone/keystone nova/keystone
 
     # run nova-api based on the paste config in keystone
-    nova/bin/nova-api --api_paste_config=keystone/docs/nova-api-paste.ini
+    nova/bin/nova-api --api_paste_config=keystone/examples/paste/nova-api-paste.ini
 
 Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
 
@@ -253,8 +261,8 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
 
         $ cd ~/keystone/bin && ./keystone
         Starting the Legacy Authentication component
-        Service API listening on 0.0.0.0:8080
-        Admin API listening on 0.0.0.0:8081
+        Service API listening on 0.0.0.0:5000
+        Admin API listening on 0.0.0.0:5001
 
 4.  In another window, edit the `~/keystone/bin/sampledata.sh` file, find the
     `public.cloudfiles.com` text and replace it with the URL to your Swift
@@ -284,7 +292,7 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
         use = egg:keystone#tokenauth
         auth_protocol = http
         auth_host = 127.0.0.1
-        auth_port = 8081
+        auth_port = 5001
         admin_token = 999888777666
         delay_auth_decision = 0
         service_protocol = http
@@ -308,8 +316,8 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
     container or upload something as your first action to have the account
     created; there's a Swift bug to be fixed soon):
 
-        $ st -A http://127.0.0.1:8080/v1.0 -U joeuser -K secrete post container
-        $ st -A http://127.0.0.1:8080/v1.0 -U joeuser -K secrete stat -v
+        $ st -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete post container
+        $ st -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete stat -v
         StorageURL: http://127.0.0.1:8888/v1/AUTH_1234
         Auth Token: 74ce1b05-e839-43b7-bd76-85ef178726c3
            Account: AUTH_1234
@@ -345,6 +353,11 @@ To get an opinionated install of nova, keystone, dashboard and glance using open
 
 
 ## Relevant Technologies, Standards, and Links
+
+### Useful links
+
+https://sites.google.com/site/oauthgoog/Overlap
+
 
 ### Protocols
 We could potentially integrate with those:

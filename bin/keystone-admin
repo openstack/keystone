@@ -34,10 +34,9 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-import tools.tracer   #load this first
+import tools.tracer #@UnusedImport # module runs on import
 import keystone
-from keystone.common import config
-from keystone.common import wsgi
+from keystone.common import config, wsgi
 
 
 if __name__ == '__main__':
@@ -63,9 +62,10 @@ if __name__ == '__main__':
             print "Using config file:", config_file
 
         server = wsgi.Server()
-        server.start(app, int(conf['bind_port']), conf['bind_host'])
-        print "Admin API listening on %s:%s" % (conf['bind_host'],
-                                              conf['bind_port'])
+        server.start(app, int(conf['admin_port']), conf['admin_host'])
+        
+        print "Admin API listening on %s:%s" % (
+            conf['admin_host'], conf['admin_port'])
 
         server.wait()
     except RuntimeError, e:

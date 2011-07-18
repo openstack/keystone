@@ -10,7 +10,7 @@ RUNNING THE TEST SERVICE (Echo.py):
     $ ./echod --remote
 
     in separate session
-    $ cd keystone/auth_protocols
+    $ cd keystone/middleware
     $ python auth_token.py
 
 

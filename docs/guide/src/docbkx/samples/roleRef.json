@@ -1,7 +1,0 @@
-{
-   "roleRef" : {
-  		"id" : 1,
-  		"roleId" : "admin",
-  		"tenantId" : "one"
-  }
-}

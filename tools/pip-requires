@@ -6,3 +6,6 @@ pastescript
 pysqlite
 sqlalchemy
 webob
+Routes
+httplib2
+python-ldap # optional authentication backend

@@ -2,10 +2,16 @@
 .project
 .project/
 .cache/
+.pydevproject
 .pydevproject/
+.settings/
 keystone.db
+keystone.token.db
 .*.swp
 *.log
 *.pid
 pidfile
 *.komodoproject
+doc/build/
+build/
+doc/guide/target

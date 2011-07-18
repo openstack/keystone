@@ -17,7 +17,7 @@ import json
 from lxml import etree
 import string
 
-import keystone.logic.types.fault as fault
+from keystone.logic.types import fault
 
 
 class Role(object):

@@ -66,14 +66,3 @@ Add them to modules, classes, and functions:
 
   """
 
-Done/Done Criteria
-------------------
-How we define our code is done and ready for release:
-1. PEP-8 compliance
-2. pylint (same rules as Nova)
-3. McCabe 10 or less
-4. 65.258% test coverage
-5. All functional and unit tests pass
-6. Q/A Approval (if applicable - it is for Rackspace Integration dev teams)
-7. No sev A bugs (this shoud have been #1)
-

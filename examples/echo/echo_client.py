@@ -20,7 +20,6 @@ Implement a client for Echo service using Identity service
 
 import httplib
 import json
-import sys
 
 
 def get_auth_token(username, password, tenant):
@@ -28,7 +27,7 @@ def get_auth_token(username, password, tenant):
     params = {"passwordCredentials": {"username": username,
                                       "password": password,
                                       "tenantId": tenant}}
-    conn = httplib.HTTPConnection("localhost:8080")
+    conn = httplib.HTTPConnection("localhost:5000")
     conn.request("POST", "/v2.0/tokens", json.dumps(params), headers=headers)
     response = conn.getresponse()
     data = response.read()

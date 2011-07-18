@@ -1,4 +1,0 @@
-POST /v2.0/tokens HTTP/1.1
-Host: identity.api.openstack.org
-Content-Type: application/json
-Accept: application/xml

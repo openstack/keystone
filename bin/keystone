@@ -33,12 +33,10 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
-#load this first
-import tools.tracer
-import keystone
-from keystone.common import config
-from keystone.common import wsgi
 
+import tools.tracer #@UnusedImport # module runs on import
+import keystone
+from keystone.common import config, wsgi
 
 if __name__ == '__main__':
     # Initialize a parser for our configuration paramaters
@@ -47,10 +45,9 @@ if __name__ == '__main__':
     config.add_log_options(parser)
 
     # Handle a special argument to support starting two endpoints
-    common_group.add_option('-a', '--admin-port', default=8081,
-                            dest="admin_port", metavar="PORT",
-                     help="specifies port for Admin API to listen"
-                            "on (default is 8081)")
+    common_group.add_option(
+    	'-a', '--admin-port', dest="admin_port", metavar="PORT",
+        help="specifies port for Admin API to listen on (default is 5001)")
 
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
@@ -60,31 +57,33 @@ if __name__ == '__main__':
         # Load Service API server
         conf, app = config.load_paste_app(
             'keystone-legacy-auth', options, args)
+        admin_conf, admin_app = config.load_paste_app(
+        	'admin', options, args)
 
         debug = options.get('debug') or conf.get('debug', False)
         debug = debug in [True, "True", "1"]
         verbose = options.get('verbose') or conf.get('verbose', False)
         verbose = verbose in [True, "True", "1"]
+        
         if debug or verbose:
             config_file = config.find_config_file(options, args)
             print "Using config file:", config_file
-
+        
+        # Load Service API server
         server = wsgi.Server()
-        server.start(app, int(conf['server_bind_port']),
-                     conf['server_bind_host'])
-        print "Service API listening on %s:%s" % (conf['server_bind_host'],
-                                              conf['server_bind_port'])
-
+        server.start(app, int(conf['service_port']), conf['service_host'])
+        
+        print "Service API listening on %s:%s" % (
+            conf['service_host'], conf['service_port'])
+        
         # Load Admin API server
-        admin_conf, admin_app = config.load_paste_app('admin', options, args)
         admin_server = wsgi.Server()
-        admin_bind = options.get('admin_port') or admin_conf.get('bind_port')
-        if conf['server_bind_port'] == admin_bind:
-            admin_bind += 1
-        admin_server.start(admin_app, int(admin_bind),
-                           admin_conf['bind_host'])
-        print "Admin API listening on %s:%s" % (admin_conf['bind_host'],
-                                              admin_bind)
+        admin_server.start(admin_app,
+            int(conf['admin_port']), conf['admin_host'])
+        
+        print "Admin API listening on %s:%s" % (
+            conf['admin_host'], conf['admin_port'])
+        
         # Wait until done
         server.wait()
     except RuntimeError, e:

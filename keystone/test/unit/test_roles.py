@@ -21,11 +21,13 @@ from lxml import etree
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', 'keystone')))
+                                '..', '..', '..', '..', '..', 'keystone')))
 import unittest
 
 import test_common as utils
 from test_common import URL
+
+from keystone.logic.types import fault
 
 class RolesTest(unittest.TestCase):
     def setUp(self):
@@ -45,7 +47,7 @@ class RolesTest(unittest.TestCase):
                                      'token')
 
     def tearDown(self):
-        utils.delete_user(self.tenant, self.user, self.auth_token)
+        utils.delete_user(self.user, self.auth_token)
         utils.delete_tenant(self.tenant, self.auth_token)
         
 class GetRolesTest(RolesTest):
@@ -522,7 +524,7 @@ class GetRoleRefsTest(RolesTest):
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
         
-    def test_get_rolerefs_using_invalid_token(self):
+    def test_get_rolerefs_json_using_invalid_token(self):
         header = httplib2.Http(".cache")
         utils.add_user_json(self.tenant, self.user, self.auth_token)
         resp, content = utils.create_role_ref(self.user, 'Admin', self.tenant,
@@ -538,7 +540,7 @@ class GetRoleRefsTest(RolesTest):
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
     
-    def test_get_rolerefs_xml_using_missing_token(self):
+    def test_get_rolerefs_xml_using_invalid_token(self):
         header = httplib2.Http(".cache")
         utils.add_user_json(self.tenant, self.user, self.auth_token)
         resp, content = utils.create_role_ref(self.user, 'Admin', self.tenant,
