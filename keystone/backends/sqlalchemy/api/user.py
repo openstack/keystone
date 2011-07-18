@@ -47,7 +47,8 @@ class UserAPI(BaseUserAPI):
             session = get_session()
         with session.begin():
             usertenantgroup_ref = self.get_by_group(id, group_id, session)
-            session.delete(usertenantgroup_ref)
+            if usertenantgroup_ref is not None:
+                session.delete(usertenantgroup_ref)
     
     
     def create(self, values):
