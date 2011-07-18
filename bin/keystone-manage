@@ -23,6 +23,7 @@ Keystone Identity Server - CLI Management Interface
 """
 
 import datetime
+import logging
 import optparse
 import os
 import sys
@@ -126,7 +127,7 @@ def Main():
                 db_api.user.create(object)
                 print "SUCCESS: User %s created." % object.id
             except Exception as exc:
-                print "ERROR: Failed to create user %s: %s" % (object_id, exc)
+                raise Exception("Failed to create user %s" % (object_id,), sys.exc_info())
             return
         elif command == "disable":
             try:
@@ -137,7 +138,7 @@ def Main():
                 db_api.user.update(object_id, object)
                 print "SUCCESS: User %s disabled." % object.id
             except Exception as exc:
-                print "ERROR: Failed to disable user %s: %s" % (object_id, exc)
+                raise Exception("Failed to disable user %s" % (object_id,), sys.exc_info())
             return
         elif command == "list":
             try:
@@ -159,7 +160,7 @@ def Main():
                     for row in objects:
                         print row.id, row.enabled, row.tenant_id
             except Exception, e:
-                print 'Error getting all users:', str(e)
+                raise Exception("Error getting all users", sys.exc_info())
             return
     elif object_type == "tenant":
         if command == "add":
@@ -171,8 +172,7 @@ def Main():
                 print "SUCCESS: Tenant %s created." % object.id
                 return
             except Exception as exc:
-                print "ERROR: Failed to create tenant %s: %s" % (object_id, exc)
-                return
+                raise Exception("Failed to create tenant %s" % (object_id,), sys.exc_info())
         elif command == "list":
             try:
                 objects = db_api.tenant.get_all()
@@ -182,8 +182,8 @@ def Main():
                 print '-' * 20
                 for row in objects:
                     print row.id, row.enabled
-            except Exception, e:
-                print 'Error getting all users: %s', str(e)
+            except Exception, exc:
+                raise Exception("Error getting all tenants", sys.exc_info())
             return
         elif command == "disable":
             try:
@@ -194,7 +194,7 @@ def Main():
                 db_api.tenant.update(object_id, object)
                 print "SUCCESS: Tenant %s disabled." % object.id
             except Exception as exc:
-                print "ERROR: Failed to disable tenant %s: %s" % (object_id, exc)
+                raise Exception("Failed to disable tenant %s" % (object_id,), sys.exc_info())
             return
     elif object_type == "role":
         if command == "add":
@@ -205,8 +205,7 @@ def Main():
                 print "SUCCESS: Role %s created successfully." % object.id
                 return
             except Exception as exc:
-                print "ERROR: Failed to create role %s: %s" % (object_id, exc)
-                return
+                raise Exception("Failed to create role %s" % (object_id,), sys.exc_info())
         elif command == "list":
             if len(args) == 3:
                 tenant = args[2]
@@ -220,8 +219,9 @@ def Main():
                     for row in objects:
                         print row.user_id, row.role_id
                 except Exception, e:
-                    print 'Error getting all role assignments for %s:' % \
-                        tenant, str(e)
+                    raise Exception( \
+                        "Error getting all role assignments for %s" % (tenant,),
+                        sys.exc_info())
                 return
             else:
                 tenant = None
@@ -235,7 +235,7 @@ def Main():
                     for row in objects:
                         print row.id
                 except Exception, e:
-                    print 'Error getting all roles:', str(e)
+                    raise Exception("Error getting all roles", sys.exc_info())
                 return
         elif command == "grant":
             if len(args) < 4:
@@ -256,7 +256,8 @@ def Main():
                 print "SUCCESS: Granted %s the %s role on %s." % \
                         (object.user_id, object.role_id, object.tenant_id)
             except Exception as exc:
-                print "ERROR: Failed to grant role %s to %s on %s: %s" % (object_id, user, tenant, exc)
+                raise Exception("Failed to grant role %s to %s on %s" % \
+                                    (object_id, user, tenant), sys.exc_info())
             return
     elif object_type == "endpointTemplates":
         if command == "add":
@@ -285,9 +286,8 @@ def Main():
                     (object.service, object.public_url)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create EndpointTemplates for %s: %s" % (service,
-                                                                      exc)
-                return
+                raise Exception("Failed to create EndpointTemplates for %s" % \
+                                    (service,), sys.exc_info())
         elif command == "list":
             if len(args) == 3:
                 tenant = args[2]
@@ -301,8 +301,8 @@ def Main():
                     for row in objects:
                         print row.service, row.region, row.public_url
                 except Exception, e:
-                    print 'Error getting all endpoints for %s:' % \
-                        tenant, str(e)
+                    raise Exception("Error getting all endpoints for %s" % \
+                                    (tenant,), sys.exc_info())
                 return
             else:
                 tenant = None
@@ -316,7 +316,7 @@ def Main():
                     for row in objects:
                         print row.service, row.region, row.public_url
                 except Exception, e:
-                    print 'Error getting all EndpointTemplates:', str(e)
+                    raise Exception("Error getting all EndpointTemplates", sys.exc_info())
                 return
     elif object_type == "endpoint":
         if command == "add":
@@ -335,8 +335,7 @@ def Main():
                             (endpoint_template_id, tenant_id)
                 return
             except Exception as exc:
-                print "ERROR: Failed to create Endpoint: %s" % exc
-                return
+                raise Exception("Failed to create Endpoint", sys.exc_info())
     elif object_type == "token":
         if command == "add":
             if len(args) < 6:
@@ -355,8 +354,7 @@ def Main():
                 print "SUCCESS: Token %s created." % object.id
                 return
             except Exception as exc:
-                print "ERROR: Failed to create token %s: %s" % (object_id, exc)
-                return
+                raise Exception("Failed to create token %s" % (object_id,), sys.exc_info())
         elif command == "list":
             try:
                 objects = db_api.token.get_all()
@@ -367,7 +365,7 @@ def Main():
                 for row in objects:
                     print row.id, row.user_id, row.expires, row.tenant_id
             except Exception, e:
-                print 'Error getting all tokens:', str(e)
+                raise Exception("Error getting all tokens", sys.exc_info())
             return
         elif command == "delete":
             try:
@@ -378,8 +376,7 @@ def Main():
                     db_api.token.delete(object_id)
                     print 'SUCCESS: Token %s deleted.' % object_id
             except Exception, e:
-                print 'ERROR: Failed to delete token %s: %s' % \
-                        object_id, str(e)
+                raise Exception("Failed to delete token %s" % (object_id,), sys.exc_info())
             return
 
     # Command not handled
@@ -387,4 +384,15 @@ def Main():
 
 
 if __name__ == '__main__':
-    Main()
+    try:
+        Main()
+    except Exception as exc:
+        try:
+            info = exc.args[1]
+        except IndexError:
+            print "ERROR: %s" % (exc,)
+            logging.error(str(exc))
+        else:
+            print "ERROR: %s: %s" % (exc.args[0], info[1].message)
+            logging.error(exc.args[0], exc_info=info)
+        sys.exit(1)
