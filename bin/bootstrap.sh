@@ -19,7 +19,7 @@
 #    under the License.
 
 # Create a user
-`dirname $0`/keystone-manage $* user add admin secrete 1234
+`dirname $0`/keystone-manage $* user add admin secrete
 
 # Create an Admin role
 `dirname $0`/keystone-manage $* role add Admin
