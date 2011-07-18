@@ -41,7 +41,7 @@ import keystone
 from keystone.common import config
 import keystone.backends as db
 import keystone.backends.api as db_api
-import keystone.backends.sqlalchemy.models as db_models
+import keystone.backends.models as db_models
 
 
 def Main():

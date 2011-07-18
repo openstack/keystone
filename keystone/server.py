@@ -50,8 +50,6 @@ if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
 
 from keystone.common import wsgi
 import keystone.backends as db
-import keystone.backends.sqlalchemy
-import keystone.backends.alterdb
 import keystone.logic.service as serv
 import keystone.logic.types.tenant as tenants
 import keystone.logic.types.role as roles
