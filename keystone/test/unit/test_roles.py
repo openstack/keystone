@@ -104,7 +104,7 @@ class GetRolesTest(RolesTest):
             self.fail("Expecting Roles")
         roles = roles.findall("{http://docs.openstack.org/identity/api/v2.0}" \
             "role")
-        if len(roles) != 1:
+        if len(roles) != 2:
             self.fail("Not the expected Role count")
         for role in roles:
             if role.get("id") != 'Admin':
