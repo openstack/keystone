@@ -56,7 +56,7 @@ class TestContentTypes(KeystoneTestCase):
         """Content-Type should be honored even on 404 errors (Issue #13)"""
         _r = self.service_request(path='/completely-invalid-path',
             headers={'Accept': 'application/xml'},
-            expect_exception=True)
+            assert_status=404)
         
         # Commenting this assertion out, as it currently fails
 #        self.assertTrue('application/xml' in r.getheader('Content-Type'),

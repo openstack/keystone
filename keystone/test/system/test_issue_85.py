@@ -20,7 +20,7 @@ class TestIssue85(KeystoneTestCase):
                 }
             })
         
-        # Create a user
+        # Create a user for a specific tenant
         self.admin_request(method='PUT', path='/users',
             json={
                 'user':{
@@ -28,7 +28,7 @@ class TestIssue85(KeystoneTestCase):
                     'password': 'secrete',
                     'email': 'user@openstack.org',
                     'enabled': True,
-                    'tenant_id': 'tenant',
+                    'tenantId': self.tenant_id
                 }
             })
     
@@ -43,18 +43,20 @@ class TestIssue85(KeystoneTestCase):
     
     def test_disabling_tenant_disables_token(self):
         """Disabling a tenant should invalidate previously-issued tokens"""
-        # Authenticate as user to get a token
+        # Authenticate as user to get a token *for a specific tenant*
         r = self.service_request(method='POST', path='/tokens',
             json={
                 'passwordCredentials': {
                     'username': self.user_id,
                     'password': 'secrete',
+                    'tenantId': self.tenant_id
                 }
             })
         self.service_token = r.json['auth']['token']['id']
         
-        # Validate tenant token
-        self.admin_request(path='/tokens/%s' % self.service_token)
+        # Validate and check that token belongs to tenant
+        self.admin_request(path='/tokens/%s?belongsTo=%s' % 
+            (self.service_token, self.tenant_id))
         
         # Disable tenant
         r = self.admin_request(method='PUT',
@@ -67,10 +69,11 @@ class TestIssue85(KeystoneTestCase):
             })
         self.assertEqual(r.json['tenant']['enabled'], False)
         
-        # Assert tenant token invalidated
-        # Commented this out because it will fail this test
-#        self.admin_request(path='/tokens/%s' % self.service_token,
-#            expect_exception=True)
+        # Assert that token belonging to disabled tenant is invalid
+        r = self.admin_request(path='/tokens/%s?belongsTo=%s' % 
+            (self.service_token, self.tenant_id),
+            assert_status=403)
+        self.assertTrue(r.json['tenantDisabled'], 'Tenant is disabled')
 
 if __name__ == '__main__':
     unittest.main()

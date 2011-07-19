@@ -5,7 +5,7 @@ class HttpTestCase(unittest.TestCase):
     """Performs generic HTTP request testing"""
 
     def request(self, host='127.0.0.1', port=80, method='GET', path='/',
-            headers={}, body=None, expect_exception=False,):
+            headers={}, body=None, assert_status=None):
         """Perform request and fetch httplib.HTTPResponse from the server"""
         
         # Initialize a connection
@@ -22,25 +22,25 @@ class HttpTestCase(unittest.TestCase):
         connection.close()
         
         # Automatically assert HTTP status code
-        if not expect_exception:
-            self.assertSuccessfulResponse(response)
+        if assert_status:
+            self.assertResponseStatus(response, assert_status)
         else:
-            self.assertExceptionalResponse(response)
+            self.assertResponseSuccessful(response)
         
         # Contains the response headers, body, etc
         return response
-
-    def assertSuccessfulResponse(self, response):
+    
+    def assertResponseSuccessful(self, response):
         """Asserts that a status code lies inside the 2xx range"""
         self.assertTrue(response.status >= 200 and response.status <= 299,
-            'Status code %d is outside of the expected range (2xx) \n\n%s' % 
+            'Status code %d is outside of the expected range (2xx)\n\n%s' % 
             (response.status, response.body))
-
-    def assertExceptionalResponse(self, response):
-        """Asserts that a status code lies outside the 2xx range"""
-        self.assertFalse(response.status >= 200 and response.status <= 299,
-            'Status code %d is outside of the expected range (not 2xx)\n\n%s' % 
-            (response.status, response.body))
+    
+    def assertResponseStatus(self, response, assert_status):
+        """Asserts a specific status code on the response"""
+        self.assertEqual(response.status, assert_status,
+            'Status code %s is not %s, as expected)\n\n%s' % 
+            (response.status, assert_status, response.body))
     
 class RestfulTestCase(HttpTestCase):
     """Performs restful HTTP request testing"""
