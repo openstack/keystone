@@ -26,6 +26,7 @@ import os
 from paste import deploy
 import sys
 import ConfigParser
+from keystone.common.wsgi import add_console_handler
 
 DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -125,34 +126,6 @@ def add_log_options(parser):
     parser.add_option_group(group)
     return group
 
-
-def add_console_handler(logger, level=logging.INFO):
-    """
-    Add a Handler which writes log messages to sys.stderr
-    (which is often the console)
-    There is a copy of this function in wsgi.py (TODO(Ziad): Make it one copy)
-    """
-    console = None
-    for console in logger.handlers:
-        if isinstance(console, logging.StreamHandler):
-            break
-
-    if not console:
-        console = logging.StreamHandler()
-        console.setLevel(level)
-        # set a format which is simpler for console use
-        formatter = logging.Formatter("%(name)-12s: "\
-                                      "%(levelname)-8s %(message)s")
-        # tell the handler to use this format
-        console.setFormatter(formatter)
-        # add the handler to the root logger
-        logger.addHandler(console)
-    else:
-        if console.level != level:
-            console.setLevel(level)
-    return console
-
-
 def setup_logging(options, conf):
     """
     Sets up the logging options for a log with supplied name
@@ -205,9 +178,7 @@ def setup_logging(options, conf):
         logfile.setFormatter(formatter)
         root_logger.addHandler(logfile)
         # Mirror to console if verbose or debug
-        if debug:
-            add_console_handler(root_logger, logging.INFO)  #debug too noisy
-        elif verbose:
+        if debug or verbose:
             add_console_handler(root_logger, logging.INFO)
     else:
         handler = logging.StreamHandler(sys.stdout)

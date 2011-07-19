@@ -16,7 +16,7 @@
 # Not Yet PEP8 standardized
 
 from sqlalchemy import Column, String, Integer, ForeignKey, \
-            UniqueConstraint, Boolean, DateTime
+    UniqueConstraint, Boolean, DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_mapper
@@ -79,7 +79,7 @@ class KeystoneBase(object):
 # Define associations first
 class UserGroupAssociation(Base, KeystoneBase):
     __tablename__ = 'user_group_association'
-    __api__ ='tenant_group'
+    __api__ = 'tenant_group'
     user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
     group_id = Column(String(255), ForeignKey('groups.id'), primary_key=True)
 
@@ -99,32 +99,31 @@ class Endpoints(Base, KeystoneBase):
     id = Column(Integer, primary_key=True)
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
     endpoint_template_id = Column(Integer, ForeignKey('endpoint_templates.id'))
-    __table_args__ = (UniqueConstraint("endpoint_template_id",\
-                                       "tenant_id"), {})
+    __table_args__ = (
+        UniqueConstraint("endpoint_template_id", "tenant_id"), {})
 
 
 # Define objects
 class Role(Base, KeystoneBase):
     __tablename__ = 'roles'
-    __api__ ='role'
+    __api__ = 'role'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
 
 
 class Tenant(Base, KeystoneBase):
     __tablename__ = 'tenants'
-    __api__ ='tenant'
+    __api__ = 'tenant'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
     groups = relationship('Group', backref='tenants')
-    endpoints = relationship('Endpoints', backref='tenant',
-                             cascade="all")
+    endpoints = relationship('Endpoints', backref='tenant', cascade="all")
 
 
 class User(Base, KeystoneBase):
     __tablename__ = 'users'
-    __api__ ='user'
+    __api__ = 'user'
     id = Column(String(255), primary_key=True, unique=True)
     password = Column(String(255))
     email = Column(String(255))
@@ -146,14 +145,14 @@ class Credentials(Base, KeystoneBase):
 
 class Group(Base, KeystoneBase):
     __tablename__ = 'groups'
-    __api__ ='group'
+    __api__ = 'group'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
 
 class Token(Base, KeystoneBase):
     __tablename__ = 'token'
-    __api__ ='token'
+    __api__ = 'token'
     id = Column(String(255), primary_key=True, unique=True)
     user_id = Column(String(255))
     tenant_id = Column(String(255))
@@ -161,7 +160,7 @@ class Token(Base, KeystoneBase):
 
 class EndpointTemplates(Base, KeystoneBase):
     __tablename__ = 'endpoint_templates'
-    __api__ ='endpoint_template'
+    __api__ = 'endpoint_template'
     id = Column(Integer, primary_key=True)
     region = Column(String(255))
     service = Column(String(255))

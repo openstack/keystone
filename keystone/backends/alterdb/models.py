@@ -14,11 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Not Yet PEP8 standardized
-from sqlalchemy import Column, String, Integer, ForeignKey, \
-            UniqueConstraint, Boolean, DateTime
+from sqlalchemy import Column, String, DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, object_mapper
+from sqlalchemy.orm import object_mapper
 Base = declarative_base()
 
 
@@ -77,7 +76,7 @@ class KeystoneBase(object):
 
 class Token(Base, KeystoneBase):
     __tablename__ = 'token'
-    __api__ ='token'
+    __api__ = 'token'
     id = Column(String(255), primary_key=True, unique=True)
     user_id = Column(String(255))
     tenant_id = Column(String(255))

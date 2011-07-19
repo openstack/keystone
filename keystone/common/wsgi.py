@@ -32,22 +32,24 @@ import routes.middleware
 import webob.dec
 import webob.exc
 
-def add_console_handler(logger, level):
+def find_stream_handler(logger):
+    """Returns a stream handler, if any"""
+    for handler in logger.handlers:
+        if isinstance(handler, logging.StreamHandler):
+            return handler
+
+def add_console_handler(logger, level=logging.INFO):
     """
-    Add a Handler which writes messages to sys.stderr which is often the
-    console.
-    There is a copy of this function in config.py (TODO(Ziad): Make it one copy)
+    Add a Handler which writes log messages to sys.stderr (usually the console)
     """
-    console = None
-    for console in logger.handlers:
-        if isinstance(console, logging.StreamHandler):
-            break
-            
+    console = find_stream_handler(logger)
+
     if not console:
         console = logging.StreamHandler()
         console.setLevel(level)
         # set a format which is simpler for console use
-        formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+        formatter = logging.Formatter(
+            "%(name)-12s: %(levelname)-8s %(message)s")
         # tell the handler to use this format
         console.setFormatter(formatter)
         # add the handler to the root logger
@@ -55,7 +57,6 @@ def add_console_handler(logger, level):
     elif console.level != level:
         console.setLevel(level)
     return console
-
 
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
