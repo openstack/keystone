@@ -37,6 +37,10 @@
 `dirname $0`/keystone-manage $* role grant Admin joeadmin 1234
 `dirname $0`/keystone-manage $* role grant Admin joeadmin ANOTHER:TENANT
 
+`dirname $0`/keystone-manage $* role add Member
+`dirname $0`/keystone-manage $* role grant Member joeuser 1234
+
+
 #Keeping for compatibility for a while till dashboard catches up - endpointTemplates
 `dirname $0`/keystone-manage $* endpointTemplates add RegionOne swift http://swift.publicinternets.com/v1/AUTH_%tenant_id% http://swift.admin-nets.local:8080/ http://127.0.0.1:8080/v1/AUTH_%tenant_id% 1 0
 `dirname $0`/keystone-manage $* endpointTemplates add RegionOne nova_compat http://nova.publicinternets.com/v1.0/ http://127.0.0.1:8774/v1.0  http://localhost:8774/v1.0 1 0

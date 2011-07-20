@@ -6,6 +6,7 @@
 .pydevproject/
 .settings/
 keystone.db
+ldap.db
 keystone.token.db
 .*.swp
 *.log

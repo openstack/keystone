@@ -369,3 +369,23 @@ We could potentially integrate with those:
 [OAUTH2](http://oauth.net/2/)
 
 [SAML] (http://saml.xml.org/)
+
+### LDAP Setup
+
+#### On a Mac
+
+Using macports:
+sudo port install openldap
+
+Looks like python-ldap needs recompiling to work. So:
+download it from here: http://pypi.python.org/pypi/python-ldap/2.4.1
+unpack it and go to the unpacked directory
+
+edit setup.cfg (set lines below):
+
+  library_dirs = /opt/local/lib
+  include_dirs = /opt/local/include /usr/include/sasl
+
+then run:
+python setup.py build
+sudo python setup.py install
