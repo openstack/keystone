@@ -69,7 +69,7 @@ class GetRolesTest(RolesTest):
         if not "roles" in obj:
             raise self.fail("Expecting Roles")
         roles = obj["roles"]["values"]
-        if len(roles) != 1:
+        if len(roles) != 2:
             self.fail("Roles not of required length.")
 
         role = roles[0]
@@ -77,7 +77,7 @@ class GetRolesTest(RolesTest):
                 role_id = None
         else:
             role_id = role["id"]
-        if role_id != 'Admin':
+        if role_id not in ['Admin', 'Member']:
             self.fail("Not the expected Role")
 
 
@@ -107,8 +107,8 @@ class GetRolesTest(RolesTest):
         if len(roles) != 2:
             self.fail("Not the expected Role count")
         for role in roles:
-            if role.get("id") != 'Admin':
-                self.fail("Not the expected Role")
+            if role.get("id") not in ['Admin', 'Member']:
+                self.fail("Unexpected Role")
         
 
     def test_get_roles_exp_token(self):
