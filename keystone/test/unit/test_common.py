@@ -172,42 +172,29 @@ def delete_global_group_xml(groupid, auth_token):
 
 
 def get_token_xml(user, pswd, tenant_id, type=''):
-        header = httplib2.Http(".cache")
-        url = '%stokens' % URL
-        # to test multi token, removing below code
-        """if tenant_id:
-            body = '<?xml version="1.0" encoding="UTF-8"?> \
-                    <passwordCredentials \
-                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                    password="%s" username="%s" \
-                    tenantId="%s"/> ' % (pswd, user, tenant_id)
-        else:
-            body = '<?xml version="1.0" encoding="UTF-8"?> \
-                    <passwordCredentials \
-                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                    password="%s" username="%s" /> ' % (pswd, user)"""
-        # adding code ie., body
-        body = '<?xml version="1.0" encoding="UTF-8"?> \
-                    <passwordCredentials \
-                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                    password="%s" username="%s" \
-                    tenantId="%s"/> ' % (pswd, user, tenant_id)
-        resp, content = header.request(url, "POST", body=body,
-                                  headers={"Content-Type": "application/xml",
-                                         "ACCEPT": "application/xml"})
-        if int(resp['status']) == 200:
-            dom = etree.fromstring(content)
-            root = dom.find("{http://docs.openstack.org/" \
-                            "identity/api/v2.0}token")
-            token_root = root.attrib
-            token = str(token_root['id'])
-        else:
-            token = None
+    header = httplib2.Http(".cache")
+    url = '%stokens' % URL
+    body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <passwordCredentials \
+                xmlns="http://docs.openstack.org/identity/api/v2.0" \
+                password="%s" username="%s" \
+                tenantId="%s"/> ' % (pswd, user, tenant_id)
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                     "ACCEPT": "application/xml"})
+    if int(resp['status']) == 200:
+        dom = etree.fromstring(content)
+        root = dom.find("{http://docs.openstack.org/" \
+                        "identity/api/v2.0}token")
+        token_root = root.attrib
+        token = str(token_root['id'])
+    else:
+        token = None
 
-        if type == 'token':
-            return token
-        else:
-            return (resp, content)
+    if type == 'token':
+        return token
+    else:
+        return (resp, content)
 
 
 def delete_token_xml(token, auth_token):
