@@ -8,4 +8,4 @@ sqlalchemy
 webob
 Routes
 httplib2
-python-ldap # optional authentication backend
+python-ldap # optional authentication backend (may require OpenLDAP libs)

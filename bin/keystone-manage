@@ -173,7 +173,8 @@ def Main():
                 print "SUCCESS: Tenant %s created." % object.id
                 return
             except Exception as exc:
-                raise Exception("Failed to create tenant %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to create tenant %s" % (object_id,),
+                                sys.exc_info())
         elif command == "list":
             try:
                 objects = db_api.tenant.get_all()
@@ -395,6 +396,6 @@ if __name__ == '__main__':
             print "ERROR: %s" % (exc,)
             logging.error(str(exc))
         else:
-            print "ERROR: %s: %s" % (exc.args[0], info[1].message)
+            print "ERROR: %s: %s" % (exc.args[0], info)
             logging.error(exc.args[0], exc_info=info)
         sys.exit(1)
