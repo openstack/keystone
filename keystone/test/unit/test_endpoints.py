@@ -25,7 +25,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
 import unittest
 
 import test_common as utils
-from test_common import URL
+from test_common import URL_V2
 
 from keystone.logic.types import fault
 
@@ -54,7 +54,7 @@ class EndpointTemplatesTest(unittest.TestCase):
 class GetEndpointTemplatesTest(EndpointTemplatesTest):
     def test_get_endpoint_templates(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -72,9 +72,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
@@ -85,9 +85,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.disabled_token})
         if int(resp['status']) == 500:
@@ -98,9 +98,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.missing_token})
         if int(resp['status']) == 500:
@@ -111,9 +111,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.invalid_token})
         if int(resp['status']) == 500:
@@ -124,7 +124,7 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -139,16 +139,16 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
         #verify content
         dom = etree.Element("root")
         dom.append(etree.fromstring(content))
-        endpoint_templates = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
-            "endpointTemplates")
+        endpoint_templates = dom.find(
+            "{http://docs.openstack.org/identity/api/v2.0}endpointTemplates")
         if endpoint_templates == None:
             self.fail("Expecting endpointTemplates")
 
     def test_get_endpoint_templates_xml_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.exp_auth_token,
                                          "ACCEPT": "application/xml"})
@@ -160,9 +160,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
         
     def test_get_endpoint_templates_xml_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.disabled_token,
                                          "ACCEPT": "application/xml"})
@@ -174,9 +174,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_xml_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.missing_token,
                                          "ACCEPT": "application/xml"})
@@ -188,9 +188,9 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_xml_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates' % (utils.URL)
+        url = '%sendpointTemplates' % (utils.URL_V2)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": self.invalid_token,
                                          "ACCEPT": "application/xml"})
@@ -203,7 +203,7 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 class GetEndpointTemplateTest(EndpointTemplatesTest):
     def test_get_endpoint(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL_V2, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -221,9 +221,9 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 
     def test_get_endpoint_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL_V2, '1')
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.exp_auth_token})
         if int(resp['status']) == 500:
@@ -234,9 +234,9 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 
     def test_get_endpoint_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL_V2, '1')
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.disabled_token})
         if int(resp['status']) == 500:
@@ -247,9 +247,9 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 
     def test_get_endpoint_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL_V2, '1')
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.missing_token})
         if int(resp['status']) == 500:
@@ -261,9 +261,9 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 
     def test_get_endpoint_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL_V2, '1')
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
+        resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.invalid_token})
         if int(resp['status']) == 500:
@@ -274,7 +274,7 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 
     def test_get_endpoint_xml(self):
         header = httplib2.Http(".cache")
-        url = '%sendpointTemplates/%s' % (utils.URL, '1')
+        url = '%sendpointTemplates/%s' % (utils.URL_V2, '1')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/xml",
@@ -294,85 +294,31 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
         if endpoint == None:
             self.fail("Expecting endpointTemplate")
 
-#    def test_get_global_endpoint(self):
-#        header = httplib2.Http(".cache")
-#        #Using endpoint set as global via init script.
-#        url = '%sendpointTemplates/%s' % (utils.URL, '6')
-#        #test for Content-Type = application/json
-#        resp, content = header.request(url, "GET", body='{}',
-#                                  headers={"Content-Type": "application/json",
-#                                         "X-Auth-Token": self.auth_token})
-#        if int(resp['status']) == 500:
-#            self.fail('Identity Fault')
-#        elif int(resp['status']) == 503:
-#            self.fail('Service Not Available')
-#        self.assertEqual(200, int(resp['status']))
-#        
-#        #verify content
-#        obj = json.loads(content)
-#        if not "endpointTemplate" in obj:
-#            raise self.fail("Expecting endpointTemplate")            
-#
-#        endpoint_template = obj["endpointTemplate"]
-#        if not "global" in endpoint_template:
-#                is_global = None
-#        else:
-#            is_global = endpoint_template["global"]
-#        self.assertEqual(True, is_global)
-#        
-#    def test_get_global_endpoint_xml(self):
-#        header = httplib2.Http(".cache")
-#        #Using endpoint set as global via init script.
-#        url = '%sendpointTemplates/%s' % (utils.URL, '6')
-#        #test for Content-Type = application/json
-#        resp, content = header.request(url, "GET", body='{}',
-#                                  headers={"Content-Type": "application/xml",
-#                                         "X-Auth-Token": self.auth_token,
-#                                         "ACCEPT": "application/xml"})
-#        if int(resp['status']) == 500:
-#            self.fail('Identity Fault')
-#        elif int(resp['status']) == 503:
-#            self.fail('Service Not Available')
-#        self.assertEqual(200, int(resp['status']))
-#        
-#        #verify content
-#        dom = etree.fromstring(content)
-#        is_global = dom.get('global')
-#        self.assertEqual('true', is_global)
-        
-            
 class CreateEndpointRefsTest(EndpointTemplatesTest):
-#    def test_endpoint_create_json(self):
-#        header = httplib2.Http(".cache")
-#        resp, content = utils.create_endpoint(self.tenant, "1",
-#            str(self.auth_token))
-#        resp_val = int(resp['status'])
-#        self.assertEqual(201, resp_val)
-
     def test_endpoint_create_json_using_expired_token(self):
-        header = httplib2.Http(".cache")
-        resp, content = utils.create_endpoint(self.tenant, "1",
+        _header = httplib2.Http(".cache")
+        resp, _content = utils.create_endpoint(self.tenant, "1",
             str(self.exp_auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
 
     def test_endpoint_create_json_using_disabled_token(self):
-        header = httplib2.Http(".cache")
-        resp, content = utils.create_endpoint(self.tenant, "1",
+        _header = httplib2.Http(".cache")
+        resp, _content = utils.create_endpoint(self.tenant, "1",
             str(self.disabled_token))
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
 
     def test_endpoint_create_json_using_missing_token(self):
-        header = httplib2.Http(".cache")
-        resp, content = utils.create_endpoint(self.tenant, "1",
+        _header = httplib2.Http(".cache")
+        resp, _content = utils.create_endpoint(self.tenant, "1",
             str(self.missing_token))
         resp_val = int(resp['status'])
         self.assertEqual(401, resp_val)
 
     def test_endpoint_create_json_using_invalid_token(self):
-        header = httplib2.Http(".cache")
-        resp, content = utils.create_endpoint(self.tenant, "1",
+        _header = httplib2.Http(".cache")
+        resp, _content = utils.create_endpoint(self.tenant, "1",
             str(self.invalid_token))
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
@@ -380,82 +326,82 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
     def test_endpoint_create_xml(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_endpoint_xml(self.tenant, "1",
+        resp, _content = utils.create_endpoint_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.auth_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, '1')
+        resp, _content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.auth_token)})
         resp_val = int(resp['status'])
         self.assertEqual(204, resp_val)
 
     def test_endpoint_create_xml_using_expired_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_endpoint_xml(self.tenant, "1",
+        resp, _content = utils.create_endpoint_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.exp_auth_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, '1')
+        resp, _content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.exp_auth_token)})
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
         
     def test_endpoint_create_xml_using_disabled_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_endpoint_xml(self.tenant, "1",
+        resp, _content = utils.create_endpoint_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.disabled_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, '1')
+        resp, _content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.disabled_token)})
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
 
     def test_endpoint_create_xml_using_missing_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_endpoint_xml(self.tenant, "1",
+        resp, _content = utils.create_endpoint_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.missing_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, '1')
+        resp, _content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.missing_token)})
         resp_val = int(resp['status'])
         self.assertEqual(401, resp_val)
 
     def test_endpoint_create_xml_using_invalid_token(self):
         header = httplib2.Http(".cache")
         
-        resp, content = utils.create_endpoint_xml(self.tenant, "1",
+        resp, _content = utils.create_endpoint_xml(self.tenant, "1",
             str(self.auth_token))
         resp_val = int(resp['status'])
         self.assertEqual(201, resp_val)
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, '1')
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.invalid_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, '1')
+        resp, _content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.invalid_token)})
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
 
 class GetEndPointTest(EndpointTemplatesTest):    
     def test_get_endpoint_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/xml
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/xml",
-                                         "X-Auth-Token": str(self.auth_token),
-                                         "ACCEPT": "application/xml"})
+        resp, _content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/xml",
+            "X-Auth-Token": str(self.auth_token),
+            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -464,12 +410,12 @@ class GetEndPointTest(EndpointTemplatesTest):
         
     def test_get_endpoint_xml_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/xml
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/xml",
-                                         "X-Auth-Token": str(self.exp_auth_token),
-                                         "ACCEPT": "application/xml"})
+        resp, _content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/xml",
+            "X-Auth-Token": str(self.exp_auth_token),
+            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -478,12 +424,12 @@ class GetEndPointTest(EndpointTemplatesTest):
 
     def test_get_endpoint_xml_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/xml
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/xml",
-                                         "X-Auth-Token": str(self.disabled_token),
-                                         "ACCEPT": "application/xml"})
+        resp, _content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/xml",
+            "X-Auth-Token": str(self.disabled_token),
+            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -492,12 +438,12 @@ class GetEndPointTest(EndpointTemplatesTest):
 
     def test_get_endpoint_xml_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/xml
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/xml",
-                                         "X-Auth-Token": str(self.missing_token),
-                                         "ACCEPT": "application/xml"})
+        resp, _content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/xml",
+            "X-Auth-Token": str(self.missing_token),
+            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -506,12 +452,12 @@ class GetEndPointTest(EndpointTemplatesTest):
 
     def test_get_endpoint_xml_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/xml
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/xml",
-                                         "X-Auth-Token": str(self.invalid_token),
-                                         "ACCEPT": "application/xml"})
+        resp, _content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/xml",
+            "X-Auth-Token": str(self.invalid_token),
+            "ACCEPT": "application/xml"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -520,12 +466,12 @@ class GetEndPointTest(EndpointTemplatesTest):
         
     def test_get_endpoint_json(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/json",
-                                         "X-Auth-Token": str(self.auth_token),
-                                         "ACCEPT": "application/json"})
+        resp, content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.auth_token),
+            "ACCEPT": "application/json"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
@@ -537,63 +483,63 @@ class GetEndPointTest(EndpointTemplatesTest):
 
     def test_get_endpoint_json_using_expired_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/json",
-                                         "X-Auth-Token": str(self.exp_auth_token),
-                                         "ACCEPT": "application/json"})
+            headers={"Content-Type": "application/json",
+                "X-Auth-Token": str(self.exp_auth_token),
+                "ACCEPT": "application/json"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
-        obj = json.loads(content)
+        _obj = json.loads(content)
 
     def test_get_endpoint_json_using_disabled_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/json",
-                                         "X-Auth-Token": str(self.disabled_token),
-                                         "ACCEPT": "application/json"})
+        resp, content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.disabled_token),
+            "ACCEPT": "application/json"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
-        obj = json.loads(content)
+        _obj = json.loads(content)
 
     def test_get_endpoint_json_using_missing_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/json",
-                                         "X-Auth-Token": str(self.missing_token),
-                                         "ACCEPT": "application/json"})
+        resp, content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.missing_token),
+            "ACCEPT": "application/json"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
-        obj = json.loads(content)
+        _obj = json.loads(content)
 
     def test_get_endpoint_json_using_invalid_auth_token(self):
         header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL, self.tenant)
+        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
         #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}',
-                                  headers={"Content-Type": "application/json",
-                                         "X-Auth-Token": str(self.invalid_token),
-                                         "ACCEPT": "application/json"})
+        resp, content = header.request(url, "GET", body='{}', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.invalid_token),
+            "ACCEPT": "application/json"})
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
-        obj = json.loads(content)
+        _obj = json.loads(content)
 
 class DeleteEndpointsTest(EndpointTemplatesTest):            
     def test_delete_endpoint(self):
@@ -607,15 +553,15 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
             raise fault.BadRequestFault("Expecting endpoint")
         endpoint = obj["endpoint"]
         if not "id" in endpoint:
-                endpoint_id = None
+            endpoint_id = None
         else:
             endpoint_id = endpoint["id"]
         if endpoint_id is None:
             raise fault.BadRequestFault("Expecting endpointID")
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, endpoint_id)
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.auth_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, endpoint_id)
+        resp, content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.auth_token)})
         resp_val = int(resp['status'])
         self.assertEqual(204, resp_val)
 
@@ -630,15 +576,15 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
             raise fault.BadRequestFault("Expecting endpoint")
         endpoint = obj["endpoint"]
         if not "id" in endpoint:
-                endpoint_id = None
+            endpoint_id = None
         else:
             endpoint_id = endpoint["id"]
         if endpoint_id is None:
             raise fault.BadRequestFault("Expecting endpoint id")
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, endpoint_id)
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.exp_auth_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, endpoint_id)
+        resp, content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.exp_auth_token)})
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
 
@@ -653,15 +599,15 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
             raise fault.BadRequestFault("Expecting endpoint")
         endpoint = obj["endpoint"]
         if not "id" in endpoint:
-                endpoint_id = None
+            endpoint_id = None
         else:
             endpoint_id = endpoint["id"]
         if endpoint_id is None:
             raise fault.BadRequestFault("Expecting endpoint id")
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, endpoint_id)
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.disabled_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, endpoint_id)
+        resp, content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.disabled_token)})
         resp_val = int(resp['status'])
         self.assertEqual(403, resp_val)
  
@@ -676,15 +622,15 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
             raise fault.BadRequestFault("Expecting endpoint")
         endpoint = obj["endpoint"]
         if not "id" in endpoint:
-                endpoint_id = None
+            endpoint_id = None
         else:
             endpoint_id = endpoint["id"]
         if endpoint_id is None:
             raise fault.BadRequestFault("Expecting endpointID")
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, endpoint_id)
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.missing_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, endpoint_id)
+        resp, content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.missing_token)})
         resp_val = int(resp['status'])
         self.assertEqual(401, resp_val)
 
@@ -699,15 +645,15 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
             raise fault.BadRequestFault("Expecting endpoint")
         endpoint = obj["endpoint"]
         if not "id" in endpoint:
-                endpoint_id = None
+            endpoint_id = None
         else:
             endpoint_id = endpoint["id"]
         if endpoint_id is None:
             raise fault.BadRequestFault("Expecting endpoint ID")
-        url = '%stenants/%s/endpoints/%s' % (URL, self.tenant, endpoint_id)
-        resp, content = header.request(url, "DELETE", body='',
-                                  headers={"Content-Type": "application/json",
-                                           "X-Auth-Token": str(self.invalid_token)})
+        url = '%stenants/%s/endpoints/%s' % (URL_V2, self.tenant, endpoint_id)
+        resp, content = header.request(url, "DELETE", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": str(self.invalid_token)})
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
 

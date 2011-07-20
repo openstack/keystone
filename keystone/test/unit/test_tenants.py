@@ -38,7 +38,7 @@ class TenantTest(unittest.TestCase):
         self.disabled_token = utils.get_disabled_token()
         utils.create_tenant(self.tenant, str(self.auth_token))
         utils.create_user(self.tenant, self.user, self.auth_token)
-        utils.add_user_json(self.tenant, self.user, self.auth_token)
+        utils.add_user_json(self.auth_token)
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
 
@@ -108,7 +108,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = {"tenant": {"id": self.tenant,
                            "description": "A description ...",
                            "enabled": True}}
@@ -130,7 +130,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
@@ -153,7 +153,7 @@ class CreateTenantTest(TenantTest):
                                             str(self.auth_token))
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = {"tenant": {"id": self.tenant,
                            "description": "A description ...",
                            "enabled": True}}
@@ -174,7 +174,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
@@ -199,7 +199,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = {"tenant": {"id": self.tenant,
                            "description": "A description ...",
                            "enabled": True}}
@@ -219,7 +219,7 @@ class CreateTenantTest(TenantTest):
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
@@ -241,7 +241,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '{"tenant": { "id": "%s", \
                 "description": "A description ...", "enabled"\
                 :true  } }' % self.tenant
@@ -262,7 +262,7 @@ class CreateTenantTest(TenantTest):
         content = etree.fromstring(content)
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
@@ -285,7 +285,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content['tenant']['id']
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '{"tenant": { "id": "%s", \
                 "description": "A description ...", "enabled"\
                 :true  } }' % self.tenant
@@ -307,7 +307,7 @@ class CreateTenantTest(TenantTest):
         if int(resp['status']) == 200:
             self.tenant = content.get('id')
 
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
@@ -330,7 +330,7 @@ class GetTenantsTest(TenantTest):
     def test_get_tenants_using_admin_token(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -344,7 +344,7 @@ class GetTenantsTest(TenantTest):
     def test_get_tenants_using_admin_token_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -359,7 +359,7 @@ class GetTenantsTest(TenantTest):
     def test_get_tenants_using_user_token(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -373,7 +373,7 @@ class GetTenantsTest(TenantTest):
     def test_get_tenants_using_user_token_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -388,7 +388,7 @@ class GetTenantsTest(TenantTest):
     def test_get_tenants_exp_token(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -402,7 +402,7 @@ class GetTenantsTest(TenantTest):
     def test_get_tenants_exp_token_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants' % (utils.URL)
+        url = '%stenants' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -420,7 +420,7 @@ class GetTenantTest(TenantTest):
     def test_get_tenant(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, self.tenant)
+        url = '%stenants/%s' % (utils.URL_V2, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -434,7 +434,7 @@ class GetTenantTest(TenantTest):
     def test_get_tenant_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, self.tenant)
+        url = '%stenants/%s' % (utils.URL_V2, self.tenant)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -449,7 +449,7 @@ class GetTenantTest(TenantTest):
     def test_get_tenant_bad(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, 'tenant_bad')
+        url = '%stenants/%s' % (utils.URL_V2, 'tenant_bad')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
@@ -463,7 +463,7 @@ class GetTenantTest(TenantTest):
     def test_get_tenant_bad_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, 'tenant_bad')
+        url = '%stenants/%s' % (utils.URL_V2, 'tenant_bad')
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -478,7 +478,7 @@ class GetTenantTest(TenantTest):
     def test_get_tenant_not_found(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/NonexistingID' % (utils.URL)
+        url = '%stenants/NonexistingID' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
@@ -492,7 +492,7 @@ class GetTenantTest(TenantTest):
     def test_get_tenant_not_found_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/NonexistingID' % (utils.URL)
+        url = '%stenants/NonexistingID' % (utils.URL_V2)
         #test for Content-Type = application/json
         resp, content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/xml",
@@ -510,7 +510,7 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, self.tenant)
+        url = '%stenants/%s' % (utils.URL_V2, self.tenant)
         data = '{"tenant": { "description": "A NEW description..." ,\
                 "enabled":true }}'
         #test for Content-Type = application/json
@@ -530,7 +530,7 @@ class UpdateTenantTest(TenantTest):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant_xml(self.tenant,
                                                 str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, self.tenant)
+        url = '%stenants/%s' % (utils.URL_V2, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
              <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
              enabled="true"> \
@@ -555,7 +555,7 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant_bad(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, self.tenant)
+        url = '%stenants/%s' % (utils.URL_V2, self.tenant)
         data = '{"tenant": { "description_bad": "A NEW description...",\
                 "enabled":true  }}'
         #test for Content-Type = application/json
@@ -572,7 +572,7 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant_bad_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/%s' % (utils.URL, self.tenant)
+        url = '%stenants/%s' % (utils.URL_V2, self.tenant)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
              <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
              enabled="true"> \
@@ -592,7 +592,7 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant_not_found(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/NonexistingID' % (utils.URL)
+        url = '%stenants/NonexistingID' % (utils.URL_V2)
         data = '{"tenant": { "description": "A NEW description...",\
                 "enabled":true  }}'
         #test for Content-Type = application/json
@@ -608,7 +608,7 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant_not_found_xml(self):
         header = httplib2.Http(".cache")
         resp, content = utils.create_tenant(self.tenant, str(self.auth_token))
-        url = '%stenants/NonexistingID' % (utils.URL)
+        url = '%stenants/NonexistingID' % (utils.URL_V2)
         data = '<?xml version="1.0" encoding="UTF-8"?> \
              <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
              enabled="true"> \

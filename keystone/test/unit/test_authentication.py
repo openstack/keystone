@@ -19,7 +19,7 @@ import httplib2
 import json
 from lxml import etree
 import unittest
-import test_common  as utils
+import test_common as utils
 
 from keystone.logic.types import fault
 
@@ -48,7 +48,7 @@ class AuthenticationTest(unittest.TestCase):
             raise fault.BadRequestFault("Expecting Auth")
         auth = obj["auth"]
         if not "serviceCatalog" in auth:
-                raise fault.BadRequestFault("Expecting Service Catalog")
+            raise fault.BadRequestFault("Expecting Service Catalog")
 
         self.assertEqual('application/json', utils.content_type(resp))
 
@@ -82,7 +82,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_disabled(self):
         header = httplib2.Http(".cache")
-        url = '%stokens' % utils.URL
+        url = '%stokens' % utils.URL_V2
         body = {"passwordCredentials": {"username": self.userdisabled,
                                         "password": "secrete",
                                         "tenantId": self.tenant}}
@@ -99,7 +99,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_disabled_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stokens' % utils.URL
+        url = '%stokens' % utils.URL_V2
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -119,7 +119,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_wrong(self):
         header = httplib2.Http(".cache")
-        url = '%stokens' % utils.URL
+        url = '%stokens' % utils.URL_V2
         body = {"passwordCredentials": {"username-w": "disabled",
                                         "password": "secrete",
                                         "tenantId": self.tenant}}
@@ -135,7 +135,7 @@ class AuthenticationTest(unittest.TestCase):
 
     def test_a_authorize_user_wrong_xml(self):
         header = httplib2.Http(".cache")
-        url = '%stokens' % utils.URL
+        url = '%stokens' % utils.URL_V2
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -162,7 +162,7 @@ class MultiToken(unittest.TestCase):
         utils.create_tenant('test_tenant2', self.auth_token)
         utils.create_user('test_tenant1', 'test_user1', self.auth_token)
         utils.create_user('test_tenant1', 'test_user2', self.auth_token)
-        utils.add_user_json('test_tenant2', 'test_user1', self.auth_token)
+        utils.add_user_json(self.auth_token)
 
     def tearDown(self):
         utils.delete_user('test_user1', self.auth_token)

@@ -21,10 +21,10 @@ import unittest
 from keystone.test.unit import base
 from keystone.test.unit.decorators import jsonify, xmlify
 
-logger = logging.getLogger('test.unit.test_authn_v2')
+LOGGER = logging.getLogger('test.unit.test_authn_v2')
 
 
-class AuthnMethods(object):
+class AuthnMethods(base.ServiceAPITest):
 
     def test_authn_get_fails(self):
         """
@@ -79,7 +79,7 @@ class AuthnMethods(object):
         matching the token with a tenant attached to it.
         """
         # Create a special token for user with no tenant
-        auth_token = self.fixture_create_token(
+        _auth_token = self.fixture_create_token(
             user_id=self.auth_user['id'],
             tenant_id=None,
             expires=self.expires,
@@ -115,7 +115,7 @@ class AuthnMethods(object):
         matching the token with a tenant attached to it.
         """
         # Create a special token for user with no tenant
-        auth_token = self.fixture_create_token(
+        _auth_token = self.fixture_create_token(
             user_id=self.auth_user['id'],
             tenant_id=None,
             expires=self.expires,
@@ -272,7 +272,7 @@ class AuthnMethods(object):
         matching the token with a tenant attached to it.
         """
         # Create a special token for user with no tenant
-        auth_token = self.fixture_create_token(
+        _auth_token = self.fixture_create_token(
             user_id=self.auth_user['id'],
             tenant_id=None,
             expires=self.expires,
@@ -407,7 +407,7 @@ class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
         """
         url = "/tokens/%s" % self.auth_token_id
         headers = {"X-Auth-Token": self.auth_token_id}
-        req = self.get_request('GET', url, headers)
+        _req = self.get_request('GET', url, headers)
         self.get_response()
         self.status_ok()
 
@@ -437,15 +437,16 @@ class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
         """
         url = "/tokens/%s" % self.auth_token_id
         headers = {"X-Auth-Token": self.auth_token_id}
-        req = self.get_request('GET', url, headers)
+        _req = self.get_request('GET', url, headers)
         self.get_response()
         self.status_ok()
 
-        expected = """<auth xmlns="http://docs.openstack.org/identity/api/v2.0">
-                  <token expires="%s" id="%s" tenantId="%s"/>
-                  <user username="%s" tenantId="%s">
-                    <roleRefs xmlns="http://docs.openstack.org/identity/api/v2.0">
-                    """ % (
+        expected = """
+            <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+            <token expires="%s" id="%s" tenantId="%s"/>
+            <user username="%s" tenantId="%s">
+            <roleRefs xmlns="http://docs.openstack.org/identity/api/v2.0">
+            """ % (
                       self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
                       self.auth_token_id,
                       self.auth_user['tenant_id'],
