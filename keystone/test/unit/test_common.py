@@ -171,7 +171,7 @@ def delete_global_group_xml(groupid, auth_token):
     return (resp, content)
 
 
-def get_token_xml(user, pswd, tenant_id, type=''):
+def get_token_xml(user, pswd, tenant_id, return_type=''):
     header = httplib2.Http(".cache")
     url = '%stokens' % URL
     body = '<?xml version="1.0" encoding="UTF-8"?> \
@@ -191,7 +191,7 @@ def get_token_xml(user, pswd, tenant_id, type=''):
     else:
         token = None
 
-    if type == 'token':
+    if return_type == 'token':
         return token
     else:
         return (resp, content)
