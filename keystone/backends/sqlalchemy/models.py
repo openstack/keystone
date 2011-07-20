@@ -20,13 +20,15 @@ from sqlalchemy import Column, String, Integer, ForeignKey, \
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_mapper
+
 Base = declarative_base()
 
 
 class KeystoneBase(object):
     """Base class for Keystone Models."""
     __api__ = None
-
+    _i = None
+    
     def save(self, session=None):
         """Save this object."""
 
