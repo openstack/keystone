@@ -156,7 +156,7 @@ def import_module(module_name, class_name=None):
             return sys.modules[module_name]
         except ImportError as exc:
             module_name, _separator, class_name = module_name.rpartition('.')
-            if not exc.message.startswith('No module named %s' % (class_name,)):
+            if not exc.args[0].startswith('No module named %s' % (class_name,)):
                 raise
     try:
         __import__(module_name)
