@@ -529,9 +529,6 @@ class IdentityService(object):
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
-        if not duser.enabled:
-            raise fault.UserDisabledFault("User has been disabled")
-
         dtenant = api.tenant.get(duser.tenant_id)
 
         ts = []
@@ -550,9 +547,6 @@ class IdentityService(object):
 
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
-
-        if not duser.enabled:
-            raise fault.UserDisabledFault("User has been disabled")
 
         if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
