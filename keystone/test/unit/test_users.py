@@ -322,7 +322,7 @@ class GetUserTest(UserTest):
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
                                 utils.content_type(resp))
-        self.assertEqual(403, resp_val)
+        self.assertEqual(200, resp_val)
 
     def test_a_user_get_disabled_user_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -331,7 +331,7 @@ class GetUserTest(UserTest):
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
                                 utils.content_type(resp))
-        self.assertEqual(403, resp_val)
+        self.assertEqual(200, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
 #    def test_a_user_get_disabled_tenant(self):
