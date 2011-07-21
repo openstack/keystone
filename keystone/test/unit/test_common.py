@@ -24,14 +24,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', '..', 'keystone')))
 import unittest
 
-
-
-URL = 'http://localhost:5001/v2.0/'
-URLv1 = 'http://localhost:5000/v1.0/'
+URL_V1 = 'http://localhost:5000/v1.0/'
+URL_V2 = 'http://localhost:5001/v2.0/'
 
 def get_token(user, pswd, tenant_id, kind=''):
     header = httplib2.Http(".cache")
-    url = '%stokens' % URL
+    url = '%stokens' % URL_V2
 
     if not tenant_id:
         body = {"passwordCredentials": {"username": user,
@@ -42,7 +40,7 @@ def get_token(user, pswd, tenant_id, kind=''):
                                         "tenantId": tenant_id}}
 
     resp, content = header.request(url, "POST", body=json.dumps(body),
-                              headers={"Content-Type": "application/json"})
+        headers={"Content-Type": "application/json"})
 
     if int(resp['status']) == 200:
         content = json.loads(content)
@@ -57,7 +55,7 @@ def get_token(user, pswd, tenant_id, kind=''):
 
 def get_token_legacy(user, pswd, kind=''):
     header = httplib2.Http(".cache")
-    url = URLv1
+    url = URL_V1
     resp, content = header.request(url, "GET", '',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-User": user,
@@ -75,7 +73,7 @@ def get_token_legacy(user, pswd, kind=''):
 
 def delete_token(token, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stoken/%s' % (URL, token)
+    url = '%stoken/%s' % (URL_V2, token)
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -85,7 +83,7 @@ def delete_token(token, auth_token):
 def create_tenant(tenantid, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%stenants' % (URL)
+    url = '%stenants' % (URL_V2)
     body = {"tenant": {"id": tenantid,
                        "description": "A description ...",
                        "enabled": True}}
@@ -98,7 +96,7 @@ def create_tenant(tenantid, auth_token):
 def create_tenant_group(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%stenants/%s/groups' % (URL, tenantid)
+    url = '%stenants/%s/groups' % (URL_V2, tenantid)
     body = {"group": {"id": groupid,
                        "description": "A description ..."}}
     resp, content = header.request(url, "PUT", body=json.dumps(body),
@@ -109,8 +107,8 @@ def create_tenant_group(groupid, tenantid, auth_token):
 
 def delete_tenant(tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s' % (URL, tenantid)
-    resp, content = header.request(url, "DELETE", body='{}',
+    url = '%stenants/%s' % (URL_V2, tenantid)
+    resp, _content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return resp
@@ -118,7 +116,7 @@ def delete_tenant(tenantid, auth_token):
 
 def delete_tenant_group(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s' % (URL, tenantid, groupid)
+    url = '%stenants/%s/groups/%s' % (URL_V2, tenantid, groupid)
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -128,7 +126,7 @@ def delete_tenant_group(groupid, tenantid, auth_token):
 def create_global_group(groupid, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%sgroups' % (URL)
+    url = '%sgroups' % (URL_V2)
     body = {"group": {"id": groupid,
                        "description": "A description ..."}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -140,7 +138,7 @@ def create_global_group(groupid, auth_token):
 
 def create_global_group_xml(groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups' % (URL)
+    url = '%sgroups' % (URL_V2)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
             <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
             id="%s"><description>A Description of the group</description>\
@@ -154,7 +152,7 @@ def create_global_group_xml(groupid, auth_token):
 
 def delete_global_group(groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s' % (URL, groupid)
+    url = '%sgroups/%s' % (URL_V2, groupid)
     resp, content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -163,7 +161,7 @@ def delete_global_group(groupid, auth_token):
 
 def delete_global_group_xml(groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s' % (URL, groupid)
+    url = '%sgroups/%s' % (URL_V2, groupid)
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -171,48 +169,35 @@ def delete_global_group_xml(groupid, auth_token):
     return (resp, content)
 
 
-def get_token_xml(user, pswd, tenant_id, type=''):
-        header = httplib2.Http(".cache")
-        url = '%stokens' % URL
-        # to test multi token, removing below code
-        """if tenant_id:
-            body = '<?xml version="1.0" encoding="UTF-8"?> \
-                    <passwordCredentials \
-                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                    password="%s" username="%s" \
-                    tenantId="%s"/> ' % (pswd, user, tenant_id)
-        else:
-            body = '<?xml version="1.0" encoding="UTF-8"?> \
-                    <passwordCredentials \
-                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                    password="%s" username="%s" /> ' % (pswd, user)"""
-        # adding code ie., body
-        body = '<?xml version="1.0" encoding="UTF-8"?> \
-                    <passwordCredentials \
-                    xmlns="http://docs.openstack.org/identity/api/v2.0" \
-                    password="%s" username="%s" \
-                    tenantId="%s"/> ' % (pswd, user, tenant_id)
-        resp, content = header.request(url, "POST", body=body,
-                                  headers={"Content-Type": "application/xml",
-                                         "ACCEPT": "application/xml"})
-        if int(resp['status']) == 200:
-            dom = etree.fromstring(content)
-            root = dom.find("{http://docs.openstack.org/" \
-                            "identity/api/v2.0}token")
-            token_root = root.attrib
-            token = str(token_root['id'])
-        else:
-            token = None
+def get_token_xml(user, pswd, tenant_id, return_type=''):
+    header = httplib2.Http(".cache")
+    url = '%stokens' % URL_V2
+    body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <passwordCredentials \
+                xmlns="http://docs.openstack.org/identity/api/v2.0" \
+                password="%s" username="%s" \
+                tenantId="%s"/> ' % (pswd, user, tenant_id)
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                     "ACCEPT": "application/xml"})
+    if int(resp['status']) == 200:
+        dom = etree.fromstring(content)
+        root = dom.find("{http://docs.openstack.org/" \
+                        "identity/api/v2.0}token")
+        token_root = root.attrib
+        token = str(token_root['id'])
+    else:
+        token = None
 
-        if type == 'token':
-            return token
-        else:
-            return (resp, content)
+    if return_type == 'token':
+        return token
+    else:
+        return (resp, content)
 
 
 def delete_token_xml(token, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stoken/%s' % (URL, token)
+    url = '%stoken/%s' % (URL_V2, token)
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -222,7 +207,7 @@ def delete_token_xml(token, auth_token):
 
 def create_tenant_xml(tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants' % (URL)
+    url = '%stenants' % (URL_V2)
     body = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" id="%s"> \
@@ -237,7 +222,7 @@ def create_tenant_xml(tenantid, auth_token):
 
 def create_tenant_group_xml(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups' % (URL, tenantid)
+    url = '%stenants/%s/groups' % (URL_V2, tenantid)
     body = '<?xml version="1.0" encoding="UTF-8"?> \
             <group xmlns="http://docs.openstack.org/identity/api/v2.0" \
              id="%s"> \
@@ -252,8 +237,8 @@ def create_tenant_group_xml(groupid, tenantid, auth_token):
 
 def delete_tenant_xml(tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s' % (URL, tenantid)
-    resp, content = header.request(url, "DELETE", body='',
+    url = '%stenants/%s' % (URL_V2, tenantid)
+    resp, _content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -263,7 +248,7 @@ def delete_tenant_xml(tenantid, auth_token):
 
 def delete_tenant_group_xml(groupid, tenantid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenant/%s/groups/%s' % (URL, tenantid, groupid)
+    url = '%stenant/%s/groups/%s' % (URL_V2, tenantid, groupid)
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -273,7 +258,7 @@ def delete_tenant_group_xml(groupid, tenantid, auth_token):
 
 def create_user(tenantid, userid, auth_token, email=None):
     header = httplib2.Http(".cache")
-    url = '%susers' % (URL)
+    url = '%susers' % (URL_V2)
     if email is not None:
         email_id = email
     else:
@@ -291,8 +276,8 @@ def create_user(tenantid, userid, auth_token, email=None):
 
 def delete_user(userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, userid)
-    resp, content = header.request(url, "DELETE", body='{}',
+    url = '%susers/%s' % (URL_V2, userid)
+    resp, _content = header.request(url, "DELETE", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return resp
@@ -300,7 +285,7 @@ def delete_user(userid, auth_token):
 
 def create_user_xml(tenantid, userid, auth_token, email=None):
     header = httplib2.Http(".cache")
-    url = '%susers' % (URL)
+    url = '%susers' % (URL_V2)
     if email is not None:
         email_id = email
     else:
@@ -317,19 +302,19 @@ def create_user_xml(tenantid, userid, auth_token, email=None):
     return (resp, content)
 
 
-def delete_user_xml(tenantid, userid, auth_token):
+def delete_user_xml(userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, userid)
-    resp, content = header.request(url, "DELETE", body='',
+    url = '%susers/%s' % (URL_V2, userid)
+    resp, _content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return resp
 
 
-def add_user_xml(tenantid, userid, auth_token):
+def add_user_xml(userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%susers/%s/add' % (URL, userid)
+    url = '%susers/%s/add' % (URL_V2, userid)
     resp, content = header.request(url, "PUT", body='{}',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -337,9 +322,9 @@ def add_user_xml(tenantid, userid, auth_token):
     return (resp, content)
 
 
-def add_user_json(tenantid, userid, auth_token):
+def add_user_json(auth_token):
     header = httplib2.Http(".cache")
-    url = '%susers/' % (URL)
+    url = '%susers/' % (URL_V2)
     resp, content = header.request(url, "PUT", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
@@ -347,22 +332,22 @@ def add_user_json(tenantid, userid, auth_token):
 
 
 def user_update_json(auth_token, user_id, email=None):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s' % (URL_V2, user_id)
     if email is None:
         new_email = "updatedjoeuser@openstack.org"
     else:
         new_email = email
     data = '{"user": { "email": "%s"}}' % (new_email)
-    resp, content = h.request(url, "PUT", body=data,
+    resp, content = header.request(url, "PUT", body=data,
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def user_update_xml(auth_token, user_id, email=None):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s' % (URL_V2, user_id)
     if email is None:
         new_email = "updatedjoeuser@openstack.org"
     else:
@@ -370,7 +355,7 @@ def user_update_xml(auth_token, user_id, email=None):
     data = '<?xml version="1.0" encoding="UTF-8"?> \
             <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
             email="%s" />' % (new_email)
-    resp, content = h.request(url, "PUT", body=data,
+    resp, content = header.request(url, "PUT", body=data,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -378,32 +363,32 @@ def user_update_xml(auth_token, user_id, email=None):
 
 
 def user_get_json(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s' % (URL_V2, user_id)
     #test for Content-Type = application/json
-    resp, content = h.request(url, "GET", body='{}',
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def user_password_json(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/password' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/password' % (URL_V2, user_id)
     data = '{"user": { "password": "p@ssword"}}'
-    resp, content = h.request(url, "PUT", body=data,
+    resp, content = header.request(url, "PUT", body=data,
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def user_password_xml(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/password' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/password' % (URL_V2, user_id)
     data = '<?xml version="1.0" encoding="UTF-8"?> \
             <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
             password="p@ssword" />'
-    resp, content = h.request(url, "PUT", body=data,
+    resp, content = header.request(url, "PUT", body=data,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -411,44 +396,44 @@ def user_password_xml(user_id, auth_token):
 
 
 def user_enabled_json(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/enabled' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/enabled' % (URL_V2, user_id)
     data = {"user": {"enabled": True}}
-    resp, content = h.request(url, "PUT", body=json.dumps(data),
+    resp, content = header.request(url, "PUT", body=json.dumps(data),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def user_enabled_xml(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/enabled' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/enabled' % (URL_V2, user_id)
     data = '<?xml version="1.0" encoding="UTF-8"?> \
             <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
             enabled="true" />'
-    resp, content = h.request(url, "PUT", body=data,
+    resp, content = header.request(url, "PUT", body=data,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
 def user_tenant_update_json(user_id, tenant_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/tenant' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/tenant' % (URL_V2, user_id)
     data = {"user": {"tenantId": tenant_id}}
-    resp, content = h.request(url, "PUT", body=json.dumps(data),
+    resp, content = header.request(url, "PUT", body=json.dumps(data),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def user_tenant_update_xml(user_id, tenant_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/tenant' % (URL, user_id)
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/tenant' % (URL_V2, user_id)
     data = '<?xml version="1.0" encoding="UTF-8"?> \
             <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
             tenantId="%s" />' % (tenant_id)
-    resp, content = h.request(url, "PUT", body=data,
+    resp, content = header.request(url, "PUT", body=data,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -456,9 +441,9 @@ def user_tenant_update_xml(user_id, tenant_id, auth_token):
 
 
 def user_get_xml(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, user_id)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers/%s' % (URL_V2, user_id)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -466,18 +451,18 @@ def user_get_xml(user_id, auth_token):
 
 
 def users_get_json(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, user_id)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers/%s' % (URL_V2, user_id)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def users_get_all_xml(auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers' % (URL)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers' % (URL_V2)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -485,9 +470,9 @@ def users_get_all_xml(auth_token):
 
 
 def users_get_all_json(auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers' % (URL)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers' % (URL_V2)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
@@ -495,9 +480,9 @@ def users_get_all_json(auth_token):
 
 
 def users_get_xml(tenant_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s' % (URL, tenant_id)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers/%s' % (URL_V2, tenant_id)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -505,18 +490,18 @@ def users_get_xml(tenant_id, auth_token):
 
 
 def users_group_get_json(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/groups' % (URL, user_id)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/groups' % (URL_V2, user_id)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
 
 
 def users_group_get_xml(user_id, auth_token):
-    h = httplib2.Http(".cache")
-    url = '%susers/%s/groups' % (URL, user_id)
-    resp, content = h.request(url, "GET", body='{}',
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/groups' % (URL_V2, user_id)
+    resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
@@ -525,7 +510,8 @@ def users_group_get_xml(user_id, auth_token):
 
 def add_user_tenant_group(tenantid, groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
+    url = '%stenants/%s/groups/%s/users/%s' % (
+        URL_V2, tenantid, groupid, userid)
 
     resp, content = header.request(url, "PUT", body='',
                               headers={"Content-Type": "application/json",
@@ -535,7 +521,8 @@ def add_user_tenant_group(tenantid, groupid, userid, auth_token):
 
 def add_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
+    url = '%stenants/%s/groups/%s/users/%s' % (
+        URL_V2, tenantid, groupid, userid)
 
     resp, content = header.request(url, "PUT", body='',
                               headers={"Content-Type": "application/xml",
@@ -546,7 +533,8 @@ def add_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
 
 def delete_user_tenant_group(tenantid, groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
+    url = '%stenants/%s/groups/%s/users/%s' % (
+        URL_V2, tenantid, groupid, userid)
 
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/json",
@@ -556,7 +544,8 @@ def delete_user_tenant_group(tenantid, groupid, userid, auth_token):
 
 def delete_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s/users/%s' % (URL, tenantid, groupid, userid)
+    url = '%stenants/%s/groups/%s/users/%s' % (
+        URL_V2, tenantid, groupid, userid)
 
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
@@ -567,7 +556,7 @@ def delete_user_tenant_group_xml(tenantid, groupid, userid, auth_token):
 
 def get_user_tenant_group(tenantid, groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s/users' % (URL, tenantid, groupid)
+    url = '%stenants/%s/groups/%s/users' % (URL_V2, tenantid, groupid)
 
     resp, content = header.request(url, "GET", body='',
                               headers={"Content-Type": "application/json",
@@ -577,7 +566,7 @@ def get_user_tenant_group(tenantid, groupid, auth_token):
 
 def get_user_tenant_group_xml(tenantid, groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/groups/%s/users' % (URL, tenantid, groupid)
+    url = '%stenants/%s/groups/%s/users' % (URL_V2, tenantid, groupid)
 
     resp, content = header.request(url, "GET", body='',
                               headers={"Content-Type": "application/xml",
@@ -588,7 +577,7 @@ def get_user_tenant_group_xml(tenantid, groupid, auth_token):
 
 def add_user_global_group(groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s/users/%s' % (URL, groupid, userid)
+    url = '%sgroups/%s/users/%s' % (URL_V2, groupid, userid)
 
     resp, content = header.request(url, "PUT", body='',
                               headers={"Content-Type": "application/json",
@@ -598,7 +587,7 @@ def add_user_global_group(groupid, userid, auth_token):
 
 def add_user_global_group_xml(groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s/users/%s' % (URL, groupid, userid)
+    url = '%sgroups/%s/users/%s' % (URL_V2, groupid, userid)
 
     resp, content = header.request(url, "PUT", body='',
                               headers={"Content-Type": "application/xml",
@@ -609,7 +598,7 @@ def add_user_global_group_xml(groupid, userid, auth_token):
 
 def delete_user_global_group(groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s/users/%s' % (URL, groupid, userid)
+    url = '%sgroups/%s/users/%s' % (URL_V2, groupid, userid)
 
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/json",
@@ -619,7 +608,7 @@ def delete_user_global_group(groupid, userid, auth_token):
 
 def delete_user_global_group_xml(groupid, userid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s/users/%s' % (URL, groupid, userid)
+    url = '%sgroups/%s/users/%s' % (URL_V2, groupid, userid)
 
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/xml",
@@ -630,7 +619,7 @@ def delete_user_global_group_xml(groupid, userid, auth_token):
 
 def get_user_global_group(groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s/users' % (URL, groupid)
+    url = '%sgroups/%s/users' % (URL_V2, groupid)
 
     resp, content = header.request(url, "GET", body='',
                               headers={"Content-Type": "application/json",
@@ -653,7 +642,7 @@ def get_email():
 
 def get_user_global_group_xml(groupid, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sgroups/%s/users' % (URL, groupid)
+    url = '%sgroups/%s/users' % (URL_V2, groupid)
 
     resp, content = header.request(url, "GET", body='',
                               headers={"Content-Type": "application/xml",
@@ -725,7 +714,7 @@ def handle_user_resp(self, content, respvalue, resptype):
 def create_role(roleid, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%sroles' % (URL)
+    url = '%sroles' % (URL_V2)
     body = {"role": {"id": roleid,
                        "description": "A description ..."}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -736,7 +725,7 @@ def create_role(roleid, auth_token):
 def create_role_ref(user_id, role_id, tenant_id, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%susers/%s/roleRefs' % (URL, user_id)
+    url = '%susers/%s/roleRefs' % (URL_V2, user_id)
     body = {"roleRef": {"tenantId": tenant_id,
                        "roleId": role_id}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
@@ -746,7 +735,7 @@ def create_role_ref(user_id, role_id, tenant_id, auth_token):
     
 def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
     header = httplib2.Http(".cache")
-    url = '%susers/%s/roleRefs' % (URL, user_id)
+    url = '%susers/%s/roleRefs' % (URL_V2, user_id)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
             <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" \
             tenantId="%s" roleId="%s"/>\
@@ -759,7 +748,7 @@ def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
 
 def delete_role_ref(user, role_ref_id, auth_token):
     header = httplib2.Http(".cache")
-    url = '%susers/%s/roleRefs/%s' % (URL, user, role_ref_id)
+    url = '%susers/%s/roleRefs/%s' % (URL_V2, user, role_ref_id)
     resp, content = header.request(url, "DELETE", body='',
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": str(auth_token)})
@@ -767,7 +756,7 @@ def delete_role_ref(user, role_ref_id, auth_token):
     
 def create_role_xml(role_id, auth_token):
     header = httplib2.Http(".cache")
-    url = '%sroles' % (URL)
+    url = '%sroles' % (URL_V2)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
             <role xmlns="http://docs.openstack.org/identity/api/v2.0" \
             id="%s" description="A Description of the group"/>\
@@ -781,7 +770,7 @@ def create_role_xml(role_id, auth_token):
 def create_endpoint(tenant_id, endpoint_templates_id, auth_token):
     header = httplib2.Http(".cache")
 
-    url = '%stenants/%s/endpoints' % (URL, tenant_id)
+    url = '%stenants/%s/endpoints' % (URL_V2, tenant_id)
     body = {"endpointTemplate": {"id": endpoint_templates_id}}
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
@@ -790,11 +779,10 @@ def create_endpoint(tenant_id, endpoint_templates_id, auth_token):
     
 def create_endpoint_xml(tenant_id, endpoint_templates_id, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/endpoints' % (URL, tenant_id)
+    url = '%stenants/%s/endpoints' % (URL_V2, tenant_id)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
-            <endpointTemplate xmlns="http://docs.openstack.org/identity/api/v2.0" \
-            id="%s"/>\
-                    ' % (endpoint_templates_id)
+        <endpointTemplate xmlns="http://docs.openstack.org/identity/api/v2.0" \
+        id="%s"/>' % (endpoint_templates_id)
     resp, content = header.request(url, "POST", body=body,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -803,7 +791,7 @@ def create_endpoint_xml(tenant_id, endpoint_templates_id, auth_token):
    
 def delete_all_endpoint(tenant_id, auth_token):
     header = httplib2.Http(".cache")
-    url = '%stenants/%s/endpoints' % (URL, tenant_id)
+    url = '%stenants/%s/endpoints' % (URL_V2, tenant_id)
     #test for Content-Type = application/json
     resp, content = header.request(url, "GET", body='{}',
                               headers={"Content-Type": "application/json",
@@ -823,10 +811,11 @@ def delete_all_endpoint(tenant_id, auth_token):
         pass
     else:
         for endpoint in endpoints:
-            url = '%stenants/%s/endpoints/%s' % (URL, tenant_id, endpoint["id"])
-            header.request(url, "DELETE", body='',
-                                      headers={"Content-Type": "application/json",
-                                               "X-Auth-Token": str(auth_token)})
+            url = '%stenants/%s/endpoints/%s' % (
+                URL_V2, tenant_id, endpoint["id"])
+            header.request(url, "DELETE", body='', headers={
+                "Content-Type": "application/json",
+                "X-Auth-Token": str(auth_token)})
 
 if __name__ == '__main__':
     unittest.main()
