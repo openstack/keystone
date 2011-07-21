@@ -845,7 +845,7 @@ class UpdateUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        self.assertEqual(403, resp_val)
+        self.assertEqual(200, resp_val)
 
     def test_user_update_user_disabled_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
