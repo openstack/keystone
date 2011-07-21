@@ -1,4 +1,5 @@
 import ldap
+import ldap.filter
 
 from keystone import utils
 from keystone.backends.api import BaseUserAPI
@@ -20,12 +21,6 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
     }
     attribute_ignore = ['tenant_id']
 
-    def __check_and_use_hashed_password(self, values):
-        if type(values) is dict and 'password' in values.keys():
-            values['password'] = utils.get_hashed_password(values['password'])
-        elif type(values) is models.User:
-            values.password = utils.get_hashed_password(values.password)
-
     def _ldap_res_to_model(self, res):
         obj = super(UserAPI, self)._ldap_res_to_model(res)
         tenants = self.api.tenant.get_user_tenants(obj.id)
@@ -34,7 +29,6 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         return obj
 
     def create(self, values):
-        self.__check_and_use_hashed_password(values)
         super(UserAPI, self).create(values)
         if values['tenant_id'] is not None:
             self.api.tenant.add_user(values['tenant_id'], values['id'])
@@ -97,4 +91,15 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         return self._get_page_markers(marker, limit,
                 self.api.tenant.get_users(tenant_id))
 
-    add_redirects(locals(), SQLUserAPI, [])
+    def check_password(self, user, password):
+        try:
+            self.api.get_connection(self._id_to_dn(user.id), password)
+        except (ldap.NO_SUCH_OBJECT, ldap.INAPPROPRIATE_AUTH,
+                ldap.INVALID_CREDENTIALS):
+            return False
+        else:
+            return True
+
+    add_redirects(locals(), SQLUserAPI, ['get_by_group', 'tenant_group',
+        'tenant_group_delete', 'user_groups_get_all',
+        'users_tenant_group_get_page', 'users_tenant_group_get_page_markers'])

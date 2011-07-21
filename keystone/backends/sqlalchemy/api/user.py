@@ -306,6 +306,9 @@ class UserAPI(BaseUserAPI):
             next_page = next_page.id
         return (prev_page, next_page)
 
+    def check_password(self, user, password):
+        return user.password == utils.get_hashed_password(password)
+
 
 def get():
     return UserAPI()

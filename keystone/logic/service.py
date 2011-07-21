@@ -44,8 +44,7 @@ class IdentityService(object):
             raise fault.BadRequestFault("Expecting Password Credentials!")
 
         def validate(duser):
-            hashed_pass = utils.get_hashed_password(credentials.password)
-            return duser.password == hashed_pass
+            return api.USER.check_password(duser, credentials.password)
 
         return self._authenticate(validate,
                                   credentials.username,
@@ -89,12 +88,11 @@ class IdentityService(object):
 
         if not duser.enabled:
             raise fault.UserDisabledFault("Your account has been disabled")
-        try:
-            if not validate(duser):
-                raise fault.UnauthorizedFault("Unauthorized")
-        except Exception as exc:
-            raise fault.UnauthorizedFault("Unable to validate: %s" % exc)
 
+        if not validate(duser):
+            raise fault.UnauthorizedFault("Unauthorized")
+
+        #
         # Look for an existing token, or create one,
         # TODO: Handle tenant/token search
         #
