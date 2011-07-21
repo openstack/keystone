@@ -331,6 +331,16 @@ def add_user_json(auth_token):
     return (resp, content)
 
 
+def user_set_enabled(auth_token, user_id, enabled):
+    header = httplib2.Http(".cache")
+    url = '%susers/%s/enabled' % (URL_V2, user_id)
+    data = '{"user": { "enabled": %s}}' % ("true" if enabled else "false")
+    resp, content = header.request(url, "PUT", body=data,
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
 def user_update_json(auth_token, user_id, email=None):
     header = httplib2.Http(".cache")
     url = '%susers/%s' % (URL_V2, user_id)
