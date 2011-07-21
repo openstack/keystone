@@ -839,7 +839,7 @@ class UpdateUserTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_user_disabled(self):
-        utils.user_set_enabled(self.auth_token, self.user, False)
+        utils.user_set_enabled(self.auth_token, self.user, enabled=False)
         resp, content = utils.user_update_json(self.auth_token,
                                                self.user)
         resp_val = int(resp['status'])
@@ -851,7 +851,7 @@ class UpdateUserTest(UserTest):
         self.assertEqual(200, resp_val)
 
     def test_user_update_user_disabled_xml(self):
-        utils.user_set_enabled(self.auth_token, self.user, False)
+        utils.user_set_enabled(self.auth_token, self.user, enabled=False)
         resp, content = utils.user_update_xml(self.auth_token,
                                               self.user)
         resp_val = int(resp['status'])

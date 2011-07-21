@@ -331,7 +331,7 @@ def add_user_json(auth_token):
     return (resp, content)
 
 
-def user_set_enabled(auth_token, user_id, enabled):
+def user_set_enabled(auth_token, user_id, enabled=True):
     header = httplib2.Http(".cache")
     url = '%susers/%s/enabled' % (URL_V2, user_id)
     data = '{"user": { "enabled": %s}}' % ("true" if enabled else "false")
