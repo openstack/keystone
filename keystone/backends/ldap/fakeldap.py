@@ -27,16 +27,12 @@ import logging
 import re
 import shelve
 
-from ldap import (dn, filter, modlist,
-    SCOPE_BASE, SCOPE_ONELEVEL, SCOPE_SUBTREE, MOD_ADD, MOD_DELETE,
-    MOD_REPLACE, NO_SUCH_OBJECT, OBJECT_CLASS_VIOLATION, SERVER_DOWN,
-    NO_SUCH_ATTRIBUTE, ALREADY_EXISTS)
-
+import ldap
 
 scope_names = {
-    SCOPE_BASE: 'SCOPE_BASE',
-    SCOPE_ONELEVEL: 'SCOPE_ONELEVEL',
-    SCOPE_SUBTREE: 'SCOPE_SUBTREE',
+    ldap.SCOPE_BASE: 'SCOPE_BASE',
+    ldap.SCOPE_ONELEVEL: 'SCOPE_ONELEVEL',
+    ldap.SCOPE_SUBTREE: 'SCOPE_SUBTREE',
 }
 
 
@@ -136,26 +132,45 @@ class FakeLDAP(object):
     def simple_bind_s(self, dn, password):
         """This method is ignored, but provided for compatibility."""
         if server_fail:
-            raise SERVER_DOWN
+            raise ldap.SERVER_DOWN
         LOG.debug("FakeLDAP bind dn=%s" % (dn,))
+        if dn == 'cn=Admin' and password == 'password':
+            return
+        try:
+            attrs = self.db["%s%s" % (self.__prefix, dn)]
+        except KeyError:
+            LOG.error("FakeLDAP bind fail: dn=%s not found" % (dn,))
+            raise ldap.NO_SUCH_OBJECT
+
+        dp_passwd = None
+        try:
+            if attrs['userPassword'][0] != password:
+                LOG.error(
+                    "FakeLDAP bind fail: password for dn=%s does not match" %
+                    dn)
+                raise ldap.INVALID_CREDENTIALS
+        except KeyError, IndexError:
+            LOG.error(
+                "FakeLDAP bind fail: password for dn=%s not found" % dn)
+            raise ldap.INAPPROPRIATE_AUTH
 
     def unbind_s(self):
         """This method is ignored, but provided for compatibility."""
         if server_fail:
-            raise SERVER_DOWN
+            raise ldap.SERVER_DOWN
         pass
 
     def add_s(self, dn, attrs):
         """Add an object with the specified attributes at dn."""
         if server_fail:
-            raise SERVER_DOWN
+            raise ldap.SERVER_DOWN
 
         key = "%s%s" % (self.__prefix, dn)
         LOG.debug("FakeLDAP add item: dn=%s, attrs=%s" % (dn, attrs))
         if key in self.db:
             LOG.error(
                 "FakeLDAP add item failed: dn '%s' is already in store." % dn)
-            raise ALREADY_EXISTS
+            raise ldap.ALREADY_EXISTS
         self.db[key] = dict([(k, v if isinstance(v, list) else [v])
                              for k, v in attrs])
         self.db.sync()
@@ -163,7 +178,7 @@ class FakeLDAP(object):
     def delete_s(self, dn):
         """Remove the ldap object at specified dn."""
         if server_fail:
-            raise SERVER_DOWN
+            raise ldap.SERVER_DOWN
 
         key = "%s%s" % (self.__prefix, dn)
         LOG.debug("FakeLDAP delete item: dn=%s" % (dn,))
@@ -171,7 +186,7 @@ class FakeLDAP(object):
             del self.db[key]
         except KeyError:
             LOG.error("FakeLDAP delete item failed: dn '%s' not found." % dn)
-            raise NO_SUCH_OBJECT
+            raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
     def modify_s(self, dn, attrs):
@@ -184,7 +199,7 @@ class FakeLDAP(object):
 
         """
         if server_fail:
-            raise SERVER_DOWN
+            raise ldap.SERVER_DOWN
 
         key = "%s%s" % (self.__prefix, dn)
         LOG.debug("FakeLDAP modify item: dn=%s attrs=%s" % (dn, attrs))
@@ -192,23 +207,23 @@ class FakeLDAP(object):
             entry = self.db[key]
         except KeyError:
             LOG.error("FakeLDAP modify item failed: dn '%s' not found." % dn)
-            raise NO_SUCH_OBJECT
+            raise ldap.NO_SUCH_OBJECT
 
         for cmd, k, v in attrs:
             values = entry.setdefault(k, [])
-            if cmd == MOD_ADD:
+            if cmd == ldap.MOD_ADD:
                 if isinstance(v, list):
                     values += v
                 else:
                     values.append(v)
-            elif cmd == MOD_REPLACE:
+            elif cmd == ldap.MOD_REPLACE:
                 values[:] = v if isinstance(v, list) else [v]
-            elif cmd == MOD_DELETE:
+            elif cmd == ldap.MOD_DELETE:
                 if v is None:
                     if len(values) == 0:
                         LOG.error("FakeLDAP modify item failed: "
                                   "item has no attribute '%s' to delete" % k)
-                        raise NO_SUCH_ATTRIBUTE
+                        raise ldap.NO_SUCH_ATTRIBUTE
                     values[:] = []
                 else:
                     if not isinstance(v, list):
@@ -220,7 +235,7 @@ class FakeLDAP(object):
                             LOG.error("FakeLDAP modify item failed: "
                                 "item has no attribute '%s' with value '%s'"
                                 " to delete" % (k, val))
-                            raise NO_SUCH_ATTRIBUTE
+                            raise ldap.NO_SUCH_ATTRIBUTE
             else:
                 LOG.error("FakeLDAP modify item failed: unknown command %s"
                     % (cmd,))
@@ -240,22 +255,22 @@ class FakeLDAP(object):
 
         """
         if server_fail:
-            raise SERVER_DOWN
+            raise ldap.SERVER_DOWN
 
         LOG.debug("FakeLDAP search at dn=%s scope=%s query='%s'" %
                     (dn, scope_names.get(scope, scope), query))
-        if scope == SCOPE_BASE:
+        if scope == ldap.SCOPE_BASE:
             try:
                 item_dict = self.db["%s%s" % (self.__prefix, dn)]
             except KeyError:
                 LOG.debug("FakeLDAP search fail: dn not found for SCOPE_BASE")
-                raise NO_SUCH_OBJECT
+                raise ldap.NO_SUCH_OBJECT
             results = [(dn, item_dict)]
-        elif scope == SCOPE_SUBTREE:
+        elif scope == ldap.SCOPE_SUBTREE:
             results = [(k[len(self.__prefix):], v)
                        for k, v in self.db.iteritems()
                        if re.match("%s.*,%s" % (self.__prefix, dn), k)]
-        elif scope == SCOPE_ONELEVEL:
+        elif scope == ldap.SCOPE_ONELEVEL:
             results = [(k[len(self.__prefix):], v)
                        for k, v in self.db.iteritems()
                        if re.match("%s\w+=[^,]+,%s" % (self.__prefix, dn), k)]
