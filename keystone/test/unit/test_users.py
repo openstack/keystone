@@ -857,7 +857,7 @@ class UpdateUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        self.assertEqual(403, resp_val)
+        self.assertEqual(200, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_email_conflict(self):
