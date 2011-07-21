@@ -846,6 +846,9 @@ class UpdateUserTest(UserTest):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(200, resp_val)
+        #Resetting to empty email to allow other tests to pass.
+        utils.user_update_json(self.auth_token,
+                                               self.userdisabled, None)
 
     def test_user_update_user_disabled_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -859,6 +862,10 @@ class UpdateUserTest(UserTest):
             self.fail('Service Not Available')
         self.assertEqual(200, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
+        #Resetting to empty email to allow other tests to pass.
+        utils.user_update_xml(self.auth_token,
+            self.userdisabled, None)
+
 
     def test_user_update_email_conflict(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -1067,7 +1074,7 @@ class SetPasswordTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        self.assertEqual(403, resp_val)
+        self.assertEqual(200, resp_val)
 
     def test_user_password_user_disabled_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -1079,7 +1086,7 @@ class SetPasswordTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        self.assertEqual(403, resp_val)
+        self.assertEqual(200, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_password_bad_request_json(self):
