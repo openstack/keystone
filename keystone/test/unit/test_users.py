@@ -148,6 +148,35 @@ class CreateUserTest(UserTest):
                                utils.content_type(resp))
         self.assertEqual(409, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
+        
+    def test_a_user_create_empty_password(self):
+        #JSON 
+        resp, content = utils.create_user(self.tenant,
+                              self.user,
+                              str(self.auth_token),
+                              self.email, '')
+        self.assertEqual(400, int(resp['status']))
+
+        #Blank Password        
+        resp, content = utils.create_user(self.tenant,
+                              self.user,
+                              str(self.auth_token),
+                              self.email, '')
+        self.assertEqual(400, int(resp['status']))        
+
+    def test_a_user_create_empty_username(self):
+        resp, content = utils.create_user_xml(self.tenant,
+                              '',
+                              str(self.auth_token),
+                              self.email)
+        self.assertEqual(400, int(resp['status']))
+
+        resp, content = utils.create_user(self.tenant,
+                              '',
+                              str(self.auth_token),
+                              self.email)
+        self.assertEqual(400, int(resp['status']))
+
 
     def test_a_user_create_expired_token(self):
         resp, content = utils.create_user(self.tenant, self.user,
@@ -848,7 +877,7 @@ class UpdateUserTest(UserTest):
         self.assertEqual(200, resp_val)
         #Resetting to empty email to allow other tests to pass.
         utils.user_update_json(self.auth_token,
-                                               self.userdisabled, None)
+                                               self.userdisabled, '')
 
     def test_user_update_user_disabled_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
@@ -864,7 +893,7 @@ class UpdateUserTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
         #Resetting to empty email to allow other tests to pass.
         utils.user_update_xml(self.auth_token,
-            self.userdisabled, None)
+            self.userdisabled, '')
 
 
     def test_user_update_email_conflict(self):
