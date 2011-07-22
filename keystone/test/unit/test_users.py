@@ -806,8 +806,14 @@ class GetUsersGroupTest(UserTest):
 
 class UpdateUserTest(UserTest):
 
-    def test_user_update(self):
+    def setUp(self):
+        super(UpdateUserTest, self).setUp()
         utils.create_user(self.tenant, self.user, str(self.auth_token))
+
+    def tearDown(self):
+        super(UpdateUserTest, self).tearDown()
+
+    def test_user_update(self):
         resp, content = utils.user_update_json(self.auth_token, self.user)
         resp_val = int(resp['status'])
         content = json.loads(content)
@@ -815,13 +821,11 @@ class UpdateUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(200, resp_val)
         self.assertEqual('updatedjoeuser@openstack.org',
                          content['user']['email'])
 
     def test_user_update_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.auth_token, self.user)
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
@@ -829,16 +833,15 @@ class UpdateUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(200, resp_val)
         self.assertEqual('updatedjoeuser@openstack.org',
                           content.get("email"))
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_user_disabled(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.user_set_enabled(self.auth_token, self.user, enabled=False)
         resp, content = utils.user_update_json(self.auth_token,
-                                               self.userdisabled)
+                                               self.user)
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -851,9 +854,9 @@ class UpdateUserTest(UserTest):
                                                self.userdisabled, None)
 
     def test_user_update_user_disabled_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
+        utils.user_set_enabled(self.auth_token, self.user, enabled=False)
         resp, content = utils.user_update_xml(self.auth_token,
-                                              self.userdisabled)
+                                              self.user)
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -868,7 +871,6 @@ class UpdateUserTest(UserTest):
 
 
     def test_user_update_email_conflict(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.auth_token,
                                                 "joeuser",
                                                 "test_user@openstack.org")
@@ -881,7 +883,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual(409, resp_val)
 
     def test_user_update_email_conflict_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.auth_token,
                                               "joeuser",
                                               "test_user@openstack.org")
@@ -909,7 +910,6 @@ class UpdateUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(400, resp_val)
 
     def test_user_update_bad_request_xml(self):
@@ -930,12 +930,10 @@ class UpdateUserTest(UserTest):
             self.fail('Identity Fault')
         elif resp_val == 503:
             self.fail('Service Not Available')
-        utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(400, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_expired_token(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.exp_auth_token,
                                                self.user)
         resp_val = int(resp['status'])
@@ -947,7 +945,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual(403, resp_val)
 
     def test_user_update_expired_token_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.exp_auth_token,
                                               self.user)
         resp_val = int(resp['status'])
@@ -960,7 +957,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_disabled_token(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.disabled_token
                                                , self.user)
         resp_val = int(resp['status'])
@@ -972,7 +968,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual(403, resp_val)
 
     def test_user_update_disabled_token_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.disabled_token
                                               , self.user)
         resp_val = int(resp['status'])
@@ -985,7 +980,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_invalid_token(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.invalid_token,
                                                self.user)
         resp_val = int(resp['status'])
@@ -997,7 +991,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual(404, resp_val)
 
     def test_user_update_invalid_token_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.invalid_token, self.user)
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
@@ -1009,7 +1002,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_missing_token(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_json(self.missing_token, self.user)
         resp_val = int(resp['status'])
         content = json.loads(content)
@@ -1020,7 +1012,6 @@ class UpdateUserTest(UserTest):
         self.assertEqual(401, resp_val)
 
     def test_user_update_missing_token_xml(self):
-        utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_update_xml(self.missing_token,
                                               self.user)
         resp_val = int(resp['status'])
