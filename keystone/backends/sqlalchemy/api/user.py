@@ -98,31 +98,31 @@ class UserAPI(BaseUserAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(models.User).filter("id > :marker").params(\
+        next_page = session.query(models.User).filter("id > :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.User.id).limit(limit).all()
-        prev = session.query(models.User).filter("id < :marker").params(\
+        prev_page = session.query(models.User).filter("id < :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.User.id.desc()).limit(int(limit)).all()
-        if len(next) == 0:
-            next = last
+        if len(next_page) == 0:
+            next_page = last
         else:
-            for t in next:
-                next = t
-        if len(prev) == 0:
-            prev = first
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
-        if prev.id == marker:
-            prev = None
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
         else:
-            prev = prev.id
-        if next.id == last.id:
-            next = None
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     
     def get_by_email(self, email, session=None):
@@ -190,37 +190,37 @@ class UserAPI(BaseUserAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(user).join(
+        next_page = session.query(user).join(
                                 (uga, uga.user_id == user.id)).\
                                 filter(uga.group_id == group_id).\
                                 filter("id > :marker").params(\
                                 marker='%s' % marker).order_by(\
                                 user.id).limit(limit).all()
-        prev = session.query(user).join(\
+        prev_page = session.query(user).join(\
                                 (uga, uga.user_id == user.id)).\
                                 filter(uga.group_id == group_id).\
                                 filter("id < :marker").params(\
                                 marker='%s' % marker).order_by(\
                                 user.id.desc()).limit(int(limit)).all()
-        if len(next) == 0:
-            next = last
+        if len(next_page) == 0:
+            next_page = last
         else:
-            for t in next:
-                next = t
-        if len(prev) == 0:
-            prev = first
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
-        if prev.id == marker:
-            prev = None
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
         else:
-            prev = prev.id
-        if next.id == last.id:
-            next = None
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     
     def delete(self, id, session=None):
@@ -323,36 +323,36 @@ class UserAPI(BaseUserAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(user).\
+        next_page = session.query(user).\
                         filter("id > :marker").params(\
                         marker='%s' % marker).order_by(user.id).\
                         limit(int(limit)).all()
-        prev = session.query(user).\
+        prev_page = session.query(user).\
                         filter("id < :marker").params(
                         marker='%s' % marker).order_by(
                         user.id.desc()).limit(int(limit)).all()
-        next_len = len(next)
-        prev_len = len(prev)
+        next_len = len(next_page)
+        prev_len = len(prev_page)
     
         if next_len == 0:
-            next = last
+            next_page = last
         else:
-            for t in next:
-                next = t
+            for t in next_page:
+                next_page = t
         if prev_len == 0:
-            prev = first
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
+            for t in prev_page:
+                prev_page = t
         if first.id == marker:
-            prev = None
+            prev_page = None
         else:
-            prev = prev.id
+            prev_page = prev_page.id
         if marker == last.id:
-            next = None
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     
     def users_get_by_tenant_get_page(self, tenant_id, marker, limit, session=None):
@@ -400,38 +400,38 @@ class UserAPI(BaseUserAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(user).\
+        next_page = session.query(user).\
                         filter(user.tenant_id == tenant_id).\
                         filter("id > :marker").params(\
                         marker='%s' % marker).order_by(user.id).\
                         limit(int(limit)).all()
-        prev = session.query(user).\
+        prev_page = session.query(user).\
                         filter(user.tenant_id == tenant_id).\
                         filter("id < :marker").params(
                         marker='%s' % marker).order_by(
                         user.id.desc()).limit(int(limit)).all()
-        next_len = len(next)
-        prev_len = len(prev)
+        next_len = len(next_page)
+        prev_len = len(prev_page)
     
         if next_len == 0:
-            next = last
+            next_page = last
         else:
-            for t in next:
-                next = t
+            for t in next_page:
+                next_page = t
         if prev_len == 0:
-            prev = first
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
+            for t in prev_page:
+                prev_page = t
         if first.id == marker:
-            prev = None
+            prev_page = None
         else:
-            prev = prev.id
+            prev_page = prev_page.id
         if marker == last.id:
-            next = None
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     def user_groups_get_all(self, user_id, session=None):
         if not session:
