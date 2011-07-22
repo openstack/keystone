@@ -32,14 +32,14 @@ class VersionTest(unittest.TestCase):
 
     def test_a_get_version_json(self):
         header = httplib2.Http(".cache")
-        resp, content = header.request(utils.URL, "GET", body="",
+        resp, content = header.request(utils.URL_V2, "GET", body="",
                                   headers={"Content-Type": "application/json"})
         self.assertEqual(200, int(resp['status']))
         self.assertEqual('application/json', utils.content_type(resp))
 
     def test_a_get_version_xml(self):
         header = httplib2.Http(".cache")
-        resp, content = header.request(utils.URL, "GET", body="",
+        resp, content = header.request(utils.URL_V2, "GET", body="",
                                   headers={"Content-Type": "application/xml",
                                            "ACCEPT": "application/xml"})
         self.assertEqual(200, int(resp['status']))

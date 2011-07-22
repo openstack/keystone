@@ -1,5 +1,5 @@
 import ldap
-
+from itertools import izip, count
 
 def _get_redirect(cls, method):
     def inner(self, *args):
@@ -117,11 +117,11 @@ class BaseLdapAPI(object):
         if i <= limit:
             prv = None
         else:
-            prv = key(lst[i-limit])
+            prv = key(lst[i - limit])
         if i + limit >= len(lst) - 1:
             nxt = None
         else:
-            nxt = key(lst[i+limit])
+            nxt = key(lst[i + limit])
         return (prv, nxt)
 
     def update(self, id, values, old_obj=None):

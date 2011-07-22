@@ -119,7 +119,8 @@ class ServiceAPITest(unittest.TestCase):
         """
         db.unregister_models()
         logger.debug("Cleared all data from database")
-        db.register_models()
+        #TODO: You can't register models without passing in options
+        db.register_models(options=None)
 
     def fixture_create_tenant(self, **kwargs):
         """
