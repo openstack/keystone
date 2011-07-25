@@ -59,7 +59,7 @@ the development versions of greenlet and eventlet
 
     $ cd <appropriate working directory>
     $ hg clone https://bitbucket.org/which_linden/eventlet
-    $ cd greenlet
+    $ cd eventlet
     $ sudo python setup.py install
 
 
