@@ -439,7 +439,7 @@ class IdentityService(object):
         if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
-        if user.user_id == None:
+        if user.user_id == None or len(user.user_id.strip()) == 0:
             raise fault.BadRequestFault("Expecting a unique User Id")
 
         if api.user.get(user.user_id) != None:

@@ -74,29 +74,29 @@ class TenantAPI(BaseTenantAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = q3.filter(tenant.id > marker).order_by(\
+        next_page = q3.filter(tenant.id > marker).order_by(\
                         tenant.id).limit(limit).all()
-        prev = q3.filter(tenant.id > marker).order_by(\
+        prev_page = q3.filter(tenant.id > marker).order_by(\
                         tenant.id.desc()).limit(int(limit)).all()
-        if len(next) == 0:
-            next = last
+        if len(next_page) == 0:
+            next_page = last
         else:
-            for t in next:
-                next = t
-        if len(prev) == 0:
-            prev = first
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
-        if prev.id == marker:
-            prev = None
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
         else:
-            prev = prev.id
-        if next.id == last.id:
-            next = None
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     
     def get_page(self, marker, limit, session=None):
@@ -123,31 +123,31 @@ class TenantAPI(BaseTenantAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(models.Tenant).filter("id > :marker").params(\
+        next_page = session.query(models.Tenant).filter("id > :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.Tenant.id).limit(limit).all()
-        prev = session.query(models.Tenant).filter("id < :marker").params(\
+        prev_page = session.query(models.Tenant).filter("id < :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.Tenant.id.desc()).limit(int(limit)).all()
-        if len(next) == 0:
-            next = last
+        if len(next_page) == 0:
+            next_page = last
         else:
-            for t in next:
-                next = t
-        if len(prev) == 0:
-            prev = first
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
-        if prev.id == marker:
-            prev = None
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
         else:
-            prev = prev.id
-        if next.id == last.id:
-            next = None
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     
     def is_empty(self, id, session=None):

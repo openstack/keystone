@@ -44,9 +44,9 @@ class User(object):
             email = root.get("email")
             password = root.get("password")
             enabled = root.get("enabled")
-            if user_id == None:
+            if user_id == None or len(user_id.strip()) == 0:
                 raise fault.BadRequestFault("Expecting User")
-            elif password == None:
+            elif password == None or len(password.strip()) == 0:
                 raise fault.BadRequestFault("Expecting User password")
             elif email == None:
                 raise fault.BadRequestFault("Expecting User email")
@@ -73,9 +73,16 @@ class User(object):
                 user_id = None
             else:
                 user_id = user["id"]
+
             if not "password" in user:
                 raise fault.BadRequestFault("Expecting User Password")
             password = user["password"]
+            
+            if user_id == None or len(user_id.strip()) == 0:
+                raise fault.BadRequestFault("Expecting User")
+            elif password == None or len(password.strip()) == 0:
+                raise fault.BadRequestFault("Expecting User password")
+
             if "tenantId" in user:
                 tenant_id = user["tenantId"]
             else:
