@@ -45,6 +45,23 @@ Starting both Admin and Service API endpoints:
 
     $ ./bin/keystone
 
+### Temporary fix for Segfault
+
+On some OSes, specifically Fedora 15, the current versions of
+greenlet/eventlet segfault when running keystone. To fix this, install
+the development versions of greenlet and eventlet
+
+    $ pip uninstall greenlet eventlet
+    $ cd <appropriate working directory>
+    $ hg clone https://bitbucket.org/ambroff/greenlet
+    $ cd greenlet
+    $ sudo python setup.py install
+
+    $ cd <appropriate working directory>
+    $ hg clone https://bitbucket.org/which_linden/eventlet
+    $ cd greenlet
+    $ sudo python setup.py install
+
 
 # For Keystone Contributors
 
