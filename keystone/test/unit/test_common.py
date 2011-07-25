@@ -256,14 +256,14 @@ def delete_tenant_group_xml(groupid, tenantid, auth_token):
     return (resp, content)
 
 
-def create_user(tenantid, userid, auth_token, email=None):
+def create_user(tenantid, userid, auth_token, email=None, password = 'secrete'):
     header = httplib2.Http(".cache")
     url = '%susers' % (URL_V2)
     if email is not None:
         email_id = email
     else:
         email_id = "%s@openstack.org" % userid
-    body = {"user": {"password": "secrete",
+    body = {"user": {"password": password,
                      "id": userid,
                      "tenantId": tenantid,
                      "email": "%s" % email_id,
@@ -283,7 +283,7 @@ def delete_user(userid, auth_token):
     return resp
 
 
-def create_user_xml(tenantid, userid, auth_token, email=None):
+def create_user_xml(tenantid, userid, auth_token, email=None, password = 'secrete'):
     header = httplib2.Http(".cache")
     url = '%susers' % (URL_V2)
     if email is not None:
@@ -294,7 +294,7 @@ def create_user_xml(tenantid, userid, auth_token, email=None):
             <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
             email="%s" \
             tenantId="%s" id="%s" \
-            enabled="true" password="secrete"/>' % (email_id, tenantid, userid)
+            enabled="true" password="%s"/>' % (email_id, tenantid, userid, password)
     resp, content = header.request(url, "PUT", body=body,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
