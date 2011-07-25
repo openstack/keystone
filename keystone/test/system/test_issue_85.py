@@ -12,7 +12,7 @@ class TestIssue85(KeystoneTestCase):
         
         # Create a tenant
         self.admin_request(method='POST', path='/tenants',
-            json={
+            as_json={
                 'tenant':{
                     'id': self.tenant_id,
                     'description': 'description',
@@ -22,7 +22,7 @@ class TestIssue85(KeystoneTestCase):
         
         # Create a user for a specific tenant
         self.admin_request(method='PUT', path='/users',
-            json={
+            as_json={
                 'user':{
                     'id': self.user_id,
                     'password': 'secrete',
@@ -45,7 +45,7 @@ class TestIssue85(KeystoneTestCase):
         """Disabling a tenant should invalidate previously-issued tokens"""
         # Authenticate as user to get a token *for a specific tenant*
         r = self.service_request(method='POST', path='/tokens',
-            json={
+            as_json={
                 'passwordCredentials': {
                     'username': self.user_id,
                     'password': 'secrete',
@@ -61,7 +61,7 @@ class TestIssue85(KeystoneTestCase):
         # Disable tenant
         r = self.admin_request(method='PUT',
             path='/tenants/%s' % self.tenant_id,
-            json={
+            as_json={
                 'tenant': {
                     'description': 'description',
                     'enabled': False,

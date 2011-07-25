@@ -12,7 +12,7 @@ class TestAdminAuthentication(KeystoneTestCase):
         """Bootstrap script should create an 'admin' user with 'Admin' role"""
         # Authenticate as admin
         r = self.admin_request(method='POST', path='/tokens',
-            json=self.admin_credentials)
+            as_json=self.admin_credentials)
         
         # Assert we get back a token with an expiration date
         self.assertTrue(r.json['auth']['token']['id'])
@@ -23,13 +23,14 @@ class TestAdminAuthenticationNegative(KeystoneTestCase):
     
     user_id = KeystoneTestCase._uuid()
     user_id2 = KeystoneTestCase._uuid()
+    admin_token_backup = None
     
     def test_service_token_as_admin_token(self):
         """Admin actions should fail for mere service tokens"""
         
         # Admin create a user
         self.admin_request(method='PUT', path='/users',
-            json={
+            as_json={
                 'user': {
                     'id': self.user_id,
                     'password': 'secrete',
@@ -40,7 +41,7 @@ class TestAdminAuthenticationNegative(KeystoneTestCase):
         
         # User authenticates to get a token
         r = self.service_request(method='POST', path='/tokens',
-            json={
+            as_json={
                 'passwordCredentials': {
                     'username': self.user_id,
                     'password': 'secrete',
@@ -54,7 +55,7 @@ class TestAdminAuthenticationNegative(KeystoneTestCase):
         
         # Try creating another user
         self.admin_request(method='PUT', path='/users', assert_status=401,
-            json={
+            as_json={
                 'user': {
                     'id': self.user_id2,
                     'password': 'secrete',
@@ -80,7 +81,7 @@ class TestServiceAuthentication(KeystoneTestCase):
         
         # Create a user
         self.admin_request(method='PUT', path='/users',
-            json={
+            as_json={
                 'user': {
                     'id': self.user_id,
                     'password': 'secrete',
@@ -96,7 +97,7 @@ class TestServiceAuthentication(KeystoneTestCase):
     def test_user_auth(self):
         # Authenticate as user to get a token
         r = self.service_request(method='POST', path='/tokens',
-            json={
+            as_json={
                 'passwordCredentials': {
                     'username': self.user_id,
                     'password': 'secrete',
@@ -104,9 +105,9 @@ class TestServiceAuthentication(KeystoneTestCase):
             })
         self.service_token = r.json['auth']['token']['id']
         
-        """In the real world, the service user would then pass his/her token
-        to some service that depends on keystone, which would then need to
-        user keystone to validate the provided token."""
+        # In the real world, the service user would then pass his/her token
+        # to some service that depends on keystone, which would then need to
+        # user keystone to validate the provided token.
         
         # Admin independently validates the user token
         self.admin_request(path='/tokens/%s' % self.service_token)
