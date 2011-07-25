@@ -35,18 +35,18 @@ def get_app_root():
 
 
 def get_auth_token(req):
-    if "X-Auth-Token" in req.headers:
-        return req.headers["X-Auth-Token"]
+    """Returns the auth token from request headers"""
+    return req.headers.get("X-Auth-Token")
 
 
 def get_auth_user(req):
-    if "X-Auth-User" in req.headers:
-        return req.headers["X-Auth-User"]
+    """Returns the auth user from request headers"""
+    return req.headers.get("X-Auth-User")
 
 
 def get_auth_key(req):
-    if "X-Auth-Key" in req.headers:
-        return req.headers["X-Auth-Key"]
+    """Returns the auth key from request headers"""
+    return req.headers.get("X-Auth-Key")
 
 
 def wrap_error(func):
