@@ -18,13 +18,12 @@
 import dtest
 
 import ksapi
-import simplerest
 
 
 options = None
 
 
-def _get_ksapi(url):
+def _get_ksapi():
     """Get an instance of KeystoneAPI20."""
 
     # If debug mode has been enabled, let's select a debug stream
@@ -33,7 +32,7 @@ def _get_ksapi(url):
         dbstream = dtest.status
 
     # Build and return the API object
-    return ksapi.KeystoneAPI20(url, dbstream)
+    return ksapi.KeystoneAPI20(options.keystone, dbstream)
 
 
 class BaseKeystoneTest(dtest.DTestCase):
@@ -42,60 +41,37 @@ class BaseKeystoneTest(dtest.DTestCase):
     def setUp(self):
         """Initialize tests by setting up a KeystoneAPI20 to call."""
 
-        # Build the API objects
-        self.ks = _get_ksapi(options.keystone)
-        self.ks_admin = _get_ksapi(options.keystone_admin)
+        # Build the API object
+        self.ks = _get_ksapi()
 
 
 class KeystoneTest(BaseKeystoneTest):
     """Base class for Keystone tests."""
 
-    user_tok = None
-    user_expire = None
-    admin_tok = None
-    admin_expire = None
+    token = None
 
     @classmethod
     def setUpClass(cls):
         """Initialize tests by setting up a keystone token."""
 
         # Get an API object
-        ks = _get_ksapi(options.keystone)
+        ks = _get_ksapi()
 
-        # Next, let's authenticate and get a user token
+        # Next, let's authenticate
         resp = ks.authenticate(options.username, options.password)
 
-        # Save the authentication token and other data
-        cls.user_tok = resp.obj['auth']['token']['id']
-        cls.user_expire = resp.obj['auth']['token']['expires']
-
-        # Now, let's get an admin token
-        resp = ks.authenticate(options.adminuser, options.adminpass)
-
-        # Save the authentication token and other data
-        cls.admin_tok = resp.obj['auth']['token']['id']
-        cls.admin_expire = resp.obj['auth']['token']['expires']
+        # Finally, save the authentication token
+        cls.token = resp.obj['auth']['token']['id']
 
     @classmethod
     def tearDownClass(cls):
         """Revoke the authentication token."""
 
         # Get an API object
-        ks = _get_ksapi(options.keystone_admin)
+        ks = _get_ksapi()
 
-        try:
-            # First, let's revoke the user token
-            resp = ks.revoke_token(cls.admin_tok, cls.user_tok)
-        except simplerest.RESTException:
-            # Ignore errors revoking the token
-            pass
-
-        try:
-            # Now, let's revoke the admin token
-            resp = ks.revoke_token(cls.admin_tok, cls.admin_tok)
-        except simplerest.RESTException:
-            # Ignore errors revoking the token
-            pass
+        # Now, let's revoke the token
+        resp = ks.revoke_token(cls.token, cls.token)
 
         # For completeness sake...
         cls.token = None

@@ -33,21 +33,9 @@ def add_opts(opts):
     opts.add_option("-p", "--password",
                     action="store", type="string", dest="password",
                     help="The password to use to access Keystone.")
-
-    opts.add_option("-U", "--adminuser",
-                    action="store", type="string", dest="adminuser",
-                    help="The admin username to use to access Keystone.")
-    opts.add_option("-P", "--adminpass",
-                    action="store", type="string", dest="adminpass",
-                    help="The admin password to use to access Keystone.")
-
     opts.add_option("-k", "--keystone",
                     action="store", type="string", dest="keystone",
-                    help="The URL to use to access the Keystone service.")
-    opts.add_option("-K", "--keystone-admin",
-                    action="store", type="string", dest="keystone_admin",
-                    help="The URL to use to access the Keystone admin "
-                    "service.")
+                    help="The URL to use to access Keystone.")
 
     return opts
 
@@ -68,14 +56,6 @@ if __name__ == '__main__':
                              "--keystone must be specified.")
         opts.print_help(sys.stderr)
         sys.exit(1)
-
-    # How about the admin stuff?
-    if not base.options.adminuser:
-        base.options.adminuser = base.options.username
-    if not base.options.adminpass:
-        base.options.adminpass = base.options.password
-    if not base.options.keystone_admin:
-        base.options.keystone_admin = base.options.keystone
 
     # Execute the test suite
     sys.exit(dtest.main(**dtest.opts_to_args(base.options)))
