@@ -106,6 +106,8 @@ $ pip install -r tools/pip-requires-testing
 # Install development dependencies
 $ pip install -r tools/pip-requires-development
 
+#Install Memcache (If memcache is one of the backends enabled)
+Refer #(http://memcached.org/)
 </pre>
 
 ## Running Keystone

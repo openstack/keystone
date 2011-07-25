@@ -9,3 +9,4 @@ webob
 Routes
 httplib2
 python-ldap==2.3.13 # optional authentication backend (may require OpenLDAP libs)
+python-memcached
