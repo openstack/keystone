@@ -52,15 +52,25 @@ class TestContentTypes(KeystoneTestCase):
         
         self.assertTrue('application/json' in r.getheader('Content-Type'))
 
-    def test_content_type_on_404(self):
+    def test_xml_content_type_on_404(self):
         """Content-Type should be honored even on 404 errors (Issue #13)"""
-        _r = self.service_request(path='/completely-invalid-path',
+        r = self.service_request(path='/completely-invalid-path',
             headers={'Accept': 'application/xml'},
             assert_status=404)
         
         # Commenting this assertion out, as it currently fails
-#        self.assertTrue('application/xml' in r.getheader('Content-Type'),
-#            'application/xml not in %s' % r.getheader('Content-Type'))
+        self.assertTrue('application/xml' in r.getheader('Content-Type'),
+            'application/xml not in %s' % r.getheader('Content-Type'))
+    
+    def test_json_content_type_on_404(self):
+        """Content-Type should be honored even on 404 errors (Issue #13)"""
+        r = self.service_request(path='/completely-invalid-path',
+            headers={'Accept': 'application/json'},
+            assert_status=404)
+        
+        # Commenting this assertion out, as it currently fails
+        self.assertTrue('application/json' in r.getheader('Content-Type'),
+            'application/json not in %s' % r.getheader('Content-Type'))
 
 if __name__ == '__main__':
     unittest.main()

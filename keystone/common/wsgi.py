@@ -29,8 +29,8 @@ import datetime
 import eventlet.wsgi
 eventlet.patcher.monkey_patch(all=False, socket=True)
 import routes.middleware
+from webob import Response
 import webob.dec
-import webob.exc
 
 def find_stream_handler(logger):
     """Returns a stream handler, if any"""
@@ -224,15 +224,11 @@ class Router(object):
     def _dispatch(req):
         """
         Called by self._router after matching the incoming request to a route
-        and putting the information into req.environ.  Either returns 404
-        or the routed WSGI app's response.
+        and putting the information into req.environ.  Returns the routed
+        WSGI app's response or an Accept-appropriate 404.
         """
-        match = req.environ['wsgiorg.routing_args'][1]
-        
-        if not match:
-            return webob.exc.HTTPNotFound()
-        
-        return match['controller']
+        return req.environ['wsgiorg.routing_args'][1].get('controller') \
+            or HTTPNotFound()
 
 
 class Controller(object):
@@ -343,3 +339,103 @@ class Serializer(object):
             node = doc.createTextNode(str(data))
             result.appendChild(node)
         return result
+
+class WSGIHTTPException(Response, webob.exc.HTTPException):
+    """Returned when no matching route can be identified"""
+    
+    code = None
+    label = None
+    title = None
+    explanation = None
+    
+    xml_template = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<%s xmlns="http://docs.openstack.org/identity/api/v2.0" code="%s">
+    <message>%s</message>
+    <details>%s</details>
+</%s>"""
+    
+    def __init__(self, code, label, title, explanation, **kw):
+        self.code = code
+        self.label = label
+        self.title = title
+        self.explanation = explanation
+        
+        Response.__init__(self, status='%s %s' % (self.code, self.title), **kw)
+        webob.exc.HTTPException.__init__(self, self.explanation, self)
+
+    def xml_body(self):
+        """Generate a XML body string using the available data"""
+        return self.xml_template % (
+            self.label, self.code, self.title, self.explanation, self.label)
+    
+    def json_body(self):
+        """Generate a JSON body string using the available data"""
+        json_dict = {self.label:{}}
+        json_dict[self.label]['message'] = self.title
+        json_dict[self.label]['details'] = self.explanation
+        json_dict[self.label]['code'] = self.code
+        
+        return json.dumps(json_dict)
+
+    def generate_response(self, environ, start_response):
+        """Returns a response to the given environment"""
+        if self.content_length is not None:
+            del self.content_length
+        
+        headerlist = list(self.headerlist)
+        
+        accept = environ.get('HTTP_ACCEPT', '')
+        
+        # Return JSON by default
+        if accept and 'xml' in accept:
+            content_type = 'application/xml'
+            body = self.xml_body()
+        else:
+            content_type = 'application/json'
+            body = self.json_body()
+        
+        extra_kw = {}
+        
+        if isinstance(body, unicode):
+            extra_kw.update(charset='utf-8')
+        
+        resp = Response(body,
+            status=self.status,
+            headerlist=headerlist,
+            content_type=content_type,
+            **extra_kw
+        )
+        
+        # Why is this repeated?
+        resp.content_type = content_type
+        
+        return resp(environ, start_response)
+
+    def __call__(self, environ, start_response):
+        if environ['REQUEST_METHOD'] == 'HEAD':
+            start_response(self.status, self.headerlist)
+            return []
+        if not self.body:
+            return self.generate_response(environ, start_response)
+        return webob.Response.__call__(self, environ, start_response)
+
+    def wsgi_response(self):
+        """This object is a WSGI webob response, so returns self"""
+        return self
+
+    wsgi_response = property(wsgi_response)
+
+    def exception(self):
+        """Returns self as an exception response"""
+        return webob.exc.HTTPException(self.explanation, self)
+
+    exception = property(exception)
+
+class HTTPNotFound(WSGIHTTPException):
+    """Represents a 404 Not Found webob response exception"""
+    def __init__(self, code=404, label='itemNotFound', title='Item not found.',
+            explanation='Error Details...', **kw):
+        """Build a 404 WSGI response"""
+        super(HTTPNotFound, self).__init__(code, label, title, explanation,
+            **kw)
