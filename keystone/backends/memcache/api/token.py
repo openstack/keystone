@@ -15,25 +15,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.backends.memcache import memcache_server, models
+from keystone.backends.memcache import memcache_server, models, cache_time
 from keystone.backends.api import BaseTokenAPI
 
 
 class TokenAPI(BaseTokenAPI):
     def create(self, token):
-        if token.tenant_id is None:
-            token_tenant_key = token.id
-        else:
-            token_tenant_key = token.id + "::" + token.tenant_id
-
         if token.tenant_id != None:
             tenant_user_key = token.tenant_id + "::" + token.user_id
         else:
             tenant_user_key = token.user_id
         #Setting them for  a day.
-        memcache_server.set(token.id, token, 86400)
-        memcache_server.set(token_tenant_key, token, 86400)
-        memcache_server.set(tenant_user_key, token, 86400)
+        memcache_server.set(token.id, token, cache_time)
+        memcache_server.set(tenant_user_key, token, cache_time)
 
     def get(self, id, session=None):
         return  memcache_server.get(id)
@@ -44,7 +38,6 @@ class TokenAPI(BaseTokenAPI):
             memcache_server.delete(id)
 
             if token.tenant_id != None:
-                memcache_server.delete(token.id + "::" + token.tenant_id)
                 memcache_server.delete(token.tenant_id + "::" + token.user_id)
             else:
                 memcache_server.delete(token.id)

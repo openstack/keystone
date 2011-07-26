@@ -31,7 +31,7 @@ import memcache
 MODEL_PREFIX = 'keystone.backends.memcache.models.'
 API_PREFIX = 'keystone.backends.memcache.api.'
 memcache_server = None
-
+cache_time = 86400
 
 def configure_backend(options):
     hosts = options['memcache_hosts']
@@ -39,6 +39,8 @@ def configure_backend(options):
     if not memcache_server:
         memcache_server = Memcache_Server(hosts)
     register_models(options)
+    global cache_time
+    cache_time = config.get_option(options, 'cache_time', type='int', default=86400)
 
 
 class Memcache_Server():
