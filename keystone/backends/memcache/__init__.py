@@ -30,17 +30,17 @@ import memcache
 
 MODEL_PREFIX = 'keystone.backends.memcache.models.'
 API_PREFIX = 'keystone.backends.memcache.api.'
-memcache_server = None
-cache_time = 86400
+MEMCACHE_SERVER = None
+CACHE_TIME = 86400
 
 def configure_backend(options):
     hosts = options['memcache_hosts']
-    global memcache_server
-    if not memcache_server:
-        memcache_server = Memcache_Server(hosts)
+    global MEMCACHE_SERVER
+    if not MEMCACHE_SERVER:
+        MEMCACHE_SERVER = Memcache_Server(hosts)
     register_models(options)
-    global cache_time
-    cache_time = config.get_option(options, 'cache_time', type='int', default=86400)
+    global CACHE_TIME
+    CACHE_TIME = config.get_option(options, 'cache_time', type='int', default=86400)
 
 
 class Memcache_Server():
@@ -48,7 +48,7 @@ class Memcache_Server():
         self.hosts = hosts
         self.server = memcache.Client([self.hosts])
 
-    def set(self, key, value, expiry=900):
+    def set(self, key, value, expiry=CACHE_TIME):
         """
         This method is used to set a new value
         in the memcache server.

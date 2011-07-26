@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.backends.memcache import memcache_server, models, cache_time
+from keystone.backends.memcache import MEMCACHE_SERVER, models
 from keystone.backends.api import BaseTokenAPI
 
 
@@ -26,28 +26,28 @@ class TokenAPI(BaseTokenAPI):
         else:
             tenant_user_key = token.user_id
         #Setting them for  a day.
-        memcache_server.set(token.id, token, cache_time)
-        memcache_server.set(tenant_user_key, token, cache_time)
+        MEMCACHE_SERVER.set(token.id, token)
+        MEMCACHE_SERVER.set(tenant_user_key, token)
 
     def get(self, id, session=None):
-        return  memcache_server.get(id)
+        return  MEMCACHE_SERVER.get(id)
 
     def delete(self, id, session=None):
-        token = memcache_server.get(id)
+        token = MEMCACHE_SERVER.get(id)
         if token != None:
-            memcache_server.delete(id)
+            MEMCACHE_SERVER.delete(id)
 
             if token.tenant_id != None:
-                memcache_server.delete(token.tenant_id + "::" + token.user_id)
+                MEMCACHE_SERVER.delete(token.tenant_id + "::" + token.user_id)
             else:
-                memcache_server.delete(token.id)
-                memcache_server.delete(token.user_id)
+                MEMCACHE_SERVER.delete(token.id)
+                MEMCACHE_SERVER.delete(token.user_id)
 
     def get_for_user(self, user_id, session=None):
-        return memcache_server.get(user_id)
+        return MEMCACHE_SERVER.get(user_id)
 
     def get_for_user_by_tenant(self, user_id, tenant_id, session=None):
-        return memcache_server.get(tenant_id + "::" + user_id)
+        return MEMCACHE_SERVER.get(tenant_id + "::" + user_id)
 
 
 def get():
