@@ -134,13 +134,13 @@ class KeystoneTestCase(RestfulTestCase):
             as_json=self.admin_credentials)
         self.admin_token = r.json['auth']['token']['id']
     
-    def service_request(self, path='', port=5000, headers=None, **kwargs):
+    def service_request(self, version='2.0', path='', port=5000, headers=None, **kwargs):
         """Returns a request to the service API"""
         
         # Initialize headers dictionary
         headers = {} if not headers else headers
         
-        path = KeystoneTestCase._prepend_path(path)
+        path = KeystoneTestCase._version_path(version, path)
         
         if self.service_token:
             headers['X-Auth-Token'] = self.service_token
@@ -148,13 +148,13 @@ class KeystoneTestCase(RestfulTestCase):
         return self.restful_request(port=port, path=path, headers=headers,
             **kwargs)
     
-    def admin_request(self, path='', port=5001, headers=None, **kwargs):
+    def admin_request(self, version='2.0', path='', port=5001, headers=None, **kwargs):
         """Returns a request to the admin API"""
         
         # Initialize headers dictionary
         headers = {} if not headers else headers
         
-        path = KeystoneTestCase._prepend_path(path)
+        path = KeystoneTestCase._version_path(version, path)
         
         if self.admin_token:
             headers['X-Auth-Token'] = self.admin_token
@@ -163,9 +163,14 @@ class KeystoneTestCase(RestfulTestCase):
             **kwargs)
     
     @staticmethod
-    def _prepend_path(path):
-        """Prepend the given path with the API version"""
-        return '/v2.0' + str(path)
+    def _version_path(version, path):
+        """Prepend the given path with the API version.
+        
+        An empty version results in no version being prepended."""
+        if version:
+            return '/v' + str(version) + str(path)
+        else:
+            return str(path)
     
     @staticmethod
     def _uuid():
