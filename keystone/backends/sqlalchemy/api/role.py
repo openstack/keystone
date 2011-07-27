@@ -106,31 +106,31 @@ class RoleAPI(BaseRoleAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(models.Role).filter("id > :marker").params(\
+        next_page = session.query(models.Role).filter("id > :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.Role.id).limit(limit).all()
-        prev = session.query(models.Role).filter("id < :marker").params(\
+        prev_page = session.query(models.Role).filter("id < :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.Role.id.desc()).limit(int(limit)).all()
-        if len(next) == 0:
-            next = last
+        if len(next_page) == 0:
+            next_page = last
         else:
-            for t in next:
-                next = t
-        if len(prev) == 0:
-            prev = first
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
-        if prev.id == marker:
-            prev = None
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
         else:
-            prev = prev.id
-        if next.id == last.id:
-            next = None
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
     
     
     def ref_get_page_markers(self, user_id, marker, limit, session=None):
@@ -146,34 +146,40 @@ class RoleAPI(BaseRoleAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next = session.query(models.UserRoleAssociation).filter_by(\
-                        user_id=user_id).filter("id > :marker").params(\
-                        marker='%s' % marker).order_by(\
-                        models.UserRoleAssociation.id).limit(limit).all()
-        prev = session.query(models.UserRoleAssociation).filter_by(\
-                                user_id=user_id).filter("id < :marker").params(\
-                        marker='%s' % marker).order_by(\
-                        models.UserRoleAssociation.id.desc()).limit(int(limit)).\
-                        all()
-        if len(next) == 0:
-            next = last
+        next_page = session.query(models.UserRoleAssociation).\
+            filter_by(user_id=user_id).\
+            filter("id > :marker").\
+            params(marker='%s' % marker).\
+            order_by(models.UserRoleAssociation.id).\
+            limit(limit).\
+            all()
+        prev_page = session.query(models.UserRoleAssociation).\
+            filter_by(user_id=user_id).\
+            filter("id < :marker").\
+            params(marker='%s' % marker).\
+            order_by(models.UserRoleAssociation.id.desc()).\
+            limit(int(limit)).\
+            all()
+        
+        if len(next_page) == 0:
+            next_page = last
         else:
-            for t in next:
-                next = t
-        if len(prev) == 0:
-            prev = first
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
         else:
-            for t in prev:
-                prev = t
-        if prev.id == marker:
-            prev = None
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
         else:
-            prev = prev.id
-        if next.id == last.id:
-            next = None
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
         else:
-            next = next.id
-        return (prev, next)
+            next_page = next_page.id
+        return (prev_page, next_page)
 
 def get():
     return RoleAPI()
