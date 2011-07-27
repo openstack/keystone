@@ -420,12 +420,6 @@ class WSGIHTTPException(Response, webob.exc.HTTPException):
             return self.generate_response(environ, start_response)
         return webob.Response.__call__(self, environ, start_response)
 
-    def wsgi_response(self):
-        """This object is a WSGI webob response, so returns self"""
-        return self
-
-    wsgi_response = property(wsgi_response)
-
     def exception(self):
         """Returns self as an exception response"""
         return webob.exc.HTTPException(self.explanation, self)
