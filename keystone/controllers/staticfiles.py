@@ -18,7 +18,7 @@ class StaticFilesController(wsgi.Controller):
     @utils.wrap_error
     def get_wadl_contract(self, req):
         resp = Response()
-        return template.static_file(resp, req, "identity.wadl",
+        return template.static_file(resp, req, "content/identity.wadl",
             root=utils.get_app_root(), mimetype="application/vnd.sun.wadl+xml")
 
     @utils.wrap_error
