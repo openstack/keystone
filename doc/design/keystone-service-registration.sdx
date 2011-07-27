@@ -5,10 +5,10 @@
 #!Service credentials returned are provided to the actual service.
 #!
 #!Actual services use the service credentials to fetch the service token to create roles, endpoints templates,
-#!endpoints specific to service.
+#!endpoints specific to service and also to validate tokens.
 #!
-#!Suggestion: We could extend this behavior to allow all keystone operations carried on behalf of the service to happen
-#!only using the service token.This way we dont need to share keystone admin to everyone.
+#!We could extend this behavior to allow any keystone operations carried on behalf of the service to happen
+#!only using the service token.
 #!
 #!Keystone has its own roles to manage itself.Roles specific to a service are available only for that service.
 #!<<
@@ -27,10 +27,11 @@ keystone-admin:openstack.Provide Service Credentials
 openstack:service_token=keystone.Service Credentials
 [/c]
 
-[c:service_operations]
+[c:Service_Operations]
 openstack:keystone.Add Service Specific Roles<service_token>
 openstack:keystone.Add Service Specific Endpoint Templates<service_token>
 openstack:keystone.Add Service Specific Endpoints<service_token>
+openstack:keystone.Validate Token<service_token>
 [/c]]]></source>
 <configuration>
 <property name="activationBarBorderThickness" value="1"/>
