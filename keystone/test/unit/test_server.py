@@ -24,7 +24,8 @@ class TestServer(unittest.TestCase):
     def setUp(self):
         environ = {'wsgi.url_scheme': 'http'} 
         self.request = Request(environ)
-        self.auth_data = auth.AuthData(auth.Token(date.today(), "2231312"), auth.User("username", "12345", auth.Groups([], [])))
+        self.auth_data = auth.AuthData(auth.Token(date.today(), "2231312"),
+            auth.User("username", "12345", auth.Groups([], [])))
         
     #def tearDown(self):
     
@@ -36,39 +37,42 @@ class TestServer(unittest.TestCase):
     
     def test_send_result_xml(self):
         self.request.headers["Accept"] = "application/xml"
-        response = utils.send_result(200, self.request, self.auth_data);
+        response = utils.send_result(200, self.request, self.auth_data)
        
-        self.assertTrue(response.headers['content-type'] == "application/xml; charset=UTF-8")
+        self.assertTrue(response.headers['content-type'] == 
+            "application/xml; charset=UTF-8")
         xml = etree.fromstring(response.unicode_body)
 
         user = xml.find("{http://docs.openstack.org/identity/api/v2.0}user")
         token = xml.find("{http://docs.openstack.org/identity/api/v2.0}token")
         
         self.assertTrue(user.get("username"), "username")
-        self.assertTrue(user.get("tenantId"), '12345');
-        self.assertTrue(token.get("id"), '2231312');
-        self.assertTrue(token.get("expires"), date.today());
+        self.assertTrue(user.get("tenantId"), '12345')
+        self.assertTrue(token.get("id"), '2231312')
+        self.assertTrue(token.get("expires"), date.today())
         
     def test_send_result_json(self):
         self.request.headers["Accept"] = "application/json"
-        response = utils.send_result(200, self.request, self.auth_data);
-        self.assertTrue(response.headers['content-type'] == "application/json; charset=UTF-8")
+        response = utils.send_result(200, self.request, self.auth_data)
+        self.assertTrue(response.headers['content-type'] == 
+            "application/json; charset=UTF-8")
         dict = json.loads(response.unicode_body)
-        self.assertTrue(dict['auth']['user']['username'], 'username');
-        self.assertTrue(dict['auth']['user']['tenantId'], '12345');
-        self.assertTrue(dict['auth']['token']['id'], '2231312');
-        self.assertTrue(dict['auth']['token']['expires'], date.today());
+        self.assertTrue(dict['auth']['user']['username'], 'username')
+        self.assertTrue(dict['auth']['user']['tenantId'], '12345')
+        self.assertTrue(dict['auth']['token']['id'], '2231312')
+        self.assertTrue(dict['auth']['token']['expires'], date.today())
         
     def test_get_auth_token(self):
         self.request.headers["X-Auth-Token"] = "Test token"
         self.assertTrue(utils.get_auth_token(self.request), "Test Token")
     
     def test_get_normalized_request_content_exception(self):
-        self.assertRaises(fault.IdentityFault, utils.get_normalized_request_content, None, self.request)
+        self.assertRaises(fault.IdentityFault,
+            utils.get_normalized_request_content, None, self.request)
     
     def test_get_normalized_request_content_xml(self):
         self.request.environ["CONTENT_TYPE"] = "application/xml"
-        pwd_cred = auth.PasswordCredentials("username", "password", "1")
+        auth.PasswordCredentials("username", "password", "1")
         body = '<?xml version="1.0" encoding="UTF-8"?> \
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/identity/api/v2.0" \
