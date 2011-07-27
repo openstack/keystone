@@ -18,9 +18,6 @@
 import ast
 import logging
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import joinedload, aliased, sessionmaker
-
 from keystone.common import config
 from keystone.backends.alterdb import models
 import keystone.utils as utils

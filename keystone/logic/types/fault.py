@@ -111,14 +111,6 @@ class TenantConflictFault(IdentityFault):
         self.key = "tenantConflict"
 
 
-class TenantGroupConflictFault(IdentityFault):
-    """The tenant Group already exists?"""
-
-    def __init__(self, msg, details=None, code=409):
-        super(TenantGroupConflictFault, self).__init__(msg, details, code)
-        self.key = "tenantGroupConflict"
-
-
 class OverlimitFault(IdentityFault):
     """A limit has been exceeded"""
 
@@ -151,15 +143,6 @@ class EmailConflictFault(IdentityFault):
     def __init__(self, msg, details=None, code=409):
         super(EmailConflictFault, self).__init__(msg, details, code)
         self.key = "emailConflict"
-
-
-class UserGroupConflictFault(IdentityFault):
-    """The user already exists in group?"""
-
-    def __init__(self, msg, details=None, code=409):
-        super(UserGroupConflictFault, self).__init__(msg, details, code)
-        self.key = "userGroupConflict"
-
 
 class RoleConflictFault(IdentityFault):
     """The User already exists?"""

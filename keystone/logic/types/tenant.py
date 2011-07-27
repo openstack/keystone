@@ -126,219 +126,6 @@ class Tenants(object):
         links = [t.to_dict()["links"] for t in self.links]
         return json.dumps({"tenants": {"values": values, "links": links}})
 
-
-class Group(object):
-    """Describes a group in the auth system"""
-
-    def __init__(self, group_id, description, tenant_id):
-        self.description = description
-        self.group_id = group_id
-        if tenant_id:
-            self.tenant_id = tenant_id
-        else:
-            self.tenant_id = None
-
-    @staticmethod
-    def from_xml(xml_str):
-        try:
-            dom = etree.Element("root")
-            dom.append(etree.fromstring(xml_str))
-            root = dom.find(\
-                        "{http://docs.openstack.org/identity/api/v2.0}group")
-            if root == None:
-                raise fault.BadRequestFault("Expecting Group")
-            group_id = root.get("id")
-            tenant_id = None
-            if root.get("tenantId"):
-                tenant_id = root.get("tenantId")
-            else:
-                tenant_id = None
-
-            desc = root.find("{http://docs.openstack.org/identity/api/v2.0}"
-                             "description")
-            if desc == None:
-                raise fault.BadRequestFault("Expecting Group Description")
-            return Group(group_id, desc.text, tenant_id)
-        except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse Group", str(e))
-
-    @staticmethod
-    def from_json(json_str):
-        try:
-            obj = json.loads(json_str)
-
-            if not "group" in obj:
-                raise fault.BadRequestFault("Expecting group")
-            group = obj["group"]
-
-            if not "id" in group:
-                group_id = None
-            else:
-                group_id = group["id"]
-
-            if not "tenantId" in group:
-                tenantId = None
-            else:
-                tenantId = group["tenantId"]
-
-            if not "description" in group:
-                raise fault.BadRequestFault("Expecting Group Description")
-            description = group["description"]
-            return Group(group_id, description, tenantId)
-        except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse Group.", str(e))
-
-    def to_dom(self):
-        dom = etree.Element("group",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
-        if self.group_id:
-            dom.set("id", self.group_id)
-        if self.tenant_id:
-            dom.set("tenantId", self.tenant_id)
-        desc = etree.Element("description")
-        desc.text = self.description
-        dom.append(desc)
-        return dom
-
-    def to_xml(self):
-        return etree.tostring(self.to_dom())
-
-    def to_dict(self):
-        group = {}
-        if self.group_id:
-            group["id"] = self.group_id
-        group["description"] = self.description
-        if self.tenant_id:
-            group["tenantId"] = self.tenant_id
-        return {'group': group}
-
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
-
-class Groups(object):
-    """A collection of groups."""
-
-    def __init__(self, values, links):
-        self.values = values
-        self.links = links
-
-    def to_xml(self):
-        dom = etree.Element("groups")
-        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
-
-        for t in self.values:
-            dom.append(t.to_dom())
-
-        for t in self.links:
-            dom.append(t.to_dom())
-
-        return etree.tostring(dom)
-
-    def to_json(self):
-        values = [t.to_dict()["group"] for t in self.values]
-        links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"groups": {"values": values, "links": links}})
-
-
-class GlobalGroup(object):
-    """Describes a group in the auth system"""
-
-    def __init__(self, group_id, description, tenant_id=None):
-        self.description = description
-        self.group_id = group_id
-
-    @staticmethod
-    def from_xml(xml_str):
-        try:
-            dom = etree.Element("root")
-            dom.append(etree.fromstring(xml_str))
-            root = dom.find(\
-                        "{http://docs.openstack.org/identity/api/v2.0}group")
-            if root == None:
-                raise fault.BadRequestFault("Expecting Group")
-            group_id = root.get("id")
-
-            desc = root.find("{http://docs.openstack.org/identity/api/v2.0}"
-                             "description")
-            if desc == None:
-                raise fault.BadRequestFault("Expecting Group Description")
-            return GlobalGroup(group_id, desc.text)
-        except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse Group", str(e))
-
-    @staticmethod
-    def from_json(json_str):
-        try:
-            obj = json.loads(json_str)
-
-            if not "group" in obj:
-                raise fault.BadRequestFault("Expecting group")
-            group = obj["group"]
-
-            if not "id" in group:
-                group_id = None
-            else:
-                group_id = group["id"]
-
-            if not "description" in group:
-                raise fault.BadRequestFault("Expecting Group Description")
-            description = group["description"]
-            return GlobalGroup(group_id, description)
-        except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse Group.", str(e))
-
-    def to_dom(self):
-        dom = etree.Element("group",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
-        if self.group_id:
-            dom.set("id", self.group_id)
-
-        desc = etree.Element("description")
-        desc.text = self.description
-        dom.append(desc)
-        return dom
-
-    def to_xml(self):
-        return etree.tostring(self.to_dom())
-
-    def to_dict(self):
-        group = {}
-        if self.group_id:
-            group["id"] = self.group_id
-        group["description"] = self.description
-
-        return {'group': group}
-
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
-
-class GlobalGroups(object):
-    """A collection of groups."""
-
-    def __init__(self, values, links):
-        self.values = values
-        self.links = links
-
-    def to_xml(self):
-        dom = etree.Element("groups")
-        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
-
-        for t in self.values:
-            dom.append(t.to_dom())
-
-        for t in self.links:
-            dom.append(t.to_dom())
-
-        return etree.tostring(dom)
-
-    def to_json(self):
-        values = [t.to_dict()["group"] for t in self.values]
-        links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"groups": {"values": values, "links": links}})
-
-
 class User(object):
     """Describes a user in the auth system
     
@@ -346,12 +133,8 @@ class User(object):
     should be considered deprecated.
     """
 
-    def __init__(self, user_id, email, enabled, tenant_id='', group_id=''):
+    def __init__(self, user_id, email, enabled, tenant_id=''):
         self.user_id = user_id
-        if group_id:
-            self.group_id = group_id
-        else:
-            self.group_id = None
         if tenant_id:
             self.tenant_id = tenant_id
         else:
@@ -362,8 +145,6 @@ class User(object):
     def to_dom(self):
         dom = etree.Element("user",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
-        if self.group_id != None:
-            dom.set("group_id", self.group_id)
         if self.user_id:
             dom.set("id", self.user_id)
         if self.tenant_id:
@@ -379,8 +160,6 @@ class User(object):
 
     def to_dict(self):
         user = {}
-        if self.group_id != None:
-            user["group_id"] = self.group_id
         user["id"] = self.user_id
         user["email"] = self.email
         user["enabled"] = string.lower(str(self.enabled))

@@ -79,13 +79,6 @@ class KeystoneBase(object):
 
 
 # Define associations first
-class UserGroupAssociation(Base, KeystoneBase):
-    __tablename__ = 'user_group_association'
-    __api__ = 'tenant_group'
-    user_id = Column(String(255), ForeignKey('users.id'), primary_key=True)
-    group_id = Column(String(255), ForeignKey('groups.id'), primary_key=True)
-
-
 class UserRoleAssociation(Base, KeystoneBase):
     __tablename__ = 'user_roles'
     id = Column(Integer, primary_key=True)
@@ -119,7 +112,6 @@ class Tenant(Base, KeystoneBase):
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
-    groups = relationship('Group', backref='tenants')
     endpoints = relationship('Endpoints', backref='tenant', cascade="all")
 
 
@@ -131,8 +123,6 @@ class User(Base, KeystoneBase):
     email = Column(String(255))
     enabled = Column(Integer)
     tenant_id = Column(String(255), ForeignKey('tenants.id'))
-
-    groups = relationship(UserGroupAssociation, backref='users')
     roles = relationship(UserRoleAssociation, cascade="all")
 
 
@@ -144,13 +134,6 @@ class Credentials(Base, KeystoneBase):
     key = Column(String(255))
     secret = Column(String(255))
 
-
-class Group(Base, KeystoneBase):
-    __tablename__ = 'groups'
-    __api__ = 'group'
-    id = Column(String(255), primary_key=True, unique=True)
-    desc = Column(String(255))
-    tenant_id = Column(String(255), ForeignKey('tenants.id'))
 
 class Token(Base, KeystoneBase):
     __tablename__ = 'token'

@@ -26,31 +26,6 @@ class UserAPI(BaseUserAPI):
         result = session.query(models.User)
         return result
     
-    
-    def get_by_group(self, user_id, group_id, session=None):
-        if not session:
-            session = get_session()
-        result = session.query(models.UserGroupAssociation).filter_by(\
-                group_id=group_id, user_id=user_id).first()
-        return result
-    
-    
-    def tenant_group(self, values):
-        user_ref = models.UserGroupAssociation()
-        user_ref.update(values)
-        user_ref.save()
-        return user_ref
-    
-    
-    def tenant_group_delete(self, id, group_id, session=None):
-        if not session:
-            session = get_session()
-        with session.begin():
-            usertenantgroup_ref = self.get_by_group(id, group_id, session)
-            if usertenantgroup_ref is not None:
-                session.delete(usertenantgroup_ref)
-    
-    
     def create(self, values):
         user_ref = models.User()
         self.__check_and_use_hashed_password(values)
@@ -67,9 +42,6 @@ class UserAPI(BaseUserAPI):
     def get(self, id, session=None):
         if not session:
             session = get_session()
-        #TODO(Ziad): finish cleaning up model
-        #    result = session.query(models.User).options(joinedload('groups')).\
-        #              options(joinedload('tenants')).filter_by(id=id).first()
         result = session.query(models.User).filter_by(id=id).first()
         return result
     
@@ -132,14 +104,6 @@ class UserAPI(BaseUserAPI):
         return result
     
     
-    def get_groups(self, id, session=None):
-        if not session:
-            session = get_session()
-        result = session.query(models.Group).filter_by(\
-                user_id=id)
-        return result
-    
-    
     def user_roles_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -156,72 +120,6 @@ class UserAPI(BaseUserAPI):
             self.__check_and_use_hashed_password(values)
             user_ref.update(values)
             user_ref.save(session=session)
-    
-    
-    def users_tenant_group_get_page(self, group_id, marker, limit, session=None):
-        if not session:
-            session = get_session()
-        uga = aliased(models.UserGroupAssociation)
-        user = aliased(models.User)
-        if marker:
-            return session.query(user, uga).join(\
-                                (uga, uga.user_id == user.id)).\
-                                filter(uga.group_id == group_id).\
-                                filter("id>=:marker").params(\
-                                marker='%s' % marker).order_by(\
-                                user.id).limit(limit).all()
-        else:
-            return session.query(user, uga).\
-                                join((uga, uga.user_id == user.id)).\
-                                filter(uga.group_id == group_id).order_by(\
-                                user.id).limit(limit).all()
-    
-    
-    def users_tenant_group_get_page_markers(self, group_id, marker, limit, session=None):
-        if not session:
-            session = get_session()
-        uga = aliased(models.UserGroupAssociation)
-        user = aliased(models.User)
-        first = session.query(models.User).order_by(\
-                            models.User.id).first()
-        last = session.query(models.User).order_by(\
-                            models.User.id.desc()).first()
-        if first is None:
-            return (None, None)
-        if marker is None:
-            marker = first.id
-        next_page = session.query(user).join(
-                                (uga, uga.user_id == user.id)).\
-                                filter(uga.group_id == group_id).\
-                                filter("id > :marker").params(\
-                                marker='%s' % marker).order_by(\
-                                user.id).limit(limit).all()
-        prev_page = session.query(user).join(\
-                                (uga, uga.user_id == user.id)).\
-                                filter(uga.group_id == group_id).\
-                                filter("id < :marker").params(\
-                                marker='%s' % marker).order_by(\
-                                user.id.desc()).limit(int(limit)).all()
-        if len(next_page) == 0:
-            next_page = last
-        else:
-            for t in next_page:
-                next_page = t
-        if len(prev_page) == 0:
-            prev_page = first
-        else:
-            for t in prev_page:
-                prev_page = t
-        if prev_page.id == marker:
-            prev_page = None
-        else:
-            prev_page = prev_page.id
-        if next_page.id == last.id:
-            next_page = None
-        else:
-            next_page = next_page.id
-        return (prev_page, next_page)
-    
     
     def delete(self, id, session=None):
         if not session:
@@ -248,14 +146,6 @@ class UserAPI(BaseUserAPI):
         else:
             return None
     
-    
-    def get_group_by_tenant(self, id, session=None):
-        if not session:
-            session = get_session()
-        user_group = session.query(models.Group).filter_by(tenant_id=id).all()
-        return user_group
-    
-    
     def delete_tenant_user(self, id, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -264,17 +154,6 @@ class UserAPI(BaseUserAPI):
             if users_tenant_ref is not None:
                 for user_tenant_ref in users_tenant_ref:
                     session.delete(user_tenant_ref)
-    
-            user_group_ref = self.get_group_by_tenant(tenant_id, session)
-    
-            if user_group_ref is not None:
-                for user_group in user_group_ref:
-                    get_users = session.query(models.UserGroupAssociation)\
-                                    .filter_by(user_id=id,
-                                            group_id=user_group.id).all()
-                    for group_user in get_users:
-                        session.delete(group_user)
-    
     
     def users_get_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
@@ -433,15 +312,5 @@ class UserAPI(BaseUserAPI):
             next_page = next_page.id
         return (prev_page, next_page)
     
-    def user_groups_get_all(self, user_id, session=None):
-        if not session:
-            session = get_session()
-        uga = aliased(models.UserGroupAssociation)
-        group = aliased(models.Group)
-        return session.query(group, uga).\
-                                join((uga, uga.group_id == group.id)).\
-                                filter(uga.user_id == user_id).order_by(
-                                group.id).all()
-
 def get():
     return UserAPI()

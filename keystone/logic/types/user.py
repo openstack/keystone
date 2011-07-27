@@ -139,13 +139,12 @@ class User_Update(object):
     """Document me!"""
     
     def __init__(self, password, user_id, tenant_id, email,
-            enabled, group=None):
+            enabled):
         self.user_id = user_id
         self.tenant_id = tenant_id
         self.password = password
         self.email = email
         self.enabled = enabled and True or False
-        self.group = group
 
     @staticmethod
     def from_xml(xml_str):
@@ -221,10 +220,6 @@ class User_Update(object):
             dom.set("enabled", string.lower(str(self.enabled)))
         if self.password:
             dom.set("password", self.password)
-        if self.group is not None:
-
-            for group in self.group:
-                dom.append(group.to_dom())
         return dom
 
     def to_xml(self):
@@ -243,9 +238,6 @@ class User_Update(object):
             user["email"] = self.email
         if self.enabled is not None:
             user["enabled"] = self.enabled
-        if self.group is not None:
-            values = [t.to_dict()["group"] for t in self.group]
-            user["groups"] = {"values": values}
         return {'user': user}
 
     def to_json(self):

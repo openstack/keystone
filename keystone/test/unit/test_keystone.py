@@ -10,11 +10,9 @@ TEST_FILES = [
     'test_common.py', # this doesn't actually contain tests
     'test_endpoints.py',
     #'test_urlrewritefilter.py',
-    'test_groups.py',
     'test_keystone.py', # not sure why this is referencing itself
     'test_roles.py',
     #'test_server.py', # this is largely failing
-    'test_tenant_groups.py',
     'test_tenants.py',
     'test_token.py',
     'test_users.py',

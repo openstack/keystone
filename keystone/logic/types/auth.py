@@ -87,29 +87,12 @@ class Token(object):
         self.tenant_id = tenant_id
 
 
-class Group(object):
-    """A group, optionally belonging to a tenant."""
-
-    def __init__(self, group_id, tenant_id):
-        self.tenant_id = tenant_id
-        self.group_id = group_id
-
-
-class Groups(object):
-    """A collection of groups."""
-
-    def __init__(self, values, links):
-        self.values = values
-        self.links = links
-
-
 class User(object):
     """A user."""
 
-    def __init__(self, username, tenant_id, groups, role_refs=None):
+    def __init__(self, username, tenant_id,role_refs=None):
         self.username = username
         self.tenant_id = tenant_id
-        self.groups = groups
         self.role_refs = role_refs
 
 
@@ -211,14 +194,6 @@ class ValidateData(object):
         user = etree.Element("user",
                              username=self.user.username,
                              tenantId=str(self.user.tenant_id))
-        """groups = etree.Element("groups")
-        for group in self.user.groups.values:
-            g = etree.Element("group",
-                             tenantId=group.tenant_id)
-            g.set("id", group.group_id)
-            groups.append(g)
-        user.append(groups)
-        """
         if self.user.role_refs != None:
             user.append(self.user.role_refs.to_dom())
         dom.append(token)
@@ -237,16 +212,6 @@ class ValidateData(object):
         if self.user.role_refs != None:
             user["roleRefs"] = self.user.role_refs.to_json_values()
 
-        """group = []
-        for g in self.user.groups.values:
-            grp = {}
-            grp["tenantId"] = g.tenant_id
-            grp["id"] = g.group_id
-            group.append(grp)
-        groups = {}
-        groups["group"] = group
-        user["groups"] = groups
-        """
         auth = {}
         auth["token"] = token
         auth["user"] = user

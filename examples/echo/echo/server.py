@@ -74,8 +74,6 @@ class EchoApp(object):
             print '  Identity   :', self.envr['HTTP_X_AUTHORIZATION']
         if 'HTTP_X_TENANT' in self.envr:
             print '  Tenant     :', self.envr['HTTP_X_TENANT']
-        if 'HTTP_X_GROUP' in self.envr:
-            print '  Group      :', self.envr['HTTP_X_GROUP']
         if 'HTTP_X_ROLE' in self.envr:
             print '  Roles      :', self.envr['HTTP_X_ROLE']
 

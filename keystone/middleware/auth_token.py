@@ -28,7 +28,7 @@ This WSGI component performs multiple jobs:
     mode, which means the final decision is delegated to the downstream WSGI
     component (usually the OpenStack service)
 - it will collect and forward identity information from a valid token
-    such as user name, groups, etc...
+    such as user name etc...
 
 Refer to: http://wiki.openstack.org/openstack-authn
 
@@ -160,14 +160,10 @@ class AuthProtocol(object):
 
                 # Store authentication data
                 if claims:
-                    # TODO(Ziad): add additional details we may need,
-                    #             like tenant and group info
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" % 
                         claims['user'])
                     self._decorate_request('X_TENANT', claims['tenant'])
                     self._decorate_request('X_USER', claims['user'])
-                    if 'group' in claims:
-                        self._decorate_request('X_GROUP', claims['group'])
                     if 'roles' in claims and len(claims['roles']) > 0:
                         if claims['roles'] != None:
                             roles = ''
@@ -274,8 +270,6 @@ class AuthProtocol(object):
             raise LookupError('Unable to locate claims: %s' % resp.status)
 
         token_info = json.loads(data)
-        #TODO(Ziad): make this more robust
-        #first_group = token_info['auth']['user']['groups']['group'][0]
         roles = []
         role_refs = token_info["auth"]["user"]["roleRefs"]
         if role_refs != None:
@@ -285,10 +279,6 @@ class AuthProtocol(object):
         verified_claims = {'user': token_info['auth']['user']['username'],
                     'tenant': token_info['auth']['user']['tenantId'],
                     'roles': roles}
-
-        # TODO(Ziad): removed groups for now
-        #            ,'group': '%s/%s' % (first_group['id'],
-        #                                first_group['tenantId'])}
         return verified_claims
 
     def _decorate_request(self, index, value):

@@ -21,8 +21,8 @@ import keystone.backends as backends
 import keystone.backends.api as api
 import keystone.backends.models as models
 from keystone.logic.types import fault
-from keystone.logic.types.tenant import GlobalGroup, GlobalGroups, Group, \
-    Groups, Tenant, Tenants, User as TenantUser
+from keystone.logic.types.tenant import \
+    Tenant, Tenants, User as TenantUser
 from keystone.logic.types.role import Role, RoleRef, RoleRefs, Roles
 from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
@@ -196,222 +196,9 @@ class IdentityService(object):
         
         if not api.tenant.is_empty(tenant_id):
             raise fault.ForbiddenFault("You may not delete a tenant that "
-                                       "contains get_users or groups")
+                                       "contains get_users")
         
         api.tenant.delete(dtenant.id)
-        return None
-
-    #
-    #   Tenant Group Operations
-    #
-
-    def create_tenant_group(self, admin_token, tenant, group):
-        self.__validate_admin_token(admin_token)
-
-        if not isinstance(group, Group):
-            raise fault.BadRequestFault("Expecting a Group")
-
-        if tenant == None:
-            raise fault.BadRequestFault("Expecting a Tenant Id")
-
-        dtenant = api.tenant.get(tenant)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        if group.group_id == None:
-            raise fault.BadRequestFault("Expecting a Group Id")
-
-        if api.group.get(group.group_id) != None:
-            raise fault.TenantGroupConflictFault(
-                "A tenant group with that id already exists")
-
-        dtenant = models.Group()
-        dtenant.id = group.group_id
-        dtenant.desc = group.description
-        dtenant.tenant_id = tenant
-        api.tenant_group.create(dtenant)
-        return Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
-
-    def get_tenant_groups(self, admin_token, tenant_id, marker, limit, url):
-        self.__validate_admin_token(admin_token)
-        if tenant_id == None:
-            raise fault.BadRequestFault("Expecting a Tenant Id")
-
-        dtenant = api.tenant.get(tenant_id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        ts = []
-        dtenantgroups = api.tenant_group.get_page(tenant_id, marker, limit)
-
-        for dtenantgroup in dtenantgroups:
-            ts.append(Group(dtenantgroup.id,
-                                     dtenantgroup.desc,
-                                     dtenantgroup.tenant_id))
-        prev, next = api.tenant_group.get_page_markers(tenant_id, marker,
-                                                          limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
-                                    % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'"\
-                                    % (url, next, limit)))
-
-        return Groups(ts, links)
-
-    def get_tenant_group(self, admin_token, tenant_id, group_id):
-        self.__validate_admin_token(admin_token)
-
-        dtenant = api.tenant.get(tenant_id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        dtenant = api.tenant_group.get(group_id, tenant_id)
-        if not dtenant:
-            raise fault.ItemNotFoundFault("The tenant group not found")
-
-        return Group(dtenant.id, dtenant.desc, dtenant.tenant_id)
-
-    def update_tenant_group(self, admin_token, tenant_id, group_id, group):
-        self.__validate_admin_token(admin_token)
-
-        if not isinstance(group, Group):
-            raise fault.BadRequestFault("Expecting a Group")
-        True
-
-        dtenant = api.tenant.get(tenant_id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        dtenant = api.tenant_group.get(group_id, tenant_id)
-        if not dtenant:
-            raise fault.ItemNotFoundFault("The tenant group not found")
-
-        if group_id != group.group_id:
-            raise fault.BadRequestFault("Wrong Data Provided,\
-                                            Group id not matching")
-
-        if str(tenant_id) != str(group.tenant_id):
-            raise fault.BadRequestFault("Wrong Data Provided,\
-                                            Tenant id not matching ")
-
-        values = {'desc': group.description}
-
-        api.tenant_group.update(group_id, tenant_id, values)
-
-        return Group(group_id, group.description, tenant_id)
-
-    def delete_tenant_group(self, admin_token, tenant_id, group_id):
-        self.__validate_admin_token(admin_token)
-
-        dtenant = api.tenant.get(tenant_id)
-
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        dtenant = api.tenant_group.get(group_id, tenant_id)
-        if not dtenant:
-            raise fault.ItemNotFoundFault("The tenant group not found")
-
-        if not api.tenant_group.is_empty(group_id):
-            raise fault.ForbiddenFault("You may not delete a tenant that "
-                                       "contains get_users or groups")
-
-        api.tenant_group.delete(group_id, tenant_id)
-        return None
-
-    def get_users_tenant_group(self, admin_token, tenantId, groupId, marker,
-                               limit, url):
-        self.__validate_admin_token(admin_token)
-        if tenantId == None:
-            raise fault.BadRequestFault("Expecting a Tenant Id")
-
-        if api.tenant.get(tenantId) == None:
-            raise fault.ItemNotFoundFault("The tenant not found")
-
-        if api.tenant_group.get(groupId, tenantId) == None:
-            raise fault.ItemNotFoundFault(
-                "A tenant group with that id not found")
-        ts = []
-        dgroupusers = api.user.users_tenant_group_get_page(groupId, marker,
-                                                          limit)
-        for dgroupuser, _dgroupuserAsso in dgroupusers:
-            # TODO: TenantUser is deprecated, and a near-duplicate of 
-            #       keystone.logic.types.user.User
-            ts.append(TenantUser(
-                user_id=dgroupuser.id,
-                email=dgroupuser.email,
-                enabled=dgroupuser.enabled,
-                tenant_id=tenantId,
-                group_id=None))
-        links = []
-        if ts.__len__():
-            prev, next = api.user.users_tenant_group_get_page_markers(
-                    groupId, marker, limit)
-            if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
-                                      (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
-                                      (url, next, limit)))
-        return Users(ts, links)
-
-    def add_user_tenant_group(self, admin_token, tenant, group, user):
-        self.__validate_admin_token(admin_token)
-
-        if api.tenant.get(tenant) == None:
-            raise fault.ItemNotFoundFault("The Tenant not found")
-
-        if api.group.get(group) == None:
-            raise fault.ItemNotFoundFault("The Group not found")
-        duser = api.user.get(user)
-        if duser == None:
-            raise fault.ItemNotFoundFault("The User not found")
-
-        if api.tenant_group.get(group, tenant) == None:
-            raise fault.ItemNotFoundFault("A tenant group with"
-                                           " that id not found")
-
-        if api.user.get_by_group(user, group) != None:
-            raise fault.UserGroupConflictFault(
-                "A user with that id already exists in group")
-
-        dusergroup = models.UserGroupAssociation()
-        dusergroup.user_id = user
-        dusergroup.group_id = group
-        api.user.tenant_group(dusergroup)
-        
-        # TODO: TenantUser is deprecated, and a near-duplicate of 
-        #       keystone.logic.types.user.User
-        return TenantUser(
-            user_id=duser.id,
-            email=duser.email,
-            enabled=duser.enabled,
-            tenant_id=tenant,
-            group_id=group) #attribute no longer exists
-
-    def delete_user_tenant_group(self, admin_token, tenant, group, user):
-        self.__validate_admin_token(admin_token)
-
-        if api.tenant.get(tenant) == None:
-            raise fault.ItemNotFoundFault("The Tenant not found")
-
-        if api.group.get(group) == None:
-            raise fault.ItemNotFoundFault("The Group not found")
-        duser = api.user.get(user)
-        if duser == None:
-            raise fault.ItemNotFoundFault("The User not found")
-
-        if api.tenant_group.get(group, tenant) == None:
-            raise fault.ItemNotFoundFault("A tenant group with"
-                                          " that id not found")
-
-        if api.user.get_by_group(user, group) == None:
-            raise fault.ItemNotFoundFault("A user with that id "
-                                          "in a group not found")
-
-        api.user.tenant_group_delete(user, group)
         return None
 
     #
@@ -526,13 +313,8 @@ class IdentityService(object):
         dtenant = api.tenant.get(duser.tenant_id)
 
         ts = []
-        dusergroups = api.user.user_groups_get_all(user_id)
-
-        for dusergroup, _dusergroupAsso in dusergroups:
-            ts.append(Group(dusergroup.id, dusergroup.tenant_id, None))
-
         return User_Update(None, duser.id, duser.tenant_id,
-                duser.email, duser.enabled, ts)
+                duser.email, duser.enabled)
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_admin_token(admin_token)
@@ -575,7 +357,7 @@ class IdentityService(object):
         api.user.update(user_id, values)
 
         return User_Update(user.password,
-            None, None, None, None, None)
+            None, None, None, None)
 
     def enable_disable_user(self, admin_token, user_id, user):
         self.__validate_admin_token(admin_token)
@@ -594,7 +376,7 @@ class IdentityService(object):
         api.user.update(user_id, values)
 
         return User_Update(None,
-            None, None, None, user.enabled, None)
+            None, None, None, user.enabled)
 
     def set_user_tenant(self, admin_token, user_id, user):
         self.__validate_admin_token(admin_token)
@@ -612,7 +394,7 @@ class IdentityService(object):
         values = {'tenant_id': user.tenant_id}
         api.user.update(user_id, values)
         return User_Update(None,
-            None, user.tenant_id, None, None, None)
+            None, user.tenant_id, None, None)
 
     def delete_user(self, admin_token, user_id):
         self.__validate_admin_token(admin_token)
@@ -625,231 +407,6 @@ class IdentityService(object):
             api.user.delete_tenant_user(user_id, dtenant.id)
         else:
             api.user.delete(user_id)
-        return None
-
-    def get_user_groups(self, admin_token, user_id, marker, limit,
-                        url):
-        self.__validate_admin_token(admin_token)
-        ts = []
-        dusergroups = api.group.get_by_user_get_page(user_id, marker,
-                                                          limit)
-
-        for dusergroup, _dusergroupAsso in dusergroups:
-            ts.append(Group(dusergroup.id, dusergroup.desc,
-                                    dusergroup.tenant_id))
-        links = []
-        if ts.__len__():
-            prev, next = api.group.get_by_user_get_page_markers(user_id,
-                                                        marker, limit)
-            if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
-                                      (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
-                                      (url, next, limit)))
-        return Groups(ts, links)
-
-    #
-    # Global Group Operations
-    # TODO:(India Team) Rename functions
-    #       and to maintain consistency
-    #       with server.py
-    def __check_create_global_tenant(self):
-
-        dtenant = api.tenant.get('GlobalTenant')
-
-        if dtenant is None:
-            dtenant = models.Tenant()
-            dtenant.id = 'GlobalTenant'
-            dtenant.desc = 'GlobalTenant is Default tenant for global groups'
-            dtenant.enabled = True
-            api.tenant.create(dtenant)
-        return dtenant
-
-    def create_global_group(self, admin_token, group):
-        self.__validate_admin_token(admin_token)
-
-        if not isinstance(group, GlobalGroup):
-            raise fault.BadRequestFault("Expecting a Group")
-
-        if group.group_id == None:
-            raise fault.BadRequestFault("Expecting a Group Id")
-
-        if api.group.get(group.group_id) != None:
-            raise fault.TenantGroupConflictFault(
-                "A tenant group with that id already exists")
-        gtenant = self.__check_create_global_tenant()
-        dtenant = models.Group()
-        dtenant.id = group.group_id
-        dtenant.desc = group.description
-        dtenant.tenant_id = gtenant.id
-        api.tenant_group.create(dtenant)
-        return GlobalGroup(dtenant.id, dtenant.desc, None)
-
-    def get_global_groups(self, admin_token, marker, limit, url):
-        self.__validate_admin_token(admin_token)
-        gtenant = self.__check_create_global_tenant()
-        ts = []
-        dtenantgroups = api.tenant_group.get_page(gtenant.id, \
-                                                      marker, limit)
-        for dtenantgroup in dtenantgroups:
-            ts.append(GlobalGroup(dtenantgroup.id,
-                                     dtenantgroup.desc))
-        prev, next = api.tenant_group.get_page_markers(gtenant.id,
-                                                       marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
-                                  (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
-                                  (url, next, limit)))
-        return GlobalGroups(ts, links)
-
-    def get_global_group(self, admin_token, group_id):
-        self.__validate_admin_token(admin_token)
-        gtenant = self.__check_create_global_tenant()
-        dtenant = api.tenant.get(gtenant.id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The Global tenant not found")
-
-        dtenant = api.tenant_group.get(group_id, gtenant.id)
-
-        if not dtenant:
-            raise fault.ItemNotFoundFault("The Global tenant group not found")
-        return GlobalGroup(dtenant.id, dtenant.desc)
-
-    def update_global_group(self, admin_token, group_id, group):
-        self.__validate_admin_token(admin_token)
-        gtenant = self.__check_create_global_tenant()
-        if not isinstance(group, GlobalGroup):
-            raise fault.BadRequestFault("Expecting a Group")
-
-        dtenant = api.tenant.get(gtenant.id)
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The global tenant not found")
-
-        dtenant = api.tenant_group.get(group_id, gtenant.id)
-        if not dtenant:
-            raise fault.ItemNotFoundFault("The Global tenant group not found")
-        if group_id != group.group_id:
-            raise fault.BadRequestFault("Wrong Data Provided,"
-                                            "Group id not matching")
-
-        values = {'desc': group.description}
-        api.tenant_group.update(group_id, gtenant.id, values)
-        return GlobalGroup(group_id, group.description, gtenant.id)
-
-    def delete_global_group(self, admin_token, group_id):
-        self.__validate_admin_token(admin_token)
-        gtenant = self.__check_create_global_tenant()
-        dtenant = api.tenant.get(gtenant.id)
-
-        if dtenant == None:
-            raise fault.ItemNotFoundFault("The global tenant not found")
-
-        dtenant = api.tenant_group.get(group_id, dtenant.id)
-        if not dtenant:
-            raise fault.ItemNotFoundFault("The global tenant group not found")
-
-        if not api.tenant_group.is_empty(group_id):
-            raise fault.ForbiddenFault("You may not delete a group that "
-                                       "contains get_users")
-
-        api.tenant_group.delete(group_id, gtenant.id)
-        return None
-
-    def get_users_global_group(self, admin_token, groupId, marker, limit, url):
-        self.__validate_admin_token(admin_token)
-
-        gtenant = self.__check_create_global_tenant()
-        if gtenant.id == None:
-            raise fault.BadRequestFault("Expecting a global Tenant")
-
-        if api.tenant.get(gtenant.id) == None:
-            raise fault.ItemNotFoundFault("The global tenant not found")
-
-        if api.tenant_group.get(groupId, gtenant.id) == None:
-            raise fault.ItemNotFoundFault(
-                "A global tenant group with that id not found")
-        ts = []
-        dgroupusers = api.user.users_tenant_group_get_page(groupId, marker,
-                                                         limit)
-        for dgroupuser, _dgroupuserassoc in dgroupusers:
-            # TODO: TenantUser is deprecated, and a near-duplicate of 
-            #       keystone.logic.types.user.User
-            ts.append(TenantUser(
-                user_id=dgroupuser.id,
-                email=dgroupuser.email,
-                enabled=dgroupuser.enabled))
-        links = []
-        if ts.__len__():
-            prev, next = api.user.users_tenant_group_get_page_markers(groupId,
-                                                                marker, limit)
-            if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'"
-                                       % (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'"
-                                       % (url, next, limit)))
-        return Users(ts, links)
-
-    def add_user_global_group(self, admin_token, group, user):
-        self.__validate_admin_token(admin_token)
-        gtenant = self.__check_create_global_tenant()
-
-        if api.tenant.get(gtenant.id) == None:
-            raise fault.ItemNotFoundFault("The Global Tenant not found")
-
-        if api.group.get(group) == None:
-            raise fault.ItemNotFoundFault("The Group not found")
-        duser = api.user.get(user)
-        if duser == None:
-            raise fault.ItemNotFoundFault("The User not found")
-
-        if api.tenant_group.get(group, gtenant.id) == None:
-            raise fault.ItemNotFoundFault("A global tenant group with"
-                                          " that id not found")
-
-        if api.user.get_by_group(user, group) != None:
-            raise fault.UserGroupConflictFault(
-                "A user with that id already exists in group")
-
-        dusergroup = models.UserGroupAssociation()
-        dusergroup.user_id = user
-        dusergroup.group_id = group
-        api.user.tenant_group(dusergroup)
-
-        # TODO: TenantUser is deprecated, and a near-duplicate of 
-        #       keystone.logic.types.user.User
-        return TenantUser(
-            user_id=duser.id,
-            email=duser.email,
-            enabled=duser.enabled,
-            group_id=group) # attribute no longer exists!
-
-    def delete_user_global_group(self, admin_token, group, user):
-        self.__validate_admin_token(admin_token)
-        gtenant = self.__check_create_global_tenant()
-
-        if api.tenant.get(gtenant.id) == None:
-            raise fault.ItemNotFoundFault("The Global Tenant not found")
-
-        if api.group.get(group) == None:
-            raise fault.ItemNotFoundFault("The Group not found")
-        duser = api.user.get(user)
-        if duser == None:
-            raise fault.ItemNotFoundFault("The User not found")
-
-        if api.tenant_group.get(group, gtenant.id) == None:
-            raise fault.ItemNotFoundFault("A global tenant group with "
-                                          "that id not found")
-
-        if api.user.get_by_group(user, group) == None:
-            raise fault.ItemNotFoundFault("A user with that id in a "
-                                          "group not found")
-
-        api.user.tenant_group_delete(user, group)
         return None
 
     def __get_auth_data(self, dtoken, tenant_id):
@@ -875,7 +432,7 @@ class IdentityService(object):
         for droleRef in droleRefs:
             ts.append(RoleRef(droleRef.id, droleRef.role_id,
                                      droleRef.tenant_id))
-        user = auth.User(duser.id, duser.tenant_id, None, RoleRefs(ts, []))
+        user = auth.User(duser.id, duser.tenant_id, RoleRefs(ts, []))
         return auth.ValidateData(token, user)
 
     def __validate_tenant(self, tenant_id):

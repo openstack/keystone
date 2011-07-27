@@ -57,17 +57,6 @@
 #Global endpointTemplate
 `dirname $0`/keystone-manage $* endpointTemplates add RegionOne identity http://keystone.publicinternets.com/v2.0 http://127.0.0.1:5001/v2.0 http://127.0.0.1:5000/v2.0 1 1
 
-
-# Groups
-#`dirname $0`/keystone-manage $* group add Admin 1234
-#`dirname $0`/keystone-manage $* group add Default 1234
-#`dirname $0`/keystone-manage $* group add Empty 0000
-
-# User Group Associations
-#`dirname $0`/keystone-manage $* user joeuser join Default
-#`dirname $0`/keystone-manage $* user disabled join Default
-#`dirname $0`/keystone-manage $* user admin join Admin
-
 # Tokens
 `dirname $0`/keystone-manage $* token add 887665443383838 joeuser 1234 2012-02-05T00:00
 `dirname $0`/keystone-manage $* token add 999888777666 admin 1234 2015-02-05T00:00

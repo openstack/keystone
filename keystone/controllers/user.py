@@ -67,10 +67,3 @@ class UserController(wsgi.Controller):
         users = config.SERVICE.get_tenant_users(utils.get_auth_token(req),
             tenant_id, marker, limit, url)
         return utils.send_result(200, req, users)
-
-    @utils.wrap_error
-    def get_user_groups(self, req, user_id):
-        marker, limit, url = get_marker_limit_and_url(req)
-        groups = config.SERVICE.get_user_groups(utils.get_auth_token(req),
-            user_id, marker, limit, url)
-        return utils.send_result(200, req, groups)

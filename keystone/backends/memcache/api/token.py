@@ -15,7 +15,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.backends.memcache import MEMCACHE_SERVER, models
 from keystone.backends.api import BaseTokenAPI
 
 

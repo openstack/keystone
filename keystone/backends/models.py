@@ -15,24 +15,19 @@
 # limitations under the License.
 
 #Current Models
-UserGroupAssociation = None
 UserRoleAssociation = None
 Endpoints = None
 Role = None
 Tenant = None
 User = None
 Credentials = None
-Group = None
 Token = None
 EndpointTemplates = None
 
 
 # Function to dynamically set model references.
 def set_value(variable_name, value):
-    if variable_name == 'UserGroupAssociation':
-        global UserGroupAssociation
-        UserGroupAssociation = value
-    elif variable_name == 'UserRoleAssociation':
+    if variable_name == 'UserRoleAssociation':
         global UserRoleAssociation
         UserRoleAssociation = value
     elif variable_name == 'Endpoints':
@@ -50,9 +45,6 @@ def set_value(variable_name, value):
     elif variable_name == 'Credentials':
         global Credentials
         Credentials = value
-    elif variable_name == 'Group':
-        global Group
-        Group = value
     elif variable_name == 'Token':
         global Token
         Token = value

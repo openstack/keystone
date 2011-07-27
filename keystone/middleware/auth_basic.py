@@ -126,9 +126,6 @@ class AuthProtocol(object):
                                       proxy_headers, env)
             _decorate_request_headers('X_TENANT', 'blank',
                                       proxy_headers, env)
-            _decorate_request_headers('X_GROUP', 'Blank',
-                                      proxy_headers, env)
-
             #Auth processed, headers added now decide how to pass on the call
             if self.app:
                 # Pass to downstream WSGI component

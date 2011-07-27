@@ -92,6 +92,4 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         return self._get_page_markers(marker, limit,
                 self.api.tenant.get_users(tenant_id))
 
-    add_redirects(locals(), SQLUserAPI, ['get_by_group', 'tenant_group',
-        'tenant_group_delete', 'user_groups_get_all',
-        'users_tenant_group_get_page', 'users_tenant_group_get_page_markers'])
+    add_redirects(locals(), SQLUserAPI, [])
