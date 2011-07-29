@@ -1,0 +1,61 @@
+objectidentifier keystoneSchema 1.3.6.1.3.1.666.667
+objectidentifier keystoneAttrs keystoneSchema:3
+objectidentifier keystoneOCs keystoneSchema:4
+
+attributetype (
+    keystoneAttrs:1
+    NAME 'keystoneEnabled'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+    )
+
+attributetype (
+    keystoneAttrs:2
+    NAME 'keystoneTenant'
+    SUP distinguishedName
+    SINGLE-VALUE
+    )
+
+attributetype (
+    keystoneAttrs:3
+    NAME 'keystoneRole'
+    SUP distinguishedName
+    SINGLE-VALUE
+    )
+
+objectClass (
+    keystoneOCs:1
+    NAME 'keystoneUser'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ keystoneEnabled )
+    MAY ( mail $ userPassword )
+    )
+
+objectClass (
+    keystoneOCs:2
+    NAME 'keystoneRole'
+    SUP top
+    STRUCTURAL
+    MUST ( cn )
+    MAY ( member $ description)
+    )
+
+objectClass (
+    keystoneOCs:3
+    NAME 'keystoneTenant'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ keystoneEnabled )
+    MAY ( member $ description )
+    )
+
+objectClass (
+    keystoneOCs:4
+    NAME 'keystoneTenantRole'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ keystoneRole)
+    MAY ( member )
+    )

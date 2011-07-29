@@ -12,7 +12,7 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):
     options_name = 'tenant_tree_dn'
     object_class = 'keystoneTenant'
     model = models.Tenant
-    attribute_mapping = {'desc': 'description'}
+    attribute_mapping = {'desc': 'description', 'enabled': 'keystoneEnabled'}
 
     def get_user_tenants(self, user_id):
         user_dn = self.api.user._id_to_dn(user_id)

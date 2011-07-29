@@ -61,7 +61,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             attrs = [
                 ('objectClass', 'keystoneTenantRole'),
                 ('member', user_dn),
-                ('role', self._id_to_dn(role_id)),
+                ('keystoneRole', self._id_to_dn(role_id)),
             ]
             conn.add_s(role_dn, attrs)
         return models.UserRoleAssociation(

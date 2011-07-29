@@ -13,7 +13,11 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
     options_name = 'user_tree_dn'
     object_class = 'keystoneUser'
     model = models.User
-    attribute_mapping = {'password': 'userPassword', 'email': 'mail'}
+    attribute_mapping = {
+        'password': 'userPassword',
+        'email': 'mail',
+        'enabled': 'keystoneEnabled',
+    }
     attribute_ignore = ['tenant_id']
 
     def __check_and_use_hashed_password(self, values):
