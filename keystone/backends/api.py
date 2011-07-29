@@ -299,10 +299,10 @@ class BaseServiceAPI:
 class BaseCredentialsAPI(object):
     def create(self, values):
         raise NotImplementedError
-    
+
     def delete(self, id):
         raise NotImplementedError
-    
+
     def get(self, id):
         raise NotImplementedError
 

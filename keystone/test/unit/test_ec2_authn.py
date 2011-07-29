@@ -62,7 +62,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         obj_creds = auth.Ec2Credentials(**credentials)
         credentials['signature'] = sign.generate(obj_creds)
         body = {
-            "ec2Credentials": credentials
+            "ec2Credentials": credentials,
         }
         req.body = json.dumps(body)
         self.get_response()
@@ -72,7 +72,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
                 u'serviceCatalog': {},
                 u'token': {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                    u'id': self.auth_token_id
+                    u'id': self.auth_token_id,
                 }
             }
         }
@@ -113,7 +113,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         obj_creds = auth.Ec2Credentials(**credentials)
         credentials['signature'] = sign.generate(obj_creds)
         body = {
-            "ec2Credentials": credentials
+            "ec2Credentials": credentials,
         }
         req.body = json.dumps(body)
         self.get_response()
@@ -161,7 +161,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         obj_creds = auth.Ec2Credentials(**credentials)
         credentials['signature'] = sign.generate(obj_creds)
         body = {
-            "ec2Credentials": credentials
+            "ec2Credentials": credentials,
         }
         req.body = json.dumps(body)
         self.get_response()
