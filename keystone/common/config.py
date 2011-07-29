@@ -149,11 +149,12 @@ def setup_logging(options, conf):
     verbose = verbose in [True, "True", "1"]
     root_logger = logging.root
     if debug:
-        root_logger.setLevel(logging.DEBUG)
+        level = logging.DEBUG
     elif verbose:
-        root_logger.setLevel(logging.INFO)
+        level = logging.INFO
     else:
-        root_logger.setLevel(logging.WARNING)
+        level = logging.WARNING
+    root_logger.setLevel(level)
 
     # Set log configuration from options...
     # Note that we use a hard-coded log format in the options

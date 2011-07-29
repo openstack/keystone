@@ -33,10 +33,11 @@ from webob import Response
 import webob.dec
 
 
-def find_stream_handler(logger):
+def find_console_handler(logger):
     """Returns a stream handler, if any"""
     for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler):
+        if isinstance(handler, logging.StreamHandler) and \
+                handler.stream == sys.stderr:
             return handler
 
 
@@ -44,7 +45,7 @@ def add_console_handler(logger, level=logging.INFO):
     """
     Add a Handler which writes log messages to sys.stderr (usually the console)
     """
-    console = find_stream_handler(logger)
+    console = find_console_handler(logger)
 
     if not console:
         console = logging.StreamHandler()
