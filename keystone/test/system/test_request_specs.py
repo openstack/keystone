@@ -38,6 +38,18 @@ class TestContentTypes(KeystoneTestCase):
         r = self.service_request(headers={'Accept': 'application/json'})
         self.assertTrue('application/json' in r.getheader('Content-Type'))
     
+    def test_versioned_xml_accept_header(self):
+        """Service responds to versioned xml Accept header"""
+        r = self.service_request(headers={
+            'Accept': 'application/vnd.openstack.identity-v2.0+xml'})
+        self.assertTrue('application/xml' in r.getheader('Content-Type'))
+    
+    def test_versioned_json_accept_header(self):
+        """Service responds to versioned json Accept header"""
+        r = self.service_request(headers={
+            'Accept': 'application/vnd.openstack.identity-v2.0+json'})
+        self.assertTrue('application/json' in r.getheader('Content-Type'))
+    
     def test_xml_extension_overrides_conflicting_header(self):
         """Service returns XML when Accept header conflicts with extension"""
         r = self.service_request(path='.xml',

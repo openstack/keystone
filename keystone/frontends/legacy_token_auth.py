@@ -65,13 +65,12 @@ class AuthProtocol(object):
         self.start_response = start_response
         self.env = env
         self.request = Request(env)
-        if self.request.path.startswith('/v1.0'
-                ) or self.request.path.startswith('/v1.1'):
+        if env['KEYSTONE_API_VERSION'] in ['1.0', '1.1']:
             params = {"passwordCredentials":
                 {"username": utils.get_auth_user(self.request),
                     "password": utils.get_auth_key(self.request)}}
             #Make request to keystone
-            new_request = Request.blank('/v2.0/tokens')
+            new_request = Request.blank('/tokens')
             new_request.method = 'POST'
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'text/json'
