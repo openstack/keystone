@@ -62,21 +62,28 @@ class KeystoneAuthShim(wsgi.Middleware):
         except:
             user_ref = self.auth.create_user(user_id)
 
+        # get the roles
+        roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
+
         # set user admin-ness to keystone admin-ness
-        if user_ref.is_admin() != (req.headers.get('X_ROLE', None) == 'Admin'):
-            self.auth.modify_user(user_ref,
-                                  admin=req.headers.get('X_ROLE') == 'Admin')
+        if user_ref.is_admin() != ('Admin' in roles):
+            self.auth.modify_user(user_ref, ('Admin' in roles))
 
         # create a project for tenant
         project_id = req.headers['X_TENANT']
-        try:
-            project_ref = self.auth.get_project(project_id)
-        except:
-            project_ref = self.auth.create_project(project_id, user_id)
 
         # ensure user is a member of project
         if not self.auth.is_project_member(user_id, project_id):
             self.auth.add_to_project(user_id, project_id)
 
-        req.environ['nova.context'] = context.RequestContext(user_ref, project_ref)
+        # Get the auth token
+        auth_token = req.headers.get('X_AUTH_TOKEN',
+                                     req.headers.get('X_STORAGE_TOKEN'))
+
+        # Build a context, including the auth_token...
+        ctx = context.RequestContext(user_id, project_id,
+                                     is_admin=('Admin' in roles),
+                                     auth_token=auth_token)
+
+        req.environ['nova.context'] = ctx
         return self.application
