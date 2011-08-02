@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 import uuid
 
 from keystone.logic.types import auth, atom
+from keystone.logic.signer import Signer
 import keystone.backends as backends
 import keystone.backends.api as api
 import keystone.backends.models as models
@@ -42,40 +43,71 @@ class IdentityService(object):
         if not isinstance(credentials, auth.PasswordCredentials):
             raise fault.BadRequestFault("Expecting Password Credentials!")
 
-        if not credentials.tenant_id:
-            duser = api.USER.get(credentials.username)
+        def validate(duser):
+            hashed_pass = utils.get_hashed_password(credentials.password)
+            return duser.password == hashed_pass
+
+        return self._authenticate(validate,
+                                  credentials.username,
+                                  credentials.tenant_id)
+
+    def authenticate_ec2(self, credentials):
+        # Check credentials
+        if not isinstance(credentials, auth.Ec2Credentials):
+            raise fault.BadRequestFault("Expecting Ec2 Credentials!")
+
+        creds = api.CREDENTIALS.get_by_access(credentials.access)
+        if not creds:
+            raise fault.UnauthorizedFault("No credentials found for %s"
+                                          % credentials.access)
+
+        def validate(duser):
+            signer = Signer(creds.secret)
+            signature = signer.generate(credentials)
+            if signature == credentials.signature:
+                return True
+            # NOTE(vish): Some libraries don't use the port when signing
+            #             requests, so try again without port.
+            if ':' in credentials.host:
+                hostname, _sep, port = credentials.partition(':')
+                credentials.host = hostname
+                signature = signer.generate(credentials)
+                return signature == credentials.signature
+            return False
+
+        return self._authenticate(validate, creds.user_id, creds.tenant_id)
+
+    def _authenticate(self, validate, user_id, tenant_id=None):
+        if not tenant_id:
+            duser = api.USER.get(user_id)
             if duser == None:
                 raise fault.UnauthorizedFault("Unauthorized")
         else:
-            duser = api.USER.get_by_tenant(credentials.username,
-                credentials.tenant_id)
+            duser = api.USER.get_by_tenant(user_id, tenant_id)
             if duser == None:
                 raise fault.UnauthorizedFault("Unauthorized on this tenant")
 
         if not duser.enabled:
             raise fault.UserDisabledFault("Your account has been disabled")
-        if duser.password != utils.get_hashed_password(credentials.password):
-            raise fault.UnauthorizedFault("Unauthorized")
+        try:
+            if not validate(duser):
+                raise fault.UnauthorizedFault("Unauthorized")
+        except Exception as exc:
+            raise fault.UnauthorizedFault("Unable to validate: %s" % exc)
 
-        #
         # Look for an existing token, or create one,
         # TODO: Handle tenant/token search
         #
-        if not credentials.tenant_id:
-            dtoken = api.TOKEN.get_for_user(duser.id)
-        else:
-            dtoken = api.TOKEN.get_for_user_by_tenant(duser.id,
-                                                  credentials.tenant_id)
-
-        tenant_id = credentials.tenant_id or duser.tenant_id
+        user_id = duser.id
+        tenant_id = tenant_id or duser.tenant_id
+        dtoken = api.TOKEN.get_for_user_by_tenant(user_id, tenant_id)
 
         if not dtoken or dtoken.expires < datetime.now():
             # Create new token
             dtoken = models.Token()
             dtoken.id = str(uuid.uuid4())
-            dtoken.user_id = duser.id
-            if credentials.tenant_id:
-                dtoken.tenant_id = credentials.tenant_id
+            dtoken.user_id = user_id
+            dtoken.tenant_id = tenant_id
             dtoken.expires = datetime.now() + timedelta(days=1)
             api.TOKEN.create(dtoken)
         #if tenant_id is passed in the call that tenant_id is passed else

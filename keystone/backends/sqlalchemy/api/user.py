@@ -136,9 +136,9 @@ class UserAPI(BaseUserAPI):
             return user
 
         # Find user through grants to this tenant
-        user_tenant = session.query(models.UserRoleAssociation).filter_by(\
-            tenant_id=tenant_id, user_id=id).first()
-        if user_tenant:
+        result = session.query(models.UserRoleAssociation).\
+                         filter_by(tenant_id=tenant_id, user_id=id).first()
+        if result:
             return self.get(id, session)
         else:
             return None

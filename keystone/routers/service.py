@@ -22,6 +22,9 @@ class ServiceApi(wsgi.Router):
         mapper.connect("/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
+        mapper.connect("/v2.0/ec2tokens", controller=auth_controller,
+                       action="authenticate_ec2",
+                       conditions=dict(method=["POST"]))
 
         # Tenant Operations
         tenant_controller = TenantController(options)

@@ -67,6 +67,9 @@ class BaseUserAPI(object):
     def get_by_tenant(self, id, tenant_id):
         raise NotImplementedError
 
+    def get_by_access(self, access):
+        raise NotImplementedError
+
     def get_group_by_tenant(self, id):
         raise NotImplementedError
 
@@ -280,6 +283,17 @@ class BaseEndpointTemplateAPI(object):
 
 
 class BaseServiceAPI:
+    def get_all(self):
+        raise NotImplementedError
+
+    def get_page(self, marker, limit):
+        raise NotImplementedError
+
+    def get_page_markers(self, marker, limit):
+        raise NotImplementedError
+
+
+class BaseCredentialsAPI(object):
     def create(self, values):
         raise NotImplementedError
 
@@ -289,11 +303,13 @@ class BaseServiceAPI:
     def get_all(self):
         raise NotImplementedError
 
-    def get_page(self, marker, limit):
+    def get_by_access(self, access):
         raise NotImplementedError
 
-    def get_page_markers(self, marker, limit):
+    def delete(self, id):
         raise NotImplementedError
+
+
 #API
 #TODO(Yogi) Refactor all API to separate classes specific to models.
 ENDPOINT_TEMPLATE = BaseEndpointTemplateAPI()
@@ -304,6 +320,7 @@ TENANT = BaseTenantAPI()
 TOKEN = BaseTokenAPI()
 USER = BaseUserAPI()
 SERVICE = BaseServiceAPI()
+CREDENTIALS = BaseCredentialsAPI()
 
 
 # Function to dynamically set module references.
@@ -332,3 +349,6 @@ def set_value(variable_name, value):
     elif variable_name == 'service':
         global SERVICE
         SERVICE = value
+    elif variable_name == 'credentials':
+        global CREDENTIALS
+        CREDENTIALS = value
