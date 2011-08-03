@@ -36,9 +36,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": self.auth_user['id'],
                 "password": self.auth_user['password'],
-                "tenantId": self.auth_user['tenant_id']
-            }
-        }
+                "tenantId": self.auth_user['tenant_id']}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_not_found()
@@ -54,9 +52,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": self.auth_user['id'],
                 "password": self.auth_user['password'],
-                "tenantId": self.auth_user['tenant_id']
-            }
-        }
+                "tenantId": self.auth_user['tenant_id']}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_ok()
@@ -65,10 +61,7 @@ class AuthnMethods(base.ServiceAPITest):
             u'auth': {
                 u'token': {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                    u'id': self.auth_token_id
-                }
-            }
-        }
+                    u'id': self.auth_token_id}}}
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
@@ -90,9 +83,7 @@ class AuthnMethods(base.ServiceAPITest):
         body = {
             "passwordCredentials": {
                 "username": self.auth_user['id'],
-                "password": self.auth_user['password']
-            }
-        }
+                "password": self.auth_user['password']}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_ok()
@@ -101,10 +92,7 @@ class AuthnMethods(base.ServiceAPITest):
             u'auth': {
                 u'token': {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                    u'id': 'NOTENANTTOKEN'
-                }
-            }
-        }
+                    u'id': 'NOTENANTTOKEN'}}}
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
@@ -127,9 +115,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": self.auth_user['id'],
                 "password": self.auth_user['password'],
-                "tenantId": None
-            }
-        }
+                "tenantId": None}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_ok()
@@ -138,10 +124,7 @@ class AuthnMethods(base.ServiceAPITest):
             u'auth': {
                 u'token': {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                    u'id': 'NOTENANTTOKEN'
-                }
-            }
-        }
+                    u'id': 'NOTENANTTOKEN'}}}
         self.assert_dict_equal(expected, json.loads(self.res.body))
 
     @jsonify
@@ -156,9 +139,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredMisspelled": {
                 "username": 'unknown',
                 "password": 'badpass',
-                "tenantId": None
-            }
-        }
+                "tenantId": None}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_bad_request()
@@ -175,9 +156,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": 'unknown',
                 "password": 'badpass',
-                "tenantId": None
-            }
-        }
+                "tenantId": None}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_unauthorized()
@@ -194,9 +173,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": None,
                 "password": self.auth_user['password'],
-                "tenantId": self.auth_user['tenant_id']
-            }
-        }
+                "tenantId": self.auth_user['tenant_id']}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_unauthorized()
@@ -213,9 +190,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": self.auth_user['id'],
                 "password": 'badpass',
-                "tenantId": None
-            }
-        }
+                "tenantId": None}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_unauthorized()
@@ -232,9 +207,7 @@ class AuthnMethods(base.ServiceAPITest):
             "passwordCredentials": {
                 "username": self.auth_user['id'],
                 "password": self.auth_user['password'],
-                "tenantId": 'badtenant'
-            }
-        }
+                "tenantId": 'badtenant'}}
         req.body = json.dumps(body)
         self.get_response()
         self.status_unauthorized()
@@ -416,15 +389,11 @@ class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
                 "token": {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
                     u'id': self.auth_token_id,
-                    "tenantId": self.auth_user['tenant_id']
-                },
+                    "tenantId": self.auth_user['tenant_id']},
                 "user": {
                     "username": self.auth_user['id'],
                     "tenantId": self.auth_user['tenant_id'],
-                    "roleRefs": []
-                }
-            }
-        }
+                    "roleRefs": []}}}
         for user_role in self.auth_user['roles']:
             expected["auth"]["user"]["roleRefs"].append(
                 {"roleId": user_role['role_id'], "id": user_role['id']})
@@ -455,9 +424,9 @@ class TestAdminAuthnV2(base.AdminAPITest, AuthnMethods):
 
         for user_role in self.auth_user['roles']:
             expected = expected + """
-            <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" 
-            id="%s" roleId="%s"/>""" % (user_role['id'],
-                                        user_role['role_id'])
+                <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0"
+                    id="%s" roleId="%s"/>""" % (
+                        user_role['id'], user_role['role_id'])
         expected = expected + """</roleRefs>
                   </user>
                  </auth>"""

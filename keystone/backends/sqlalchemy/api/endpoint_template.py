@@ -25,23 +25,23 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         endpoint_template.update(values)
         endpoint_template.save()
         return endpoint_template
-    
+
     def get(self, id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.EndpointTemplates).\
             filter_by(id=id).first()
         return result
-    
+
     def get_all(self, session=None):
         if not session:
             session = get_session()
         return session.query(models.EndpointTemplates).all()
-    
+
     def get_page(self, marker, limit, session=None):
         if not session:
             session = get_session()
-    
+
         if marker:
             return session.query(models.EndpointTemplates).\
                     filter("id>:marker").params(\
@@ -51,7 +51,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             return session.query(models.EndpointTemplates).order_by(\
                                 models.EndpointTemplates.id.desc()).\
                                 limit(limit).all()
-    
+
     def get_page_markers(self, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -63,12 +63,18 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next_page = session.query(models.EndpointTemplates).filter("id > :marker").params(\
-                        marker='%s' % marker).order_by(\
-                        models.EndpointTemplates.id).limit(limit).all()
-        prev_page = session.query(models.EndpointTemplates).filter("id < :marker").params(\
-                        marker='%s' % marker).order_by(\
-                        models.EndpointTemplates.id.desc()).limit(int(limit)).all()
+        next_page = session.query(models.EndpointTemplates).\
+            filter("id > :marker").\
+            params(marker='%s' % marker).\
+            order_by(models.EndpointTemplates.id).\
+            limit(limit).\
+            all()
+        prev_page = session.query(models.EndpointTemplates).\
+            filter("id < :marker").\
+            params(marker='%s' % marker).\
+            order_by(models.EndpointTemplates.id.desc()).\
+            limit(int(limit)).\
+            all()
         if len(next_page) == 0:
             next_page = last
         else:
@@ -88,7 +94,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
+
     def endpoint_get_by_tenant_get_page(self, tenant_id, marker, limit,
                                             session=None):
         if not session:
@@ -103,7 +109,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             return session.query(models.Endpoints).\
                 filter(models.Endpoints.tenant_id == tenant_id).\
                 order_by(models.Endpoints.id).limit(limit).all()
-    
+
     def endpoint_get_by_tenant_get_page_markers(self, tenant_id, marker, limit,
                                                     session=None):
         if not session:
@@ -124,7 +130,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
                     filter("id>=:marker").params(
                     marker='%s' % marker).order_by(
                     tba.id).limit(int(limit)).all()
-    
+
         prev_page = session.query(tba).\
                         filter(tba.tenant_id == tenant_id).\
                         filter("id < :marker").params(
@@ -132,7 +138,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
                         tba.id).limit(int(limit) + 1).all()
         next_len = len(next_page)
         prev_len = len(prev_page)
-    
+
         if next_len == 0:
             next_page = last
         else:
@@ -152,27 +158,27 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
+
     def endpoint_add(self, values):
         endpoints = models.Endpoints()
         endpoints.update(values)
         endpoints.save()
         return endpoints
-    
+
     def endpoint_get(self, id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.Endpoints).\
                         filter_by(id=id).first()
         return result
-    
+
     def endpoint_get_by_tenant(self, tenant_id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.Endpoints).\
                         filter_by(tenant_id=tenant_id).first()
         return result
-    
+
     def endpoint_delete(self, id, session=None):
         if not session:
             session = get_session()
@@ -180,6 +186,6 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             endpoints = self.endpoint_get(id, session)
             session.delete(endpoints)
 
-            
+
 def get():
     return EndpointTemplateAPI()

@@ -3,6 +3,7 @@ from keystone.common import wsgi
 from keystone.logic.types.auth import PasswordCredentials
 import keystone.config as config
 
+
 class AuthController(wsgi.Controller):
     """Controller for token related operations"""
 
@@ -21,7 +22,7 @@ class AuthController(wsgi.Controller):
     @utils.wrap_error
     def validate_token(self, req, token_id):
         belongs_to = req.GET["belongsTo"] if "belongsTo" in req.GET else None
-        
+
         rval = config.SERVICE.validate_token(
             utils.get_auth_token(req), token_id, belongs_to)
 

@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # Ensure required options are present
     if (not base.options.username or not base.options.password or
         not base.options.keystone):
-        print >>sys.stderr, "Missing required options"
-        print >>sys.stderr, ("At a minimum, --username, --password, and "
+        print >> sys.stderr, "Missing required options"
+        print >> sys.stderr, ("At a minimum, --username, --password, and "
                              "--keystone must be specified.")
         opts.print_help(sys.stderr)
         sys.exit(1)

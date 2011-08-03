@@ -15,8 +15,6 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not Yet PEP8 standardized
-
 
 """
 TOKEN-BASED AUTH MIDDLEWARE
@@ -160,7 +158,7 @@ class AuthProtocol(object):
 
                 # Store authentication data
                 if claims:
-                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" % 
+                    self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
                         claims['user'])
                     self._decorate_request('X_TENANT', claims['tenant'])
                     self._decorate_request('X_USER', claims['user'])

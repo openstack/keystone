@@ -23,6 +23,7 @@ import test_common as utils
 
 from keystone.logic.types import fault
 
+
 class AuthenticationTest(unittest.TestCase):
 
     def setUp(self):
@@ -176,6 +177,7 @@ class MultiToken(unittest.TestCase):
             'test_user2', 'secrete', 'test_tenant')
 
         self.assertEqual(401, int(resp['status']))
+
 
 if __name__ == '__main__':
     unittest.main()

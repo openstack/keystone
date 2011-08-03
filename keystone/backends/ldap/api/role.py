@@ -6,12 +6,13 @@ from keystone.common import exception
 from .. import models
 from .base import  BaseLdapAPI
 
+
 class RoleAPI(BaseLdapAPI, BaseTenantAPI):
     DEFAULT_TREE_DN = 'ou=Groups,dc=example,dc=com'
     options_name = 'role_tree_dn'
     object_class = 'keystoneRole'
     model = models.Role
-    attribute_mapping = { 'desc': 'description' }
+    attribute_mapping = {'desc': 'description'}
 
     @staticmethod
     def _create_ref(role_id, tenant_id, user_id):
@@ -20,6 +21,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         user_id = '' if user_id is None else str(user_id)
         return '%d-%d-%s%s%s' % (len(role_id), len(tenant_id),
                                  role_id, tenant_id, user_id)
+
     @staticmethod
     def _explode_ref(role_ref):
         a = role_ref.split('-', 2)
@@ -27,12 +29,12 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         len_tenant = int(a[1])
         role_id = a[2][:len_role]
         role_id = None if len(role_id) == 0 else str(role_id)
-        tenant_id = a[2][len_role:len_tenant+len_role]
+        tenant_id = a[2][len_role:len_tenant + len_role]
         tenant_id = None if len(tenant_id) == 0 else str(tenant_id)
-        user_id = a[2][len_tenant+len_role:]
+        user_id = a[2][len_tenant + len_role:]
         user_id = None if len(user_id) == 0 else str(user_id)
         return role_id, tenant_id, user_id
-    
+
     def _subrole_id_to_dn(self, role_id, tenant_id):
         if tenant_id is None:
             return self._id_to_dn(role_id)
@@ -51,7 +53,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             conn.modify_s(role_dn, [(ldap.MOD_ADD, 'member', user_dn)])
         except ldap.TYPE_OR_VALUE_EXISTS:
             raise exception.Duplicate(
-                "User %s already has role %s in tenant %s" % (user_id, 
+                "User %s already has role %s in tenant %s" % (user_id,
                     role_id, tenant_id))
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
@@ -81,8 +83,8 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             except KeyError:
                 continue
             for user_dn in user_dns:
-                user_id=ldap.dn.str2dn(user_dn)[0][0][1]
-                role_id=ldap.dn.str2dn(role_dn)[0][0][1]
+                user_id = ldap.dn.str2dn(user_dn)[0][0][1]
+                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
                 res.append(models.UserRoleAssociation(
                     id=self._create_ref(role_id, tenant_id, user_id),
                     user_id=user_id,
@@ -97,7 +99,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                     id=self._create_ref(role.id, None, user_id),
                     role_id=role.id,
                     user_id=user_id) for role in roles]
-    
+
     def ref_get_all_tenant_roles(self, user_id, tenant_id):
         conn = self.api.get_connection()
         user_dn = self.api.user._id_to_dn(user_id)
@@ -116,7 +118,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                    role_id=role_id,
                    tenant_id=tenant_id))
         return res
-    
+
     def ref_get(self, id):
         role_id, tenant_id, user_id = self._explode_ref(id)
         user_dn = self.api.user._id_to_dn(user_id)
@@ -130,7 +132,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             return None
         return models.UserRoleAssociation(id=id, role_id=role_id,
                                 tenant_id=tenant_id, user_id=user_id)
-    
+
     def ref_delete(self, id):
         role_id, tenant_id, user_id = self._explode_ref(id)
         user_dn = self.api.user._id_to_dn(user_id)
@@ -140,13 +142,13 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             conn.modify_s(role_dn, [(ldap.MOD_DELETE, 'member', [user_dn])])
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.NotFound("No such user in role")
-    
+
     def ref_get_page(self, marker, limit, user_id):
         all_roles = self.ref_get_all_global_roles(user_id)
         for tenant in self.api.tenant.get_all():
             all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
         return self._get_page(marker, limit, all_roles)
-    
+
     def ref_get_page_markers(self, user_id, marker, limit):
         all_roles = self.ref_get_all_global_roles(user_id)
         for tenant in self.api.tenant.get_all():

@@ -4,6 +4,7 @@ from keystone.logic.types.role import Role, RoleRef
 import keystone.config as config
 from . import get_marker_limit_and_url
 
+
 class RolesController(wsgi.Controller):
     """Controller for Role related operations"""
 

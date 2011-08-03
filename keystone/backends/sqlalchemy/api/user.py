@@ -16,8 +16,10 @@
 #    under the License.
 
 import keystone.utils as utils
-from keystone.backends.sqlalchemy import get_session, models, aliased, joinedload
+from keystone.backends.sqlalchemy import get_session, models, aliased, \
+    joinedload
 from keystone.backends.api import BaseUserAPI
+
 
 class UserAPI(BaseUserAPI):
     def get_all(self, session=None):
@@ -25,31 +27,30 @@ class UserAPI(BaseUserAPI):
             session = get_session()
         result = session.query(models.User)
         return result
-    
+
     def create(self, values):
         user_ref = models.User()
         self.__check_and_use_hashed_password(values)
         user_ref.update(values)
         user_ref.save()
         return user_ref
-    
+
     def __check_and_use_hashed_password(self, values):
         if type(values) is dict and 'password' in values.keys():
             values['password'] = utils.get_hashed_password(values['password'])
         elif type(values) is models.User:
             values.password = utils.get_hashed_password(values.password)
-    
+
     def get(self, id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.User).filter_by(id=id).first()
         return result
-    
-    
+
     def get_page(self, marker, limit, session=None):
         if not session:
             session = get_session()
-    
+
         if marker:
             return session.query(models.User).filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
@@ -57,8 +58,7 @@ class UserAPI(BaseUserAPI):
         else:
             return session.query(models.User).order_by(\
                                 models.User.id.desc()).limit(limit).all()
-    
-    
+
     def get_page_markers(self, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -95,23 +95,21 @@ class UserAPI(BaseUserAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
-    
+
     def get_by_email(self, email, session=None):
         if not session:
             session = get_session()
         result = session.query(models.User).filter_by(email=email).first()
         return result
-    
-    
+
     def user_roles_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
             session = get_session()
-        result = session.query(models.UserRoleAssociation).filter_by(\
-                user_id=user_id, tenant_id=tenant_id).options(joinedload('roles'))
+        result = session.query(models.UserRoleAssociation).\
+            filter_by(user_id=user_id, tenant_id=tenant_id).\
+            options(joinedload('roles'))
         return result
-    
-    
+
     def update(self, id, values, session=None):
         if not session:
             session = get_session()
@@ -120,15 +118,14 @@ class UserAPI(BaseUserAPI):
             self.__check_and_use_hashed_password(values)
             user_ref.update(values)
             user_ref.save(session=session)
-    
+
     def delete(self, id, session=None):
         if not session:
             session = get_session()
         with session.begin():
             user_ref = self.get(id, session)
             session.delete(user_ref)
-    
-    
+
     def get_by_tenant(self, id, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -137,7 +134,7 @@ class UserAPI(BaseUserAPI):
                         filter_by(id=id, tenant_id=tenant_id).first()
         if user:
             return user
-    
+
         # Find user through grants to this tenant
         user_tenant = session.query(models.UserRoleAssociation).filter_by(\
             tenant_id=tenant_id, user_id=id).first()
@@ -145,7 +142,7 @@ class UserAPI(BaseUserAPI):
             return self.get(id, session)
         else:
             return None
-    
+
     def delete_tenant_user(self, id, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -154,28 +151,26 @@ class UserAPI(BaseUserAPI):
             if users_tenant_ref is not None:
                 for user_tenant_ref in users_tenant_ref:
                     session.delete(user_tenant_ref)
-    
+
     def users_get_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.User).filter_by(id=user_id,
                                                       tenant_id=tenant_id)
         return result
-    
+
     def user_role_add(self, values):
         user_role_ref = models.UserRoleAssociation()
         user_role_ref.update(values)
         user_role_ref.save()
         return user_role_ref
-    
-    
+
     def user_get_update(self, id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.User).filter_by(id=id).first()
         return result
-    
-    
+
     def users_get_page(self, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -188,7 +183,7 @@ class UserAPI(BaseUserAPI):
         else:
             return session.query(user).\
                                 order_by("id").limit(limit).all()
-    
+
     def users_get_page_markers(self, marker, limit, \
             session=None):
         if not session:
@@ -212,7 +207,7 @@ class UserAPI(BaseUserAPI):
                         user.id.desc()).limit(int(limit)).all()
         next_len = len(next_page)
         prev_len = len(prev_page)
-    
+
         if next_len == 0:
             next_page = last
         else:
@@ -232,9 +227,9 @@ class UserAPI(BaseUserAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
-    
-    def users_get_by_tenant_get_page(self, tenant_id, marker, limit, session=None):
+
+    def users_get_by_tenant_get_page(self, tenant_id, marker, limit,
+            session=None):
         # This is broken.  If a user has more than one role per project
         # shit hits the fan because we're limiting the wrong model.
         # Also the user lookup is nasty and potentially injectiable.
@@ -262,8 +257,7 @@ class UserAPI(BaseUserAPI):
                       filter("id in ('%s')" % "','".join(user_ids)).\
                       all()
         return users
-    
-    
+
     def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit, \
             session=None):
         if not session:
@@ -291,7 +285,7 @@ class UserAPI(BaseUserAPI):
                         user.id.desc()).limit(int(limit)).all()
         next_len = len(next_page)
         prev_len = len(prev_page)
-    
+
         if next_len == 0:
             next_page = last
         else:
@@ -311,6 +305,7 @@ class UserAPI(BaseUserAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
+
+
 def get():
     return UserAPI()

@@ -7,6 +7,7 @@ __all__ = ['UserRoleAssociation', 'Endpoints', 'Role', 'Tenant', 'User',
 def create_model(name, attrs):
     class C(Mapping):
         __slots__ = attrs
+
         def __init__(self, arg=None, **kwargs):
             if arg is None:
                 arg = kwargs
@@ -25,7 +26,7 @@ def create_model(name, attrs):
 
         def __getitem__(self, name):
             return getattr(self, name)
-        
+
         def __setitem__(self, name, value):
             return setattr(self, name, value)
 
@@ -38,11 +39,15 @@ def create_model(name, attrs):
     return C
 
 
-UserRoleAssociation = create_model('UserRoleAssociation',
-                                   ['id', 'user_id', 'role_id', 'tenant_id'])
-Endpoints = create_model('Endpoints', ['tenant_id', 'endpoint_template_id']) #?
-Role = create_model('Role', ['id', 'desc'])
-Tenant = create_model('Tenant', ['id', 'desc', 'enabled'])
-User = create_model('User', ['id', 'password', 'email', 'enabled', 'tenant_id'])
-Credentials = create_model('Credentials', ['user_id', 'type', 'key', 'secret'])
-
+UserRoleAssociation = create_model(
+    'UserRoleAssociation', ['id', 'user_id', 'role_id', 'tenant_id'])
+Endpoints = create_model(
+    'Endpoints', ['tenant_id', 'endpoint_template_id'])
+Role = create_model(
+    'Role', ['id', 'desc'])
+Tenant = create_model(
+    'Tenant', ['id', 'desc', 'enabled'])
+User = create_model(
+    'User', ['id', 'password', 'email', 'enabled', 'tenant_id'])
+Credentials = create_model(
+    'Credentials', ['user_id', 'type', 'key', 'secret'])

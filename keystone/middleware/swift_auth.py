@@ -15,7 +15,6 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not Yet PEP8 standardized
 
 
 """
@@ -32,7 +31,8 @@ Authentication on incoming request
 
 Authorization via callback
     * check the path and extract the tenant
-    * get the auth information stored in keystone.identity during authentication
+    * get the auth information stored in keystone.identity during
+        authentication
     * TODO: check if the user is an account admin or a reseller admin
     * determine what object-type to authorize (account, container, object)
     * use knowledge of tenant, admin status, and container acls to authorize
@@ -54,7 +54,7 @@ PROTOCOL_NAME = "Swift Token Authentication"
 
 class AuthProtocol(object):
     """Handles authenticating and aurothrizing client calls.
-    
+
     Add to your pipeline in paste config like:
 
         [pipeline:main]
@@ -64,7 +64,6 @@ class AuthProtocol(object):
         use = egg:keystone#swiftauth
         keystone_url = http://127.0.0.1:8080
         keystone_admin_token = 999888777666
-
     """
 
     def __init__(self, app, conf):
@@ -81,7 +80,6 @@ class AuthProtocol(object):
 
         If authentication fails return an appropriate http status here,
         otherwise forward through the rest of the app.
-
         """
 
         self.log.debug('Keystone middleware called')
@@ -108,7 +106,6 @@ class AuthProtocol(object):
 
         This can be stuffed into the evironment for swift.authorize or
         called from the authoriztion callback when authorization fails.
-
         """
         return HTTPUnauthorized(request=req)
 
@@ -150,10 +147,9 @@ class AuthProtocol(object):
 
     def authorize_via_acl(self, req):
         """Anon request handling.
-        
+
         For now this only allows anon read of objects.  Container and account
         actions are prohibited.
-
         """
 
         self.log.debug('authorizing anonymous request')
@@ -223,7 +219,7 @@ class AuthProtocol(object):
 
         identity = {'user': identity_info['auth']['user']['username'],
                     'tenant': identity_info['auth']['user']['tenantId'],
-                    'roles':roles}
+                    'roles': roles}
 
         return identity
 
@@ -232,7 +228,8 @@ def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""
     conf = global_conf.copy()
     conf.update(local_conf)
+
     def auth_filter(app):
         return AuthProtocol(app, conf)
-    return auth_filter
 
+    return auth_filter

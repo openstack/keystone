@@ -77,7 +77,7 @@ class User(object):
             if not "password" in user:
                 raise fault.BadRequestFault("Expecting User Password")
             password = user["password"]
-            
+
             if user_id == None or len(user_id.strip()) == 0:
                 raise fault.BadRequestFault("Expecting User")
             elif password == None or len(password.strip()) == 0:
@@ -137,7 +137,7 @@ class User(object):
 
 class User_Update(object):
     """Document me!"""
-    
+
     def __init__(self, password, user_id, tenant_id, email,
             enabled):
         self.user_id = user_id

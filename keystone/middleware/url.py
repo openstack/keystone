@@ -54,6 +54,7 @@ ACCEPT_HEADERS = {
 DEFAULT_RESPONSE_ENCODING = 'json'
 DEFAULT_API_VERSION = '2.0'
 
+
 class NormalizingFilter(object):
     """Middleware filter to handle URL and Accept header normalization"""
 
@@ -61,7 +62,7 @@ class NormalizingFilter(object):
         # app is the next app in WSGI chain - eventually the OpenStack service
         self.app = app
         self.conf = conf
-    
+
     def __call__(self, env, start_response):
         # Inspect the request for mime type and API version
         env = normalize_accept_header(env)
@@ -69,7 +70,7 @@ class NormalizingFilter(object):
         env = normalize_path_suffix(env)
         env['PATH_INFO'] = normalize_starting_slash(env.get('PATH_INFO'))
         env['PATH_INFO'] = normalize_trailing_slash(env['PATH_INFO'])
-        
+
         # Fall back on defaults, if necessary
         env['KEYSTONE_API_VERSION'] = env.get(
             'KEYSTONE_API_VERSION') or DEFAULT_API_VERSION
@@ -77,30 +78,33 @@ class NormalizingFilter(object):
             'KEYSTONE_RESPONSE_ENCODING') or DEFAULT_RESPONSE_ENCODING
         env['HTTP_ACCEPT'] = 'application/' + (env.get(
             'KEYSTONE_RESPONSE_ENCODING') or DEFAULT_RESPONSE_ENCODING)
-    
+
         return self.app(env, start_response)
-    
+
+
 def normalize_accept_header(env):
     """Matches the preferred Accept encoding to supported encodings.
-    
-    Sets KEYSTONE_RESPONSE_ENCODING and KEYSTONE_API_VERSION, if appropriate."""
+
+    Sets KEYSTONE_RESPONSE_ENCODING and KEYSTONE_API_VERSION, if appropriate.
+    """
     if env.get('HTTP_ACCEPT'):
         accept = webob.acceptparse.Accept('Accept', env.get('HTTP_ACCEPT'))
         best_accept = accept.best_match(ACCEPT_HEADERS.keys())
         if best_accept:
             response_encoding, api_version = ACCEPT_HEADERS[best_accept]
-            
+
             if response_encoding:
                 env['KEYSTONE_RESPONSE_ENCODING'] = response_encoding
-            
+
             if api_version:
                 env['KEYSTONE_API_VERSION'] = api_version
-    
+
     return env
+
 
 def normalize_path_prefix(env):
     """Handles recognized PATH_INFO prefixes.
-    
+
     Looks for a version prefix on the PATH_INFO, sets KEYSTONE_API_VERSION
     accordingly, and removes the prefix to normalize the request."""
     for prefix in PATH_PREFIXES.keys():
@@ -108,12 +112,13 @@ def normalize_path_prefix(env):
             env['KEYSTONE_API_VERSION'] = PATH_PREFIXES[prefix]
             env['PATH_INFO'] = env['PATH_INFO'][len(prefix):]
             break
-    
+
     return env
+
 
 def normalize_path_suffix(env):
     """Hnadles recognized PATH_INFO suffixes.
-    
+
     Looks for a recognized suffix on the PATH_INFO, sets the
     KEYSTONE_RESPONSE_ENCODING accordingly, and removes the suffix to normalize
     the request."""
@@ -122,32 +127,35 @@ def normalize_path_suffix(env):
             env['KEYSTONE_RESPONSE_ENCODING'] = PATH_SUFFIXES[suffix]
             env['PATH_INFO'] = env['PATH_INFO'][:-len(suffix)]
             break
-    
+
     return env
+
 
 def normalize_starting_slash(path_info):
     """Removes a trailing slash from the given path, if any."""
     # Ensure the path at least contains a slash
     if not path_info:
         return '/'
-    
+
     # Ensure the path starts with a slash
     elif path_info[0] != '/':
         return '/' + path_info
-    
+
     # No need to change anything
     else:
         return path_info
+
 
 def normalize_trailing_slash(path_info):
     """Removes a trailing slash from the given path, if any."""
     # Remove trailing slash, unless it's the only char
     if len(path_info) > 1 and path_info[-1] == '/':
         return path_info[:-1]
-    
+
     # No need to change anything
     else:
         return path_info
+
 
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy."""

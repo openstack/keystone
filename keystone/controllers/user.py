@@ -4,6 +4,7 @@ import keystone.config as config
 from keystone.logic.types.user import User, User_Update
 from . import get_marker_limit_and_url
 
+
 class UserController(wsgi.Controller):
     """Controller for User related operations"""
 

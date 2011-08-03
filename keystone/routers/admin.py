@@ -49,7 +49,7 @@ class AdminApi(wsgi.Router):
                     controller=tenant_controller,
                     action="delete_tenant", conditions=dict(method=["DELETE"]))
 
-        # User Operations        
+        # User Operations
         user_controller = UserController(options)
         mapper.connect("/users",
                     controller=user_controller,
@@ -79,7 +79,7 @@ class AdminApi(wsgi.Router):
                     controller=user_controller,
                     action="update_user_tenant",
                     conditions=dict(method=["PUT"]))
-        # Test this, test failed        
+        # Test this, test failed
         mapper.connect("/users/{user_id}/enabled",
                     controller=user_controller,
                     action="set_user_enabled",

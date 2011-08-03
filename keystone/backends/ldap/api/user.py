@@ -7,14 +7,15 @@ from keystone.backends.sqlalchemy.api.user import UserAPI as SQLUserAPI
 from .. import models
 from .base import BaseLdapAPI, add_redirects
 
+
 class UserAPI(BaseLdapAPI, BaseUserAPI):
     DEFAULT_TREE_DN = 'ou=Users,dc=example,dc=com'
     options_name = 'user_tree_dn'
     object_class = 'keystoneUser'
     model = models.User
-    attribute_mapping = { 'password': 'userPassword', 'email': 'mail' }
+    attribute_mapping = {'password': 'userPassword', 'email': 'mail'}
     attribute_ignore = ['tenant_id']
-    
+
     def __check_and_use_hashed_password(self, values):
         if type(values) is dict and 'password' in values.keys():
             values['password'] = utils.get_hashed_password(values['password'])
@@ -85,7 +86,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         return self.get_page_markers(marker, limit)
 
     def users_get_by_tenant_get_page(self, tenant_id, marker, limit):
-        return self._get_page(marker, limit, 
+        return self._get_page(marker, limit,
                 self.api.tenant.get_users(tenant_id))
 
     def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit):

@@ -27,6 +27,7 @@ import unittest
 URL_V1 = 'http://localhost:5000/v1.0/'
 URL_V2 = 'http://localhost:5001/v2.0/'
 
+
 def get_token(user, pswd, tenant_id, kind=''):
     header = httplib2.Http(".cache")
     url = '%stokens' % URL_V2
@@ -101,6 +102,7 @@ def delete_tenant(tenantid, auth_token):
                                        "X-Auth-Token": auth_token})
     return resp
 
+
 def get_token_xml(user, pswd, tenant_id, return_type=''):
     header = httplib2.Http(".cache")
     url = '%stokens' % URL_V2
@@ -162,7 +164,8 @@ def delete_tenant_xml(tenantid, auth_token):
 
     return resp
 
-def create_user(tenantid, userid, auth_token, email=None, password = 'secrete'):
+
+def create_user(tenantid, userid, auth_token, email=None, password='secrete'):
     header = httplib2.Http(".cache")
     url = '%susers' % (URL_V2)
     if email is not None:
@@ -189,7 +192,8 @@ def delete_user(userid, auth_token):
     return resp
 
 
-def create_user_xml(tenantid, userid, auth_token, email=None, password = 'secrete'):
+def create_user_xml(tenantid, userid, auth_token, email=None,
+        password='secrete'):
     header = httplib2.Http(".cache")
     url = '%susers' % (URL_V2)
     if email is not None:
@@ -198,9 +202,8 @@ def create_user_xml(tenantid, userid, auth_token, email=None, password = 'secret
         email_id = userid
     body = '<?xml version="1.0" encoding="UTF-8"?> \
             <user xmlns="http://docs.openstack.org/identity/api/v2.0" \
-            email="%s" \
-            tenantId="%s" id="%s" \
-            enabled="true" password="%s"/>' % (email_id, tenantid, userid, password)
+            email="%s" tenantId="%s" id="%s" enabled="true" \
+            password="%s"/>' % (email_id, tenantid, userid, password)
     resp, content = header.request(url, "PUT", body=body,
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
@@ -333,6 +336,7 @@ def user_enabled_xml(user_id, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def user_tenant_update_json(user_id, tenant_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%susers/%s/tenant' % (URL_V2, user_id)
@@ -394,7 +398,6 @@ def users_get_all_json(auth_token):
     return (resp, content)
 
 
-
 def users_get_xml(tenant_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%susers/%s' % (URL_V2, tenant_id)
@@ -403,6 +406,7 @@ def users_get_xml(tenant_id, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
+
 
 def get_userid():
     return 'test_user11'
@@ -414,6 +418,7 @@ def get_password():
 
 def get_email():
     return 'joetest@openstack.org'
+
 
 def get_tenant():
     return '1234'
@@ -475,6 +480,7 @@ def handle_user_resp(self, content, respvalue, resptype):
     elif respvalue == 503:
         self.fail('Service Not Available')
 
+
 def create_role(roleid, auth_token):
     header = httplib2.Http(".cache")
 
@@ -485,7 +491,8 @@ def create_role(roleid, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
-    
+
+
 def create_role_ref(user_id, role_id, tenant_id, auth_token):
     header = httplib2.Http(".cache")
 
@@ -496,7 +503,8 @@ def create_role_ref(user_id, role_id, tenant_id, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
-    
+
+
 def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%susers/%s/roleRefs' % (URL_V2, user_id)
@@ -510,6 +518,7 @@ def create_role_ref_xml(user_id, role_id, tenant_id, auth_token):
                                        "ACCEPT": "application/xml"})
     return (resp, content)
 
+
 def delete_role_ref(user, role_ref_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%susers/%s/roleRefs/%s' % (URL_V2, user, role_ref_id)
@@ -517,7 +526,8 @@ def delete_role_ref(user, role_ref_id, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": str(auth_token)})
     return (resp, content)
-    
+
+
 def create_role_xml(role_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%sroles' % (URL_V2)
@@ -530,7 +540,8 @@ def create_role_xml(role_id, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
-    
+
+
 def create_endpoint(tenant_id, endpoint_templates_id, auth_token):
     header = httplib2.Http(".cache")
 
@@ -540,7 +551,8 @@ def create_endpoint(tenant_id, endpoint_templates_id, auth_token):
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
     return (resp, content)
-    
+
+
 def create_endpoint_xml(tenant_id, endpoint_templates_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/endpoints' % (URL_V2, tenant_id)
@@ -552,7 +564,8 @@ def create_endpoint_xml(tenant_id, endpoint_templates_id, auth_token):
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
     return (resp, content)
-   
+
+
 def delete_all_endpoint(tenant_id, auth_token):
     header = httplib2.Http(".cache")
     url = '%stenants/%s/endpoints' % (URL_V2, tenant_id)
@@ -566,7 +579,7 @@ def delete_all_endpoint(tenant_id, auth_token):
     elif int(resp['status']) == 503:
         assert False
         # self.fail('Service Not Available')
-    
+
     #verify content
     obj = json.loads(content)
     try:
@@ -580,6 +593,7 @@ def delete_all_endpoint(tenant_id, auth_token):
             header.request(url, "DELETE", body='', headers={
                 "Content-Type": "application/json",
                 "X-Auth-Token": str(auth_token)})
+
 
 if __name__ == '__main__':
     unittest.main()

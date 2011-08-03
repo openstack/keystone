@@ -58,11 +58,12 @@ TEMPLATES = {}
 DEBUG = False
 TEMPLATE_PATH = ['./', './views/']
 
+
 class BaseTemplate(object):
     """ Base class and minimal API for template adapters """
     extentions = ['tpl', 'html', 'thtml', 'stpl']
-    settings = {}  #used in prepare()
-    defaults = {}  #used in render()
+    settings = {}  # used in prepare()
+    defaults = {}  # used in render()
 
     def __init__(self, source=None, name=None, lookup=None, encoding='utf8',
                  **settings):
@@ -77,14 +78,16 @@ class BaseTemplate(object):
         The settings parameter contains a dict for engine-specific settings.
         """
         lookup = lookup or []
-        
+
         self.name = name
         self.source = source.read() if hasattr(source, 'read') else source
-        self.filename = source.filename if hasattr(source, 'filename') else None
+        self.filename = source.filename \
+            if hasattr(source, 'filename') \
+            else None
         self.lookup = [os.path.abspath(path) for path in lookup]
         self.encoding = encoding
-        self.settings = self.settings.copy() # Copy from class variable
-        self.settings.update(settings) # Apply
+        self.settings = self.settings.copy()  # Copy from class variable
+        self.settings.update(settings)  # Apply
         if not self.source and self.name:
             self.filename = self.search(self.name, self.lookup)
             if not self.filename:
@@ -98,7 +101,7 @@ class BaseTemplate(object):
         """ Search name in all directories specified in lookup.
         First without, then with common extensions. Return first hit. """
         lookup = lookup or []
-        
+
         if os.path.isfile(name):
             return name
         for spath in lookup:
@@ -111,21 +114,21 @@ class BaseTemplate(object):
 
     @classmethod
     def global_config(cls, key, *args):
-        ''' This reads or sets the global settings stored in class.settings. '''
+        '''This reads or sets the global settings stored in class.settings.'''
         if args:
             cls.settings[key] = args[0]
         else:
             return cls.settings[key]
 
     def prepare(self, **options):
-        """ Run preparations (parsing, caching, ...).
+        """Run preparations (parsing, caching, ...).
         It should be possible to call this again to refresh a template or to
         update settings.
         """
         raise NotImplementedError
 
     def render(self, **args):
-        """ Render the template with the specified local variables and return
+        """Render the template with the specified local variables and return
         a single byte or unicode string. If it is a byte string, the encoding
         must match self.encoding. This method must be thread-safe!
         """
@@ -141,7 +144,7 @@ class SimpleTemplate(BaseTemplate):
     compiled = None
     _str = None
     _escape = None
-    
+
     def prepare(self, escape_func=cgi.escape, noescape=False):
         self.cache = {}
         if self.source:
@@ -158,10 +161,10 @@ class SimpleTemplate(BaseTemplate):
             self._str, self._escape = self._escape, self._str
 
     def translate(self, template):
-        stack = [] # Current Code indentation
-        lineno = 0 # Current line of code
-        ptrbuffer = [] # Buffer for printable strings and token tuple instances
-        codebuffer = [] # Buffer for generated python code
+        stack = []  # Current Code indentation
+        lineno = 0  # Current line of code
+        ptrbuffer = []  # Buffer for printable strings and token tuples
+        codebuffer = []  # Buffer for generated python code
         functools.partial(unicode, encoding=self.encoding)
         multiline = dedent = False
 
@@ -170,8 +173,10 @@ class SimpleTemplate(BaseTemplate):
                 if i % 2:
                     if part.startswith('!'):
                         yield 'RAW', part[1:]
-                    else: yield 'CMD', part
-                else: yield 'TXT', part
+                    else:
+                        yield 'CMD', part
+                else:
+                    yield 'TXT', part
 
         def split_comment(codeline):
             """ Removes comments from a line of code. """
@@ -188,7 +193,8 @@ class SimpleTemplate(BaseTemplate):
                         codeline[start:end])
             return line, ''
 
-        def flush(): # Flush the ptrbuffer
+        def flush():
+            """Flush the ptrbuffer"""
             if not ptrbuffer:
                 return
             cline = ''
@@ -204,9 +210,9 @@ class SimpleTemplate(BaseTemplate):
                 cline = cline[:-2] + '\\\n'
             cline = cline[:-2]
             if cline[:-1].endswith('\\\\\\\\\\n'):
-                cline = cline[:-7] + cline[-1] # 'nobr\\\\\n' --> 'nobr'
+                cline = cline[:-7] + cline[-1]  # 'nobr\\\\\n' --> 'nobr'
             cline = '_printlist([' + cline + '])'
-            del ptrbuffer[:] # Do this before calling code() again
+            del ptrbuffer[:]  # Do this before calling code() again
             code(cline)
 
         def code(stmt):
@@ -224,17 +230,17 @@ class SimpleTemplate(BaseTemplate):
                 if m:
                     line = line.replace('coding', 'coding (removed)')
             if line.strip()[:2].count('%') == 1:
-                line = line.split('%', 1)[1].lstrip() # Rest of line after %
+                line = line.split('%', 1)[1].lstrip()  # Rest of line after %
                 cline = split_comment(line)[0].strip()
                 cmd = re.split(r'[^a-zA-Z0-9_]', cline)[0]
-                flush() ##encodig (TODO: why?)
+                flush()  # encodig (TODO: why?)
                 if cmd in self.blocks or multiline:
                     cmd = multiline or cmd
-                    dedent = cmd in self.dedent_blocks # "else:"
+                    dedent = cmd in self.dedent_blocks  # "else:"
                     if dedent and not multiline:
                         cmd = stack.pop()
                     code(line)
-                    oneline = not cline.endswith(':') # "if 1: pass"
+                    oneline = not cline.endswith(':')  # "if 1: pass"
                     multiline = cmd if cline.endswith('\\') else False
                     if not oneline and not multiline:
                         stack.append(cmd)
@@ -243,10 +249,11 @@ class SimpleTemplate(BaseTemplate):
                 elif cmd == 'include':
                     p = cline.split(None, 2)[1:]
                     if len(p) == 2:
-                        code("_=_include(%s, _stdout, %s)" % (repr(p[0]), p[1]))
+                        code("_=_include(%s, _stdout, %s)" %
+                            (repr(p[0]), p[1]))
                     elif p:
                         code("_=_include(%s, _stdout)" % repr(p[0]))
-                    else: # Empty %include -> reverse of %rebase
+                    else:  # Empty %include -> reverse of %rebase
                         code("_printlist(_base)")
                 elif cmd == 'rebase':
                     p = cline.split(None, 2)[1:]
@@ -257,7 +264,7 @@ class SimpleTemplate(BaseTemplate):
                         code("globals()['_rebase']=(%s, {})" % repr(p[0]))
                 else:
                     code(line)
-            else: # Line starting with text (not '%') or '%%' (escaped)
+            else:  # Line starting with text (not '%') or '%%' (escaped)
                 if line.strip().startswith('%%'):
                     line = line.replace('%%', '%', 1)
                 ptrbuffer.append(yield_tokens(line))
@@ -279,8 +286,8 @@ class SimpleTemplate(BaseTemplate):
         if '_rebase' in env:
             subtpl, rargs = env['_rebase']
             subtpl = self.__class__(name=subtpl, lookup=self.lookup)
-            rargs['_base'] = _stdout[:] #copy stdout
-            del _stdout[:] # clear stdout
+            rargs['_base'] = _stdout[:]  # copy stdout
+            del _stdout[:]  # clear stdout
             return subtpl.execute(_stdout, **rargs)
         return env
 
@@ -289,6 +296,7 @@ class SimpleTemplate(BaseTemplate):
         stdout = []
         self.execute(stdout, **args)
         return ''.join(stdout)
+
 
 def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
         download=False):
@@ -303,7 +311,8 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
     if not os.path.exists(filename) or not os.path.isfile(filename):
         return fault.ItemNotFoundFault("File does not exist.")
     if not os.access(filename, os.R_OK):
-        return ForbiddenFault("You do not have permission to access this file.")
+        return ForbiddenFault(
+            "You do not have permission to access this file.")
 
     if not mimetype and guessmime:
         resp.content_type = mimetypes.guess_type(filename)[0]
@@ -316,12 +325,13 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
         resp.content_disposition = 'attachment; filename="%s"' % download
 
     stats = os.stat(filename)
-    lm = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(stats.st_mtime))
+    lm = time.strftime("%a, %d %b %Y %H:%M:%S GMT",
+        time.gmtime(stats.st_mtime))
     resp.last_modified = lm
     ims = req.environ.get('HTTP_IF_MODIFIED_SINCE')
     if ims:
-        ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
-        
+        ims = ims.split(";")[0].strip()  # IE sends "<date>; length=146"
+
         ims = parse_date(ims)
         if ims is not None and ims >= int(stats.st_mtime):
             resp.date = time.strftime(
@@ -354,5 +364,3 @@ def template(tpl, template_adapter=SimpleTemplate, **kwargs):
             TEMPLATES[tpl] = template_adapter(name=tpl, lookup=lookup,
                 **settings)
     return TEMPLATES[tpl].render(**kwargs)
-
-

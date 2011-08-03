@@ -144,6 +144,7 @@ class EmailConflictFault(IdentityFault):
         super(EmailConflictFault, self).__init__(msg, details, code)
         self.key = "emailConflict"
 
+
 class RoleConflictFault(IdentityFault):
     """The User already exists?"""
 

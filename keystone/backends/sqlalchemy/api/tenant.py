@@ -18,27 +18,25 @@
 from keystone.backends.sqlalchemy import get_session, models, aliased
 from keystone.backends.api import BaseTenantAPI
 
+
 class TenantAPI(BaseTenantAPI):
     def create(self, values):
         tenant_ref = models.Tenant()
         tenant_ref.update(values)
         tenant_ref.save()
         return tenant_ref
-    
-    
+
     def get(self, id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.Tenant).filter_by(id=id).first()
         return result
-    
-    
+
     def get_all(self, session=None):
         if not session:
             session = get_session()
         return session.query(models.Tenant).all()
-    
-    
+
     def tenants_for_user_get_page(self, user, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -54,9 +52,9 @@ class TenantAPI(BaseTenantAPI):
                     tenant.id.desc()).limit(limit).all()
         else:
             return q3.order_by(tenant.id.desc()).limit(limit).all()
-    
-    
-    def tenants_for_user_get_page_markers(self, user, marker, limit, session=None):
+
+    def tenants_for_user_get_page_markers(self, user, marker, limit,
+            session=None):
         if not session:
             session = get_session()
         ura = aliased(models.UserRoleAssociation)
@@ -65,7 +63,7 @@ class TenantAPI(BaseTenantAPI):
             filter(ura.user_id == user.id)
         q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
         q3 = q1.union(q2)
-    
+
         first = q3.order_by(\
                             tenant.id).first()
         last = q3.order_by(\
@@ -97,12 +95,11 @@ class TenantAPI(BaseTenantAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
-    
+
     def get_page(self, marker, limit, session=None):
         if not session:
             session = get_session()
-    
+
         if marker:
             return session.query(models.Tenant).filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
@@ -110,8 +107,7 @@ class TenantAPI(BaseTenantAPI):
         else:
             return session.query(models.Tenant).order_by(\
                                 models.Tenant.id.desc()).limit(limit).all()
-    
-    
+
     def get_page_markers(self, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -123,12 +119,18 @@ class TenantAPI(BaseTenantAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next_page = session.query(models.Tenant).filter("id > :marker").params(\
-                        marker='%s' % marker).order_by(\
-                        models.Tenant.id).limit(limit).all()
-        prev_page = session.query(models.Tenant).filter("id < :marker").params(\
-                        marker='%s' % marker).order_by(\
-                        models.Tenant.id.desc()).limit(int(limit)).all()
+        next_page = session.query(models.Tenant).\
+            filter("id > :marker").\
+            params(marker='%s' % marker).\
+            order_by(models.Tenant.id).\
+            limit(limit).\
+            all()
+        prev_page = session.query(models.Tenant).\
+            filter("id < :marker").\
+            params(marker='%s' % marker).\
+            order_by(models.Tenant.id.desc()).\
+            limit(int(limit)).\
+            all()
         if len(next_page) == 0:
             next_page = last
         else:
@@ -148,8 +150,7 @@ class TenantAPI(BaseTenantAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-    
-    
+
     def is_empty(self, id, session=None):
         if not session:
             session = get_session()
@@ -161,8 +162,7 @@ class TenantAPI(BaseTenantAPI):
         if a_user != None:
             return False
         return True
-    
-    
+
     def update(self, id, values, session=None):
         if not session:
             session = get_session()
@@ -170,16 +170,14 @@ class TenantAPI(BaseTenantAPI):
             tenant_ref = self.get(id, session)
             tenant_ref.update(values)
             tenant_ref.save(session=session)
-    
-    
+
     def delete(self, id, session=None):
         if not session:
             session = get_session()
         with session.begin():
             tenant_ref = self.get(id, session)
             session.delete(tenant_ref)
-    
-    
+
     def get_all_endpoints(self, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -192,13 +190,13 @@ class TenantAPI(BaseTenantAPI):
             filter(endpointTemplates.is_global == 1)
         q3 = q1.union(q2)
         return q3.all()
-    
-    
+
     def get_role_assignments(self, tenant_id, session=None):
         if not session:
             session = get_session()
         return session.query(models.UserRoleAssociation).\
-                            filter_by(tenant_id=tenant_id)
+            filter_by(tenant_id=tenant_id)
+
 
 def get():
     return TenantAPI()

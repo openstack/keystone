@@ -73,11 +73,10 @@ def add_common_options(parser):
                      action="store_true",
                      help="Print debugging output to console")
     group.add_option('-c', '--config-file', default=None, metavar="PATH",
-                     help="Path to the config file to use. When not specified "\
-                          "(the default), we generally look at the first "\
-                          "argument specified to be a config file, and if "\
-                          "that is also missing, we search standard "\
-                          "directories for a config file.")
+                     help="""Path to the config file to use. When not \
+specified (the default), we generally look at the first argument specified to \
+be a config file, and if that is also missing, we search standard directories \
+for a config file.""")
     group.add_option('-p', '--port', '--bind-port', default=5000,
                      dest="bind_port",
                      help="specifies port to listen on (default is 5000)")
@@ -107,11 +106,10 @@ def add_log_options(parser):
 
     group = optparse.OptionGroup(parser, "Logging Options", help_text)
     group.add_option('--log-config', default=None, metavar="PATH",
-                     help="If this option is specified, the logging "\
-                          "configuration file specified is used and overrides "\
-                          "any other logging options specified. Please see "\
-                          "the Python logging module documentation for "\
-                          "details on logging configuration files.")
+                     help="""If this option is specified, the logging \
+configuration file specified is used and overrides any other logging options \
+specified. Please see the Python logging module documentation for details on \
+logging configuration files.""")
     group.add_option('--log-date-format', metavar="FORMAT",
                       default=DEFAULT_LOG_DATE_FORMAT,
                       help="Format string for %(asctime)s in log records. "\
@@ -125,6 +123,7 @@ def add_log_options(parser):
 
     parser.add_option_group(group)
     return group
+
 
 def setup_logging(options, conf):
     """
@@ -271,6 +270,7 @@ def load_paste_config(app_name, options, args):
     except Exception, e:
         raise RuntimeError("Error loading config %s: %s" % (conf_file, e))
 
+
 def get_non_paste_configs(conf_file):
     load_config_files(conf_file)
     complete_conf = load_config_files(conf_file)
@@ -278,7 +278,9 @@ def get_non_paste_configs(conf_file):
     global_conf = {}
     if complete_conf != None:
         for section in complete_conf.sections():
-            if not (section.startswith('filter:') or section.startswith('app:') or section.startswith('pipeline:')):
+            if not (section.startswith('filter:') or \
+                    section.startswith('app:') or \
+                    section.startswith('pipeline:')):
                 section_items = complete_conf.items(section)
                 section_items_dict = {}
                 for section_item in section_items:
@@ -309,7 +311,7 @@ def load_paste_app(app_name, options, args):
         * /etc/keystone
         * /etc
 
-    :param app_name: Name of the application to load (server, admin, proxy, ...)
+    :param app_name: Name of the application to load (server, admin, proxy, ..)
     :param options: Set of typed options returned from parse_options()
     :param args: Command line arguments from argv[1:]
 
@@ -343,7 +345,8 @@ def load_paste_app(app_name, options, args):
             for key, value in sorted(items.items()):
                 logger.info("%(key)-20s %(value)s" % locals())
             logger.info("*" * 50)
-        app = deploy.loadapp("config:%s" % conf_file, name=app_name, global_conf=conf.global_conf)
+        app = deploy.loadapp("config:%s" % conf_file, name=app_name,
+            global_conf=conf.global_conf)
     except (LookupError, ImportError), e:
         raise RuntimeError("Unable to load %(app_name)s from "
                            "configuration file %(conf_file)s."

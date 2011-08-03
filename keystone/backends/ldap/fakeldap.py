@@ -28,9 +28,9 @@ import re
 import shelve
 
 from ldap import (dn, filter, modlist,
-    SCOPE_BASE, SCOPE_ONELEVEL, SCOPE_SUBTREE, MOD_ADD, MOD_DELETE, MOD_REPLACE,
-    NO_SUCH_OBJECT, OBJECT_CLASS_VIOLATION, SERVER_DOWN, NO_SUCH_ATTRIBUTE,
-    ALREADY_EXISTS)
+    SCOPE_BASE, SCOPE_ONELEVEL, SCOPE_SUBTREE, MOD_ADD, MOD_DELETE,
+    MOD_REPLACE, NO_SUCH_OBJECT, OBJECT_CLASS_VIOLATION, SERVER_DOWN,
+    NO_SUCH_ATTRIBUTE, ALREADY_EXISTS)
 
 
 scope_names = {
@@ -114,7 +114,10 @@ def _subs(value):
     so subclasses need to be defined manually in the dictionary below.
 
     """
-    subs = {'groupOfNames': ['keystoneTenant', 'keystoneRole', 'keystoneTenantRole']}
+    subs = {'groupOfNames': [
+        'keystoneTenant',
+        'keystoneRole',
+        'keystoneTenantRole']}
     if value in subs:
         return [value] + subs[value]
     return [value]
@@ -149,9 +152,9 @@ class FakeLDAP(object):
 
         key = "%s%s" % (self.__prefix, dn)
         LOG.debug("FakeLDAP add item: dn=%s, attrs=%s" % (dn, attrs))
-        if self.db.has_key(key):
-            LOG.error("FakeLDAP add item failed: dn '%s' is already in store." %
-                        (dn,))
+        if key in self.db:
+            LOG.error(
+                "FakeLDAP add item failed: dn '%s' is already in store." % dn)
             raise ALREADY_EXISTS
         self.db[key] = dict([(k, v if isinstance(v, list) else [v])
                              for k, v in attrs])
@@ -167,7 +170,7 @@ class FakeLDAP(object):
         try:
             del self.db[key]
         except KeyError:
-            LOG.error("FakeLDAP delete item failed: dn '%s' not found." % (dn,))
+            LOG.error("FakeLDAP delete item failed: dn '%s' not found." % dn)
             raise NO_SUCH_OBJECT
         self.db.sync()
 
@@ -188,7 +191,7 @@ class FakeLDAP(object):
         try:
             entry = self.db[key]
         except KeyError:
-            LOG.error("FakeLDAP modify item failed: dn '%s' not found." % (dn,))
+            LOG.error("FakeLDAP modify item failed: dn '%s' not found." % dn)
             raise NO_SUCH_OBJECT
 
         for cmd, k, v in attrs:
@@ -204,23 +207,24 @@ class FakeLDAP(object):
                 if v is None:
                     if len(values) == 0:
                         LOG.error("FakeLDAP modify item failed: "
-                                  "item has no attribute '%s' to delete" % (k,))
+                                  "item has no attribute '%s' to delete" % k)
                         raise NO_SUCH_ATTRIBUTE
                     values[:] = []
                 else:
-                    if not isinstance(v,list):
+                    if not isinstance(v, list):
                         v = [v]
                     for val in v:
                         try:
                             values.remove(val)
                         except ValueError:
                             LOG.error("FakeLDAP modify item failed: "
-                                      "item has no attribute '%s' with value '%s'"
-                                      " to delete" % (k, val))
+                                "item has no attribute '%s' with value '%s'"
+                                " to delete" % (k, val))
                             raise NO_SUCH_ATTRIBUTE
             else:
-                LOG.error("FakeLDAP modify item failed: unknown command %s" % (cmd,))
-                raise NotImplementedError( \
+                LOG.error("FakeLDAP modify item failed: unknown command %s"
+                    % (cmd,))
+                raise NotImplementedError(\
                     "modify_s action %s not implemented" % (cmd,))
         self.db[key] = entry
         self.db.sync()
@@ -257,7 +261,7 @@ class FakeLDAP(object):
                        if re.match("%s\w+=[^,]+,%s" % (self.__prefix, dn), k)]
         else:
             LOG.error("FakeLDAP search fail: unknown scope %s" % (scope,))
-            raise NotImplementedError("Search scope %s not implemented." % 
+            raise NotImplementedError("Search scope %s not implemented." %
                                                                     (scope,))
 
         objects = []

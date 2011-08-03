@@ -126,9 +126,10 @@ class Tenants(object):
         links = [t.to_dict()["links"] for t in self.links]
         return json.dumps({"tenants": {"values": values, "links": links}})
 
+
 class User(object):
     """Describes a user in the auth system
-    
+
     TODO: This is basically a duplicate of keystone.logic.types.user.User and
     should be considered deprecated.
     """

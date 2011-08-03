@@ -31,21 +31,21 @@ class TokenAPI(BaseTokenAPI):
             session = get_session()
         result = session.query(models.Token).filter_by(id=id).first()
         return result
-    
+
     def delete(self, id, session=None):
         if not session:
             session = get_session()
         with session.begin():
             token_ref = self.get(id, session)
             session.delete(token_ref)
-    
+
     def get_for_user(self, user_id, session=None):
         if not session:
             session = get_session()
         result = session.query(models.Token).filter_by(
             user_id=user_id, tenant_id=None).order_by("expires desc").first()
         return result
-    
+
     def get_for_user_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -53,7 +53,7 @@ class TokenAPI(BaseTokenAPI):
             user_id=user_id, tenant_id=tenant_id).\
                 order_by("expires desc").first()
         return result
-    
+
     def get_all(self, session=None):
         if not session:
             session = get_session()

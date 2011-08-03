@@ -55,7 +55,7 @@ class IdentityService(object):
             raise fault.UserDisabledFault("Your account has been disabled")
         if duser.password != utils.get_hashed_password(credentials.password):
             raise fault.UnauthorizedFault("Unauthorized")
-        
+
         #
         # Look for an existing token, or create one,
         # TODO: Handle tenant/token search
@@ -65,9 +65,9 @@ class IdentityService(object):
         else:
             dtoken = api.token.get_for_user_by_tenant(duser.id,
                                                   credentials.tenant_id)
-        
+
         tenant_id = credentials.tenant_id or duser.tenant_id
-        
+
         if not dtoken or dtoken.expires < datetime.now():
             # Create new token
             dtoken = models.Token()
@@ -83,12 +83,12 @@ class IdentityService(object):
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_admin_token(admin_token)
-        
+
         if not api.token.get(token_id):
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
-        
+
         (token, user) = self.__validate_token(token_id, belongs_to)
-        
+
         return self.__get_validate_data(token, user)
 
     def revoke_token(self, admin_token, token_id):
@@ -131,7 +131,7 @@ class IdentityService(object):
     def get_tenants(self, admin_token, marker, limit, url):
         try:
             (_token, user) = self.__validate_admin_token(admin_token)
-            # If Global admin return all 
+            # If Global admin return all
             ts = []
             dtenants = api.tenant.get_page(marker, limit)
             for dtenant in dtenants:
@@ -179,7 +179,7 @@ class IdentityService(object):
 
         if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
-        
+
         dtenant = api.tenant.get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
@@ -189,15 +189,15 @@ class IdentityService(object):
 
     def delete_tenant(self, admin_token, tenant_id):
         self.__validate_admin_token(admin_token)
-        
+
         dtenant = api.tenant.get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-        
+
         if not api.tenant.is_empty(tenant_id):
             raise fault.ForbiddenFault("You may not delete a tenant that "
                                        "contains get_users")
-        
+
         api.tenant.delete(dtenant.id)
         return None
 
@@ -279,10 +279,10 @@ class IdentityService(object):
             prev, next = api.user.users_get_by_tenant_get_page_markers(
                     tenant_id, marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return Users(ts, links)
 
@@ -297,10 +297,10 @@ class IdentityService(object):
         if ts.__len__():
             prev, next = api.user.users_get_page_markers(marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return Users(ts, links)
 
@@ -438,9 +438,9 @@ class IdentityService(object):
     def __validate_tenant(self, tenant_id):
         if not tenant_id:
             raise fault.UnauthorizedFault("Missing tenant")
-        
+
         tenant = api.tenant.get(tenant_id)
-        
+
         if not tenant.enabled:
             raise fault.TenantDisabledFault("Tenant %s has been disabled!"
                                           % tenant.id)
@@ -448,38 +448,38 @@ class IdentityService(object):
     def __validate_token(self, token_id, belongs_to=None):
         if not token_id:
             raise fault.UnauthorizedFault("Missing token")
-        
+
         (token, user) = self.__get_dauth_data(token_id)
 
         if not token:
             raise fault.ItemNotFoundFault("Bad token, please reauthenticate")
-        
+
         if token.expires < datetime.now():
             raise fault.ForbiddenFault("Token expired, please renew")
-        
+
         if not user.enabled:
             raise fault.UserDisabledFault("User %s has been disabled!"
                                           % user.id)
-        
+
         if user.tenant_id:
             self.__validate_tenant(user.tenant_id)
-        
+
         if token.tenant_id:
             self.__validate_tenant(token.tenant_id)
-        
+
         if belongs_to and token.tenant_id != belongs_to:
             raise fault.UnauthorizedFault("Unauthorized on this tenant")
-        
+
         return (token, user)
-    
+
     def __validate_admin_token(self, token_id):
         (token, user) = self.__validate_token(token_id)
-        
+
         for roleRef in api.role.ref_get_all_global_roles(user.id):
             if roleRef.role_id == backends.KeyStoneAdminRole and \
                     roleRef.tenant_id is None:
                 return (token, user)
-        
+
         raise fault.UnauthorizedFault(
             "You are not authorized to make this call")
 
@@ -651,10 +651,10 @@ class IdentityService(object):
                 api.endpoint_template.endpoint_get_by_tenant_get_page_markers(
                     tenant_id, marker, limit)
             if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))
             if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" % 
+                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
                                       (url, next, limit)))
         return Endpoints(ts, links)
 
@@ -674,7 +674,7 @@ class IdentityService(object):
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
         dendpoint = api.endpoint_template.endpoint_add(dendpoint)
-        dendpoint = Endpoint(dendpoint.id, url + 
+        dendpoint = Endpoint(dendpoint.id, url +
             '/endpointTemplates/' + dendpoint.endpoint_template_id)
         return dendpoint
 

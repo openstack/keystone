@@ -4,6 +4,7 @@ import keystone.config as config
 from keystone.logic.types.endpoint import EndpointTemplate
 from . import get_url, get_marker_limit_and_url
 
+
 class EndpointTemplatesController(wsgi.Controller):
     """Controller for EndpointTemplates related operations"""
 

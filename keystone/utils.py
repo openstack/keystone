@@ -101,7 +101,7 @@ def send_error(code, req, result):
 
 def send_result(code, req, result):
     content = None
-    
+
     resp = Response()
     resp.headers['content-type'] = None
     resp.status = code
@@ -136,6 +136,7 @@ def send_legacy_result(code, headers):
 
     return resp
 
+
 # Currently using sha1 to hash, without a salt value.
 # Need to research relevant openstack standards.
 def get_hashed_password(password):
@@ -145,7 +146,8 @@ def get_hashed_password(password):
         #return hashlib.sha1(password).hexdigest()
     else:
         return None
-    
+
+
 def import_module(module_name, class_name=None):
     '''Import a class given a full module.class name or seperate
     module and options. If no class_name is given, it is assumed to
@@ -156,11 +158,11 @@ def import_module(module_name, class_name=None):
             return sys.modules[module_name]
         except ImportError as exc:
             module_name, _separator, class_name = module_name.rpartition('.')
-            if not exc.args[0].startswith('No module named %s' % (class_name,)):
+            if not exc.args[0].startswith('No module named %s' % class_name):
                 raise
     try:
         __import__(module_name)
         return getattr(sys.modules[module_name], class_name)
     except (ImportError, ValueError, AttributeError), exception:
-        raise ImportError(_('Class %s.%s cannot be found (%s)') % 
-            (module_name, class_name, exception))   
+        raise ImportError(_('Class %s.%s cannot be found (%s)') %
+            (module_name, class_name, exception))

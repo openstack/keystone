@@ -21,7 +21,7 @@ from keystone.logic.types import fault
 
 class EndpointTemplate(object):
     """Document me!"""
-    
+
     @staticmethod
     def from_xml(xml_str):
         try:
@@ -184,7 +184,7 @@ class EndpointTemplates(object):
 
 class Endpoint(object):
     """Document me!"""
-    
+
     def __init__(self, id, href):
         self.id = id
         self.href = href

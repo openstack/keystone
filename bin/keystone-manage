@@ -36,7 +36,7 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-import tools.tracer #@UnusedImport # module runs on import
+import tools.tracer  # @UnusedImport # module runs on import
 import keystone
 from keystone.common import config
 import keystone.backends as db
@@ -53,13 +53,13 @@ def Main():
       attributes : depending on type...
         users    : password, tenant
         tokens   : user, tenant, expiration
-    
+
       role list [tenant] will list roles granted on that tenant
-      
+
     options
       -c | --config-file : config file to use
       -d | --debug : debug mode
-    
+
     Example: keystone-manage add user Admin P@ssw0rd
     """
     usage = "usage: %prog [options] type command [id [attributes]]"
@@ -83,7 +83,7 @@ def Main():
         pass
     else:
         parser.error('%s is not a supported object type' % object_type)
-    
+
     if len(args) == 1:
         parser.error('No command specified for second argument')
     command = args[1]
@@ -92,7 +92,7 @@ def Main():
     else:
         parser.error('add, disable, delete, and list are the only supported"\
                      " commands (right now)')
-    
+
     if len(args) == 2:
         if command != 'list':
             parser.error('No id specified for third argument')
@@ -108,7 +108,7 @@ def Main():
         config_file = config.find_config_file(options, args)
 
     config.setup_logging(options, conf)
-    
+
     db.configure_backends(conf.global_conf)
 
     if object_type == "user":
@@ -116,7 +116,7 @@ def Main():
             if len(args) < 4:
                 parser.error('No password specified for fourth argument')
             password = args[3]
-    
+
             try:
                 object = db_models.User()
                 object.id = object_id
@@ -128,7 +128,8 @@ def Main():
                 db_api.user.create(object)
                 print "SUCCESS: User %s created." % object.id
             except Exception as exc:
-                raise Exception("Failed to create user %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to create user %s" % (object_id,),
+                    sys.exc_info())
             return
         elif command == "disable":
             try:
@@ -139,7 +140,8 @@ def Main():
                 db_api.user.update(object_id, object)
                 print "SUCCESS: User %s disabled." % object.id
             except Exception as exc:
-                raise Exception("Failed to disable user %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to disable user %s" % (object_id,),
+                    sys.exc_info())
             return
         elif command == "list":
             try:
@@ -196,7 +198,8 @@ def Main():
                 db_api.tenant.update(object_id, object)
                 print "SUCCESS: Tenant %s disabled." % object.id
             except Exception as exc:
-                raise Exception("Failed to disable tenant %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to disable tenant %s" % (object_id,),
+                    sys.exc_info())
             return
     elif object_type == "role":
         if command == "add":
@@ -207,7 +210,8 @@ def Main():
                 print "SUCCESS: Role %s created successfully." % object.id
                 return
             except Exception as exc:
-                raise Exception("Failed to create role %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to create role %s" % (object_id,),
+                    sys.exc_info())
         elif command == "list":
             if len(args) == 3:
                 tenant = args[2]
@@ -221,8 +225,8 @@ def Main():
                     for row in objects:
                         print row.user_id, row.role_id
                 except Exception, e:
-                    raise Exception( \
-                        "Error getting all role assignments for %s" % (tenant,),
+                    raise Exception(\
+                        "Error getting all role assignments for %s" % tenant,
                         sys.exc_info())
                 return
             else:
@@ -271,7 +275,7 @@ def Main():
             region = args[2]
             service = args[3]
             public_url = args[4]
-            admin_url = args[5] 
+            admin_url = args[5]
             internal_url = args[6]
             enabled = args[7]
             is_global = args[8]
@@ -320,7 +324,8 @@ def Main():
                     for row in objects:
                         print row.service, row.region, row.public_url
                 except Exception, e:
-                    raise Exception("Error getting all EndpointTemplates", sys.exc_info())
+                    raise Exception("Error getting all EndpointTemplates",
+                        sys.exc_info())
                 return
     elif object_type == "endpoint":
         if command == "add":
@@ -358,7 +363,8 @@ def Main():
                 print "SUCCESS: Token %s created." % object.id
                 return
             except Exception as exc:
-                raise Exception("Failed to create token %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to create token %s" % (object_id,),
+                    sys.exc_info())
         elif command == "list":
             try:
                 objects = db_api.token.get_all()
@@ -380,7 +386,8 @@ def Main():
                     db_api.token.delete(object_id)
                     print 'SUCCESS: Token %s deleted.' % object_id
             except Exception, e:
-                raise Exception("Failed to delete token %s" % (object_id,), sys.exc_info())
+                raise Exception("Failed to delete token %s" % (object_id,),
+                    sys.exc_info())
             return
 
     # Command not handled

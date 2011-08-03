@@ -26,4 +26,3 @@ gettext.install('keystone')
 
 def version():
     return __version__
-

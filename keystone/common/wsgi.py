@@ -32,11 +32,13 @@ import routes.middleware
 from webob import Response
 import webob.dec
 
+
 def find_stream_handler(logger):
     """Returns a stream handler, if any"""
     for handler in logger.handlers:
         if isinstance(handler, logging.StreamHandler):
             return handler
+
 
 def add_console_handler(logger, level=logging.INFO):
     """
@@ -57,6 +59,7 @@ def add_console_handler(logger, level=logging.INFO):
     elif console.level != level:
         console.setLevel(level)
     return console
+
 
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
@@ -340,27 +343,28 @@ class Serializer(object):
             result.appendChild(node)
         return result
 
+
 class WSGIHTTPException(Response, webob.exc.HTTPException):
     """Returned when no matching route can be identified"""
-    
+
     code = None
     label = None
     title = None
     explanation = None
-    
+
     xml_template = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <%s xmlns="http://docs.openstack.org/identity/api/v2.0" code="%s">
     <message>%s</message>
     <details>%s</details>
 </%s>"""
-    
+
     def __init__(self, code, label, title, explanation, **kw):
         self.code = code
         self.label = label
         self.title = title
         self.explanation = explanation
-        
+
         Response.__init__(self, status='%s %s' % (self.code, self.title), **kw)
         webob.exc.HTTPException.__init__(self, self.explanation, self)
 
@@ -368,25 +372,25 @@ class WSGIHTTPException(Response, webob.exc.HTTPException):
         """Generate a XML body string using the available data"""
         return self.xml_template % (
             self.label, self.code, self.title, self.explanation, self.label)
-    
+
     def json_body(self):
         """Generate a JSON body string using the available data"""
-        json_dict = {self.label:{}}
+        json_dict = {self.label: {}}
         json_dict[self.label]['message'] = self.title
         json_dict[self.label]['details'] = self.explanation
         json_dict[self.label]['code'] = self.code
-        
+
         return json.dumps(json_dict)
 
     def generate_response(self, environ, start_response):
         """Returns a response to the given environment"""
         if self.content_length is not None:
             del self.content_length
-        
+
         headerlist = list(self.headerlist)
-        
+
         accept = environ.get('HTTP_ACCEPT', '')
-        
+
         # Return JSON by default
         if accept and 'xml' in accept:
             content_type = 'application/xml'
@@ -394,22 +398,21 @@ class WSGIHTTPException(Response, webob.exc.HTTPException):
         else:
             content_type = 'application/json'
             body = self.json_body()
-        
+
         extra_kw = {}
-        
+
         if isinstance(body, unicode):
             extra_kw.update(charset='utf-8')
-        
+
         resp = Response(body,
             status=self.status,
             headerlist=headerlist,
             content_type=content_type,
-            **extra_kw
-        )
-        
+            **extra_kw)
+
         # Why is this repeated?
         resp.content_type = content_type
-        
+
         return resp(environ, start_response)
 
     def __call__(self, environ, start_response):
@@ -425,6 +428,7 @@ class WSGIHTTPException(Response, webob.exc.HTTPException):
         return webob.exc.HTTPException(self.explanation, self)
 
     exception = property(exception)
+
 
 class HTTPNotFound(WSGIHTTPException):
     """Represents a 404 Not Found webob response exception"""

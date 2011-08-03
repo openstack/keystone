@@ -1,6 +1,7 @@
 import ldap
 from itertools import izip, count
 
+
 def _get_redirect(cls, method):
     def inner(self, *args):
         return getattr(cls(), method)(*args)
@@ -85,21 +86,21 @@ class BaseLdapAPI(object):
 
     def get_all(self, filter=None):
         return map(self._ldap_res_to_model, self._ldap_get_all(filter))
-    
+
     def get_page(self, marker, limit):
         return self._get_page(marker, limit, self.get_all())
-    
+
     def get_page_markers(self, marker, limit):
         return self._get_page_markers(marker, limit, self.get_all())
 
-    def _get_page(self, marker, limit, lst, key=lambda e:e.id):
+    def _get_page(self, marker, limit, lst, key=lambda e: e.id):
         lst.sort(key=key)
         if not marker:
             return lst[:limit]
         else:
             return filter(lambda e: key(e) > marker, lst)[:limit]
-    
-    def _get_page_markers(self, marker, limit, lst, key=lambda e:e.id):
+
+    def _get_page_markers(self, marker, limit, lst, key=lambda e: e.id):
         if len(lst) < limit:
             return (None, None)
         lst.sort(key=key)
@@ -144,7 +145,7 @@ class BaseLdapAPI(object):
                     modlist.append((op, self.attribute_mapping.get(k, k), [v]))
         conn = self.api.get_connection()
         conn.modify_s(self._id_to_dn(id), modlist)
-    
+
     def delete(self, id):
         conn = self.api.get_connection()
         conn.delete_s(self._id_to_dn(id))

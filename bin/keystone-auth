@@ -34,7 +34,7 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-import tools.tracer #@UnusedImport # module runs on import
+import tools.tracer  # @UnusedImport # module runs on import
 import keystone
 from keystone.common import config, wsgi
 
@@ -48,12 +48,12 @@ if __name__ == '__main__':
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)
 
-
     # Start services
     try:
         # Load Service API server
-        conf, app = config.load_paste_app('keystone-legacy-auth', options, args)
-        
+        conf, app = config.load_paste_app('keystone-legacy-auth',
+            options, args)
+
         debug = options.get('debug') or conf.get('debug', False)
         debug = debug in [True, "True", "1"]
         verbose = options.get('verbose') or conf.get('verbose', False)
@@ -61,13 +61,13 @@ if __name__ == '__main__':
         if debug or verbose:
             config_file = config.find_config_file(options, args)
             print "Using config file:", config_file
-        
+
         server = wsgi.Server()
         server.start(app, int(conf['service_port']), conf['service_host'])
-        
+
         print "Service API listening on %s:%s" % (
             conf['service_host'], conf['service_port'])
-        
+
         server.wait()
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

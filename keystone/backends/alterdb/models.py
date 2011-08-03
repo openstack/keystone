@@ -13,7 +13,6 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Not Yet PEP8 standardized
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -24,6 +23,7 @@ Base = declarative_base()
 class KeystoneBase(object):
     """Base class for Keystone Models."""
     __api__ = None
+
     def save(self, session=None):
         """Save this object."""
 
@@ -73,7 +73,6 @@ class KeystoneBase(object):
         return local.iteritems()
 
 
-
 class Token(Base, KeystoneBase):
     __tablename__ = 'token'
     __api__ = 'token'
@@ -81,4 +80,3 @@ class Token(Base, KeystoneBase):
     user_id = Column(String(255))
     tenant_id = Column(String(255))
     expires = Column(DateTime)
-

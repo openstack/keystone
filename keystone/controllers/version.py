@@ -12,6 +12,7 @@ from keystone import utils
 from keystone.common import template, wsgi
 import keystone.config as config
 
+
 class VersionController(wsgi.Controller):
     """Controller for version related methods"""
 
@@ -34,11 +35,11 @@ class VersionController(wsgi.Controller):
 
         hostname = req.environ.get("SERVER_NAME")
         port = req.environ.get("SERVER_PORT")
-        
+
         resp.unicode_body = template.template(resp_file,
             HOST=hostname,
             PORT=port,
             VERSION_STATUS=config.VERSION_STATUS,
             VERSION_DATE=config.VERSION_DATE)
-        
+
         return resp

@@ -4,6 +4,7 @@ import keystone.config as config
 from keystone.logic.types.tenant import Tenant
 from . import get_marker_limit_and_url
 
+
 class TenantController(wsgi.Controller):
     """Controller for Tenant related operations"""
 

@@ -181,7 +181,7 @@ class RESTClient(object):
 
         # If we have a declared debug stream, output to it
         if self._debug_stream:
-            print >>self._debug_stream, msg % (kwargs if kwargs else args)
+            print >> self._debug_stream, msg % (kwargs if kwargs else args)
 
     def make_req(self, method, reluri, query=None, obj=None, headers=None):
         """Makes an HTTPRequest.

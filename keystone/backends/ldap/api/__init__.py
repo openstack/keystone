@@ -5,6 +5,7 @@ from .tenant import TenantAPI
 from .user import UserAPI
 from .role import RoleAPI
 
+
 class API(object):
     apis = ['tenant', 'user', 'role']
 
@@ -15,7 +16,7 @@ class API(object):
         self.tenant = TenantAPI(self, options)
         self.user = UserAPI(self, options)
         self.role = RoleAPI(self, options)
-    
+
     def get_connection(self):
         if self.LDAP_URL.startswith('fake://'):
             conn = fakeldap.initialize(self.LDAP_URL)

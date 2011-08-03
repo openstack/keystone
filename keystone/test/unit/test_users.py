@@ -64,7 +64,7 @@ class CreateUserTest(UserTest):
         utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
         self.assertEqual(201, resp_val)
-        
+
     def test_a_user_witn_no_tenant(self):
         _resp = utils.delete_user(self.user1, str(self.auth_token))
         resp, content = utils.create_user(None, self.user1,
@@ -74,7 +74,6 @@ class CreateUserTest(UserTest):
         utils.handle_user_resp(self, content, resp_val,
                                utils.content_type(resp))
         self.assertEqual(201, resp_val)
-        
 
     def test_a_user_create_xml(self):
         utils.delete_user_xml(self.user1, str(self.auth_token))
@@ -118,7 +117,7 @@ class CreateUserTest(UserTest):
                                         str(self.auth_token))
         resp, content = utils.create_user_xml(self.tenant, self.user,
                                         str(self.auth_token))
-        
+
         content = etree.fromstring(content)
         resp_val = int(resp['status'])
         utils.handle_user_resp(self, content, resp_val,
@@ -148,21 +147,21 @@ class CreateUserTest(UserTest):
                                utils.content_type(resp))
         self.assertEqual(409, int(resp['status']))
         self.assertEqual('application/xml', utils.content_type(resp))
-        
+
     def test_a_user_create_empty_password(self):
-        #JSON 
+        # JSON
         resp, content = utils.create_user(self.tenant,
                               self.user,
                               str(self.auth_token),
                               self.email, '')
         self.assertEqual(400, int(resp['status']))
 
-        #Blank Password        
+        # Blank Password
         resp, content = utils.create_user(self.tenant,
                               self.user,
                               str(self.auth_token),
                               self.email, '')
-        self.assertEqual(400, int(resp['status']))        
+        self.assertEqual(400, int(resp['status']))
 
     def test_a_user_create_empty_username(self):
         resp, content = utils.create_user_xml(self.tenant,
@@ -176,7 +175,6 @@ class CreateUserTest(UserTest):
                               str(self.auth_token),
                               self.email)
         self.assertEqual(400, int(resp['status']))
-
 
     def test_a_user_create_expired_token(self):
         resp, content = utils.create_user(self.tenant, self.user,
@@ -383,6 +381,7 @@ class GetUserTest(UserTest):
 #        self.assertEqual('application/xml',
 #                          utils.content_type(resp))
 
+
 class DeleteUserTest(UserTest):
 
     def test_a_user_delete(self):
@@ -505,6 +504,7 @@ class DeleteUserTest(UserTest):
 #        self.assertEqual(403, resp_val)
 #        self.assertEqual('application/xml', utils.content_type(resp))
 
+
 class GetAllUsersTest(UserTest):
     def test_users_get(self):
         resp, _content = utils.users_get_all_json(self.auth_token)
@@ -600,8 +600,7 @@ class GetAllUsersTest(UserTest):
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
-    
-    
+
 
 class GetUsersTest(UserTest):
 
@@ -634,7 +633,8 @@ class GetUsersTest(UserTest):
         self.assertEqual(403, resp_val)
 
     def test_users_get_expired_token_xml(self):
-        resp, _content_content = utils.users_get_xml(self.user, self.exp_auth_token)
+        resp, _content_content = utils.users_get_xml(self.user,
+            self.exp_auth_token)
         resp_val = int(resp['status'])
         if resp_val == 500:
             self.fail('Identity Fault')
@@ -791,7 +791,6 @@ class UpdateUserTest(UserTest):
         utils.user_update_xml(self.auth_token,
             self.userdisabled, '')
 
-
     def test_user_update_email_conflict(self):
         resp, content = utils.user_update_json(self.auth_token,
                                                 "joeuser",
@@ -879,8 +878,7 @@ class UpdateUserTest(UserTest):
         self.assertEqual('application/xml', utils.content_type(resp))
 
     def test_user_update_disabled_token(self):
-        resp, content = utils.user_update_json(self.disabled_token
-                                               , self.user)
+        resp, content = utils.user_update_json(self.disabled_token, self.user)
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -890,8 +888,7 @@ class UpdateUserTest(UserTest):
         self.assertEqual(403, resp_val)
 
     def test_user_update_disabled_token_xml(self):
-        resp, content = utils.user_update_xml(self.disabled_token
-                                              , self.user)
+        resp, content = utils.user_update_xml(self.disabled_token, self.user)
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1315,12 +1312,13 @@ class SetEnabledTest(UserTest):
         self.assertEqual(401, resp_val)
         self.assertEqual('application/xml', utils.content_type(resp))
 
+
 class TenantUpdateTest(UserTest):
 
     def test_update_user_tenant(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_json(self.user, utils.get_another_tenant(),
-                                                str(self.auth_token))
+        resp, content = utils.user_tenant_update_json(self.user,
+            utils.get_another_tenant(), str(self.auth_token))
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -1329,12 +1327,13 @@ class TenantUpdateTest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(200, resp_val)
-        self.assertEqual(utils.get_another_tenant(), content['user']['tenantId'])
+        self.assertEqual(utils.get_another_tenant(),
+            content['user']['tenantId'])
 
     def test_update_user_tenant_xml(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_xml(self.user, utils.get_another_tenant(),
-                                                str(self.auth_token))
+        resp, content = utils.user_tenant_update_xml(
+            self.user, utils.get_another_tenant(), str(self.auth_token))
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1345,7 +1344,7 @@ class TenantUpdateTest(UserTest):
         self.assertEqual(200, resp_val)
         self.assertEqual(utils.get_another_tenant(), content.get("tenantId"))
         self.assertEqual('application/xml', utils.content_type(resp))
-        
+
     def test_update_user_tenant_using_invalid_tenant(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_tenant_update_json(self.user, "unknown",
@@ -1358,7 +1357,7 @@ class TenantUpdateTest(UserTest):
             self.fail('Service Not Available')
         self.assertEqual(404, resp_val)
         utils.delete_user(self.user, str(self.auth_token))
-        
+
     def test_update_user_tenant_using_disabled_tenant(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
         resp, content = utils.user_tenant_update_json(self.user, "disable",
@@ -1374,8 +1373,8 @@ class TenantUpdateTest(UserTest):
 
     def test_update_user_tenant_using_missing_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_json(self.user, utils.get_another_tenant(),
-                                                str(self.missing_token))
+        resp, content = utils.user_tenant_update_json(
+            self.user, utils.get_another_tenant(), str(self.missing_token))
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -1384,11 +1383,11 @@ class TenantUpdateTest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(401, resp_val)
-   
+
     def test_update_user_tenant_using_invalid_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_json(self.user, utils.get_another_tenant(),
-                                                str(self.invalid_token))
+        resp, content = utils.user_tenant_update_json(
+            self.user, utils.get_another_tenant(), str(self.invalid_token))
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -1397,11 +1396,11 @@ class TenantUpdateTest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(404, resp_val)
-   
+
     def test_update_user_tenant_using_disabled_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_json(self.user, utils.get_another_tenant(),
-                                                str(self.disabled_token))
+        resp, content = utils.user_tenant_update_json(
+            self.user, utils.get_another_tenant(), str(self.disabled_token))
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -1410,11 +1409,11 @@ class TenantUpdateTest(UserTest):
             self.fail('Service Not Available')
         utils.delete_user(self.user, str(self.auth_token))
         self.assertEqual(403, resp_val)
-           
+
     def test_update_user_tenant_using_exp_auth_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_json(self.user, utils.get_another_tenant(),
-                                                str(self.exp_auth_token))
+        resp, content = utils.user_tenant_update_json(
+            self.user, utils.get_another_tenant(), str(self.exp_auth_token))
         resp_val = int(resp['status'])
         content = json.loads(content)
         if resp_val == 500:
@@ -1426,8 +1425,8 @@ class TenantUpdateTest(UserTest):
 
     def test_update_user_tenant_xml_using_missing_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_xml(self.user, utils.get_another_tenant(),
-                                                str(self.missing_token))
+        resp, content = utils.user_tenant_update_xml(
+            self.user, utils.get_another_tenant(), str(self.missing_token))
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1439,8 +1438,8 @@ class TenantUpdateTest(UserTest):
 
     def test_update_user_tenant_xml_using_invalid_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_xml(self.user, utils.get_another_tenant(),
-                                                str(self.invalid_token))
+        resp, content = utils.user_tenant_update_xml(
+            self.user, utils.get_another_tenant(), str(self.invalid_token))
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1452,8 +1451,8 @@ class TenantUpdateTest(UserTest):
 
     def test_update_user_tenant_xml_using_disabled_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_xml(self.user, utils.get_another_tenant(),
-                                                str(self.disabled_token))
+        resp, content = utils.user_tenant_update_xml(
+            self.user, utils.get_another_tenant(), str(self.disabled_token))
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1465,8 +1464,8 @@ class TenantUpdateTest(UserTest):
 
     def test_update_user_tenant_xml_using_exp_auth_token(self):
         utils.create_user(self.tenant, self.user, str(self.auth_token))
-        resp, content = utils.user_tenant_update_xml(self.user, utils.get_another_tenant(),
-                                                str(self.exp_auth_token))
+        resp, content = utils.user_tenant_update_xml(
+            self.user, utils.get_another_tenant(), str(self.exp_auth_token))
         resp_val = int(resp['status'])
         content = etree.fromstring(content)
         if resp_val == 500:
@@ -1547,7 +1546,6 @@ class AddUserTest(UserTest):
         elif resp_val == 503:
             self.fail('Service Not Available')
         self.assertEqual(409, resp_val)
-        
 
     def test_add_user_tenant_expired_token(self):
         utils.create_tenant(self.tenant, str(self.auth_token))

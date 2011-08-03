@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 #Base APIs
 class BaseUserAPI(object):
     def get_all(self):
@@ -279,6 +280,7 @@ tenant_group = BaseTenantGroupAPI()
 tenant = BaseTenantAPI()
 token = BaseTokenAPI()
 user = BaseUserAPI()
+
 
 # Function to dynamically set module references.
 def set_value(variable_name, value):

@@ -3,6 +3,7 @@ from webob import Response
 from keystone import utils
 from keystone.common import template, wsgi
 
+
 class StaticFilesController(wsgi.Controller):
     """Controller for contract documents"""
 

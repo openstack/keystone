@@ -543,7 +543,8 @@ class UpdateTenantTest(TenantTest):
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
         body = etree.fromstring(content)
-        desc = body.find("{http://docs.openstack.org/identity/api/v2.0}description")
+        desc = body.find(
+            "{http://docs.openstack.org/identity/api/v2.0}description")
         if int(resp['status']) == 500:
             self.fail('Identity Fault')
         elif int(resp['status']) == 503:

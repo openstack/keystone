@@ -17,8 +17,7 @@
 import ast
 import logging
 import keystone.utils as utils
-from keystone.backends import models as models
-from keystone.backends import api as api
+from keystone.backends import api, models
 
 DEFAULT_BACKENDS = 'keystone.backends.sqlalchemy'
 

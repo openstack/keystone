@@ -34,7 +34,7 @@ logger = logging.getLogger('test.unit.base')
 
 
 class ServiceAPITest(unittest.TestCase):
-    
+
     """
     Base test case class for any unit test that tests the main service API.
     """
@@ -48,7 +48,8 @@ class ServiceAPITest(unittest.TestCase):
     """
     Dict of configuration options to pass to the API controller
     """
-    options = {'sql_connection': 'sqlite:///', # in-memory db
+    # using an in-memory db
+    options = {'sql_connection': 'sqlite:///',
                'verbose': False,
                'debug': False}
 
@@ -58,8 +59,7 @@ class ServiceAPITest(unittest.TestCase):
     tenant_fixtures = [
         {'id': 'tenant1',
          'enabled': True,
-         'desc': 'tenant1'}
-    ]
+         'desc': 'tenant1'}]
 
     """
     Attributes of the user the test creates for each test case that
@@ -161,7 +161,7 @@ class ServiceAPITest(unittest.TestCase):
         token = db_api.token.create(values)
         logger.debug("Created token fixture %s", values['token_id'])
         return token
-    
+
     def get_request(self, method, url, headers=None):
         """
         Sets the `req` attribute to a `webob.Request` object that
@@ -204,7 +204,7 @@ class ServiceAPITest(unittest.TestCase):
                                "get_response()!")
 
         self.assertEqual(status_code, self.res.status_int,
-                         "Incorrect status code %d. Expected %d" % 
+                         "Incorrect status code %d. Expected %d" %
                          (self.res.status_int, status_code))
 
     def add_verify_status_helpers(self):
@@ -226,7 +226,7 @@ class ServiceAPITest(unittest.TestCase):
         nicely formatted for easy comparison if there is a failure.
         """
         self.assertEqual(expected, got, "Mappings are not equal.\n"
-                         "Got:\n%s\nExpected:\n%s" % 
+                         "Got:\n%s\nExpected:\n%s" %
                          (pprint.pformat(got),
                           pprint.pformat(expected)))
 
@@ -243,7 +243,7 @@ class ServiceAPITest(unittest.TestCase):
         expected = objectify.fromstring(expected)
         self.assertEqual(etree.tostring(expected),
                          etree.tostring(got), "DOMs are not equal.\n"
-                         "Got:\n%s\nExpected:\n%s" % 
+                         "Got:\n%s\nExpected:\n%s" %
                          (etree.tostring(got, pretty_print=True),
                           etree.tostring(expected, pretty_print=True)))
 
@@ -269,8 +269,7 @@ class AdminAPITest(ServiceAPITest):
          'desc': 'tenant1'},
         {'id': 'tenant2',
          'enabled': True,
-         'desc': 'tenant2'}
-    ]
+         'desc': 'tenant2'}]
 
     """
     Attributes of the user the test creates for each test case that

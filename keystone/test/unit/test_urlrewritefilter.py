@@ -36,18 +36,18 @@ class UrlExtensionFilterTest(unittest.TestCase):
 
     def setUp(self):
         self.filter = UrlRewriteFilter(MockWsgiApp(), {})
-    
+
     def test_remove_trailing_slash(self):
         env = {'PATH_INFO': '/v2.0/'}
         self.filter(env, _start_response)
         self.assertEqual('/v2.0', env['PATH_INFO'])
-    
+
     def test_remove_trailing_slash_from_empty_path(self):
         """Empty paths should still equate to a slash"""
         env = {'PATH_INFO': '/'}
         self.filter(env, _start_response)
         self.assertEqual('/', env['PATH_INFO'])
-    
+
     def test_no_extension(self):
         env = {'PATH_INFO': '/v2.0/someresource'}
         self.filter(env, _start_response)
