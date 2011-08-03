@@ -16,7 +16,7 @@
 
 
 import unittest
-from keystone.middleware.url import UrlRewriteFilter
+from keystone.middleware.url import NormalizingFilter
 
 
 class MockWsgiApp(object):
@@ -32,15 +32,15 @@ def _start_response():
     pass
 
 
-class UrlExtensionFilterTest(unittest.TestCase):
+class NormalizingFilterTest(unittest.TestCase):
 
     def setUp(self):
-        self.filter = UrlRewriteFilter(MockWsgiApp(), {})
+        self.filter = NormalizingFilter(MockWsgiApp(), {})
 
-    def test_remove_trailing_slash(self):
+    def test_trailing_slash(self):
         env = {'PATH_INFO': '/v2.0/'}
         self.filter(env, _start_response)
-        self.assertEqual('/v2.0', env['PATH_INFO'])
+        self.assertEqual('/', env['PATH_INFO'])
 
     def test_remove_trailing_slash_from_empty_path(self):
         """Empty paths should still equate to a slash"""
@@ -51,19 +51,19 @@ class UrlExtensionFilterTest(unittest.TestCase):
     def test_no_extension(self):
         env = {'PATH_INFO': '/v2.0/someresource'}
         self.filter(env, _start_response)
-        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
     def test_xml_extension(self):
         env = {'PATH_INFO': '/v2.0/someresource.xml'}
         self.filter(env, _start_response)
-        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/someresource', env['PATH_INFO'])
         self.assertEqual('application/xml', env['HTTP_ACCEPT'])
 
     def test_json_extension(self):
         env = {'PATH_INFO': '/v2.0/someresource.json'}
         self.filter(env, _start_response)
-        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
     def test_extension_overrides_header(self):
@@ -71,7 +71,7 @@ class UrlExtensionFilterTest(unittest.TestCase):
             'PATH_INFO': '/v2.0/someresource.json',
             'HTTP_ACCEPT': 'application/xml'}
         self.filter(env, _start_response)
-        self.assertEqual('/v2.0/someresource', env['PATH_INFO'])
+        self.assertEqual('/someresource', env['PATH_INFO'])
         self.assertEqual('application/json', env['HTTP_ACCEPT'])
 
 
