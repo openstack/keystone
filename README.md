@@ -284,7 +284,7 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
         Admin API listening on 0.0.0.0:5001
 
 4.  In another window, edit the `~/keystone/bin/sampledata.sh` file, find the
-    `public.cloudfiles.com` text and replace it with the URL to your Swift
+    `swift.publicinternets.com` text and replace it with the URL to your Swift
     cluster using the following format (note that we're going to change Swift
     to run on port 8888 later): `http://127.0.0.1:8888/v1/AUTH_%tenant_id%`
 
@@ -331,12 +331,12 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
         $ swift-init main start
         ...
 
-8.  Use `st` to check everything works (note: you currently have to create a
+8.  Use `swift` to check everything works (note: you currently have to create a
     container or upload something as your first action to have the account
     created; there's a Swift bug to be fixed soon):
 
-        $ st -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete post container
-        $ st -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete stat -v
+        $ swift -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete post container
+        $ swift -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete stat -v
         StorageURL: http://127.0.0.1:8888/v1/AUTH_1234
         Auth Token: 74ce1b05-e839-43b7-bd76-85ef178726c3
            Account: AUTH_1234
