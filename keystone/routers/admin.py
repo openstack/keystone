@@ -19,136 +19,136 @@ class AdminApi(wsgi.Router):
         mapper = routes.Mapper()
 
         db.configure_backends(options)
-        
+
         # Token Operations
         auth_controller = AuthController(options)
-        mapper.connect("/v2.0/tokens", controller=auth_controller,
+        mapper.connect("/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
-        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
+        mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="validate_token",
                         conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tokens/{token_id}", controller=auth_controller,
+        mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 
         # Tenant Operations
         tenant_controller = TenantController(options)
-        mapper.connect("/v2.0/tenants", controller=tenant_controller,
+        mapper.connect("/tenants", controller=tenant_controller,
                     action="create_tenant",
                     conditions=dict(method=["PUT", "POST"]))
-        mapper.connect("/v2.0/tenants", controller=tenant_controller,
+        mapper.connect("/tenants", controller=tenant_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}",
+        mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="get_tenant", conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}",
+        mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="update_tenant", conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}",
+        mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="delete_tenant", conditions=dict(method=["DELETE"]))
 
-        # User Operations
+        # User Operations        
         user_controller = UserController(options)
-        mapper.connect("/v2.0/users",
+        mapper.connect("/users",
                     controller=user_controller,
                     action="create_user",
                     conditions=dict(method=["PUT", "POST"]))
-        mapper.connect("/v2.0/users",
+        mapper.connect("/users",
                     controller=user_controller,
                     action="get_users",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/users/{user_id}",
+        mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="get_user",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/users/{user_id}",
+        mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="update_user",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/users/{user_id}",
+        mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="delete_user",
                     conditions=dict(method=["DELETE"]))
-        mapper.connect("/v2.0/users/{user_id}/password",
+        mapper.connect("/users/{user_id}/password",
                     controller=user_controller,
                     action="set_user_password",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/users/{user_id}/tenant",
+        mapper.connect("/users/{user_id}/tenant",
                     controller=user_controller,
                     action="update_user_tenant",
                     conditions=dict(method=["PUT"]))
-        # Test this, test failed
-        mapper.connect("/v2.0/users/{user_id}/enabled",
+        # Test this, test failed        
+        mapper.connect("/users/{user_id}/enabled",
                     controller=user_controller,
                     action="set_user_enabled",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/users",
+        mapper.connect("/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
 
         #Roles and RoleRefs
         roles_controller = RolesController(options)
-        mapper.connect("/v2.0/roles", controller=roles_controller,
+        mapper.connect("/roles", controller=roles_controller,
                     action="get_roles", conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/roles/{role_id}", controller=roles_controller,
+        mapper.connect("/roles/{role_id}", controller=roles_controller,
                     action="get_role", conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/users/{user_id}/roleRefs",
+        mapper.connect("/users/{user_id}/roleRefs",
             controller=roles_controller, action="get_role_refs",
             conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/users/{user_id}/roleRefs",
+        mapper.connect("/users/{user_id}/roleRefs",
             controller=roles_controller, action="create_role_ref",
             conditions=dict(method=["POST"]))
-        mapper.connect("/v2.0/users/{user_id}/roleRefs/{role_ref_id}",
+        mapper.connect("/users/{user_id}/roleRefs/{role_ref_id}",
             controller=roles_controller, action="delete_role_ref",
             conditions=dict(method=["DELETE"]))
         #EndpointTemplatesControllers and Endpoints
         endpoint_templates_controller = EndpointTemplatesController(options)
-        mapper.connect("/v2.0/endpointTemplates",
+        mapper.connect("/endpointTemplates",
             controller=endpoint_templates_controller,
                 action="get_endpoint_templates",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/endpointTemplates/{endpoint_templates_id}",
+        mapper.connect("/endpointTemplates/{endpoint_templates_id}",
                 controller=endpoint_templates_controller,
                     action="get_endpoint_template",
                         conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/endpoints",
+        mapper.connect("/tenants/{tenant_id}/endpoints",
                        controller=endpoint_templates_controller,
                     action="get_endpoints_for_tenant",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/tenants/{tenant_id}/endpoints",
+        mapper.connect("/tenants/{tenant_id}/endpoints",
                        controller=endpoint_templates_controller,
                      action="add_endpoint_to_tenant",
                      conditions=dict(method=["POST"]))
         mapper.connect(
-                "/v2.0/tenants/{tenant_id}/endpoints/{endpoints_id}",
+                "/tenants/{tenant_id}/endpoints/{endpoints_id}",
                 controller=endpoint_templates_controller,
                 action="remove_endpoint_from_tenant",
                 conditions=dict(method=["DELETE"]))
 
         # Miscellaneous Operations
         version_controller = VersionController(options)
-        mapper.connect("/v2.0", controller=version_controller,
+        mapper.connect("/", controller=version_controller,
                     action="get_version_info",
                     conditions=dict(method=["GET"]))
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
-        mapper.connect("/v2.0/identitydevguide.pdf",
+        mapper.connect("/identitydevguide.pdf",
                     controller=static_files_controller,
                     action="get_pdf_contract",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/identity.wadl",
+        mapper.connect("/identity.wadl",
                     controller=static_files_controller,
                     action="get_wadl_contract",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/xsd/{xsd}",
+        mapper.connect("/xsd/{xsd}",
                     controller=static_files_controller,
                     action="get_xsd_contract",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/v2.0/xsd/atom/{xsd}",
+        mapper.connect("/xsd/atom/{xsd}",
                     controller=static_files_controller,
                     action="get_xsd_atom_contract",
                     conditions=dict(method=["GET"]))

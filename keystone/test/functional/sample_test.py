@@ -37,7 +37,6 @@
 ## @dtest.istest decorator).  Adhere to these rules, and DTest can
 ## discover and run the tests without you having to do anything other
 ## than create them.
-import dtest
 from dtest import util
 
 ## The "base" module contains KeystoneTest, which ensures that there's
@@ -60,8 +59,8 @@ class SampleTest(base.KeystoneTest):
         ## You don't *have* to declare a doc string, but it's good
         ## practice.
 
-        ## Here we're making a "sample_call()", passing self.token as
-        ## the authentication token.  For available calls and the
+        ## Here we're making a sample call to "validate_token()", passing
+        ## self.token as the authentication token.  For available calls and the
         ## order of arguments, check out ksapi.py.  The return value
         ## will be an httplib.HTTPResponse object with additional
         ## 'body' (str) and 'obj' (dict) attributes.  If a status code
@@ -70,7 +69,7 @@ class SampleTest(base.KeystoneTest):
         ## attached to the 'response' attribute of the exception, and
         ## the status will be on the 'status' attribute of the
         ## exception.  Note that redirects are followed.
-        resp = self.ks.sample_call(self.token, 'argument 1', 'argument 2')
+        resp = self.ks.validate_token(self.token, 'argument 1', 'argument 2')
 
         # Verify that resp is correct
         util.assert_equal(resp.status, 200)

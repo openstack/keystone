@@ -64,7 +64,7 @@ class BaseTemplate(object):
     settings = {}  #used in prepare()
     defaults = {}  #used in render()
 
-    def __init__(self, source=None, name=None, lookup=[], encoding='utf8',
+    def __init__(self, source=None, name=None, lookup=None, encoding='utf8',
                  **settings):
         """ Create a new template.
         If the source parameter (str or buffer) is missing, the name argument
@@ -76,10 +76,12 @@ class BaseTemplate(object):
         The encoding parameter should be used to decode byte strings or files.
         The settings parameter contains a dict for engine-specific settings.
         """
+        lookup = lookup or []
+        
         self.name = name
         self.source = source.read() if hasattr(source, 'read') else source
         self.filename = source.filename if hasattr(source, 'filename') else None
-        self.lookup = map(os.path.abspath, lookup)
+        self.lookup = [os.path.abspath(path) for path in lookup]
         self.encoding = encoding
         self.settings = self.settings.copy() # Copy from class variable
         self.settings.update(settings) # Apply
@@ -92,9 +94,11 @@ class BaseTemplate(object):
         self.prepare(**self.settings)
 
     @classmethod
-    def search(cls, name, lookup=[]):
+    def search(cls, name, lookup=None):
         """ Search name in all directories specified in lookup.
         First without, then with common extensions. Return first hit. """
+        lookup = lookup or []
+        
         if os.path.isfile(name):
             return name
         for spath in lookup:
@@ -129,17 +133,23 @@ class BaseTemplate(object):
 
 
 class SimpleTemplate(BaseTemplate):
-    blocks = ('if', 'elif', 'else', 'try', 'except', 'finally', 'for', 'while', 'with', 'def', 'class')
+    blocks = ('if', 'elif', 'else', 'try', 'except', 'finally', 'for', 'while',
+        'with', 'def', 'class')
     dedent_blocks = ('elif', 'else', 'except', 'finally')
-
+    cache = None
+    code = None
+    compiled = None
+    _str = None
+    _escape = None
+    
     def prepare(self, escape_func=cgi.escape, noescape=False):
         self.cache = {}
         if self.source:
             self.code = self.translate(self.source)
-            self.co = compile(self.code, '<string>', 'exec')
+            self.compiled = compile(self.code, '<string>', 'exec')
         else:
             self.code = self.translate(open(self.filename).read())
-            self.co = compile(self.code, self.filename, 'exec')
+            self.compiled = compile(self.code, self.filename, 'exec')
         enc = self.encoding
         touni = functools.partial(unicode, encoding=self.encoding)
         self._str = lambda x: touni(x, enc)
@@ -158,7 +168,8 @@ class SimpleTemplate(BaseTemplate):
         def yield_tokens(line):
             for i, part in enumerate(re.split(r'\{\{(.*?)\}\}', line)):
                 if i % 2:
-                    if part.startswith('!'): yield 'RAW', part[1:]
+                    if part.startswith('!'):
+                        yield 'RAW', part[1:]
                     else: yield 'CMD', part
                 else: yield 'TXT', part
 
@@ -172,11 +183,14 @@ class SimpleTemplate(BaseTemplate):
             for token in tokens:
                 if token[0] == tokenize.COMMENT:
                     start, end = token[2][1], token[3][1]
-                    return codeline[:start] + codeline[end:], codeline[start:end]
+                    return (
+                        codeline[:start] + codeline[end:],
+                        codeline[start:end])
             return line, ''
 
         def flush(): # Flush the ptrbuffer
-            if not ptrbuffer: return
+            if not ptrbuffer:
+                return
             cline = ''
             for line in ptrbuffer:
                 for token, value in line:
@@ -205,10 +219,12 @@ class SimpleTemplate(BaseTemplate):
                         else unicode(line, encoding=self.encoding)
             if lineno <= 2:
                 m = re.search(r"%.*coding[:=]\s*([-\w\.]+)", line)
-                if m: self.encoding = m.group(1)
-                if m: line = line.replace('coding', 'coding (removed)')
+                if m:
+                    self.encoding = m.group(1)
+                if m:
+                    line = line.replace('coding', 'coding (removed)')
             if line.strip()[:2].count('%') == 1:
-                line = line.split('%', 1)[1].lstrip() # Full line following the %
+                line = line.split('%', 1)[1].lstrip() # Rest of line after %
                 cline = split_comment(line)[0].strip()
                 cmd = re.split(r'[^a-zA-Z0-9_]', cline)[0]
                 flush() ##encodig (TODO: why?)
@@ -235,7 +251,8 @@ class SimpleTemplate(BaseTemplate):
                 elif cmd == 'rebase':
                     p = cline.split(None, 2)[1:]
                     if len(p) == 2:
-                        code("globals()['_rebase']=(%s, dict(%s))" % (repr(p[0]), p[1]))
+                        code("globals()['_rebase']=(%s, dict(%s))" % (
+                            repr(p[0]), p[1]))
                     elif p:
                         code("globals()['_rebase']=(%s, {})" % repr(p[0]))
                 else:
@@ -258,7 +275,7 @@ class SimpleTemplate(BaseTemplate):
                '_include': self.subtemplate, '_str': self._str,
                '_escape': self._escape})
         env.update(args)
-        eval(self.co, env)
+        eval(self.compiled, env)
         if '_rebase' in env:
             subtpl, rargs = env['_rebase']
             subtpl = self.__class__(name=subtpl, lookup=self.lookup)
@@ -273,7 +290,8 @@ class SimpleTemplate(BaseTemplate):
         self.execute(stdout, **args)
         return ''.join(stdout)
 
-def static_file(resp, req, filename, root, guessmime=True, mimetype=None, download=False):
+def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
+        download=False):
     """ Opens a file in a safe way and returns a HTTPError object with status
         code 200, 305, 401 or 404. Sets Content-Type, Content-Length and
         Last-Modified header. Obeys If-Modified-Since header and HEAD requests.
@@ -281,13 +299,10 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
     root = os.path.abspath(root) + os.sep
     filename = os.path.abspath(os.path.join(root, filename.strip('/\\')))
     if not filename.startswith(root):
-        #return HTTPError(403, "Access denied.")
         return ForbiddenFault("Access denied.")
     if not os.path.exists(filename) or not os.path.isfile(filename):
-        #return HTTPError(404, "File does not exist.")
         return fault.ItemNotFoundFault("File does not exist.")
     if not os.access(filename, os.R_OK):
-        #return HTTPError(403, "You do not have permission to access this file.")
         return ForbiddenFault("You do not have permission to access this file.")
 
     if not mimetype and guessmime:
@@ -309,13 +324,15 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None, downlo
         
         ims = parse_date(ims)
         if ims is not None and ims >= int(stats.st_mtime):
-            resp.date = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
+            resp.date = time.strftime(
+                "%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
             return Response(body=None, status=304, headerlist=resp.headerlist)
     resp.content_length = stats.st_size
     if req.method == 'HEAD':
         return Response(body=None, status=200, headerlist=resp.headerlist)
     else:
-        return Response(body=open(filename).read(), status=200, headerlist=resp.headerlist)
+        return Response(body=open(filename).read(), status=200,
+            headerlist=resp.headerlist)
 
 
 def template(tpl, template_adapter=SimpleTemplate, **kwargs):
@@ -328,11 +345,14 @@ def template(tpl, template_adapter=SimpleTemplate, **kwargs):
         lookup = kwargs.get('template_lookup', TEMPLATE_PATH)
         if isinstance(tpl, template_adapter):
             TEMPLATES[tpl] = tpl
-            if settings: TEMPLATES[tpl].prepare(**settings)
+            if settings:
+                TEMPLATES[tpl].prepare(**settings)
         elif "\n" in tpl or "{" in tpl or "%" in tpl or '$' in tpl:
-            TEMPLATES[tpl] = template_adapter(source=tpl, lookup=lookup, **settings)
+            TEMPLATES[tpl] = template_adapter(source=tpl, lookup=lookup,
+                **settings)
         else:
-            TEMPLATES[tpl] = template_adapter(name=tpl, lookup=lookup, **settings)
+            TEMPLATES[tpl] = template_adapter(name=tpl, lookup=lookup,
+                **settings)
     return TEMPLATES[tpl].render(**kwargs)
 
 
