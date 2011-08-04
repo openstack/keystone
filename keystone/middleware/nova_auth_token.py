@@ -71,6 +71,10 @@ class KeystoneAuthShim(wsgi.Middleware):
 
         # create a project for tenant
         project_id = req.headers['X_TENANT']
+        try:
+            self.auth.get_project(project_id)
+        except:
+            self.auth.create_project(project_id, user_id)
 
         # ensure user is a member of project
         if not self.auth.is_project_member(user_id, project_id):
