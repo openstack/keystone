@@ -5,6 +5,7 @@ import keystone.backends as db
 from keystone.controllers.auth import AuthController
 from keystone.controllers.endpointtemplates import EndpointTemplatesController
 from keystone.controllers.roles import RolesController
+from keystone.controllers.services import ServicesController
 from keystone.controllers.staticfiles import StaticFilesController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.user import UserController
@@ -92,9 +93,13 @@ class AdminApi(wsgi.Router):
         #Roles and RoleRefs
         roles_controller = RolesController(options)
         mapper.connect("/roles", controller=roles_controller,
+                    action="create_role", conditions=dict(method=["POST"]))
+        mapper.connect("/roles", controller=roles_controller,
                     action="get_roles", conditions=dict(method=["GET"]))
         mapper.connect("/roles/{role_id}", controller=roles_controller,
                     action="get_role", conditions=dict(method=["GET"]))
+        mapper.connect("/roles/{role_id}", controller=roles_controller,
+            action="delete_role", conditions=dict(method=["DELETE"]))
         mapper.connect("/users/{user_id}/roleRefs",
             controller=roles_controller, action="get_role_refs",
             conditions=dict(method=["GET"]))
@@ -104,6 +109,7 @@ class AdminApi(wsgi.Router):
         mapper.connect("/users/{user_id}/roleRefs/{role_ref_id}",
             controller=roles_controller, action="delete_role_ref",
             conditions=dict(method=["DELETE"]))
+
         #EndpointTemplatesControllers and Endpoints
         endpoint_templates_controller = EndpointTemplatesController(options)
         mapper.connect("/endpointTemplates",
@@ -153,4 +159,18 @@ class AdminApi(wsgi.Router):
                     action="get_xsd_atom_contract",
                     conditions=dict(method=["GET"]))
 
+        # Services Controller
+        services_controller = ServicesController(options)
+        mapper.connect("/services", controller=services_controller,
+                    action="get_services", conditions=dict(method=["GET"]))
+        mapper.connect("/services", controller=services_controller,
+                    action="create_service", conditions=dict(method=["POST"]))
+        mapper.connect("/services/{service_id}",\
+                    controller=services_controller,
+                        action="delete_service",
+                            conditions=dict(method=["DELETE"]))
+        mapper.connect("/services/{service_id}",
+                       controller=services_controller,
+                            action="get_service",
+                                conditions=dict(method=["GET"]))
         super(AdminApi, self).__init__(mapper)

@@ -19,6 +19,11 @@ class RolesController(wsgi.Controller):
             config.SERVICE.create_role(utils.get_auth_token(req), role))
 
     @utils.wrap_error
+    def delete_role(self, req, role_id):
+        rval = config.SERVICE.delete_role(utils.get_auth_token(req), role_id)
+        return utils.send_result(204, req, rval)
+
+    @utils.wrap_error
     def get_roles(self, req):
         marker, limit, url = get_marker_limit_and_url(req)
         roles = config.SERVICE.get_roles(

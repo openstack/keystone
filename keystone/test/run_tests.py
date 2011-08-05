@@ -17,6 +17,7 @@ TEMP_FILES = (
     'ldap.db',
     'ldap.db.db')
 
+
 def delete_temp_files():
     """Quietly deletes any temp files in the test directory"""
     for path in TEMP_FILES:

@@ -78,7 +78,7 @@ def Main():
         parser.error('No object type specified for first argument')
 
     object_type = args[0]
-    if object_type in ['user', 'tenant', 'role', 'endpointTemplates', 'token',
+    if object_type in ['user', 'tenant', 'role', 'service' , 'endpointTemplates', 'token',
             'endpoint']:
         pass
     else:
@@ -125,7 +125,7 @@ def Main():
                 if len(args) > 4:
                     tenant = args[4]
                     object.tenant_id = tenant
-                db_api.user.create(object)
+                db_api.USER.create(object)
                 print "SUCCESS: User %s created." % object.id
             except Exception as exc:
                 raise Exception("Failed to create user %s" % (object_id,),
@@ -133,11 +133,11 @@ def Main():
             return
         elif command == "disable":
             try:
-                object = db_api.user.get(object_id)
+                object = db_api.USER.get(object_id)
                 if object == None:
                     raise IndexError("User %s not found" % object_id)
                 object.enabled = False
-                db_api.user.update(object_id, object)
+                db_api.USER.update(object_id, object)
                 print "SUCCESS: User %s disabled." % object.id
             except Exception as exc:
                 raise Exception("Failed to disable user %s" % (object_id,),
@@ -147,7 +147,7 @@ def Main():
             try:
                 if len(args) > 2:
                     tenant = args[2]
-                    objects = db_api.user.get_by_tenant(tenant)
+                    objects = db_api.USER.get_by_tenant(tenant)
                     if objects == None:
                         raise IndexError("Users not found")
                     print 'id', 'enabled'
@@ -155,7 +155,7 @@ def Main():
                     for row in objects:
                         print row.id, row.enabled
                 else:
-                    objects = db_api.user.get_all()
+                    objects = db_api.USER.get_all()
                     if objects == None:
                         raise IndexError("Users not found")
                     print 'id', 'enabled', 'tenant'
@@ -171,7 +171,7 @@ def Main():
                 object = db_models.Tenant()
                 object.id = object_id
                 object.enabled = True
-                db_api.tenant.create(object)
+                db_api.TENANT.create(object)
                 print "SUCCESS: Tenant %s created." % object.id
                 return
             except Exception as exc:
@@ -179,7 +179,7 @@ def Main():
                                 sys.exc_info())
         elif command == "list":
             try:
-                objects = db_api.tenant.get_all()
+                objects = db_api.TENANT.get_all()
                 if objects == None:
                     raise IndexError("Tenants not found")
                 print 'tenant', 'enabled'
@@ -191,11 +191,11 @@ def Main():
             return
         elif command == "disable":
             try:
-                object = db_api.tenant.get(object_id)
+                object = db_api.TENANT.get(object_id)
                 if object == None:
                     raise IndexError("Tenant %s not found" % object_id)
                 object.enabled = False
-                db_api.tenant.update(object_id, object)
+                db_api.TENANT.update(object_id, object)
                 print "SUCCESS: Tenant %s disabled." % object.id
             except Exception as exc:
                 raise Exception("Failed to disable tenant %s" % (object_id,),
@@ -206,7 +206,7 @@ def Main():
             try:
                 object = db_models.Role()
                 object.id = object_id
-                db_api.role.create(object)
+                db_api.ROLE.create(object)
                 print "SUCCESS: Role %s created successfully." % object.id
                 return
             except Exception as exc:
@@ -216,7 +216,7 @@ def Main():
             if len(args) == 3:
                 tenant = args[2]
                 try:
-                    objects = db_api.tenant.get_role_assignments(tenant)
+                    objects = db_api.TENANT.get_role_assignments(tenant)
                     if objects == None:
                         raise IndexError("Assignments not found")
                     print 'Role assignments for tenant %s' % tenant
@@ -232,7 +232,7 @@ def Main():
             else:
                 tenant = None
                 try:
-                    objects = db_api.role.get_all()
+                    objects = db_api.ROLE.get_all()
                     if objects == None:
                         raise IndexError("Roles not found")
                     print 'All roles'
@@ -258,7 +258,7 @@ def Main():
                 object.user_id = user
                 if tenant != None:
                     object.tenant_id = tenant
-                db_api.user.user_role_add(object)
+                db_api.USER.user_role_add(object)
                 print "SUCCESS: Granted %s the %s role on %s." % \
                         (object.user_id, object.role_id, object.tenant_id)
             except Exception as exc:
@@ -288,7 +288,7 @@ def Main():
                 object.internal_url = internal_url
                 object.enabled = enabled
                 object.is_global = is_global
-                object = db_api.endpoint_template.create(object)
+                object = db_api.ENDPOINT_TEMPLATE.create(object)
                 print "SUCCESS: Created EndpointTemplates for %s pointing " \
                     "to %s." % (object.service, object.public_url)
                 return
@@ -299,7 +299,7 @@ def Main():
             if len(args) == 3:
                 tenant = args[2]
                 try:
-                    objects = db_api.endpoint_template.endpoint_get_by_tenant(
+                    objects = db_api.ENDPOINT_TEMPLATE.endpoint_get_by_tenant(
                         tenant)
                     if objects == None:
                         raise IndexError("URLs not found")
@@ -315,7 +315,7 @@ def Main():
             else:
                 tenant = None
                 try:
-                    objects = db_api.endpoint_template.get_all()
+                    objects = db_api.ENDPOINT_TEMPLATE.get_all()
                     if objects == None:
                         raise IndexError("URLs not found")
                     print 'All EndpointTemplates'
@@ -339,7 +339,7 @@ def Main():
                 object = db_models.Endpoints()
                 object.tenant_id = tenant_id
                 object.endpoint_template_id = endpoint_template_id
-                object = db_api.endpoint_template.endpoint_add(object)
+                object = db_api.ENDPOINT_TEMPLATE.endpoint_add(object)
                 print "SUCCESS: Endpoint %s added to tenant %s." % \
                             (endpoint_template_id, tenant_id)
                 return
@@ -359,7 +359,7 @@ def Main():
                                                         .replace("-", ""),
                                                         "%Y%m%dT%H:%M")
                 object.expires = tuple_time
-                db_api.token.create(object)
+                db_api.TOKEN.create(object)
                 print "SUCCESS: Token %s created." % object.id
                 return
             except Exception as exc:
@@ -367,7 +367,7 @@ def Main():
                     sys.exc_info())
         elif command == "list":
             try:
-                objects = db_api.token.get_all()
+                objects = db_api.TOKEN.get_all()
                 if objects == None:
                     raise IndexError("Tokens not found")
                 print 'token', 'user', 'expiration', 'tenant'
@@ -379,16 +379,39 @@ def Main():
             return
         elif command == "delete":
             try:
-                object = db_api.token.get(object_id)
+                object = db_api.TOKEN.get(object_id)
                 if object == None:
                     raise IndexError("Token %s not found" % object_id)
                 else:
-                    db_api.token.delete(object_id)
+                    db_api.TOKEN.delete(object_id)
                     print 'SUCCESS: Token %s deleted.' % object_id
             except Exception, e:
                 raise Exception("Failed to delete token %s" % (object_id,),
                     sys.exc_info())
             return
+    elif object_type == "service":
+            if command == "add":
+                try:
+                    object = db_models.Service()
+                    object.id = object_id
+                    db_api.SERVICE.create(object)
+                    print "SUCCESS: Service %s created successfully." % object.id
+                    return
+                except Exception as exc:
+                    raise Exception("Failed to create Service %s" % (object_id,), sys.exc_info())
+            elif command == "list":
+                try:
+                    objects = db_api.SERVICE.get_all()
+                    if objects == None:
+                        raise IndexError("Services not found")
+                    print objects
+                    print 'All Services'
+                    print 'Service'
+                    print '-' * 20
+                    for row in objects:
+                        print row.id
+                except Exception, e:
+                    raise Exception("Error getting all services", sys.exc_info())
 
     # Command not handled
     print ("ERROR: %s %s not yet supported" % (object_type, command))

@@ -23,6 +23,7 @@ User = None
 Credentials = None
 Token = None
 EndpointTemplates = None
+Service = None
 
 
 # Function to dynamically set model references.
@@ -51,3 +52,6 @@ def set_value(variable_name, value):
     elif variable_name == 'EndpointTemplates':
         global EndpointTemplates
         EndpointTemplates = value
+    elif variable_name == 'Service':
+        global Service
+        Service = value

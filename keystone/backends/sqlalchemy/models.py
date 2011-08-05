@@ -104,6 +104,16 @@ class Role(Base, KeystoneBase):
     __api__ = 'role'
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
+    service_id = Column(Integer, ForeignKey('services.id'))
+    __table_args__ = (
+        UniqueConstraint("id", "service_id"), {})
+
+
+class Service(Base, KeystoneBase):
+    __tablename__ = 'services'
+    __api__ = 'service'
+    id = Column(String(255), primary_key=True, unique=True)
+    desc = Column(String(255))
 
 
 class Tenant(Base, KeystoneBase):

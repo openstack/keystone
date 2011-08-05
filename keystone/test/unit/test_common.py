@@ -440,6 +440,10 @@ def get_auth_token():
     return '999888777666'
 
 
+def get_service_token():
+    return '111222333444'
+
+
 def get_exp_auth_token():
     return '000999'
 
@@ -539,6 +543,92 @@ def create_role_xml(role_id, auth_token):
                               headers={"Content-Type": "application/xml",
                                        "X-Auth-Token": auth_token,
                                        "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def delete_role(role_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sroles/%s' % (URL_V2, role_id)
+    resp, content = header.request(url, "DELETE", body='',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": str(auth_token)})
+    return resp, content
+
+
+def create_service(service_id, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%sservices' % (URL_V2)
+    body = {"service": {"id": service_id,
+                       "description": "A description ..."}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def create_service_xml(service_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sservices' % (URL_V2)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+            <service xmlns="http://docs.openstack.org/identity/api/v2.0" \
+            id="%s" description="A Description of the service"/>\
+                    ' % service_id
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def delete_service(service_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sservices/%s' % (URL_V2, service_id)
+    resp, content = header.request(url, "DELETE", body='',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": str(auth_token)})
+    return resp, content
+
+
+def get_services(auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sservices' % (URL_V2)
+    #test for Content-Type = application/json
+    resp, content = header.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/json",
+                                     "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def get_services_xml(auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sservices' % (URL_V2)
+    #test for Content-Type = application/xml
+    resp, content = header.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/xml",
+                                     "X-Auth-Token": auth_token,
+                                     "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def get_service(service_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sservices/%s' % (URL_V2, service_id)
+    #test for Content-Type = application/json
+    resp, content = header.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/json",
+                                     "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def get_service_xml(service_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sservices/%s' % (URL_V2, service_id)
+    #test for Content-Type = application/xml
+    resp, content = header.request(url, "GET", body='{}',
+                              headers={"Content-Type": "application/xml",
+                                     "X-Auth-Token": auth_token,
+                                     "ACCEPT": "application/xml"})
     return (resp, content)
 
 

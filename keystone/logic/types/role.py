@@ -21,9 +21,10 @@ from keystone.logic.types import fault
 
 
 class Role(object):
-    def __init__(self, role_id, desc):
+    def __init__(self, role_id, desc, service_id=None):
         self.role_id = role_id
         self.desc = desc
+        self.service_id = service_id
 
     @staticmethod
     def from_xml(xml_str):
@@ -31,14 +32,15 @@ class Role(object):
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
-                            "role")
+                "role")
             if root == None:
                 raise fault.BadRequestFault("Expecting Role")
             role_id = root.get("id")
             desc = root.get("description")
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
-            return Role(role_id, desc)
+            service_id = root.get("serviceId")
+            return Role(role_id, desc, service_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))
 
@@ -55,8 +57,18 @@ class Role(object):
                 role_id = role["id"]
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
-            desc = role["description"]
-            return Role(role_id, desc)
+
+            if not "description" in role:
+                desc = None
+            else:
+                desc = role["description"]
+
+            if not "serviceId" in role:
+                service_id = None
+            else:
+                service_id = role["serviceId"]
+
+            return Role(role_id, desc, service_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))
 
@@ -67,6 +79,8 @@ class Role(object):
             dom.set("id", self.role_id)
         if self.desc:
             dom.set("description", string.lower(str(self.desc)))
+        if self.service_id:
+            dom.set("serviceId", string.lower(str(self.service_id)))
         return dom
 
     def to_xml(self):
@@ -78,6 +92,8 @@ class Role(object):
             role["id"] = self.role_id
         if self.desc:
             role["description"] = self.desc
+        if self.service_id:
+            role["serviceId"] = self.desc
         return {'role': role}
 
     def to_json(self):

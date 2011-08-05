@@ -26,6 +26,13 @@ class RoleAPI(BaseRoleAPI):
         role_ref.save()
         return role_ref
 
+    def delete(self, id, session=None):
+        if not session:
+            session = get_session()
+        with session.begin():
+            role_ref = self.get(id, session)
+            session.delete(role_ref)
+
     def get(self, id, session=None):
         if not session:
             session = get_session()

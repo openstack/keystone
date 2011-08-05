@@ -183,6 +183,9 @@ class BaseRoleAPI(object):
     def create(self, values):
         raise NotImplementedError
 
+    def delete(self, id):
+        raise NotImplementedError
+
     def get(self, id):
         raise NotImplementedError
 
@@ -275,37 +278,57 @@ class BaseEndpointTemplateAPI(object):
     def endpoint_delete(self, id):
         raise NotImplementedError
 
+
+class BaseServiceAPI:
+    def create(self, values):
+        raise NotImplementedError
+
+    def get(self, id):
+        raise NotImplementedError
+
+    def get_all(self):
+        raise NotImplementedError
+
+    def get_page(self, marker, limit):
+        raise NotImplementedError
+
+    def get_page_markers(self, marker, limit):
+        raise NotImplementedError
 #API
 #TODO(Yogi) Refactor all API to separate classes specific to models.
-endpoint_template = BaseEndpointTemplateAPI()
-group = BaseGroupAPI()
-role = BaseRoleAPI()
-tenant_group = BaseTenantGroupAPI()
-tenant = BaseTenantAPI()
-token = BaseTokenAPI()
-user = BaseUserAPI()
+ENDPOINT_TEMPLATE = BaseEndpointTemplateAPI()
+GROUP = BaseGroupAPI()
+ROLE = BaseRoleAPI()
+TENANT_GROUP = BaseTenantGroupAPI()
+TENANT = BaseTenantAPI()
+TOKEN = BaseTokenAPI()
+USER = BaseUserAPI()
+SERVICE = BaseServiceAPI()
 
 
 # Function to dynamically set module references.
 def set_value(variable_name, value):
     if variable_name == 'endpoint_template':
-        global endpoint_template
-        endpoint_template = value
+        global ENDPOINT_TEMPLATE
+        ENDPOINT_TEMPLATE = value
     elif variable_name == 'group':
-        global group
-        group = value
+        global GROUP
+        GROUP = value
     elif variable_name == 'role':
-        global role
-        role = value
+        global ROLE
+        ROLE = value
     elif variable_name == 'tenant_group':
-        global tenant_group
-        tenant_group = value
+        global TENANT_GROUP
+        TENANT_GROUP = value
     elif variable_name == 'tenant':
-        global tenant
-        tenant = value
+        global TENANT
+        TENANT = value
     elif variable_name == 'token':
-        global token
-        token = value
+        global TOKEN
+        TOKEN = value
     elif variable_name == 'user':
-        global user
-        user = value
+        global USER
+        USER = value
+    elif variable_name == 'service':
+        global SERVICE
+        SERVICE = value
