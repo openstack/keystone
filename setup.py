@@ -54,6 +54,7 @@ setup(
     zip_safe=False,
     cmdclass=cmdclass,
     install_requires=['setuptools'],
+    test_suite='nose.collector',
     entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [

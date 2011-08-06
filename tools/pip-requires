@@ -1,3 +1,8 @@
+# You may need to install development files before using 'pip install'
+# For example:
+#   sudo apt-get install python-dev libxml2-dev libxslt1-dev libsasl2d-ev libldap2-dev libsqlite3-dev
+
+# Production
 eventlet
 lxml
 paste
@@ -8,5 +13,18 @@ sqlalchemy
 webob
 Routes
 httplib2
-python-ldap==2.3.13 # optional authentication backend (may require OpenLDAP libs)
+
+# Optional backend: LDAP
+python-ldap
+
+# Optional backend: Memcache
 python-memcached
+
+# Development
+Sphinx # required to build documentation
+coverage # computes code coverage percentages
+
+# Testing
+webtest
+unittest2
+pep8
