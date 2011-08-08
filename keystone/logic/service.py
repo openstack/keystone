@@ -126,46 +126,39 @@ class IdentityService(object):
         api.TENANT.create(dtenant)
         return tenant
 
-    ##
-    ##    GET Tenants with Pagination
-    ##
     def get_tenants(self, admin_token, marker, limit, url):
+        """Fetch tenants for either an admin user or service user."""
+        ts = []
+
         try:
+            # If Global admin...
             (_token, user) = self.__validate_admin_token(admin_token)
-            # If Global admin return all
-            ts = []
+
+            # Return all tenants
             dtenants = api.TENANT.get_page(marker, limit)
-            for dtenant in dtenants:
-                ts.append(Tenant(dtenant.id,
-                                         dtenant.desc, dtenant.enabled))
-            prev, next = api.TENANT.get_page_markers(marker, limit)
-            links = []
-            if prev:
-                links.append(atom.Link('prev',
-                    "%s?'marker=%s&limit=%s'" % (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next',
-                    "%s?'marker=%s&limit=%s'" % (url, next, limit)))
-            return Tenants(ts, links)
+            prev_page, next_page = api.TENANT.get_page_markers(marker, limit)
         except fault.UnauthorizedFault:
-            #If not global admin ,return tenants specific to user.
+            # If not global admin...
             (_token, user) = self.__validate_token(admin_token, False)
-            ts = []
+
+            # Return tenants specific to user
             dtenants = api.TENANT.tenants_for_user_get_page(
                 user, marker, limit)
-            for dtenant in dtenants:
-                ts.append(Tenant(dtenant.id,
-                                         dtenant.desc, dtenant.enabled))
-            prev, next = api.TENANT.tenants_for_user_get_page_markers(
-                user, marker, limit)
-            links = []
-            if prev:
-                links.append(atom.Link('prev',
-                    "%s?'marker=%s&limit=%s'" % (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next',
-                    "%s?'marker=%s&limit=%s'" % (url, next, limit)))
-            return Tenants(ts, links)
+            prev_page, next_page = api.TENANT.\
+                tenants_for_user_get_page_markers(user, marker, limit)
+
+        for dtenant in dtenants:
+            ts.append(Tenant(dtenant.id, dtenant.desc, dtenant.enabled))
+
+        links = []
+        if prev_page:
+            links.append(atom.Link('prev',
+                "%s?'marker=%s&limit=%s'" % (url, prev_page, limit)))
+        if next_page:
+            links.append(atom.Link('next',
+                "%s?'marker=%s&limit=%s'" % (url, next_page, limit)))
+
+        return Tenants(ts, links)
 
     def get_tenant(self, admin_token, tenant_id):
         self.__validate_admin_token(admin_token)
