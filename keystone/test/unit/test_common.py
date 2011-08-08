@@ -468,6 +468,10 @@ def get_global_tenant():
     return 'GlobalTenant'
 
 
+def get_test_service_id():
+    return 'exampleservice'
+
+
 def handle_user_resp(self, content, respvalue, resptype):
     if respvalue == 200:
         if resptype == 'application/json':
@@ -494,6 +498,55 @@ def create_role(roleid, auth_token):
     resp, content = header.request(url, "POST", body=json.dumps(body),
                               headers={"Content-Type": "application/json",
                                        "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def create_role_mapped_to_service(role_id, auth_token, service_id):
+    header = httplib2.Http(".cache")
+
+    url = '%sroles' % (URL_V2)
+    body = {"role": {"id": role_id,
+                       "description": "A description ...",
+                       "serviceId": service_id}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def create_role_mapped_to_service_xml(role_id, auth_token, service_id):
+    header = httplib2.Http(".cache")
+
+    url = '%sroles' % (URL_V2)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+        <role xmlns="http://docs.openstack.org/identity/api/v2.0" \
+        id="%s" description="A Description of the role" serviceId="%s"/>\
+                ' % (role_id, service_id)
+    resp, content = header.request(url, "POST", body=body,
+                              headers={"Content-Type": "application/xml",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def get_role(role_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sroles/%s' % (URL_V2, role_id)
+    resp, content = header.request(url, "GET", body='',
+        headers={"Content-Type": "application/json",
+            "X-Auth-Token": auth_token,
+                "ACCEPT": "application/json",
+                })
+    return (resp, content)
+
+
+def get_role_xml(role_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sroles/%s' % (URL_V2, role_id)
+    resp, content = header.request(url, "GET", body='',
+        headers={"Content-Type": "application/xml",
+            "X-Auth-Token": auth_token,
+                "ACCEPT": "application/xml",
+                })
     return (resp, content)
 
 
@@ -683,6 +736,59 @@ def delete_all_endpoint(tenant_id, auth_token):
             header.request(url, "DELETE", body='', headers={
                 "Content-Type": "application/json",
                 "X-Auth-Token": str(auth_token)})
+
+
+def create_endpoint_template(region, service,
+    public_url, admin_url, internal_url, enabled, is_global, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%sendpointTemplates' % (URL_V2)
+    body = {"endpointTemplate": {"region": region,
+                       "serviceName": service,
+                       "publicURL": public_url,
+                       "adminURL": admin_url,
+                       "internalURL": internal_url,
+                       "enabled": enabled,
+                       "global": is_global}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def create_endpoint_template_xml(region, service, public_url, admin_url,
+    internal_url, enabled, is_global, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%sendpointTemplates' % (URL_V2)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+        <endpointTemplate xmlns="http://docs.openstack.org/identity/api/v2.0" \
+        region="%s" serviceName="%s" \
+        publicURL="%s" adminURL="%s"\
+        internalURL="%s" enabled="%s"\
+        global="%s"/>' % (region, service, public_url,\
+        admin_url, internal_url, enabled, is_global)
+    body = {"endpointTemplate": {"region": region,
+                       "serviceName": service,
+                       "publicURL": public_url,
+                       "adminURL": admin_url,
+                       "internalURL": internal_url,
+                       "enabled": enabled,
+                       "global": is_global}}
+    resp, content = header.request(url, "POST", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def delete_endpoint_template(endpoint_template_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sendpointTemplates/%s' % (URL_V2, endpoint_template_id)
+    resp, content = header.request(url, "DELETE", body='',
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": str(auth_token)})
+    return resp, content
 
 
 if __name__ == '__main__':

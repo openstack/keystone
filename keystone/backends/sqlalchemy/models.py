@@ -92,7 +92,7 @@ class UserRoleAssociation(Base, KeystoneBase):
 class Endpoints(Base, KeystoneBase):
     __tablename__ = 'endpoints'
     id = Column(Integer, primary_key=True)
-    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    tenant_id = Column(String(255))
     endpoint_template_id = Column(Integer, ForeignKey('endpoint_templates.id'))
     __table_args__ = (
         UniqueConstraint("endpoint_template_id", "tenant_id"), {})
@@ -122,7 +122,6 @@ class Tenant(Base, KeystoneBase):
     id = Column(String(255), primary_key=True, unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
-    endpoints = relationship('Endpoints', backref='tenant', cascade="all")
 
 
 class User(Base, KeystoneBase):

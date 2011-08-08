@@ -44,7 +44,7 @@ UserRoleAssociation = create_model(
 Endpoints = create_model(
     'Endpoints', ['tenant_id', 'endpoint_template_id'])
 Role = create_model(
-    'Role', ['id', 'desc'])
+    'Role', ['id', 'desc', 'service_id'])
 Tenant = create_model(
     'Tenant', ['id', 'desc', 'enabled'])
 User = create_model(

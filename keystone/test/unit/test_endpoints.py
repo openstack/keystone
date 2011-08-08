@@ -53,6 +53,89 @@ class EndpointTemplatesTest(unittest.TestCase):
         utils.delete_all_endpoint(self.tenant, self.auth_token)
 
 
+class CreateEndpointTemplatesTest(EndpointTemplatesTest):
+    def test_create_endpoint_template(self):
+        region = 'DFW'
+        service = utils.get_test_service_id()
+        public_url = 'public'
+        admin_url = 'admin'
+        internal_url = 'internal'
+        enabled = True
+        is_global = False
+        resp, content = utils.create_endpoint_template(\
+            region, service, public_url,\
+            admin_url, internal_url, enabled, is_global, self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(201, int(resp['status']))
+        obj = json.loads(content)
+        if not "endpointTemplate" in obj:
+            raise fault.BadRequestFault("Expecting endpointTemplate")
+        endpoint_template = obj["endpointTemplate"]
+        if not "id" in endpoint_template:
+            endpoint_template_id = None
+        else:
+            endpoint_template_id = endpoint_template["id"]
+        if endpoint_template_id == None:
+            self.fail("Not the expected Endpoint Template")
+        if not "serviceName" in endpoint_template:
+            service_id = None
+        else:
+            service_id = endpoint_template["serviceName"]
+        if service_id != utils.get_test_service_id():
+            self.fail("Not the expected service")
+        resp, content = utils.delete_endpoint_template(
+            endpoint_template_id, self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(204, int(resp['status']))
+
+    def test_create_endpoint_template_xml(self):
+        region = 'DFW'
+        service = utils.get_test_service_id()
+        public_url = 'public'
+        admin_url = 'admin'
+        internal_url = 'internal'
+        enabled = True
+        is_global = False
+        resp, content = utils.create_endpoint_template_xml(
+            region, service, public_url, admin_url,
+            internal_url, enabled, is_global, self.auth_token)
+
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(201, int(resp['status']))
+
+        #verify content
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        endpoint_template = dom.find(
+            "{http://docs.openstack.org/identity/api/v2.0}endpointTemplate")
+        if endpoint_template == None:
+            self.fail("Expecting endpointTemplates")
+        endpoint_template_id = endpoint_template.get("id")
+        if endpoint_template_id == None:
+            self.fail("Not the expected Endpoint template.")
+
+        service_id = endpoint_template.get("serviceName")
+
+        if service_id != utils.get_test_service_id():
+            self.fail("Not the expected service")
+        resp, content = utils.delete_endpoint_template(
+            endpoint_template_id, self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(204, int(resp['status']))
+
+
 class GetEndpointTemplatesTest(EndpointTemplatesTest):
     def test_get_endpoint_templates(self):
         header = httplib2.Http(".cache")

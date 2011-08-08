@@ -247,6 +247,9 @@ class BaseEndpointTemplateAPI(object):
     def create(self, values):
         raise NotImplementedError
 
+    def delete(self, id):
+        raise NotImplementedError
+
     def get(self, id):
         raise NotImplementedError
 
@@ -282,7 +285,10 @@ class BaseEndpointTemplateAPI(object):
 class BaseServiceAPI:
     def create(self, values):
         raise NotImplementedError
-
+    
+    def delete(self, id):
+        raise NotImplementedError
+    
     def get(self, id):
         raise NotImplementedError
 

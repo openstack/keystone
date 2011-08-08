@@ -46,6 +46,7 @@ class RolesTest(unittest.TestCase):
         utils.create_user(self.tenant, self.user, self.auth_token)
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
+        self.service_id = utils.get_test_service_id()
 
     def tearDown(self):
         utils.delete_user(self.user, self.auth_token)
@@ -60,6 +61,86 @@ class CreateRolesTest(RolesTest):
         elif int(resp['status']) == 503:
             self.fail('Service Not Available')
         self.assertEqual(201, int(resp['status']))
+        resp, content = utils.delete_role('test_role', self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(204, int(resp['status']))
+
+    def test_create_role_mapped_to_a_service(self):
+        resp, content = utils.create_role_mapped_to_service(
+            'test_role', self.auth_token, self.service_id)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(201, int(resp['status']))
+        resp, content = utils.get_role('test_role', self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        resp, content = utils.get_role('test_role', self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        #verify content
+        obj = json.loads(content)
+        if not "role" in obj:
+            raise fault.BadRequestFault("Expecting Role")
+        role = obj["role"]
+        if not "id" in role:
+            role_id = None
+        else:
+            role_id = role["id"]
+        if role_id != 'test_role':
+            self.fail("Not the expected Role")
+        if not "serviceId" in role:
+            service_id = None
+        else:
+            service_id = role["serviceId"]
+        if service_id != self.service_id:
+            self.fail("Not the expected service")
+        resp, content = utils.delete_role('test_role', self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(204, int(resp['status']))
+
+    def test_create_role_mapped_to_a_service_xml(self):
+        resp, content = utils.create_role_mapped_to_service_xml(
+            'test_role', self.auth_token, self.service_id)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(201, int(resp['status']))
+        resp, content = utils.get_role_xml('test_role', self.auth_token)
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+
+        #verify content
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        role = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
+            "role")
+        if role == None:
+            self.fail("Expecting Role")
+        role_id = role.get("id")
+        if role_id != 'test_role':
+            self.fail("Not the expected Role")
+        service_id = role.get("serviceId")
+
+        if service_id != self.service_id:
+            self.fail("Not the expected service")
         resp, content = utils.delete_role('test_role', self.auth_token)
         if int(resp['status']) == 500:
             self.fail('Identity Fault')

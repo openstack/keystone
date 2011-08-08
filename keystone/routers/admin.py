@@ -18,9 +18,7 @@ class AdminApi(wsgi.Router):
     def __init__(self, options):
         self.options = options
         mapper = routes.Mapper()
-
         db.configure_backends(options)
-
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/tokens", controller=auth_controller,
@@ -32,7 +30,6 @@ class AdminApi(wsgi.Router):
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
-
         # Tenant Operations
         tenant_controller = TenantController(options)
         mapper.connect("/tenants", controller=tenant_controller,
@@ -116,10 +113,18 @@ class AdminApi(wsgi.Router):
             controller=endpoint_templates_controller,
                 action="get_endpoint_templates",
                     conditions=dict(method=["GET"]))
+        mapper.connect("/endpointTemplates",
+            controller=endpoint_templates_controller,
+                action="add_endpoint_template",
+                    conditions=dict(method=["POST"]))
         mapper.connect("/endpointTemplates/{endpoint_templates_id}",
                 controller=endpoint_templates_controller,
                     action="get_endpoint_template",
                         conditions=dict(method=["GET"]))
+        mapper.connect("/endpointTemplates/{endpoint_templates_id}",
+                controller=endpoint_templates_controller,
+                    action="delete_endpoint_template",
+                        conditions=dict(method=["DELETE"]))
         mapper.connect("/tenants/{tenant_id}/endpoints",
                        controller=endpoint_templates_controller,
                     action="get_endpoints_for_tenant",
@@ -165,10 +170,9 @@ class AdminApi(wsgi.Router):
                     action="get_services", conditions=dict(method=["GET"]))
         mapper.connect("/services", controller=services_controller,
                     action="create_service", conditions=dict(method=["POST"]))
-        mapper.connect("/services/{service_id}",\
-                    controller=services_controller,
-                        action="delete_service",
-                            conditions=dict(method=["DELETE"]))
+        mapper.connect("/services/{service_id}", \
+            controller=services_controller,
+            action="delete_service", conditions=dict(method=["DELETE"]))
         mapper.connect("/services/{service_id}",
                        controller=services_controller,
                             action="get_service",

@@ -80,7 +80,7 @@ class Role(object):
         if self.desc:
             dom.set("description", string.lower(str(self.desc)))
         if self.service_id:
-            dom.set("serviceId", string.lower(str(self.service_id)))
+            dom.set("serviceId", str(self.service_id))
         return dom
 
     def to_xml(self):
@@ -93,7 +93,7 @@ class Role(object):
         if self.desc:
             role["description"] = self.desc
         if self.service_id:
-            role["serviceId"] = self.desc
+            role["serviceId"] = self.service_id
         return {'role': role}
 
     def to_json(self):
@@ -156,17 +156,17 @@ class RoleRef(object):
             obj = json.loads(json_str)
             if not "roleRef" in obj:
                 raise fault.BadRequestFault("Expecting Role Ref")
-            roleRef = obj["roleRef"]
-            if not "roleId" in roleRef:
+            role_ref = obj["roleRef"]
+            if not "roleId" in role_ref:
                 role_id = None
             else:
-                role_id = roleRef["roleId"]
+                role_id = role_ref["roleId"]
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
-            if not "tenantId" in roleRef:
+            if not "tenantId" in role_ref:
                 tenant_id = None
             else:
-                tenant_id = roleRef["tenantId"]
+                tenant_id = role_ref["tenantId"]
             if tenant_id == None:
                 raise fault.BadRequestFault("Expecting Tenant")
             return RoleRef('', role_id, tenant_id)
@@ -188,14 +188,14 @@ class RoleRef(object):
         return etree.tostring(self.to_dom())
 
     def to_dict(self):
-        roleRef = {}
+        role_ref = {}
         if self.role_ref_id:
-            roleRef["id"] = self.role_ref_id
+            role_ref["id"] = self.role_ref_id
         if self.role_id:
-            roleRef["roleId"] = self.role_id
+            role_ref["roleId"] = self.role_id
         if self.tenant_id:
-            roleRef["tenantId"] = self.tenant_id
-        return {'roleRef': roleRef}
+            role_ref["tenantId"] = self.tenant_id
+        return {'roleRef': role_ref}
 
     def to_json(self):
         return json.dumps(self.to_dict())

@@ -73,8 +73,6 @@ class EndpointTemplate(object):
                 id = None
             else:
                 id = endpoint_template["id"]
-            if id == None:
-                raise fault.BadRequestFault("Expecting endpointTemplate")
 
             if 'region' in endpoint_template:
                 region = endpoint_template["region"]
