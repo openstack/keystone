@@ -62,7 +62,7 @@ function run_pep8 {
 }
 
 
-NOSETESTS="python keystone/test/run_tests.py $noseargs"
+NOSETESTS="python run_tests.py $noseargs"
 
 if [ $never_venv -eq 0 ]
 then
