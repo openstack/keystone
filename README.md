@@ -97,16 +97,10 @@ You may need to prefix your `pip install` commands with `sudo`, depending on you
 # Show dependencies
 $ cat tools/pip-requires
 
-# Install dependencies
+# Install dependencies (for production, testing, and development)
 $ pip install -r tools/pip-requires
 
-# Install test dependencies
-$ pip install -r tools/pip-requires-testing
-
-# Install development dependencies
-$ pip install -r tools/pip-requires-development
-
-#Install Memcache (If memcache is one of the backends enabled)
+# Optional: Install Memcache (if enabled as a backend)
 Refer #(http://memcached.org/)
 </pre>
 
@@ -126,6 +120,7 @@ Starting the admin server only (exposes the Admin API):
 
 By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
+
 ## Running Tests
 
 Before running tests, ensure you have installed the testing dependencies as described in the Dependencies section above.
@@ -134,7 +129,8 @@ To run the test suite in a single command:
 
     $ python keystone/test/run_tests.py
 
-#### Test data
+
+#### Sample data
 A set of sample data can be added by running a shell script:
 
     $ ./bin/sampledata.sh
@@ -143,25 +139,12 @@ The script calls `keystone-manage` to create the sample data.
 
 After starting keystone or running `keystone-manage` a `keystone.db` sqlite database should be created in the keystone folder.
 
+
 #### Demo
 To run client demo (with all auth middleware running locally on sample service):
 
     $ ./examples/echo/bin/echod
     $ python examples/echo/echo_client.py
-
-
-#### Unit Tests
-There are 10 groups of tests. They can be run individually or as an entire colection. To run the entire test suite run:
-
-    $ python keystone/test/unit/test_keystone.py
-
-A test can also be run individually, e.g.:
-
-    $ python keystone/test/unit/test_token.py
-
-For more on unit testing please refer to:
-
-    $ python keystone/test/unit/test_keystone.py --help
 
 
 #### API Validation
@@ -394,17 +377,18 @@ We could potentially integrate with those:
 #### On a Mac
 
 Using macports:
-sudo port install openldap
 
-Looks like python-ldap needs recompiling to work. So:
-download it from here: http://pypi.python.org/pypi/python-ldap/2.4.1
-unpack it and go to the unpacked directory
+	sudo port install openldap
 
-edit setup.cfg (set lines below):
+It appears the package `python-ldap` needs to be recompiled to work. So,
+download it from: http://pypi.python.org/pypi/python-ldap/2.4.1
 
-  library_dirs = /opt/local/lib
-  include_dirs = /opt/local/include /usr/include/sasl
+After unpacking, edit `setup.cfg` as shown below:
 
-then run:
-python setup.py build
-sudo python setup.py install
+	library_dirs = /opt/local/lib
+	include_dirs = /opt/local/include /usr/include/sasl
+
+Then, run:
+
+	python setup.py build
+	sudo python setup.py install

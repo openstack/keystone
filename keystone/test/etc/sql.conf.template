@@ -2,7 +2,7 @@
 verbose = False
 debug = False
 default_store = sqlite
-log_file = keystone.sql.log
+log_file = %(test_dir)s/keystone.sql.log
 backends = keystone.backends.sqlalchemy
 service-header-mappings = {
 	'nova' : 'X-Server-Management-Url',
@@ -13,11 +13,12 @@ service_port = 5000
 admin_host = 0.0.0.0
 admin_port = 5001
 keystone-admin-role = Admin
+keystone-service-admin-role = KeystoneServiceAdmin
 
 [keystone.backends.sqlalchemy]
-sql_connection = sqlite:///keystone.db
+sql_connection = sqlite:///%(test_dir)s/keystone.db
 sql_idle_timeout = 30
-backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Tenant', 'User', 'UserRoleAssociation', 'Role', 'Token']
+backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Tenant', 'User', 'UserRoleAssociation', 'Role', 'Token', 'Service']
 
 [pipeline:admin]
 pipeline =
