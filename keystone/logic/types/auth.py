@@ -79,6 +79,107 @@ class PasswordCredentials(object):
                                         str(e))
 
 
+class Ec2Credentials(object):
+    """Credentials based on username, access_key, signature and data.
+
+        @type access: str
+        @param access: Access key for user in the form of access:project.
+
+        @type signature: str
+        @param signature: Signature of the request.
+
+        @type params: dictionary of str
+        @param params: Web paramaters used for the signature.
+
+        @type verb: str
+        @param verb: Web request verb ('GET' or 'POST').
+
+        @type host: str
+        @param host: Web request host string (including port).
+
+        @type path: str
+        @param path: Web request path.
+
+     """
+
+    def __init__(self, access, signature, verb,
+                 host, path, params):
+        self.access = access
+        self.signature = signature
+        self.verb = verb
+        self.host = host
+        self.path = path
+        self.params = params
+
+    @staticmethod
+    def from_xml(xml_str):
+        try:
+            dom = etree.Element("root")
+            dom.append(etree.fromstring(xml_str))
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}"
+                            "ec2Credentials")
+            if root == None:
+                raise fault.BadRequestFault("Expecting ec2Credentials")
+            access = root.get("access")
+            if access == None:
+                raise fault.BadRequestFault("Expecting an access key")
+            signature = root.get("signature")
+            if signature == None:
+                raise fault.BadRequestFault("Expecting a signature")
+            verb = root.get("verb")
+            if verb == None:
+                raise fault.BadRequestFault("Expecting a verb")
+            host = root.get("host")
+            if host == None:
+                raise fault.BadRequestFault("Expecting a host")
+            path = root.get("path")
+            if path == None:
+                raise fault.BadRequestFault("Expecting a path")
+            # TODO(vish): parse xml params
+            params = {}
+            return Ec2Credentials(access, signature, verb, host, path, params)
+        except etree.LxmlError as e:
+            raise fault.BadRequestFault("Cannot parse password credentials",
+                                        str(e))
+
+    @staticmethod
+    def from_json(json_str):
+        try:
+            obj = json.loads(json_str)
+            if not "ec2Credentials" in obj:
+                raise fault.BadRequestFault("Expecting ec2Credentials")
+            cred = obj["ec2Credentials"]
+            # Check that fields are valid
+            invalid = [key for key in cred if key not in\
+                       ['username', 'access', 'signature', 'params',
+                        'verb', 'host', 'path']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+            if not "access" in cred:
+                raise fault.BadRequestFault("Expecting an access key")
+            access = cred["access"]
+            if not "signature" in cred:
+                raise fault.BadRequestFault("Expecting a signature")
+            signature = cred["signature"]
+            if not "verb" in cred:
+                raise fault.BadRequestFault("Expecting a verb")
+            verb = cred["verb"]
+            if not "host" in cred:
+                raise fault.BadRequestFault("Expecting a host")
+            host = cred["host"]
+            if not "path" in cred:
+                raise fault.BadRequestFault("Expecting a path")
+            path = cred["path"]
+            if not "params" in cred:
+                raise fault.BadRequestFault("Expecting params")
+            params = cred["params"]
+            return Ec2Credentials(access, signature, verb, host, path, params)
+        except (ValueError, TypeError) as e:
+            raise fault.BadRequestFault("Cannot parse password credentials",
+                                        str(e))
+
+
 class Token(object):
     """An auth token."""
 
