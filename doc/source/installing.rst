@@ -81,9 +81,10 @@ Debian/Ubuntu
    If you want to build the Keystone documentation locally, you will also want
    to install the python-sphinx package
 
-1. Branch Keystone's trunk branch::
+1. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)
    
-   $> bzr branch lp:keystone
+   $> git checkout master
+   $> git pull origin master
 
 1. Install Keystone::
    
