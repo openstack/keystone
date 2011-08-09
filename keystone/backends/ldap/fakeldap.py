@@ -30,7 +30,7 @@ import shelve
 from ldap import (dn, filter, modlist,
     SCOPE_BASE, SCOPE_ONELEVEL, SCOPE_SUBTREE, MOD_ADD, MOD_DELETE,
     MOD_REPLACE, NO_SUCH_OBJECT, OBJECT_CLASS_VIOLATION, SERVER_DOWN,
-    NO_SUCH_ATTRIBUTE, ALREADY_EXISTS)
+    NO_SUCH_ATTRIBUTE, ALREADY_EXISTS, INAPPROPRIATE_AUTH, INVALID_CREDENTIALS)
 
 
 scope_names = {
@@ -138,12 +138,28 @@ class FakeLDAP(object):
         if server_fail:
             raise SERVER_DOWN
         LOG.debug("FakeLDAP bind dn=%s" % (dn,))
+        if dn == 'cn=Admin' and password == 'password':
+            return
+        try:
+            attrs = self.db["%s%s" % (self.__prefix, dn)]
+        except KeyError:
+            LOG.error("FakeLDAP bind fail: dn=%s not found" % (dn,))
+            raise NO_SUCH_OBJECT
+        db_passwd = None
+        try:
+            db_passwd = attrs['userPassword'][0]
+        except (KeyError, IndexError):
+            LOG.error("FakeLDAP bind fail: password for dn=%s not found" % dn)
+            raise INAPPROPRIATE_AUTH
+        if db_passwd != password:
+            LOG.error("FakeLDAP bind fail: password for dn=%s does not match" %
+                dn)
+            raise INVALID_CREDENTIALS
 
     def unbind_s(self):
         """This method is ignored, but provided for compatibility."""
         if server_fail:
             raise SERVER_DOWN
-        pass
 
     def add_s(self, dn, attrs):
         """Add an object with the specified attributes at dn."""
