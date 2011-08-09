@@ -447,13 +447,13 @@ class IdentityService(object):
         if dtoken.tenant_id:
             drole_refs = api.ROLE.ref_get_all_tenant_roles(duser.id,
                                                              dtoken.tenant_id)
-            for droleRef in drole_refs:
-                ts.append(RoleRef(droleRef.id, droleRef.role_id,
-                                         droleRef.tenant_id))
+            for drole_ref in drole_refs:
+                ts.append(RoleRef(drole_ref.id, drole_ref.role_id,
+                                         drole_ref.tenant_id))
         drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
-        for droleRef in drole_refs:
-            ts.append(RoleRef(droleRef.id, droleRef.role_id,
-                                     droleRef.tenant_id))
+        for drole_ref in drole_refs:
+            ts.append(RoleRef(drole_ref.id, drole_ref.role_id,
+                                     drole_ref.tenant_id))
         user = auth.User(duser.id, duser.tenant_id, RoleRefs(ts, []))
         return auth.ValidateData(token, user)
 
@@ -572,6 +572,10 @@ class IdentityService(object):
         drole = api.ROLE.get(role_id)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
+        role_refs = api.ROLE.ref_get_by_role(role_id)
+        if role_refs != None:
+            for role_ref in role_refs:
+                api.ROLE.ref_delete(role_ref.id)
         api.ROLE.delete(role_id)
 
     def create_role_ref(self, admin_token, user_id, role_ref):
@@ -662,23 +666,29 @@ class IdentityService(object):
         if not dendpoint_template:
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
+        #Delete Related endpoints
+        endpoints = api.ENDPOINT_TEMPLATE.\
+            endpoint_get_by_endpoint_template(endpoint_template_id)
+        if endpoints != None:
+            for endpoint in endpoints:
+                api.ENDPOINT_TEMPLATE.endpoint_delete(endpoint.id)
         api.ENDPOINT_TEMPLATE.delete(endpoint_template_id)
 
     def get_endpoint_templates(self, admin_token, marker, limit, url):
         self.__validate_service_or_keystone_admin_token(admin_token)
 
         ts = []
-        dendpointTemplates = api.ENDPOINT_TEMPLATE.get_page(marker, limit)
-        for dendpointTemplate in dendpointTemplates:
+        dendpoint_templates = api.ENDPOINT_TEMPLATE.get_page(marker, limit)
+        for dendpoint_template in dendpoint_templates:
             ts.append(EndpointTemplate(
-                dendpointTemplate.id,
-                dendpointTemplate.region,
-                dendpointTemplate.service,
-                dendpointTemplate.public_url,
-                dendpointTemplate.admin_url,
-                dendpointTemplate.internal_url,
-                dendpointTemplate.enabled,
-                dendpointTemplate.is_global))
+                dendpoint_template.id,
+                dendpoint_template.region,
+                dendpoint_template.service,
+                dendpoint_template.public_url,
+                dendpoint_template.admin_url,
+                dendpoint_template.internal_url,
+                dendpoint_template.enabled,
+                dendpoint_template.is_global))
         prev, next = api.ENDPOINT_TEMPLATE.get_page_markers(marker, limit)
         links = []
         if prev:
@@ -692,19 +702,19 @@ class IdentityService(object):
     def get_endpoint_template(self, admin_token, endpoint_template_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
 
-        dendpointTemplate = api.ENDPOINT_TEMPLATE.get(endpoint_template_id)
-        if not dendpointTemplate:
+        dendpoint_template = api.ENDPOINT_TEMPLATE.get(endpoint_template_id)
+        if not dendpoint_template:
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
         return EndpointTemplate(
-            dendpointTemplate.id,
-            dendpointTemplate.region,
-            dendpointTemplate.service,
-            dendpointTemplate.public_url,
-            dendpointTemplate.admin_url,
-            dendpointTemplate.internal_url,
-            dendpointTemplate.enabled,
-            dendpointTemplate.is_global)
+            dendpoint_template.id,
+            dendpoint_template.region,
+            dendpoint_template.service,
+            dendpoint_template.public_url,
+            dendpoint_template.admin_url,
+            dendpoint_template.internal_url,
+            dendpoint_template.enabled,
+            dendpoint_template.is_global)
 
     def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
@@ -716,14 +726,14 @@ class IdentityService(object):
 
         ts = []
 
-        dtenantEndpoints = \
+        dtenant_endpoints = \
             api.ENDPOINT_TEMPLATE.\
                 endpoint_get_by_tenant_get_page(
                     tenant_id, marker, limit)
-        for dtenantEndpoint in dtenantEndpoints:
-            ts.append(Endpoint(dtenantEndpoint.id,
+        for dtenant_endpoint in dtenant_endpoints:
+            ts.append(Endpoint(dtenant_endpoint.id,
                     url + '/endpointTemplates/' + \
-                    str(dtenantEndpoint.endpoint_template_id)))
+                    str(dtenant_endpoint.endpoint_template_id)))
         links = []
         if ts.__len__():
             prev, next = \
@@ -810,6 +820,27 @@ class IdentityService(object):
     def delete_service(self, admin_token, service_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
         dservice = api.SERVICE.get(service_id)
+
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
+
+        #Delete Related Endpointtemplates and Endpoints.
+        endpoint_templates = api.ENDPOINT_TEMPLATE.get_by_service(service_id)
+        if endpoint_templates != None:
+            for endpoint_template in endpoint_templates:
+                endpoints = api.ENDPOINT_TEMPLATE.\
+                    endpoint_get_by_endpoint_template(endpoint_template.id)
+                if endpoints != None:
+                    for endpoint in endpoints:
+                        api.ENDPOINT_TEMPLATE.endpoint_delete(endpoint.id)
+                api.ENDPOINT_TEMPLATE.delete(endpoint_template.id)
+        #Delete Related Role and RoleRefs
+        roles = api.ROLE.get_by_service(service_id)
+        if roles != None:
+            for role in roles:
+                role_refs = api.ROLE.ref_get_by_role(role.id)
+                if role_refs != None:
+                    for role_ref in role_refs:
+                        api.ROLE.ref_delete(role_ref.id)
+                api.ROLE.delete(role.id)
         api.SERVICE.delete(service_id)

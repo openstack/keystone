@@ -31,7 +31,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             session = get_session()
         with session.begin():
             endpoint_template = self.get(id, session)
-            session.delete(endpoint_template)
+        session.delete(endpoint_template)
 
     def get(self, id, session=None):
         if not session:
@@ -44,6 +44,12 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
         return session.query(models.EndpointTemplates).all()
+
+    def get_by_service(self, service_id, session=None):
+        if not session:
+            session = get_session()
+        return session.query(models.EndpointTemplates).\
+            filter_by(service=service_id).all()
 
     def get_page(self, marker, limit, session=None):
         if not session:
@@ -184,6 +190,14 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             session = get_session()
         result = session.query(models.Endpoints).\
                         filter_by(tenant_id=tenant_id).first()
+        return result
+
+    def endpoint_get_by_endpoint_template(
+        self, endpoint_template_id, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.Endpoints).\
+            filter_by(endpoint_template_id=endpoint_template_id).all()
         return result
 
     def endpoint_delete(self, id, session=None):

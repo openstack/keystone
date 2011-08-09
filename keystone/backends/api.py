@@ -131,10 +131,10 @@ class BaseTenantGroupAPI(object):
     def get(self, id, tenant):
         raise NotImplementedError
 
-    def get_page(self, tenantId, marker, limit):
+    def get_page(self, tenant_id, marker, limit):
         raise NotImplementedError
 
-    def get_page_markers(self, tenantId, marker, limit):
+    def get_page_markers(self, tenant_id, marker, limit):
         raise NotImplementedError
 
     def update(self, id, tenant_id, values):
@@ -192,6 +192,9 @@ class BaseRoleAPI(object):
     def get(self, id):
         raise NotImplementedError
 
+    def get_by_service(self, service_id):
+        raise NotImplementedError
+
     def get_all(self):
         raise NotImplementedError
 
@@ -208,6 +211,9 @@ class BaseRoleAPI(object):
         raise NotImplementedError
 
     def ref_get(self, id):
+        raise NotImplementedError
+
+    def ref_get_by_role(self, id):
         raise NotImplementedError
 
     def ref_delete(self, id):
@@ -259,6 +265,9 @@ class BaseEndpointTemplateAPI(object):
     def get_all(self):
         raise NotImplementedError
 
+    def get_by_service(self, service_id):
+        raise NotImplementedError
+
     def get_page(self, marker, limit):
         raise NotImplementedError
 
@@ -270,6 +279,9 @@ class BaseEndpointTemplateAPI(object):
 
     def endpoint_get_by_tenant_get_page_markers(self, tenant_id, marker,
             limit):
+        raise NotImplementedError
+
+    def endpoint_get_by_endpoint_template(self, endpoint_template_id):
         raise NotImplementedError
 
     def endpoint_add(self, values):
@@ -286,6 +298,12 @@ class BaseEndpointTemplateAPI(object):
 
 
 class BaseServiceAPI:
+    def create(self, values):
+        raise NotImplementedError
+
+    def get(self, id):
+        raise NotImplementedError
+
     def get_all(self):
         raise NotImplementedError
 
@@ -293,6 +311,9 @@ class BaseServiceAPI:
         raise NotImplementedError
 
     def get_page_markers(self, marker, limit):
+        raise NotImplementedError
+
+    def delete(self, id):
         raise NotImplementedError
 
 

@@ -39,6 +39,13 @@ class RoleAPI(BaseRoleAPI):
         result = session.query(models.Role).filter_by(id=id).first()
         return result
 
+    def get_by_service(self, service_id, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.Role).\
+            filter_by(service_id=service_id).all()
+        return result
+
     def get_all(self, session=None):
         if not session:
             session = get_session()
@@ -180,6 +187,13 @@ class RoleAPI(BaseRoleAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
+
+    def ref_get_by_role(self, role_id, session=None):
+        if not session:
+            session = get_session()
+        result = session.query(models.UserRoleAssociation).\
+            filter_by(role_id=role_id).all()
+        return result
 
 
 def get():

@@ -58,15 +58,28 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
                 raise exception.NotFound("Role %s not found" % (role_id,))
+            if tenant_id != None:
+                tenant_dn = self.api.tenant._id_to_dn(tenant_id)
+            else:
+                tenant_dn = None
             attrs = [
                 ('objectClass', 'keystoneTenantRole'),
                 ('member', user_dn),
                 ('keystoneRole', self._id_to_dn(role_id)),
+                ('tenant', tenant_dn),
             ]
             conn.add_s(role_dn, attrs)
         return models.UserRoleAssociation(
             id=self._create_ref(role_id, tenant_id, user_id),
             role_id=role_id, user_id=user_id, tenant_id=tenant_id)
+
+    def get_by_service(self, service_id):
+        roles = self.get_all('(service_id=%s)' % \
+                    (ldap.filter.escape_filter_chars(service_id),))
+        try:
+            return roles[0]
+        except IndexError:
+            return None
 
     def get_role_assignments(self, tenant_id):
         conn = self.api.get_connection()
@@ -154,3 +167,30 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         for tenant in self.api.tenant.get_all():
             all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
         return self._get_page_markers(marker, limit, all_roles)
+
+    def  ref_get_by_role(self, id):
+        role_dn = self._id_to_dn(id)
+        try:
+            roles = self.get_all('(keystoneRole=%s)' % (role_dn,))
+        except ldap.NO_SUCH_OBJECT:
+            return []
+        res = []
+        for role_dn, attrs in roles:
+            try:
+                user_dns = attrs['member']
+                tenant_dns = attrs['tenant']
+            except KeyError:
+                continue
+            for user_dn in user_dns:
+                user_id = ldap.dn.str2dn(user_dn)[0][0][1]
+                tenant_id = None
+                if tenant_dns != None:
+                    for tenant_dn in tenant_dns:
+                        tenant_id = ldap.dn.str2dn(tenant_dn)[0][0][1]
+                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                res.append(models.UserRoleAssociation(
+                    id=self._create_ref(role_id, tenant_id, user_id),
+                    user_id=user_id,
+                    role_id=role_id,
+                    tenant_id=tenant_id))
+        return res
