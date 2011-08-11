@@ -15,7 +15,7 @@ Routes
 httplib2
 
 # Optional backend: LDAP
-python-ldap
+python-ldap==2.3.13
 
 # Optional backend: Memcache
 python-memcached
