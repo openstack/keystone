@@ -20,7 +20,7 @@ Installing Keystone
 Installing from packages
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To install the latest version of Keystone from the Launchpad Bazaar repositories,
+To install the latest version of Keystone from the Github repositories,
 following the following instructions.
 
 Debian/Ubuntu
@@ -51,7 +51,7 @@ Installing from source tarballs
 To install the latest version of Keystone from the Launchpad Bazaar repositories,
 following the following instructions.
 
-1. Grab the source tarball from `Launchpad <http://launchpad.net/keystone/+download>`_
+1. Grab the source tarball from `Github <https://github.com/openstack/keystone>`_
 
 2. Untar the source tarball::
 
@@ -62,18 +62,18 @@ following the following instructions.
    $> cd keystone-<RELEASE>
    $> sudo python setup.py install
 
-Installing from a Bazaar Branch
+Installing from a Github Branch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To install the latest version of Keystone from the Launchpad Bazaar repositories,
-following the following instructions.
+To install the latest version of Keystone from the Github repositories,
+see the following instructions.
 
 Debian/Ubuntu
 #############
 
-1. Install Bazaar and build dependencies::
+1. Install Git and build dependencies::
 
-   $> sudo apt-get install bzr python-eventlet python-routes python-greenlet swift
+   $> sudo apt-get install git python-eventlet python-routes python-greenlet swift
    $> sudo apt-get install python-argparse python-sqlalchemy python-wsgiref python-pastedeploy
 
 .. note::
@@ -81,7 +81,7 @@ Debian/Ubuntu
    If you want to build the Keystone documentation locally, you will also want
    to install the python-sphinx package
 
-1. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)
+1. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)::
    
    $> git checkout master
    $> git pull origin master

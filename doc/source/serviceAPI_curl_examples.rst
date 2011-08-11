@@ -14,49 +14,19 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-Welcome to Keystone's documentation!
-====================================
+Curl Service API examples
+=====
 
-The Keystone project provides services for authenticating and managing 
-user, account, and role information.
+All examples assume default port usage (5000)
 
-Concepts
-========
+Initial GET 
+#############
+Retrieves version, full API url, pdf doc link, and wadl link::
 
-.. toctree::
-   :maxdepth: 1
+	$> curl http://0.0.0.0:5000
+or::
 
-   users
-   tenants
-   groups
-   roles
+	$> curl http://0.0.0.0:5000/v2.0/
 
-Using Keystone
-==============
 
-.. toctree::
-   :maxdepth: 1
 
-   installing  
-   gettingstarted
-   
-Developer Docs
-==============
-
-.. toctree::
-   :maxdepth: 1
-
-   architecture
-   community
-
-Outstanding Documentation Tasks
-===============================
-
-.. todolist::
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
