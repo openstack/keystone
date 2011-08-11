@@ -217,9 +217,16 @@ class AuthProtocol(object):
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])
 
+        try:
+            tenant = identity_info['auth']['token']['tenantId']
+        except:
+            tenant = None
+        if not tenant:
+            tenant = identity_info['auth']['user']['tenantId']
+        # TODO(Ziad): add groups back in
         identity = {'user': identity_info['auth']['user']['username'],
-                    'tenant': identity_info['auth']['user']['tenantId'],
-                    'roles': roles}
+                    'tenant': tenant,
+                    'roles':roles}
 
         return identity
 

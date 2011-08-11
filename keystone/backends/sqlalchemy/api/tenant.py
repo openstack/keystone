@@ -181,15 +181,16 @@ class TenantAPI(BaseTenantAPI):
     def get_all_endpoints(self, tenant_id, session=None):
         if not session:
             session = get_session()
-        ep = aliased(models.Endpoints)
         endpointTemplates = aliased(models.EndpointTemplates)
-        q1 = session.query(endpointTemplates).join((ep,
-            ep.endpoint_template_id == endpointTemplates.id)).\
-                filter(ep.tenant_id == tenant_id)
-        q2 = session.query(endpointTemplates).\
+        q = session.query(endpointTemplates).\
             filter(endpointTemplates.is_global == 1)
-        q3 = q1.union(q2)
-        return q3.all()
+        if tenant_id:
+            ep = aliased(models.Endpoints)
+            q1 = session.query(endpointTemplates).join((ep,
+                ep.endpoint_template_id == endpointTemplates.id)).\
+                filter(ep.tenant_id == tenant_id)
+            q = q.union(q1)
+        return q.all()
 
     def get_role_assignments(self, tenant_id, session=None):
         if not session:

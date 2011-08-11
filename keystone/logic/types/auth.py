@@ -201,6 +201,8 @@ class User(object):
 class AuthData(object):
     """Authentation Information returned upon successful login."""
 
+    url_kinds = ["internal", "public", "admin"]
+
     def __init__(self, token, base_urls=None):
         self.token = token
         self.base_urls = base_urls
@@ -224,18 +226,12 @@ class AuthData(object):
                     endpoint = etree.Element("endpoint")
                     if base_url.region:
                         endpoint.set("region", base_url.region)
-                    if base_url.public_url:
-                        endpoint.set("publicURL",
-                            base_url.public_url.replace('%tenant_id%', \
-                                self.token.tenant_id))
-                    if base_url.admin_url:
-                        endpoint.set("adminURL",
-                            base_url.admin_url.replace('%tenant_id%', \
-                                self.token.tenant_id))
-                    if base_url.internal_url:
-                        endpoint.set("internalURL",
-                            base_url.internal_url.replace('%tenant_id%', \
-                                self.token.tenant_id))
+                    for url_kind in AuthData.url_kinds:
+                        base_url_item = getattr(base_url, url_kind + "_url")
+                        if base_url_item:                            
+                            endpoint.set(url_kind + "URL",
+                                base_url_item.replace('%tenant_id%', self.token.tenant_id) \
+                                if self.token.tenant_id else base_url_item)
                     service.append(endpoint)
                 service_catalog.append(service)
             dom.append(service_catalog)
@@ -261,15 +257,12 @@ class AuthData(object):
                     endpoint = {}
                     if base_url.region:
                         endpoint["region"] = base_url.region
-                    if base_url.public_url:
-                        endpoint["publicURL"] = base_url.public_url.replace(\
-                            '%tenant_id%', self.token.tenant_id)
-                    if base_url.admin_url:
-                        endpoint["adminURL"] = base_url.admin_url.replace(\
-                            '%tenant_id%', self.token.tenant_id)
-                    if base_url.internal_url:
-                        endpoint["internalURL"] = base_url.internal_url.\
-                            replace('%tenant_id%', self.token.tenant_id)
+                    for url_kind in AuthData.url_kinds:
+                        base_url_item = getattr(base_url, url_kind + "_url")
+                        if base_url_item:
+                            endpoint[url_kind + "URL"] = base_url_item.replace( \
+                                '%tenant_id%', self.token.tenant_id)            \
+                                if self.token.tenant_id else base_url_item
                     endpoints.append(endpoint)
                 service_catalog[key] = endpoints
             auth["serviceCatalog"] = service_catalog

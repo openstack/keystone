@@ -297,7 +297,9 @@ class IdentityService(object):
                                                           limit)
         for dtenantuser in dtenantusers:
             ts.append(User(None, dtenantuser.id, tenant_id,
-                                   dtenantuser.email, dtenantuser.enabled))
+                           dtenantuser.email, dtenantuser.enabled,
+                           dtenantuser.tenant_roles if hasattr(dtenantuser,
+                                                    "tenant_roles") else None))
         links = []
         if ts.__len__():
             prev, next = api.USER.users_get_by_tenant_get_page_markers(
@@ -432,8 +434,10 @@ class IdentityService(object):
     def __get_auth_data(self, dtoken, tenant_id):
         """return AuthData object for a token"""
         endpoints = None
-        if tenant_id != None:
+        try:
             endpoints = api.TENANT.get_all_endpoints(tenant_id)
+        except:
+            pass
         token = auth.Token(dtoken.expires, dtoken.id, tenant_id)
         return auth.AuthData(token, endpoints)
 

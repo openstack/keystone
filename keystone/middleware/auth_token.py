@@ -281,8 +281,14 @@ class AuthProtocol(object):
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])
 
+        try:
+            tenant = token_info['auth']['token']['tenantId']
+        except:
+            tenant = None
+        if not tenant:
+            tenant = token_info['auth']['user']['tenantId']
         verified_claims = {'user': token_info['auth']['user']['username'],
-                    'tenant': token_info['auth']['user']['tenantId'],
+                    'tenant': tenant,
                     'roles': roles}
         return verified_claims
 
