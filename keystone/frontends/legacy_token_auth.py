@@ -53,22 +53,17 @@ class AuthProtocol(object):
         print "Starting the %s component" % PROTOCOL_NAME
         self.conf = conf
         self.app = app
-        self.start_response = None
-        self.env = None
-        self.request = None
 
     # Handle 1.0 and 1.1 calls via middleware.
     # Right now I am treating every call of 1.0 and 1.1 as call
     # to authenticate
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
-        self.start_response = start_response
-        self.env = env
-        self.request = Request(env)
+        request = Request(env)
         if env['KEYSTONE_API_VERSION'] in ['1.0', '1.1']:
             params = {"passwordCredentials":
-                {"username": utils.get_auth_user(self.request),
-                    "password": utils.get_auth_key(self.request)}}
+                {"username": utils.get_auth_user(request),
+                    "password": utils.get_auth_key(request)}}
             #Make request to keystone
             new_request = Request.blank('/tokens')
             new_request.method = 'POST'
@@ -85,7 +80,7 @@ class AuthProtocol(object):
             return resp(env, start_response)
         else:
             # Other calls pass to downstream WSGI component
-            return self.app(self.env, self.start_response)
+            return self.app(env, start_response)
 
     def __transform_headers(self, content):
         """Transform Keystone auth to legacy headers"""

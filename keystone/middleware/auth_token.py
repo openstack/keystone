@@ -93,7 +93,7 @@ class AuthProtocol(object):
         # through and we let the downstream service make the final decision
         self.delay_auth_decision = int(conf.get('delay_auth_decision', 0))
 
-    def _init_protocol(self, app, conf):
+    def _init_protocol(self, conf):
         """ Protocol specific initialization """
 
         # where to find the auth service (we use this to validate tokens)
@@ -117,56 +117,58 @@ class AuthProtocol(object):
 
         #TODO(ziad): maybe we refactor this into a superclass
         self._init_protocol_common(app, conf)  # Applies to all protocols
-        self._init_protocol(app, conf)  # Specific to this protocol
+        self._init_protocol(conf)  # Specific to this protocol
 
     def __call__(self, env, start_response):
         """ Handle incoming request. Authenticate. And send downstream. """
 
-        self.start_response = start_response
-        self.env = env
-
         #Prep headers to forward request to local or remote downstream service
-        self.proxy_headers = env.copy()
-        for header in self.proxy_headers.iterkeys():
+        proxy_headers = env.copy()
+        for header in proxy_headers.iterkeys():
             if header[0:5] == 'HTTP_':
-                self.proxy_headers[header[5:]] = self.proxy_headers[header]
-                del self.proxy_headers[header]
+                proxy_headers[header[5:]] = proxy_headers[header]
+                del proxy_headers[header]
 
         #Look for authentication claims
-        self.claims = self._get_claims(env)
-        if not self.claims:
+        claims = self._get_claims(env)
+        if not claims:
             #No claim(s) provided
             if self.delay_auth_decision:
                 #Configured to allow downstream service to make final decision.
                 #So mark status as Invalid and forward the request downstream
-                self._decorate_request("X_IDENTITY_STATUS", "Invalid")
+                self._decorate_request("X_IDENTITY_STATUS",
+                    "Invalid", env, proxy_headers)
             else:
                 #Respond to client as appropriate for this auth protocol
-                return self._reject_request()
+                return self._reject_request(env, start_response)
         else:
             # this request is presenting claims. Let's validate them
-            valid = self._validate_claims(self.claims)
+            valid = self._validate_claims(claims)
             if not valid:
                 # Keystone rejected claim
                 if self.delay_auth_decision:
                     # Downstream service will receive call still and decide
-                    self._decorate_request("X_IDENTITY_STATUS", "Invalid")
+                    self._decorate_request("X_IDENTITY_STATUS",
+                        "Invalid", env, proxy_headers)
                 else:
                     #Respond to client as appropriate for this auth protocol
-                    return self._reject_claims()
+                    return self._reject_claims(env, start_response)
             else:
-                self._decorate_request("X_IDENTITY_STATUS", "Confirmed")
+                self._decorate_request("X_IDENTITY_STATUS",
+                    "Confirmed", env, proxy_headers)
 
             #Collect information about valid claims
             if valid:
-                claims = self._expound_claims()
+                claims = self._expound_claims(claims)
 
                 # Store authentication data
                 if claims:
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
-                        claims['user'])
-                    self._decorate_request('X_TENANT', claims['tenant'])
-                    self._decorate_request('X_USER', claims['user'])
+                        claims['user'], env, proxy_headers)
+                    self._decorate_request('X_TENANT',
+                        claims['tenant'], env, proxy_headers)
+                    self._decorate_request('X_USER',
+                        claims['user'], env, proxy_headers)
                     if 'roles' in claims and len(claims['roles']) > 0:
                         if claims['roles'] != None:
                             roles = ''
@@ -174,16 +176,17 @@ class AuthProtocol(object):
                                 if len(roles) > 0:
                                     roles += ','
                                 roles += role
-                            self._decorate_request('X_ROLE', roles)
+                            self._decorate_request('X_ROLE',
+                                roles, env, proxy_headers)
 
                     # NOTE(todd): unused
                     self.expanded = True
 
         #Send request downstream
-        return self._forward_request()
+        return self._forward_request(env, start_response, proxy_headers)
 
     # NOTE(todd): unused
-    def get_admin_auth_token(self, username, password, tenant):
+    def get_admin_auth_token(self, username, password):
         """
         This function gets an admin auth token to be used by this service to
         validate a user's token. Validate_token is a priviledged call so
@@ -206,17 +209,17 @@ class AuthProtocol(object):
         claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         return claims
 
-    def _reject_request(self):
+    def _reject_request(self, env, start_response):
         """Redirect client to auth server"""
         return HTTPUnauthorized("Authentication required",
                     [("WWW-Authenticate",
-                      "Keystone uri='%s'" % self.auth_location)])(self.env,
-                                                        self.start_response)
+                      "Keystone uri='%s'" % self.auth_location)])(env,
+                                                        start_response)
 
-    def _reject_claims(self):
+    def _reject_claims(self, env, start_response):
         """Client sent bad claims"""
-        return HTTPUnauthorized()(self.env,
-            self.start_response)
+        return HTTPUnauthorized()(env,
+            start_response)
 
     def _validate_claims(self, claims):
         """Validate claims, and provide identity information isf applicable """
@@ -254,7 +257,7 @@ class AuthProtocol(object):
             #another call in _expound_claims
             return True
 
-    def _expound_claims(self):
+    def _expound_claims(self, claims):
         # Valid token. Get user data and put it in to the call
         # so the downstream service can use it
         headers = {"Content-type": "application/json",
@@ -266,7 +269,7 @@ class AuthProtocol(object):
                     # "X-Auth-Token": admin_token}
                     # we're using a test token from the ini file for now
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                            '/v2.0/tokens/%s' % self.claims, headers=headers)
+                            '/v2.0/tokens/%s' % claims, headers=headers)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()
@@ -292,30 +295,30 @@ class AuthProtocol(object):
                     'roles': roles}
         return verified_claims
 
-    def _decorate_request(self, index, value):
+    def _decorate_request(self, index, value, env, proxy_headers):
         """Add headers to request"""
-        self.proxy_headers[index] = value
-        self.env["HTTP_%s" % index] = value
+        proxy_headers[index] = value
+        env["HTTP_%s" % index] = value
 
-    def _forward_request(self):
+    def _forward_request(self, env, start_response, proxy_headers):
         """Token/Auth processed & claims added to headers"""
         self._decorate_request('AUTHORIZATION',
-                                  "Basic %s" % self.service_pass)
+            "Basic %s" % self.service_pass, env, proxy_headers)
         #now decide how to pass on the call
         if self.app:
             # Pass to downstream WSGI component
-            return self.app(self.env, self.start_response)
+            return self.app(env, start_response)
             #.custom_start_response)
         else:
             # We are forwarding to a remote service (no downstream WSGI app)
-            req = Request(self.proxy_headers)
+            req = Request(proxy_headers)
             parsed = urlparse(req.url)
 
             conn = http_connect(self.service_host,
                                 self.service_port,
                                 req.method,
                                 parsed.path,
-                                self.proxy_headers,
+                                proxy_headers,
                                 ssl=(self.service_protocol == 'https'))
             resp = conn.getresponse()
             data = resp.read()
@@ -328,11 +331,11 @@ class AuthProtocol(object):
                 headers = [("WWW_AUTHENTICATE",
                    "Keystone uri='%s'" % self.auth_location)]
                 return Response(status=resp.status, body=data,
-                            headerlist=headers)(self.env,
-                                                self.start_response)
+                            headerlist=headers)(env,
+                                                start_response)
             else:
-                return Response(status=resp.status, body=data)(self.env,
-                                                self.start_response)
+                return Response(status=resp.status, body=data)(env,
+                                                start_response)
 
 
 def filter_factory(global_conf, **local_conf):
