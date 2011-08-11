@@ -47,8 +47,8 @@ import keystone.backends.models as db_models
 def Main():
     """
     Usage: keystone-manage [options] type command [id [attributes]]
-      type       : role, tenant, user, token (more to come)
-      command    : add, list, disable (more to come)
+      type       : role, tenant, user, token, endpoint, endpointTemplates
+      command    : add, list, disable, delete, grant, revoke
       id         : name or id
       attributes : depending on type...
         users    : password, tenant
@@ -60,7 +60,7 @@ def Main():
       -c | --config-file : config file to use
       -d | --debug : debug mode
 
-    Example: keystone-manage add user Admin P@ssw0rd
+    Example: keystone-manage user add Admin P@ssw0rd
     """
     usage = "usage: %prog [options] type command [id [attributes]]"
 
