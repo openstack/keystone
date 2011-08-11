@@ -11,11 +11,13 @@ class TestStaticFiles(KeystoneTestCase):
         r = self.admin_request(path='/identity.wadl')
         self.assertTrue('xml' in r.getheader('Content-Type'))
 
-#    def test_xsd_contract(self):
-#        self.admin_request(path='/xsd/something')
+    def test_xsd_contract(self):
+        r = self.admin_request(path='/xsd/api.xsd')
+        self.assertTrue('xml' in r.getheader('Content-Type'))
 
-#    def test_xsd_atom_contract(self):
-#        self.admin_request(path='/xsd/atom/something')
+    def test_xsd_atom_contract(self):
+        r = self.admin_request(path='/xsd/atom/atom.xsd')
+        self.assertTrue('xml' in r.getheader('Content-Type'))
 
 
 if __name__ == '__main__':
