@@ -15,23 +15,14 @@
             schemaLocation="atom/atom.xsd" />
 
     <!-- Elements -->
-    <element name="tenant" type="identity:Tenant"  />
-    <element name="tenants" type="identity:Tenants" />
-
-    <!-- Complex Types -->
-    <complexType name="Tenants">
-        <sequence>
-            <element name="tenant" type="identity:Tenant" maxOccurs="1000"/>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
-        </sequence>
-        <anyAttribute namespace="##other" processContents="lax"/>
-    </complexType>
-
-    <complexType name="Tenant">
+    <element name="tenant" type="identity:Tenant">
         <annotation>
             <documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
-                <p>This is ....</p>
+                <p>
+                  A container used to group or isolate resources and/or identity
+                  objects. Depending on the service operator, a tenant may map to a customer,
+                  account, organization, or project.
+                </p>
             </documentation>
             <xsd:appinfo>
               <xsdxt:samples>
@@ -44,12 +35,67 @@
               </xsdxt:samples>
             </xsd:appinfo>
         </annotation>
+    </element>  
+    <element name="tenants" type="identity:Tenants">
+       <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A list of tenants.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </element>  
+
+    <!-- Complex Types -->
+    <complexType name="Tenants">
         <sequence>
-            <element name="description" type="xsd:string"/>
+            <element name="tenant" type="identity:Tenant" maxOccurs="1000"/>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="enabled" type="xsd:boolean" use="optional" default="true"/>
-        <attribute name="id" type="xsd:string" use="optional"/>
+        <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+
+    <complexType name="Tenant">
+        <sequence>
+            <element name="description" type="xsd:string">
+                <annotation>
+                    <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            An free text description of the tenant.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+        <attribute name="enabled" type="xsd:boolean" use="optional" default="true">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        An boolean signifying if a tenant is enmabled or not. A disabled tenant
+                        cannot be authenticated against.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="id" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        An ID uniquely identifying the tenant.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 </schema>

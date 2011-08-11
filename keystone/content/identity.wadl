@@ -37,7 +37,7 @@
                 </resource>
             </resource>
             <resource id="tenants" path="tenants">
-                <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getTenants" />
                 <method href="#createTenant" />
                 <resource id="tenantId" path="{tenantId}">
@@ -58,72 +58,70 @@
             </resource>
 
             <resource id="users" path="users">
-		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getUsers" />
                 <method href="#createUser" />
                 <resource id="userId" path="{userId}">
-		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+										<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="userId" style="template" type="xsd:string"/>
                     <method href="#getUser" />
                     <method href="#updateUser" />
                     <method href="#deleteUser" />
-                <resource id="enabled" path="enabled">
-                    <method href="#setUserEnabled"/>
-                </resource>
-                <resource id="password" path="password">
-                    <method href="#setUserPassword"/>
-                </resource>
-                <resource id="tenant" path="tenant">
-                    <method href="#setUserTenant"/>
-                </resource>
-	            <resource id="roleRefs" path="roleRefs">
-    	            <method href="#getRoleRefs"/>
-	    	        <method href="#addRoleRef"/>
-                	<resource id="roleRef" path="{roleId}">
-	                	<param name="roleId" style="template" type="xsd:int"/>
-    	                <method href="#getRoleRef"/>
-	    	            <method href="#deleteRoleRef"/>
-    	    	    </resource>
-                </resource>
-		</resource>
-	    </resource>
+										<resource id="enabled" path="enabled">
+												<method href="#setUserEnabled"/>
+										</resource>
+										<resource id="password" path="password">
+												<method href="#setUserPassword"/>
+										</resource>
+										<resource id="tenant" path="tenant">
+												<method href="#setUserTenant"/>
+										</resource>
+										<resource id="roleRefs" path="roleRefs">
+												<method href="#getRoleRefs"/>
+												<method href="#addRoleRef"/>
+												<resource id="roleRef" path="{roleId}">
+														<param name="roleId" style="template" type="xsd:int"/>
+														<method href="#getRoleRef"/>
+														<method href="#deleteRoleRef"/>
+												</resource>
+										</resource>
+								</resource>
+						</resource>
 	    
             <resource id="endpointTemplates" path="endpointTemplates">
-		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getEndpointTemplates"/>
                 <method href="#addEndpointTemplate"/>
                 <resource id="endpointTemplateId" path="{endpointTemplateId}">
-		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+										<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="endpointTemplateId" style="template" type="xsd:int"/>
                     <method href="#getEndpointTemplate"/>
                     <method href="#deleteEndpointTemplate"/>
                 </resource>
             </resource>
-	    
-        <resource id="roles" path="roles">
-		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+						<resource id="roles" path="roles">
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getRoles"/>
                 <method href="#addRole"/>
                 <resource id="roleId" path="{roleId}">
-		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+										<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="roleId" style="template" type="xsd:int"/>
                     <method href="#getRole"/>
                     <method href="#deleteRole"/>
                 </resource>
             </resource>
 
-        <resource id="services" path="services">
-		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+						<resource id="services" path="services">
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getServices"/>
                 <method href="#addService"/>
                 <resource id="serviceId" path="{serviceId}">
-		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+										<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="serviceId" style="template" type="xsd:int"/>
                     <method href="#getService"/>
                     <method href="#deleteService"/>
                 </resource>
             </resource>
-	    
         </resource>
     </resources>
 
