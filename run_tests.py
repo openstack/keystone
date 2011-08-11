@@ -7,8 +7,8 @@ import subprocess
 import tempfile
 import time
 
-TEST_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                         'keystone','test')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+TEST_DIR = os.path.join(BASE_DIR, 'keystone', 'test')
 
 CONFIG_FILES = (
     'sql.conf.template',
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 # run the keystone server
                 print "Starting the keystone server..."
                 server = subprocess.Popen(
-                    [os.path.join(TEST_DIR, '../../bin/keystone'),
+                    [os.path.join(BASE_DIR, 'bin/keystone'),
                     '-c', conf_fp.name])
 
                 # blatent hack.
@@ -107,7 +107,8 @@ if __name__ == '__main__':
                 try:
                     # discover and run tests
                     print "Running tests..."
-                    execute('unit2 discover keystone.test')
+                    execute('unit2 discover -t %s -s %s' %
+                            (BASE_DIR, TEST_DIR))
                 finally:
                     #kill the keystone server
                     print "Stopping the keystone server..."
