@@ -226,7 +226,7 @@ class AuthProtocol(object):
         # TODO(Ziad): add groups back in
         identity = {'user': identity_info['auth']['user']['username'],
                     'tenant': tenant,
-                    'roles':roles}
+                    'roles': roles}
 
         return identity
 

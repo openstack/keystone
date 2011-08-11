@@ -66,7 +66,7 @@ class KeystoneAuthShim(wsgi.Middleware):
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
 
         # set user admin-ness to keystone admin-ness
-        # FIXME: keystone-admin-role value from keystone.conf is not 
+        # FIXME: keystone-admin-role value from keystone.conf is not
         # used neither here nor in glance_auth_token!
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
         is_admin = 'Admin' in roles

@@ -23,7 +23,8 @@ from keystone.logic.types import fault
 class User(object):
     """Document me!"""
 
-    def __init__(self, password, user_id, tenant_id, email, enabled, tenant_roles=None):
+    def __init__(self, password, user_id, tenant_id, email, enabled,
+            tenant_roles=None):
         self.user_id = user_id
         self.tenant_id = tenant_id
         self.password = password

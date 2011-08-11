@@ -228,9 +228,9 @@ class AuthData(object):
                         endpoint.set("region", base_url.region)
                     for url_kind in AuthData.url_kinds:
                         base_url_item = getattr(base_url, url_kind + "_url")
-                        if base_url_item:                            
-                            endpoint.set(url_kind + "URL",
-                                base_url_item.replace('%tenant_id%', self.token.tenant_id) \
+                        if base_url_item:
+                            endpoint.set(url_kind + "URL", base_url_item.\
+                                replace('%tenant_id%', self.token.tenant_id)
                                 if self.token.tenant_id else base_url_item)
                     service.append(endpoint)
                 service_catalog.append(service)
@@ -260,8 +260,8 @@ class AuthData(object):
                     for url_kind in AuthData.url_kinds:
                         base_url_item = getattr(base_url, url_kind + "_url")
                         if base_url_item:
-                            endpoint[url_kind + "URL"] = base_url_item.replace( \
-                                '%tenant_id%', self.token.tenant_id)            \
+                            endpoint[url_kind + "URL"] = base_url_item.\
+                                replace('%tenant_id%', self.token.tenant_id) \
                                 if self.token.tenant_id else base_url_item
                     endpoints.append(endpoint)
                 service_catalog[key] = endpoints
