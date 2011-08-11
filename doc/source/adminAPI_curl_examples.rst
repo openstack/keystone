@@ -50,7 +50,7 @@ Retrieve a list of tenants:
 #####
 	Run:: 
 	
-	$> curl -H "X-Auth-Token:0eed0ced-4667-4221-a0b2-24c91f242b0b" http://localhost:5001/v2.0/tenants
+	$> curl -H "X-Auth-Token:999888777666" http://localhost:5001/v2.0/tenants
 
 This will return something like::
 
@@ -60,7 +60,7 @@ Retrieve a list of users:
 #####
 	Run::
 	
-	$> curl -H "X-Auth-Token:0eed0ced-4667-4221-a0b2-24c91f242b0b" http://localhost:5001/v2.0/users
+	$> curl -H "X-Auth-Token:999888777666" http://localhost:5001/v2.0/users
 	
 This will return something like::
 
@@ -70,7 +70,7 @@ Retrieve information about the token:
 #####
 	Run::
 	
-	$> curl -H "X-Auth-Token:0eed0ced-4667-4221-a0b2-24c91f242b0b" http://localhost:5001/v2.0/tokens/0eed0ced-4667-4221-a0b2-24c91f242b0b
+	$> curl -H "X-Auth-Token:999888777666" http://localhost:5001/v2.0/tokens/0eed0ced-4667-4221-a0b2-24c91f242b0b
 		
 This will return something like::
 
@@ -80,13 +80,13 @@ Revoking a token:
 #####	
 	Run::
 	
-	$> curl -X DELETE -H "X-Auth-Token:0eed0ced-4667-4221-a0b2-24c91f242b0b" http://localhost:5001/tokens/0eed0ced-4667-4221-a0b2-24c91f242b0b
+	$> curl -X DELETE -H "X-Auth-Token:999888777666" http://localhost:5001/tokens/0eed0ced-4667-4221-a0b2-24c91f242b0b
 	
 Creating a tenant:
 #####
 	Run::
 	
-	$> curl -H "X-Auth-Token:6a8c89aa-a342-463e-b955-38bea3f524a1" -H "Content-type: application/json" -d '{"tenant":{"id":"MyTenant2", "description":"My 2nd Tenant", "enabled":true}}'  http://localhost:5001/tenants
+	$> curl -H "X-Auth-Token:999888777666" -H "Content-type: application/json" -d '{"tenant":{"id":"MyTenant2", "description":"My 2nd Tenant", "enabled":true}}'  http://localhost:5001/tenants
 	
 This will return something like::
 	
@@ -96,7 +96,7 @@ Verifying the tenant:
 #####
 	Run::
 	
-	$> curl -H "X-Auth-Token:6a8c89aa-a342-463e-b955-38bea3f524a1" http://localhost:5001/v2.0/tenants/MyTenant2
+	$> curl -H "X-Auth-Token:999888777666" http://localhost:5001/v2.0/tenants/MyTenant2
 	
 This will return something like::
 	
@@ -106,7 +106,7 @@ Updating the tenant:
 #####
 	Run::
 	
-	$> curl -X PUT -H "X-Auth-Token:57b83ec2-c20f-4d08-88ff-bce6f6027d07" -H "Content-type: application/json" -d '{"tenant":{"description":"My NEW 2nd Tenant"}}' http://localhost:5001/v2.0/tenants/MyTenant2
+	$> curl -X PUT -H "X-Auth-Token:999888777666" -H "Content-type: application/json" -d '{"tenant":{"description":"My NEW 2nd Tenant"}}' http://localhost:5001/v2.0/tenants/MyTenant2
 	
 This will return something like::
 
@@ -116,7 +116,7 @@ Deleting the tenant:
 #####
 	Run::
 	
-	$> curl -X DELETE -H "X-Auth-Token:57b83ec2-c20f-4d08-88ff-bce6f6027d07" http://localhost:5001/v2.0/tenants/MyTenant2
+	$> curl -X DELETE -H "X-Auth-Token:999888777666" http://localhost:5001/v2.0/tenants/MyTenant2
 	
 
     
