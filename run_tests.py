@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Manages execution of keystone test suites"""
 import os
 import sys
@@ -5,7 +7,8 @@ import subprocess
 import tempfile
 import time
 
-TEST_DIR = os.path.abspath(os.path.dirname(__file__))
+TEST_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                         'keystone','test')
 
 CONFIG_FILES = (
     'sql.conf.template',
