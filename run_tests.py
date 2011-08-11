@@ -35,10 +35,10 @@ def execute(cmd, raise_error=True):
     """
 
     env = os.environ.copy()
-
     # Make sure that we use the programs in the
     # current source directory's bin/ directory.
-    env['PATH'] = os.path.join(os.getcwd(), 'bin') + ':' + env['PATH']
+    env['PATH'] = os.path.join(BASE_DIR, 'bin') + ':' + env['PATH']
+
     process = subprocess.Popen(cmd,
                                shell=True,
                                stdin=subprocess.PIPE,
@@ -107,8 +107,13 @@ if __name__ == '__main__':
                 try:
                     # discover and run tests
                     print "Running tests..."
-                    execute('unit2 discover -t %s -s %s' %
-                            (BASE_DIR, TEST_DIR))
+                    if '--with-coverage' in sys.argv:
+                        print "running coverage"
+                        execute('coverage run %s discover -t %s -s %s' %
+                                ('/usr/bin/unit2', BASE_DIR, TEST_DIR))
+                    else:
+                        execute('unit2 discover -t %s -s %s' %
+                                (BASE_DIR, TEST_DIR))
                 finally:
                     #kill the keystone server
                     print "Stopping the keystone server..."
