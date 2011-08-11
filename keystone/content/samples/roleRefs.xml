@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<roleRefs
+    xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0"
+                roleId="admin" id="3" tenantId="tenantId"/>
+    <roleRef xmlns="http://docs.openstack.org/identity/api/v2.0"
+                roleId="test" id="4" tenantId="tenantId"/>
+</roleRefs>                

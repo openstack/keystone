@@ -29,6 +29,21 @@
     </complexType>
 
     <complexType name="Tenant">
+        <annotation>
+            <documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+                <p>This is ....</p>
+            </documentation>
+            <xsd:appinfo>
+              <xsdxt:samples>
+                <xsdxt:sample>
+                  <xsdxt:code type="application/xml" href="../samples/tenant.xml" />
+                </xsdxt:sample>
+                <xsdxt:sample>
+                  <xsdxt:code type="application/json" href="../samples/tenant.json" />
+                </xsdxt:sample>
+              </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
         <sequence>
             <element name="description" type="xsd:string"/>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />

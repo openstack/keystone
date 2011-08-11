@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 100
+Date: Sun, 1 Jan 2011 9:00:00 GMT
+
+{
+  "tenants":{
+    "values":[
+      {
+        "id":"1234",
+        "description":"A description ...",
+        "enabled":true
+      },
+      {
+        "id":"3456",
+        "description":"A description ...",
+        "enabled":true
+      }
+    ]
+  }
+}

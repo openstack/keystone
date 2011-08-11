@@ -1,0 +1,14 @@
+{
+  "roleRefs":[
+    {
+      "id":1,
+      "roleId":"admin",
+      "tenantId":"one"
+    },
+    {
+      "id":2,
+      "roleId":"test",
+      "tenantId":"two"
+    }
+  ]
+}
