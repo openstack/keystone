@@ -144,8 +144,6 @@ class RoleRef(object):
             tenant_id = root.get("tenantId")
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
-            elif tenant_id == None:
-                raise fault.BadRequestFault("Expecting Tenant")
             return RoleRef('', role_id, tenant_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse RoleRef", str(e))

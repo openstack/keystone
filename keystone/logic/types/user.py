@@ -23,12 +23,13 @@ from keystone.logic.types import fault
 class User(object):
     """Document me!"""
 
-    def __init__(self, password, user_id, tenant_id, email, enabled):
+    def __init__(self, password, user_id, tenant_id, email, enabled, tenant_roles=None):
         self.user_id = user_id
         self.tenant_id = tenant_id
         self.password = password
         self.email = email
         self.enabled = enabled and True or False
+        self.tenant_roles = tenant_roles
 
     @staticmethod
     def from_xml(xml_str):
@@ -113,6 +114,13 @@ class User(object):
             dom.set("enabled", string.lower(str(self.enabled)))
         if self.password:
             dom.set("password", self.password)
+        if self.tenant_roles:
+            dom_roles = etree.Element("tenantRoles")
+            for role in self.tenant_roles:
+                dom_role = etree.Element("tenantRole")
+                dom_role.text = role
+                dom_roles.append(dom_role)
+            dom.append(dom_roles)
         return dom
 
     def to_xml(self):
@@ -129,6 +137,8 @@ class User(object):
             user["password"] = self.password
         user["email"] = self.email
         user["enabled"] = self.enabled
+        if self.tenant_roles:
+            user["tenantRoles"] = list(self.tenant_roles)
         return {'user': user}
 
     def to_json(self):

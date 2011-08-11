@@ -256,6 +256,11 @@ class UserAPI(BaseUserAPI):
         users = session.query(models.User).\
                       filter("id in ('%s')" % "','".join(user_ids)).\
                       all()
+        for usr in users:
+            usr.tenant_roles = set()
+            for role in usr.roles:
+                if role.tenant_id == tenant_id:
+                    usr.tenant_roles.add(role.role_id)
         return users
 
     def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit, \

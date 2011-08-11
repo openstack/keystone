@@ -32,6 +32,7 @@ from nova import context
 from nova import flags
 from nova import utils
 from nova import wsgi
+from nova import exception
 import webob.dec
 import webob.exc
 
@@ -65,19 +66,25 @@ class KeystoneAuthShim(wsgi.Middleware):
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
 
         # set user admin-ness to keystone admin-ness
-        if user_ref.is_admin() != ('Admin' in roles):
-            self.auth.modify_user(user_ref, ('Admin' in roles))
+        # FIXME: keystone-admin-role value from keystone.conf is not 
+        # used neither here nor in glance_auth_token!
+        roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
+        is_admin = 'Admin' in roles
+        if user_ref.is_admin() != is_admin:
+            self.auth.modify_user(user_ref, admin=is_admin)
 
         # create a project for tenant
         project_id = req.headers['X_TENANT']
-        try:
-            self.auth.get_project(project_id)
-        except:
-            self.auth.create_project(project_id, user_id)
-
-        # ensure user is a member of project
-        if not self.auth.is_project_member(user_id, project_id):
-            self.auth.add_to_project(user_id, project_id)
+        if project_id:
+            try:
+                project_ref = self.auth.get_project(project_id)
+            except:
+                project_ref = self.auth.create_project(project_id, user_id)
+            # ensure user is a member of project
+            if not self.auth.is_project_member(user_id, project_id):
+                self.auth.add_to_project(user_id, project_id)
+        else:
+            project_ref = None
 
         # Get the auth token
         auth_token = req.headers.get('X_AUTH_TOKEN',
