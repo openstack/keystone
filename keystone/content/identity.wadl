@@ -47,22 +47,13 @@
                     <method href="#deleteTenant" />
                     <resource id="endpoints" path="endpoints">
 		                <method href="#getEndpoints"/>
-    		            <method href="#addEndpoint"/>
+		                <method href="#addEndpoint"/>
 	        	        <resource id="endpoint" path="{endpointId}">
     	        	        <param name="endpointId" style="template" type="xsd:int"/>
         	        	    <method href="#getEndpoint"/>
             	        	<method href="#deleteEndpoint"/>
 	            	    </resource>
 	            	</resource>    
-    	            <resource id="roleRefs" path="roleRefs">
-	    	            <method href="#getRoleRefs"/>
-    	    	        <method href="#addRoleRef"/>
-	                	<resource id="roleRef" path="{roleId}">
-    	                	<param name="roleId" style="template" type="xsd:int"/>
-	    	                <method href="#getRoleRef"/>
-    	    	            <method href="#deleteRoleRef"/>
-        	    	    </resource>
-	                </resource>
 	            </resource>    
             </resource>
 
@@ -85,26 +76,51 @@
                 <resource id="tenant" path="tenant">
                     <method href="#setUserTenant"/>
                 </resource>
+	            <resource id="roleRefs" path="roleRefs">
+    	            <method href="#getRoleRefs"/>
+	    	        <method href="#addRoleRef"/>
+                	<resource id="roleRef" path="{roleId}">
+	                	<param name="roleId" style="template" type="xsd:int"/>
+    	                <method href="#getRoleRef"/>
+	    	            <method href="#deleteRoleRef"/>
+    	    	    </resource>
+                </resource>
 		</resource>
 	    </resource>
 	    
             <resource id="endpointTemplates" path="endpointTemplates">
 		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getEndpointTemplates"/>
+                <method href="#addEndpointTemplate"/>
                 <resource id="endpointTemplateId" path="{endpointTemplateId}">
 		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="endpointTemplateId" style="template" type="xsd:int"/>
                     <method href="#getEndpointTemplate"/>
+                    <method href="#deleteEndpointTemplate"/>
                 </resource>
             </resource>
 	    
-            <resource id="roles" path="roles">
+        <resource id="roles" path="roles">
 		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#getRoles"/>
+                <method href="#addRole"/>
                 <resource id="roleId" path="{roleId}">
 		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                     <param name="roleId" style="template" type="xsd:int"/>
                     <method href="#getRole"/>
+                    <method href="#deleteRole"/>
+                </resource>
+            </resource>
+
+        <resource id="services" path="services">
+		<param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                <method href="#getServices"/>
+                <method href="#addService"/>
+                <resource id="serviceId" path="{serviceId}">
+		    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                    <param name="serviceId" style="template" type="xsd:int"/>
+                    <method href="#getService"/>
+                    <method href="#deleteService"/>
                 </resource>
             </resource>
 	    
@@ -573,11 +589,8 @@
             </representation>
             <representation mediaType="application/json"/>
         </request>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="identity:user">
-                <param name="user" style="plain"
-                       path="/" type="identity:UserWithOnlyEnabled"/>
-            </representation>
+        <response status="200">
+            <representation mediaType="application/xml" element="identity:tenant"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="401">
@@ -611,11 +624,8 @@
             </representation>
             <representation mediaType="application/json"/>
         </request>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="identity:user">
-                <param name="user" style="plain"
-                       path="/" type="identity:UserWithOnlyPassword"/>
-            </representation>
+        <response status="200">
+            <representation mediaType="application/xml" element="identity:tenant"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="401">
@@ -649,11 +659,8 @@
             </representation>
             <representation mediaType="application/json"/>
         </request>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="identity:user">
-                <param name="user" style="plain"
-                       path="/" type="identity:UserWithOnlyTenant"/>
-            </representation>
+        <response status="200">
+            <representation mediaType="application/xml" element="identity:tenant"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="401">
@@ -713,6 +720,67 @@
             <representation mediaType="application/xml" element="identity:endpointTemplate"/>
             <representation mediaType="application/json"/>
         </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:authFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+    
+    <method name="POST" id="addEndpointTemplate">
+	<request>
+            <representation mediaType="application/xml" element="identity:role"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="201">
+            <representation mediaType="application/xml" element="identity:role">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+            <representation mediaType="application/json">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+     </method>
+    
+    <method name="DELETE" id="deleteEndpointTemplate">
+        <response status="204"/>
         <response status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>
         </response>
@@ -853,7 +921,7 @@
 	<!--Roles-->
 	<method name="GET" id="getRoles">
         <request>
-            <param name="serviceName" style="query"
+            <param name="serviceId" style="query"
                    required="false" type="xsd:string"/>
         </request>
         <response status="200 203">
@@ -885,6 +953,67 @@
             <representation mediaType="application/xml" element="identity:role"/>
             <representation mediaType="application/json"/>
         </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:authFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+    
+    <method name="POST" id="addRole">
+	<request>
+            <representation mediaType="application/xml" element="identity:role"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="201">
+            <representation mediaType="application/xml" element="identity:role">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+            <representation mediaType="application/json">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+     </method>
+    
+    <method name="DELETE" id="deleteRole">
+        <response status="204"/>
         <response status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>
         </response>
@@ -1021,4 +1150,122 @@
             <representation mediaType="application/json"/>
         </response>
     </method>
+    
+	<method name="GET" id="getServices">
+        <request>
+            <param name="serviceId" style="query"
+                   required="false" type="xsd:string"/>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:services"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="GET" id="getService">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:service"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:authFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+    
+    <method name="POST" id="addService">
+	<request>
+            <representation mediaType="application/xml" element="identity:service"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="201">
+            <representation mediaType="application/xml" element="identity:service">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+            <representation mediaType="application/json">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+     </method>
+    
+    <method name="DELETE" id="deleteService">
+        <response status="204"/>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:authFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>    
 </application>
