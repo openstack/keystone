@@ -69,8 +69,8 @@ class RemoteAuth(object):
         # app is the next app in WSGI chain - eventually the OpenStack service
         self.app = app
         self.conf = conf
-        # where to redirect untrusted requests to go and auth
-        self.auth_location = conf.get('auth_location')
+        # where to redirect untrusted requests to
+        self.proxy_location = conf.get('proxy_location')
         # secret that will tell us a request is coming from a trusted auth
         # component
         self.remote_auth_pass = conf.get('remote_auth_pass')
@@ -81,7 +81,10 @@ class RemoteAuth(object):
         # Authenticate the Auth component itself.
         headers = [('www-authenticate', 'Basic realm="API Auth"')]
         if 'HTTP_AUTHORIZATION' not in env:
-            return HTTPUnauthorized(headers=headers)(env, start_response)
+            # Redirect to proxy (auth component) and show that basic auth is
+            # required
+            return HTTPUseProxy(location=self.proxy_location,
+                        headers=headers)(env, start_response)
         else:
             auth_type, encoded_creds = env['HTTP_AUTHORIZATION'].split(None, 1)
             if encoded_creds != self.remote_auth_pass:
@@ -89,8 +92,7 @@ class RemoteAuth(object):
 
         # Make sure that the user has been authenticated by the Auth Service
         if 'HTTP_X_AUTHORIZATION' not in env:
-            return HTTPUseProxy(location=self.auth_location)(env,
-                start_response)
+            return HTTPUnauthorized()(env, start_response)
 
         return self.app(env, start_response)
 
