@@ -58,6 +58,7 @@ from paste.deploy import loadapp
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
+import tools.tracer  # @UnusedImport # module runs on import
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
@@ -99,18 +100,22 @@ class AuthProtocol(object):
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port'))
         self.auth_protocol = conf.get('auth_protocol', 'https')
-        self.auth_location = "%s://%s:%s" % (self.auth_protocol,
-                                             self.auth_host,
-                                             self.auth_port)
+
+        # where to tell clients to find the auth service (default to url
+        # constructed based on endpoint we have for the service to use)
+        self.auth_location = conf.get('auth_uri',
+                                        "%s://%s:%s" % (self.auth_protocol,
+                                        self.auth_host,
+                                        self.auth_port))
 
         # Credentials used to verify this component with the Auth service since
-        # validating tokens is a priviledged call
+        # validating tokens is a privileged call
         self.admin_token = conf.get('admin_token')
 
     def __init__(self, app, conf):
         """ Common initialization code """
 
-        #TODO(ziad): maybe we rafactor this into a superclass
+        #TODO(ziad): maybe we refactor this into a superclass
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(app, conf)  # Specific to this protocol
 
@@ -174,8 +179,8 @@ class AuthProtocol(object):
                     # NOTE(todd): unused
                     self.expanded = True
 
-            #Send request downstream
-            return self._forward_request()
+        #Send request downstream
+        return self._forward_request()
 
     # NOTE(todd): unused
     def get_admin_auth_token(self, username, password, tenant):
@@ -203,8 +208,10 @@ class AuthProtocol(object):
 
     def _reject_request(self):
         """Redirect client to auth server"""
-        return HTTPUseProxy(location=self.auth_location)(self.env,
-            self.start_response)
+        return HTTPUnauthorized("Authentication required",
+                    [("WWW-Authenticate",
+                      "Keystone uri='%s'" % self.auth_location)])(self.env,
+                                                        self.start_response)
 
     def _reject_claims(self):
         """Client sent bad claims"""
@@ -297,6 +304,7 @@ class AuthProtocol(object):
             # We are forwarding to a remote service (no downstream WSGI app)
             req = Request(self.proxy_headers)
             parsed = urlparse(req.url)
+
             conn = http_connect(self.service_host,
                                 self.service_port,
                                 req.method,
@@ -305,10 +313,20 @@ class AuthProtocol(object):
                                 ssl=(self.service_protocol == 'https'))
             resp = conn.getresponse()
             data = resp.read()
+
             #TODO(ziad): use a more sophisticated proxy
             # we are rewriting the headers now
-            return Response(status=resp.status, body=data)(self.proxy_headers,
-                                                           self.start_response)
+
+            if resp.status == 401 or resp.status == 305:
+                # Add our own headers to the list
+                headers = [("WWW_AUTHENTICATE",
+                   "Keystone uri='%s'" % self.auth_location)]
+                return Response(status=resp.status, body=data,
+                            headerlist=headers)(self.env,
+                                                self.start_response)
+            else:
+                return Response(status=resp.status, body=data)(self.env,
+                                                self.start_response)
 
 
 def filter_factory(global_conf, **local_conf):
