@@ -16,27 +16,27 @@
             schemaLocation="atom/atom.xsd" />
 
     <!-- Elements -->
-    <element name="services" type="identity:ServiceList"  >
+    <element name="services" type="identity:ServiceList">
         <annotation>
-            <xsd:documentation
+            <documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
                     A list of services.
                 </p>
-            </xsd:documentation>
+            </documentation>
         </annotation>
     </element>
     
     <element name="service" type="identity:Service"  >
         <annotation>
-            <xsd:documentation
+            <documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
                     A service.
                 </p>
-            </xsd:documentation>
+            </documentation>
         </annotation>
     </element>
     
