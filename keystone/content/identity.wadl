@@ -30,7 +30,11 @@
             <resource id="tokens" path="tokens">
                 <method href="#authenticate" />
                 <resource id="tokenId" path="{tokenId}">
-                    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                    <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+												<doc>
+														You need an admin token to execute this operation. The token must be valid...
+												</doc>
+										</param>
                     <param name="tokenId" style="template" type="xsd:string"/>
                     <method href="#validateToken"/>
                     <method href="#revokeToken"/>
@@ -250,6 +254,37 @@
         </response>
     </method>
 
+    <method name="HEAD" id="checkToken">
+        <request>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:auth"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+            <representation mediaType="application/xml" element="identity:userDisabled"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
     <method name="DELETE" id="revokeToken">
         <response status="204"/>
         <response status="401">
@@ -355,6 +390,29 @@
         </response>
         <response status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="HEAD" id="checkTenant">
+        <response status="200 203">
+        </response>
+        <response status="401">
+        </response>
+        <response status="403">
+        </response>
+        <response status="400">
         </response>
         <response status="404">
             <representation mediaType="application/xml" element="identity:itemNotFound"/>
@@ -495,6 +553,34 @@
     </method>
 
     <method name="GET" id="getUser">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:user"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="401">
+            <representation mediaType="application/xml" element="identity:unauthorized"/>
+        </response>
+        <response status="403">
+            <representation mediaType="application/xml" element="identity:forbidden"/>
+        </response>
+        <response status="400">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
+        </response>
+        <response status="404">
+            <representation mediaType="application/xml" element="identity:itemNotFound"/>
+        </response>
+        <response status="500">
+            <representation mediaType="application/xml" element="identity:identityFault"/>
+        </response>
+        <response status="503">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        </response>
+        <response status="400 401 403 404 500 503">
+            <representation mediaType="application/json"/>
+        </response>
+    </method>
+
+    <method name="HEAD" id="checkUser">
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:user"/>
             <representation mediaType="application/json"/>
