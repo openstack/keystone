@@ -196,8 +196,7 @@ class ServiceAPITest(unittest.TestCase):
         headers are added to appropriate Content-type headers.
         """
         headers = headers or {}
-        self.req = webob.Request.blank('/v%s/%s' % (self.api_version,
-                                                    url.lstrip('/')))
+        self.req = webob.Request.blank(url)
         self.req.method = method
         self.req.headers = headers
         if 'content-type' not in headers:
