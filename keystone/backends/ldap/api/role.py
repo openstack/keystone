@@ -12,7 +12,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
     options_name = 'role_tree_dn'
     object_class = 'keystoneRole'
     model = models.Role
-    attribute_mapping = {'desc': 'description'}
+    attribute_mapping = {'desc': 'description', 'service_id': 'serviceId'}
 
     @staticmethod
     def _create_ref(role_id, tenant_id, user_id):
@@ -66,7 +66,6 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                 ('objectClass', 'keystoneTenantRole'),
                 ('member', user_dn),
                 ('keystoneRole', self._id_to_dn(role_id)),
-                ('tenant', tenant_dn),
             ]
             conn.add_s(role_dn, attrs)
         return models.UserRoleAssociation(
@@ -74,7 +73,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             role_id=role_id, user_id=user_id, tenant_id=tenant_id)
 
     def get_by_service(self, service_id):
-        roles = self.get_all('(service_id=%s)' % \
+        roles = self.get_all('(serviceId=%s)' % \
                     (ldap.filter.escape_filter_chars(service_id),))
         try:
             return roles[0]
@@ -113,24 +112,41 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                     role_id=role.id,
                     user_id=user_id) for role in roles]
 
-    def ref_get_all_tenant_roles(self, user_id, tenant_id):
+    def ref_get_all_tenant_roles(self, user_id, tenant_id=None):
         conn = self.api.get_connection()
         user_dn = self.api.user._id_to_dn(user_id)
-        tenant_dn = self.api.tenant._id_to_dn(tenant_id)
         query = '(&(objectClass=keystoneTenantRole)(member=%s))' % (user_dn,)
-        try:
-            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
-        except ldap.NO_SUCH_OBJECT:
-            return []
-        res = []
-        for role_dn, _ in roles:
-            role_id = ldap.dn.str2dn(role_dn)[0][0][1]
-            res.append(models.UserRoleAssociation(
-                   id=self._create_ref(role_id, tenant_id, user_id),
-                   user_id=user_id,
-                   role_id=role_id,
-                   tenant_id=tenant_id))
-        return res
+        if tenant_id is not None:
+            tenant_dn = self.api.tenant._id_to_dn(tenant_id)
+            try:
+                roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
+            except ldap.NO_SUCH_OBJECT:
+                return []
+            res = []
+            for role_dn, _ in roles:
+                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                res.append(models.UserRoleAssociation(
+                       id=self._create_ref(role_id, tenant_id, user_id),
+                       user_id=user_id,
+                       role_id=role_id,
+                       tenant_id=tenant_id))
+            return res
+        else:
+            try:
+                roles = conn.search_s(self.api.tenant.tree_dn,
+                                        ldap.SCOPE_SUBTREE, query)
+            except ldap.NO_SUCH_OBJECT:
+                return []
+            res = []
+            for role_dn, _ in roles:
+                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                tenant_id = ldap.dn.str2dn(role_dn)[1][0][1]
+                res.append(models.UserRoleAssociation(
+                       id=self._create_ref(role_id, tenant_id, user_id),
+                       user_id=user_id,
+                       role_id=role_id,
+                       tenant_id=tenant_id))
+            return res
 
     def ref_get(self, id):
         role_id, tenant_id, user_id = self._explode_ref(id)
@@ -168,7 +184,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
         return self._get_page_markers(marker, limit, all_roles)
 
-    def  ref_get_by_role(self, id):
+    def ref_get_by_role(self, id):
         role_dn = self._id_to_dn(id)
         try:
             roles = self.get_all('(keystoneRole=%s)' % (role_dn,))

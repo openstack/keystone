@@ -45,6 +45,13 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
                 self.api.tenant.add_user(new_tenant, id)
         super(UserAPI, self).update(id, values, old_obj)
 
+    def delete(self, id):
+        super(UserAPI, self).delete(id)
+        for ref in self.api.role.ref_get_all_global_roles(id):
+            self.api.role.ref_delete(ref.id)
+        for ref in self.api.role.ref_get_all_tenant_roles(id):
+            self.api.role.ref_delete(ref.id)
+
     def get_by_email(self, email):
         users = self.get_all('(mail=%s)' % \
                             (ldap.filter.escape_filter_chars(email),))
