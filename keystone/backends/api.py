@@ -100,6 +100,9 @@ class BaseUserAPI(object):
     def user_groups_get_all(self, user_id):
         raise NotImplementedError
 
+    def check_password(self, user, password):
+        raise NotImplementedError
+
 
 class BaseTokenAPI(object):
     def create(self, values):
