@@ -12,34 +12,6 @@
     <!-- Elements -->
     <element name="passwordCredentials" type="identity:PasswordCredentials"/>
     <element name="auth" type="identity:AuthData"/>
-    <element name="token" type="identity:Token">
-        <annotation>
-            <documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
-                <p>
-                  A token is an arbitrary bit of text that is used to access
-                  resources. Each token has a scope which describes which
-                  resources are accessible with it. A token may be
-                  revoked at anytime and is valid for a finite duration.
-                </p>
-                <p>
-                    While Keystone supports token-based authentication in this release,
-                    the intention is for it to support additional protocols in the
-                    future. The desire is for it to be an integration service, and not
-                    a full-fledged identity store and management solution.
-                </p>
-            </documentation>
-            <xsd:appinfo>
-              <xsdxt:samples>
-                <xsdxt:sample>
-                  <xsdxt:code type="application/xml" href="../samples/token.xml" />
-                </xsdxt:sample>
-                <xsdxt:sample>
-                  <xsdxt:code type="application/json" href="../samples/token.json" />
-                </xsdxt:sample>
-              </xsdxt:samples>
-            </xsd:appinfo>
-        </annotation>
-    </element>
 
     <!-- Complex Types -->
     <complexType name="Credentials" abstract="true" />
@@ -68,6 +40,32 @@
     </complexType>
     
     <complexType name="Token">
+        <annotation>
+            <documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                  A token is an arbitrary bit of text that is used to access
+                  resources. Each token has a scope which describes which
+                  resources are accessible with it. A token may be
+                  revoked at anytime and is valid for a finite duration.
+                </p>
+                <p>
+                    While Keystone supports token-based authentication in this release,
+                    the intention is for it to support additional protocols in the
+                    future. The desire is for it to be an integration service, and not
+                    a full-fledged identity store and management solution.
+                </p>
+            </documentation>
+            <xsd:appinfo>
+              <xsdxt:samples>
+                <xsdxt:sample>
+                  <xsdxt:code type="application/xml" href="../samples/token.xml" />
+                </xsdxt:sample>
+                <xsdxt:sample>
+                  <xsdxt:code type="application/json" href="../samples/token.json" />
+                </xsdxt:sample>
+              </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
         <sequence>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
@@ -102,6 +100,33 @@
     </complexType>
     
     <complexType name="ServiceCatalog">
+        <annotation>
+            <documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                  The service catalog lists the services you have access to
+                </p>
+                <div class="design">
+                    <p>
+                    We optimized for future flexibility around the hierarchy. So we
+                    left the design as a flat list of endpoints with attributes and the
+                    consumer can categorize as they need.
+                    This results in potential duplication (such as with the version/@list)
+                    but we acceopt that normalization cost in order to not force an
+                    artificial hierarchy (suchas on region, which can be optional).
+                  </p>
+                </div>
+            </documentation>
+            <xsd:appinfo>
+              <xsdxt:samples>
+                <xsdxt:sample>
+                  <xsdxt:code type="application/xml" href="../samples/services.xml" />
+                </xsdxt:sample>
+                <xsdxt:sample>
+                  <xsdxt:code type="application/json" href="../samples/services.json" />
+                </xsdxt:sample>
+              </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
         <sequence>
             <element name="service" type="identity:Service" minOccurs="1" maxOccurs="unbounded">
                 <annotation>
@@ -131,13 +156,24 @@
                 </annotation>
             </element>
         </sequence>
-        <attribute name="name" type="xsd:ID" use="required">
+        <attribute name="type" type="xsd:string" use="required">
+          <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The OpenStack-registered type (e.g. 'compute', 'object-store', etc).
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="name" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The service name.
+                        The commercial service name (e.g. 'My Nova Cloud Servers').
                     </p>
                 </xsd:documentation>
             </annotation>
