@@ -28,31 +28,31 @@ class StaticFilesController(wsgi.Controller):
         self.options = options
 
     @utils.wrap_error
-    def get_pdf_contract(self, req, pdf):
+    def get_pdf_contract(self, req, pdf, root="content/"):
         resp = Response()
-        return template.static_file(resp, req, "content/" + pdf,
+        return template.static_file(resp, req, root + pdf,
             root=utils.get_app_root(), mimetype="application/pdf")
 
     @utils.wrap_error
-    def get_wadl_contract(self, req, wadl):
+    def get_wadl_contract(self, req, wadl, root="content/"):
         resp = Response()
-        return template.static_file(resp, req, "content/" + wadl,
+        return template.static_file(resp, req, root + wadl,
             root=utils.get_app_root(), mimetype="application/vnd.sun.wadl+xml")
 
     @utils.wrap_error
-    def get_xsd_contract(self, req, xsd):
+    def get_xsd_contract(self, req, xsd, root="content/"):
         resp = Response()
-        return template.static_file(resp, req, "content/xsd/" + xsd,
+        return template.static_file(resp, req, root + "xsd/" + xsd,
             root=utils.get_app_root(), mimetype="application/xml")
 
     @utils.wrap_error
-    def get_xsd_atom_contract(self, req, xsd):
+    def get_xsd_atom_contract(self, req, xsd, root="content/"):
         resp = Response()
-        return template.static_file(resp, req, "content/xsd/atom/" + xsd,
+        return template.static_file(resp, req, root + "xsd/atom/" + xsd,
             root=utils.get_app_root(), mimetype="application/xml")
 
     @utils.wrap_error
-    def get_static_file(self, req, path, file, mimetype):
+    def get_static_file(self, req, path, file, mimetype, root="content/"):
         resp = Response()
-        return template.static_file(resp, req,  path + file,
+        return template.static_file(resp, req, path + file,
             root=utils.get_app_root(), mimetype=mimetype)

@@ -4,10 +4,12 @@
 <!--                                                       -->
 <!--     You can resolve the entites with xmllint          -->
 <!--                                                       -->
-<!--        xmllint -noent os-compute-1.1.wadl             -->
+<!--        xmllint -noent identity.wadl                   -->
 <!--*******************************************************-->
-<!DOCTYPE application [<!ENTITY % common  SYSTEM "common.ent">
-%common;]>
+<!DOCTYPE application [
+    <!ENTITY % common  SYSTEM "../common/common.ent">
+    %common;
+]>
 
 <application xmlns="http://wadl.dev.java.net/2009/02"
              xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
@@ -158,27 +160,8 @@
             <representation mediaType="application/xml" element="identity:tenants"/>
             <representation mediaType="application/json"/>
         </response>
-        <response status="401">
-            <representation mediaType="application/xml" element="identity:unauthorized"/>
-        </response>
-        <response status="403">
-            <representation mediaType="application/xml" element="identity:forbidden"/>
-        </response>
-        <response status="400">
-            <representation mediaType="application/xml" element="identity:badRequest"/>
-        </response>
-        <response status="404">
-            <representation mediaType="application/xml" element="identity:itemNotFound"/>
-        </response>
-        <response status="500">
-            <representation mediaType="application/xml" element="identity:identityFault"/>
-        </response>
-        <response status="503">
-            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
-        </response>
-        <response status="400 401 403 404 500 503">
-            <representation mediaType="application/json"/>
-        </response>
+        &commonFaults; 
+        &getFaults;
     </method>
   
 </application>

@@ -27,6 +27,7 @@ from keystone.controllers.staticfiles import StaticFilesController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.user import UserController
 from keystone.controllers.version import VersionController
+from keystone.controllers.extensions import ExtensionsController
 
 
 class AdminApi(wsgi.Router):
@@ -159,30 +160,106 @@ class AdminApi(wsgi.Router):
         # Miscellaneous Operations
         version_controller = VersionController(options)
         mapper.connect("/", controller=version_controller,
-                    action="get_version_info", file="version-admin",
+                    action="get_version_info", file="admin/version",
                     conditions=dict(method=["GET"]))
+
+        extensions_controller = ExtensionsController(options)
+        mapper.connect("/extensions",
+                        controller=extensions_controller,
+                        action="get_extensions_info",
+                        path="content/admin/extensions",
+                        conditions=dict(method=["GET"]))
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
         mapper.connect("/identityadminguide.pdf",
                     controller=static_files_controller,
-                    action="get_pdf_contract", pdf="identityadminguide.pdf",
+                    action="get_pdf_contract",
+                    root="content/admin/", pdf="identityadminguide.pdf",
                     conditions=dict(method=["GET"]))
         mapper.connect("/identity-admin.wadl",
                     controller=static_files_controller,
-                    action="get_wadl_contract", wadl="identity-admin.wadl",
+                    action="get_wadl_contract",
+                    root="content/admin/", wadl="identity-admin.wadl",
                     conditions=dict(method=["GET"]))
         mapper.connect("/common.ent",
                     controller=static_files_controller,
-                    action="get_wadl_contract", wadl="common.ent",
+                    action="get_wadl_contract",
+                    root="content/common/", wadl="common.ent",
                     conditions=dict(method=["GET"]))
         mapper.connect("/xsd/{xsd}",
                     controller=static_files_controller,
                     action="get_xsd_contract",
+                    root="content/admin/",
                     conditions=dict(method=["GET"]))
         mapper.connect("/xsd/atom/{xsd}",
                     controller=static_files_controller,
                     action="get_xsd_atom_contract",
+                    root="content/admin/",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/xslt/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    root="content/admin/", path="xslt/",
+                    mimetype="application/xml",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/js/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    root="content/admin/", path="js/",
+                    mimetype="application/text",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/style/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    root="content/admin/", path="/style/",
+                    mimetype="application/css",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/samples/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    root="content/admin/", path="samples/",
+                    mimetype="application/text",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/xslt/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/xslt/", mimetype="application/xml",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/js/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/js/", mimetype="application/text",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/style/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/style/", mimetype="application/css",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/samples/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/samples/", mimetype="application/text",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/xslt/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/xslt/", mimetype="application/xml",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/js/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/js/", mimetype="application/text",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/style/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/style/", mimetype="application/css",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/samples/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/samples/", mimetype="application/text",
                     conditions=dict(method=["GET"]))
         mapper.connect("/xslt/{file:.*}",
                     controller=static_files_controller,

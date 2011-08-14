@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<extensions xmlns="http://docs.openstack.org/common/api/v2.0"
+            xmlns:atom="http://www.w3.org/2005/Atom">
+            <extension
+                        name="Rackspace" namespace="http://docs.rackspace.com/identity/api/ext/rpe/v1.0" alias="RS-KEY"
+                        updated="2011-08-14T13:25:27-06:00">
+                        <description>
+                                    Rackspace extensions to Keystone v2.0 API
+                                    enabling API Key authentication.
+                        </description>
+                        <atom:link rel="describedby" type="application/pdf"
+                                    href="http://docs.rackspacecloud.com/identity/api/ext/identity-RS-KEY-20110814.pdf"/>
+                        <atom:link rel="describedby" type="application/vnd.sun.wadl+xml"
+                                    href="http://docs.rackspacecloud.com/identity/api/ext/identity-RS-KEY.wadl"/>
+            </extension>
+</extensions>

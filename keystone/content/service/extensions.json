@@ -1,0 +1,20 @@
+{
+    "extensions": {
+        "values": [{
+            "name": "Rackspace API Key Authentication",
+            "namespace": "http://docs.rackspacecloud.com/identity/api/ext/key/v1.0",
+            "alias": "RS-KEY",
+            "updated": "2011-08-14T13:25:27-06:00",
+            "description": "Rackspace extensions to Keystone v2.0 API enabling API Key authentication.",
+            "links": [{
+                "rel": "describedby",
+                "type": "application/pdf",
+                "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-key-20111111.pdf"
+            },{
+                "rel": "describedby",
+                "type": "application/vnd.sun.wadl+xml",
+                "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-RS-KEY.wadl"
+            }]
+        }]
+    }
+}

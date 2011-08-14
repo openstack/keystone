@@ -23,6 +23,7 @@ from keystone.controllers.auth import AuthController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.version import VersionController
 from keystone.controllers.staticfiles import StaticFilesController
+from keystone.controllers.extensions import ExtensionsController
 
 
 class ServiceApi(wsgi.Router):
@@ -52,18 +53,27 @@ class ServiceApi(wsgi.Router):
         version_controller = VersionController(options)
         mapper.connect("/",
                         controller=version_controller,
-                        action="get_version_info",
+                        action="get_version_info", file="service/version",
+                        conditions=dict(method=["GET"]))
+
+        extensions_controller = ExtensionsController(options)
+        mapper.connect("/extensions",
+                        controller=extensions_controller,
+                        action="get_extensions_info",
+                        path="content/service/extensions",
                         conditions=dict(method=["GET"]))
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
         mapper.connect("/identitydevguide.pdf",
                         controller=static_files_controller,
-                        action="get_pdf_contract", pdf="identitydevguide.pdf",
+                        action="get_pdf_contract",
+                        root="content/service/", pdf="identitydevguide.pdf",
                         conditions=dict(method=["GET"]))
         mapper.connect("/identity.wadl",
                         controller=static_files_controller,
-                        action="get_wadl_contract", wadl="identity.wadl",
+                        action="get_wadl_contract",
+                        root="content/service/", wadl="identity.wadl",
                         conditions=dict(method=["GET"]))
         mapper.connect("/common.ent",
                     controller=static_files_controller,
@@ -71,11 +81,17 @@ class ServiceApi(wsgi.Router):
                     conditions=dict(method=["GET"]))
         mapper.connect("/xsd/{xsd}",
                         controller=static_files_controller,
-                        action="get_xsd_contract",
+                        action="get_xsd_contract", root="content/service/",
                         conditions=dict(method=["GET"]))
         mapper.connect("/xsd/atom/{xsd}",
                         controller=static_files_controller,
                         action="get_xsd_atom_contract",
+                        root="content/service/",
+                        conditions=dict(method=["GET"]))
+        mapper.connect("/xsd/atom/{xsd}",
+                        controller=static_files_controller,
+                        action="get_xsd_atom_contract",
+                        root="content/service/",
                         conditions=dict(method=["GET"]))
 
         super(ServiceApi, self).__init__(mapper)
