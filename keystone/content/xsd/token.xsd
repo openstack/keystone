@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
 
 <schema
     elementFormDefault="qualified"
@@ -12,9 +13,58 @@
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <include schemaLocation="roles.xsd"/>
+    <include schemaLocation="token.xsd"/>
+    <include schemaLocation="user.xsd"/>
+    
     <!-- Elements -->
-
+    <element name="auth" type="identity:AuthenticateResponse"/>
+    
     <!-- Complex Types -->
+    <complexType name="Token">
+        <annotation>
+            <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A token is an arbitrary bit of text that is used to access
+                    resources. Each token has a scope which describes which
+                    resources are accessible with it. A token may be
+                    revoked at anytime and is valid for a finite duration.
+                </p>
+                <p>
+                    While Keystone supports token-based authentication in this release,
+                    the intention is for it to support additional protocols in the
+                    future. The desire is for it to be an integration service, and not
+                    a full-fledged identity store and management solution.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/token.xml" />
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/token.json" />
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+        <sequence>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+        <attribute name="expires" type="xsd:dateTime" use="required"/>
+        <attribute name="id" type="xsd:string" use="required"/>
+        <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+ 
+    <complexType name="AuthenticateResponse">
+        <sequence>
+            <element name="token" type="identity:Token"/>
+            <element name="user" type="identity:UserForAuthenticateResponse"/>
+            <element name="serviceCatalog" type="identity:ServiceCatalog"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+        <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+    
     <complexType name="UserForAuthenticateResponse">
         <sequence>
             <element name="roles" type="identity:RoleList" />

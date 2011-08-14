@@ -50,3 +50,9 @@ class StaticFilesController(wsgi.Controller):
         resp = Response()
         return template.static_file(resp, req, "content/xsd/atom/" + xsd,
             root=utils.get_app_root(), mimetype="application/xml")
+
+    @utils.wrap_error
+    def get_static_file(self, req, path, file, mimetype):
+        resp = Response()
+        return template.static_file(resp, req,  path + file,
+            root=utils.get_app_root(), mimetype=mimetype)

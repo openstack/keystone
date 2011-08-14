@@ -50,6 +50,7 @@ import mimetypes
 from webob import Response
 from paste.util.template import TemplateError
 from paste.util.datetimeutil import parse_date
+import datetime
 
 import keystone.logic.types.fault as fault
 from keystone.logic.types.fault import ForbiddenFault
@@ -331,12 +332,18 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
     ims = req.environ.get('HTTP_IF_MODIFIED_SINCE')
     if ims:
         ims = ims.split(";")[0].strip()  # IE sends "<date>; length=146"
-
-        ims = parse_date(ims)
-        if ims is not None and ims >= int(stats.st_mtime):
-            resp.date = time.strftime(
-                "%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
-            return Response(body=None, status=304, headerlist=resp.headerlist)
+        try:
+            ims = datetime.datetime.fromtimestamp(stats.st_mtime)
+            ims = datetime.datetime.ctime(ims)
+            filetime = datetime.datetime.fromtimestamp(stats.st_mtime)
+            if ims is not None and ims >= filetime:
+                resp.date = time.strftime(
+                    "%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
+                return Response(body=None, status=304,
+                                headerlist=resp.headerlist)
+        except:
+            print "TODO(Ziad): handle this better"
+            pass
     resp.content_length = stats.st_size
     if req.method == 'HEAD':
         return Response(body=None, status=200, headerlist=resp.headerlist)

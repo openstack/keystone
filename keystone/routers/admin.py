@@ -184,6 +184,26 @@ class AdminApi(wsgi.Router):
                     controller=static_files_controller,
                     action="get_xsd_atom_contract",
                     conditions=dict(method=["GET"]))
+        mapper.connect("/xslt/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/xslt/", mimetype="application/xml",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/js/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/js/", mimetype="application/text",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/style/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/style/", mimetype="application/css",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/samples/{file:.*}",
+                    controller=static_files_controller,
+                    action="get_static_file",
+                    path="/content/samples/", mimetype="application/text",
+                    conditions=dict(method=["GET"]))
 
         # Services Controller
         services_controller = ServicesController(options)
