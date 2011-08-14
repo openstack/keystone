@@ -18,25 +18,25 @@
     <!-- Elements -->
     <element name="services" type="identity:ServiceList">
         <annotation>
-            <documentation
+            <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
                     A list of services.
                 </p>
-            </documentation>
+            </xsd:documentation>
         </annotation>
     </element>
     
     <element name="service" type="identity:Service"  >
         <annotation>
-            <documentation
+            <xsd:documentation
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                 <p>
                     A service.
                 </p>
-            </documentation>
+            </xsd:documentation>
         </annotation>
     </element>
     

@@ -7,6 +7,7 @@
     xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
     xmlns:atom="http://www.w3.org/2005/Atom"
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
@@ -17,13 +18,13 @@
     <!-- Elements -->
     <element name="tenant" type="identity:Tenant">
         <annotation>
-            <documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+            <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
                 <p>
                   A container used to group or isolate resources and/or identity
                   objects. Depending on the service operator, a tenant may map to a customer,
                   account, organization, or project.
                 </p>
-            </documentation>
+            </xsd:documentation>
             <xsd:appinfo>
               <xsdxt:samples>
                 <xsdxt:sample>
@@ -51,7 +52,7 @@
     <!-- Complex Types -->
     <complexType name="Tenants">
         <sequence>
-            <element name="tenant" type="identity:Tenant" maxOccurs="1000"/>
+            <element name="tenant" type="identity:Tenant" maxOccurs="100"/>
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>

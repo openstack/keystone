@@ -159,18 +159,22 @@ class AdminApi(wsgi.Router):
         # Miscellaneous Operations
         version_controller = VersionController(options)
         mapper.connect("/", controller=version_controller,
-                    action="get_version_info",
+                    action="get_version_info", file="version-admin",
                     conditions=dict(method=["GET"]))
 
         # Static Files Controller
         static_files_controller = StaticFilesController(options)
-        mapper.connect("/identitydevguide.pdf",
+        mapper.connect("/identityadminguide.pdf",
                     controller=static_files_controller,
-                    action="get_pdf_contract",
+                    action="get_pdf_contract", pdf="identityadminguide.pdf",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/identity.wadl",
+        mapper.connect("/identity-admin.wadl",
                     controller=static_files_controller,
-                    action="get_wadl_contract",
+                    action="get_wadl_contract", wadl="identity-admin.wadl",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/common.ent",
+                    controller=static_files_controller,
+                    action="get_wadl_contract", wadl="common.ent",
                     conditions=dict(method=["GET"]))
         mapper.connect("/xsd/{xsd}",
                     controller=static_files_controller,
@@ -183,15 +187,20 @@ class AdminApi(wsgi.Router):
 
         # Services Controller
         services_controller = ServicesController(options)
-        mapper.connect("/services", controller=services_controller,
-                    action="get_services", conditions=dict(method=["GET"]))
-        mapper.connect("/services", controller=services_controller,
-                    action="create_service", conditions=dict(method=["POST"]))
-        mapper.connect("/services/{service_id}", \
-            controller=services_controller,
-            action="delete_service", conditions=dict(method=["DELETE"]))
+        mapper.connect("/services",
+                    controller=services_controller,
+                    action="get_services",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/services",
+                    controller=services_controller,
+                    action="create_service",
+                    conditions=dict(method=["POST"]))
         mapper.connect("/services/{service_id}",
-                       controller=services_controller,
-                            action="get_service",
-                                conditions=dict(method=["GET"]))
+                    controller=services_controller,
+                    action="delete_service",
+                    conditions=dict(method=["DELETE"]))
+        mapper.connect("/services/{service_id}",
+                    controller=services_controller,
+                    action="get_service",
+                    conditions=dict(method=["GET"]))
         super(AdminApi, self).__init__(mapper)

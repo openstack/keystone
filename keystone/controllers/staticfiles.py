@@ -28,15 +28,15 @@ class StaticFilesController(wsgi.Controller):
         self.options = options
 
     @utils.wrap_error
-    def get_pdf_contract(self, req):
+    def get_pdf_contract(self, req, pdf):
         resp = Response()
-        return template.static_file(resp, req, "content/identitydevguide.pdf",
+        return template.static_file(resp, req, "content/" + pdf,
             root=utils.get_app_root(), mimetype="application/pdf")
 
     @utils.wrap_error
-    def get_wadl_contract(self, req):
+    def get_wadl_contract(self, req, wadl):
         resp = Response()
-        return template.static_file(resp, req, "content/identity.wadl",
+        return template.static_file(resp, req, "content/" + wadl,
             root=utils.get_app_root(), mimetype="application/vnd.sun.wadl+xml")
 
     @utils.wrap_error

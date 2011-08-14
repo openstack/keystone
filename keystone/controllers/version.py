@@ -20,17 +20,16 @@ class VersionController(wsgi.Controller):
         self.options = options
 
     @utils.wrap_error
-    def  get_version_info(self, req):
-
+    def  get_version_info(self, req, file="version"):
         resp = Response()
         resp.charset = 'UTF-8'
         if utils.is_xml_response(req):
             resp_file = os.path.join(possible_topdir,
-                "keystone/content/version.xml.tpl")
+                "keystone/content/%s.xml.tpl" % file)
             resp.content_type = "application/xml"
         else:
             resp_file = os.path.join(possible_topdir,
-                "keystone/content/version.json.tpl")
+                "keystone/content/%s.json.tpl" % file)
             resp.content_type = "application/json"
 
         hostname = req.environ.get("SERVER_NAME")
