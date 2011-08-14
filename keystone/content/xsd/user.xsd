@@ -18,6 +18,7 @@
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
 
+    <!-- Elements -->
     <element name="users" type="identity:UserList"  >
         <annotation>
             <xsd:documentation
@@ -45,53 +46,39 @@
     <!-- Complex Types -->
     <complexType name="User">
         <attribute name="id" type="xsd:ID" use="optional"/>
-        <attribute name="password" type="xsd:string" use="optional"/>
-        <attribute name="tenantId" type="xsd:string" use="optional"/>
+        <attribute name="defaultTenantId" type="xsd:string" use="optional"/>
         <attribute name="email" type="xsd:string" use="optional"/>
         <attribute name="enabled" type="xsd:boolean" default="true" use="optional"/>
+        <attribute name="updated" type="xsd:dateTime" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A time-stamp identifying the modification time of the
+                        user.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="created" type="xsd:dateTime" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A creation time-stamp for the user.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>        
     </complexType>
 
-    <complexType name="UserWithOnlyEnabled">
-        <complexContent>
-            <restriction base="identity:User">
-                <attribute name="id" type="xsd:ID" use="prohibited"/>
-                <attribute name="password" type="xsd:string" use="prohibited"/>
-                <attribute name="tenantId" type="xsd:string" use="prohibited"/>
-                <attribute name="email" type="xsd:string" use="prohibited"/>
-                <attribute name="enabled" type="xsd:boolean" use="required"/>
-            </restriction>
-        </complexContent>
-    </complexType>
-
-    <complexType name="UserWithOnlyPassword">
-        <complexContent>
-            <restriction base="identity:User">
-                <attribute name="id" type="xsd:ID" use="prohibited"/>
-                <attribute name="tenantId" type="xsd:string" use="prohibited"/>
-                <attribute name="email" type="xsd:string" use="prohibited"/>
-                <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
-                <attribute name="password" type="xsd:string" use="required"/>
-            </restriction>
-        </complexContent>
-    </complexType>
-
-    <complexType name="UserWithOnlyTenant">
-        <complexContent>
-            <restriction base="identity:User">
-                <attribute name="id" type="xsd:ID" use="prohibited"/>
-                <attribute name="email" type="xsd:string" use="prohibited"/>
-                <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
-                <attribute name="password" type="xsd:string" use="prohibited"/>
-                <attribute name="tenantId" type="xsd:string" use="required"/>
-            </restriction>
-        </complexContent>
-    </complexType>
-    
     <complexType name="UserList">
         <sequence>
             <element name="user" type="identity:User" minOccurs="0" maxOccurs="unbounded"/>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <!--<element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>

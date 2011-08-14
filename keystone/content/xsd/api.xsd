@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
 
 <schema
     elementFormDefault="qualified"
@@ -15,4 +18,5 @@
     <include schemaLocation="roles.xsd"/>
     <include schemaLocation="services.xsd"/>
     <include schemaLocation="user.xsd"/>
+    <include schemaLocation="credentials.xsd"/>
 </schema>

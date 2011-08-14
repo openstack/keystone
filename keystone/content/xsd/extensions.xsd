@@ -25,7 +25,7 @@
     <xsd:complexType name="Extension">
         <xsd:sequence>
             <xsd:element name="description" type="xsd:string" minOccurs="1" />
-            <xsd:element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <!--<xsd:element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
             <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:string" use="required"/>
@@ -33,7 +33,8 @@
         <xsd:attribute name="alias" type="ext:Alias" use="required"/>
         <xsd:attribute name="updated" type="xsd:dateTime" use="optional"/>
         <xsd:anyAttribute namespace="##other" processContents="lax"/>
-        <xsd:assert vc:minVersion="1.1" test="atom:link[@rel='describedby']">
+        <!--TODO(Ziad)resolve asser issue
+            <xsd:assert vc:minVersion="1.1" test="atom:link[@rel='describedby']">
             <xsd:annotation>
                 <xsd:documentation
                     xml:lang="EN"
@@ -44,7 +45,7 @@
                     </p>
                 </xsd:documentation>
             </xsd:annotation>
-        </xsd:assert>
+        </xsd:assert>-->
     </xsd:complexType>
 
     <xsd:simpleType name="Alias">

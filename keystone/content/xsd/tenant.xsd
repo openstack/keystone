@@ -53,7 +53,7 @@
     <complexType name="Tenants">
         <sequence>
             <element name="tenant" type="identity:Tenant" maxOccurs="100"/>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <!--<element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
@@ -64,8 +64,8 @@
             <element name="description" type="xsd:string">
                 <annotation>
                     <xsd:documentation
-                            xml:lang="EN"
-                            xmlns="http://www.w3.org/1999/xhtml">
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
                         <p>
                             An free text description of the tenant.
                         </p>
@@ -74,25 +74,70 @@
             </element>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
+        <attribute name="id" type="xsd:ID" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        An ID uniquely identifying the tenant. This usually comes from the back-end store.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="name" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The name of the tenant.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
         <attribute name="enabled" type="xsd:boolean" use="optional" default="true">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
                         xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An boolean signifying if a tenant is enmabled or not. A disabled tenant
+                        An boolean signifying if a tenant is enabled or not. A disabled tenant
                         cannot be authenticated against.
                     </p>
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="id" type="xsd:string" use="optional">
+        <attribute name="display-name" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        An ID uniquely identifying the tenant.
+                        A human-readable, friendly name for use in user interfaces.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute type="xsd:dateTime"    name="updated" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A time-stamp identifying the modification time of the
+                        tenant.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute type="xsd:dateTime"    name="created" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A creation time-stamp for the tenant.
                     </p>
                 </xsd:documentation>
             </annotation>
