@@ -78,8 +78,9 @@ def Main():
         parser.error('No object type specified for first argument')
 
     object_type = args[0]
-    if object_type in ['user', 'tenant', 'role', 'service' , 'endpointTemplates', 'token',
-            'endpoint', 'credentials']:
+    if object_type in ['user', 'tenant', 'role', 'service',
+                       'endpointTemplates', 'token',
+                       'endpoint', 'credentials']:
         pass
     else:
         parser.error('%s is not a supported object type' % object_type)
@@ -395,10 +396,12 @@ def Main():
                     object = db_models.Service()
                     object.id = object_id
                     db_api.SERVICE.create(object)
-                    print "SUCCESS: Service %s created successfully." % object.id
+                    print "SUCCESS: Service %s created successfully." % \
+                                                                    object.id
                     return
                 except Exception as exc:
-                    raise Exception("Failed to create Service %s" % (object_id,), sys.exc_info())
+                    raise Exception("Failed to create Service %s" % \
+                                                (object_id,), sys.exc_info())
             elif command == "list":
                 try:
                     objects = db_api.SERVICE.get_all()
@@ -411,7 +414,8 @@ def Main():
                     for row in objects:
                         print row.id
                 except Exception, e:
-                    raise Exception("Error getting all services", sys.exc_info())
+                    raise Exception("Error getting all services",
+                                                            sys.exc_info())
     elif object_type == "credentials":
         if command == "add":
             if len(args) < 6:
@@ -429,8 +433,8 @@ def Main():
                 print "SUCCESS: Credentials %s created." % result.id
                 return
             except Exception as exc:
-                raise Exception("Failed to create credentials %s" % (object_id,),
-                    sys.exc_info())
+                raise Exception("Failed to create credentials %s" % \
+                                            (object_id,), sys.exc_info())
 
     # Command not handled
     print ("ERROR: %s %s not yet supported" % (object_type, command))

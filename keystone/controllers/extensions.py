@@ -30,6 +30,5 @@ class ExtensionsController(wsgi.Controller):
             resp_file = "%s.json" % path
             mime_type = "application/json"
 
-        print resp_file
         return template.static_file(resp, req, resp_file,
                 root=utils.get_app_root(), mimetype=mime_type)

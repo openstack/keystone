@@ -108,6 +108,7 @@ def install_dependencies(venv=VENV):
             f = open(pthfile, 'w')
             f.write("%s\n" % ROOT)
 
+
 def print_help():
     help = """
  Keystone development environment setup is complete.

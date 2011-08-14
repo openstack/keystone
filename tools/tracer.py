@@ -99,15 +99,15 @@ if '--trace-calls' in sys.argv:
                                            os.pardir))
         func_filename = func_filename.replace(possible_topdir, '')
         caller = frame.f_back
-        
+
         if caller:
             caller_line_no = caller.f_lineno
-            caller_filename = caller.f_code.co_filename.replace(possible_topdir,
-                                                                '')
+            caller_filename = caller.f_code.co_filename.replace(
+                                                        possible_topdir, '')
             print '%s%s::%s:%s      (from %s:%s)' % \
                 ('  ' * stack_depth, func_filename, func_name, func_line_no,
                  caller_filename, caller_line_no)
-        
+
         stack_depth = stack_depth + 1
         return localtrace
 

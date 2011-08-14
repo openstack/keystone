@@ -200,86 +200,25 @@ class AdminApi(wsgi.Router):
         mapper.connect("/xslt/{file:.*}",
                     controller=static_files_controller,
                     action="get_static_file",
-                    root="content/admin/", path="xslt/",
-                    mimetype="application/xml",
+                    root="content/common/", path="xslt/",
+                    mimetype="application/xslt",
                     conditions=dict(method=["GET"]))
         mapper.connect("/js/{file:.*}",
                     controller=static_files_controller,
                     action="get_static_file",
-                    root="content/admin/", path="js/",
-                    mimetype="application/text",
+                    root="content/common/", path="js/",
+                    mimetype="application/javascript",
                     conditions=dict(method=["GET"]))
         mapper.connect("/style/{file:.*}",
                     controller=static_files_controller,
                     action="get_static_file",
-                    root="content/admin/", path="/style/",
+                    root="content/common/", path="style/",
                     mimetype="application/css",
                     conditions=dict(method=["GET"]))
         mapper.connect("/samples/{file:.*}",
                     controller=static_files_controller,
                     action="get_static_file",
-                    root="content/admin/", path="samples/",
-                    mimetype="application/text",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/xslt/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/xslt/", mimetype="application/xml",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/js/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/js/", mimetype="application/text",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/style/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/style/", mimetype="application/css",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/samples/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/samples/", mimetype="application/text",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/xslt/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/xslt/", mimetype="application/xml",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/js/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/js/", mimetype="application/text",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/style/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/style/", mimetype="application/css",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/samples/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/samples/", mimetype="application/text",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/xslt/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/xslt/", mimetype="application/xml",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/js/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/js/", mimetype="application/text",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/style/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/style/", mimetype="application/css",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/samples/{file:.*}",
-                    controller=static_files_controller,
-                    action="get_static_file",
-                    path="/content/samples/", mimetype="application/text",
+                    root="content/common/", path="samples/",
                     conditions=dict(method=["GET"]))
 
         # Services Controller

@@ -77,7 +77,6 @@ class EchoApp(object):
         if 'HTTP_X_ROLE' in self.envr:
             print '  Roles      :', self.envr['HTTP_X_ROLE']
 
-
         accept = self.envr.get("HTTP_ACCEPT", "application/json")
         if accept == "application/xml":
             return self.toXML()

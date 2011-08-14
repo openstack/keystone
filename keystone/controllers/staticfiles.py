@@ -30,11 +30,12 @@ class StaticFilesController(wsgi.Controller):
     @utils.wrap_error
     def get_pdf_contract(self, req, pdf, root="content/"):
         resp = Response()
-        return template.static_file(resp, req, root + pdf,
+        filepath = root + pdf
+        return template.static_file(resp, req, filepath,
             root=utils.get_app_root(), mimetype="application/pdf")
 
     @utils.wrap_error
-    def get_wadl_contract(self, req, wadl, root="content/"):
+    def get_wadl_contract(self, req, wadl, root):
         resp = Response()
         return template.static_file(resp, req, root + wadl,
             root=utils.get_app_root(), mimetype="application/vnd.sun.wadl+xml")
@@ -52,7 +53,21 @@ class StaticFilesController(wsgi.Controller):
             root=utils.get_app_root(), mimetype="application/xml")
 
     @utils.wrap_error
-    def get_static_file(self, req, path, file, mimetype, root="content/"):
+    def get_static_file(self, req, path, file, mimetype=None, root="content/"):
         resp = Response()
-        return template.static_file(resp, req, path + file,
+
+        if mimetype == None:
+            if utils.is_xml_response(req):
+                mimetype = "application/xml"
+            elif utils.is_json_response(req):
+                mimetype = "application/json"
+
+        if mimetype == "application/xml":
+            resp_file = "%s%s%s.xml" % (root, path, file)
+        elif mimetype == "application/json":
+            resp_file = "%s%s%s.json" % (root, path, file)
+        else:
+            resp_file = root + path + file
+
+        return template.static_file(resp, req, resp_file,
             root=utils.get_app_root(), mimetype=mimetype)

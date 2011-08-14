@@ -55,9 +55,9 @@ function run_pep8 {
   #
   # [1] https://bugs.launchpad.net/bzr/+bug/701898
   #
-  PEP8_EXCLUDE=vcsversion.py
+  PEP8_EXCLUDE="vcsversion.py"
   PEP8_OPTIONS="--exclude=$PEP8_EXCLUDE --repeat --show-pep8 --show-source"
-  PEP8_INCLUDE="bin/* keystone tests tools setup.py run_tests.py"
+  PEP8_INCLUDE="bin/k* keystone examples tools setup.py run_tests.py"
   pep8 $PEP8_OPTIONS $PEP8_INCLUDE
 }
 

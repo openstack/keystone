@@ -11,6 +11,10 @@ class TestStaticFiles(KeystoneTestCase):
         r = self.service_request(path='/identity.wadl')
         self.assertTrue('xml' in r.getheader('Content-Type'))
 
+    def test_wadl_common(self):
+        r = self.service_request(path='/common.ent')
+        self.assertTrue('xml' in r.getheader('Content-Type'))
+
     def test_xsd_contract(self):
         r = self.service_request(path='/xsd/api.xsd')
         self.assertTrue('xml' in r.getheader('Content-Type'))
@@ -18,6 +22,26 @@ class TestStaticFiles(KeystoneTestCase):
     def test_xsd_atom_contract(self):
         r = self.service_request(path='/xsd/atom/atom.xsd')
         self.assertTrue('xml' in r.getheader('Content-Type'))
+
+    def test_xslt(self):
+        r = self.service_request(path='/xslt/schema.xslt')
+        self.assertTrue('xslt' in r.getheader('Content-Type'))
+
+    def test_js(self):
+        r = self.service_request(path='/js/shjs/sh_java.js')
+        self.assertTrue('javascript' in r.getheader('Content-Type'))
+
+    def test_xml_sample(self):
+        r = self.service_request(path='/samples/auth.xml')
+        self.assertTrue('xml' in r.getheader('Content-Type'))
+
+    def test_json_sample(self):
+        r = self.service_request(path='/samples/auth.json')
+        self.assertTrue('json' in r.getheader('Content-Type'))
+
+    def test_stylesheet(self):
+        r = self.service_request(path='/style/shjs/sh_acid.css')
+        self.assertTrue('css' in r.getheader('Content-Type'))
 
 
 class TestAdminStaticFiles(KeystoneTestCase):
@@ -36,6 +60,27 @@ class TestAdminStaticFiles(KeystoneTestCase):
     def test_xsd_atom_contract(self):
         r = self.admin_request(path='/xsd/atom/atom.xsd')
         self.assertTrue('xml' in r.getheader('Content-Type'))
+
+    def test_xslt(self):
+        r = self.admin_request(path='/xslt/schema.xslt')
+        self.assertTrue('xslt' in r.getheader('Content-Type'))
+
+    def test_js(self):
+        r = self.admin_request(path='/js/shjs/sh_java.js')
+        self.assertTrue('javascript' in r.getheader('Content-Type'))
+
+    def test_xml_sample(self):
+        r = self.admin_request(path='/samples/auth.xml')
+        self.assertTrue('xml' in r.getheader('Content-Type'))
+
+    def test_json_sample(self):
+        r = self.admin_request(path='/samples/auth.json')
+        self.assertTrue('json' in r.getheader('Content-Type'))
+
+    def test_stylesheet(self):
+        r = self.admin_request(path='/style/shjs/sh_acid.css')
+        self.assertTrue('css' in r.getheader('Content-Type'))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -76,10 +76,30 @@ class ServiceApi(wsgi.Router):
                         root="content/service/", wadl="identity.wadl",
                         conditions=dict(method=["GET"]))
         mapper.connect("/common.ent",
-                    controller=static_files_controller,
-                    action="get_wadl_contract", wadl="common.ent",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/xsd/{xsd}",
+                        controller=static_files_controller,
+                        action="get_wadl_contract",
+                        wadl="common.ent", root="content/common/",
+                        conditions=dict(method=["GET"]))
+        mapper.connect("/xslt/{file:.*}",
+                        controller=static_files_controller,
+                        action="get_static_file", path="common/xslt/",
+                        mimetype="application/xslt",
+                        conditions=dict(method=["GET"]))
+        mapper.connect("/style/{file:.*}",
+                        controller=static_files_controller,
+                        action="get_static_file", path="common/style/",
+                        mimetype="application/css",
+                        conditions=dict(method=["GET"]))
+        mapper.connect("/js/{file:.*}",
+                        controller=static_files_controller,
+                        action="get_static_file", path="common/js/",
+                        mimetype="application/javascript",
+                        conditions=dict(method=["GET"]))
+        mapper.connect("/samples/{file:.*}",
+                        controller=static_files_controller,
+                        action="get_static_file", path="common/samples/",
+                        conditions=dict(method=["GET"]))
+        mapper.connect("/xsd/{xsd:.*}",
                         controller=static_files_controller,
                         action="get_xsd_contract", root="content/service/",
                         conditions=dict(method=["GET"]))

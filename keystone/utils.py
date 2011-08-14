@@ -30,6 +30,11 @@ def is_xml_response(req):
     return "Accept" in req.headers and "application/xml" in req.accept
 
 
+def is_json_response(req):
+    """Returns True when the request wants a JSON response, False otherwise"""
+    return "Accept" in req.headers and "application/json" in req.accept
+
+
 def get_app_root():
     return os.path.abspath(os.path.dirname(__file__))
 
@@ -57,6 +62,8 @@ def wrap_error(func):
             return func(*args, **kwargs)
         except Exception as err:
             if isinstance(err, fault.IdentityFault):
+                return send_error(err.code, kwargs['req'], err)
+            elif isinstance(err, fault.ItemNotFoundFault):
                 return send_error(err.code, kwargs['req'], err)
             else:
                 logging.exception(err)
