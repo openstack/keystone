@@ -19,3 +19,4 @@ doc/guide/target
 .keystone-venv/
 keystone.egg-info/
 run_tests.err.log
+.coverage
