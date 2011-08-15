@@ -40,6 +40,8 @@ class TokenAPI(BaseTokenAPI):
         token = self.get(id)
         if token != None:
             MEMCACHE_SERVER.delete(id)
+            if token != None and not hasattr(token, 'tenant_id'):
+                token.tenant_id = None
             if token.tenant_id != None:
                 MEMCACHE_SERVER.delete(token.tenant_id + "::" + token.user_id)
             else:
@@ -53,7 +55,10 @@ class TokenAPI(BaseTokenAPI):
         return  token
 
     def get_for_user_by_tenant(self, user_id, tenant_id):
-        token = MEMCACHE_SERVER.get(tenant_id + "::" + user_id)
+        if tenant_id != None:
+            token = MEMCACHE_SERVER.get(tenant_id + "::" + user_id)
+        else:
+            token = MEMCACHE_SERVER.get(user_id)
         if token != None and not hasattr(token, 'tenant_id'):
             token.tenant_id = None
         return  token

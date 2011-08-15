@@ -33,7 +33,7 @@ class EndpointTemplate(object):
                 raise fault.BadRequestFault("Expecting endpointTemplate")
             id = root.get("id")
             region = root.get("region")
-            service = root.get("serviceName")
+            service = root.get("serviceId")
             public_url = root.get("publicURL")
             admin_url = root.get("adminURL")
             internal_url = root.get("internalURL")
@@ -63,7 +63,7 @@ class EndpointTemplate(object):
 
             # Check that fields are valid
             invalid = [key for key in endpoint_template if key not in
-                       ['id', 'region', 'serviceName', 'publicURL',
+                       ['id', 'region', 'serviceId', 'publicURL',
                         'adminURL', 'internalURL', 'enabled', 'global']]
             if invalid != []:
                 raise fault.BadRequestFault("Invalid attribute(s): %s"
@@ -76,8 +76,8 @@ class EndpointTemplate(object):
 
             if 'region' in endpoint_template:
                 region = endpoint_template["region"]
-            if 'serviceName' in endpoint_template:
-                service = endpoint_template["serviceName"]
+            if 'serviceId' in endpoint_template:
+                service = endpoint_template["serviceId"]
             if 'publicURL' in endpoint_template:
                 public_url = endpoint_template["publicURL"]
             if 'adminURL' in endpoint_template:
@@ -114,7 +114,7 @@ class EndpointTemplate(object):
         if self.region:
             dom.set("region", self.region)
         if self.service:
-            dom.set("serviceName", self.service)
+            dom.set("serviceId", self.service)
         if self.public_url:
             dom.set("publicURL", self.public_url)
         if self.admin_url:
@@ -137,7 +137,7 @@ class EndpointTemplate(object):
         if self.region:
             endpoint_template["region"] = self.region
         if self.service:
-            endpoint_template["serviceName"] = self.service
+            endpoint_template["serviceId"] = self.service
         if self.public_url:
             endpoint_template["publicURL"] = self.public_url
         if self.admin_url:

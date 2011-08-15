@@ -152,21 +152,18 @@ class GetServicesTest(ServicesTest):
             if not is_service_found:
                 raise self.fail("Service not found")
 
-        def test_get_services_exp_token(self):
-            resp, content = utils.get_services(self.exp_auth_token)
-            if int(resp['status']) == 500:
-                self.fail('Identity Fault')
-            elif int(resp['status']) == 503:
-                self.fail('Service Not Available')
+        def test_get_services_using_invalid_tokens(self):
+            resp, content = utils.get_services(self.disabled_token)
             self.assertEqual(403, int(resp['status']))
 
-        def test_get_services_exp_token_xml(self):
-            resp, content = utils.get_services_xml(self.exp_auth_token)
-            if int(resp['status']) == 500:
-                self.fail('Identity Fault')
-            elif int(resp['status']) == 503:
-                self.fail('Service Not Available')
+            resp, content = utils.get_services(self.missing_token)
+            self.assertEqual(401, int(resp['status']))
+
+            resp, content = utils.get_services(self.exp_auth_token)
             self.assertEqual(403, int(resp['status']))
+
+            resp, content = utils.get_services(self.invalid_token)
+            self.assertEqual(404, int(resp['status']))
 
 
 class GetServiceTest(ServicesTest):
@@ -205,6 +202,23 @@ class GetServiceTest(ServicesTest):
             self.sample_service, str(self.invalid_token))
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
+
+    def test_get_service_using_invalid_tokens(self):
+        resp, content = utils.get_service(
+            self.sample_service, self.disabled_token)
+        self.assertEqual(403, int(resp['status']))
+
+        resp, content = utils.get_service(
+            self.sample_service, self.missing_token)
+        self.assertEqual(401, int(resp['status']))
+
+        resp, content = utils.get_service(
+            self.sample_service, self.exp_auth_token)
+        self.assertEqual(403, int(resp['status']))
+
+        resp, content = utils.get_service(
+            self.sample_service, self.invalid_token)
+        self.assertEqual(404, int(resp['status']))
 
 
 class CreateServiceTest(ServicesTest):
@@ -288,6 +302,11 @@ class DeleteServiceTest(ServicesTest):
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
 
+    def test_service_delete_json_using_disabled_token(self):
+        resp, _content = utils.delete_service(
+            self.test_service, str(self.disabled_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(403, resp_val)
 
 if __name__ == '__main__':
     unittest.main()

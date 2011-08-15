@@ -744,7 +744,7 @@ def create_endpoint_template(region, service,
 
     url = '%sendpointTemplates' % (URL_V2)
     body = {"endpointTemplate": {"region": region,
-                       "serviceName": service,
+                       "serviceId": service,
                        "publicURL": public_url,
                        "adminURL": admin_url,
                        "internalURL": internal_url,
@@ -763,13 +763,13 @@ def create_endpoint_template_xml(region, service, public_url, admin_url,
     url = '%sendpointTemplates' % (URL_V2)
     body = '<?xml version="1.0" encoding="UTF-8"?>\
         <endpointTemplate xmlns="http://docs.openstack.org/identity/api/v2.0" \
-        region="%s" serviceName="%s" \
+        region="%s" serviceId="%s" \
         publicURL="%s" adminURL="%s"\
         internalURL="%s" enabled="%s"\
         global="%s"/>' % (region, service, public_url,\
         admin_url, internal_url, enabled, is_global)
     body = {"endpointTemplate": {"region": region,
-                       "serviceName": service,
+                       "serviceId": service,
                        "publicURL": public_url,
                        "adminURL": admin_url,
                        "internalURL": internal_url,

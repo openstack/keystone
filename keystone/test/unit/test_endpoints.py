@@ -80,10 +80,10 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
             endpoint_template_id = endpoint_template["id"]
         if endpoint_template_id == None:
             self.fail("Not the expected Endpoint Template")
-        if not "serviceName" in endpoint_template:
+        if not "serviceId" in endpoint_template:
             service_id = None
         else:
-            service_id = endpoint_template["serviceName"]
+            service_id = endpoint_template["serviceId"]
         if service_id != utils.get_test_service_id():
             self.fail("Not the expected service")
         resp, content = utils.delete_endpoint_template(
@@ -123,7 +123,7 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
         if endpoint_template_id == None:
             self.fail("Not the expected Endpoint template.")
 
-        service_id = endpoint_template.get("serviceName")
+        service_id = endpoint_template.get("serviceId")
 
         if service_id != utils.get_test_service_id():
             self.fail("Not the expected service")
