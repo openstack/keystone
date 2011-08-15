@@ -39,6 +39,7 @@ class AuthenticationTest(unittest.TestCase):
         utils.create_endpoint(self.tenant, "4", str(self.auth_token))
 
     def tearDown(self):
+        utils.delete_all_endpoint(self.tenant, self.auth_token)
         utils.delete_token(self.token, self.auth_token)
 
     def test_a_authorize(self):

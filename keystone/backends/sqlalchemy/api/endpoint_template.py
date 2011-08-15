@@ -205,7 +205,8 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
             session = get_session()
         with session.begin():
             endpoints = self.endpoint_get(id, session)
-            session.delete(endpoints)
+            if endpoints:
+                session.delete(endpoints)
 
 
 def get():

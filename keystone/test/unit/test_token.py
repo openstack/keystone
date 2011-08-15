@@ -76,6 +76,29 @@ class ValidateToken(unittest.TestCase):
         role_ref_id = role_ref["id"]
         self.assertEqual(self.role_ref_id, role_ref_id)
 
+    def test_validate_token_true_using_service_token(self):
+        header = httplib2.Http(".cache")
+
+        url = '%stokens/%s?belongsTo=%s' % (utils.URL_V2, self.token,
+            self.tenant)
+        resp, content = header.request(url, "GET", body='', headers={
+            "Content-Type": "application/json",
+            "X-Auth-Token": utils.get_service_token()})
+        if int(resp['status']) == 500:
+            self.fail('Identity Fault')
+        elif int(resp['status']) == 503:
+            self.fail('Service Not Available')
+        self.assertEqual(200, int(resp['status']))
+        self.assertEqual('application/json', utils.content_type(resp))
+        #verify content
+        obj = json.loads(content)
+        if not "auth" in obj:
+            raise self.fail("Expecting Auth")
+        role_refs = obj["auth"]["user"]["roleRefs"]
+        role_ref = role_refs[0]
+        role_ref_id = role_ref["id"]
+        self.assertEqual(self.role_ref_id, role_ref_id)
+
     def test_validate_token_true_xml(self):
         header = httplib2.Http(".cache")
         url = '%stokens/%s?belongsTo=%s' % (

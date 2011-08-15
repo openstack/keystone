@@ -113,7 +113,7 @@ class IdentityService(object):
         return self.__get_auth_data(dtoken, tenant_id)
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
-        self.__validate_admin_token(admin_token)
+        self.__validate_service_or_keystone_admin_token(admin_token)
 
         if not api.TOKEN.get(token_id):
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
@@ -523,18 +523,23 @@ class IdentityService(object):
         if not isinstance(role, Role):
             raise fault.BadRequestFault("Expecting a Role")
 
-        if role.role_id == None:
+        if role.role_id == None or len(role.role_id.strip()) == 0:
             raise fault.BadRequestFault("Expecting a Role Id")
 
         if api.ROLE.get(role.role_id) != None:
             raise fault.RoleConflictFault(
-                "A role with that id already exists")
-
-        #Check if the passed service exist.
-        if role.service_id != None and len(role.service_id.strip()) > 0 and\
-            api.SERVICE.get(role.service_id) == None:
-            raise fault.BadRequestFault(
-                    "A service with that id doesnt exist.")
+                "A role with that id '" + role.role_id + "' already exists")
+        #Check if the passed service exist
+        #and the role begins with service_id:.
+        if role.service_id != None and\
+            len(role.service_id.strip()) > 0:
+            if api.SERVICE.get(role.service_id) == None:
+                raise fault.BadRequestFault(
+                        "A service with that id doesnt exist.")
+            if not role.role_id.startswith(role.service_id + ":"):
+                raise fault.BadRequestFault(
+                    "Role should begin with service id '" +
+                        role.service_id + ":'")
 
         drole = models.Role()
         drole.id = role.role_id
@@ -770,7 +775,7 @@ class IdentityService(object):
         return dendpoint
 
     def delete_endpoint(self, admin_token, endpoint_id):
-        self.__validate_admin_token(admin_token)
+        self.__validate_service_or_keystone_admin_token(admin_token)
         api.ENDPOINT_TEMPLATE.endpoint_delete(endpoint_id)
         return None
 

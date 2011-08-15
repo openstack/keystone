@@ -48,6 +48,7 @@ class RolesTest(unittest.TestCase):
         self.token = utils.get_token(self.user, 'secrete', self.tenant,
                                      'token')
         self.service_id = utils.get_test_service_id()
+        self.service_role = self.service_id + ':test_role'
 
     def tearDown(self):
         utils.delete_user(self.user, self.auth_token)
@@ -57,77 +58,50 @@ class RolesTest(unittest.TestCase):
 class CreateRolesTest(RolesTest):
     def test_create_role(self):
         resp, content = utils.create_role('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(201, int(resp['status']))
         resp, content = utils.delete_role('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(204, int(resp['status']))
 
     def test_create_role_using_service_token(self):
         resp, content = utils.create_role('test_role', self.service_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(201, int(resp['status']))
         resp, content = utils.delete_role('test_role', self.service_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(204, int(resp['status']))
 
     def test_create_roles_using_invalid_tokens(self):
         resp, content = utils.create_role('test_role', self.disabled_token)
         self.assertEqual(403, int(resp['status']))
-
         resp, content = utils.create_role('test_role', self.missing_token)
         self.assertEqual(401, int(resp['status']))
-
         resp, content = utils.create_role('test_role', self.exp_auth_token)
         self.assertEqual(403, int(resp['status']))
-
         resp, content = utils.create_role('test_role', self.invalid_token)
         self.assertEqual(404, int(resp['status']))
 
     def test_delete_roles_using_invalid_tokens(self):
         resp, content = utils.delete_role('test_role', self.disabled_token)
         self.assertEqual(403, int(resp['status']))
-
         resp, content = utils.delete_role('test_role', self.missing_token)
         self.assertEqual(401, int(resp['status']))
-
         resp, content = utils.delete_role('test_role', self.exp_auth_token)
         self.assertEqual(403, int(resp['status']))
-
         resp, content = utils.delete_role('test_role', self.invalid_token)
         self.assertEqual(404, int(resp['status']))
 
+    def test_create_and_delete_role_that_has_references(self):
+        resp, content = utils.create_role('test_role', self.auth_token)
+        self.assertEqual(201, int(resp['status']))
+        utils.create_role_ref(
+            self.user, "test_role",
+            self.tenant, self.auth_token)
+        resp, content = utils.delete_role('test_role', self.auth_token)
+        self.assertEqual(204, int(resp['status']))
+
     def test_create_role_mapped_to_a_service(self):
         resp, content = utils.create_role_mapped_to_service(
-            'test_role', self.auth_token, self.service_id)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
+            self.service_role, self.auth_token, self.service_id)
         self.assertEqual(201, int(resp['status']))
-        resp, content = utils.get_role('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
-        self.assertEqual(200, int(resp['status']))
-        resp, content = utils.get_role('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
+        resp, content = utils.get_role(self.service_role, self.auth_token)
         self.assertEqual(200, int(resp['status']))
         #verify content
         obj = json.loads(content)
@@ -138,7 +112,8 @@ class CreateRolesTest(RolesTest):
             role_id = None
         else:
             role_id = role["id"]
-        if role_id != 'test_role':
+
+        if role_id != self.service_role:
             self.fail("Not the expected Role")
         if not "serviceId" in role:
             service_id = None
@@ -146,26 +121,14 @@ class CreateRolesTest(RolesTest):
             service_id = role["serviceId"]
         if service_id != self.service_id:
             self.fail("Not the expected service")
-        resp, content = utils.delete_role('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
+        resp, content = utils.delete_role(self.service_role, self.auth_token)
         self.assertEqual(204, int(resp['status']))
 
     def test_create_role_mapped_to_a_service_xml(self):
         resp, content = utils.create_role_mapped_to_service_xml(
-            'test_role', self.auth_token, self.service_id)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
+            self.service_role, self.auth_token, self.service_id)
         self.assertEqual(201, int(resp['status']))
-        resp, content = utils.get_role_xml('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
+        resp, content = utils.get_role_xml(self.service_role, self.auth_token)
         self.assertEqual(200, int(resp['status']))
 
         #verify content
@@ -176,18 +139,19 @@ class CreateRolesTest(RolesTest):
         if role == None:
             self.fail("Expecting Role")
         role_id = role.get("id")
-        if role_id != 'test_role':
+        if role_id != self.service_role:
             self.fail("Not the expected Role")
         service_id = role.get("serviceId")
 
         if service_id != self.service_id:
             self.fail("Not the expected service")
-        resp, content = utils.delete_role('test_role', self.auth_token)
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
+        resp, content = utils.delete_role(self.service_role, self.auth_token)
         self.assertEqual(204, int(resp['status']))
+
+    def test_create_role_mapped_to_a_service_using_incorrect_role_name(self):
+        resp, content = utils.create_role_mapped_to_service(
+            'test_role', self.auth_token, self.service_id)
+        self.assertEqual(400, int(resp['status']))
 
 
 class GetRolesTest(RolesTest):
@@ -198,10 +162,6 @@ class GetRolesTest(RolesTest):
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.auth_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
 
         #verify content
@@ -227,10 +187,6 @@ class GetRolesTest(RolesTest):
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": self.service_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
 
         #verify content
@@ -257,10 +213,6 @@ class GetRolesTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
         # Validate Returned Content
         dom = etree.Element("root")
@@ -285,10 +237,6 @@ class GetRolesTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                         "X-Auth-Token": self.exp_auth_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_roles_exp_token_xml(self):
@@ -299,10 +247,6 @@ class GetRolesTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
 
@@ -317,10 +261,6 @@ class GetRoleTest(RolesTest):
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
         #verify content
         obj = json.loads(content)
@@ -342,10 +282,6 @@ class GetRoleTest(RolesTest):
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.service_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
         #verify content
         obj = json.loads(content)
@@ -368,10 +304,6 @@ class GetRoleTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.auth_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
 
         #verify content
@@ -392,10 +324,6 @@ class GetRoleTest(RolesTest):
         resp, _content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
     def test_get_role_xml_bad(self):
@@ -405,10 +333,6 @@ class GetRoleTest(RolesTest):
         resp, _content = header.request(url, "GET", body='',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.auth_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
     def test_get_role_expired_token(self):
@@ -419,10 +343,6 @@ class GetRoleTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}',
             headers={"Content-Type": "application/json",
                 "X-Auth-Token": self.exp_auth_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_role_xml_using_expired_token(self):
@@ -434,10 +354,6 @@ class GetRoleTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.exp_auth_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_role_using_disabled_token(self):
@@ -463,10 +379,6 @@ class GetRoleTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.disabled_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_role_using_missing_token(self):
@@ -477,10 +389,6 @@ class GetRoleTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.missing_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
 
     def test_get_role_xml_using_missing_token(self):
@@ -492,10 +400,6 @@ class GetRoleTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.missing_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
 
     def test_get_role_using_invalid_token(self):
@@ -506,10 +410,6 @@ class GetRoleTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                            "X-Auth-Token": self.invalid_token})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
     def test_get_role_xml_using_invalid_token(self):
@@ -521,10 +421,6 @@ class GetRoleTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                            "X-Auth-Token": self.invalid_token,
                                            "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
 
@@ -592,10 +488,6 @@ class GetRoleRefsTest(RolesTest):
         resp, content = header.request(url, "GET", body='{}',
                                   headers={"Content-Type": "application/json",
                                          "X-Auth-Token": str(self.auth_token)})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
 
         #verify content
@@ -615,10 +507,6 @@ class GetRoleRefsTest(RolesTest):
                                   headers={"Content-Type": "application/xml",
                                          "X-Auth-Token": str(self.auth_token),
                                          "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
         #verify content
         dom = etree.Element("root")
@@ -636,14 +524,10 @@ class GetRoleRefsTest(RolesTest):
                 str(self.auth_token))
         url = '%susers/%s/roleRefs' % (URL_V2, self.user)
         #test for Content-Type = application/xml
-        resp, content = header.request(url, "GET", body='{}', headers={
-            "Content-Type": "application/xml",
+        resp, content = header.request(url, "GET", body='{}',
+            headers={"Content-Type": "application/xml",
             "X-Auth-Token": str(self.service_token),
             "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(200, int(resp['status']))
         #verify content
         dom = etree.Element("root")
@@ -664,10 +548,6 @@ class GetRoleRefsTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}',
             headers={"Content-Type": "application/json",
                 "X-Auth-Token": str(self.exp_auth_token)})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_rolerefs_xml_using_expired_token(self):
@@ -682,10 +562,6 @@ class GetRoleRefsTest(RolesTest):
             headers={"Content-Type": "application/xml",
                 "X-Auth-Token": str(self.exp_auth_token),
                     "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_rolerefs_using_disabled_token(self):
@@ -698,10 +574,6 @@ class GetRoleRefsTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}',
             headers={"Content-Type": "application/json",
                 "X-Auth-Token": str(self.disabled_token)})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_rolerefs_xml_using_disabled_token(self):
@@ -716,10 +588,6 @@ class GetRoleRefsTest(RolesTest):
             headers={"Content-Type": "application/xml",
                 "X-Auth-Token": str(self.disabled_token),
                     "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(403, int(resp['status']))
 
     def test_get_rolerefs_using_missing_token(self):
@@ -732,10 +600,6 @@ class GetRoleRefsTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}', headers={
             "Content-Type": "application/json",
             "X-Auth-Token": str(self.missing_token)})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
 
     def test_get_rolerefs_xml_using_missing_token(self):
@@ -749,10 +613,6 @@ class GetRoleRefsTest(RolesTest):
             "Content-Type": "application/xml",
             "X-Auth-Token": str(self.missing_token),
             "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(401, int(resp['status']))
 
     def test_get_rolerefs_json_using_invalid_token(self):
@@ -765,10 +625,6 @@ class GetRoleRefsTest(RolesTest):
         resp, _content = header.request(url, "GET", body='{}', headers={
             "Content-Type": "application/json",
             "X-Auth-Token": str(self.invalid_token)})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
     def test_get_rolerefs_xml_using_invalid_token(self):
@@ -783,10 +639,6 @@ class GetRoleRefsTest(RolesTest):
             "Content-Type": "application/xml",
             "X-Auth-Token": str(self.invalid_token),
             "ACCEPT": "application/xml"})
-        if int(resp['status']) == 500:
-            self.fail('Identity Fault')
-        elif int(resp['status']) == 503:
-            self.fail('Service Not Available')
         self.assertEqual(404, int(resp['status']))
 
 

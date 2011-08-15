@@ -76,7 +76,10 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         roles = self.get_all('(serviceId=%s)' % \
                     (ldap.filter.escape_filter_chars(service_id),))
         try:
-            return roles[0]
+            res = []
+            for role in roles:
+                res.append(role)
+            return res
         except IndexError:
             return None
 

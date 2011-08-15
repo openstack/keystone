@@ -57,10 +57,6 @@ class ServicesTest(unittest.TestCase):
 class GetServicesTest(ServicesTest):
         def test_get_services_using_keystone_admin_token_json(self):
             resp, content = utils.get_services(self.auth_token)
-            if int(resp['status']) == 500:
-                self.fail('Identity Fault')
-            elif int(resp['status']) == 503:
-                self.fail('Service Not Available')
             self.assertEqual(200, int(resp['status']))
             #verify content
             obj = json.loads(content)
@@ -78,12 +74,7 @@ class GetServicesTest(ServicesTest):
 
         def test_get_services_using_keystone_admin_token_xml(self):
             resp, content = utils.get_services_xml(self.auth_token)
-            if int(resp['status']) == 500:
-                self.fail('Identity Fault')
-            elif int(resp['status']) == 503:
-                self.fail('Service Not Available')
             self.assertEqual(200, int(resp['status']))
-
             # verify content
             # Validate Returned Content
             dom = etree.Element("root")
@@ -106,10 +97,6 @@ class GetServicesTest(ServicesTest):
 
         def test_get_services_using_service_admin_token(self):
             resp, content = utils.get_services(self.service_token)
-            if int(resp['status']) == 500:
-                self.fail('Identity Fault')
-            elif int(resp['status']) == 503:
-                self.fail('Service Not Available')
             self.assertEqual(200, int(resp['status']))
             #verify content
             obj = json.loads(content)
@@ -127,10 +114,6 @@ class GetServicesTest(ServicesTest):
 
         def test_get_services_using_service_admin_token_xml(self):
             resp, content = utils.get_services_xml(self.service_token)
-            if int(resp['status']) == 500:
-                self.fail('Identity Fault')
-            elif int(resp['status']) == 503:
-                self.fail('Service Not Available')
             self.assertEqual(200, int(resp['status']))
             # Verify content
             # Validate Returned Content
@@ -155,13 +138,10 @@ class GetServicesTest(ServicesTest):
         def test_get_services_using_invalid_tokens(self):
             resp, content = utils.get_services(self.disabled_token)
             self.assertEqual(403, int(resp['status']))
-
             resp, content = utils.get_services(self.missing_token)
             self.assertEqual(401, int(resp['status']))
-
             resp, content = utils.get_services(self.exp_auth_token)
             self.assertEqual(403, int(resp['status']))
-
             resp, content = utils.get_services(self.invalid_token)
             self.assertEqual(404, int(resp['status']))
 
@@ -202,6 +182,20 @@ class GetServiceTest(ServicesTest):
             self.sample_service, str(self.invalid_token))
         resp_val = int(resp['status'])
         self.assertEqual(404, resp_val)
+
+    def test_get_service_using_invalid_tokens(self):
+        resp, content = utils.get_service(
+            self.sample_service, self.disabled_token)
+        self.assertEqual(403, int(resp['status']))
+        resp, content = utils.get_service(
+            self.sample_service, self.missing_token)
+        self.assertEqual(401, int(resp['status']))
+        resp, content = utils.get_service(
+            self.sample_service, self.exp_auth_token)
+        self.assertEqual(403, int(resp['status']))
+        resp, content = utils.get_service(
+            self.sample_service, self.invalid_token)
+        self.assertEqual(404, int(resp['status']))
 
     def test_get_service_using_invalid_tokens(self):
         resp, content = utils.get_service(
@@ -273,6 +267,42 @@ class CreateServiceTest(ServicesTest):
 
 class DeleteServiceTest(ServicesTest):
     def test_service_delete(self):
+        resp, _content = utils.delete_service(
+            self.test_service, self.auth_token)
+        resp_val = int(resp['status'])
+        self.assertEqual(204, resp_val)
+
+    def test_service_which_has_dependencies_delete(self):
+        resp, _content = utils.create_service(
+            self.test_service, str(self.auth_token))
+        resp, _content = utils.create_role_mapped_to_service(
+            self.test_service + ":test_role",
+            self.auth_token, self.test_service)
+        self.assertEqual(201, int(resp['status']))
+        resp, _content = utils.create_role_ref(
+            self.user, self.test_service +
+            ":test_role", self.tenant, self.auth_token)
+        self.assertEqual(201, int(resp['status']))
+        resp, _content = utils.create_endpoint_template(\
+            'DFW', self.test_service, 'public_url',\
+            'admin_url', 'internal_url', True, False, self.auth_token)
+        self.assertEqual(201, int(resp['status']))
+
+        #verify content
+        obj = json.loads(_content)
+        if not "endpointTemplate" in obj:
+            raise fault.BadRequestFault("Expecting endpointTemplate")
+        endpoint_template = obj["endpointTemplate"]
+        if not "id" in endpoint_template:
+            endpoint_template_id = None
+        else:
+            endpoint_template_id = endpoint_template["id"]
+        resp, _content = utils.create_endpoint_xml(self.tenant,
+            endpoint_template_id,
+            str(self.auth_token))
+        resp_val = int(resp['status'])
+        self.assertEqual(201, resp_val)
+
         resp, _content = utils.delete_service(
             self.test_service, self.auth_token)
         resp_val = int(resp['status'])
