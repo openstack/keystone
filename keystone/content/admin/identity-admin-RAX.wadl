@@ -165,27 +165,27 @@
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="503">
             <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="401">
             <representation mediaType="application/xml" element="identity:unauthorized"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="403">
             <representation mediaType="application/xml" element="identity:forbidden"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="405">
             <representation mediaType="application/xml" element="identity:badMethod"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="413">
             <representation mediaType="application/xml" element="identity:overLimit"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
            
     </method>
@@ -216,27 +216,27 @@
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="503">
             <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="401">
             <representation mediaType="application/xml" element="identity:unauthorized"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="403">
             <representation mediaType="application/xml" element="identity:forbidden"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="405">
             <representation mediaType="application/xml" element="identity:badMethod"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="413">
             <representation mediaType="application/xml" element="identity:overLimit"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
            
     </method>
@@ -259,33 +259,33 @@
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="503">
             <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="401">
             <representation mediaType="application/xml" element="identity:unauthorized"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="403">
             <representation mediaType="application/xml" element="identity:forbidden"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="400">
             <representation mediaType="application/xml" element="identity:badRequest"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="405">
             <representation mediaType="application/xml" element="identity:badMethod"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
         <response xmlns="http://wadl.dev.java.net/2009/02" status="413">
             <representation mediaType="application/xml" element="identity:overLimit"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
            
         
         <response xmlns="http://wadl.dev.java.net/2009/02" status="404">
             <representation mediaType="application/xml" element="identity:itemNotFound"/>
-            <representation mediaType="applicaiton/json"/>
+            <representation mediaType="application/json"/>
         </response>
            
     </method>
