@@ -12,20 +12,19 @@
 ]>
 
 <application xmlns="http://wadl.dev.java.net/2009/02"
-             xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
-             xmlns:capi="http://docs.openstack.org/common/api/v2.0"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-             xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 xsd/api.xsd
-                                 http://docs.openstack.org/common/api/v1.0 xsd/api-common.xsd
-                                 http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
-                                 ">
+    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:capi="http://docs.openstack.org/common/api/v2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 xsd/api.xsd
+        http://docs.openstack.org/common/api/v1.0 xsd/api-common.xsd
+        http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
+        ">
 
     <grammars>
         <include href="xsd/api.xsd"/>
         <include href="xsd/api-common.xsd"/>
     </grammars>
-
 
     <!--*******************************************************-->
     <!--             All Resoruces                             -->
@@ -44,12 +43,11 @@
                 <method href="#authenticate"/>
             </resource>
             <resource id="tenants" path="tenants">
-	        <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#listTenants"/>
             </resource>
         </resource>
     </resources>
-
 
     <!--***************************************************-->
     <!--               Resource Types                          -->
@@ -58,29 +56,23 @@
     <resource_type id="VersionDetails">
         <method href="#getVersionInfo"/>
     </resource_type>
-
     <resource_type id="ExtensionList">
         <doc xml:lang="EN" title="Extension List">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-                A list of supported extensions.
-            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">A list of supported extensions.</p>
         </doc>
         <method href="#listExtensions"/>
     </resource_type>
-
-
 
     <!--*******************************************************-->
     <!--               All Methods                             -->
     <!--*******************************************************-->
 
     <!-- Version -->
+
     <method name="GET" id="versionDetails">
         <doc xml:lang="EN" title="Version Details">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-                Returns detailed information about this specific
-                version of the API.
-            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">Returns detailed information about this specific
+                version of the API.</p>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="capi:version">
@@ -90,16 +82,15 @@
             </representation>
             <representation mediaType="application/json"/>
         </response>
-        &commonFaults; 
+        &commonFaults;
         &getFaults;
     </method>
-		
+
     <!-- Extensions -->
+
     <method name="GET" id="listExtensions">
         <doc xml:lang="EN" title="List Extensions">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-                List all available extensions.
-            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">List all available extensions.</p>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="capi:extensions">
@@ -112,26 +103,23 @@
             </representation>
             <representation mediaType="application/json"/>
         </response>
-        &commonFaults; 
+        &commonFaults;
         &getFaults;
     </method>
-
     <method name="GET" id="getExtension">
         <doc xml:lang="EN" title="Get Server Details">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-                Get details about a specific extension.
-            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">Get details about a specific extension.</p>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="capi:extension"/>
             <representation mediaType="application/json"/>
         </response>
-        &commonFaults; 
+        &commonFaults;
         &getFaults;
     </method>
 
-
     <!-- Token Operations -->
+
     <method name="POST" id="authenticate">
         <request>
             <representation mediaType="application/xml" element="identity:passwordCredentials"/>
@@ -145,12 +133,12 @@
             <representation mediaType="application/xml" element="identity:userDisabled"/>
             <representation mediaType="application/json"/>
         </response>
-        &commonFaults; 
+        &commonFaults;
         &getFaults;
     </method>
 
-
     <!-- Tenant Operations -->
+
     <method name="GET" id="listTenants">
         <request>
             <param name="marker" style="query" required="false" type="xsd:string"/>
@@ -160,8 +148,7 @@
             <representation mediaType="application/xml" element="identity:tenants"/>
             <representation mediaType="application/json"/>
         </response>
-        &commonFaults; 
+        &commonFaults;
         &getFaults;
     </method>
-  
 </application>
