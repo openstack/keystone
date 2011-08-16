@@ -37,6 +37,7 @@ class AdminApi(wsgi.Router):
         self.options = options
         mapper = routes.Mapper()
         db.configure_backends(options)
+
         # Token Operations
         auth_controller = AuthController(options)
         mapper.connect("/tokens", controller=auth_controller,
@@ -48,6 +49,7 @@ class AdminApi(wsgi.Router):
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
+
         # Tenant Operations
         tenant_controller = TenantController(options)
         mapper.connect("/tenants", controller=tenant_controller,

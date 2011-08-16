@@ -9,8 +9,8 @@
             <representation mediaType="application/xml" element="identity:identityFault"/>
             <representation mediaType="application/json"/>
         </response>
-        <response status="503" xmlns="http://wadl.dev.java.net/2009/02">
-            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
+        <response status="400" xmlns="http://wadl.dev.java.net/2009/02">
+            <representation mediaType="application/xml" element="identity:badRequest"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="401" xmlns="http://wadl.dev.java.net/2009/02">
@@ -21,16 +21,16 @@
             <representation mediaType="application/xml" element="identity:forbidden"/>
             <representation mediaType="application/json"/>
         </response>
-        <response status="400" xmlns="http://wadl.dev.java.net/2009/02">
-            <representation mediaType="application/xml" element="identity:badRequest"/>
-            <representation mediaType="application/json"/>
-        </response>
         <response status="405" xmlns="http://wadl.dev.java.net/2009/02">
             <representation mediaType="application/xml" element="identity:badMethod"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="413" xmlns="http://wadl.dev.java.net/2009/02">
             <representation mediaType="application/xml" element="identity:overLimit"/>
+            <representation mediaType="application/json"/>
+        </response>
+        <response status="503" xmlns="http://wadl.dev.java.net/2009/02">
+            <representation mediaType="application/xml" element="identity:serviceUnavailable"/>
             <representation mediaType="application/json"/>
         </response>
            '>
