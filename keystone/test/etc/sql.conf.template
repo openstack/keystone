@@ -22,13 +22,13 @@ backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Tenant', 
 
 [pipeline:admin]
 pipeline =
-	urlrewritefilter
-	admin_api
+    urlrewritefilter
+    admin_api
 
 [pipeline:keystone-legacy-auth]
 pipeline =
-	urlrewritefilter
-	legacy_auth
+    urlrewritefilter
+    legacy_auth
     service_api
 
 [app:service_api]
