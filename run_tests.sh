@@ -9,6 +9,7 @@ function usage {
   echo "  -f, --force              Force a clean re-build of the virtual environment. Useful when dependencies have been added."
   echo "  --unittests-only         Run unit tests only, exclude functional tests."
   echo "  -p, --pep8               Just run pep8"
+  echo "  -l, --pylint             Just run pylint"
   echo "  -h, --help               Print this usage message"
   echo ""
   echo "Note: with no options specified, the script will try to run the tests in a virtual environment,"
@@ -23,6 +24,7 @@ function process_option {
     -V|--virtual-env) let always_venv=1; let never_venv=0;;
     -N|--no-virtual-env) let always_venv=0; let never_venv=1;;
     -p|--pep8) let just_pep8=1;;
+    -l|--pep8) let just_pylint=1;;
     -f|--force) let force=1;;
     --unittests-only) noseargs="$noseargs --exclude-dir=keystone/tests/functional --exclude-dir=keystone/tests/system";;
     *) noseargs="$noseargs $1"
@@ -37,6 +39,7 @@ force=0
 noseargs=
 wrapper=""
 just_pep8=0
+just_pylint=0
 
 for arg in "$@"; do
   process_option $arg
@@ -49,16 +52,19 @@ function run_tests {
 
 function run_pep8 {
   echo "Running pep8 ..."
-  # FIXME(sirp): bzr version-info is not currently pep-8. This was fixed with
-  # lp701898 [1], however, until that version of bzr becomes standard, I'm just
-  # excluding the vcsversion.py file
-  #
-  # [1] https://bugs.launchpad.net/bzr/+bug/701898
-  #
   PEP8_EXCLUDE="vcsversion.py"
   PEP8_OPTIONS="--exclude=$PEP8_EXCLUDE --repeat --show-pep8 --show-source"
   PEP8_INCLUDE="bin/k* keystone examples tools setup.py run_tests.py"
   pep8 $PEP8_OPTIONS $PEP8_INCLUDE
+}
+
+function run_pylint {
+  echo "Running pylint ..."
+  PYLINT_OPTIONS="--rcfile=.pylintrc --output-format=parseable"
+  PYLINT_INCLUDE="keystone"
+  echo "Pylint messages count: "
+  pylint $PYLINT_OPTIONS $PYLINT_INCLUDE | grep 'keystone/' | wc -l
+  echo "Run 'pylint $PYLINT_OPTIONS, $PYLINT_INCLUDE' for a full report."
 }
 
 
@@ -92,6 +98,11 @@ fi
 
 if [ $just_pep8 -eq 1 ]; then
     run_pep8
+    exit
+fi
+
+if [ $just_pylint -eq 1 ]; then
+    run_pylint
     exit
 fi
 
