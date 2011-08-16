@@ -6,21 +6,22 @@
     attributeFormDefault="unqualified"
     xmlns="http://www.w3.org/2001/XMLSchema"
     xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:RAX-GRP="http://docs.rackspace.com/identity/api/ext/RAX-GRP/v1.0"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
     xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
     xmlns:atom="http://www.w3.org/2005/Atom"
-    targetNamespace="http://docs.openstack.org/identity/api/v2.0"
+    targetNamespace="http://docs.rackspace.com/identity/api/ext/RAX-GRP/v1.0"
 >
     <!--Include schema we are extending  -->
-    <include schemaLocation="user.xsd"/>
-    <include schemaLocation="roles.xsd"/>
-    <include schemaLocation="token.xsd"/>
+    <import schemaLocation="user.xsd" namespace="http://docs.openstack.org/identity/api/v2.0"/>
+    <import schemaLocation="roles.xsd" namespace="http://docs.openstack.org/identity/api/v2.0"/>
+    <import schemaLocation="token.xsd" namespace="http://docs.openstack.org/identity/api/v2.0"/>
 
     <!-- Elements -->
 
     <!-- Complex Types -->
-    <complexType name="RAX-UserForAuthData">
+    <complexType name="UserForAuthData">
         <complexContent>
             <extension base="identity:UserForAuthenticateResponse">
                 <sequence>
@@ -32,7 +33,7 @@
 
     <complexType name="Groups">
         <sequence>
-            <element name="group" type="identity:Group" maxOccurs="100"/>
+            <element name="group" type="RAX-GRP:Group" maxOccurs="100"/>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>

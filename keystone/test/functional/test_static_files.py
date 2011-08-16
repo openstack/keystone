@@ -25,7 +25,7 @@ class TestStaticFiles(KeystoneTestCase):
 
     def test_xslt(self):
         r = self.service_request(path='/xslt/schema.xslt')
-        self.assertTrue('xslt' in r.getheader('Content-Type'))
+        self.assertTrue('xml' in r.getheader('Content-Type'))
 
     def test_js(self):
         r = self.service_request(path='/js/shjs/sh_java.js')
@@ -63,7 +63,7 @@ class TestAdminStaticFiles(KeystoneTestCase):
 
     def test_xslt(self):
         r = self.admin_request(path='/xslt/schema.xslt')
-        self.assertTrue('xslt' in r.getheader('Content-Type'))
+        self.assertTrue('xml' in r.getheader('Content-Type'))
 
     def test_js(self):
         r = self.admin_request(path='/js/shjs/sh_java.js')

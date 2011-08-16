@@ -201,7 +201,7 @@ class AdminApi(wsgi.Router):
                     controller=static_files_controller,
                     action="get_static_file",
                     root="content/common/", path="xslt/",
-                    mimetype="application/xslt",
+                    mimetype="application/xml",
                     conditions=dict(method=["GET"]))
         mapper.connect("/js/{file:.*}",
                     controller=static_files_controller,

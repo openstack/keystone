@@ -1,4 +1,4 @@
-import unittest
+import unittest2 as unittest
 from common import KeystoneTestCase
 
 
@@ -12,7 +12,7 @@ class TestExtensions(KeystoneTestCase):
         self.assertIsNotNone(content['extensions']['values'])
         found = False
         for value in content['extensions']['values']:
-            if value['alias'] == 'RS-KEY':
+            if value['alias'] == 'RAX-KEY':
                 found = True
                 break
         self.assertTrue(found)
@@ -21,7 +21,7 @@ class TestExtensions(KeystoneTestCase):
         r = self.service_request(path='/extensions.xml')
         self.assertTrue('xml' in r.getheader('Content-Type'))
         content = r.xml
-        extension = content.find("*[@alias='RS-KEY']")
+        extension = content.find("*[@alias='RAX-KEY']")
         self.assertIsNotNone(extension)
 
 

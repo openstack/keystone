@@ -16,6 +16,7 @@
 #    under the License.
 
 from webob import Response
+import os
 
 from keystone import utils
 from keystone.common import template, wsgi
@@ -62,10 +63,14 @@ class StaticFilesController(wsgi.Controller):
             elif utils.is_json_response(req):
                 mimetype = "application/json"
 
-        if mimetype == "application/xml":
-            resp_file = "%s%s%s.xml" % (root, path, file)
-        elif mimetype == "application/json":
-            resp_file = "%s%s%s.json" % (root, path, file)
+        basename, extension = os.path.splitext(file)
+        if extension == None or extension == '':
+            if mimetype == "application/xml":
+                resp_file = "%s%s%s.xml" % (root, path, file)
+            elif mimetype == "application/json":
+                resp_file = "%s%s%s.json" % (root, path, file)
+            else:
+                resp_file = root + path + file
         else:
             resp_file = root + path + file
 

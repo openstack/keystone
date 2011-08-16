@@ -3,18 +3,18 @@
 <endpoints
     xmlns="http://docs.openstack.org/identity/api/v2.0">
   <endpoint
-      href="https://auth.keystone.com/v2.0/baseURLs/1"
+      href="https://auth.keystone.com/v2.0/endpoints/1"
       id="1" />
   <endpoint
-      href="https://auth.keystone.com/v2.0/baseURLs/2"
+      href="https://auth.keystone.com/v2.0/endpoints/2"
       id="2" />
   <endpoint
-      href="https://auth.keystone.com/v2.0/baseURLs/3"
+      href="https://auth.keystone.com/v2.0/endpoints/3"
       id="3" />
   <endpoint
-      href="https://auth.keystone.com/v2.0/baseURLs/4"
+      href="https://auth.keystone.com/v2.0/endpoints/4"
       id="4" />
   <endpoint
-      href="https://auth.keystone.com/v2.0/baseURLs/5"
+      href="https://auth.keystone.com/v2.0/endpoints/5"
       id="5" />
 </endpoints>

@@ -83,7 +83,7 @@ class ServiceApi(wsgi.Router):
         mapper.connect("/xslt/{file:.*}",
                         controller=static_files_controller,
                         action="get_static_file", path="common/xslt/",
-                        mimetype="application/xslt",
+                        mimetype="application/xml",
                         conditions=dict(method=["GET"]))
         mapper.connect("/style/{file:.*}",
                         controller=static_files_controller,

@@ -317,7 +317,11 @@
     
     <method name="POST" id="authenticate">
         <request>
-            <representation mediaType="application/xml" element="identity:passwordCredentials"/>
+            <representation mediaType="application/xml" element="identity:passwordCredentials">
+                <param name="passwordCredentials" style="plain" required="true"
+                    type="identity:PasswordCredentialsWithoutUsername"
+                    path="/identity:passwordCredentials"/>
+            </representation>
             <representation mediaType="application/json"/>
         </request>
         <response status="200 203">
