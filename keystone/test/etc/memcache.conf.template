@@ -16,7 +16,7 @@ keystone-admin-role = Admin
 keystone-service-admin-role = KeystoneServiceAdmin
 
 [keystone.backends.sqlalchemy]
-sql_connection = sqlite:///%(test_dir)s/keystone.db
+sql_connection = for_testing_only
 sql_idle_timeout = 30
 backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Tenant', 'User', 'UserRoleAssociation', 'Role', 'Service']
 
@@ -27,15 +27,15 @@ cache_time = 86400
 
 [pipeline:admin]
 pipeline =
-    urlrewritefilter
-    admin_api
+	urlrewritefilter
+	admin_api
 
 [pipeline:keystone-legacy-auth]
 pipeline =
 	urlrewritefilter
 	legacy_auth
-    RAXKEY-extension
-    service_api
+	RAX-KEY-extension
+	service_api
 
 [app:service_api]
 paste.app_factory = keystone.server:service_app_factory

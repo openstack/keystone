@@ -20,18 +20,21 @@ import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import joinedload, aliased, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from keystone.common import config
 from keystone.backends.sqlalchemy import models
 import keystone.utils as utils
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models
+from keystone.test import sampledata
 _ENGINE = None
 _MAKER = None
 BASE = models.Base
 
 MODEL_PREFIX = 'keystone.backends.sqlalchemy.models.'
 API_PREFIX = 'keystone.backends.sqlalchemy.api.'
+FOR_TESTING_ONLY = 'for_testing_only'
 
 
 def configure_backend(options):
@@ -49,14 +52,27 @@ def configure_backend(options):
             options, 'verbose', type='bool', default=False)
         timeout = config.get_option(
             options, 'sql_idle_timeout', type='int', default=3600)
-        _ENGINE = create_engine(options['sql_connection'],
-                                pool_recycle=timeout)
+
+        if options['sql_connection'] == FOR_TESTING_ONLY:
+            _ENGINE = create_engine('sqlite://',
+                connect_args={'check_same_thread': False},
+                poolclass=StaticPool)
+        else:
+            _ENGINE = create_engine(options['sql_connection'],
+                pool_recycle=timeout)
+
         logger = logging.getLogger('sqlalchemy.engine')
         if debug:
             logger.setLevel(logging.DEBUG)
         elif verbose:
             logger.setLevel(logging.INFO)
+
         register_models(options)
+
+        # this is TERRIBLE coupling, but...
+        # if we're starting up a test database, load sample fixtures
+        if options['sql_connection'] == FOR_TESTING_ONLY:
+            sampledata.load_fixture()
 
 
 def get_session(autocommit=True, expire_on_commit=False):
