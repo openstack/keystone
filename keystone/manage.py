@@ -47,12 +47,12 @@ def parse_args(args=None):
     # Initialize a parser for our configuration paramaters
     parser = RaisingOptionParser(usage, version='%%prog %s'
                                    % keystone.version())
-    common_group = config.add_common_options(parser)
+    _common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 
     # Parse command-line and load config
     (options, args) = config.parse_options(parser, args)
-    config_file, conf = config.load_paste_config('admin', options, args)
+    _config_file, conf = config.load_paste_config('admin', options, args)
 
     # Set things up to run the command
     debug = options.get('debug') or conf.get('debug', False)
@@ -60,7 +60,7 @@ def parse_args(args=None):
     verbose = options.get('verbose') or conf.get('verbose', False)
     verbose = verbose in [True, "True", "1"]
     if debug or verbose:
-        config_file = config.find_config_file(options, args)
+        _config_file = config.find_config_file(options, args)
 
     config.setup_logging(options, conf)
 
@@ -90,27 +90,21 @@ def process(*args):
     # Check arguments
     if len(args) == 0:
         raise optparse.OptParseError(
-                'No object type specified for first argument')
+            'No object type specified for first argument')
 
     object_type = args[0]
-    if object_type in ['user', 'tenant', 'role', 'service',
-                        'endpointTemplates', 'token',
-                        'endpoint', 'credentials']:
-        pass
-    else:
+    if object_type not in ['user', 'tenant', 'role', 'service',
+            'endpointTemplates', 'token', 'endpoint', 'credentials']:
         raise optparse.OptParseError(
-                '%s is not a supported object type' % object_type)
+            '%s is not a supported object type' % object_type)
 
     if len(args) == 1:
         raise optparse.OptParseError(
-                'No command specified for second argument')
+            'No command specified for second argument')
     command = args[1]
-    if command in ['add', 'list', 'disable', 'delete', 'grant', 'revoke']:
-        pass
-    else:
-        raise optparse.OptParseError(
-                'add, disable, delete, and list are the only supported'\
-                     ' commands (right now)')
+    if command not in ['add', 'list', 'disable', 'delete', 'grant', 'revoke']:
+        raise optparse.OptParseError('add, disable, delete, and list are the '
+            'only supported commands (right now)')
 
     if len(args) == 2:
         if command != 'list':
@@ -122,7 +116,7 @@ def process(*args):
         if command == "add":
             if len(args) < 4:
                 raise optparse.OptParseError(
-                        'No password specified for fourth argument')
+                    'No password specified for fourth argument')
             password = args[3]
 
             try:
@@ -135,7 +129,7 @@ def process(*args):
                     object.tenant_id = tenant
                 db_api.USER.create(object)
                 print "SUCCESS: User %s created." % object.id
-            except Exception:
+            except:
                 raise Exception("Failed to create user %s" % (object_id,),
                     sys.exc_info())
             return
@@ -147,7 +141,7 @@ def process(*args):
                 object.enabled = False
                 db_api.USER.update(object_id, object)
                 print "SUCCESS: User %s disabled." % object.id
-            except Exception as exc:
+            except:
                 raise Exception("Failed to disable user %s" % (object_id,),
                     sys.exc_info())
             return
@@ -170,7 +164,7 @@ def process(*args):
                     print '-' * 20
                     for row in objects:
                         print row.id, row.enabled, row.tenant_id
-            except Exception:
+            except:
                 raise Exception("Error getting all users", sys.exc_info())
             return
     elif object_type == "tenant":
@@ -182,7 +176,7 @@ def process(*args):
                 db_api.TENANT.create(object)
                 print "SUCCESS: Tenant %s created." % object.id
                 return
-            except Exception as exc:
+            except:
                 raise Exception("Failed to create tenant %s" % (object_id,),
                                 sys.exc_info())
         elif command == "list":
@@ -194,7 +188,7 @@ def process(*args):
                 print '-' * 20
                 for row in objects:
                     print row.id, row.enabled
-            except Exception, exc:
+            except:
                 raise Exception("Error getting all tenants", sys.exc_info())
             return
         elif command == "disable":
@@ -205,7 +199,7 @@ def process(*args):
                 object.enabled = False
                 db_api.TENANT.update(object_id, object)
                 print "SUCCESS: Tenant %s disabled." % object.id
-            except Exception as exc:
+            except:
                 raise Exception("Failed to disable tenant %s" % (object_id,),
                     sys.exc_info())
             return
@@ -217,7 +211,7 @@ def process(*args):
                 db_api.ROLE.create(object)
                 print "SUCCESS: Role %s created successfully." % object.id
                 return
-            except Exception as exc:
+            except:
                 raise Exception("Failed to create role %s" % (object_id,),
                     sys.exc_info())
         elif command == "list":
@@ -232,10 +226,9 @@ def process(*args):
                     print '-' * 20
                     for row in objects:
                         print row.user_id, row.role_id
-                except Exception, e:
-                    raise Exception(\
-                        "Error getting all role assignments for %s" % tenant,
-                        sys.exc_info())
+                except:
+                    raise Exception("Error getting all role assignments for %s"
+                        % (tenant,), sys.exc_info())
                 return
             else:
                 tenant = None
@@ -248,14 +241,13 @@ def process(*args):
                     print '-' * 20
                     for row in objects:
                         print row.id
-                except Exception, e:
+                except:
                     raise Exception("Error getting all roles", sys.exc_info())
                 return
         elif command == "grant":
             if len(args) < 4:
-                raise optparse.OptParseError(
-                        "Missing arguments: role grant 'role' 'user'"\
-                            " 'tenant (optional)'")
+                raise optparse.OptParseError("Missing arguments: role grant "
+                    "'role' 'user' 'tenant (optional)'")
             user = args[3]
             if len(args) > 4:
                 tenant = args[4]
@@ -268,20 +260,18 @@ def process(*args):
                 if tenant != None:
                     object.tenant_id = tenant
                 db_api.USER.user_role_add(object)
-                print "SUCCESS: Granted %s the %s role on %s." % \
-                        (object.user_id, object.role_id, object.tenant_id)
-            except Exception as exc:
-                raise Exception("Failed to grant role %s to %s on %s" % \
-                                    (object_id, user, tenant), sys.exc_info())
+                print("SUCCESS: Granted %s the %s role on %s." %
+                    (object.user_id, object.role_id, object.tenant_id))
+            except:
+                raise Exception("Failed to grant role %s to %s on %s" %
+                    (object_id, user, tenant), sys.exc_info())
             return
     elif object_type == "endpointTemplates":
         if command == "add":
             if len(args) < 9:
-                raise optparse.OptParseError(
-                        "Missing arguments: endpointTemplates add " \
-                            "'region' 'service' " \
-                            "'publicURL' 'adminURL' 'internalURL' 'enabled' " \
-                            "'global'")
+                raise optparse.OptParseError("Missing arguments: "
+                    "endpointTemplates add 'region' 'service' 'publicURL' "
+                    "'adminURL' 'internalURL' 'enabled' 'global'")
             region = args[2]
             service = args[3]
             public_url = args[4]
@@ -299,12 +289,12 @@ def process(*args):
                 object.enabled = enabled
                 object.is_global = is_global
                 object = db_api.ENDPOINT_TEMPLATE.create(object)
-                print "SUCCESS: Created EndpointTemplates for %s pointing " \
-                    "to %s." % (object.service, object.public_url)
+                print("SUCCESS: Created EndpointTemplates for %s pointing "
+                    "to %s." % (object.service, object.public_url))
                 return
-            except Exception as exc:
-                raise Exception("Failed to create EndpointTemplates for %s" % \
-                                    (service,), sys.exc_info())
+            except:
+                raise Exception("Failed to create EndpointTemplates for %s" %
+                    (service,), sys.exc_info())
         elif command == "list":
             if len(args) == 3:
                 tenant = args[2]
@@ -318,9 +308,9 @@ def process(*args):
                     print '-' * 30
                     for row in objects:
                         print row.service, row.region, row.public_url
-                except Exception, e:
-                    raise Exception("Error getting all endpoints for %s" % \
-                                    (tenant,), sys.exc_info())
+                except:
+                    raise Exception("Error getting all endpoints for %s" %
+                        (tenant,), sys.exc_info())
                 return
             else:
                 tenant = None
@@ -333,16 +323,15 @@ def process(*args):
                     print '-' * 20
                     for row in objects:
                         print row.service, row.region, row.public_url
-                except Exception, e:
+                except:
                     raise Exception("Error getting all EndpointTemplates",
                         sys.exc_info())
                 return
     elif object_type == "endpoint":
         if command == "add":
             if len(args) < 4:
-                raise optparse.OptParseError(
-                        "Missing arguments: endPoint add 'tenant'\
-                            'endPointTemplate'")
+                raise optparse.OptParseError("Missing arguments: endPoint add "
+                    "tenant endPointTemplate'")
 
             tenant_id = args[2]
             endpoint_template_id = args[3]
@@ -351,17 +340,16 @@ def process(*args):
                 object.tenant_id = tenant_id
                 object.endpoint_template_id = endpoint_template_id
                 object = db_api.ENDPOINT_TEMPLATE.endpoint_add(object)
-                print "SUCCESS: Endpoint %s added to tenant %s." % \
-                            (endpoint_template_id, tenant_id)
+                print("SUCCESS: Endpoint %s added to tenant %s." %
+                    (endpoint_template_id, tenant_id))
                 return
-            except Exception as exc:
+            except:
                 raise Exception("Failed to create Endpoint", sys.exc_info())
     elif object_type == "token":
         if command == "add":
             if len(args) < 6:
-                raise optparse.OptParseError(
-                        'Creating a token requires a token id, user'\
-                             ', tenant, and expiration')
+                raise optparse.OptParseError('Creating a token requires a '
+                    'token id, user, tenant, and expiration')
             try:
                 object = db_models.Token()
                 object.id = object_id
@@ -374,7 +362,7 @@ def process(*args):
                 db_api.TOKEN.create(object)
                 print "SUCCESS: Token %s created." % object.id
                 return
-            except Exception as exc:
+            except:
                 raise Exception("Failed to create token %s" % (object_id,),
                     sys.exc_info())
         elif command == "list":
@@ -386,7 +374,7 @@ def process(*args):
                 print '-' * 20
                 for row in objects:
                     print row.id, row.user_id, row.expires, row.tenant_id
-            except Exception, e:
+            except:
                 raise Exception("Error getting all tokens", sys.exc_info())
             return
         elif command == "delete":
@@ -397,7 +385,7 @@ def process(*args):
                 else:
                     db_api.TOKEN.delete(object_id)
                     print 'SUCCESS: Token %s deleted.' % object_id
-            except Exception, e:
+            except:
                 raise Exception("Failed to delete token %s" % (object_id,),
                     sys.exc_info())
             return
@@ -410,7 +398,7 @@ def process(*args):
                 print "SUCCESS: Service %s created successfully." % \
                         (object.id,)
                 return
-            except Exception as exc:
+            except:
                 raise Exception("Failed to create Service %s" % \
                         (object_id,), sys.exc_info())
         elif command == "list":
@@ -424,15 +412,13 @@ def process(*args):
                 print '-' * 20
                 for row in objects:
                     print row.id
-            except Exception, e:
-                raise Exception("Error getting all services",
-                        sys.exc_info())
+            except:
+                raise Exception("Error getting all services", sys.exc_info())
     elif object_type == "credentials":
         if command == "add":
             if len(args) < 6:
-                raise optparse.OptParseError(
-                        'Creating a credentials requires a type, '
-                             'key, secret, and tenant_id (id is user_id)')
+                raise optparse.OptParseError('Creating a credentials requires '
+                    'a type, key, secret, and tenant_id (id is user_id)')
             try:
                 object = db_models.Token()
                 object.user_id = object_id
@@ -444,9 +430,9 @@ def process(*args):
                 result = db_api.CREDENTIALS.create(object)
                 print "SUCCESS: Credentials %s created." % result.id
                 return
-            except Exception as exc:
-                raise Exception("Failed to create credentials %s" % \
-                        (object_id,), sys.exc_info())
+            except:
+                raise Exception("Failed to create credentials %s" %
+                    (object_id,), sys.exc_info())
 
     # Command not handled
     print ("ERROR: %s %s not yet supported" % (object_type, command))
