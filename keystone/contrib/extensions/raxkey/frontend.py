@@ -25,14 +25,11 @@ This WSGI component
 """
 
 import os
-import sys
 import json
 from lxml import etree
 from webob.exc import Request, Response
 
-import keystone.utils as utils
-
-EXTENSION_ALIAS = "RS-KEY"
+EXTENSION_ALIAS = "RAX-KEY"
 
 
 class FrontEndFilter(object):

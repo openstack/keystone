@@ -34,7 +34,7 @@ pipeline =
 pipeline =
 	urlrewritefilter
 	legacy_auth
-    RS-KEY-extension
+    RAXKEY-extension
     service_api
 
 [app:service_api]
@@ -49,5 +49,5 @@ paste.filter_factory = keystone.middleware.url:filter_factory
 [filter:legacy_auth]
 paste.filter_factory = keystone.frontends.legacy_token_auth:filter_factory
 
-[filter:RS-KEY-extension]
-paste.filter_factory = keystone.contrib.extensions.rskey.frontend:filter_factory
+[filter:RAX-KEY-extension]
+paste.filter_factory = keystone.contrib.extensions.raxkey.frontend:filter_factory

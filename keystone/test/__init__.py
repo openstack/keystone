@@ -69,7 +69,7 @@ class KeystoneTest(object):
 
         # Populate the test database
         print "Populating registry and token databases..."
-        execute('sampledata.sh -c %s' % self.conf_fp.name)
+        execute('sampledata -c %s' % self.conf_fp.name)
 
         # run the keystone server
         print "Starting the keystone server..."

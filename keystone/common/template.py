@@ -49,7 +49,7 @@ import tokenize
 import mimetypes
 from webob import Response
 from paste.util.template import TemplateError
-from paste.util.datetimeutil import parse_date
+# from paste.util.datetimeutil import parse_date
 import datetime
 
 import keystone.logic.types.fault as fault
@@ -342,7 +342,7 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
                 return Response(body=None, status=304,
                                 headerlist=resp.headerlist)
         except:
-            print "TODO(Ziad): handle this better"
+            # TODO(Ziad): handle this better
             pass
     resp.content_length = stats.st_size
     if req.method == 'HEAD':

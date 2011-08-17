@@ -133,7 +133,7 @@ To run the test suite in a single command:
 #### Sample data
 A set of sample data can be added by running a shell script:
 
-    $ ./bin/sampledata.sh
+    $ ./bin/sampledata
 
 The script calls `keystone-manage` to create the sample data.
 
@@ -238,7 +238,7 @@ Initial support for using keystone as nova's identity component has been started
     # run nova-api based on the paste config in keystone
     nova/bin/nova-api --api_paste_config=keystone/examples/paste/nova-api-paste.ini
 
-Assuming you added the test data using bin/sampledata.sh, you can then use joeuser/secrete
+Assuming you added the test data using bin/sampledata, you can then use joeuser/secrete
 
 ## Swift Integration - Quick Start
 
@@ -266,14 +266,15 @@ Assuming you added the test data using bin/sampledata.sh, you can then use joeus
         Service API listening on 0.0.0.0:5000
         Admin API listening on 0.0.0.0:5001
 
-4.  In another window, edit the `~/keystone/bin/sampledata.sh` file, find the
-    `swift.publicinternets.com` text and replace it with the URL to your Swift
-    cluster using the following format (note that we're going to change Swift
-    to run on port 8888 later): `http://127.0.0.1:8888/v1/AUTH_%tenant_id%`
+4.  In another window, edit the `~/keystone/keystone/test/sampledata.py` file,
+    find the `swift.publicinternets.com` text and replace it with the URL to
+    your Swift cluster using the following format (note that we're going to
+    change Swift to run on port 8888 later):
+    `http://127.0.0.1:8888/v1/AUTH_%tenant_id%`
 
 5.  Create the sample data entries:
 
-        $ cd ~/keystone/bin && ./sampledata.sh
+        $ cd ~/keystone/bin && ./sampledata
         ...
 
 6.  Reconfigure Swift's proxy server to use Keystone instead of TempAuth.
