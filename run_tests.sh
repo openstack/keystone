@@ -23,8 +23,8 @@ function process_option {
     -h|--help) usage;;
     -V|--virtual-env) let always_venv=1; let never_venv=0;;
     -N|--no-virtual-env) let always_venv=0; let never_venv=1;;
-    -p|--pep8) let just_pep8=1;;
-    -l|--pep8) let just_pylint=1;;
+    -p|--pep8) let just_pep8=1; let never_venv=1;;
+    -l|--pylint) let just_pylint=1; let never_venv=0;;
     -f|--force) let force=1;;
     --unittests-only) noseargs="$noseargs --exclude-dir=keystone/tests/functional --exclude-dir=keystone/tests/system";;
     *) noseargs="$noseargs $1"
@@ -64,7 +64,7 @@ function run_pylint {
   PYLINT_INCLUDE="keystone"
   echo "Pylint messages count: "
   pylint $PYLINT_OPTIONS $PYLINT_INCLUDE | grep 'keystone/' | wc -l
-  echo "Run 'pylint $PYLINT_OPTIONS, $PYLINT_INCLUDE' for a full report."
+  echo "Run 'pylint $PYLINT_OPTIONS $PYLINT_INCLUDE' for a full report."
 }
 
 
