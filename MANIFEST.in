@@ -1,5 +1,7 @@
 include README.md
 include MANIFEST.in
+include run_tests.sh
+include run_tests.py
 graft doc
 graft etc
 graft tools
