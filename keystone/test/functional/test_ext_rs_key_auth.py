@@ -1,8 +1,8 @@
 import unittest2 as unittest
-from common import KeystoneTestCase
+from keystone.test.functional import common
 
 
-class TestExtensions(KeystoneTestCase):
+class TestExtensions(common.KeystoneTestCase):
     def test_extensions_json(self):
         r = self.service_request(path='/extensions.json',
             assert_status=200)

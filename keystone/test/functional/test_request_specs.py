@@ -1,8 +1,8 @@
 import unittest
-from common import KeystoneTestCase
+from keystone.test.functional import common
 
 
-class TestUrlHandling(KeystoneTestCase):
+class TestUrlHandling(common.KeystoneTestCase):
     """Tests API's global URL handling behaviors"""
 
     def test_optional_trailing_slash(self):
@@ -12,7 +12,7 @@ class TestUrlHandling(KeystoneTestCase):
         self.assertEqual(r1.read(), r2.read())
 
 
-class TestContentTypes(KeystoneTestCase):
+class TestContentTypes(common.KeystoneTestCase):
     """Tests API's Content-Type handling"""
 
     def test_default_content_type(self):

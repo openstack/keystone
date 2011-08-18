@@ -1,8 +1,8 @@
 import unittest
-from common import KeystoneTestCase
+from keystone.test.functional import common
 
 
-class TestExtensions(KeystoneTestCase):
+class TestExtensions(common.KeystoneTestCase):
     def test_extensions_json(self):
         r = self.service_request(path='/extensions.json')
         self.assertTrue('json' in r.getheader('Content-Type'))
@@ -12,7 +12,7 @@ class TestExtensions(KeystoneTestCase):
         self.assertTrue('xml' in r.getheader('Content-Type'))
 
 
-class TestAdminExtensions(KeystoneTestCase):
+class TestAdminExtensions(common.KeystoneTestCase):
     def test_extensions_json(self):
         r = self.admin_request(path='/extensions.json')
         self.assertTrue('json' in r.getheader('Content-Type'))

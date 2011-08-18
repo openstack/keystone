@@ -1,12 +1,12 @@
 import unittest
-from common import KeystoneTestCase
+from keystone.test.functional import common
 
 
-class TestIssue85(KeystoneTestCase):
+class TestIssue85(common.KeystoneTestCase):
     """Illustrates github issue #85"""
 
-    tenant_id = KeystoneTestCase._uuid()
-    user_id = KeystoneTestCase._uuid()
+    tenant_id = common.KeystoneTestCase._uuid()
+    user_id = common.KeystoneTestCase._uuid()
 
     def setUp(self):
         super(TestIssue85, self).setUp()

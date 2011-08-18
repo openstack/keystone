@@ -1,8 +1,8 @@
 import unittest
-from common import KeystoneTestCase
+from keystone.test.functional import common
 
 
-class TestStaticFiles(KeystoneTestCase):
+class TestStaticFiles(common.KeystoneTestCase):
     def test_pdf_contract(self):
         r = self.service_request(path='/identitydevguide.pdf')
         self.assertTrue('pdf' in r.getheader('Content-Type'))
@@ -44,7 +44,7 @@ class TestStaticFiles(KeystoneTestCase):
         self.assertTrue('css' in r.getheader('Content-Type'))
 
 
-class TestAdminStaticFiles(KeystoneTestCase):
+class TestAdminStaticFiles(common.KeystoneTestCase):
     def test_pdf_contract(self):
         r = self.admin_request(path='/identityadminguide.pdf')
         self.assertTrue('pdf' in r.getheader('Content-Type'))

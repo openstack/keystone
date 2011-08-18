@@ -1,8 +1,8 @@
 import unittest
-from common import KeystoneTestCase
+from keystone.test.functional import common
 
 
-class TestAdminAuthentication(KeystoneTestCase):
+class TestAdminAuthentication(common.KeystoneTestCase):
     """Test admin-side user authentication"""
 
     def setUp(self):
@@ -20,11 +20,11 @@ class TestAdminAuthentication(KeystoneTestCase):
         self.assertTrue(r.json['auth']['token']['expires'])
 
 
-class TestAdminAuthenticationNegative(KeystoneTestCase):
+class TestAdminAuthenticationNegative(common.KeystoneTestCase):
     """Negative test admin-side user authentication"""
 
-    user_id = KeystoneTestCase._uuid()
-    user_id2 = KeystoneTestCase._uuid()
+    user_id = common.KeystoneTestCase._uuid()
+    user_id2 = common.KeystoneTestCase._uuid()
     admin_token_backup = None
 
     def test_service_token_as_admin_token(self):
@@ -69,10 +69,10 @@ class TestAdminAuthenticationNegative(KeystoneTestCase):
         self.admin_request(method='DELETE', path='/users/%s' % self.user_id)
 
 
-class TestServiceAuthentication(KeystoneTestCase):
+class TestServiceAuthentication(common.KeystoneTestCase):
     """Test service-side user authentication"""
 
-    user_id = KeystoneTestCase._uuid()
+    user_id = common.KeystoneTestCase._uuid()
 
     def setUp(self):
         super(TestServiceAuthentication, self).setUp()

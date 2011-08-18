@@ -73,7 +73,7 @@ class KeystoneTest(object):
             [os.path.join(BASE_DIR, 'bin/keystone'), '-c', self.conf_fp.name])
 
         # blatent hack.
-        time.sleep(1)
+        time.sleep(2)
         if self.server.poll() is not None:
             raise RuntimeError('Failed to start server')
 
