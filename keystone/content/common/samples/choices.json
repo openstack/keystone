@@ -7,17 +7,17 @@
         "links": [
           {
             "rel": "self",
-            "href": "http://identity.api.openstack.org/v2.0"
+            "href": "http://identity.api.openstack.org/v1.0"
           }
         ],
         "media-types": {
           "values": [
             {
               "base": "application/xml",
-              "type": "application/vnd.openstack.identity-v1.0+xml"
+              "type": "application/vnd.openstack.identity+xml;version=1.0"
             }, {
               "base": "application/json",
-              "type": "application/vnd.openstack.identity-v1.0+json"
+              "type": "application/vnd.openstack.identity+json;version=1.0"
             }
           ]
         }
@@ -34,10 +34,10 @@
           "values": [
             {
               "base": "application/xml",
-              "type": "application/vnd.openstack.identity-v1.1+xml"
+              "type": "application/vnd.openstack.identity+xml;version=1.1"
             }, {
               "base": "application/json",
-              "type": "application/vnd.openstack.identity-v1.1+json"
+              "type": "application/vnd.openstack.identity+json;version=1.1"
             }
           ]
         }
@@ -54,10 +54,10 @@
           "values": [
             {
               "base": "application/xml",
-              "type": "application/vnd.openstack.identity-v2.0+xml"
+              "type": "application/vnd.openstack.identity+xml;version=2.0"
             }, {
               "base": "application/json",
-              "type": "application/vnd.openstack.identity-v2.0+json"
+              "type": "application/vnd.openstack.identity+json;version=2.0"
             }
           ]
         }

@@ -10,20 +10,20 @@
       }, {
         "rel": "describedby",
         "type": "application/pdf",
-        "href": "http://docs.rackspacecloud.com/identity/api/v2.0/identity-devguide-20110125.pdf"
+        "href": "http://docs.openstack.org/identity/api/v2.0/identity-latest.pdf"
       }, {
         "rel": "describedby",
         "type": "application/vnd.sun.wadl+xml",
-        "href": "http://docs.rackspacecloud.com/identity/api/v2.0/application.wadl"
+        "href": "http://docs.openstack.org/identity/api/v2.0/identity.wadl"
       }
     ],
     "media-types": [
       {
         "base": "application/xml",
-        "type": "application/vnd.openstack.identity-v2.0+xml"
+        "type": "application/vnd.openstack.identity+xml;version=2.0"
       }, {
         "base": "application/json",
-        "type": "application/vnd.openstack.identity-v2.0+json"
+        "type": "application/vnd.openstack.identity+json;version=2.0"
       }
     ]
   }

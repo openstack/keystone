@@ -3,7 +3,7 @@
     <title type="text">Available API Versions</title>
     <updated>2010-12-12T18:30:02.25Z</updated>
     <id>http://identity.api.openstack.org/</id>
-    <author><name>Rackspace</name><uri>http://www.rackspace.com/</uri></author>
+    <author><name>OpenStack</name><uri>http://www.openstack.org/</uri></author>
     <link rel="self" href="http://identity.api.openstack.org/"/>
     <entry>
        <id>http://identity.api.openstack.org/v2.0/</id>

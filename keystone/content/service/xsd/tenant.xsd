@@ -54,7 +54,7 @@
     <complexType name="Tenants">
         <sequence>
             <element name="tenant" type="identity:Tenant" maxOccurs="100"/>
-            <!--<element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>

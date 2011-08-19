@@ -11,7 +11,7 @@
       <updated>2011-01-21T11:33:21-06:00</updated>
       <link rel="self" href="http://identity.api.openstack.org/v2.0/"/>
       <link rel="describedby" type="application/pdf"
-           href="http://docs.openstack.org/identity/api/v2.0/identity-devguide-20110125.pdf"/>
+           href="http://docs.openstack.org/identity/api/v2.0/identity-latest.pdf"/>
       <link rel="describedby" type="application/vnd.sun.wadl+xml"
            href="http://docs.openstack.org/identity/api/v2.0/application.wadl"/>
       <content type="text">Version v2.0 CURRENT (2011-01-21T11:33:21-06:00)</content>
