@@ -17,6 +17,7 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
              xmlns:html="http://www.w3.org/1999/xhtml"
+             xmlns:wadl="http://wadl.dev.java.net/2009/02"
              xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 xsd/api.xsd
                                  http://docs.openstack.org/common/api/v1.0 xsd/api-common.xsd
                                  http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
@@ -120,27 +121,25 @@
     </method>
 
     <!-- Token Operations -->
-
     <method name="POST" id="authenticate">
-        <doc>
-            Client authentication is provided via a ReST interface using the POST method,
-            with v2.0/tokens supplied as the path.
-            
-            Additionally, a payload of credentials must be included in the body.
-            See <html:a href="xsd/credentials.xsd">supported credentials</html:a>
-            
-            Each ReST request against the Keystone system requires the inclusion of a
-            specific authorization token HTTP x-header, defined as X-Auth-Token. Clients obtain
-            this token, along with the URL to other service APIs, by first authenticating against the
-            Keystone Service and supplying valid credentials.
-            
-            The Keystone Service is a ReSTful web service. It is the entry point to all service APIs.
-            
-            To access the Keystone Service, you must know URL of the Keystone service.
-
-            TenantID is optional and may be used to specify that a token should be returned that
-            has access to the resources of that particular tenant.
-        </doc>
+        <wadl:doc xml:lang="EN" title="Authenticate"
+              xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+              Client authentication is provided via a ReST interface using the POST method,
+              with v2.0/tokens supplied as the path. A payload of credentials must be included
+              in the body. See <a href="xsd/credentials.xsd">supported credentials</a>
+            </p>
+            <p>
+              Each ReST request against the Keystone system requires the inclusion of a
+              specific authorization token HTTP x-header, defined as X-Auth-Token. Clients obtain
+              this token, along with the URL to other service APIs, by first authenticating against the
+              Keystone Service and supplying valid credentials.
+            </p>
+            <p>
+              The Keystone Service is a ReSTful web service. It is the entry point to all service APIs.
+              To access the Keystone Service, you must know URL of the Keystone service.
+            </p>
+        </wadl:doc>
         <request>
             <representation mediaType="application/xml" element="identity:passwordCredentials"/>
             <representation mediaType="application/json"/>
@@ -160,6 +159,12 @@
     <!-- Tenant Operations -->
 
     <method name="GET" id="listTenants">
+        <wadl:doc title="List Tenants" xml:lang="EN"
+            xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+                Returns a list of tenants.
+            </p>
+        </wadl:doc>
         <request>
             <param name="marker" style="query" required="false" type="xsd:string"/>
             <param name="limit" style="query" required="false" type="xsd:int"/>
