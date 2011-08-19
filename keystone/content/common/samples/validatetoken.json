@@ -1,24 +1,23 @@
 {
-  "auth":{
-    "token":{
-      "expires":"2010-11-01T03:32:15-05:00",
-      "id":"ab48a9efdfedb23ty3494",
-      "tenantId":"1234"
+  "auth": {
+    "token": {
+      "expires": "2010-11-01T03:32:15-05:00",
+      "id": "ab48a9efdfedb23ty3494",
+      "tenantId": "1234"
     },
-    "user":{
-      "username":"jqsmith",
-      "roles":[
+    "user": {
+      "username": "jqsmith",
+      "roles": [
         {
-          "roleId":"Admin",
-          "id":1,
-          "tenantId":"one"
-        },
-        {
-          "roleId":"Admin",
-          "id":1
+          "roleId": "Admin",
+          "id": 1,
+          "tenantId": "one"
+        }, {
+          "roleId": "Admin",
+          "id": 1
         }
       ],
-      "defaultTenantId":"1234"
+      "defaultTenantId": "1234"
     }
   }
 }
