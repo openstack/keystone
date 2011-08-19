@@ -25,7 +25,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', '..', 'keystone')))
-import unittest
+import unittest2 as unittest
 
 from lxml import etree, objectify
 import webob

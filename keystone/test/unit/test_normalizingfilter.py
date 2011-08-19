@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-import unittest
+import unittest2 as unittest
 from keystone.middleware.url import NormalizingFilter
 
 

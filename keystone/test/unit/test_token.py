@@ -21,7 +21,7 @@ import sys
 app_path = os.path.abspath(os.path.join(os.path.abspath(__file__),
     '..', '..', '..', '..', '..', '..', 'keystone'))
 sys.path.append(app_path)
-import unittest
+import unittest2 as unittest
 import test_common as utils
 import json
 import keystone.logic.types.fault as fault

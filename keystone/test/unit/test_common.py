@@ -22,7 +22,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
                                 '..', '..', '..', '..', '..', 'keystone')))
-import unittest
+import unittest2 as unittest
 
 URL_V1 = 'http://localhost:5000/v1.0/'
 URL_V2 = 'http://localhost:5001/v2.0/'

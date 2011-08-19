@@ -1,5 +1,5 @@
 import uuid
-import unittest
+import unittest2 as unittest
 import httplib
 import json
 import xml.etree.ElementTree

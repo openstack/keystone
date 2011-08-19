@@ -18,7 +18,7 @@
 import httplib2
 import json
 from lxml import etree
-import unittest
+import unittest2 as unittest
 import test_common as utils
 
 from keystone.logic.types import fault

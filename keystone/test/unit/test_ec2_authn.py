@@ -16,7 +16,7 @@
 
 import json
 import logging
-import unittest
+import unittest2 as unittest
 
 import base
 from keystone.test.unit.decorators import jsonify
