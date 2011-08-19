@@ -13,8 +13,10 @@
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <include schemaLocation="roles.xsd"/>
-    <include schemaLocation="user.xsd"/>
-    <include schemaLocation="credentials.xsd"/>
+    
+    <!-- Import ATOM specific schema definitions -->
+    <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
+        schemaLocation="atom/atom.xsd" />
     
     <!-- Elements -->
     <element name="access" type="identity:AuthenticateResponse"/>
@@ -114,6 +116,8 @@
                     </xsd:documentation>
                 </annotation>
             </element>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
@@ -130,6 +134,8 @@
                     </xsd:documentation>
                 </annotation>
             </element>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <attribute name="type" type="identity:ExtensibleServiceType" use="required">
           <annotation>
