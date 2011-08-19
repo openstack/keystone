@@ -107,7 +107,7 @@ class AdminApi(wsgi.Router):
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
 
-        #Roles and RoleRefs
+        #Roles
         roles_controller = RolesController(options)
         mapper.connect("/roles", controller=roles_controller,
                     action="create_role", conditions=dict(method=["POST"]))

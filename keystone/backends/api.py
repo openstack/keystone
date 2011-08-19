@@ -22,15 +22,6 @@ class BaseUserAPI(object):
     def get_all(self):
         raise NotImplementedError
 
-    def get_by_group(self, user_id, group_id):
-        raise NotImplementedError
-
-    def tenant_group(self, values):
-        raise NotImplementedError
-
-    def tenant_group_delete(self, id, group_id):
-        raise NotImplementedError
-
     def create(self, values):
         raise NotImplementedError
 
@@ -46,19 +37,10 @@ class BaseUserAPI(object):
     def get_by_email(self, email):
         raise NotImplementedError
 
-    def get_groups(self, id):
-        raise NotImplementedError
-
     def user_roles_by_tenant(self, user_id, tenant_id):
         raise NotImplementedError
 
     def update(self, id, values):
-        raise NotImplementedError
-
-    def users_tenant_group_get_page(self, group_id, marker, limit):
-        raise NotImplementedError
-
-    def users_tenant_group_get_page_markers(self, group_id, marker, limit):
         raise NotImplementedError
 
     def delete(self, id):
@@ -68,9 +50,6 @@ class BaseUserAPI(object):
         raise NotImplementedError
 
     def get_by_access(self, access):
-        raise NotImplementedError
-
-    def get_group_by_tenant(self, id):
         raise NotImplementedError
 
     def delete_tenant_user(self, id, tenant_id):
@@ -97,9 +76,6 @@ class BaseUserAPI(object):
     def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit):
         raise NotImplementedError
 
-    def user_groups_get_all(self, user_id):
-        raise NotImplementedError
-
     def check_password(self, user, password):
         raise NotImplementedError
 
@@ -121,29 +97,6 @@ class BaseTokenAPI(object):
         raise NotImplementedError
 
     def get_all(self):
-        raise NotImplementedError
-
-
-class BaseTenantGroupAPI(object):
-    def create(self, values):
-        raise NotImplementedError
-
-    def is_empty(self, id):
-        raise NotImplementedError
-
-    def get(self, id, tenant):
-        raise NotImplementedError
-
-    def get_page(self, tenant_id, marker, limit):
-        raise NotImplementedError
-
-    def get_page_markers(self, tenant_id, marker, limit):
-        raise NotImplementedError
-
-    def update(self, id, tenant_id, values):
-        raise NotImplementedError
-
-    def delete(self, id, tenant_id):
         raise NotImplementedError
 
 
@@ -226,32 +179,6 @@ class BaseRoleAPI(object):
         raise NotImplementedError
 
     def ref_get_page_markers(self, user_id, marker, limit):
-        raise NotImplementedError
-
-
-class BaseGroupAPI(object):
-    def get(self, id):
-        raise NotImplementedError
-
-    def get_users(self, id):
-        raise NotImplementedError
-
-    def get_all(self):
-        raise NotImplementedError
-
-    def get_page(self, marker, limit):
-        raise NotImplementedError
-
-    def get_page_markers(self, marker, limit):
-        raise NotImplementedError
-
-    def delete(self, id):
-        raise NotImplementedError
-
-    def get_by_user_get_page(self, user_id, marker, limit):
-        raise NotImplementedError
-
-    def get_by_user_get_page_markers(self, user_id, marker, limit):
         raise NotImplementedError
 
 
@@ -343,9 +270,7 @@ class BaseCredentialsAPI(object):
 #API
 #TODO(Yogi) Refactor all API to separate classes specific to models.
 ENDPOINT_TEMPLATE = BaseEndpointTemplateAPI()
-GROUP = BaseGroupAPI()
 ROLE = BaseRoleAPI()
-TENANT_GROUP = BaseTenantGroupAPI()
 TENANT = BaseTenantAPI()
 TOKEN = BaseTokenAPI()
 USER = BaseUserAPI()
@@ -358,15 +283,9 @@ def set_value(variable_name, value):
     if variable_name == 'endpoint_template':
         global ENDPOINT_TEMPLATE
         ENDPOINT_TEMPLATE = value
-    elif variable_name == 'group':
-        global GROUP
-        GROUP = value
     elif variable_name == 'role':
         global ROLE
         ROLE = value
-    elif variable_name == 'tenant_group':
-        global TENANT_GROUP
-        TENANT_GROUP = value
     elif variable_name == 'tenant':
         global TENANT
         TENANT = value
