@@ -13,11 +13,11 @@
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <include schemaLocation="roles.xsd"/>
-    <include schemaLocation="token.xsd"/>
     <include schemaLocation="user.xsd"/>
+    <include schemaLocation="credentials.xsd"/>
     
     <!-- Elements -->
-    <element name="auth" type="identity:AuthenticateResponse"/>
+    <element name="access" type="identity:AuthenticateResponse"/>
     
     <!-- Complex Types -->
     <complexType name="Token">
