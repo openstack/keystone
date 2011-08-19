@@ -2,7 +2,14 @@ include README.md
 include MANIFEST.in
 include run_tests.sh
 include run_tests.py
+include keystone/backends/ldap/keystone.ldif
+include keystone/backends/ldap/keystone.schema
+include keystone/contrib/extensions/raxkey/extension.json
+include keystone/contrib/extensions/raxkey/extension.xml
+include keystone/test/EchoSOAPUI.xml
+include keystone/test/IdentitySOAPUI.xml
 graft doc
 graft etc
 graft tools
+graft keystone/content
 graft keystone/test/etc
