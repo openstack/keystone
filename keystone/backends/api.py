@@ -263,9 +263,6 @@ class BaseCredentialsAPI(object):
     def get_by_access(self, access):
         raise NotImplementedError
 
-    def delete(self, id):
-        raise NotImplementedError
-
 
 #API
 #TODO(Yogi) Refactor all API to separate classes specific to models.
