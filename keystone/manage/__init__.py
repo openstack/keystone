@@ -217,7 +217,7 @@ def process(*args):
             'secret, and tenant_id (id is user_id)')
         if add_credentials(user=object_id, type=args[3], key=args[4],
                 secrete=args[5], tenant=optional_arg(6)):
-            print "SUCCESS: Credentials %s created." % result.id
+            print "SUCCESS: Credentials %s created." % object_id
 
     else:
         # Command not handled
