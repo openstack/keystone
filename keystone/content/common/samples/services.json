@@ -1,12 +1,11 @@
 {
-  "services":[
+  "services": [
     {
-      "id":"nova",
-      "description":"All access"
-    },
-    {
-      "id":"glance",
-      "description":"Guest Access"
+      "id": "nova",
+      "description": "All access"
+    }, {
+      "id": "glance",
+      "description": "Guest Access"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
-  "service":{
-    "id":"nova",
-    "description":"A description ..."
+  "service": {
+    "id": "nova",
+    "description": "A description ..."
   }
 }

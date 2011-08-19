@@ -59,7 +59,9 @@
     </resource_type>
     <resource_type id="ExtensionList">
         <doc xml:lang="EN" title="Extension List">
-            <p xmlns="http://www.w3.org/1999/xhtml">A list of supported extensions.</p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                A list of supported extensions.
+            </p>
         </doc>
         <method href="#listExtensions"/>
     </resource_type>
@@ -72,8 +74,9 @@
 
     <method name="GET" id="versionDetails">
         <doc xml:lang="EN" title="Version Details">
-            <p xmlns="http://www.w3.org/1999/xhtml">Returns detailed information about this specific
-                version of the API.</p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                Returns detailed information about this specific version of the API.
+            </p>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="capi:version">

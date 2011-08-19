@@ -6,6 +6,7 @@
         <service type="compute" name="Computers in the Cloud">
             <endpoint
                     region="North"
+                    tenantId="1234"
                     publicURL="https://north.compute.public.com/v2.0/account1"
                     internalURL="https://north.compute.internal.com/v2.0/account1">
 							<version
@@ -15,6 +16,7 @@
 						</endpoint>
             <endpoint
                     region="South"
+                    tenantId="3456"
                     publicURL="https://south.compute.public.com/v2.0/account1"
                     internalURL="https://south.compute.internal.com/v2.0/account1">
 										<version
@@ -26,6 +28,7 @@
         <service type="object-store" name="HTTP Object Store">
             <endpoint
                     region="North"
+                    tenantId="1234"
                     publicURL="https://north.object-store.public.com/v1/account1"
                     internalURL="https://north.object-store.internal.com/v1/account1">
 							<version
@@ -35,6 +38,7 @@
 						</endpoint>
             <endpoint
                     region="South"
+                    tenantId="3456"
                     publicURL="https://south.object-store.public.com/v2.0/account1"
                     internalURL="https://south.object-store.internal.com/v2.0/account1">
 										<version
