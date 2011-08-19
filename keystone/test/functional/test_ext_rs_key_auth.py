@@ -21,8 +21,9 @@ class TestExtensions(common.KeystoneTestCase):
         r = self.service_request(path='/extensions.xml')
         self.assertTrue('xml' in r.getheader('Content-Type'))
         content = r.xml
-        extension = content.find("*[@alias='RAX-KEY']")
-        self.assertIsNotNone(extension)
+        extension = content.find(
+            "{http://docs.openstack.org/common/api/v2.0}extension")
+        self.assertEqual(extension.get("alias"), "RAX-KEY")
 
 
 if __name__ == '__main__':
