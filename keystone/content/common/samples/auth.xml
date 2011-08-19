@@ -7,8 +7,8 @@
             <endpoint
                     region="North"
                     tenantId="1234"
-                    publicURL="https://north.compute.public.com/v2.0/account1"
-                    internalURL="https://north.compute.internal.com/v2.0/account1">
+										publicURL="https://north.compute.public.com/v2.0/1234"
+                    internalURL="https://north.compute.internal.com/v2.0/1234">
 							<version
 											id="2.0"
 											info="https://north.compute.public.com/v2.0/"
@@ -17,8 +17,8 @@
             <endpoint
                     region="South"
                     tenantId="3456"
-                    publicURL="https://south.compute.public.com/v2.0/account1"
-                    internalURL="https://south.compute.internal.com/v2.0/account1">
+                    publicURL="https://south.compute.public.com/v2.0/3456"
+                    internalURL="https://south.compute.internal.com/v2.0/3456">
 										<version
 											id="2.0"
 											info="https://south.compute.public.com/v2.0/"
@@ -29,8 +29,8 @@
             <endpoint
                     region="North"
                     tenantId="1234"
-                    publicURL="https://north.object-store.public.com/v1/account1"
-                    internalURL="https://north.object-store.internal.com/v1/account1">
+                    publicURL="https://north.object-store.public.com/v1/1234"
+                    internalURL="https://north.object-store.internal.com/v1/1234">
 							<version
 											id="1"
 											info="https://north.object-store.public.com/v1/"
@@ -39,8 +39,8 @@
             <endpoint
                     region="South"
                     tenantId="3456"
-                    publicURL="https://south.object-store.public.com/v2.0/account1"
-                    internalURL="https://south.object-store.internal.com/v2.0/account1">
+                    publicURL="https://south.object-store.public.com/v2.0/3456"
+                    internalURL="https://south.object-store.internal.com/v2.0/3456">
 										<version
 											id="2.0"
 											info="https://south.object-store.public.com/v1/"
