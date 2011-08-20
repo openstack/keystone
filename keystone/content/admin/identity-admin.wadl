@@ -7,8 +7,8 @@
 <!--        xmllint -noent identity-admin.wadl             -->
 <!--*******************************************************-->
 <!DOCTYPE application [
-<!ENTITY % common  SYSTEM "../common/common.ent">
-%common;
+    <!ENTITY % common  SYSTEM "../common/common.ent">
+    %common;
 ]>
 
 <application xmlns="http://wadl.dev.java.net/2009/02"
@@ -34,10 +34,6 @@
         <resource id="version" path="v2.0">
         	<method href="#getVersionInfo"/>
 
-            <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
-                <doc>You need a valid admin token for access.</doc>
-            </param>
-
             <resource id="extensions" path="extensions">
 		        <method href="#listExtensions"/>
 
@@ -62,12 +58,12 @@
                 <param name="username" style="query" type="xsd:string" required="false"/>
                 <method href="#getUserByName"/>
 
-                <resource id="username" path="{user_id}">
+                <resource id="userid" path="{user_id}">
                     <param name="user_id" style="template" type="xsd:string" required="true"/>
                     <method href="#getUserById"/>
 
                     <resource id="userRoles" path="roles">
-                        <method href="#listUserRoles"/>
+                        <method href="#listUserGlobalRoles"/>
                     </resource>
                 </resource>
             </resource>
@@ -84,11 +80,13 @@
                         <method href="#listEndpointsForTenant"/>
                     </resource>
 
-                    <resource id="userForTenant" path="users/{user_id}">
-                        <param name="user_id" style="template" type="xsd:string"/>
+                    <resource id="usersForTenant" path="users">
+                        <resource id="getTenantUser" path="{user_id}">
+                            <param name="user_id" style="template" type="xsd:string"/>
 
-                        <resource id="userRolesForTenant" path="roles">
-                            <method href="#listRolesForUserOnTenant"/>
+                            <resource id="userRolesForTenant" path="roles">
+                                <method href="#listRolesForUserOnTenant"/>
+                             </resource>
                         </resource>
                     </resource>
                 </resource>
@@ -178,19 +176,22 @@
         &commonFaults;
     </method>
     <method name="GET" id="validateToken">
-        <doc xml:lang="EN" title="/tokens/{token_id}?belongsTo={tenant_id}">
+        <doc xml:lang="EN" title="/tokens/{token_id}">
             <p xmlns="http://www.w3.org/1999/xhtml">
-            	Validates a token.
+            	Retrieves a token.
             </p>
-            <p xmlns="http://www.w3.org/1999/xhtml">
-        		If `belongsTo` is provided, validates that a token belongs to a specific tenant.
-			</p>
             <p xmlns="http://www.w3.org/1999/xhtml">
         		Returns token expiration, user info, and the user's roles for the given token.
 			</p>
         </doc>
         <request>
-            <param name="belongsTo" style="query" required="false" type="xsd:string"/>
+            <param name="belongsTo" style="query" required="false" type="xsd:string">
+                <doc xml:lang="EN" title="/tokens/{token_id}?belongsTo={tenant_id}">
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        Validates a token has the supplied tenant in scope.
+                    </p>
+                </doc>
+            </param>
         </request>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:auth"/>
@@ -200,16 +201,22 @@
         &getFaults;
     </method>
     <method name="HEAD" id="checkToken">
-        <doc xml:lang="EN" title="/tokens/{token_id}?belongsTo={tenant_id}">
+        <doc xml:lang="EN" title="/tokens/{token_id}">
             <p xmlns="http://www.w3.org/1999/xhtml">
-            	Validates a token (for performance).
+            	Validates a token exists (for performance).
             </p>
-            <p xmlns="http://www.w3.org/1999/xhtml">
-        		If `belongsTo` is provided, validates that a token belongs to a specific tenant.
-			</p>
         </doc>
         <request>
-            <param name="belongsTo" style="query" required="false" type="xsd:string"/>
+            <param name="belongsTo" style="query" required="false" type="xsd:string">
+                <doc xml:lang="EN" title="/tokens/{token_id}?belongsTo={tenant_id}">
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        Validates a token has the supplied tenant in scope. (for performance).
+                    </p>
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        If `belongsTo` is provided, validates that a token has a specific tenant in scope.
+                    </p>
+                </doc>
+            </param>
         </request>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:auth"/>
@@ -247,7 +254,7 @@
         &commonFaults;
         &getFaults;
     </method>
-    <method name="GET" id="listUserRoles">
+    <method name="GET" id="listUserGlobalRoles">
         <doc xml:lang="EN" title="/users/{user_id}/roles">
             <p xmlns="http://www.w3.org/1999/xhtml">
             	Returns global roles for a specific user (excludes tenant roles).
@@ -319,14 +326,15 @@
         &commonFaults;
         &getFaults;
     </method>
-    <method name="GET" id="getEndpointsForTenant">
+    
+    <method name="GET" id="listRolesForUserOnTenant">
         <doc xml:lang="EN" title="/tenants/{tenant_id}/users/{user_id}/roles">
             <p xmlns="http://www.w3.org/1999/xhtml">
-            	Returns a list of roles for a user on a specific tenant.
+                Returns roles for a specific user on a specific tenant (excludes global roles).
             </p>
         </doc>
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:endpoints"/>
+            <representation mediaType="application/xml" element="identity:roles"/>
             <representation mediaType="application/json"/>
         </response>
         &commonFaults;

@@ -13,11 +13,10 @@
     xmlns:atom="http://www.w3.org/2005/Atom"
     targetNamespace="http://docs.rackspace.com/identity/api/ext/RAX-GRP/v1.0"
 >
-    <!--Include schema we are extending  -->
-    <import schemaLocation="user.xsd" namespace="http://docs.openstack.org/identity/api/v2.0"/>
-    <import schemaLocation="roles.xsd" namespace="http://docs.openstack.org/identity/api/v2.0"/>
-    <import schemaLocation="token.xsd" namespace="http://docs.openstack.org/identity/api/v2.0"/>
-
+    <!--Import schema we are extending -->
+    <import namespace="http://docs.openstack.org/identity/api/v2.0"
+        schemaLocation="token.xsd"/>
+    
     <!-- Elements -->
 
     <!-- Complex Types -->
@@ -25,7 +24,7 @@
         <complexContent>
             <extension base="identity:UserForAuthenticateResponse">
                 <sequence>
-                    <element name="groups" type="identity:Groups" />
+                    <element name="groups" type="RAX-GRP:Groups" />
                 </sequence>
             </extension>
         </complexContent>
@@ -41,8 +40,16 @@
     
     <complexType name="Group">
         <attribute name="id" type="xsd:string" use="required"/>
-        <attribute name="tenantId" type="xsd:string"  use="optional"/>
+        <attribute name="name" type="xsd:string" use="required"/>
         <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+
+    <complexType name="TenantGroup">
+        <complexContent>
+            <extension base="RAX-GRP:Group">
+                <attribute name="tenantId" type="xsd:string"  use="required"/>
+            </extension>
+        </complexContent>
     </complexType>
 </schema>
 

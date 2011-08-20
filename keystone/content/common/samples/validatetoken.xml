@@ -3,7 +3,7 @@
 	<token expires="2010-11-01T03:32:15-05:00"
 		id="ab48a9efdfedb23ty3494"
 		tenantId="1234"/>
-	<user username="jqsmith" defaultTenantId="1234">
+	<user username="jqsmith">
 		<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
 			<role xmlns="http://docs.openstack.org/identity/api/v2.0"
 				id="4" roleId="Admin" tenantId="1234"/>

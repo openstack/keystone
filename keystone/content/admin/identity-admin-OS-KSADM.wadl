@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- (C) 2011 Rackspace Hosting, All Rights Reserved -->
 <!--*******************************************************-->
 <!--         Import Common XML Entities                    -->
 <!--                                                       -->
@@ -34,15 +35,10 @@
         <resource id="version" path="v2.0">
         	<method href="#getVersionInfo"/>
 
-            <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
-                <doc>You need a valid admin token for access.</doc>
-            </param>
-
             <resource id="extensions" path="extensions">
 		        <method href="#listExtensions"/>
 
-                <resource id="extension" path="{alias}">
-                    <param name="alias" style="template" type="xsd:string"/>
+                <resource id="extension" path="OS-KSADM">
                     <method href="#getExtension"/>
                 </resource>
             </resource>

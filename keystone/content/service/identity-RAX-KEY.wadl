@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- (C) 2011 Rackspace Hosting, All Rights Reserved -->
 <!--*******************************************************-->
 <!--         Import Common XML Entities                    -->
 <!--                                                       -->
 <!--     You can resolve the entites with xmllint          -->
 <!--                                                       -->
-<!--        xmllint -noent identity-RAX.wadl             -->
+<!--        xmllint -noent identity-RAX.wadl               -->
 <!--*******************************************************-->
 <!DOCTYPE application [
     <!ENTITY % common  SYSTEM "../common/common.ent">
@@ -55,7 +56,7 @@
     <!-- Token Operations -->
     <method name="POST" id="authenticate">
         <request>
-            <representation mediaType="application/xml" element="RAX-KEY:apikeyCredentials"/>
+            <representation mediaType="application/xml" element="RAX-KEY:apikeyCredentialsWithUsername"/>
             <representation mediaType="application/json"/>
         </request>
         <response status="200 203">
