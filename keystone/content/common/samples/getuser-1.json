@@ -1,6 +1,6 @@
 {
   "user": {
-    "groups": {
+    "roles": {
       "values": [
         {
           "tenantId": "1234",
@@ -8,18 +8,17 @@
         }, {
           "tenantId": "1234",
           "id": "DBUser"
-        }, {
-          "id": "Super"
         }
       ],
       "links": [
         {
           "rel": "next",
-          "href": "http://identity.api.openstack.org/v2.0/tenants/1234/users/jqsmith/groups?marker=Super"
+          "href": "http://identity.api.openstack.org/v2.0/tenants/1234/users/u1000/roles?marker=Super"
         }
       ]
     },
-    "id": "jqsmith",
+    "id": "u1000",
+    "username": "jqsmith",
     "tenantId": "1234",
     "email": "john.smith@example.org",
     "enabled": true

@@ -3,6 +3,7 @@
     "values": [
       {
         "id": "1234",
+        "name": "ACME corp",
         "description": "A description ...",
         "enabled": true
       }

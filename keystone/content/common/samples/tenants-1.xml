@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tenants xmlns="http://docs.openstack.org/identity/api/v2.0"
          xmlns:atom="http://www.w3.org/2005/Atom">
-    <tenant enabled="true" id="1234">
+    <tenant enabled="true" id="1234" name="ACME Corp">
         <description>A description...</description>
     </tenant>
     <atom:link

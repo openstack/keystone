@@ -2,10 +2,12 @@
   "services": [
     {
       "id": "nova",
-      "description": "All access"
+      "type": "compute",
+      "description": "Computers in the Cloud"
     }, {
       "id": "glance",
-      "description": "Guest Access"
+      "type": "image-service",
+      "description": "Server Images"
     }
   ]
 }

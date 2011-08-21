@@ -3,6 +3,7 @@
     "values": [
       {
         "id": "9999",
+        "name": "Bigz",
         "description": "A description ...",
         "enabled": true
       }

@@ -9,15 +9,12 @@
       "username": "jqsmith",
       "roles": [
         {
-          "roleId": "Admin",
-          "id": 1,
+          "id": "Admin",
           "tenantId": "one"
         }, {
-          "roleId": "Admin",
-          "id": 1
+          "id": "compute:cloud_admin"
         }
-      ],
-      "defaultTenantId": "1234"
+      ]
     }
   }
 }

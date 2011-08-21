@@ -1,6 +1,6 @@
 {
   "user": {
-    "groups": {
+    "roles": {
       "values": [
         {
           "tenantId": "1234",
@@ -8,7 +8,8 @@
         }
       ]
     },
-    "id": "jqsmith",
+    "id": "u1000",
+    "username": "jqsmith",
     "tenantId": "1234",
     "email": "john.smith@example.org",
     "enabled": true,

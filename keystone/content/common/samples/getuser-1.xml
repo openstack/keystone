@@ -3,12 +3,11 @@
       xmlns:atom="http://www.w3.org/2005/Atom"
       enabled="true" email="john.smith@example.org"
       tenantId="1234" id="jqsmith">
-    <groups>
-        <group tenantId="1234" id="Admin"/>
-        <group tenantId="1234" id="DBUser"/>
-        <group id="Super"/>
+    <roles>
+        <role tenantId="1234" id="Admin"/>
+        <role tenantId="1234" id="DBUser"/>
         <atom:link
             rel="next"
-            href="http://identity.api.openstack.org/v2.0/tenants/1234/users/jqsmith/groups?marker=Super"/>
-    </groups>
+            href="http://identity.api.openstack.org/v2.0/tenants/1234/users/u1000/groups?marker=Super"/>
+    </roles>
 </user>
