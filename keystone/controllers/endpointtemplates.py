@@ -28,6 +28,15 @@ class EndpointTemplatesController(wsgi.Controller):
             utils.get_auth_token(req), endpoint_template))
 
     @utils.wrap_error
+    def modify_endpoint_template(self, req, endpoint_templates_id):
+        endpoint_template = utils.\
+            get_normalized_request_content(EndpointTemplate, req)
+        return utils.send_result(201, req,
+            config.SERVICE.modify_endpoint_template(\
+            utils.get_auth_token(req),
+            endpoint_templates_id, endpoint_template))
+
+    @utils.wrap_error
     def delete_endpoint_template(self, req, endpoint_templates_id):
         rval = config.SERVICE.delete_endpoint_template(
             utils.get_auth_token(req), endpoint_templates_id)

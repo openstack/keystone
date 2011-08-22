@@ -143,6 +143,10 @@ class AdminApi(wsgi.Router):
                         conditions=dict(method=["GET"]))
         mapper.connect("/endpointTemplates/{endpoint_templates_id}",
                 controller=endpoint_templates_controller,
+                    action="modify_endpoint_template",
+                        conditions=dict(method=["PUT"]))
+        mapper.connect("/endpointTemplates/{endpoint_templates_id}",
+                controller=endpoint_templates_controller,
                     action="delete_endpoint_template",
                         conditions=dict(method=["DELETE"]))
         mapper.connect("/tenants/{tenant_id}/endpoints",

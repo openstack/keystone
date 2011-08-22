@@ -26,12 +26,21 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         endpoint_template.save()
         return endpoint_template
 
+    def update(self, id, values, session=None):
+        if not session:
+            session = get_session()
+        with session.begin():
+            endpoint_template_ref = self.get(id, session)
+            endpoint_template_ref.update(values)
+            endpoint_template_ref.save(session=session)
+            return endpoint_template_ref
+
     def delete(self, id, session=None):
         if not session:
             session = get_session()
         with session.begin():
             endpoint_template = self.get(id, session)
-        session.delete(endpoint_template)
+            session.delete(endpoint_template)
 
     def get(self, id, session=None):
         if not session:
