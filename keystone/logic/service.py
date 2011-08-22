@@ -141,7 +141,7 @@ class IdentityService(object):
         if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
-        if tenant.tenant_id == None:
+        if tenant.tenant_id == None or len(tenant.tenant_id.strip()) == 0:
             raise fault.BadRequestFault("Expecting a unique Tenant Id")
 
         if api.TENANT.get(tenant.tenant_id) != None:
@@ -667,6 +667,42 @@ class IdentityService(object):
         endpoint_template.id = dendpoint_template.id
         return endpoint_template
 
+    def modify_endpoint_template(self,
+        admin_token, endpoint_template_id, endpoint_template):
+        self.__validate_service_or_keystone_admin_token(admin_token)
+
+        if not isinstance(endpoint_template, EndpointTemplate):
+            raise fault.BadRequestFault("Expecting a EndpointTemplate")
+        dendpoint_template = api.ENDPOINT_TEMPLATE.get(endpoint_template_id)
+        if not dendpoint_template:
+            raise fault.ItemNotFoundFault(
+                "The endpoint template could not be found")
+
+        #Check if the passed service exist.
+        if endpoint_template.service != None and\
+            len(endpoint_template.service.strip()) > 0 and\
+            api.SERVICE.get(endpoint_template.service) == None:
+            raise fault.BadRequestFault(
+                    "A service with that id doesn't exist.")
+        dendpoint_template.region = endpoint_template.region
+        dendpoint_template.service = endpoint_template.service
+        dendpoint_template.public_url = endpoint_template.public_url
+        dendpoint_template.admin_url = endpoint_template.admin_url
+        dendpoint_template.internal_url = endpoint_template.internal_url
+        dendpoint_template.enabled = endpoint_template.enabled
+        dendpoint_template.is_global = endpoint_template.is_global
+        dendpoint_template = api.ENDPOINT_TEMPLATE.update(
+            endpoint_template_id, dendpoint_template)
+        return EndpointTemplate(
+            dendpoint_template.id,
+            dendpoint_template.region,
+            dendpoint_template.service,
+            dendpoint_template.public_url,
+            dendpoint_template.admin_url,
+            dendpoint_template.internal_url,
+            dendpoint_template.enabled,
+            dendpoint_template.is_global)
+
     def delete_endpoint_template(self, admin_token, endpoint_template_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
         dendpoint_template = api.ENDPOINT_TEMPLATE.get(endpoint_template_id)
@@ -776,6 +812,8 @@ class IdentityService(object):
 
     def delete_endpoint(self, admin_token, endpoint_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
+        if api.ENDPOINT_TEMPLATE.get(endpoint_id) == None:
+            raise fault.ItemNotFoundFault("The Endpoint is not found.")
         api.ENDPOINT_TEMPLATE.endpoint_delete(endpoint_id)
         return None
 

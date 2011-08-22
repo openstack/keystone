@@ -743,16 +743,6 @@ def delete_all_endpoint(tenant_id, auth_token):
             delete_endpoint(tenant_id, endpoint["id"], auth_token)
 
 
-def delete_endpoint(tenant_id, endpoint_id, auth_token):
-    header = httplib2.Http(".cache")
-    url = '%stenants/%s/endpoints/%s' % (
-        URL_V2, tenant_id, endpoint_id)
-    resp, content = header.request(url, "DELETE", body='', headers={
-        "Content-Type": "application/json",
-        "X-Auth-Token": str(auth_token)})
-    return (resp, content)
-
-
 def create_endpoint_template(region, service,
     public_url, admin_url, internal_url, enabled, is_global, auth_token):
     header = httplib2.Http(".cache")
@@ -805,6 +795,60 @@ def delete_endpoint_template(endpoint_template_id, auth_token):
                                        "X-Auth-Token": str(auth_token)})
     return resp, content
 
+
+def update_endpoint_template(endpoint_template_id, region, service,
+    public_url, admin_url, internal_url, enabled, is_global, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%sendpointTemplates/%s' % (URL_V2, endpoint_template_id)
+    body = {"endpointTemplate": {"region": region,
+                       "serviceId": service,
+                       "publicURL": public_url,
+                       "adminURL": admin_url,
+                       "internalURL": internal_url,
+                       "enabled": enabled,
+                       "global": is_global}}
+    resp, content = header.request(url, "PUT", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token})
+    return (resp, content)
+
+
+def update_endpoint_template_xml(endpoint_template_id, region, service,
+    public_url, admin_url,
+    internal_url, enabled, is_global, auth_token):
+    header = httplib2.Http(".cache")
+
+    url = '%sendpointTemplates/%s' % (URL_V2, endpoint_template_id)
+    body = '<?xml version="1.0" encoding="UTF-8"?>\
+        <endpointTemplate xmlns="http://docs.openstack.org/identity/api/v2.0" \
+        region="%s" serviceId="%s" \
+        publicURL="%s" adminURL="%s"\
+        internalURL="%s" enabled="%s"\
+        global="%s"/>' % (region, service, public_url,\
+        admin_url, internal_url, enabled, is_global)
+    body = {"endpointTemplate": {"region": region,
+                       "serviceId": service,
+                       "publicURL": public_url,
+                       "adminURL": admin_url,
+                       "internalURL": internal_url,
+                       "enabled": enabled,
+                       "global": is_global}}
+    resp, content = header.request(url, "PUT", body=json.dumps(body),
+                              headers={"Content-Type": "application/json",
+                                       "X-Auth-Token": auth_token,
+                                       "ACCEPT": "application/xml"})
+    return (resp, content)
+
+
+def get_endpoint_template(endpoint_template_id, auth_token):
+    header = httplib2.Http(".cache")
+    url = '%sendpointTemplates/%s' % (URL_V2, endpoint_template_id)
+    #test for Content-Type = application/json
+    resp, content = header.request(url, "GET", body='{}',
+        headers={"Content-Type": "application/json",
+        "X-Auth-Token": auth_token})
+    return (resp, content)
 
 if __name__ == '__main__':
     unittest.main()

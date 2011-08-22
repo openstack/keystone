@@ -54,10 +54,25 @@ class EndpointTemplatesTest(unittest.TestCase):
         self.internal_url = 'internal'
         self.enabled = True
         self.is_global = False
+        resp, content = utils.create_endpoint_template(\
+            self.region, self.service, self.public_url,\
+            self.admin_url, self.internal_url,\
+            self.enabled, self.is_global, self.auth_token)
+        self.assertEqual(201, int(resp['status']))
+        obj = json.loads(content)
+        if not "endpointTemplate" in obj:
+            raise fault.BadRequestFault("Expecting endpointTemplate")
+        endpoint_template = obj["endpointTemplate"]
+        if not "id" in endpoint_template:
+            self.endpoint_template_id = None
+        else:
+            self.endpoint_template_id = endpoint_template["id"]
 
     def tearDown(self):
         utils.delete_user(self.user, self.auth_token)
         utils.delete_tenant(self.tenant, self.auth_token)
+        utils.delete_endpoint_template(self.endpoint_template_id,
+            self.auth_token)
         utils.delete_all_endpoint(self.tenant, self.auth_token)
 
 
@@ -114,13 +129,6 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
         self.assertEqual(204, int(resp['status']))
 
     def test_create_endpoint_template_xml(self):
-        region = 'DFW'
-        service = utils.get_test_service_id()
-        public_url = 'public'
-        admin_url = 'admin'
-        internal_url = 'internal'
-        enabled = True
-        is_global = False
         resp, content = utils.create_endpoint_template_xml(
             self.region, self.service, self.public_url, self.admin_url,
             self.internal_url, self.enabled, self.is_global, self.auth_token)
@@ -376,6 +384,112 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
             self.fail("Expecting endpointTemplate")
 
 
+class UpdateEndpointTemplateTest(EndpointTemplatesTest):
+    def test_update_endpoint(self):
+        resp, content = utils.update_endpoint_template(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            False, self.is_global, self.auth_token)
+        #verify content
+        self.assertEqual(201, int(resp['status']))
+        obj = json.loads(content)
+        if not "endpointTemplate" in obj:
+            raise self.fail("Expecting endpointTemplate")
+        endpoint_template = obj["endpointTemplate"]
+        if not "enabled" in endpoint_template:
+            enabled = None
+        else:
+            enabled = endpoint_template["enabled"]
+        self.assertFalse(enabled, "Expecting 'enabled' to be false.")
+
+    def test_update_endpoint_xml(self):
+        resp, content = utils.update_endpoint_template_xml(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            False, self.is_global, self.auth_token)
+        #verify content
+        self.assertEqual(201, int(resp['status']))
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        endpoint_template = dom.find(
+            "{http://docs.openstack.org/identity/api/v2.0}" \
+            "endpointTemplate")
+        if endpoint_template == None:
+            self.fail("Expecting endpointTemplate")
+        enabled = endpoint_template.get("enabled")
+        self.assertFalse(enabled, "Expecting 'enabled' to be false.")
+
+    def test_update_endpoint_using_service_admin_token(self):
+        resp, content = utils.update_endpoint_template(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            False, self.is_global, self.service_token)
+        #verify content
+        self.assertEqual(201, int(resp['status']))
+        obj = json.loads(content)
+        if not "endpointTemplate" in obj:
+            raise self.fail("Expecting endpointTemplate")
+        endpoint_template = obj["endpointTemplate"]
+        if not "enabled" in endpoint_template:
+            enabled = None
+        else:
+            enabled = endpoint_template["enabled"]
+        self.assertFalse(enabled, "Expecting 'enabled' to be false.")
+
+    def test_update_endpoint_xml_using_service_admin_token(self):
+        resp, content = utils.update_endpoint_template_xml(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            False, self.is_global, self.service_token)
+        #verify content
+        self.assertEqual(201, int(resp['status']))
+        dom = etree.Element("root")
+        dom.append(etree.fromstring(content))
+        endpoint_template = dom.find(
+            "{http://docs.openstack.org/identity/api/v2.0}" \
+            "endpointTemplate")
+        if endpoint_template == None:
+            self.fail("Expecting endpointTemplate")
+        enabled = endpoint_template.get("enabled")
+        self.assertFalse(enabled, "Expecting 'enabled' to be false.")
+
+    def test_update_endpoint_failure_cases(self):
+        resp, content = utils.update_endpoint_template(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            self.enabled, self.is_global, self.disabled_token)
+        self.assertEqual(403, int(resp['status']))
+        resp, content = utils.update_endpoint_template(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            self.enabled, self.is_global, self.missing_token)
+        self.assertEqual(401, int(resp['status']))
+        resp, content = utils.update_endpoint_template(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            self.enabled, self.is_global, self.exp_auth_token)
+        self.assertEqual(403, int(resp['status']))
+        resp, content = utils.update_endpoint_template(
+            self.endpoint_template_id,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            self.enabled, self.is_global, self.invalid_token)
+        self.assertEqual(404, int(resp['status']))
+        #Update a NonExistent endpoint template.
+        resp, content = utils.update_endpoint_template(-1,
+            self.region, self.service, self.public_url,
+            self.admin_url, self.internal_url,
+            self.enabled, self.is_global, self.auth_token)
+        self.assertEqual(404, int(resp['status']))
+
+
 class CreateEndpointRefsTest(EndpointTemplatesTest):
     def test_endpoint_create_json_using_expired_token(self):
         _header = httplib2.Http(".cache")
@@ -555,19 +669,6 @@ class GetEndPointTest(EndpointTemplatesTest):
         resp, content = header.request(url, "GET", body='{}', headers={
             "Content-Type": "application/json",
             "X-Auth-Token": str(self.auth_token),
-            "ACCEPT": "application/json"})
-        self.assertEqual(200, int(resp['status']))
-        obj = json.loads(content)
-        if not "endpoints" in obj:
-            raise self.fail("Expecting endpoints")
-
-    def test_get_endpoint_json(self):
-        header = httplib2.Http(".cache")
-        url = '%stenants/%s/endpoints' % (URL_V2, self.tenant)
-        #test for Content-Type = application/json
-        resp, content = header.request(url, "GET", body='{}', headers={
-            "Content-Type": "application/json",
-            "X-Auth-Token": str(self.service_token),
             "ACCEPT": "application/json"})
         self.assertEqual(200, int(resp['status']))
         obj = json.loads(content)

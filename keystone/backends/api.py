@@ -186,6 +186,9 @@ class BaseEndpointTemplateAPI(object):
     def create(self, values):
         raise NotImplementedError
 
+    def update(self, id, values):
+        raise NotImplementedError
+
     def delete(self, id):
         raise NotImplementedError
 
