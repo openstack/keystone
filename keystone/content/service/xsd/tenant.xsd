@@ -92,7 +92,7 @@
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The name of the tenant.
+                        The name of the tenant. This is guaranteed to be unique, but may change.
                     </p>
                 </xsd:documentation>
             </annotation>

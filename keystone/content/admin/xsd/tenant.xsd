@@ -54,7 +54,7 @@
     <complexType name="Tenants">
         <sequence>
             <element name="tenant" type="identity:Tenant" maxOccurs="100"/>
-            <!--<element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
@@ -82,6 +82,7 @@
                     xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         An ID uniquely identifying the tenant. This usually comes from the back-end store.
+                        This value is guaranteed to be unique and immutable (it will never change).
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -92,7 +93,7 @@
                     xml:lang="EN"
                     xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The name of the tenant.
+                        The name of the tenant. This is guaranteed to be unique, bit it can change.
                     </p>
                 </xsd:documentation>
             </annotation>

@@ -72,7 +72,7 @@
             <element name="roles" type="identity:RoleList" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="tenantId" type="xsd:string" use="optional"/>
+        <attribute name="id" type="xsd:string"/>
         <attribute name="username" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>

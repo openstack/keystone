@@ -46,7 +46,7 @@
     <!-- Complex Types -->
     <complexType name="Role">
         <sequence>
-            <!-- TODO(Ziad): resolve conflict <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <attribute name="id" type="xsd:string" use="required"/>
@@ -59,7 +59,7 @@
     <complexType name="RoleList">
         <sequence>
             <element name="role" type="identity:Role" minOccurs="0" maxOccurs="unbounded"/>
-            <!-- TODO(Ziad): resolve conflict <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
