@@ -54,15 +54,15 @@ class AdminApi(wsgi.Router):
         tenant_controller = TenantController(options)
         mapper.connect("/tenants", controller=tenant_controller,
                     action="create_tenant",
-                    conditions=dict(method=["PUT", "POST"]))
+                    conditions=dict(method=["POST"]))
         mapper.connect("/tenants", controller=tenant_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
-                    action="get_tenant", conditions=dict(method=["GET"]))
+                    action="update_tenant", conditions=dict(method=["PUT"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
-                    action="update_tenant", conditions=dict(method=["PUT"]))
+                    action="get_tenant", conditions=dict(method=["GET"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="delete_tenant", conditions=dict(method=["DELETE"]))
@@ -72,7 +72,7 @@ class AdminApi(wsgi.Router):
         mapper.connect("/users",
                     controller=user_controller,
                     action="create_user",
-                    conditions=dict(method=["PUT", "POST"]))
+                    conditions=dict(method=["POST"]))
         mapper.connect("/users",
                     controller=user_controller,
                     action="get_users",
@@ -137,15 +137,15 @@ class AdminApi(wsgi.Router):
             controller=endpoint_templates_controller,
                 action="add_endpoint_template",
                     conditions=dict(method=["POST"]))
-        mapper.connect("/endpointTemplates/{endpoint_templates_id}",
+        mapper.connect("/endpointTemplates/{endpoint_template_id}",
                 controller=endpoint_templates_controller,
                     action="get_endpoint_template",
                         conditions=dict(method=["GET"]))
-        mapper.connect("/endpointTemplates/{endpoint_templates_id}",
+        mapper.connect("/endpointTemplates/{endpoint_template_id}",
                 controller=endpoint_templates_controller,
                     action="modify_endpoint_template",
                         conditions=dict(method=["PUT"]))
-        mapper.connect("/endpointTemplates/{endpoint_templates_id}",
+        mapper.connect("/endpointTemplates/{endpoint_template_id}",
                 controller=endpoint_templates_controller,
                     action="delete_endpoint_template",
                         conditions=dict(method=["DELETE"]))
@@ -158,7 +158,7 @@ class AdminApi(wsgi.Router):
                      action="add_endpoint_to_tenant",
                      conditions=dict(method=["POST"]))
         mapper.connect(
-                "/tenants/{tenant_id}/endpoints/{endpoints_id}",
+                "/tenants/{tenant_id}/endpoints/{endpoint_id}",
                 controller=endpoint_templates_controller,
                 action="remove_endpoint_from_tenant",
                 conditions=dict(method=["DELETE"]))

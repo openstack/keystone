@@ -85,6 +85,7 @@ def run_server(application, port):
 
 class Server(object):
     """Server class to manage multiple WSGI sockets and applications."""
+    started = False
 
     def __init__(self, threads=1000):
         self.pool = eventlet.GreenPool(threads)

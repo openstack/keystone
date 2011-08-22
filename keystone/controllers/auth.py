@@ -9,28 +9,23 @@ class AuthController(wsgi.Controller):
 
     def __init__(self, options):
         self.options = options
-        self.request = None
 
     @utils.wrap_error
     def authenticate(self, req):
-        self.request = req
-
         creds = utils.get_normalized_request_content(
             auth.PasswordCredentials, req)
+
         return utils.send_result(200, req, config.SERVICE.authenticate(creds))
 
     @utils.wrap_error
     def authenticate_ec2(self, req):
-        self.request = req
-
-        creds = utils.get_normalized_request_content(
-            auth.Ec2Credentials, req)
+        creds = utils.get_normalized_request_content(auth.Ec2Credentials, req)
         return utils.send_result(200, req,
-                                 config.SERVICE.authenticate_ec2(creds))
+            config.SERVICE.authenticate_ec2(creds))
 
     @utils.wrap_error
     def validate_token(self, req, token_id):
-        belongs_to = req.GET["belongsTo"] if "belongsTo" in req.GET else None
+        belongs_to = req.GET.get("belongsTo", None)
 
         rval = config.SERVICE.validate_token(
             utils.get_auth_token(req), token_id, belongs_to)

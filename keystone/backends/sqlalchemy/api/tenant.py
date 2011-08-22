@@ -27,10 +27,12 @@ class TenantAPI(BaseTenantAPI):
         return tenant_ref
 
     def get(self, id, session=None):
-        if not session:
-            session = get_session()
-        result = session.query(models.Tenant).filter_by(id=id).first()
-        return result
+        session = session or get_session()
+        return session.query(models.Tenant).filter_by(id=id).first()
+
+    def get_by_name(self, name, session=None):
+        session = session or get_session()
+        return session.query(models.Tenant).filter_by(name=name).first()
 
     def get_all(self, session=None):
         if not session:

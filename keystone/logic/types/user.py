@@ -15,7 +15,6 @@
 
 import json
 from lxml import etree
-import string
 
 from keystone.logic.types import fault
 
@@ -23,9 +22,10 @@ from keystone.logic.types import fault
 class User(object):
     """Document me!"""
 
-    def __init__(self, password, user_id, tenant_id, email, enabled,
-            tenant_roles=None):
-        self.user_id = user_id
+    def __init__(self, password=None, id=None, name=None, tenant_id=None,
+            email=None, enabled=None, tenant_roles=None):
+        self.id = id
+        self.name = name
         self.tenant_id = tenant_id
         self.password = password
         self.email = email
@@ -41,26 +41,20 @@ class User(object):
                             "user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
-            user_id = root.get("id")
+            name = root.get("name")
             tenant_id = root.get("tenantId")
             email = root.get("email")
             password = root.get("password")
             enabled = root.get("enabled")
-            if user_id == None or len(user_id.strip()) == 0:
+            if not name:
                 raise fault.BadRequestFault("Expecting User")
-            elif password == None or len(password.strip()) == 0:
+            elif not password:
                 raise fault.BadRequestFault("Expecting User password")
-            elif email == None:
+            elif not email:
                 raise fault.BadRequestFault("Expecting User email")
-            if enabled == None or enabled == "true" or enabled == "yes":
-                set_enabled = True
-            elif enabled == "false" or enabled == "no":
-                set_enabled = False
-            else:
-                raise fault.BadRequestFault("Bad enabled attribute!")
-            if password == '':
-                password = user_id
-            return User(password, user_id, tenant_id, email, set_enabled)
+            enabled = enabled is None or enabled.lower() in ["true", "yes"]
+
+            return User(password, id, name, tenant_id, email, enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse User", str(e))
 
@@ -71,16 +65,15 @@ class User(object):
             if not "user" in obj:
                 raise fault.BadRequestFault("Expecting User")
             user = obj["user"]
-            if not "id" in user:
-                user_id = None
-            else:
-                user_id = user["id"]
+            id = user.get('id', None)
+            name = user.get('name', None)
 
             if not "password" in user:
                 raise fault.BadRequestFault("Expecting User Password")
             password = user["password"]
 
-            if user_id == None or len(user_id.strip()) == 0:
+            if (id == None or len(id.strip()) == 0) and (
+                    name == None or len(name.strip()) == 0):
                 raise fault.BadRequestFault("Expecting User")
             elif password == None or len(password.strip()) == 0:
                 raise fault.BadRequestFault("Expecting User password")
@@ -89,7 +82,7 @@ class User(object):
                 tenant_id = user["tenantId"]
             else:
                 tenant_id = None
-            if not "email" in user:
+            if "email" not in user:
                 raise fault.BadRequestFault("Expecting User Email")
             email = user["email"]
             if "enabled" in user:
@@ -98,7 +91,7 @@ class User(object):
                     raise fault.BadRequestFault("Bad enabled attribute!")
             else:
                 set_enabled = True
-            return User(password, user_id, tenant_id, email, set_enabled)
+            return User(password, id, name, tenant_id, email, set_enabled)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
@@ -106,15 +99,17 @@ class User(object):
         dom = etree.Element("user",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.email:
-            dom.set("email", self.email)
+            dom.set("email", unicode(self.email))
         if self.tenant_id:
-            dom.set("tenantId", self.tenant_id)
-        if self.user_id:
-            dom.set("id", self.user_id)
+            dom.set("tenantId", unicode(self.tenant_id))
+        if self.id:
+            dom.set("id", unicode(self.id))
+        if self.name:
+            dom.set("name", unicode(self.name))
         if self.enabled:
-            dom.set("enabled", string.lower(str(self.enabled)))
+            dom.set("enabled", unicode(self.enabled).lower())
         if self.password:
-            dom.set("password", self.password)
+            dom.set("password", unicode(self.password))
         if self.tenant_roles:
             dom_roles = etree.Element("tenantRoles")
             for role in self.tenant_roles:
@@ -130,13 +125,15 @@ class User(object):
     def to_dict(self):
         user = {}
 
-        if self.user_id:
-            user["id"] = self.user_id
+        if self.id:
+            user["id"] = unicode(self.id)
+        if self.name:
+            user["name"] = unicode(self.name)
         if self.tenant_id:
-            user["tenantId"] = self.tenant_id
+            user["tenantId"] = unicode(self.tenant_id)
         if self.password:
-            user["password"] = self.password
-        user["email"] = self.email
+            user["password"] = unicode(self.password)
+        user["email"] = unicode(self.email)
         user["enabled"] = self.enabled
         if self.tenant_roles:
             user["tenantRoles"] = list(self.tenant_roles)
@@ -149,13 +146,14 @@ class User(object):
 class User_Update(object):
     """Document me!"""
 
-    def __init__(self, password, user_id, tenant_id, email,
-            enabled):
-        self.user_id = user_id
+    def __init__(self, password=None, id=None, name=None, tenant_id=None,
+            email=None, enabled=None):
+        self.id = id
+        self.name = name
         self.tenant_id = tenant_id
         self.password = password
         self.email = email
-        self.enabled = enabled and True or False
+        self.enabled = bool(enabled) if enabled is not None else None
 
     @staticmethod
     def from_xml(xml_str):
@@ -166,7 +164,8 @@ class User_Update(object):
                             "user")
             if root == None:
                 raise fault.BadRequestFault("Expecting User")
-            user_id = root.get("id")
+            id = root.get("id")
+            name = root.get("name")
             tenant_id = root.get("tenantId")
             email = root.get("email")
             password = root.get("password")
@@ -177,9 +176,13 @@ class User_Update(object):
                 set_enabled = False
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
+
+            # TODO: WTF is this?!
             if password == '':
-                password = user_id
-            return User(password, user_id, tenant_id, email, set_enabled)
+                password = id
+
+            return User(password=password, id=id, name=name,
+                tenant_id=tenant_id, email=email, enabled=set_enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse User", str(e))
 
@@ -190,31 +193,21 @@ class User_Update(object):
             if not "user" in obj:
                 raise fault.BadRequestFault("Expecting User")
             user = obj["user"]
-            if not "id" in user:
-                user_id = None
-            else:
-                user_id = user["id"]
-            if not "password" in user:
-                password = None
-            else:
-                password = user["password"]
-            if not "tenantId" in user:
-                tenant_id = None
-            else:
-                tenant_id = user["tenantId"]
-            if not "email" in user:
-                email = None
-            else:
-                email = user["email"]
-            if "enabled" in user:
-                set_enabled = user["enabled"]
-                if not isinstance(set_enabled, bool):
-                    raise fault.BadRequestFault("Bad enabled attribute!")
-            else:
-                set_enabled = True
+            id = user.get('id', None)
+            name = user.get('name', None)
+            password = user.get('password', None)
+            tenant_id = user.get('tenantId', None)
+            email = user.get('email', None)
+            enabled = user.get('enabled', True)
+
+            if not isinstance(enabled, bool):
+                raise fault.BadRequestFault("Bad enabled attribute!")
+
+            # TODO: WTF is this?!
             if password == '':
-                password = user_id
-            return User(password, user_id, tenant_id, email, set_enabled)
+                password = id
+
+            return User(password, id, name, tenant_id, email, enabled)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
 
@@ -222,15 +215,17 @@ class User_Update(object):
         dom = etree.Element("user",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.email:
-            dom.set("email", self.email)
+            dom.set("email", unicode(self.email))
         if self.tenant_id:
-            dom.set("tenantId", self.tenant_id)
-        if self.user_id:
-            dom.set("id", self.user_id)
+            dom.set("tenantId", unicode(self.tenant_id))
+        if self.id:
+            dom.set("id", unicode(self.id))
+        if self.name:
+            dom.set("name", unicode(self.name))
         if self.enabled is not None:
-            dom.set("enabled", string.lower(str(self.enabled)))
+            dom.set("enabled", unicode(self.enabled).lower())
         if self.password:
-            dom.set("password", self.password)
+            dom.set("password", unicode(self.password))
         return dom
 
     def to_xml(self):
@@ -239,14 +234,16 @@ class User_Update(object):
     def to_dict(self):
         user = {}
 
-        if self.user_id:
-            user["id"] = self.user_id
+        if self.id:
+            user["id"] = unicode(self.id)
+        if self.name:
+            user["name"] = unicode(self.name)
         if self.tenant_id:
-            user["tenantId"] = self.tenant_id
+            user["tenantId"] = unicode(self.tenant_id)
         if self.password:
-            user["password"] = self.password
+            user["password"] = unicode(self.password)
         if self.email:
-            user["email"] = self.email
+            user["email"] = unicode(self.email)
         if self.enabled is not None:
             user["enabled"] = self.enabled
         return {'user': user}

@@ -19,7 +19,7 @@ import ast
 import logging
 
 from keystone.common import config
-from keystone.backends.alterdb import models
+from keystone.backends.memcache import models
 import keystone.utils as utils
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models

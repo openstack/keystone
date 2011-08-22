@@ -53,7 +53,7 @@ class ServiceAPITest(unittest.TestCase):
     Set of dicts of tenant attributes we start each test case with
     """
     tenant_fixtures = [
-        {'id': 'tenant1',
+        {'name': 'tenant1',
          'enabled': True,
          'desc': 'tenant1'}]
 
@@ -62,11 +62,11 @@ class ServiceAPITest(unittest.TestCase):
     will authenticate against the API. The `auth_user` attribute
     will contain the created user with the following attributes.
     """
-    auth_user_attrs = {'id': 'auth_user',
+    auth_user_attrs = {'name': 'auth_user',
                        'password': 'auth_pass',
                        'email': 'auth_user@example.com',
                        'enabled': True,
-                       'tenant_id': 'tenant1'}
+                       'tenant_name': 'tenant1'}
     """
     Special attribute that is the identifier of the token we use in
     authenticating. Makes it easy to test the authentication process.
@@ -90,7 +90,8 @@ class ServiceAPITest(unittest.TestCase):
     options = {
         'backends': "keystone.backends.sqlalchemy",
         'keystone.backends.sqlalchemy': {
-            'sql_connection': 'sqlite://',  # in-memory db
+            # in-memory db
+            'sql_connection': 'sqlite://',
             'verbose': False,
             'debug': False,
             'backend_entities':
@@ -145,9 +146,13 @@ class ServiceAPITest(unittest.TestCase):
         :params **kwargs: Attributes of the tenant to create
         """
         values = kwargs.copy()
-        credentials = db_api.CREDENTIALS.create(values)
-        logger.debug("Created credentials fixture %s", credentials['id'])
-        return credentials
+        user = db_api.USER.get_by_name(values['user_name'])
+        if user:
+            values['user_id'] = user.id
+            credentials = db_api.CREDENTIALS.create(values)
+            logger.debug("Created credentials fixture %s",
+                credentials['user_id'])
+            return credentials
 
     def fixture_create_tenant(self, **kwargs):
         """
@@ -157,7 +162,7 @@ class ServiceAPITest(unittest.TestCase):
         """
         values = kwargs.copy()
         tenant = db_api.TENANT.create(values)
-        logger.debug("Created tenant fixture %s", values['id'])
+        logger.debug("Created tenant fixture %s", values['name'])
         return tenant
 
     def fixture_create_user(self, **kwargs):
@@ -168,14 +173,15 @@ class ServiceAPITest(unittest.TestCase):
         :params **kwargs: Attributes of the user to create
         """
         values = kwargs.copy()
-        tenant_id = values.get('tenant_id')
-        if tenant_id:
-            if not db_api.TENANT.get(tenant_id):
-                db_api.TENANT.create({'id': tenant_id,
+        tenant_name = values.get('tenant_name')
+        if tenant_name:
+            if not db_api.TENANT.get_by_name(tenant_name):
+                tenant = db_api.TENANT.create({'name': tenant_name,
                                       'enabled': True,
-                                      'desc': tenant_id})
+                                      'desc': tenant_name})
+                values['tenant_id'] = tenant.id
         user = db_api.USER.create(values)
-        logger.debug("Created user fixture %s", values['id'])
+        logger.debug("Created user fixture %s", user.id)
         return user
 
     def fixture_create_token(self, **kwargs):

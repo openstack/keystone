@@ -27,4 +27,5 @@ coverage # computes code coverage percentages
 # Testing
 webtest
 unittest2
+pylint
 pep8

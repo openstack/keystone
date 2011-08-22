@@ -148,13 +148,10 @@ def setup_logging(options, conf):
     verbose = options.get('verbose') or conf.get('verbose', False)
     verbose = verbose in [True, "True", "1"]
     root_logger = logging.root
-    if debug:
-        level = logging.DEBUG
-    elif verbose:
-        level = logging.INFO
-    else:
-        level = logging.WARNING
-    root_logger.setLevel(level)
+    root_logger.setLevel(
+        logging.DEBUG if debug else
+        logging.INFO if verbose else
+        logging.WARNING)
 
     # Set log configuration from options...
     # Note that we use a hard-coded log format in the options
@@ -164,14 +161,10 @@ def setup_logging(options, conf):
     log_date_format = options.get('log_date_format', DEFAULT_LOG_DATE_FORMAT)
     formatter = logging.Formatter(log_format, log_date_format)
 
-    logfile = options.get('log_file')
-    if not logfile:
-        logfile = conf.get('log_file')
+    logfile = options.get('log_file') or conf.get('log_file')
 
     if logfile:
-        logdir = options.get('log_dir')
-        if not logdir:
-            logdir = conf.get('log_dir')
+        logdir = options.get('log_dir') or conf.get('log_dir')
         if logdir:
             logfile = os.path.join(logdir, logfile)
         logfile = logging.FileHandler(logfile)
@@ -348,7 +341,7 @@ def load_paste_app(app_name, options, args):
             logger.info("*" * 50)
         app = deploy.loadapp("config:%s" % conf_file, name=app_name,
             global_conf=conf.global_conf)
-    except (LookupError, ImportError), e:
+    except (LookupError, ImportError):
         raise RuntimeError("Unable to load %(app_name)s from "
                            "configuration file %(conf_file)s."
                            "\nGot: %(e)r" % locals())

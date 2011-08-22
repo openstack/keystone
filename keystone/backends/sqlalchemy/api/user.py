@@ -25,8 +25,7 @@ class UserAPI(BaseUserAPI):
     def get_all(self, session=None):
         if not session:
             session = get_session()
-        result = session.query(models.User)
-        return result
+        return session.query(models.User)
 
     def create(self, values):
         user_ref = models.User()
@@ -44,8 +43,19 @@ class UserAPI(BaseUserAPI):
     def get(self, id, session=None):
         if not session:
             session = get_session()
-        result = session.query(models.User).filter_by(id=id).first()
-        return result
+        user = session.query(models.User).filter_by(id=id).first()
+
+        return user or self.get_by_name(id, session)
+
+    def get_by_name(self, name, session=None):
+        if not session:
+            session = get_session()
+        return session.query(models.User).filter_by(name=name).first()
+
+    def get_by_email(self, email, session=None):
+        if not session:
+            session = get_session()
+        return session.query(models.User).filter_by(email=email).first()
 
     def get_page(self, marker, limit, session=None):
         if not session:
@@ -95,12 +105,6 @@ class UserAPI(BaseUserAPI):
         else:
             next_page = next_page.id
         return (prev_page, next_page)
-
-    def get_by_email(self, email, session=None):
-        if not session:
-            session = get_session()
-        result = session.query(models.User).filter_by(email=email).first()
-        return result
 
     def user_roles_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
@@ -168,8 +172,7 @@ class UserAPI(BaseUserAPI):
     def user_get_update(self, id, session=None):
         if not session:
             session = get_session()
-        result = session.query(models.User).filter_by(id=id).first()
-        return result
+        return session.query(models.User).filter_by(id=id).first()
 
     def users_get_page(self, marker, limit, session=None):
         if not session:

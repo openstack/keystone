@@ -40,10 +40,10 @@ class EndpointTemplate(object):
             enabled = root.get("enabled")
             is_global = root.get("global")
             return EndpointTemplate(id, region, service, public_url, admin_url,
-                           internal_url, enabled, is_global)
+                internal_url, enabled, is_global)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault(\
-                "Cannot parse endpointTemplate", str(e))
+            raise fault.BadRequestFault("Cannot parse endpointTemplate",
+                str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -103,8 +103,8 @@ class EndpointTemplate(object):
         self.public_url = public_url
         self.admin_url = admin_url
         self.internal_url = internal_url
-        self.enabled = enabled
-        self.is_global = is_global
+        self.enabled = bool(enabled)
+        self.is_global = bool(is_global)
 
     def to_dom(self):
         dom = etree.Element("endpointTemplate",
@@ -122,9 +122,9 @@ class EndpointTemplate(object):
         if self.internal_url:
             dom.set("internalURL", self.internal_url)
         if self.enabled:
-            dom.set("enabled", 'true')
+            dom.set("enabled", str(self.enabled).lower())
         if self.is_global:
-            dom.set("global", 'true')
+            dom.set("global", str(self.is_global).lower())
         return dom
 
     def to_xml(self):
@@ -133,7 +133,7 @@ class EndpointTemplate(object):
     def to_dict(self):
         endpoint_template = {}
         if self.id:
-            endpoint_template["id"] = self.id
+            endpoint_template["id"] = unicode(self.id)
         if self.region:
             endpoint_template["region"] = self.region
         if self.service:

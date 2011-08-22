@@ -20,32 +20,31 @@ class EndpointTemplatesController(wsgi.Controller):
 
     @utils.wrap_error
     def add_endpoint_template(self, req):
-        endpoint_template = utils.\
-            get_normalized_request_content(EndpointTemplate, req)
+        endpoint_template = utils.get_normalized_request_content(
+            EndpointTemplate, req)
         return utils.send_result(201, req,
-            config.SERVICE.
-            add_endpoint_template(\
-            utils.get_auth_token(req), endpoint_template))
+            config.SERVICE.add_endpoint_template(utils.get_auth_token(req),
+                endpoint_template))
 
     @utils.wrap_error
-    def modify_endpoint_template(self, req, endpoint_templates_id):
+    def modify_endpoint_template(self, req, endpoint_template_id):
         endpoint_template = utils.\
             get_normalized_request_content(EndpointTemplate, req)
         return utils.send_result(201, req,
             config.SERVICE.modify_endpoint_template(\
             utils.get_auth_token(req),
-            endpoint_templates_id, endpoint_template))
+            endpoint_template_id, endpoint_template))
 
     @utils.wrap_error
-    def delete_endpoint_template(self, req, endpoint_templates_id):
+    def delete_endpoint_template(self, req, endpoint_template_id):
         rval = config.SERVICE.delete_endpoint_template(
-            utils.get_auth_token(req), endpoint_templates_id)
+            utils.get_auth_token(req), endpoint_template_id)
         return utils.send_result(204, req, rval)
 
     @utils.wrap_error
-    def get_endpoint_template(self, req, endpoint_templates_id):
+    def get_endpoint_template(self, req, endpoint_template_id):
         endpoint_template = config.SERVICE.get_endpoint_template(
-            utils.get_auth_token(req), endpoint_templates_id)
+            utils.get_auth_token(req), endpoint_template_id)
         return utils.send_result(200, req, endpoint_template)
 
     @utils.wrap_error
@@ -63,7 +62,7 @@ class EndpointTemplatesController(wsgi.Controller):
                 utils.get_auth_token(req), tenant_id, endpoint, get_url(req)))
 
     @utils.wrap_error
-    def remove_endpoint_from_tenant(self, req, tenant_id, endpoints_id):
+    def remove_endpoint_from_tenant(self, req, tenant_id, endpoint_id):
         rval = config.SERVICE.delete_endpoint(utils.get_auth_token(req),
-                                        endpoints_id)
+                                        endpoint_id)
         return utils.send_result(204, req, rval)

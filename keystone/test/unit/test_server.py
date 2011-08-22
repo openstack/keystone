@@ -1,19 +1,13 @@
 import unittest2 as unittest
-import os
-import sys
+from StringIO import StringIO
+import datetime
+import webob
+from lxml import etree
 import json
 
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', '..', 'keystone')))
-
 from keystone import utils
-import keystone.logic.types.auth as auth
+from keystone.logic.types import auth
 import keystone.logic.types.fault as fault
-
-from StringIO import StringIO
-from datetime import date
-from lxml import etree
-from webob import Request
 
 
 class TestServer(unittest.TestCase):
@@ -24,9 +18,9 @@ class TestServer(unittest.TestCase):
 
     def setUp(self):
         environ = {'wsgi.url_scheme': 'http'}
-        self.request = Request(environ)
-        self.auth_data = auth.ValidateData(auth.Token(date.today(), "2231312"),
-            auth.User("username", "12345"))
+        self.request = webob.Request(environ)
+        self.auth_data = auth.ValidateData(auth.Token(datetime.date.today(),
+            "2231312"), auth.User("id", "username", "12345"))
 
     #def tearDown(self):
 
@@ -48,9 +42,10 @@ class TestServer(unittest.TestCase):
         token = xml.find("{http://docs.openstack.org/identity/api/v2.0}token")
 
         self.assertTrue(user.get("username"), "username")
+        self.assertTrue(user.get("id"), "id")
         self.assertTrue(user.get("tenantId"), '12345')
         self.assertTrue(token.get("id"), '2231312')
-        self.assertTrue(token.get("expires"), date.today())
+        self.assertTrue(token.get("expires"), datetime.date.today())
 
     def test_send_result_json(self):
         self.request.headers["Accept"] = "application/json"
@@ -58,10 +53,12 @@ class TestServer(unittest.TestCase):
         self.assertTrue(response.headers['content-type'] ==
             "application/json; charset=UTF-8")
         dict = json.loads(response.unicode_body)
+        self.assertTrue(dict['auth']['user']['id'], 'id')
         self.assertTrue(dict['auth']['user']['username'], 'username')
         self.assertTrue(dict['auth']['user']['tenantId'], '12345')
         self.assertTrue(dict['auth']['token']['id'], '2231312')
-        self.assertTrue(dict['auth']['token']['expires'], date.today())
+        self.assertTrue(dict['auth']['token']['expires'],
+            datetime.date.today())
 
     def test_get_auth_token(self):
         self.request.headers["X-Auth-Token"] = "Test token"

@@ -192,7 +192,13 @@ class Token(object):
 class User(object):
     """A user."""
 
-    def __init__(self, username, tenant_id, role_refs=None):
+    id = None
+    username = None
+    tenant_id = None
+    role_refs = None
+
+    def __init__(self, id, username, tenant_id, role_refs=None):
+        self.id = id
         self.username = username
         self.tenant_id = tenant_id
         self.role_refs = role_refs
@@ -261,7 +267,8 @@ class AuthData(object):
                         base_url_item = getattr(base_url, url_kind + "_url")
                         if base_url_item:
                             endpoint[url_kind + "URL"] = base_url_item.\
-                                replace('%tenant_id%', self.token.tenant_id) \
+                                replace('%tenant_id%',
+                                    str(self.token.tenant_id)) \
                                 if self.token.tenant_id else base_url_item
                     endpoints.append(endpoint)
                 service_catalog[key] = endpoints
@@ -274,42 +281,53 @@ class AuthData(object):
 class ValidateData(object):
     """Authentation Information returned upon successful token validation."""
 
+    token = None
+    user = None
+
     def __init__(self, token, user):
         self.token = token
         self.user = user
 
     def to_xml(self):
         dom = etree.Element("auth",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
+            xmlns="http://docs.openstack.org/identity/api/v2.0")
+
         token = etree.Element("token",
-                             expires=self.token.expires.isoformat())
-        token.set("id", self.token.id)
+            id=unicode(self.token.id),
+            expires=self.token.expires.isoformat())
+
         if self.token.tenant_id:
-            token.set("tenantId", self.token.tenant_id)
+            token.set("tenantId", unicode(self.token.tenant_id))
+
         user = etree.Element("user",
-                             username=self.user.username,
-                             tenantId=str(self.user.tenant_id))
+            id=unicode(self.user.id),
+            username=unicode(self.user.username),
+            tenantId=unicode(self.user.tenant_id))
+
         if self.user.role_refs != None:
             user.append(self.user.role_refs.to_dom())
+
         dom.append(token)
         dom.append(user)
         return etree.tostring(dom)
 
     def to_json(self):
-        token = {}
-        token["id"] = self.token.id
-        token["expires"] = self.token.expires.isoformat()
+        token = {
+            "id": unicode(self.token.id),
+            "expires": self.token.expires.isoformat()}
+
         if self.token.tenant_id:
-            token["tenantId"] = self.token.tenant_id
-        user = {}
-        user["username"] = self.user.username
-        user["tenantId"] = self.user.tenant_id
-        if self.user.role_refs != None:
+            token["tenantId"] = unicode(self.token.tenant_id)
+
+        user = {
+            "id": unicode(self.user.id),
+            "username": unicode(self.user.username),
+            "tenantId": unicode(self.user.tenant_id)}
+
+        if self.user.role_refs is not None:
             user["roleRefs"] = self.user.role_refs.to_json_values()
 
-        auth = {}
-        auth["token"] = token
-        auth["user"] = user
-        ret = {}
-        ret["auth"] = auth
-        return json.dumps(ret)
+        return json.dumps({
+            "auth": {
+                "token": token,
+                "user": user}})

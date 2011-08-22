@@ -28,13 +28,16 @@ class BaseUserAPI(object):
     def get(self, id):
         raise NotImplementedError
 
+    def get_by_name(self, name):
+        raise NotImplementedError
+
+    def get_by_email(self, email):
+        raise NotImplementedError
+
     def get_page(self, marker, limit):
         raise NotImplementedError
 
     def get_page_markers(self, marker, limit):
-        raise NotImplementedError
-
-    def get_by_email(self, email):
         raise NotImplementedError
 
     def user_roles_by_tenant(self, user_id, tenant_id):
@@ -105,6 +108,9 @@ class BaseTenantAPI(object):
         raise NotImplementedError
 
     def get(self, id):
+        raise NotImplementedError
+
+    def get_by_name(self, name):
         raise NotImplementedError
 
     def get_all(self):

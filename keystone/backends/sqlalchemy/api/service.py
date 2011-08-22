@@ -36,7 +36,6 @@ class ServiceAPI(BaseServiceAPI):
         return result
 
     def get_all(self, session=None):
-        print "Enter Get All Service"
         if not session:
             session = get_session()
         return session.query(models.Service).all()

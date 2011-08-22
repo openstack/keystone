@@ -28,7 +28,8 @@ import optparse
 
 import keystone
 from keystone.common import config
-from keystone.manage.api import *
+from keystone.manage import api
+import keystone.backends as db
 
 
 class RaisingOptionParser(optparse.OptionParser):
@@ -107,7 +108,7 @@ def process(*args):
         if len(args) < min:
             raise optparse.OptParseError(msg)
 
-    optional_arg = (lambda x: len(args) > x and args[x] or None)
+    optional_arg = (lambda args, x: len(args) > x and args[x] or None)
 
     def print_table(header_row, rows):
         """Prints a lists of lists as table in a human readable format"""
@@ -120,46 +121,47 @@ def process(*args):
 
     if (object_type, command) == ('user', 'add'):
         require_args(args, 4, 'No password specified for fourth argument')
-        if add_user(id=object_id, password=args[3], tenant=optional_arg(4)):
+        if api.add_user(name=object_id, password=args[3],
+                tenant=optional_arg(args, 4)):
             print "SUCCESS: User %s created." % object_id
 
     elif (object_type, command) == ('user', 'disable'):
-        if disable_user(id=object_id):
+        if api.disable_user(name=object_id):
             print "SUCCESS: User %s disabled." % object_id
 
     elif (object_type, command) == ('user', 'list'):
-        print_table(('id', 'enabled', 'tenant'), list_users())
+        print_table(('id', 'enabled', 'tenant'), api.list_users())
 
     elif (object_type, command) == ('tenant', 'add'):
-        if add_tenant(id=object_id):
+        if api.add_tenant(name=object_id):
             print "SUCCESS: Tenant %s created." % object_id
 
     elif (object_type, command) == ('tenant', 'list'):
-        print_table(('tenant', 'enabled'), list_tenants())
+        print_table(('id', 'name', 'enabled'), api.list_tenants())
 
     elif (object_type, command) == ('tenant', 'disable'):
-        if disable_tenant(id=object_id):
+        if api.disable_tenant(name=object_id):
             print "SUCCESS: Tenant %s disabled." % object_id
 
     elif (object_type, command) == ('role', 'add'):
-        if add_role(id=object_id):
+        if api.add_role(id=object_id):
             print "SUCCESS: Role %s created successfully." % object_id
 
     elif (object_type, command) == ('role', 'list'):
-        tenant = optional_arg(2)
+        tenant = optional_arg(args, 2)
         if tenant:
             # print with users
             print 'Role assignments for tenant %s' % tenant
-            print_table(('User', 'Role'), list_roles(tenant=tenant))
+            print_table(('User', 'Role'), api.list_roles(tenant=tenant))
         else:
             # print without tenants
-            print_table(('id'), list_roles())
+            print_table(('id'), api.list_roles())
 
     elif (object_type, command) == ('role', 'grant'):
         require_args(args, 4, "Missing arguments: role grant 'role' 'user' "
             "'tenant (optional)'")
-        tenant = len(args) > 4 and args[4] or None
-        if grant_role(object_id, args[3], tenant):
+        tenant = optional_arg(args, 4)
+        if api.grant_role(object_id, args[3], tenant):
             print("SUCCESS: Granted %s the %s role on %s." %
                 (object_id, args[3], tenant))
 
@@ -167,56 +169,57 @@ def process(*args):
         require_args(args, 9, "Missing arguments: endpointTemplates add "
             "'region' 'service' 'publicURL' 'adminURL' 'internalURL' "
             "'enabled' 'global'")
-        if add_endpoint_template(region=args[2], service=args[3],
+        if api.add_endpoint_template(region=args[2], service=args[3],
                 public_url=args[4], admin_url=args[5], internal_url=args[6],
                 enabled=args[7], is_global=args[8]):
             print("SUCCESS: Created EndpointTemplates for %s pointing to %s." %
                 (args[3], args[4]))
 
     elif (object_type, command) == ('endpointTemplates', 'list'):
-        tenant = optional_arg(2)
+        tenant = optional_arg(args, 2)
         if tenant:
             print 'Endpoints for tenant %s' % tenant
             print_table(('service', 'region', 'Public URL'),
-                list_tenant_endpoints())
+                api.list_tenant_endpoints())
         else:
             print 'All EndpointTemplates'
             print_table(('service', 'region', 'Public URL'),
-                list_endpoint_templates())
+                api.list_endpoint_templates())
 
     elif (object_type, command) == ('endpoint', 'add'):
         require_args(args, 4, "Missing arguments: endPoint add tenant "
             "endPointTemplate")
-        if add_endpoint(tenant=args[2], endpoint_template=args[3]):
+        if api.add_endpoint(tenant=args[2], endpoint_template=args[3]):
             print("SUCCESS: Endpoint %s added to tenant %s." %
                 (args[3], args[2]))
 
     elif (object_type, command) == ('token', 'add'):
         require_args(args, 6, 'Creating a token requires a token id, user, '
             'tenant, and expiration')
-        if add_token(token=object_id, user=args[3], tenant=args[4],
+        if api.add_token(token=object_id, user=args[3], tenant=args[4],
                 expires=args[5]):
             print "SUCCESS: Token %s created." % (object_id,)
 
     elif (object_type, command) == ('token', 'list'):
-        print_table(('token', 'user', 'expiration', 'tenant'), list_tokens())
+        print_table(('token', 'user', 'expiration', 'tenant'),
+            api.list_tokens())
 
     elif (object_type, command) == ('token', 'delete'):
-        if delete_token(token=object_id):
+        if api.delete_token(token=object_id):
             print 'SUCCESS: Token %s deleted.' % (object_id,)
 
     elif (object_type, command) == ('service', 'add'):
-        if add_service(service=object_id):
+        if api.add_service(service=object_id):
             print "SUCCESS: Service %s created successfully." % (object_id,)
 
     elif (object_type, command) == ('service', 'list'):
-        print_table(('service'), list_services())
+        print_table(('service'), api.list_services())
 
     elif (object_type, command) == ('credentials', 'add'):
         require_args(args, 6, 'Creating a credentials requires a type, key, '
             'secret, and tenant_id (id is user_id)')
-        if add_credentials(user=object_id, type=args[3], key=args[4],
-                secrete=args[5], tenant=optional_arg(6)):
+        if api.add_credentials(user=object_id, type=args[3], key=args[4],
+                secrete=args[5], tenant=optional_arg(args, 6)):
             print "SUCCESS: Credentials %s created." % object_id
 
     else:

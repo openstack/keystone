@@ -30,10 +30,25 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
             obj.tenant_id = tenants[0].id
         return obj
 
+    def get(self, id, filter=None):
+        model = super(UserAPI, self).get(id, filter)
+        # The UID is the same as the user-specified 'name'
+        if model:
+            model['name'] = model['id']
+        return model
+
+    def get_by_name(self, name, filter=None):
+        return self.get(name, filter)
+
     def create(self, values):
-        super(UserAPI, self).create(values)
+        # Persist the 'name' as the UID
+        values['id'] = values['name']
+        delattr(values, 'name')
+
+        values = super(UserAPI, self).create(values)
         if values['tenant_id'] is not None:
             self.api.tenant.add_user(values['tenant_id'], values['id'])
+        return values
 
     def update(self, id, values):
         old_obj = self.get(id)
@@ -43,8 +58,10 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
             pass
         else:
             if old_obj.tenant_id != new_tenant:
-                self.api.tenant.remove_user(old_obj.tenant_id, id)
-                self.api.tenant.add_user(new_tenant, id)
+                if old_obj.tenant_id:
+                    self.api.tenant.remove_user(old_obj.tenant_id, id)
+                if new_tenant:
+                    self.api.tenant.add_user(new_tenant, id)
         super(UserAPI, self).update(id, values, old_obj)
 
     def delete(self, id):

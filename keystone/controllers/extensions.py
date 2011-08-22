@@ -1,5 +1,3 @@
-import os
-import sys
 from webob import Response
 
 from keystone import utils

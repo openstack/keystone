@@ -175,11 +175,11 @@ class RoleRef(object):
         dom = etree.Element("roleRef",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.role_ref_id:
-            dom.set("id", str(self.role_ref_id))
+            dom.set("id", unicode(self.role_ref_id))
         if self.role_id:
-            dom.set("roleId", self.role_id)
+            dom.set("roleId", unicode(self.role_id))
         if self.tenant_id:
-            dom.set("tenantId", self.tenant_id)
+            dom.set("tenantId", unicode(self.tenant_id))
         return dom
 
     def to_xml(self):
@@ -188,11 +188,11 @@ class RoleRef(object):
     def to_dict(self):
         role_ref = {}
         if self.role_ref_id:
-            role_ref["id"] = self.role_ref_id
+            role_ref["id"] = unicode(self.role_ref_id)
         if self.role_id:
-            role_ref["roleId"] = self.role_id
+            role_ref["roleId"] = unicode(self.role_id)
         if self.tenant_id:
-            role_ref["tenantId"] = self.tenant_id
+            role_ref["tenantId"] = unicode(self.tenant_id)
         return {'roleRef': role_ref}
 
     def to_json(self):

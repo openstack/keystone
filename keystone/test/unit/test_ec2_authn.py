@@ -36,7 +36,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         access = "xpd285.access"
         secret = "345fgi.secret"
         kwargs = {
-                  "user_id": self.auth_user['id'],
+                  "user_name": self.auth_user['name'],
                   "tenant_id": self.auth_user['tenant_id'],
                   "type": "EC2",
                   "key": access,
@@ -86,14 +86,6 @@ class EC2AuthnMethods(base.ServiceAPITest):
         """
         access = "xpd285.access"
         secret = "345fgi.secret"
-        kwargs = {
-                  "user_id": 'bad',
-                  "tenant_id": self.auth_user['tenant_id'],
-                  "type": "EC2",
-                  "key": access,
-                  "secret": secret,
-                 }
-        self.fixture_create_credentials(**kwargs)
         url = "/ec2tokens"
         req = self.get_request('POST', url)
         params = {
@@ -121,7 +113,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         expected = {
             u'unauthorized': {
                 u'code': u'401',
-                u'message': u'Unauthorized on this tenant',
+                u'message': u'No credentials found for %s' % access,
             }
         }
         self.assert_dict_equal(expected, json.loads(self.res.body))
@@ -135,7 +127,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         access = "xpd285.access"
         secret = "345fgi.secret"
         kwargs = {
-                  "user_id": self.auth_user['id'],
+                  "user_name": self.auth_user['name'],
                   "tenant_id": 'bad',
                   "type": "EC2",
                   "key": access,

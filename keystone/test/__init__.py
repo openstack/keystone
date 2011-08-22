@@ -3,6 +3,8 @@ import sys
 import subprocess
 import tempfile
 import time
+import unittest2 as unittest
+
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, '..', '..'))
@@ -73,7 +75,7 @@ class KeystoneTest(object):
             [os.path.join(BASE_DIR, 'bin/keystone'), '-c', self.conf_fp.name])
 
         # blatent hack.
-        time.sleep(2)
+        time.sleep(3)
         if self.server.poll() is not None:
             raise RuntimeError('Failed to start server')
 
@@ -86,18 +88,14 @@ class KeystoneTest(object):
     def run(self):
         try:
             self.setUp()
-        except:
-            self.clear_database()
-            raise
-        try:
+
             # discover and run tests
             print "Running tests..."
-            if '--with-coverage' in sys.argv:
-                print "running coverage"
-                execute('coverage run %s discover -t %s -s %s' %
-                        ('/usr/bin/unit2', BASE_DIR, TEST_DIR))
-            else:
-                execute('unit2 discover -f -t %s -s %s' %
-                        (BASE_DIR, TEST_DIR))
+            loader = unittest.TestLoader()
+            suite = loader.discover(TEST_DIR, top_level_dir=BASE_DIR)
+            result = unittest.TextTestRunner(verbosity=1).run(suite)
+            if not result.wasSuccessful():
+                raise RuntimeError("%s unresolved issues." %
+                    (len(result.errors) + len(result.failures),))
         finally:
             self.tearDown()

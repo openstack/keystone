@@ -81,9 +81,9 @@ class KeystoneBase(object):
 class UserRoleAssociation(Base, KeystoneBase):
     __tablename__ = 'user_roles'
     id = Column(Integer, primary_key=True)
-    user_id = Column(String(255), ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     role_id = Column(String(255), ForeignKey('roles.id'))
-    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    tenant_id = Column(Integer, ForeignKey('tenants.id'))
     __table_args__ = (UniqueConstraint("user_id", "role_id", "tenant_id"), {})
 
     user = relationship('User')
@@ -92,7 +92,7 @@ class UserRoleAssociation(Base, KeystoneBase):
 class Endpoints(Base, KeystoneBase):
     __tablename__ = 'endpoints'
     id = Column(Integer, primary_key=True)
-    tenant_id = Column(String(255))
+    tenant_id = Column(Integer)
     endpoint_template_id = Column(Integer, ForeignKey('endpoint_templates.id'))
     __table_args__ = (
         UniqueConstraint("endpoint_template_id", "tenant_id"), {})
@@ -119,7 +119,8 @@ class Service(Base, KeystoneBase):
 class Tenant(Base, KeystoneBase):
     __tablename__ = 'tenants'
     __api__ = 'tenant'
-    id = Column(String(255), primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
 
@@ -127,11 +128,12 @@ class Tenant(Base, KeystoneBase):
 class User(Base, KeystoneBase):
     __tablename__ = 'users'
     __api__ = 'user'
-    id = Column(String(255), primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), unique=True)
     password = Column(String(255))
     email = Column(String(255))
     enabled = Column(Integer)
-    tenant_id = Column(String(255), ForeignKey('tenants.id'))
+    tenant_id = Column(Integer, ForeignKey('tenants.id'))
     roles = relationship(UserRoleAssociation, cascade="all")
     credentials = relationship('Credentials', backref='user', cascade="all")
 
@@ -140,8 +142,8 @@ class Credentials(Base, KeystoneBase):
     __tablename__ = 'credentials'
     __api__ = 'credentials'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(String(255), ForeignKey('users.id'))
-    tenant_id = Column(String(255), ForeignKey('tenants.id'), nullable=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    tenant_id = Column(Integer, ForeignKey('tenants.id'), nullable=True)
     type = Column(String(20))  # ('Password','APIKey','EC2')
     key = Column(String(255))
     secret = Column(String(255))
@@ -151,8 +153,8 @@ class Token(Base, KeystoneBase):
     __tablename__ = 'token'
     __api__ = 'token'
     id = Column(String(255), primary_key=True, unique=True)
-    user_id = Column(String(255))
-    tenant_id = Column(String(255))
+    user_id = Column(Integer)
+    tenant_id = Column(Integer)
     expires = Column(DateTime)
 
 
