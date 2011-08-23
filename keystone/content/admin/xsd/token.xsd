@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
 
+<!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
+
 <schema
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -16,7 +18,7 @@
     <include schemaLocation="user.xsd"/>
     
     <!-- Elements -->
-    <element name="auth" type="identity:AuthenticateResponse"/>
+    <element name="access" type="identity:AuthenticateResponse"/>
     
     <!-- Complex Types -->
     <complexType name="Token">
@@ -69,7 +71,6 @@
             <element name="roles" type="identity:RoleList" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="tenantId" type="xsd:string" use="optional"/>
         <attribute name="username" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>

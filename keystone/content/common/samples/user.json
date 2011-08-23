@@ -1,7 +1,7 @@
 {
   "user": {
-    "id": "jqsmith",
-    "tenantId": "1234",
+    "id": "u1000",
+    "username": "jqsmith",
     "email": "john.smith@example.org",
     "enabled": true
 	}

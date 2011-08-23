@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
 
+<!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
+
 <schema
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -46,6 +48,7 @@
     <!-- Complex Types -->
     <complexType name="Service">
         <attribute name="id" type="xsd:string" use="required"/>
+        <attribute name="type" type="identity:ExtensibleServiceType" use="required"/>
         <attribute name="description" type="xsd:string"  use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
@@ -53,7 +56,7 @@
     <complexType name="ServiceList">
         <sequence>
             <element name="service" type="identity:Service" minOccurs="0" maxOccurs="unbounded"/>
-            <!--<element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />-->
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>

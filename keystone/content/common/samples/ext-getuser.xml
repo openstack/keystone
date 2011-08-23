@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <user xmlns="http://docs.openstack.org/identity/api/v2.0"
       enabled="true" email="john.smith@example.org"
-      tenantId="1234" id="u1000" username="jqsmith">
+      id="u1000" username="jqsmith">
     <roles>
         <role tenantId="1234" id="Admin"/>
     </roles>

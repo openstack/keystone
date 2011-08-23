@@ -2,7 +2,7 @@
 <user xmlns="http://docs.openstack.org/identity/api/v2.0"
       xmlns:atom="http://www.w3.org/2005/Atom"
       enabled="true" email="john.smith@example.org"
-      tenantId="1234" id="jqsmith">
+      username="jqsmith" id="u1000">
     <roles>
         <role tenantId="1234" id="Admin"/>
         <role tenantId="1234" id="DBUser"/>
