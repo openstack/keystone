@@ -9,7 +9,8 @@ from .base import  BaseLdapAPI
 
 class RoleAPI(BaseLdapAPI, BaseTenantAPI):
     DEFAULT_TREE_DN = 'ou=Groups,dc=example,dc=com'
-    options_name = 'role_tree_dn'
+    DEFAULT_STRUCTURAL_CLASSES = ['groupOfNames']
+    options_name = 'role'
     object_class = 'keystoneRole'
     model = models.Role
     attribute_mapping = {'desc': 'description', 'service_id': 'serviceId'}
@@ -63,10 +64,12 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             else:
                 tenant_dn = None
             attrs = [
-                ('objectClass', 'keystoneTenantRole'),
-                ('member', user_dn),
+                ('objectClass', ['keystoneTenantRole', 'groupOfNames']),
+                ('member', [user_dn]),
                 ('keystoneRole', self._id_to_dn(role_id)),
             ]
+            if self.use_dumb_member:
+                attrs[1][1].append(self.DUMB_MEMBER_DN)
             conn.add_s(role_dn, attrs)
         return models.UserRoleAssociation(
             id=self._create_ref(role_id, tenant_id, user_id),
@@ -98,8 +101,10 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             except KeyError:
                 continue
             for user_dn in user_dns:
-                user_id = ldap.dn.str2dn(user_dn)[0][0][1]
-                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
+                    continue
+                user_id = self.api.user._dn_to_id(user_dn)
+                role_id = self._dn_to_id(role_dn)
                 res.append(models.UserRoleAssociation(
                     id=self._create_ref(role_id, tenant_id, user_id),
                     user_id=user_id,
@@ -127,7 +132,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                 return []
             res = []
             for role_dn, _ in roles:
-                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                role_id = self._dn_to_id(role_dn)
                 res.append(models.UserRoleAssociation(
                        id=self._create_ref(role_id, tenant_id, user_id),
                        user_id=user_id,
@@ -142,7 +147,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                 return []
             res = []
             for role_dn, _ in roles:
-                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                role_id = self._dn_to_id(role_dn)
                 tenant_id = ldap.dn.str2dn(role_dn)[1][0][1]
                 res.append(models.UserRoleAssociation(
                        id=self._create_ref(role_id, tenant_id, user_id),
@@ -156,8 +161,9 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         user_dn = self.api.user._id_to_dn(user_id)
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         query = '(&(objectClass=keystoneTenantRole)(member=%s))' % (user_dn,)
+        conn = self.api.get_connection()
         try:
-            res = search_s(role_dn, ldap.SCOPE_BASE, query)
+            res = conn.search_s(role_dn, ldap.SCOPE_BASE, query)
         except ldap.NO_SUCH_OBJECT:
             return None
         if len(res) == 0:
@@ -201,12 +207,14 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             except KeyError:
                 continue
             for user_dn in user_dns:
-                user_id = ldap.dn.str2dn(user_dn)[0][0][1]
+                if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
+                    continue
+                user_id = self.api.user._dn_to_id(user_dn)
                 tenant_id = None
                 if tenant_dns != None:
                     for tenant_dn in tenant_dns:
-                        tenant_id = ldap.dn.str2dn(tenant_dn)[0][0][1]
-                role_id = ldap.dn.str2dn(role_dn)[0][0][1]
+                        tenant_id = self.api.tenant._dn_to_id(tenant_dn)
+                role_id = self._dn_to_id(role_dn)
                 res.append(models.UserRoleAssociation(
                     id=self._create_ref(role_id, tenant_id, user_id),
                     user_id=user_id,
