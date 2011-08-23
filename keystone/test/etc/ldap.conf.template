@@ -21,7 +21,7 @@ sql_idle_timeout = 30
 backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Token', 'Service']
 
 [keystone.backends.ldap]
-ldap_url = fake://%(test_dir)s/ldap.db
+ldap_url = fake://memory
 ldap_user = cn=Admin
 ldap_password = password
 backend_entities = ['Tenant', 'User', 'UserRoleAssociation', 'Role']

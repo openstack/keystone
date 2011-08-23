@@ -123,12 +123,28 @@ def _subs(value):
 server_fail = False
 
 
+class FakeShelve(dict):
+    @classmethod
+    def get_instance(cls):
+        try:
+            return cls.__instance
+        except AttributeError:
+            cls.__instance = cls()
+            return cls.__instance
+
+    def sync(self):
+        pass
+
+
 class FakeLDAP(object):
     """Fake LDAP connection."""
 
     def __init__(self, url):
         LOG.debug("FakeLDAP initialize url=%s" % (url,))
-        self.db = shelve.open(url[7:])
+        if url == 'fake://memory':
+            self.db = FakeShelve.get_instance()
+        else:
+            self.db = shelve.open(url[7:])
 
     def simple_bind_s(self, dn, password):
         """This method is ignored, but provided for compatibility."""
