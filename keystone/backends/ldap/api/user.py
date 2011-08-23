@@ -11,7 +11,9 @@ from .base import BaseLdapAPI, add_redirects
 
 class UserAPI(BaseLdapAPI, BaseUserAPI):
     DEFAULT_TREE_DN = 'ou=Users,dc=example,dc=com'
-    options_name = 'user_tree_dn'
+    DEFAULT_STRUCTURAL_CLASSES = ['keystoneUidObject']
+    DEFAULT_ID_ATTR = 'uid'
+    options_name = 'user'
     object_class = 'keystoneUser'
     model = models.User
     attribute_mapping = {

@@ -35,36 +35,44 @@ attributetype (
 
 objectClass (
     keystoneOCs:1
-    NAME 'keystoneUser'
+    NAME 'keystoneUidObject'
     SUP top
     STRUCTURAL
-    MUST ( cn $ keystoneEnabled )
-    MAY ( mail $ userPassword )
+    MUST ( uid )
     )
 
 objectClass (
     keystoneOCs:2
+    NAME 'keystoneUser'
+    SUP top
+    AUXILIARY
+    MUST ( keystoneEnabled )
+    MAY ( mail $ userPassword )
+    )
+
+objectClass (
+    keystoneOCs:3
     NAME 'keystoneRole'
     SUP top
-    STRUCTURAL
+    AUXILIARY
     MUST ( cn )
     MAY ( member $ description $ serviceId )
     )
 
 objectClass (
-    keystoneOCs:3
+    keystoneOCs:4
     NAME 'keystoneTenant'
     SUP top
-    STRUCTURAL
-    MUST ( cn $ keystoneEnabled )
+    AUXILIARY
+    MUST ( keystoneEnabled )
     MAY ( member $ description )
     )
 
 objectClass (
-    keystoneOCs:4
+    keystoneOCs:5
     NAME 'keystoneTenantRole'
     SUP top
-    STRUCTURAL
-    MUST ( cn $ keystoneRole)
+    AUXILIARY
+    MUST ( keystoneRole )
     MAY ( member )
     )
