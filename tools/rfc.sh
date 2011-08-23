@@ -36,7 +36,7 @@ set_hooks_commit_msg()
 
     chmod +x $f;
 
-    GIT_EDITOR=/bin/true git commit --amend
+    GIT_EDITOR=true git commit --amend
 }
 
 add_remote()
@@ -87,7 +87,7 @@ rebase_changes()
 {
     git fetch;
 
-    GIT_EDITOR=/bin/true git rebase -i origin/$branch || exit $?;
+    GIT_EDITOR=true git rebase -i origin/$branch || exit $?;
 }
 
 
