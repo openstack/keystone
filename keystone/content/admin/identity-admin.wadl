@@ -51,6 +51,9 @@
                     <param name="belongsTo" style="query" type="xsd:string" required="false"/>
                     <method href="#validateToken"/>
                     <method href="#checkToken"/>
+                    <resource id="endpointsForToken" path="endpoints">
+                        <method href="#listEndpointsForToken"/>
+                    </resource>
                 </resource>
             </resource>
 
@@ -75,10 +78,6 @@
                 <resource id="tenantById" path="{tenantId}">
                     <param name="tenantId" style="template" type="xsd:string"/>
                     <method href="#getTenant"/>
-
-                    <resource id="endpointsForTenant" path="endpoints">
-                        <method href="#listEndpointsForTenant"/>
-                    </resource>
 
                     <resource id="usersForTenant" path="users">
                         <resource id="getTenantUser" path="{user_id}">
@@ -314,10 +313,10 @@
         &commonFaults;
         &getFaults;
     </method>
-    <method name="GET" id="getEndpointsForTenant">
-        <doc xml:lang="EN" title="/tenants/{tenant_id}/endpoints">
+    <method name="GET" id="listEndpointsForToken">
+        <doc xml:lang="EN" title="/tokens/{token_id}/endpoints">
             <p xmlns="http://www.w3.org/1999/xhtml">
-            	Returns a list of endpoints associated with a specific tenant.
+            	Returns a list of endpoints associated with a specific token.
             </p>
         </doc>
         <response status="200 203">
