@@ -12,7 +12,8 @@ class TestExtensions(common.KeystoneTestCase):
         self.assertIsNotNone(content['extensions']['values'])
         found = False
         for value in content['extensions']['values']:
-            if value['alias'] == 'RAX-KEY':
+            print value
+            if value['extension']['alias'] == 'RAX-KSKEY':
                 found = True
                 break
         self.assertTrue(found)
@@ -23,7 +24,7 @@ class TestExtensions(common.KeystoneTestCase):
         content = r.xml
         extension = content.find(
             "{http://docs.openstack.org/common/api/v2.0}extension")
-        self.assertEqual(extension.get("alias"), "RAX-KEY")
+        self.assertEqual(extension.get("alias"), "RAX-KSKEY")
 
 
 if __name__ == '__main__':

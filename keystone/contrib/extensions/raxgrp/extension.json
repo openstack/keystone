@@ -1,16 +1,14 @@
 {
+  "extension":{
     "name": "Rackspace Keystone Group Extensions",
-    "namespace": "http://docs.rackspacecloud.com/identity/api/ext/grp/v1.0",
-    "alias": "RAX-GRP",
+    "namespace": "http://docs.rackspace.com/identity/api/ext/RAX-KSGROUP/v1.0",
+    "alias": "RAX-KSGRP-service",
     "updated": "2011-08-14T13:25:27-06:00",
     "description": "Rackspace extensions to Keystone v2.0 API enabling groups.",
     "links": [{
         "rel": "describedby",
         "type": "application/pdf",
-        "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-grp-20111111.pdf"
-    },{
-        "rel": "describedby",
-        "type": "application/vnd.sun.wadl+xml",
-        "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-RAX-GRP.wadl"
+        "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-RAX-KSGRP-service.pdf"
     }]
+ }
 }
