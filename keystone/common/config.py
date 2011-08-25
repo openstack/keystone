@@ -84,7 +84,7 @@ for a config file.""")
                      default="0.0.0.0", dest="bind_host",
                      help="specifies host address to listen on "\
                             "(default is all or 0.0.0.0)")
-    # This one is handled by tools/tracer.py (if loaded)
+    # This one is handled by keystone/tools/tracer.py (if loaded)
     group.add_option('-t', '--trace-calls', default=False,
                      dest="trace_calls",
                      action="store_true",

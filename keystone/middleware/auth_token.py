@@ -58,7 +58,7 @@ from paste.deploy import loadapp
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized, HTTPUseProxy
 from webob.exc import Request, Response
-import tools.tracer  # @UnusedImport # module runs on import
+import keystone.tools.tracer  # @UnusedImport # module runs on import
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
