@@ -79,6 +79,8 @@ DEFAULT_FIXTURE = [
     ('endpoint', 'add', '1234', '5'),
 # Add Services
     ('service', 'add', 'exampleservice'),
+# Add Credentials
+    ('credentials', 'add', 'admin', 'EC2', 'admin:admin', 'admin', 'admin'),
 ]
 
 

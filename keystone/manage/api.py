@@ -236,10 +236,10 @@ def add_credentials(user, type, key, secrete, tenant=None):
         obj.user_id = user
         obj.type = type
         obj.key = key
-        obj.secret = secret
+        obj.secret = secrete
         obj.tenant_id = tenant
         db_api.CREDENTIALS.create(obj)
         return obj
     except:
-        raise Exception("Failed to create credentials %s" % (object_id,),
+        raise Exception("Failed to create credentials %s" % (user,),
             sys.exc_info())
