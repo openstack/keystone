@@ -68,7 +68,7 @@ class IdentityService(object):
             # NOTE(vish): Some libraries don't use the port when signing
             #             requests, so try again without port.
             if ':' in credentials.host:
-                hostname, _sep, port = credentials.partition(':')
+                hostname, port = credentials.host.split(":")
                 credentials.host = hostname
                 signature = signer.generate(credentials)
                 return signature == credentials.signature
