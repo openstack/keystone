@@ -8,7 +8,7 @@
     "links": [{
         "rel": "describedby",
         "type": "application/pdf",
-        "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-RAX-KSGRP-service.pdf"
+        "href": "https://github.com/openstack/keystone/raw/master/keystone/content/service/RAX-KSGRP-service-devguide.pdf"
     }]
  }
 }
