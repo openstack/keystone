@@ -9,5 +9,5 @@
                         enabling groups.
             </description>
             <atom:link rel="describedby" type="application/pdf"
-                        href="http://docs.rackspacecloud.com/identity/api/ext/RAX-KSGRP-service.pdf"/>
+                        href="http://docs.rackspacecloud.com/identity/api/ext/RAX-KSGRP-service-devguide.pdf"/>
 </extension>
