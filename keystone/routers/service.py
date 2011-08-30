@@ -101,17 +101,17 @@ class ServiceApi(wsgi.Router):
                         conditions=dict(method=["GET"]))
         mapper.connect("/xsd/{xsd:.*}",
                         controller=static_files_controller,
-                        action="get_xsd_contract", root="content/service/",
+                        action="get_xsd_contract", root="content/common/",
                         conditions=dict(method=["GET"]))
         mapper.connect("/xsd/atom/{xsd}",
                         controller=static_files_controller,
                         action="get_xsd_atom_contract",
-                        root="content/service/",
+                        root="content/common/",
                         conditions=dict(method=["GET"]))
         mapper.connect("/xsd/atom/{xsd}",
                         controller=static_files_controller,
                         action="get_xsd_atom_contract",
-                        root="content/service/",
+                        root="content/common/",
                         conditions=dict(method=["GET"]))
 
         super(ServiceApi, self).__init__(mapper)

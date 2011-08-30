@@ -17,17 +17,17 @@
     xmlns:capi="http://docs.openstack.org/common/api/v2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 xsd/api.xsd
-    http://docs.openstack.org/common/api/v1.0 xsd/api-common.xsd
+    xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
+    http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
     http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
     ">
 
     <grammars>
-        <include href="xsd/api.xsd"/>
-        <include href="xsd/api-common.xsd"/>
-        <include href="xsd/RAX-KSADM-groups.xsd"/>
-        <include href="xsd/RAX-KSADM-users.xsd"/>        
-        <include href="xsd/RAX-KSADM-credentials.xsd"/>        
+        <include href="../common/xsd/api.xsd"/>
+        <include href="../common/xsd/api-common.xsd"/>
+        <include href="../common/xsd/RAX-KSADM-groups.xsd"/>
+        <include href="../common/xsd/RAX-KSADM-users.xsd"/>        
+        <include href="../common/xsd/RAX-KSADM-credentials.xsd"/>        
     </grammars>
 
     <!--*******************************************************-->

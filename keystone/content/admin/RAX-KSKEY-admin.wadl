@@ -15,15 +15,17 @@
 	xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
 	xmlns:capi="http://docs.openstack.org/common/api/v2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:RAX-KSKEY ="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
-		http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
+	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 xsd/api.xsd
+		http://docs.openstack.org/common/api/v1.0 xsd/api-common.xsd
 		http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
+		http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0 ../service/xsd/RAX-KSKEY-credentials.xsd
 		">
 
     <grammars>
-        <include href="../common/xsd/api.xsd"/>
-        <include href="../common/xsd/api-common.xsd"/>
+        <include href="xsd/api.xsd"/>
+        <include href="xsd/api-common.xsd"/>
     </grammars>
     <!--*******************************************************-->
     <!--             All Resoruces                             -->
@@ -31,141 +33,46 @@
 
     <!-- We should use SSL in production -->
     <resources base="http://localhost:5001">
-        <resource id="version" path="v2.0">
-        	<method href="#getVersionInfo"/>
-
-            <resource id="extensions" path="extensions">
-		        <method href="#listExtensions"/>
-
-                <resource id="extension" path="{alias}">
-                    <param name="alias" style="template" type="xsd:string"/>
-                    <method href="#getExtension"/>
-                </resource>
-            </resource>
-
-            <resource id="tokens" path="tokens">
-                <method href="#authenticate"/>
-
-                <resource id="tokenById" path="{tokenId}">
-                    <param name="tokenId" style="template" type="xsd:string" required="true"/>
-                    <param name="belongsTo" style="query" type="xsd:string" required="false"/>
-                    <method href="#validateToken"/>
-                    <method href="#checkToken"/>
-                    <resource id="endpointsForToken" path="endpoints">
-                        <method href="#listEndpointsForToken"/>
-                    </resource>
-                </resource>
-            </resource>
-
-            <resource id="users" path="users">
-                <param name="username" style="query" type="xsd:string" required="false"/>
-                <method href="#getUserByName"/>
-
-                <resource id="userid" path="{user_id}">
-                    <param name="user_id" style="template" type="xsd:string" required="true"/>
-                    <method href="#getUserById"/>
-
-                    <resource id="userRoles" path="roles">
-                        <method href="#listUserGlobalRoles"/>
-                    </resource>
-                </resource>
-            </resource>
-
-            <resource id="tenants" path="tenants">
-                <param name="name" style="query" type="xsd:string" required="false"/>
-				<method href="#listTenants"/>
-
-                <resource id="tenantById" path="{tenantId}">
-                    <param name="tenantId" style="template" type="xsd:string"/>
-                    <method href="#getTenant"/>
-
-                    <resource id="usersForTenant" path="users">
-                        <resource id="getTenantUser" path="{user_id}">
-                            <param name="user_id" style="template" type="xsd:string"/>
-
-                            <resource id="userRolesForTenant" path="roles">
-                                <method href="#listRolesForUserOnTenant"/>
-                             </resource>
-                        </resource>
+        <resource id="users" path="users">
+            <resource id="userid" path="{user_id}">
+                <param name="user_id" style="template" type="xsd:string" required="true"/>
+                <resource id="userCredentials" path="credentials">
+                    <resource id="RAX-KSKEY-admin-extension" path="RAX-KSKEY-admin">
+                        <resource id="apikeyCredentials" path="apikeyCredentials">
+                            <method href="#addAPIkeyCredentials"/>
+                            <method href="#getAllAPIkeyCredentials"/>
+			    <resource id="credentialTypeAndId" path="{credential_type_and_id}">
+				<param name="credential_type_and_id" style="template" type="xsd:string" required="true"/>
+			    </resource>
+                            <resource id="apikeyCredentialsId" path="{apikeyCredentialsId}">
+                                <param name="apikeyCredentialsId" style="template" type="xsd:string" required="true"/>
+                                <method href="#getAPIkeyCredentialsById"/>    
+                            </resource>
+                       </resource>
                     </resource>
                 </resource>
             </resource>
         </resource>
     </resources>
+    
+    
 
     <!--*******************************************************-->
     <!--               All Methods                             -->
     <!--*******************************************************-->
 
-    <!-- Version -->
-
-    <method name="GET" id="getVersionInfo">
-        <doc xml:lang="EN" title="Version Details">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Returns detailed information about this specific version of the API.
-            </p>
-        </doc>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="capi:version">
-                <param name="location" style="plain" type="xsd:anyURI" required="true" path="/capi:version/atom:link[@rel='self']/@href">
-                    <link resource_type="#VersionDetails" rel="self"/>
-                </param>
-            </representation>
-            <representation mediaType="application/json"/>
-        </response>
-        &commonFaults;
-        &getFaults;
-    </method>
-
-    <!-- Extensions -->
-
-    <method name="GET" id="listExtensions">
-        <doc xml:lang="EN" title="List Extensions">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Lists supported extensions.
-            </p>
-        </doc>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="capi:extensions">
-                <param name="next" style="plain" type="xsd:anyURI" path="/capi:extensions/atom:link[@rel='next']/@href">
-                    <link resource_type="#ExtensionList" rel="next"/>
-                </param>
-                <param name="previous" style="plain" type="xsd:anyURI" path="/capi:extensions/atom:link[@rel='previous']/@href">
-                    <link resource_type="#ExtensionList" rel="previous"/>
-                </param>
-            </representation>
-            <representation mediaType="application/json"/>
-        </response>
-        &commonFaults;
-    </method>
-    <method name="GET" id="getExtension">
-        <doc xml:lang="EN" title="Get Server Details">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Gets details about a specific extension.
-            </p>
-        </doc>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="capi:extension"/>
-            <representation mediaType="application/json"/>
-        </response>
-        &commonFaults;
-        &getFaults;
-    </method>
-
-    <!-- Token Operations -->
-
-    <method name="POST" id="authenticate">
+    <method name="POST" id="addAPIkeyCredentials">
         <doc xml:lang="EN" title="/tokens">
             <p xmlns="http://www.w3.org/1999/xhtml">
-            	Returns a token in exchange for valid credentials.
+                Adds a valid apikeyCredentials.
             </p>
         </doc>
         <request>
-            <representation mediaType="application/xml" element="identity:auth"/>
+            <representation mediaType="application/xml" element="RAX-KSKEY:apikeyCredentials"/>
             <representation mediaType="application/json"/>
         </request>
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:access"/>
+            <representation mediaType="application/xml" element="RAX-KSKEY:apikeyCredentials"/>
             <representation mediaType="application/json"/>
         </response>
         <response status="403">
@@ -173,9 +80,11 @@
             <representation mediaType="application/json"/>
         </response>
         &commonFaults;
-        &getFaults;
+        &postPutFaults;
     </method>
-    <method name="GET" id="validateToken">
+
+
+    <method name="GET" id="getAPIkeyCredentialsByRegion">
         <doc xml:lang="EN" title="/tokens/{token_id}">
             <p xmlns="http://www.w3.org/1999/xhtml">
             	Retrieves a token.

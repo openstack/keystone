@@ -196,12 +196,12 @@ class AdminApi(wsgi.Router):
         mapper.connect("/xsd/{xsd}",
                     controller=static_files_controller,
                     action="get_xsd_contract",
-                    root="content/admin/",
+                    root="content/common/",
                     conditions=dict(method=["GET"]))
         mapper.connect("/xsd/atom/{xsd}",
                     controller=static_files_controller,
                     action="get_xsd_atom_contract",
-                    root="content/admin/",
+                    root="content/common/",
                     conditions=dict(method=["GET"]))
         mapper.connect("/xslt/{file:.*}",
                     controller=static_files_controller,
