@@ -65,7 +65,6 @@
                     <doc>You need a valid admin token for access.</doc>
                 </param>                
                 <method href="#getUserByName"/>
-
                 <resource id="userid" path="{user_id}">
                     <param name="user_id" style="template" type="xsd:string" required="true"/>
                     <method href="#getUserById"/>
@@ -85,7 +84,6 @@
                     </doc>
                 </param>
 				<method href="#listTenants"/>
-
                 <method href="#getTenantByName"/>
                 <resource id="tenantById" path="{tenantId}">
                     <param name="tenantId" style="template" type="xsd:string"/>
@@ -382,6 +380,9 @@
                 <example href="../common/samples/tenant.json" language="javascript"/>
             </examples>
         </doc>
+        <request>
+            <param name="name" style="query" type="xsd:string" required="true"/>
+        </request>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:tenant"/>
             <representation mediaType="application/json"/>
