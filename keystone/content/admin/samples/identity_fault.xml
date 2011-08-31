@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<identityFault xmlns="http://docs.openstack.org/identity/api/v2.0"
+          code="500">
+	<message>Fault</message>
+	<details>Error Details...</details>
+</identityFault>

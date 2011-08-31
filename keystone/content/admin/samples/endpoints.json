@@ -1,0 +1,20 @@
+{
+  "endpoints": [
+    {
+      "id": 1,
+      "href": "https://auth.keystone.com/v2.0/endpoints/1"
+    }, {
+      "id": 2,
+      "href": "https://auth.keystone.com/v2.0/endpoints/2"
+    }, {
+      "id": 3,
+      "href": "https://auth.keystone.com/v2.0/endpoints/3"
+    }, {
+      "id": 4,
+      "href": "https://auth.keystone.com/v2.0/endpoints/4"
+    }, {
+      "id": 5,
+      "href": "https://auth.keystone.com/v2.0/endpoints/5"
+    }
+  ]
+}

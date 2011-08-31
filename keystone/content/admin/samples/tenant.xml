@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tenant xmlns="http://docs.openstack.org/identity/api/v2.0"
+        enabled="true" id="1234" name="ACME Corp">
+    <description>A description...</description>
+</tenant>

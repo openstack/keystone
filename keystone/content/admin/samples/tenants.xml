@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/xml; charset=UTF-8
+Content-Length: 200
+Date: Sun, 1 Jan 2011 9:00:00 GMT
+
+<?xml version="1.0" encoding="UTF-8"?>
+<tenants xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <tenant enabled="true" id="1234" name="ACME Corp">
+        <description>A description...</description>
+    </tenant>
+    <tenant enabled="true" id="3645" name="Iron Works">
+        <description>A description...</description>
+    </tenant>
+</tenants>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tenants xmlns="http://docs.openstack.org/identity/api/v2.0"
+         xmlns:atom="http://www.w3.org/2005/Atom">
+    <tenant enabled="true" id="3645" name="Iron Works">
+        <description>A description...</description>
+    </tenant>
+    <atom:link
+        rel="previous"
+        href="http://identity.api.openstack.org/v2.0/tenants?limit=1"/>
+    <atom:link
+        rel="next"
+        href="http://identity.api.openstack.org/v2.0/tenants?limit=1&amp;marker=3645"/>
+</tenants>

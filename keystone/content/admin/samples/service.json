@@ -1,0 +1,7 @@
+{
+  "service": {
+    "id": "nova",
+    "type": "compute",
+    "description": "A description ..."
+  }
+}

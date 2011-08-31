@@ -44,6 +44,9 @@
             </resource>
 
             <resource id="tokens" path="tokens">
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+                    <doc>You need a valid admin token for access.</doc>
+                </param>                
                 <method href="#authenticate"/>
 
                 <resource id="tokenById" path="{tokenId}">
@@ -58,7 +61,9 @@
             </resource>
 
             <resource id="users" path="users">
-                <param name="username" style="query" type="xsd:string" required="false"/>
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+                    <doc>You need a valid admin token for access.</doc>
+                </param>                
                 <method href="#getUserByName"/>
 
                 <resource id="userid" path="{user_id}">
@@ -72,12 +77,19 @@
             </resource>
 
             <resource id="tenants" path="tenants">
-                <param name="name" style="query" type="xsd:string" required="false"/>
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+                    <doc>
+                        <p xmlns="http://www.w3.org/1999/xhtml">
+                            Optional name of the tenant to retrieve. 
+                        </p>
+                    </doc>
+                </param>
 				<method href="#listTenants"/>
 
+                <method href="#getTenantByName"/>
                 <resource id="tenantById" path="{tenantId}">
                     <param name="tenantId" style="template" type="xsd:string"/>
-                    <method href="#getTenant"/>
+                    <method href="#getTenantById"/>
 
                     <resource id="usersForTenant" path="users">
                         <resource id="getTenantUser" path="{user_id}">
@@ -155,10 +167,35 @@
     <!-- Token Operations -->
 
     <method name="POST" id="authenticate">
-        <doc xml:lang="EN" title="/tokens">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Returns a token in exchange for valid credentials.
+        <doc xml:lang="EN" title="Authenticate for Service API">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
+	      Authenticate to generate a token.
             </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+	      This call will return a token if successful. Each ReST request against other services (or other
+	      calls on Keystone such as the GET /tenants call)
+	      requires the inclusion of a specific authorization token HTTP x-header, defined as X-Auth-Token.
+	      Clients obtain
+	      this token, along with the URL to other service APIs, by first authenticating against the
+	      Keystone Service and supplying valid credentials.
+            </p>
+	    <p xmlns="http://www.w3.org/1999/xhtml">
+	      Client authentication is provided via a ReST interface using the POST method,
+	      with v2.0/tokens supplied as the path. A payload of credentials must be included
+	      in the body.
+	    </p>
+	    <p xmlns="http://www.w3.org/1999/xhtml">
+	      The Keystone Service is a ReSTful web service. It is the entry point to all service APIs.
+	      To access the Keystone Service, you must know URL of the Keystone service.
+	    </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Auth Request">
+                <example href="../common/samples/auth_credentials.xml" language="xml"/>
+                <example href="../common/samples/auth_credentials.json" language="javascript"/>
+	    </examples>
+            <examples xmlns="http://docs.rackspace.com/api" title="Auth Response">
+                <example href="../common/samples/auth.xml" language="xml"/>
+                <example href="../common/samples/auth.json" language="javascript"/>
+            </examples>
         </doc>
         <request>
             <representation mediaType="application/xml" element="identity:auth"/>
@@ -176,17 +213,26 @@
         &getFaults;
     </method>
     <method name="GET" id="validateToken">
-        <doc xml:lang="EN" title="/tokens/{token_id}">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Retrieves a token.
+        <doc xml:lang="EN" title="Validate Token">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
+                Check that a token is valid and that it belongs to a particular user
+                and return the permissions relevant to a particular client.
             </p>
             <p xmlns="http://www.w3.org/1999/xhtml">
-        		Returns token expiration, user info, and the user's roles for the given token.
-			</p>
+                Valid tokens will exist in the
+                <code>/tokens/{tokenId}</code> path and invalid
+                tokens will not.  In other words, a user should expect an
+                itemNotFound (<code>404</code>) fault for an
+                invalid token.
+            </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Validate Token Response">
+                <example href="../common/samples/validatetoken.xml" language="xml"/>
+                <example href="../common/samples/validatetoken.json" language="javascript"/>
+            </examples>
         </doc>
         <request>
             <param name="belongsTo" style="query" required="false" type="xsd:string">
-                <doc xml:lang="EN" title="/tokens/{token_id}?belongsTo={tenant_id}">
+                <doc xml:lang="EN">
                     <p xmlns="http://www.w3.org/1999/xhtml">
                         Validates a token has the supplied tenant in scope.
                     </p>
@@ -201,19 +247,30 @@
         &getFaults;
     </method>
     <method name="HEAD" id="checkToken">
-        <doc xml:lang="EN" title="/tokens/{token_id}">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Validates a token exists (for performance).
+        <doc xml:lang="EN" title="Check Token">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
+                Check that a token is valid and that it belongs to a particular user
+                (For perfromance).
             </p>
         </doc>
         <request>
             <param name="belongsTo" style="query" required="false" type="xsd:string">
-                <doc xml:lang="EN" title="/tokens/{token_id}?belongsTo={tenant_id}">
+                <doc xml:lang="EN">
                     <p xmlns="http://www.w3.org/1999/xhtml">
                         Validates a token has the supplied tenant in scope. (for performance).
                     </p>
                     <p xmlns="http://www.w3.org/1999/xhtml">
+                        Valid tokens will exist in the
+                        <code>/tokens/{tokenId}</code> path and invalid
+                        tokens will not.  In other words, a user should expect an
+                        itemNotFound (<code>404</code>) fault for an
+                        invalid token.
+                    </p>
+                    <p xmlns="http://www.w3.org/1999/xhtml">
                         If `belongsTo` is provided, validates that a token has a specific tenant in scope.
+                    </p>
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        No response body is returned for this method.
                     </p>
                 </doc>
             </param>
@@ -228,11 +285,18 @@
 
     <!--User Operations-->
     <method name="GET" id="getUserByName">
-        <doc xml:lang="EN" title="/users/?username={user_name}">
+        <doc xml:lang="EN" title="Get a User by Name">
             <p xmlns="http://www.w3.org/1999/xhtml">
             	Returns detailed information about a specific user, by user name.
             </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="User Response">
+                <example href="../common/samples/user.xml" language="xml"/>
+                <example href="../common/samples/user.json" language="javascript"/>
+            </examples>
         </doc>
+        <request>
+            <param name="name" style="query" type="xsd:string" required="true"/>
+        </request>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:user"/>
             <representation mediaType="application/json"/>
@@ -241,10 +305,14 @@
         &getFaults;
     </method>
     <method name="GET" id="getUserById">
-        <doc xml:lang="EN" title="/users/{user_id}">
+        <doc xml:lang="EN" title="Get a User by ID">
             <p xmlns="http://www.w3.org/1999/xhtml">
             	Returns detailed information about a specific user, by user id.
             </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="User Response">
+                <example href="../common/samples/user.xml" language="xml"/>
+                <example href="../common/samples/user.json" language="javascript"/>
+            </examples>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:user"/>
@@ -254,10 +322,16 @@
         &getFaults;
     </method>
     <method name="GET" id="listUserGlobalRoles">
-        <doc xml:lang="EN" title="/users/{user_id}/roles">
-            <p xmlns="http://www.w3.org/1999/xhtml">
+        <doc xml:lang="EN" title="List User Global Roles">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
             	Returns global roles for a specific user (excludes tenant roles).
-            </p>
+            	</p>            
+            <p xmlns="http://www.w3.org/1999/xhtml">Returns a list of global roles associated with a specific
+            	    user (excludes tenant roles).</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="User Response">
+                <example href="../common/samples/roles.xml" language="xml"/>
+                <example href="../common/samples/roles.json" language="javascript"/>
+            </examples>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:roles"/>
@@ -270,10 +344,22 @@
     <!-- Tenant Operations -->
 
     <method name="GET" id="listTenants">
-        <doc xml:lang="EN" title="/tenants">
-            <p xmlns="http://www.w3.org/1999/xhtml">
-            	Returns a list of all tenants.
+        <doc xml:lang="EN" title="Get Tenants">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
+            	Get a list of tenants.
             </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+	      The operation returns a list of tenants which the supplied token provides
+	      access to. This call must be authenticated, so a valid token must
+	      be passed in as a header. 
+            </p>
+	    <examples xmlns="http://docs.rackspace.com/api" title="Tenants Request with Auth Token">
+	      <example href="../common/samples/tenants-request.txt" language="text"/>
+	    </examples>
+        <examples xmlns="http://docs.rackspace.com/api" title="Tenants Response">
+	      <example href="../common/samples/tenants.xml" language="xml"/>
+	      <example href="../common/samples/tenants.json" language="javascript"/>
+	    </examples>
         </doc>
         <request>
             <param name="marker" style="query" required="false" type="xsd:string"/>
@@ -287,10 +373,14 @@
         &getFaults;
     </method>
     <method name="GET" id="getTenantByName">
-        <doc xml:lang="EN" title="/tenants/?name={tenant_name}">
-            <p xmlns="http://www.w3.org/1999/xhtml">
+        <doc xml:lang="EN" title="Get tenants by name">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
             	Returns detailed information about a tenant, by name.
             </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Tenant Response">
+                <example href="../common/samples/tenant.xml" language="xml"/>
+                <example href="../common/samples/tenant.json" language="javascript"/>
+            </examples>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:tenant"/>
@@ -300,10 +390,14 @@
         &getFaults;
     </method>
     <method name="GET" id="getTenantById">
-        <doc xml:lang="EN" title="/tenants/{tenant_id}">
-            <p xmlns="http://www.w3.org/1999/xhtml">
+        <doc xml:lang="EN" title="Get Tenants by ID">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
             	Returns detailed information about a tenant, by id.
             </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Tenant Response">
+                <example href="../common/samples/tenant.xml" language="xml"/>
+                <example href="../common/samples/tenant.json" language="javascript"/>
+            </examples>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:tenant"/>
@@ -313,10 +407,14 @@
         &getFaults;
     </method>
     <method name="GET" id="listEndpointsForToken">
-        <doc xml:lang="EN" title="/tokens/{token_id}/endpoints">
+        <doc xml:lang="EN" title="List Endoints for a Token">
             <p xmlns="http://www.w3.org/1999/xhtml">
             	Returns a list of endpoints associated with a specific token.
             </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Tenant Endpoint Response">
+                <example href="../common/samples/endpoints.xml" language="xml"/>
+                <example href="../common/samples/endpoints.json" language="javascript"/>
+            </examples>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:endpoints"/>
@@ -327,10 +425,14 @@
     </method>
     
     <method name="GET" id="listRolesForUserOnTenant">
-        <doc xml:lang="EN" title="/tenants/{tenant_id}/users/{user_id}/roles">
+        <doc xml:lang="EN" title="List Roles for User on Tenant">
             <p xmlns="http://www.w3.org/1999/xhtml">
                 Returns roles for a specific user on a specific tenant (excludes global roles).
             </p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Tenant Roles Response">
+                <example href="../common/samples/roles.xml" language="xml"/>
+                <example href="../common/samples/roles.json" language="javascript"/>
+            </examples>
         </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:roles"/>

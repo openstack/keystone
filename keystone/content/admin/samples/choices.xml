@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<choices
+			xmlns="http://docs.openstack.org/common/api/v2.0"
+			xmlns:atom="http://www.w3.org/2005/Atom">
+	<version id="v1.0" status="DEPRECATED">
+		<media-types>
+			<media-type
+					base="application/xml"
+					type="application/vnd.openstack.identity+xml;version=1.0" />
+			<media-type
+					base="application/json"
+					type="application/vnd.openstack.identity+json;version=1.0" />
+		</media-types>
+		<atom:link rel="self" href="http://identity.api.openstack.org/v1.0" />
+	</version>
+	<version id="v1.1" status="CURRENT">
+		<media-types>
+			<media-type
+					base="application/xml"
+					type="application/vnd.openstack.identity+xml;version=1.1" />
+			<media-type
+					base="application/json"
+					type="application/vnd.openstack.identity+json;version=1.1" />
+		</media-types>
+		<atom:link rel="self" href="http://identity.api.openstack.org/v1.1" />
+	</version>
+	<version id="v2.0" status="BETA">
+		<media-types>
+			<media-type
+					base="application/xml"
+					type="application/vnd.openstack.identity+xml;version=2.0" />
+			<media-type
+					base="application/json"
+					type="application/vnd.openstack.identity+json;version=2.0" />
+		</media-types>
+		<atom:link rel="self" href="http://identity.api.openstack.org/v2.0" />
+	</version>
+</choices>

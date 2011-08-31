@@ -1,0 +1,17 @@
+{
+  "tenants": {
+    "values": [
+      {
+        "id": "1234",
+        "name": "ACME Corp",
+        "description": "A description ...",
+        "enabled": true
+      }, {
+        "id": "3456",
+        "name": "Iron Works",
+        "description": "A description ...",
+        "enabled": true
+      }
+    ]
+  }
+}

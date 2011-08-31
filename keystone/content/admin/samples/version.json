@@ -1,0 +1,30 @@
+{
+  "version": {
+    "id": "v2.0",
+    "status": "CURRENT",
+    "updated": "2011-01-21T11:33:21-06:00",
+    "links": [
+      {
+        "rel": "self",
+        "href": "http://identity.api.openstack.org/v2.0/"
+      }, {
+        "rel": "describedby",
+        "type": "application/pdf",
+        "href": "http://docs.openstack.org/identity/api/v2.0/identity-latest.pdf"
+      }, {
+        "rel": "describedby",
+        "type": "application/vnd.sun.wadl+xml",
+        "href": "http://docs.openstack.org/identity/api/v2.0/identity.wadl"
+      }
+    ],
+    "media-types": [
+      {
+        "base": "application/xml",
+        "type": "application/vnd.openstack.identity+xml;version=2.0"
+      }, {
+        "base": "application/json",
+        "type": "application/vnd.openstack.identity+json;version=2.0"
+      }
+    ]
+  }
+}
