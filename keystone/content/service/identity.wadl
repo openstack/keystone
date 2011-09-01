@@ -46,7 +46,6 @@
                 <method href="#authenticate"/>
             </resource>
             <resource id="tenants" path="tenants">
-                <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                 <method href="#listTenants"/>
             </resource>
         </resource>

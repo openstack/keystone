@@ -15,6 +15,7 @@
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
     <include schemaLocation="roles.xsd"/>
+    <include schemaLocation="services.xsd"/>
     
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
@@ -78,6 +79,7 @@
         <attribute name="username" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
+    
     <complexType name="ServiceCatalog">
         <annotation>
             <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
@@ -107,7 +109,7 @@
             </xsd:appinfo>
         </annotation>
         <sequence>
-            <element name="service" type="identity:Service" minOccurs="1" maxOccurs="unbounded">
+            <element name="service" type="identity:ServiceForCatalog" minOccurs="1" maxOccurs="unbounded">
                 <annotation>
                     <xsd:documentation
                             xml:lang="EN"
@@ -123,7 +125,8 @@
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    <complexType name="Service">
+    
+    <complexType name="ServiceForCatalog">
         <sequence>
             <element name="endpoint" type="identity:EndpointForService" minOccurs="1" maxOccurs="unbounded">
                 <annotation>
@@ -163,6 +166,7 @@
         </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
+    
     <complexType name="EndpointForService">
         <attribute name="region" type="xsd:string" use="optional">
             <annotation>
@@ -217,88 +221,5 @@
         </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
-    <!-- Simple Types -->
-    <simpleType name="ExtensibleServiceType">
-        <annotation>
-            <xsd:documentation
-                xml:lang="EN"
-                xmlns="http://www.w3.org/1999/xhtml">
-                <p>
-                    An extensible service type allows all of the
-                    strings defined in <a href="#type_ServiceType"
-                        title="See definition of
-                        ServiceType">ServiceType</a> or an
-                    alias prefixed status.
-                </p>
-            </xsd:documentation>
-        </annotation>
-        <union memberTypes="identity:ServiceType identity:ExtendedService"/>
-    </simpleType>
-    
-    <simpleType name="ServiceType">
-        <restriction base="xsd:string">
-            <enumeration value="compute">
-                <annotation>
-                    <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
-                        <p>
-                            The type for an OpenStack Compute API 1.1 compatible service.
-                        </p>
-                    </xsd:documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="object-store">
-                <annotation>
-                    <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
-                        <p>
-                            The type for a Swift-compatible service.
-                        </p>
-                    </xsd:documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="image-service">
-                <annotation>
-                    <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
-                        <p>
-                            The type for a Glance-compatible service
-                        </p>
-                    </xsd:documentation>
-                </annotation>
-            </enumeration>
-            <enumeration value="identity">
-                <annotation>
-                    <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
-                        <p>
-                            The type for a Keystone-compatible service.
-                        </p>
-                    </xsd:documentation>
-                </annotation>
-            </enumeration>
-        </restriction>
-    </simpleType>
-    
-    <simpleType name="ExtendedService">
-        <annotation>
-            <xsd:documentation
-                xml:lang="EN"
-                xmlns="http://www.w3.org/1999/xhtml">
-                <p>
-                    A non-core service type which must contain an extension prefix.
-                </p>
-            </xsd:documentation>
-        </annotation>
-        <restriction base="xsd:string">
-            <pattern value="\w+-\w+:\w+"/>
-        </restriction>
-    </simpleType>
-    
 </schema>
 

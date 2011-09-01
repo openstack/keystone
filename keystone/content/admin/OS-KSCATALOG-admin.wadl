@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- (C) 2011 OpenStack LLC., All Rights Reserved -->
+<!--*******************************************************-->
+<!--         Import Common XML Entities                    -->
+<!--                                                       -->
+<!--     You can resolve the entites with xmllint          -->
+<!--                                                       -->
+<!--        xmllint -noent OS-KSCATALOG-admin.wadl         -->
+<!--*******************************************************-->
+<!DOCTYPE application [
+<!ENTITY % common  SYSTEM "../common/common.ent">
+%common;
+]>
+
+<application xmlns="http://wadl.dev.java.net/2009/02"
+	xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+	xmlns:OS-KSCATALOG="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0"
+	xmlns:capi="http://docs.openstack.org/common/api/v2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
+		http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
+		http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
+		http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0 ../common/xsd/OS-KSCATALOG-endpointtemplates.xsd
+		">
+
+    <grammars>
+        <include href="../common/xsd/api.xsd"/>
+        <include href="../common/xsd/api-common.xsd"/>
+    </grammars>
+    <!--*******************************************************-->
+    <!--             All Resoruces                             -->
+    <!--*******************************************************-->
+
+    <!-- We should use SSL in production -->
+    <resources base="http://localhost:5001">
+        <resource id="version" path="v2.0">
+
+            <resource id="tenants" path="tenants">
+                <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                <resource id="tenantId" path="{tenantId}">
+                    <param name="tenantId" style="template" type="xsd:string"/>
+                    <resource id="endpoints-OS-KSCATALOG" path="OS-KSCATALOG">                    
+                        <resource id="endpoints" path="endpoints">
+                            <method href="#getEndpoints"/>
+                            <method href="#addEndpoint"/>
+                            <resource id="endpoint" path="{endpointId}">
+                                <param name="endpointId" style="template" type="xsd:string"/>
+                                <method href="#getEndpoint"/>
+                                <method href="#deleteEndpoint"/>
+                            </resource>
+                        </resource>
+                     </resource>
+                </resource>    
+            </resource>
+            
+            <resource id="role-service-OS-KSCATALOG" path="OS-KSCATALOG">
+                <resource id="endpointTemplates" path="endpointTemplates">
+                    <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                    <method href="#listEndpointTemplates"/>
+                    <method href="#addEndpointTemplate"/>
+                    <resource id="endpointTemplateId" path="{endpointTemplateId}">
+                        <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
+                        <param name="endpointTemplateId" style="template" type="xsd:int"/>
+                        <method href="#getEndpointTemplate"/>
+                        <method href="#deleteEndpointTemplate"/>
+                    </resource>
+                </resource>
+            </resource>
+        </resource>
+    </resources>
+
+    <!--*******************************************************-->
+    <!--               All Methods                             -->
+    <!--*******************************************************-->
+
+    <!-- EndPoint Templates -->
+    
+    <method name="GET" id="listEndpointTemplates">
+        <request>
+            <param name="serviceId" style="query" required="false" type="xsd:string"/>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplates"/>
+            <representation mediaType="application/json"/>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+    
+    <method name="GET" id="getEndpointTemplate">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate"/>
+            <representation mediaType="application/json"/>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+    
+    <method name="POST" id="addEndpointTemplate">
+        <request>
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="201">
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+            <representation mediaType="application/json">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+        &postPutFaults;
+    </method>
+    
+    <method name="DELETE" id="deleteEndpointTemplate">
+        <response status="204"/>
+        &commonFaults;
+        &getFaults;
+    </method>
+    
+    <method name="POST" id="addEndpoint">
+        <request>
+            <representation mediaType="application/xml" element="identity:endpoint"/>
+            <representation mediaType="application/json"/>
+        </request>
+        <response status="201">
+            <representation mediaType="application/xml" element="identity:endpoint">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+            <representation mediaType="application/json">
+                <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+        &postPutFaults;
+    </method>
+    
+    <method name="GET" id="getEndpoints">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:endpoints"/>
+            <representation mediaType="application/json"/>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+    
+    <method name="GET" id="getEndpoint">
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:endpoint"/>
+            <representation mediaType="application/json"/>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+    
+    <method name="DELETE" id="deleteEndpoint">
+        <response status="204"/>
+        &commonFaults;
+        &getFaults;
+    </method>
+</application>
