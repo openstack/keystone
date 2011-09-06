@@ -21,12 +21,13 @@
 	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
 		http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
 		http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
-		http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0 ../common/xsd/OS-KSCATALOG-endpointtemplates.xsd
+		http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0 ../common/xsd/OS-KSCATALOG.xsd
 		">
 
     <grammars>
         <include href="../common/xsd/api.xsd"/>
         <include href="../common/xsd/api-common.xsd"/>
+        <include href="../common/xsd/OS-KSCATALOG.xsd"/>
     </grammars>
     <!--*******************************************************-->
     <!--             All Resoruces                             -->

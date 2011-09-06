@@ -20,6 +20,7 @@
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
 
+
     <element name="endpointTemplates" type="OS-KSCATALOG:EndpointTemplateList">
         <annotation>
             <xsd:documentation

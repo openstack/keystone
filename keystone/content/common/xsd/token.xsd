@@ -14,9 +14,10 @@
     xmlns:atom="http://www.w3.org/2005/Atom"
     targetNamespace="http://docs.openstack.org/identity/api/v2.0"
 >
+ 
     <include schemaLocation="roles.xsd"/>
     <include schemaLocation="services.xsd"/>
-    
+       
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
         schemaLocation="atom/atom.xsd" />
@@ -143,10 +144,10 @@
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <attribute name="type" type="identity:ExtensibleServiceType" use="required">
-          <annotation>
+            <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The OpenStack-registered type (e.g. 'compute', 'object-store', etc).
                     </p>
@@ -156,8 +157,8 @@
         <attribute name="name" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The commercial service name (e.g. 'My Nova Cloud Servers').
                     </p>
@@ -167,12 +168,28 @@
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
     
+    <!--EndpointForService-->
     <complexType name="EndpointForService">
+        <sequence>
+            <element name="version" type="identity:VersionForEndpointForService" maxOccurs="1" minOccurs="0">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            Version details.
+                        </p>
+                    </xsd:documentation>
+                </annotation>               
+            </element>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
         <attribute name="region" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         The name of the region where the endpoint
                         lives. Example: airport codes; LHR (UK),
@@ -181,13 +198,24 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
+        <attribute name="tenantId" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        Tenant id to which the endpoints belong.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
         <attribute name="publicURL" type="xsd:anyURI" use="required">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The publically accessible service URL.
+                        Public accessible service URL.
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -195,8 +223,8 @@
         <attribute name="internalURL" type="xsd:anyURI" use="optional">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         A service URL, accessible only locally within that
                         cloud (generally over a high bandwidth, low latency,
@@ -208,8 +236,8 @@
         <attribute name="adminURL" type="xsd:anyURI" use="optional">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
                         An Admin URL (used for administration using privileged
                         calls). This may expose
@@ -220,6 +248,43 @@
             </annotation>
         </attribute>
         <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+    
+    <!-- VersionForEndpointForService -->
+    <complexType name="VersionForEndpointForService">
+        <attribute name="id" type="xsd:string" use="required">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                       Id of the version.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="info" type="xsd:anyURI" use="required">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        URI to get the information specific to this version.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="list" type="xsd:anyURI" use="required">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        URI to get the information about all versions.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
     </complexType>
 </schema>
 
