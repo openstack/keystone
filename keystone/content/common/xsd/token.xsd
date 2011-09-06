@@ -77,7 +77,7 @@
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <attribute name="id" type="xsd:string"/>
-        <attribute name="username" type="xsd:string"/>
+        <attribute name="name" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
     
@@ -171,7 +171,7 @@
     <!--EndpointForService-->
     <complexType name="EndpointForService">
         <sequence>
-            <element name="version" type="identity:VersionForEndpointForService" maxOccurs="1" minOccurs="0">
+            <element name="version" type="identity:VersionForService" maxOccurs="1" minOccurs="0">
                 <annotation>
                     <xsd:documentation
                         xml:lang="EN"
@@ -250,8 +250,8 @@
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
     
-    <!-- VersionForEndpointForService -->
-    <complexType name="VersionForEndpointForService">
+    <!-- VersionForService -->
+    <complexType name="VersionForService">
         <attribute name="id" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation
@@ -285,6 +285,7 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
+        <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 </schema>
 

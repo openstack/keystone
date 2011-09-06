@@ -15,12 +15,13 @@
         xmlns:atom="http://www.w3.org/2005/Atom"
         targetNamespace="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0"
     >
-    
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
 
-
+    <import namespace="http://docs.openstack.org/identity/api/v2.0"
+        schemaLocation="api.xsd" />
+    
     <element name="endpointTemplates" type="OS-KSCATALOG:EndpointTemplateList">
         <annotation>
             <xsd:documentation
@@ -47,6 +48,21 @@
 
     <!-- Complex Types -->
     <complexType name="EndpointTemplate">
+        <sequence>
+            <element name="version" type="identity:VersionForService" maxOccurs="1" minOccurs="0">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            Version details.
+                        </p>
+                    </xsd:documentation>
+                </annotation>               
+            </element>
+            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
         <attribute name="id" type="xsd:int" use="required">
             <annotation>
                 <xsd:documentation
@@ -58,13 +74,24 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="serviceName" type="xsd:string" use="required">
+        <attribute name="type" type="identity:ExtensibleServiceType" use="required">
             <annotation>
                 <xsd:documentation
-                        xml:lang="EN"
-                        xmlns="http://www.w3.org/1999/xhtml">
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
                     <p>
-                        The service name of Endpoint Template.
+                        The OpenStack-registered type (e.g. 'compute', 'object-store', etc).
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="name" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The commercial service name (e.g. 'My Nova Cloud Servers').
                     </p>
                 </xsd:documentation>
             </annotation>
@@ -147,5 +174,4 @@
         </sequence>
          <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-
 </schema>

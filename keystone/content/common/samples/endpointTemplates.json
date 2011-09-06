@@ -1,5 +1,5 @@
 {
-  "endpointsTemplates": [
+"OS-KSCATALOG:endpointsTemplates": [
     {
       "id": 1,
       "region": "North",
@@ -14,7 +14,7 @@
     }, {
       "id": 2,
       "region": "South",
-      "serviceName": "compute",
+      "type": "compute",
       "publicURL": "https://compute.south.public.com/v1",
       "internalURL": "https://compute.south.internal.com/v1",
       "versionId": "1",
@@ -25,7 +25,7 @@
       "id": 3,
       "region": "North",
       "global": true,
-      "serviceName": "object-store",
+      "type": "object-store",
       "publicURL": "https://object-store.north.public.com/v1.0",
       "versionId": "1.0",
       "versionInfo": "https://object-store.north.public.com/v1.0/",
@@ -34,7 +34,7 @@
     }, {
       "id": 4,
       "region": "South",
-      "serviceName": "object-store",
+      "type": "object-store",
       "publicURL": "https://object-store.south.public.com/v2",
       "versionId": "2",
       "versionInfo": "https://object-store.south.public.com/v2/",
@@ -43,7 +43,7 @@
     }, {
       "id": 5,
       "global": true,
-      "serviceName": "OS-DNS:DNS",
+      "type": "OS-DNS:DNS",
       "publicURL": "https://dns.public.com/v3.2",
       "versionId": "1.0",
       "versionInfo": "https://dns.public.com/v1.0/",

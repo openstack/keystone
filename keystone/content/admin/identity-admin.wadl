@@ -238,7 +238,7 @@
             </param>
         </request>
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:auth"/>
+            <representation mediaType="application/xml" element="identity:access"/>
             <representation mediaType="application/json"/>
         </response>
         &commonFaults;
@@ -274,7 +274,7 @@
             </param>
         </request>
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:auth"/>
+            <representation mediaType="application/xml" element="identity:access"/>
             <representation mediaType="application/json"/>
         </response>
         &commonFaults;

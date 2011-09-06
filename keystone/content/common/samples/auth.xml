@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <access xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../xsd/token.xsd"
+xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../xsd/api.xsd"
 xmlns="http://docs.openstack.org/identity/api/v2.0">
 	<token expires="2010-11-01T03:32:15-05:00"
 	id="ab48a9efdfedb23ty3494"/>
-	<user>
+	<user id="testId" name="test">
 		<roles>
 			<role id="compute:admin"></role>
 		</roles>

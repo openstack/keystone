@@ -1,5 +1,5 @@
 {
-  "services": [
+"OS-KSADM:services": [
     {
       "id": "nova",
       "type": "compute",
