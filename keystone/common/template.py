@@ -93,10 +93,10 @@ class BaseTemplate(object):
         if not self.source and self.name:
             self.filename = self.search(self.name, self.lookup)
             if not self.filename:
-                raise TemplateError('Template %s not found.'
-                    % repr(name), sys.exc_info())
+                raise TemplateError('Template %s not found' % repr(name),
+                                    (0, 0), None)
         if not self.source and not self.filename:
-            raise TemplateError('No template specified.')
+            raise TemplateError('No template specified', (0, 0), None)
         self.prepare(**self.settings)
 
     @classmethod
