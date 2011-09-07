@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<endpoint xmlns="http://docs.openstack.org/identity/api/v2.0"
-            id="3"
-            href="https://auth.keystone.com/v2.0/endpoints/3"
-/>
+<endpoint
+            id="1" 
+            type="compute"
+            name="Compute"
+            region="North"
+            publicURL="https://compute.north.public.com/v1"
+            internalURL="https://compute.north.internal.com/v1"
+            adminURL="https://compute.north.internal.com/v1"
+            xmlns="http://docs.openstack.org/identity/api/v2.0">
+            <version
+                        id="1"
+                        info="https://compute.north.public.com/v1/"
+                        list="https://compute.north.public.com/"
+            />
+</endpoint>

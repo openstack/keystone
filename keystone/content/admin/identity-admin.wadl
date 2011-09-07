@@ -44,12 +44,11 @@
             </resource>
 
             <resource id="tokens" path="tokens">
-                <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
-                    <doc>You need a valid admin token for access.</doc>
-                </param>                
                 <method href="#authenticate"/>
-
                 <resource id="tokenById" path="{tokenId}">
+		        <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+		            <doc>You need a valid admin token for access.</doc>
+		        </param>                
                     <param name="tokenId" style="template" type="xsd:string" required="true"/>
                     <param name="belongsTo" style="query" type="xsd:string" required="false"/>
                     <method href="#validateToken"/>
@@ -79,19 +78,19 @@
                 <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
                     <doc>
                         <p xmlns="http://www.w3.org/1999/xhtml">
-                            Optional name of the tenant to retrieve. 
+                            You need a valid admin token for access.
                         </p>
                     </doc>
                 </param>
-				<method href="#listTenants"/>
+		<method href="#listTenants"/>
                 <method href="#getTenantByName"/>
                 <resource id="tenantById" path="{tenantId}">
-                    <param name="tenantId" style="template" type="xsd:string"/>
+                    <param name="tenantId" style="template" type="xsd:string" required="true"/>
                     <method href="#getTenantById"/>
 
                     <resource id="usersForTenant" path="users">
                         <resource id="getTenantUser" path="{user_id}">
-                            <param name="user_id" style="template" type="xsd:string"/>
+                            <param name="user_id" style="template" type="xsd:string" required="true"/>
 
                             <resource id="userRolesForTenant" path="roles">
                                 <method href="#listRolesForUserOnTenant"/>
@@ -248,7 +247,7 @@
         <doc xml:lang="EN" title="Check Token">
             <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
                 Check that a token is valid and that it belongs to a particular user
-                (For perfromance).
+                (For performance).
             </p>
         </doc>
         <request>

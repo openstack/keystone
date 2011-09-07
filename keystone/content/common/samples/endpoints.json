@@ -2,19 +2,49 @@
   "endpoints": [
     {
       "id": 1,
-      "href": "https://auth.keystone.com/v2.0/endpoints/1"
+      "region": "North",
+      "type": "compute",
+      "publicURL": "https://compute.north.public.com/v1",
+      "internalURL": "https://compute.north.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.north.public.com/v1/",
+      "versionList": "https://compute.north.public.com/"
     }, {
       "id": 2,
-      "href": "https://auth.keystone.com/v2.0/endpoints/2"
-    }, {
+      "region": "South",
+      "type": "compute",
+      "publicURL": "https://compute.north.public.com/v1",
+      "internalURL": "https://compute.north.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.north.public.com/v1/",
+      "versionList": "https://compute.north.public.com/"
+      }, {
       "id": 3,
-      "href": "https://auth.keystone.com/v2.0/endpoints/3"
-    }, {
+      "region": "East",
+      "type": "compute",
+      "publicURL": "https://compute.north.public.com/v1",
+      "internalURL": "https://compute.north.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.north.public.com/v1/",
+      "versionList": "https://compute.north.public.com/"
+      }, {
       "id": 4,
-      "href": "https://auth.keystone.com/v2.0/endpoints/4"
-    }, {
+      "region": "West",
+      "type": "compute",
+      "publicURL": "https://compute.north.public.com/v1",
+      "internalURL": "https://compute.north.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.north.public.com/v1/",
+      "versionList": "https://compute.north.public.com/"
+      }, {
       "id": 5,
-      "href": "https://auth.keystone.com/v2.0/endpoints/5"
-    }
+      "region": "Global",
+      "type": "compute",
+      "publicURL": "https://compute.north.public.com/v1",
+      "internalURL": "https://compute.north.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.north.public.com/v1/",
+      "versionList": "https://compute.north.public.com/"
+      }
   ]
 }

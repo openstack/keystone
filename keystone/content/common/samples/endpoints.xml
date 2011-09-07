@@ -3,18 +3,68 @@
 <endpoints
     xmlns="http://docs.openstack.org/identity/api/v2.0">
   <endpoint
-      href="https://auth.keystone.com/v2.0/endpoints/1"
-      id="1" />
+      id="1" 
+      type="compute"
+      name="Compute"
+      region="North"
+      publicURL="https://compute.north.public.com/v1"
+      internalURL="https://compute.north.internal.com/v1"
+      adminURL="https://compute.north.internal.com/v1">
+      <version
+          id="1"
+          info="https://compute.north.public.com/v1/"
+          list="https://compute.north.public.com/"
+      />
+  </endpoint>
   <endpoint
-      href="https://auth.keystone.com/v2.0/endpoints/2"
-      id="2" />
+      id="2" 
+      type="compute"
+      name="Compute"
+      region="South"
+      publicURL="https://compute.north.public.com/v1"
+      internalURL="https://compute.north.internal.com/v1"
+      adminURL="https://compute.north.internal.com/v1">
+      <version
+          id="1"
+          info="https://compute.north.public.com/v1/"
+          list="https://compute.north.public.com/"
+      />
+  </endpoint>
   <endpoint
-      href="https://auth.keystone.com/v2.0/endpoints/3"
-      id="3" />
+      id="3" 
+      type="compute"
+      name="Compute"
+      region="East"
+      publicURL="https://compute.north.public.com/v1"
+      internalURL="https://compute.north.internal.com/v1"
+      adminURL="https://compute.north.internal.com/v1"
+  />
   <endpoint
-      href="https://auth.keystone.com/v2.0/endpoints/4"
-      id="4" />
+      id="4" 
+      type="compute"
+      name="Compute"
+      region="West"
+      publicURL="https://compute.north.public.com/v1"
+      internalURL="https://compute.north.internal.com/v1"
+      adminURL="https://compute.north.internal.com/v1">
+      <version
+          id="1"
+          info="https://compute.north.public.com/v1/"
+          list="https://compute.north.public.com/"
+      />
+  </endpoint>
   <endpoint
-      href="https://auth.keystone.com/v2.0/endpoints/5"
-      id="5" />
+      id="5" 
+      type="compute"
+      name="Compute"
+      region="Global"
+      publicURL="https://compute.north.public.com/v1"
+      internalURL="https://compute.north.internal.com/v1"
+      adminURL="https://compute.north.internal.com/v1">
+      <version
+          id="1"
+          info="https://compute.north.public.com/v1/"
+          list="https://compute.north.public.com/"
+      />
+  </endpoint>
 </endpoints>
