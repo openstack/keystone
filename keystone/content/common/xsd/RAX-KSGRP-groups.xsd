@@ -17,8 +17,12 @@
     <!--Import schema we are extending -->
     <import namespace="http://docs.openstack.org/identity/api/v2.0"
         schemaLocation="token.xsd"/>
+
+    <import namespace="http://docs.openstack.org/identity/api/v2.0"
+        schemaLocation="api.xsd" />
     
-    <element name="groups" type="RAX-KSGRP:Group"/>
+    
+    <element name="groups" type="RAX-KSGRP:Groups"/>
     
     <complexType name="Groups">
         <sequence>
@@ -29,8 +33,12 @@
     </complexType>
     
     <complexType name="Group">
+        <sequence>
+            <element name="description" type="xsd:string" maxOccurs="1"/>
+            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
         <attribute name="id" type="xsd:string" use="required"/>
-        <attribute name="name" type="xsd:string" use="required"/>
+        <attribute name="name" type="xsd:string" use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 

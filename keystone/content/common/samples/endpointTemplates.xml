@@ -11,57 +11,57 @@
    internalURL="https://compute.north.internal.com/v1" 
    enabled="true">
    <version
-     ID="1"
-     List="https://compute.north.public.com/"
-     Info="https://compute.north.public.com/v1"/>
+     id="1"
+     list="https://compute.north.public.com/"
+     info="https://compute.north.public.com/v1"/>
   </endpointTemplate>
   <endpointTemplate
    id="2" 
    region="south"
-   type="service"
+   type="compute"
    name="Compute"
    publicURL="https://service2.public.com/v1"
    internalURL="https://service2.internal.public.com/v1" 
    enabled="false">
    <version
-    ID="1"
-    List="https://service1.public.com/"
-    Info="https://service1.public.com/v1"/>
+    id="1"
+    list="https://service1.public.com/"
+    info="https://service1.public.com/v1"/>
   </endpointTemplate>
   <endpointTemplate
    id="3" 
    region="DFW" 
    global="true"
-   type="service1"
+   type="ext1:service1"
    name="Compute"
    publicURL="https://service1.public.com/v1" 
    enabled="true">
    <version
-    ID="1"
-    List="https://service1.public.com/"
-    Info="https://service1.public.com/v1"/>
+    id="1"
+    list="https://service1.public.com/"
+    info="https://service1.public.com/v1"/>
   </endpointTemplate>
   <endpointTemplate
    id="4" 
    region="ORD"
-   type="service3"
+   type="compute"
    name="Compute"
    publicURL="https://service2.public.com/v1" 
    enabled="true">
    <version
-    ID="1"
-    List="https://service1.public.com/"
-    Info="https://service1.public.com/v1"/>
+    id="1"
+    list="https://service1.public.com/"
+    info="https://service1.public.com/v1"/>
   </endpointTemplate>
   <endpointTemplate
    id="5" 
    global="true"
-   type="service4"
+   type="compute"
    name="Compute"
    publicURL="https://service3.public.com/v1">
    <version
-    ID="1"
-    List="https://service1.public.com/"
-    Info="https://service1.public.com/v1"/>
+    id="1"
+    list="https://service1.public.com/"
+    info="https://service1.public.com/v1"/>
   </endpointTemplate>
 </endpointTemplates>

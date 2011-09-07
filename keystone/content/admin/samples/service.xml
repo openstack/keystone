@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<service xmlns="http://docs.openstack.org/identity/api/v2.0" id="nova"
- type="compute" description="OpenStack Compute Service" />

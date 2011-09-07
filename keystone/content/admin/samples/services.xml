@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<services xmlns="http://docs.openstack.org/identity/api/v2.0">
-  <service id="Nova" type="compute" description="Openstack Service" />
-  <service id="Glance" type="image-service" description="Openstack Service" />
-</services>

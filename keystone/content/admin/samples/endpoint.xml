@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<endpoint xmlns="http://docs.openstack.org/identity/api/v2.0"
-            id="3"
-            href="https://auth.keystone.com/v2.0/endpoints/3"
-/>

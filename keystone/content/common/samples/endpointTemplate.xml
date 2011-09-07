@@ -11,8 +11,8 @@
   internalURL="https://service-internal.com/v1" 
   enabled="true">
   <version
-    ID="1"
-    Info="https://compute.north.public.com/v1/"
-    List="https://compute.north.public.com/"
+    id="1"
+    info="https://compute.north.public.com/v1/"
+    list="https://compute.north.public.com/"
   />
 </endpointTemplate>

@@ -4,16 +4,13 @@
            id="ab48a9efdfedb23ty3494"/>
     <serviceCatalog>
         <service type="compute" name="Computers in the Cloud">
-            <endpoint
-                    region="North"
-                    tenantId="1234"
-										publicURL="https://north.compute.public.com/v2.0/1234"
-                    internalURL="https://north.compute.internal.com/v2.0/1234">
-							<version
-											id="2.0"
-											info="https://north.compute.public.com/v2.0/"
-											list="https://north.compute.public.com/" />
-						</endpoint>
+			<endpoint region="North" tenantId="1234"
+				publicURL="https://north.compute.public.com/v2.0/1234"
+				internalURL="https://north.compute.internal.com/v2.0/1234">
+				<version id="2.0"
+					info="https://north.compute.public.com/v2.0/"
+					list="https://north.compute.public.com/"/>
+			</endpoint>
             <endpoint
                     region="South"
                     tenantId="3456"
@@ -63,8 +60,8 @@
 	  <role id="Admin" tenantId="1234" description="All Access" />
 	</roles>
 	<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
-	    <group xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0" id="test_global_group_add">
-		<description>A Description of the group</description>
+	    <group id="test_global_group_add">
+			<description>A Description of the group</description>
 	    </group>
 	</groups>	
     </user>

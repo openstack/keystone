@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<tenant xmlns="http://docs.openstack.org/identity/api/v2.0">
-    <description>A NEW description...</description>
-</tenant>

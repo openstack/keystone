@@ -65,7 +65,7 @@
         <sequence>
             <element name="token" type="identity:Token"/>
             <element name="user" type="identity:UserForAuthenticateResponse"/>
-            <element name="serviceCatalog" type="identity:ServiceCatalog"/>
+            <element name="serviceCatalog" type="identity:ServiceCatalog" minOccurs="0"/>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
