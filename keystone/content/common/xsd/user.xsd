@@ -45,7 +45,7 @@
 
     <!-- Complex Types -->
     <complexType name="User">
-        <attribute name="id" type="xsd:ID" use="required">            
+        <attribute name="id" type="xsd:ID" use="optional">            
             <annotation>
                 <xsd:documentation
                     xml:lang="EN"

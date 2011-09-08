@@ -25,6 +25,7 @@
         <include href="../common/xsd/api.xsd"/>
         <include href="../common/xsd/api-common.xsd"/>
     </grammars>
+
     <!--*******************************************************-->
     <!--             All Resoruces                             -->
     <!--*******************************************************-->
@@ -103,6 +104,23 @@
     </resources>
 
     <!--*******************************************************-->
+    <!--               Resource Types                          -->
+    <!--*******************************************************-->
+    
+    <resource_type id="VersionDetails">
+        <method href="#getVersionInfo"/>
+    </resource_type>
+    
+    <resource_type id="ExtensionList">
+        <doc xml:lang="EN" title="Extension List">
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                A list of supported extensions.
+            </p>
+        </doc>
+        <method href="#listExtensions"/>
+    </resource_type>
+    
+    <!--*******************************************************-->
     <!--               All Methods                             -->
     <!--*******************************************************-->
 
@@ -148,7 +166,7 @@
         &commonFaults;
     </method>
     <method name="GET" id="getExtension">
-        <doc xml:lang="EN" title="Get Server Details">
+        <doc xml:lang="EN" title="Get Extension Details">
             <p xmlns="http://www.w3.org/1999/xhtml">
             	Gets details about a specific extension.
             </p>
