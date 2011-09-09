@@ -43,7 +43,7 @@
                     <param name="tenantId" style="template" type="xsd:string"/>
                     <resource id="endpoints-OS-KSCATALOG" path="OS-KSCATALOG">                    
                         <resource id="endpoints" path="endpoints">
-                            <method href="#getEndpoints"/>
+                            <method href="#listEndpoints"/>
                             <method href="#addEndpoint"/>
                             <resource id="endpoint" path="{endpointId}">
                                 <param name="endpointId" style="template" type="xsd:string"/>
@@ -78,6 +78,13 @@
     <!-- EndPoint Templates -->
     
     <method name="GET" id="listEndpointTemplates">
+        <doc xml:lang="EN" title="List Endpoint Templates">
+            <p xmlns="http://www.w3.org/1999/xhtml">List Endpoint Templates.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="List Endpont Templates Response">
+                <example href="../common/samples/endpointTemplates.xml" language="xml"/>
+                <example href="../common/samples/endpointTemplates.json" language="javascript"/>
+            </examples>
+        </doc>        
         <request>
             <param name="serviceId" style="query" required="false" type="xsd:string"/>
         </request>
@@ -90,6 +97,13 @@
     </method>
     
     <method name="GET" id="getEndpointTemplate">
+        <doc xml:lang="EN" title="Get Endpoint Template">
+            <p xmlns="http://www.w3.org/1999/xhtml">Get Endpoint Template.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Get Endpont Template Response">
+                <example href="../common/samples/endpointTemplate.xml" language="xml"/>
+                <example href="../common/samples/endpointTemplate.json" language="javascript"/>
+            </examples>
+        </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate"/>
             <representation mediaType="application/json"/>
@@ -99,6 +113,17 @@
     </method>
     
     <method name="POST" id="addEndpointTemplate">
+        <doc xml:lang="EN" title="Add Endpoint Template">
+            <p xmlns="http://www.w3.org/1999/xhtml">Add Endpoint Template.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Add Endpoint Template Request">
+                <example href="../common/samples/endpointTemplate.xml" language="xml"/>
+                <example href="../common/samples/endpointTemplate.json" language="javascript"/>
+            </examples>
+            <examples xmlns="http://docs.rackspace.com/api" title="Add Endpoint Template Response">
+                <example href="../common/samples/endpointTemplate.xml" language="xml"/>
+                <example href="../common/samples/endpointTemplate.json" language="javascript"/>
+            </examples>
+        </doc>
         <request>
             <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate"/>
             <representation mediaType="application/json"/>
@@ -117,12 +142,29 @@
     </method>
     
     <method name="DELETE" id="deleteEndpointTemplate">
+        <doc xml:lang="EN" title="Delete Endpoint Template.">
+            <p xmlns="http://www.w3.org/1999/xhtml">Delete a Endpoint Template.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Delete Endpoint Template Request">
+                <example href="../common/samples/norequestbody.txt"/>
+            </examples>
+        </doc>    
         <response status="204"/>
         &commonFaults;
         &getFaults;
     </method>
     
     <method name="POST" id="addEndpoint">
+        <doc xml:lang="EN" title="Add Endpoint">
+            <p xmlns="http://www.w3.org/1999/xhtml">Add Endpoint to a tenant.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Add Endpoint Request">
+                <example href="../common/samples/endpoint.xml" language="xml"/>
+                <example href="../common/samples/endpoint.json" language="javascript"/>
+            </examples>
+            <examples xmlns="http://docs.rackspace.com/api" title="Add Endpoint Response">
+                <example href="../common/samples/endpoint.xml" language="xml"/>
+                <example href="../common/samples/endpoint.json" language="javascript"/>
+            </examples>
+        </doc>
         <request>
             <representation mediaType="application/xml" element="identity:endpoint"/>
             <representation mediaType="application/json"/>
@@ -140,7 +182,14 @@
         &postPutFaults;
     </method>
     
-    <method name="GET" id="getEndpoints">
+    <method name="GET" id="listEndpoints">
+        <doc xml:lang="EN" title="List Endpoints">
+            <p xmlns="http://www.w3.org/1999/xhtml">List Endpoints of a Tenant.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="List Endponts Response">
+                <example href="../common/samples/endpoints.xml" language="xml"/>
+                <example href="../common/samples/endpoints.json" language="javascript"/>
+            </examples>
+        </doc>        
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:endpoints"/>
             <representation mediaType="application/json"/>
@@ -150,6 +199,13 @@
     </method>
     
     <method name="GET" id="getEndpoint">
+        <doc xml:lang="EN" title="Get Endpoint">
+            <p xmlns="http://www.w3.org/1999/xhtml">Get Endpoint of a Tenant.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Get Endpont Response">
+                <example href="../common/samples/endpoint.xml" language="xml"/>
+                <example href="../common/samples/endpoint.json" language="javascript"/>
+            </examples>
+        </doc>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:endpoint"/>
             <representation mediaType="application/json"/>
@@ -159,6 +215,12 @@
     </method>
     
     <method name="DELETE" id="deleteEndpoint">
+        <doc xml:lang="EN" title="Delete Endpoint.">
+            <p xmlns="http://www.w3.org/1999/xhtml">Delete a Endpoint from a Tenant.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="Delete Endpoint From a Tenant Request">
+                <example href="../common/samples/norequestbody.txt"/>
+            </examples>
+        </doc>    
         <response status="204"/>
         &commonFaults;
         &getFaults;

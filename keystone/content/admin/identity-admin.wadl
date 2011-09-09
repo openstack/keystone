@@ -230,7 +230,7 @@
     <method name="GET" id="validateToken">
         <doc xml:lang="EN" title="Validate Token">
             <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
-                Check that a token is valid and that it belongs to a particular user
+                Check that a token is valid and that it belongs to a supplied tenant
                 and return the permissions relevant to a particular client.
             </p>
             <p xmlns="http://www.w3.org/1999/xhtml">
@@ -264,7 +264,7 @@
     <method name="HEAD" id="checkToken">
         <doc xml:lang="EN" title="Check Token">
             <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
-                Check that a token is valid and that it belongs to a particular user
+                Check that a token is valid and that it belongs to a particular tenant
                 (For performance).
             </p>
         </doc>
