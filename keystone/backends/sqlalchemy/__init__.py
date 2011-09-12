@@ -27,7 +27,6 @@ from keystone.backends.sqlalchemy import models
 import keystone.utils as utils
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models
-from keystone.test import sampledata
 _ENGINE = None
 _MAKER = None
 BASE = models.Base
@@ -72,6 +71,7 @@ def configure_backend(options):
         # this is TERRIBLE coupling, but...
         # if we're starting up a test database, load sample fixtures
         if options['sql_connection'] == FOR_TESTING_ONLY:
+            from keystone.test import sampledata
             sampledata.load_fixture()
 
 
