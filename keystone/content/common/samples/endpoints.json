@@ -1,6 +1,5 @@
 {
-    "endpoints":{
-        "values":[{
+    "endpoints":[{
                 "id":1,
                 "region":"North",
                 "type":"compute",
@@ -51,6 +50,5 @@
                 "versionList":"https://compute.north.public.com/"
             }
         ],
-        "links":[]
-    }
+    "endpoints_links":[]
 }

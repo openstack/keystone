@@ -47,6 +47,18 @@
             </xsd:documentation>
         </annotation>
     </element>
+    
+    <element name="extensibleCredentialsType" type="OS-KSADM:ExtensibleCredentialsType">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    An extensible credentials type.
+                </p>
+            </xsd:documentation>
+        </annotation>
+     </element>
 
     <!-- Complex Types -->
     <complexType name="Service">
@@ -63,5 +75,33 @@
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+    
+    <simpleType name="PasswordCredentialsType">
+        <restriction base="xsd:string">
+            <enumeration value="password"/>
+        </restriction>
+    </simpleType>
+    
+    <simpleType name="ExtensionCredentialsType">
+        <restriction base="xsd:string">
+            <pattern value="(\w|-)+-\w+"/>
+        </restriction>
+    </simpleType>
+    
+    <simpleType name="ExtensibleCredentialsType">
+        <union memberTypes="OS-KSADM:PasswordCredentialsType OS-KSADM:ExtensionCredentialsType"/>
+    </simpleType>
+
+    <!-- Complex Types -->
+    <complexType name="UserWithOnlyEnabled">
+        <complexContent>
+            <restriction base="identity:User">
+                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="email" type="xsd:string" use="prohibited"/>
+                <attribute name="username" type="xsd:ID" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="required"/>
+            </restriction>
+        </complexContent>
     </complexType>
 </schema>

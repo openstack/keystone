@@ -7,13 +7,11 @@
         "user":{
             "id":"testId",
             "name":"testName",
-            "roles":{
-                "values":[{
-                        "id":"compute:admin"
-                    }
-                ],
-                "links":[]
-            }
+            "roles":[{
+                    "id":"compute:admin"
+                }
+            ],
+            "roles_links":[]
         }
     }
 }

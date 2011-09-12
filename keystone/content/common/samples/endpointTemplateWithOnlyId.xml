@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpointTemplate
+  xmlns="http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="EndpointTemplateWithOnlyId"
+  id="1"/>

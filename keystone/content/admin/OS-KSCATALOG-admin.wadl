@@ -157,8 +157,8 @@
         <doc xml:lang="EN" title="Add Endpoint">
             <p xmlns="http://www.w3.org/1999/xhtml">Add Endpoint to a tenant.</p>
             <examples xmlns="http://docs.rackspace.com/api" title="Add Endpoint Request">
-                <example href="../common/samples/endpoint.xml" language="xml"/>
-                <example href="../common/samples/endpoint.json" language="javascript"/>
+                <example href="../common/samples/endpointTemplateWithOnlyId.xml" language="xml"/>
+                <example href="../common/samples/endpointTemplateWithOnlyId.json" language="javascript"/>
             </examples>
             <examples xmlns="http://docs.rackspace.com/api" title="Add Endpoint Response">
                 <example href="../common/samples/endpoint.xml" language="xml"/>
@@ -166,7 +166,9 @@
             </examples>
         </doc>
         <request>
-            <representation mediaType="application/xml" element="identity:endpoint"/>
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate">
+                <param name="endpoint" style="plain" path="/" type="OS-KSCATALOG:EndpointTemplateWithOnlyId"/>
+            </representation>
             <representation mediaType="application/json"/>
         </request>
         <response status="201">
