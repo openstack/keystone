@@ -57,7 +57,7 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="username" type="xsd:string" use="required">            
+        <attribute name="username" type="xsd:string" use="optional">            
             <annotation>
                 <xsd:documentation
                     xml:lang="EN"
@@ -128,5 +128,4 @@
         </sequence>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
-    
 </schema>

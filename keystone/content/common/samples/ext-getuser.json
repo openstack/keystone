@@ -1,13 +1,12 @@
 {
   "user": {
-    "roles": {
-      "values": [
+    "roles": [
         {
           "tenantId": "1234",
           "id": "Admin"
         }
-      ]
-    },
+      ],
+    "roles_links": [],
     "id": "u1000",
     "username": "jqsmith",
     "email": "john.smith@example.org",

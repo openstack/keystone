@@ -63,7 +63,7 @@
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="id" type="xsd:int" use="required">
+        <attribute name="id" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
@@ -74,7 +74,7 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="type" type="identity:ExtensibleServiceType" use="required">
+        <attribute name="type" type="identity:ExtensibleServiceType" use="optional">
             <annotation>
                 <xsd:documentation
                     xml:lang="EN"
@@ -107,7 +107,7 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
-        <attribute name="publicURL" type="xsd:anyURI" use="required">
+        <attribute name="publicURL" type="xsd:anyURI" use="optional">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
@@ -174,4 +174,20 @@
         </sequence>
          <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
+    
+    <complexType name="EndpointTemplateWithOnlyId">
+        <complexContent>
+            <restriction base="OS-KSCATALOG:EndpointTemplate">
+                 <attribute name="id" type="xsd:string" use="required"/>
+                 <attribute name="type" type="identity:ExtensibleServiceType" use="prohibited"/>
+                 <attribute name="name" type="xsd:string" use="prohibited"/>
+                 <attribute name="region" type="xsd:string" use="prohibited"/>
+                 <attribute name="publicURL" type="xsd:anyURI" use="prohibited"/>
+                 <attribute name="internalURL" type="xsd:anyURI" use="prohibited"/>
+                 <attribute name="adminURL" type="xsd:anyURI" use="prohibited"/>
+                 <attribute name="global" type="xsd:boolean" use="prohibited"/>
+                 <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
+            </restriction>
+        </complexContent>
+    </complexType>   
 </schema>

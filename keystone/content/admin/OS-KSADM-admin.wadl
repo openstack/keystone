@@ -40,6 +40,7 @@
                 <doc>You need a valid admin token for access.</doc>
             </param>            
             <resource id="users" path="users">
+                <method href="#listUsers"/>
                 <method href="#addUser"/>
                 <resource id="userById" path="{userId}">
                     <method href="#updateUser"/>
@@ -63,10 +64,7 @@
                             <method href="#addUserCredential"/>
                             <method href="#listCredentials"/>
                             <resource id="userCredentialsByType" path="{credential-type}">
-                                <method href="#listCredentialsByType"/>
-                            </resource>
-                            <resource id="userCredentialByTypeAndId" path="{credential-type-and-optional-id}">
-                                <param name="credentialTypeAndId" style="template" type="xsd:string"/>
+                                <param name="credentialType" style="template" type="OS-KSADM:extensibleCredentialsType"/>
                                 <method href="#updateUserCredential"/>
                                 <method href="#deleteUserCredential"/>
                                 <method href="#getUserCredential"/>
@@ -269,7 +267,7 @@
     <method name="PUT" id="addRolesToUserOnTenant">
         <doc xml:lang="EN" title="Add roles on a tenant.">
             <p xmlns="http://www.w3.org/1999/xhtml">Adds a specific role to a user for a tenant.</p>
-            <examples xmlns="http://docs.rackspace.com/api">
+            <examples xmlns="http://docs.rackspace.com/api" title="Add role to a user for a Tenant Request ">
                 <example href="../common/samples/norequestbody.txt"/>
             </examples>
         </doc>
@@ -292,6 +290,23 @@
     </method>    
     
     <!--User Operations-->
+    <method name="GET" id="listUsers">
+        <doc xml:lang="EN" title="List users">
+            <p xmlns="http://www.w3.org/1999/xhtml">List users.</p>
+            <examples xmlns="http://docs.rackspace.com/api" title="List Users Response">
+                <example href="../common/samples/users.xml" language="xml"/>
+                <example href="../common/samples/users.json" language="javascript"/>
+            </examples>            
+        </doc>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:userss"/>
+            <representation mediaType="application/json"/>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+    
+    
     <method name="POST" id="addUser">
         <doc xml:lang="EN" title="Add user">
             <p xmlns="http://www.w3.org/1999/xhtml">Adds a user.</p>
@@ -370,7 +385,7 @@
         </doc>
         <request>
             <representation mediaType="application/xml" element="identity:user">
-                <param name="user" style="plain" path="/" type="identity:UserWithOnlyEnabled"/>
+                <param name="user" style="plain" path="/" type="OS-KSADM:UserWithOnlyEnabled"/>
             </representation>
             <representation mediaType="application/json"/>
         </request>
@@ -406,7 +421,7 @@
     <method name="PUT" id="addUserRole">
         <doc xml:lang="EN" title="Add Global roles to a user.">
             <p xmlns="http://www.w3.org/1999/xhtml">Adds a specific global role to a user.</p>
-            <examples xmlns="http://docs.rackspace.com/api">
+            <examples xmlns="http://docs.rackspace.com/api" title="Adds global role to a user request">
                 <example href="../common/samples/norequestbody.txt"/>
             </examples>
         </doc>
@@ -436,7 +451,7 @@
     <method name="DELETE" id="deleteUserRole">
         <doc xml:lang="EN" title="Delete Global Roles on User.">
             <p xmlns="http://www.w3.org/1999/xhtml">Deletes a specific global role from a user.</p>
-            <examples xmlns="http://docs.rackspace.com/api">
+            <examples xmlns="http://docs.rackspace.com/api" title="Deletes global role from a user">
                 <example href="../common/samples/norequestbody.txt"/>
             </examples>
         </doc>
@@ -540,7 +555,7 @@
     </method>
     
     <method name="POST" id="deleteUserCredential">
-        <doc xml:lang="EN" title="Update user credential">
+        <doc xml:lang="EN" title="Delete user credential">
             <p xmlns="http://www.w3.org/1999/xhtml">Delete User credentials.</p>
             <examples xmlns="http://docs.rackspace.com/api" title="Delete User Credentials">
                 <example href="../common/samples/norequestbody.txt"/>
