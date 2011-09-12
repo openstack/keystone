@@ -91,11 +91,19 @@ class KeystoneTest(object):
 
             # discover and run tests
             print "Running tests..."
-            loader = unittest.TestLoader()
-            suite = loader.discover(TEST_DIR, top_level_dir=BASE_DIR)
-            result = unittest.TextTestRunner(verbosity=1).run(suite)
-            if not result.wasSuccessful():
-                raise RuntimeError("%s unresolved issues." %
-                    (len(result.errors) + len(result.failures),))
+            if '--with-progress' in sys.argv:
+                loader = unittest.TestLoader()
+                suite = loader.discover(TEST_DIR, top_level_dir=BASE_DIR)
+                result = unittest.TextTestRunner(verbosity=1).run(suite)
+                if not result.wasSuccessful():
+                    raise RuntimeError("%s unresolved issues." %
+                        (len(result.errors) + len(result.failures),))
+            elif '--with-coverage' in sys.argv:
+                print "running coverage"
+                execute('coverage run %s discover -t %s -s %s' %
+                        ('/usr/bin/unit2', BASE_DIR, TEST_DIR))
+            else:
+                execute('unit2 discover -f -t %s -s %s' %
+                        (BASE_DIR, TEST_DIR))
         finally:
             self.tearDown()
