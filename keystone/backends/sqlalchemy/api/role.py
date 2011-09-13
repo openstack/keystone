@@ -36,8 +36,12 @@ class RoleAPI(BaseRoleAPI):
     def get(self, id, session=None):
         if not session:
             session = get_session()
-        result = session.query(models.Role).filter_by(id=id).first()
-        return result
+        return session.query(models.Role).filter_by(id=id).first()
+
+    def get_by_name(self, name, session=None):
+        if not session:
+            session = get_session()
+        return session.query(models.Role).filter_by(name=name).first()
 
     def get_by_service(self, service_id, session=None):
         if not session:

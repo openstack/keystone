@@ -446,8 +446,8 @@ class FunctionalTestCase(ApiTestCase):
     disabled_admin_token = '999888777'
     service_admin_token = '111222333444'
 
-    xmlns = '{http://docs.openstack.org/identity/api/v2.0}'
-    xmlns_ksadm = '{http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0}'
+    xmlns = 'http://docs.openstack.org/identity/api/v2.0'
+    xmlns_ksadm = 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0'
 
     def setUp(self):
         """Prepare keystone for system tests"""
@@ -627,14 +627,14 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.delete_user_role(user_id, role_id, **kwargs)
 
-    def create_role(self, role_id=None, role_description=None,
+    def create_role(self, role_name=None, role_description=None,
             service_id=None, **kwargs):
-        role_id = optional_str(role_id)
+        role_name = optional_str(role_name)
         role_description = optional_str(role_description)
 
         data = {
             "role": {
-                "id": role_id,
+                "name": role_name,
                 "description": role_description}}
 
         if service_id is not None:
@@ -653,15 +653,14 @@ class FunctionalTestCase(ApiTestCase):
         role_id = optional_str(role_id)
         return self.delete_role(role_id, **kwargs)
 
-    def create_service(self, service_id=None,
-        service_type=None, service_description=None,
-            **kwargs):
-        service_id = optional_str(service_id)
+    def create_service(self, service_name=None, service_type=None,
+            service_description=None, **kwargs):
+        service_name = optional_str(service_name)
         service_type = optional_str(service_type)
         service_description = optional_str(service_description)
         data = {
             "OS-KSADM:service": {
-                "id": service_id,
+                "name": service_name,
                 "type": service_type,
                 "description": service_description}}
         return self.post_service(as_json=data, **kwargs)

@@ -30,13 +30,6 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
             obj.tenant_id = tenants[0].id
         return obj
 
-    def get(self, id, filter=None):
-        model = super(UserAPI, self).get(id, filter)
-        # The UID is the same as the user-specified 'name'
-        if model:
-            model['name'] = model['id']
-        return model
-
     def get_by_name(self, name, filter=None):
         return self.get(name, filter)
 

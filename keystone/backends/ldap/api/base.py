@@ -49,6 +49,7 @@ class BaseLdapAPI(object):
 
     def _ldap_res_to_model(self, res):
         obj = self.model(id=self._dn_to_id(res[0]))
+        obj['name'] = obj['id']
         for k in obj:
             if k in self.attribute_ignore:
                 continue

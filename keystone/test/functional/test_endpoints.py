@@ -46,15 +46,13 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
         is_global = True
 
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
-            '<endpointTemplate '
-            'xmlns="http://docs.openstack.org/identity/api/v2.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
-            'internalURL="%s" enabled="%s" global="%s"/>') % (region,
-                self.service['id'], public_url, admin_url, internal_url,
-                enabled, is_global)
+            '<endpointTemplate xmlns="%s" region="%s" serviceId="%s" '
+            'publicURL="%s" adminURL="%s" internalURL="%s" enabled="%s" '
+            'global="%s"/>') % (self.xmlns, region, self.service['id'],
+                public_url, admin_url, internal_url, enabled, is_global)
         r = self.post_endpoint_template(as_xml=data, assert_status=201)
 
-        self.assertEqual(r.xml.tag, self.xmlns + 'endpointTemplate')
+        self.assertEqual(r.xml.tag, '{%s}endpointTemplate' % self.xmlns)
 
         self.assertIsNotNone(r.xml.get("id"))
         self.assertEqual(r.xml.get("serviceId"), self.service['id'])
@@ -113,7 +111,7 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
     def test_get_endpoint_templates_xml(self):
         r = self.get_endpoint_templates(assert_status=200, headers={
             'Accept': 'application/xml'})
-        self.assertEqual(r.xml.tag, self.xmlns + "endpointTemplates")
+        self.assertEqual(r.xml.tag, "{%s}endpointTemplates" % self.xmlns)
 
     def test_get_endpoint_templates_xml_expired_auth_token(self):
         self.admin_token = self.expired_admin_token
@@ -170,7 +168,7 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
         r = self.get_endpoint_template(self.endpoint_template['id'],
             headers={'Accept': 'application/xml'}, assert_status=200)
 
-        self.assertEqual(r.xml.tag, self.xmlns + "endpointTemplate")
+        self.assertEqual(r.xml.tag, "{%s}endpointTemplate" % self.xmlns)
 
 
 class UpdateEndpointTemplateTest(EndpointTemplatesTest):
@@ -199,7 +197,7 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
             as_xml=data, assert_status=201, headers={
                 'Accept': 'application/xml'})
 
-        self.assertEqual(r.xml.tag, self.xmlns + 'endpointTemplate')
+        self.assertEqual(r.xml.tag, '{%s}endpointTemplate' % self.xmlns)
 
         self.assertIsNotNone(r.xml.get("id"))
         self.assertEqual(r.xml.get("serviceId"), self.service['id'])
@@ -313,7 +311,7 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
         r = self.post_endpoint_template(as_xml=data, assert_status=201,
             headers={'Accept': 'application/xml'})
 
-        self.assertEqual(r.xml.tag, self.xmlns + 'endpointTemplate')
+        self.assertEqual(r.xml.tag, '{%s}endpointTemplate' % self.xmlns)
 
         self.assertIsNotNone(r.xml.get("id"))
         self.assertEqual(r.xml.get("serviceId"), self.service['id'])

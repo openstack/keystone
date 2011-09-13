@@ -51,10 +51,11 @@
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="id" type="xsd:string" use="required"/>
+        <attribute name="id" type="xsd:string" use="optional"/>
+        <attribute name="name" type="xsd:string" use="required"/>
         <attribute name="description" type="xsd:string"  use="optional"/>
         <attribute name="serviceId" type="xsd:string"  use="optional"/>
-        <attribute name="tenantId" type="xsd:string" use="optional" />
+        <attribute name="tenantId" type="xsd:string" use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
     

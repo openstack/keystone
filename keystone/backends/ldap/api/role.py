@@ -43,6 +43,21 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             return "cn=%s,%s" % (ldap.dn.escape_dn_chars(role_id),
                                  self.api.tenant._id_to_dn(tenant_id))
 
+    def get(self, id, filter=None):
+        model = super(RoleAPI, self).get(id, filter)
+        if model:
+            model['name'] = model['id']
+        return model
+
+    def create(self, values):
+        values['id'] = values['name']
+        delattr(values, 'name')
+
+        return super(RoleAPI, self).create(values)
+
+    def get_by_name(self, name, filter=None):
+        return self.get(name, filter)
+
     def add_user(self, role_id, user_id, tenant_id=None):
         user = self.api.user.get(user_id)
         if user is None:

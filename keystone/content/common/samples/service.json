@@ -1,7 +1,8 @@
 {
     "OS-KSADM:service":{
-        "id":"nova",
+        "id":"123",
+        "name":"nova",
         "type":"compute",
-        "description":"A description ..."
+        "description":"OpenStack Compute Service"
     }
 }

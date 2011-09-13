@@ -15,16 +15,16 @@
 
 import json
 from lxml import etree
-import string
 
 from keystone.logic.types import fault
 
 
 class Service(object):
-    def __init__(self, service_id, type, desc):
-        self.service_id = service_id
+    def __init__(self, id, name, type, description):
+        self.id = id
+        self.name = name
         self.type = type
-        self.desc = desc
+        self.description = description
 
     @staticmethod
     def from_xml(xml_str):
@@ -36,14 +36,15 @@ class Service(object):
                 "service")
             if root == None:
                 raise fault.BadRequestFault("Expecting Service")
-            service_id = root.get("id")
-            desc = root.get("description")
+            id = root.get("id")
+            name = root.get("name")
             type = root.get("type")
-            if service_id == None:
-                raise fault.BadRequestFault("Expecting Service ID")
+            description = root.get("description")
+            if name is None:
+                raise fault.BadRequestFault("Expecting Service")
             if type == None:
                 raise fault.BadRequestFault("Expecting Service Type")
-            return Service(service_id, type, desc)
+            return Service(id, name, type, description)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse service", str(e))
 
@@ -52,36 +53,35 @@ class Service(object):
         try:
             obj = json.loads(json_str)
             if not "OS-KSADM:service" in obj:
-                raise fault.BadRequestFault("Expecting Service")
-            service = obj["OS-KSADM:service"]
-            if not "id" in service:
-                service_id = None
-            else:
-                service_id = service["id"]
-            if service_id == None:
-                raise fault.BadRequestFault("Expecting Service ID")
-            if not "description" in service:
-                desc = None
-            else:
-                desc = service["description"]
+                raise fault.BadRequestFault("Expecting service")
 
-            if not "type" in service:
+            service = obj["OS-KSADM:service"]
+            id = service.get('id')
+            name = service.get('name')
+            type = service.get('type')
+            description = service.get('description')
+
+            if name is None:
+                raise fault.BadRequestFault("Expecting service")
+
+            if type is None:
                 raise fault.BadRequestFault("Expecting Service Type")
-            else:
-                type = service["type"]
-            return Service(service_id, type, desc)
+
+            return Service(id, name, type, description)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse service", str(e))
 
     def to_dom(self):
         dom = etree.Element("service",
             xmlns="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0")
-        if self.service_id:
-            dom.set("id", self.service_id)
+        if self.id:
+            dom.set("id", unicode(self.id))
+        if self.name:
+            dom.set("name", unicode(self.name))
         if self.type:
-            dom.set("type", self.type)
-        if self.desc:
-            dom.set("description", string.lower(str(self.desc)))
+            dom.set("type", unicode(self.type))
+        if self.description:
+            dom.set("description", unicode(self.description).lower())
         return dom
 
     def to_xml(self):
@@ -89,12 +89,14 @@ class Service(object):
 
     def to_dict(self):
         service = {}
-        if self.service_id:
-            service["id"] = self.service_id
+        if self.id:
+            service["id"] = unicode(self.id)
+        if self.name:
+            service["name"] = unicode(self.name)
         if self.type:
-            service["type"] = self.type
-        if self.desc:
-            service["description"] = self.desc
+            service["type"] = unicode(self.type)
+        if self.description:
+            service["description"] = unicode(self.description).lower()
         return {'OS-KSADM:service': service}
 
     def to_json(self):

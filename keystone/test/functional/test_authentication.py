@@ -48,16 +48,14 @@ class AuthenticationTest(common.FunctionalTestCase):
 
     def test_authorize_xml(self):
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
-            '<passwordCredentials '
-            'xmlns="http://docs.openstack.org/identity/api/v2.0" '
-            'username="%s" '
-            'password="%s" '
+            '<passwordCredentials xmlns="%s" username="%s" password="%s" '
             'tenantId="%s"/> ') % (
-                self.user['name'], self.user['password'], self.tenant['id'])
+                self.xmlns, self.user['name'], self.user['password'],
+                self.tenant['id'])
         r = self.post_token(as_xml=data, assert_status=200)
 
-        self.assertEquals(r.xml.tag, self.xmlns + 'auth')
-        serviceCatalog = r.xml.find(self.xmlns + 'serviceCatalog')
+        self.assertEquals(r.xml.tag, '{%s}auth' % self.xmlns)
+        serviceCatalog = r.xml.find('{%s}serviceCatalog' % self.xmlns)
         self.assertIsNotNone(serviceCatalog)
 
     def test_authorize_legacy(self):

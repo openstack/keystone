@@ -37,8 +37,8 @@ class GetServicesTest(ServicesTest):
         r = self.list_services(assert_status=200, headers={
             'Accept': 'application/xml'})
 
-        self.assertEqual(r.xml.tag, self.xmlns_ksadm + "services")
-        services = r.xml.findall(self.xmlns_ksadm + "service")
+        self.assertEqual(r.xml.tag, "{%s}services" % self.xmlns_ksadm)
+        services = r.xml.findall("{%s}service" % self.xmlns_ksadm)
         self.assertTrue(len(services))
 
     def test_get_services_using_service_admin_token(self):
@@ -53,8 +53,8 @@ class GetServicesTest(ServicesTest):
         r = self.get_services(assert_status=200, headers={
             'Accept': 'application/xml'})
 
-        self.assertEqual(r.xml.tag, self.xmlns_ksadm + "services")
-        services = r.xml.findall(self.xmlns_ksadm + "service")
+        self.assertEqual(r.xml.tag, "{%s}services" % self.xmlns_ksadm)
+        services = r.xml.findall("{%s}service" % self.xmlns_ksadm)
         self.assertTrue(len(services))
 
     def test_get_services_using_disabled_token(self):
@@ -91,7 +91,7 @@ class GetServiceTest(ServicesTest):
         service = self.fetch_service(service_id=self.service['id'],
             assert_status=200, headers={'Accept': 'application/xml'}).xml
 
-        self.assertEqual(service.tag, self.xmlns_ksadm + 'service')
+        self.assertEqual(service.tag, '{%s}service' % self.xmlns_ksadm)
         self.assertIsNotNone(service.get('id'))
         self.assertIsNotNone(service.get('description'))
 
@@ -114,25 +114,37 @@ class GetServiceTest(ServicesTest):
 
 class CreateServiceTest(ServicesTest):
     def test_service_create_json(self):
-        self.service = self.create_service(
+        name = common.unique_str()
+        type = common.unique_str()
+        description = common.unique_str()
+
+        service = self.create_service(service_name=name, service_type=type,
+            service_description=description,
             assert_status=201).json['OS-KSADM:service']
 
+        self.assertIsNotNone(service.get('id'))
+        self.assertEqual(name, service.get('name'))
+        self.assertEqual(type, service.get('type'))
+        self.assertEqual(description, service.get('description'))
+
     def test_service_create_xml(self):
-        service_id = common.unique_str()
-        data = '<?xml version="1.0" encoding="UTF-8"?>\
-        <service xmlns=\
-        "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0" \
-        id="%s" type="example type" \
-        description="A Description of the service"/>' % (service_id,)
-        self.post_service(as_xml=data, assert_status=201)
+        name = common.unique_str()
+        type = common.unique_str()
+        description = common.unique_str()
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<service xmlns="%s" name="%s" type="%s" description="%s"/>') % (
+                self.xmlns_ksadm, name, type, description)
+        r = self.post_service(as_xml=data, assert_status=201)
+        self.assertEqual(r.xml.tag, "{%s}service" % self.xmlns_ksadm)
+        self.assertIsNotNone(r.xml.get('id'))
+        self.assertEqual(name, r.xml.get('name'))
+        self.assertEqual(type, r.xml.get('type'))
+        self.assertEqual(description, r.xml.get('description'))
 
     def test_service_create_duplicate_json(self):
-        service_id = common.unique_str()
-        service_type = "compute"
-        self.create_service(service_id=service_id,
-            service_type=service_type, assert_status=201)
-        self.create_service(service_id=service_id,
-            service_type=service_type, assert_status=409)
+        service_name = common.unique_str()
+        self.create_service(service_name=service_name, assert_status=201)
+        self.create_service(service_name=service_name, assert_status=409)
 
     def test_service_create_using_expired_token(self):
         self.admin_token = self.expired_admin_token
@@ -159,9 +171,10 @@ class DeleteServiceTest(ServicesTest):
 
     def test_service_delete(self):
         self.remove_service(self.service['id'], assert_status=204)
+        self.get_service(self.service['id'], assert_status=404)
 
-    def test_service_which_has_dependencies_delete(self):
-        role_id = self.service['id'] + ':' + common.unique_str()
+    def test_delete_service_with_dependencies(self):
+        role_id = self.service['name'] + ':' + common.unique_str()
         role = self.create_role(role_id, service_id=self.service['id'],
             assert_status=201).json['role']
 

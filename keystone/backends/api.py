@@ -154,6 +154,9 @@ class BaseRoleAPI(object):
     def get(self, id):
         raise NotImplementedError
 
+    def get_by_name(self, name):
+        raise NotImplementedError
+
     def get_by_service(self, service_id):
         raise NotImplementedError
 
@@ -241,6 +244,9 @@ class BaseServiceAPI:
         raise NotImplementedError
 
     def get(self, id):
+        raise NotImplementedError
+
+    def get_by_name(self, name):
         raise NotImplementedError
 
     def get_all(self):

@@ -15,15 +15,15 @@
 
 import json
 from lxml import etree
-import string
 
 from keystone.logic.types import fault
 
 
 class Role(object):
-    def __init__(self, role_id, desc, service_id=None):
-        self.role_id = role_id
-        self.desc = desc
+    def __init__(self, id, name, description, service_id=None):
+        self.id = id
+        self.name = name
+        self.description = description
         self.service_id = service_id
 
     @staticmethod
@@ -35,12 +35,13 @@ class Role(object):
                 "role")
             if root == None:
                 raise fault.BadRequestFault("Expecting Role")
-            role_id = root.get("id")
-            desc = root.get("description")
-            if role_id == None:
-                raise fault.BadRequestFault("Expecting Role")
+            id = root.get("id")
+            name = root.get("name")
+            description = root.get("description")
+            if name is None:
+                raise fault.BadRequestFault("Expecting Role name")
             service_id = root.get("serviceId")
-            return Role(role_id, desc, service_id)
+            return Role(id, name, description, service_id)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))
 
@@ -51,36 +52,30 @@ class Role(object):
             if not "role" in obj:
                 raise fault.BadRequestFault("Expecting Role")
             role = obj["role"]
-            if not "id" in role:
-                role_id = None
-            else:
-                role_id = role["id"]
-            if role_id == None:
-                raise fault.BadRequestFault("Expecting Role")
 
-            if not "description" in role:
-                desc = None
-            else:
-                desc = role["description"]
+            id = role.get('id')
+            name = role.get('name')
+            description = role.get('description')
+            service_id = role.get('serviceId')
 
-            if not "serviceId" in role:
-                service_id = None
-            else:
-                service_id = role["serviceId"]
+            if name is None:
+                raise fault.BadRequestFault("Expecting Role name")
 
-            return Role(role_id, desc, service_id)
+            return Role(id, name, description, service_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))
 
     def to_dom(self):
         dom = etree.Element("role",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
-        if self.role_id:
-            dom.set("id", self.role_id)
-        if self.desc:
-            dom.set("description", string.lower(str(self.desc)))
+        if self.id:
+            dom.set("id", unicode(self.id))
+        if self.name:
+            dom.set("name", unicode(self.name))
+        if self.description:
+            dom.set("description", unicode(self.description))
         if self.service_id:
-            dom.set("serviceId", str(self.service_id))
+            dom.set("serviceId", unicode(self.service_id))
         return dom
 
     def to_xml(self):
@@ -88,12 +83,14 @@ class Role(object):
 
     def to_dict(self):
         role = {}
-        if self.role_id:
-            role["id"] = self.role_id
-        if self.desc:
-            role["description"] = self.desc
+        if self.id:
+            role["id"] = unicode(self.id)
+        if self.name:
+            role["name"] = unicode(self.name)
+        if self.description:
+            role["description"] = unicode(self.description)
         if self.service_id:
-            role["serviceId"] = self.service_id
+            role["serviceId"] = unicode(self.service_id)
         return {'role': role}
 
     def to_json(self):
@@ -155,18 +152,15 @@ class RoleRef(object):
             if not "roleRef" in obj:
                 raise fault.BadRequestFault("Expecting Role Ref")
             role_ref = obj["roleRef"]
-            if not "roleId" in role_ref:
-                role_id = None
-            else:
-                role_id = role_ref["roleId"]
+
+            role_id = role_ref.get('roleId')
+            tenant_id = role_ref.get('tenantId')
+
             if role_id == None:
-                raise fault.BadRequestFault("Expecting Role")
-            if not "tenantId" in role_ref:
-                tenant_id = None
-            else:
-                tenant_id = role_ref["tenantId"]
+                raise fault.BadRequestFault("Expecting Role ID")
             if tenant_id == None:
-                raise fault.BadRequestFault("Expecting Tenant")
+                raise fault.BadRequestFault("Expecting Tenant ID")
+
             return RoleRef('', role_id, tenant_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))

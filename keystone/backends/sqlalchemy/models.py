@@ -82,7 +82,7 @@ class UserRoleAssociation(Base, KeystoneBase):
     __tablename__ = 'user_roles'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    role_id = Column(String(255), ForeignKey('roles.id'))
+    role_id = Column(Integer, ForeignKey('roles.id'))
     tenant_id = Column(Integer, ForeignKey('tenants.id'))
     __table_args__ = (UniqueConstraint("user_id", "role_id", "tenant_id"), {})
 
@@ -102,17 +102,19 @@ class Endpoints(Base, KeystoneBase):
 class Role(Base, KeystoneBase):
     __tablename__ = 'roles'
     __api__ = 'role'
-    id = Column(String(255), primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255))
     desc = Column(String(255))
     service_id = Column(Integer, ForeignKey('services.id'))
     __table_args__ = (
-        UniqueConstraint("id", "service_id"), {})
+        UniqueConstraint("name", "service_id"), {})
 
 
 class Service(Base, KeystoneBase):
     __tablename__ = 'services'
     __api__ = 'service'
-    id = Column(String(255), primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), unique=True)
     type = Column(String(255))
     desc = Column(String(255))
 

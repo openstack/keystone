@@ -5,7 +5,6 @@ import keystone.backends.models as db_models
 
 
 def add_user(name, password, tenant=None):
-
     dbtenant = db_api.TENANT.get_by_name(tenant)
     if dbtenant:
         tenant = dbtenant.id
@@ -55,10 +54,11 @@ def disable_tenant(name):
     return db_api.TENANT.update(obj.id, obj)
 
 
-def add_role(id):
+def add_role(name):
     obj = db_models.Role()
-    obj.id = id
-    return db_api.ROLE.create(obj)
+    obj.name = name
+    role = db_api.ROLE.create(obj)
+    return role
 
 
 def list_role_assignments(tenant):
@@ -79,19 +79,22 @@ def list_roles(tenant=None):
         objects = db_api.ROLE.get_all()
         if objects == None:
             raise IndexError("Roles not found")
-        return [[o.id] for o in objects]
+        return [[o.id, o.name] for o in objects]
 
 
 def grant_role(role, user, tenant=None):
     """Grants `role` to `user` (and optionally, on `tenant`)"""
-    # translate username to user id
+    drole = db_api.ROLE.get_by_name(name=role)
+    if drole:
+        role = drole.id
+
     duser = db_api.USER.get_by_name(name=user)
     if duser:
         user = duser.id
 
-    dbtenant = db_api.TENANT.get_by_name(tenant)
-    if dbtenant:
-        tenant = dbtenant.id
+    dtenant = db_api.TENANT.get_by_name(name=tenant)
+    if dtenant:
+        tenant = dtenant.id
 
     obj = db_models.UserRoleAssociation()
     obj.role_id = role
@@ -160,9 +163,9 @@ def delete_token(token):
     return db_api.TOKEN.delete(token)
 
 
-def add_service(service, type, desc):
+def add_service(name, type, desc):
     obj = db_models.Service()
-    obj.id = service
+    obj.name = name
     obj.type = type
     obj.desc = desc
     return db_api.SERVICE.create(obj)

@@ -144,7 +144,7 @@ def process(*args):
             print "SUCCESS: Tenant %s disabled." % object_id
 
     elif (object_type, command) == ('role', 'add'):
-        if api.add_role(id=object_id):
+        if api.add_role(name=object_id):
             print "SUCCESS: Role %s created successfully." % object_id
 
     elif (object_type, command) == ('role', 'list'):
@@ -155,7 +155,7 @@ def process(*args):
             print_table(('User', 'Role'), api.list_roles(tenant=tenant))
         else:
             # print without tenants
-            print_table(('id'), api.list_roles())
+            print_table(('id', 'name'), api.list_roles())
 
     elif (object_type, command) == ('role', 'grant'):
         require_args(args, 4, "Missing arguments: role grant 'role' 'user' "
@@ -211,7 +211,7 @@ def process(*args):
     elif (object_type, command) == ('service', 'add'):
         type = optional_arg(args, 3)
         desc = optional_arg(args, 4)
-        if api.add_service(service=object_id, type=type, desc=desc):
+        if api.add_service(name=object_id, type=type, desc=desc):
             print "SUCCESS: Service %s created successfully." % (object_id,)
 
     elif (object_type, command) == ('service', 'list'):

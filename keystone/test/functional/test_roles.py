@@ -53,49 +53,79 @@ class CreateRolesTest(RolesTest):
         self.admin_token = common.unique_str()
         self.create_role(assert_status=404)
 
-    def test_delete_roles_using_disabled_token(self):
-        role = self.create_role(assert_status=201).json['role']
-        self.admin_token = self.disabled_admin_token
-        self.delete_role(role['id'], assert_status=403)
-
-    def test_delete_roles_using_missing_token(self):
-        role = self.create_role(assert_status=201).json['role']
-        self.admin_token = ''
-        self.delete_role(role['id'], assert_status=401)
-
-    def test_delete_roles_using_expired_token(self):
-        role = self.create_role(assert_status=201).json['role']
-        self.admin_token = self.expired_admin_token
-        self.delete_role(role['id'], assert_status=403)
-
-    def test_delete_roles_using_invalid_token(self):
-        role = self.create_role(assert_status=201).json['role']
-        self.admin_token = common.unique_str()
-        self.delete_role(role['id'], assert_status=404)
-
-    def test_create_and_delete_role_that_has_references(self):
-        tenant = self.create_tenant().json['tenant']
-        user = self.create_user(tenant_id=tenant['id']).json['user']
-        role = self.create_role(assert_status=201).json['role']
-        self.grant_role_to_user(user['id'], role['id'], tenant['id'])
-        self.remove_role(role['id'], assert_status=204)
-
     def test_create_role_mapped_to_a_service(self):
         service = self.create_service().json['OS-KSADM:service']
-        role_id = service['id'] + ':' + common.unique_str()
-        role = self.create_role(role_id=role_id, service_id=service['id']).\
-            json['role']
+        role_name = service['name'] + ':' + common.unique_str()
+        role = self.create_role(role_name=role_name,
+            service_id=service['id']).json['role']
+        self.assertEqual(role_name, role['name'])
         self.assertEqual(service['id'], role['serviceId'])
 
     def test_create_role_mapped_to_a_service_xml(self):
         service = self.create_service().json['OS-KSADM:service']
-        role_id = service['id'] + ':' + common.unique_str()
+        name = service['name'] + ':' + common.unique_str()
+        description = common.unique_str()
 
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
-            '<role xmlns="http://docs.openstack.org/identity/api/v2.0" '
-            'id="%s" description="A Description of the role" '
-            'serviceId="%s"/> ') % (role_id, service['id'])
-        self.post_role(assert_status=201, as_xml=data)
+            '<role xmlns="%s" name="%s" description="%s" serviceId="%s"/>') % (
+                self.xmlns, name, description, service['id'])
+        id = self.post_role(assert_status=201, as_xml=data).xml.get('id')
+        self.assertIsNotNone(id)
+
+        role = self.fetch_role(id, assert_status=200).json['role']
+        self.assertEqual(role['name'], name)
+        self.assertEqual(role['description'], description)
+        self.assertEqual(role['serviceId'], service['id'])
+
+    def test_create_role_mapped_to_a_service_using_incorrect_role_name(self):
+        self.create_role(common.unique_str(), service_id=common.unique_str(),
+            assert_status=400)
+
+
+class DeleteRoleTest(RolesTest):
+    def setUp(self, *args, **kwargs):
+        super(DeleteRoleTest, self).setUp(*args, **kwargs)
+
+        self.role = self.create_role().json['role']
+
+    def test_delete_roles_using_disabled_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.delete_role(self.role['id'], assert_status=403)
+
+    def test_delete_roles_using_missing_token(self):
+        self.admin_token = ''
+        self.delete_role(self.role['id'], assert_status=401)
+
+    def test_delete_roles_using_expired_token(self):
+        self.admin_token = self.expired_admin_token
+        self.delete_role(self.role['id'], assert_status=403)
+
+    def test_delete_roles_using_invalid_token(self):
+        self.admin_token = common.unique_str()
+        self.delete_role(self.role['id'], assert_status=404)
+
+    def test_create_and_delete_role_that_has_references(self):
+        tenant = self.create_tenant().json['tenant']
+        user = self.create_user(tenant_id=tenant['id']).json['user']
+        self.grant_role_to_user(user['id'], self.role['id'], tenant['id'])
+        self.remove_role(self.role['id'], assert_status=204)
+
+    def test_create_role_mapped_to_a_service(self):
+        service = self.create_service().json['OS-KSADM:service']
+        role_name = service['name'] + ':' + common.unique_str()
+        role = self.create_role(role_name=role_name,
+            service_id=service['id']).json['role']
+        self.assertEqual(service['id'], role['serviceId'])
+
+    def test_create_role_mapped_to_a_service_xml(self):
+        service = self.create_service().json['OS-KSADM:service']
+        name = service['name'] + ':' + common.unique_str()
+        description = common.unique_str()
+
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<role xmlns="%s" name="%s" description="%s" serviceId="%s"/>') % (
+                self.xmlns, name, description, service['id'])
+        role_id = self.post_role(assert_status=201, as_xml=data).xml.get('id')
 
         role = self.fetch_role(role_id, assert_status=200).json['role']
         self.assertEqual(role['id'], role_id)
@@ -111,14 +141,11 @@ class GetRolesTest(RolesTest):
         r = self.list_roles(assert_status=200)
         self.assertTrue(len(r.json['roles']['values']))
 
-        for role in r.json['roles']['values']:
-            self.assertIsNotNone(role['id'])
-
     def test_get_roles_xml(self):
         r = self.get_roles(assert_status=200, headers={
             'Accept': 'application/xml'})
-        self.assertEquals(r.xml.tag, self.xmlns + 'roles')
-        roles = r.xml.findall(self.xmlns + "role")
+        self.assertEquals(r.xml.tag, '{%s}roles' % self.xmlns)
+        roles = r.xml.findall('{%s}role' % self.xmlns)
 
         for role in roles:
             self.assertIsNotNone(role.get('id'))
@@ -134,17 +161,26 @@ class GetRolesTest(RolesTest):
 
 
 class GetRoleTest(RolesTest):
-    role = None
+    def setUp(self, *args, **kwargs):
+        super(GetRoleTest, self).setUp(*args, **kwargs)
+
+        self.role = self.create_role().json['role']
 
     def test_get_role(self):
-        for role in self.expected_roles:
-            self.fetch_role(role, assert_status=200)
+        role = self.fetch_role(self.role['id'], assert_status=200).json['role']
+        self.assertEqual(role['id'], self.role['id'])
+        self.assertEqual(role['name'], self.role['name'])
+        self.assertEqual(role['description'], self.role['description'])
+        self.assertEqual(role.get('serviceId'), self.role.get('serviceId'))
 
     def test_get_role_xml(self):
-        r = self.get_role('Admin', assert_status=200, headers={
+        r = self.get_role(self.role['id'], assert_status=200, headers={
             'Accept': 'application/xml'})
-        self.assertEqual(r.xml.tag, self.xmlns + "role")
-        self.assertEqual(r.xml.get('id'), 'Admin')
+        self.assertEqual(r.xml.tag, '{%s}role' % self.xmlns)
+        self.assertEqual(r.xml.get('id'), self.role['id'])
+        self.assertEqual(r.xml.get('name'), self.role['name'])
+        self.assertEqual(r.xml.get('description'), self.role['description'])
+        self.assertEqual(r.xml.get('serviceId'), self.role.get('serviceId'))
 
     def test_get_role_bad(self):
         self.fetch_role(common.unique_str(), assert_status=404)
@@ -155,38 +191,38 @@ class GetRoleTest(RolesTest):
 
     def test_get_role_expired_token(self):
         self.admin_token = self.expired_admin_token
-        self.fetch_role('Admin', assert_status=403)
+        self.fetch_role(self.role['id'], assert_status=403)
 
     def test_get_role_xml_using_expired_token(self):
         self.admin_token = self.expired_admin_token
-        self.get_role('Admin', assert_status=403, headers={
+        self.get_role(self.role['id'], assert_status=403, headers={
             'Accept': 'application/xml'})
 
     def test_get_role_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
-        self.fetch_role('Admin', assert_status=403)
+        self.fetch_role(self.role['id'], assert_status=403)
 
     def test_get_role_xml_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
-        self.get_role('Admin', assert_status=403, headers={
+        self.get_role(self.role['id'], assert_status=403, headers={
             'Accept': 'application/xml'})
 
     def test_get_role_using_missing_token(self):
         self.admin_token = ''
-        self.fetch_role('Admin', assert_status=401)
+        self.fetch_role(self.role['id'], assert_status=401)
 
     def test_get_role_xml_using_missing_token(self):
         self.admin_token = ''
-        self.get_role('Admin', assert_status=401, headers={
+        self.get_role(self.role['id'], assert_status=401, headers={
             'Accept': 'application/xml'})
 
     def test_get_role_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.fetch_role('Admin', assert_status=404)
+        self.fetch_role(self.role['id'], assert_status=404)
 
     def test_get_role_xml_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.get_role('Admin', assert_status=404, headers={
+        self.get_role(self.role['id'], assert_status=404, headers={
             'Accept': 'application/xml'})
 
 
@@ -265,7 +301,7 @@ class GetRoleRefsTest(RolesTest):
     def test_get_rolerefs_xml(self):
         r = self.get_user_roles(self.user['id'], assert_status=200,
             headers={'Accept': 'application/xml'})
-        self.assertEqual(r.xml.tag, self.xmlns + "roleRefs")
+        self.assertEqual(r.xml.tag, "{%s}roleRefs" % self.xmlns)
 
     def test_get_rolerefs_using_expired_token(self):
         self.admin_token = self.expired_admin_token

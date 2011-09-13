@@ -145,8 +145,8 @@ class GetTenantsTest(TenantTest):
 
         r = self.service_request(method='GET', path='/tenants',
             assert_status=200, headers={'Accept': 'application/xml'})
-        self.assertEqual(r.xml.tag, self.xmlns + 'tenants')
-        xml_tenant = r.xml.find(self.xmlns + 'tenant')
+        self.assertEqual(r.xml.tag, '{%s}tenants' % self.xmlns)
+        xml_tenant = r.xml.find('{%s}tenant' % self.xmlns)
         self.assertEqual(tenant['id'], xml_tenant.get('id'))
 
     def test_get_tenants_exp_token(self):
@@ -202,9 +202,9 @@ class UpdateTenantTest(TenantTest):
              '</tenant>') % (new_description,)
         r = self.put_tenant(self.tenant['id'], as_xml=data, assert_status=200)
 
-        self.assertEqual(r.xml.tag, self.xmlns + "tenant")
+        self.assertEqual(r.xml.tag, "{%s}tenant" % self.xmlns)
 
-        description = r.xml.find(self.xmlns + "description")
+        description = r.xml.find("{%s}description" % self.xmlns)
         self.assertEqual(description.text, new_description)
         self.assertEqual(r.xml.get('id'), self.tenant['id'])
         self.assertEqual(r.xml.get('enabled'), 'false')

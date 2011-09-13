@@ -15,12 +15,6 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):
     model = models.Tenant
     attribute_mapping = {'desc': 'description', 'enabled': 'keystoneEnabled'}
 
-    def get(self, id, filter=None):
-        model = super(TenantAPI, self).get(id, filter)
-        if model:
-            model['name'] = model['id']
-        return model
-
     def get_by_name(self, name, filter=None):
         return self.get(name, filter)
 

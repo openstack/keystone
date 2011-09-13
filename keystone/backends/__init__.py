@@ -16,16 +16,18 @@
 #    under the License.
 import ast
 import logging
-import keystone.utils as utils
-from keystone.backends import models as models
-from keystone.backends import api as api
+from keystone import utils
+from keystone.backends import models
+from keystone.backends import api
 
 DEFAULT_BACKENDS = 'keystone.backends.sqlalchemy'
 
 #Configs applicable to all backends.
 #Reference to Admin Role.
-KEYSTONEADMINROLE = None
-KEYSTONESERVICEADMINROLE = None
+ADMIN_ROLE_ID = None
+ADMIN_ROLE_NAME = None
+SERVICE_ADMIN_ROLE_ID = None
+SERVICE_ADMIN_ROLE_NAME = None
 
 
 def configure_backends(options):
@@ -34,8 +36,10 @@ def configure_backends(options):
     for backend in backend_names.split(','):
         backend_module = utils.import_module(backend)
         backend_module.configure_backend(options[backend])
-        #Initialize common configs general to all backends.
-        global KEYSTONEADMINROLE
-        KEYSTONEADMINROLE = options["keystone-admin-role"]
-        global KEYSTONESERVICEADMINROLE
-        KEYSTONESERVICEADMINROLE = options["keystone-service-admin-role"]
+
+    #Initialize common configs general to all backends.
+    global ADMIN_ROLE_NAME
+    ADMIN_ROLE_NAME = options["keystone-admin-role"]
+
+    global SERVICE_ADMIN_ROLE_NAME
+    SERVICE_ADMIN_ROLE_NAME = options["keystone-service-admin-role"]

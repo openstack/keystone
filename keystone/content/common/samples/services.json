@@ -1,13 +1,15 @@
 {
     "OS-KSADM:services":[{
-            "id":"nova",
+            "id":"123",
+            "name":"nova",
             "type":"compute",
-            "description":"Computers in the Cloud"
+            "description":"OpenStack Compute Service"
         },
         {
-            "id":"glance",
-            "type":"image-service",
-            "description":"Server Images"
+            "id":"234",
+            "name":"glance",
+            "type":"image",
+            "description":"OpenStack Image Service"
         }
     ],
     "OS-KSADM:services_links":[]
