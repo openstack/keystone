@@ -5,6 +5,11 @@ import keystone.backends.models as db_models
 
 
 def add_user(name, password, tenant=None):
+
+    dbtenant = db_api.TENANT.get_by_name(tenant)
+    if dbtenant:
+        tenant = dbtenant.id
+
     obj = db_models.User()
     obj.name = name
     obj.password = password
@@ -64,7 +69,11 @@ def list_role_assignments(tenant):
 
 
 def list_roles(tenant=None):
+
     if tenant:
+        dbtenant = db_api.TENANT.get_by_name(tenant)
+        if dbtenant:
+            tenant = dbtenant.id
         return list_role_assignments(tenant)
     else:
         objects = db_api.ROLE.get_all()
@@ -78,13 +87,17 @@ def grant_role(role, user, tenant=None):
     # translate username to user id
     duser = db_api.USER.get_by_name(name=user)
     if duser:
-        # print 'WARNING: Swapping', user, 'for', duser.id
         user = duser.id
+
+    dbtenant = db_api.TENANT.get_by_name(tenant)
+    if dbtenant:
+        tenant = dbtenant.id
 
     obj = db_models.UserRoleAssociation()
     obj.role_id = role
     obj.user_id = user
     obj.tenant_id = tenant
+
     return db_api.USER.user_role_add(obj)
 
 
@@ -161,6 +174,15 @@ def list_services():
 
 
 def add_credentials(user, type, key, secrete, tenant=None):
+
+    duser = db_api.USER.get_by_name(name=user)
+    if duser:
+        user = duser.id
+
+    dbtenant = db_api.TENANT.get_by_name(tenant)
+    if dbtenant:
+        tenant = dbtenant.id
+
     obj = db_models.Token()
     obj.user_id = user
     obj.type = type
