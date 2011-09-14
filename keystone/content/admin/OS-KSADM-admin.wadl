@@ -64,7 +64,7 @@
                             <method href="#addUserCredential"/>
                             <method href="#listCredentials"/>
                             <resource id="userCredentialsByType" path="{credential-type}">
-                                <param name="credentialType" style="template" type="OS-KSADM:extensibleCredentialsType"/>
+                                <param name="credentialType" style="template" type="OS-KSADM:extensibleCredentialsType" required="true"/>
                                 <method href="#updateUserCredential"/>
                                 <method href="#deleteUserCredential"/>
                                 <method href="#getUserCredential"/>
@@ -84,21 +84,22 @@
                         <resource id="rolesForTenant" path="roles">
                             <method href="#listRolesForTenant"/>
                         </resource>
-    
-                        <resource id="usersForTenant" path="users">
-                            <method href="#listUsersForTenant"/>
-                            <method href="#listUsersWithRoleForTenant"/>
-                            <resource id="userForTenant" path="{userId}">
-                                <param name="userId" style="template" type="xsd:string"/>
-                                <resource id="userRolesForTenant" path="roles">
+                    </resource>        
+                    <resource id="usersForTenant" path="users">
+                        <method href="#listUsersForTenant"/>
+                        <method href="#listUsersWithRoleForTenant"/>
+                        <resource id="userForTenant" path="{userId}">
+                            <param name="userId" style="template" type="xsd:string"/>
+                            <resource id="userRolesForTenant" path="roles">
+                                <resource id="tenant-user-role-OS-KSADM" path="OS-KSADM">
                                     <resource id="userSpecificRoleForTenant" path="{roleId}">
                                         <method href="#addRolesToUserOnTenant"/>
                                         <method href="#deleteRoleFromUserOnTenant"/>
                                     </resource>
                                 </resource>
                             </resource>
-                       </resource>
-                    </resource>
+                        </resource>
+                   </resource>
                 </resource>
             </resource>
 
@@ -265,7 +266,7 @@
     </method>
     
     <method name="PUT" id="addRolesToUserOnTenant">
-        <doc xml:lang="EN" title="Add roles on a tenant.">
+        <doc xml:lang="EN" title="Add roles to a user on a tenant.">
             <p xmlns="http://www.w3.org/1999/xhtml">Adds a specific role to a user for a tenant.</p>
             <examples xmlns="http://docs.rackspace.com/api" title="Add role to a user for a Tenant Request ">
                 <example href="../common/samples/norequestbody.txt"/>
@@ -278,9 +279,9 @@
     </method>    
 
     <method name="DELETE" id="deleteRoleFromUserOnTenant">
-        <doc xml:lang="EN" title="Delete roles on tenant.">
+        <doc xml:lang="EN" title="Delete roles from a user on tenant.">
             <p xmlns="http://www.w3.org/1999/xhtml">Deletes a specific role from a user for a tenant.</p>
-            <examples xmlns="http://docs.rackspace.com/api" title="Delete Role From User For a Tenant Request">
+            <examples xmlns="http://docs.rackspace.com/api" title="Delete Role from User for a Tenant Request">
                 <example href="../common/samples/norequestbody.txt"/>
             </examples>
         </doc>
