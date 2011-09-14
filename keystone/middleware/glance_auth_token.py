@@ -58,7 +58,11 @@ class KeystoneContextMiddleware(context.ContextMiddleware):
         is_admin = 'Admin' in roles
 
         # Construct the context
-        req.context = self.make_context(auth_tok, user, tenant, is_admin)
+        req.context = self.make_context(auth_tok=auth_tok,
+                                        user=user,
+                                        tenant=tenant,
+                                        roles=roles,
+                                        is_admin=is_admin)
 
 
 def filter_factory(global_conf, **local_conf):
