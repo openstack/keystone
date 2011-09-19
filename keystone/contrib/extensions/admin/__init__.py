@@ -17,7 +17,7 @@
 # limitations under the License
 
 
-from keystone.contrib.extensions.admin.osksadm.extensionHandler\
+from keystone.contrib.extensions.admin.osksadm.extension_handler\
     import ExtensionHandler as KSADMExtensionHandler
 
 

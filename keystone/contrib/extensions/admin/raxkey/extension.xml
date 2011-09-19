@@ -9,5 +9,7 @@
                         enabling API Key authentication.
             </description>
             <atom:link rel="describedby" type="application/pdf"
-                        href="https://github.com/openstack/keystone/raw/master/keystone/content/service/RAX-KSKEY-admin-devguide.pdf"/>
+                        href="https://github.com/openstack/keystone/raw/master/keystone/content/admin/RAX-KSKEY-admin-devguide.pdf"/>
+            <atom:link rel="describedby" type="application/vnd.sun.wadl+xml"
+                        href="https://github.com/openstack/keystone/raw/master/keystone/content/admin/RAX-KSKEY-admin.wadl"/>                        
 </extension>
