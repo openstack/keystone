@@ -154,7 +154,7 @@
         &getFaults;
     </method>
     
-    <method name="POST" id="deleteUserCredential">
+    <method name="DELETE" id="deleteUserCredential">
         <doc xml:lang="EN" title="Delete user credential">
             <p xmlns="http://www.w3.org/1999/xhtml">Delete User credentials.</p>
             <examples xmlns="http://docs.rackspace.com/api" title="Delete User Credentials">

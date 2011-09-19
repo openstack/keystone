@@ -22,12 +22,12 @@ import keystone.backends as db
 from keystone.controllers.auth import AuthController
 from keystone.controllers.endpointtemplates import EndpointTemplatesController
 from keystone.controllers.roles import RolesController
-from keystone.controllers.services import ServicesController
 from keystone.controllers.staticfiles import StaticFilesController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.user import UserController
 from keystone.controllers.version import VersionController
 from keystone.controllers.extensions import ExtensionsController
+import keystone.contrib.extensions.admin as extension
 
 
 class AdminApi(wsgi.Router):
@@ -226,23 +226,5 @@ class AdminApi(wsgi.Router):
                     action="get_static_file",
                     root="content/common/", path="samples/",
                     conditions=dict(method=["GET"]))
-
-        # Services Controller
-        services_controller = ServicesController(options)
-        mapper.connect("/services",
-                    controller=services_controller,
-                    action="get_services",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/services",
-                    controller=services_controller,
-                    action="create_service",
-                    conditions=dict(method=["POST"]))
-        mapper.connect("/services/{service_id}",
-                    controller=services_controller,
-                    action="delete_service",
-                    conditions=dict(method=["DELETE"]))
-        mapper.connect("/services/{service_id}",
-                    controller=services_controller,
-                    action="get_service",
-                    conditions=dict(method=["GET"]))
+        extension.configure_extensions(mapper, options)
         super(AdminApi, self).__init__(mapper)

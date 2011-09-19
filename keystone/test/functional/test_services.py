@@ -29,7 +29,7 @@ class ServicesTest(common.FunctionalTestCase):
 class GetServicesTest(ServicesTest):
     def test_get_services_using_keystone_admin_token_json(self):
         services = self.list_services(assert_status=200).\
-            json['services']['values']
+            json['OS-KSADM:services']
 
         self.assertTrue(len(services))
 
@@ -37,14 +37,14 @@ class GetServicesTest(ServicesTest):
         r = self.list_services(assert_status=200, headers={
             'Accept': 'application/xml'})
 
-        self.assertEqual(r.xml.tag, self.xmlns + "services")
-        services = r.xml.findall(self.xmlns + "service")
+        self.assertEqual(r.xml.tag, self.xmlns_ksadm + "services")
+        services = r.xml.findall(self.xmlns_ksadm + "service")
         self.assertTrue(len(services))
 
     def test_get_services_using_service_admin_token(self):
         self.admin_token = self.service_admin_token
         services = self.list_services(assert_status=200).\
-            json['services']['values']
+            json['OS-KSADM:services']
 
         self.assertTrue(len(services))
 
@@ -53,8 +53,8 @@ class GetServicesTest(ServicesTest):
         r = self.get_services(assert_status=200, headers={
             'Accept': 'application/xml'})
 
-        self.assertEqual(r.xml.tag, self.xmlns + "services")
-        services = r.xml.findall(self.xmlns + "service")
+        self.assertEqual(r.xml.tag, self.xmlns_ksadm + "services")
+        services = r.xml.findall(self.xmlns_ksadm + "service")
         self.assertTrue(len(services))
 
     def test_get_services_using_disabled_token(self):
@@ -78,11 +78,11 @@ class GetServiceTest(ServicesTest):
     def setUp(self, *args, **kwargs):
         super(ServicesTest, self).setUp(*args, **kwargs)
 
-        self.service = self.create_service().json['service']
+        self.service = self.create_service().json['OS-KSADM:service']
 
     def test_service_get_json(self):
         service = self.fetch_service(service_id=self.service['id'],
-            assert_status=200).json['service']
+            assert_status=200).json['OS-KSADM:service']
 
         self.assertIsNotNone(service['id'])
         self.assertIsNotNone(service['description'])
@@ -91,7 +91,7 @@ class GetServiceTest(ServicesTest):
         service = self.fetch_service(service_id=self.service['id'],
             assert_status=200, headers={'Accept': 'application/xml'}).xml
 
-        self.assertEqual(service.tag, self.xmlns + 'service')
+        self.assertEqual(service.tag, self.xmlns_ksadm + 'service')
         self.assertIsNotNone(service.get('id'))
         self.assertIsNotNone(service.get('description'))
 
@@ -114,20 +114,25 @@ class GetServiceTest(ServicesTest):
 
 class CreateServiceTest(ServicesTest):
     def test_service_create_json(self):
-        self.service = self.create_service(assert_status=201).json['service']
+        self.service = self.create_service(
+            assert_status=201).json['OS-KSADM:service']
 
     def test_service_create_xml(self):
         service_id = common.unique_str()
         data = '<?xml version="1.0" encoding="UTF-8"?>\
-        <service xmlns="http://docs.openstack.org/identity/api/v2.0" \
-        id="%s" description="A Description of the service"/>\
-            ' % (service_id,)
+        <service xmlns=\
+        "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0" \
+        id="%s" type="example type" \
+        description="A Description of the service"/>' % (service_id,)
         self.post_service(as_xml=data, assert_status=201)
 
     def test_service_create_duplicate_json(self):
         service_id = common.unique_str()
-        self.create_service(service_id=service_id, assert_status=201)
-        self.create_service(service_id=service_id, assert_status=409)
+        service_type = "compute"
+        self.create_service(service_id=service_id,
+            service_type=service_type, assert_status=201)
+        self.create_service(service_id=service_id,
+            service_type=service_type, assert_status=409)
 
     def test_service_create_using_expired_token(self):
         self.admin_token = self.expired_admin_token
@@ -150,7 +155,7 @@ class DeleteServiceTest(ServicesTest):
     def setUp(self, *args, **kwargs):
         super(DeleteServiceTest, self).setUp(*args, **kwargs)
 
-        self.service = self.create_service().json['service']
+        self.service = self.create_service().json['OS-KSADM:service']
 
     def test_service_delete(self):
         self.remove_service(self.service['id'], assert_status=204)

@@ -22,7 +22,7 @@ class EndpointTemplatesTest(common.FunctionalTestCase):
     def setUp(self, *args, **kwargs):
         super(EndpointTemplatesTest, self).setUp(*args, **kwargs)
 
-        self.service = self.create_service().json['service']
+        self.service = self.create_service().json['OS-KSADM:service']
 
         self.endpoint_template = self.create_endpoint_template(
             service_id=self.service['id']).json['endpointTemplate']

@@ -160,9 +160,11 @@ def delete_token(token):
     return db_api.TOKEN.delete(token)
 
 
-def add_service(service):
+def add_service(service, type, desc):
     obj = db_models.Service()
     obj.id = service
+    obj.type = type
+    obj.desc = desc
     return db_api.SERVICE.create(obj)
 
 

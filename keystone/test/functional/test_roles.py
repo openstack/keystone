@@ -81,14 +81,14 @@ class CreateRolesTest(RolesTest):
         self.remove_role(role['id'], assert_status=204)
 
     def test_create_role_mapped_to_a_service(self):
-        service = self.create_service().json['service']
+        service = self.create_service().json['OS-KSADM:service']
         role_id = service['id'] + ':' + common.unique_str()
         role = self.create_role(role_id=role_id, service_id=service['id']).\
             json['role']
         self.assertEqual(service['id'], role['serviceId'])
 
     def test_create_role_mapped_to_a_service_xml(self):
-        service = self.create_service().json['service']
+        service = self.create_service().json['OS-KSADM:service']
         role_id = service['id'] + ':' + common.unique_str()
 
         data = ('<?xml version="1.0" encoding="UTF-8"?> '

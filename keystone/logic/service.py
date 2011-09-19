@@ -828,6 +828,7 @@ class IdentityService(object):
                 "A service with that id already exists")
         dservice = models.Service()
         dservice.id = service.service_id
+        dservice.type = service.type
         dservice.desc = service.desc
         api.SERVICE.create(dservice)
         return service
@@ -839,7 +840,7 @@ class IdentityService(object):
         dservices = api.SERVICE.get_page(marker, limit)
         for dservice in dservices:
             ts.append(Service(dservice.id,
-                                     dservice.desc))
+                dservice.type, dservice.desc))
         prev, next = api.SERVICE.get_page_markers(marker, limit)
         links = []
         if prev:
@@ -856,7 +857,7 @@ class IdentityService(object):
         dservice = api.SERVICE.get(service_id)
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
-        return Service(dservice.id, dservice.desc)
+        return Service(dservice.id, dservice.type, dservice.desc)
 
     def delete_service(self, admin_token, service_id):
         self.__validate_service_or_keystone_admin_token(admin_token)

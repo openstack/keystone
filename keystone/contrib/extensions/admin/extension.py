@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010 OpenStack LLC.
 # All Rights Reserved.
 #
@@ -17,10 +15,6 @@
 # limitations under the License
 
 
-from keystone.contrib.extensions.admin.osksadm.extensionHandler\
-    import ExtensionHandler as KSADMExtensionHandler
-
-
-def configure_extensions(mapper, options):
-    ksadm_extenion_handler = KSADMExtensionHandler()
-    ksadm_extenion_handler.map_extension_methods(mapper, options)
+class BaseExtensionHandler(object):
+    def map_extension_methods(self, mapper, options):
+        raise NotImplementedError

@@ -113,6 +113,7 @@ class Service(Base, KeystoneBase):
     __tablename__ = 'services'
     __api__ = 'service'
     id = Column(String(255), primary_key=True, unique=True)
+    type = Column(String(255))
     desc = Column(String(255))
 
 

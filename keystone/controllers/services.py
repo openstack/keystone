@@ -11,7 +11,6 @@ class ServicesController(wsgi.Controller):
     def __init__(self, options):
         self.options = options
 
-    # Not exposed yet.
     @utils.wrap_error
     def create_service(self, req):
         service = utils.get_normalized_request_content(Service, req)

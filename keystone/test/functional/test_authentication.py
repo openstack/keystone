@@ -33,7 +33,7 @@ class AuthenticationTest(common.FunctionalTestCase):
         self.services = {}
         self.endpoint_templates = {}
         for x in range(0, 5):
-            self.services[x] = self.create_service().json['service']
+            self.services[x] = self.create_service().json['OS-KSADM:service']
             self.endpoint_templates[x] = self.create_endpoint_template(
                 service_id=self.services[x]['id']).json['endpointTemplate']
             self.create_endpoint_for_tenant(self.tenant['id'],

@@ -21,8 +21,9 @@ from keystone.logic.types import fault
 
 
 class Service(object):
-    def __init__(self, service_id, desc):
+    def __init__(self, service_id, type, desc):
         self.service_id = service_id
+        self.type = type
         self.desc = desc
 
     @staticmethod
@@ -30,15 +31,19 @@ class Service(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
-                            "service")
+            root = dom.find(
+                "{http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0}"\
+                "service")
             if root == None:
                 raise fault.BadRequestFault("Expecting Service")
             service_id = root.get("id")
             desc = root.get("description")
+            type = root.get("type")
             if service_id == None:
-                raise fault.BadRequestFault("Expecting Service")
-            return Service(service_id, desc)
+                raise fault.BadRequestFault("Expecting Service ID")
+            if type == None:
+                raise fault.BadRequestFault("Expecting Service Type")
+            return Service(service_id, type, desc)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse service", str(e))
 
@@ -46,25 +51,35 @@ class Service(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            if not "service" in obj:
-                raise fault.BadRequestFault("Expecting service")
-            service = obj["service"]
+            if not "OS-KSADM:service" in obj:
+                raise fault.BadRequestFault("Expecting Service")
+            service = obj["OS-KSADM:service"]
             if not "id" in service:
                 service_id = None
             else:
                 service_id = service["id"]
             if service_id == None:
-                raise fault.BadRequestFault("Expecting service")
-            desc = service["description"]
-            return Service(service_id, desc)
+                raise fault.BadRequestFault("Expecting Service ID")
+            if not "description" in service:
+                desc = None
+            else:
+                desc = service["description"]
+
+            if not "type" in service:
+                raise fault.BadRequestFault("Expecting Service Type")
+            else:
+                type = service["type"]
+            return Service(service_id, type, desc)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse service", str(e))
 
     def to_dom(self):
         dom = etree.Element("service",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
+            xmlns="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0")
         if self.service_id:
             dom.set("id", self.service_id)
+        if self.type:
+            dom.set("type", self.type)
         if self.desc:
             dom.set("description", string.lower(str(self.desc)))
         return dom
@@ -76,9 +91,11 @@ class Service(object):
         service = {}
         if self.service_id:
             service["id"] = self.service_id
+        if self.type:
+            service["type"] = self.type
         if self.desc:
             service["description"] = self.desc
-        return {'service': service}
+        return {'OS-KSADM:service': service}
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -93,7 +110,8 @@ class Services(object):
 
     def to_xml(self):
         dom = etree.Element("services")
-        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
+        dom.set(u"xmlns",
+            "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -104,6 +122,7 @@ class Services(object):
         return etree.tostring(dom)
 
     def to_json(self):
-        values = [t.to_dict()["service"] for t in self.values]
-        links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"services": {"values": values, "links": links}})
+        services = [t.to_dict()["OS-KSADM:service"] for t in self.values]
+        services_links = [t.to_dict()["links"] for t in self.links]
+        return json.dumps({"OS-KSADM:services": services,
+            "OS-KSADM:services_links": services_links})

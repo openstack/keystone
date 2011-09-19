@@ -555,7 +555,7 @@
         &getFaults;
     </method>
     
-    <method name="POST" id="deleteUserCredential">
+    <method name="DELETE" id="deleteUserCredential">
         <doc xml:lang="EN" title="Delete user credential">
             <p xmlns="http://www.w3.org/1999/xhtml">Delete User credentials.</p>
             <examples xmlns="http://docs.rackspace.com/api" title="Delete User Credentials">
@@ -606,7 +606,7 @@
         &getFaults;
     </method>
 
-    <method name="PUT" id="addRole">
+    <method name="POST" id="addRole">
         <doc xml:lang="EN" title="Add Role">
             <p xmlns="http://www.w3.org/1999/xhtml">Add a Role.</p>
             
@@ -676,7 +676,6 @@
             </examples>            
         </doc>
         <request>
-            <param name="serviceId" style="query" required="false" type="xsd:string"/>
             <param name="marker" style="query" required="false" type="xsd:string"/>
             <param name="limit" style="query" required="false" type="xsd:int"/>
         </request>
@@ -702,7 +701,7 @@
         &commonFaults;
         &getFaults;
     </method>
-    <method name="PUT" id="addService">
+    <method name="POST" id="addService">
         <doc xml:lang="EN" title="Add Service">
             <p xmlns="http://www.w3.org/1999/xhtml">Add a service.</p>
             

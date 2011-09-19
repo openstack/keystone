@@ -342,21 +342,23 @@ class ApiTestCase(RestfulTestCase):
 
     def post_service(self, **kwargs):
         """POST /services"""
-        return self.admin_request(method='POST', path='/services', **kwargs)
+        return self.admin_request(method='POST',
+            path='/OS-KSADM/services', **kwargs)
 
     def get_services(self, **kwargs):
         """GET /services"""
-        return self.admin_request(method='GET', path='/services', **kwargs)
+        return self.admin_request(method='GET',
+            path='/OS-KSADM/services', **kwargs)
 
     def get_service(self, service_id, **kwargs):
         """GET /services/{service_id}"""
         return self.admin_request(method='GET',
-            path='/services/%s' % (service_id,), **kwargs)
+            path='/OS-KSADM/services/%s' % (service_id,), **kwargs)
 
     def delete_service(self, service_id, **kwargs):
         """DELETE /services/{service_id}"""
         return self.admin_request(method='DELETE',
-            path='/services/%s' % (service_id,), **kwargs)
+            path='/OS-KSADM/services/%s' % (service_id,), **kwargs)
 
     def get_root(self, **kwargs):
         """GET /"""
@@ -445,6 +447,7 @@ class FunctionalTestCase(ApiTestCase):
     service_admin_token = '111222333444'
 
     xmlns = '{http://docs.openstack.org/identity/api/v2.0}'
+    xmlns_ksadm = '{http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0}'
 
     def setUp(self):
         """Prepare keystone for system tests"""
@@ -650,14 +653,16 @@ class FunctionalTestCase(ApiTestCase):
         role_id = optional_str(role_id)
         return self.delete_role(role_id, **kwargs)
 
-    def create_service(self, service_id=None, service_description=None,
+    def create_service(self, service_id=None,
+        service_type=None, service_description=None,
             **kwargs):
         service_id = optional_str(service_id)
+        service_type = optional_str(service_type)
         service_description = optional_str(service_description)
-
         data = {
-            "service": {
+            "OS-KSADM:service": {
                 "id": service_id,
+                "type": service_type,
                 "description": service_description}}
         return self.post_service(as_json=data, **kwargs)
 
