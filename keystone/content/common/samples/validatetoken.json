@@ -5,10 +5,11 @@
             "id":"ab48a9efdfedb23ty3494"
         },
         "user":{
-            "id":"testId",
-            "name":"testName",
+            "id":"123",
+            "name":"jqsmith",
             "roles":[{
-                    "id":"compute:admin"
+                    "id":"234",
+                    "name":"compute:admin"
                 }
             ],
             "roles_links":[]

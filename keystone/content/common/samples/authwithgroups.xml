@@ -55,9 +55,9 @@
         </service>
     </serviceCatalog>
     <user xmlns="http://docs.openstack.org/identity/api/v2.0"
-      username="jqsmith" id="u1000">
+      id="123" username="jqsmith">
 	<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-	  <role id="Admin" tenantId="1234" description="All Access" />
+	  <role id="234" name="Admin" tenantId="1234" description="All Access" />
 	</roles>
 	<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
 	    <group id="test_global_group_add">

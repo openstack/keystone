@@ -5,10 +5,11 @@
             "expires":"2010-11-01T03:32:15-05:00"
         },
         "user":{
-            "id":"testId",
+            "id":"123",
             "name":"testName",
             "roles":[{
-                    "id":"compute:admin"
+            		"id":"234",
+                    "name":"compute:admin"
                 }
             ],
             "roles_links":[],

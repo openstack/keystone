@@ -5,7 +5,7 @@ xmlns="http://docs.openstack.org/identity/api/v2.0">
 	id="ab48a9efdfedb23ty3494"/>
 	<user id="testId" name="test">
 		<roles>
-			<role id="compute:admin"/>
+			<role id="123" name="compute:admin"/>
 		</roles>
 	</user>
 	<serviceCatalog>

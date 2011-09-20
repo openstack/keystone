@@ -2,16 +2,12 @@
 <access xmlns="http://docs.openstack.org/identity/api/v2.0">
 	<token expires="2010-11-01T03:32:15-05:00"
 		id="ab48a9efdfedb23ty3494"/>
-<<<<<<< HEAD
-	<user id ="test" name="jqsmith">
-=======
 	<user id="123" username="jqsmith">
->>>>>>> Added backend-managed primary key to User and Tenant model
 		<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
 			<role xmlns="http://docs.openstack.org/identity/api/v2.0"
-				id="Admin" tenantId="one"/>
+				id="234" name="Admin" tenantId="one"/>
 			<role xmlns="http://docs.openstack.org/identity/api/v2.0"
-				id="compute:cloud_admin"/>
+				id="345" name="compute:cloud_admin"/>
 		</roles>
 	</user>
 </access>
