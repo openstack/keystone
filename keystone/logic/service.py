@@ -15,6 +15,7 @@
 
 from datetime import datetime, timedelta
 import uuid
+import logging
 
 from keystone.logic.types import auth, atom
 from keystone.logic.signer import Signer
@@ -28,6 +29,9 @@ from keystone.logic.types.service import Service, Services
 from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
     EndpointTemplate, EndpointTemplates
+
+
+LOG = logging.getLogger('keystone.logic.service')
 
 
 class IdentityService(object):
@@ -513,11 +517,17 @@ class IdentityService(object):
 
         if backends.ADMIN_ROLE_ID is None:
             role = api.ROLE.get_by_name(backends.ADMIN_ROLE_NAME)
-            backends.ADMIN_ROLE_ID = role.id
+            if role:
+                backends.ADMIN_ROLE_ID = role.id
+            else:
+                LOG.error('Admin role is missing.')
 
         if backends.SERVICE_ADMIN_ROLE_ID is None:
             role = api.ROLE.get_by_name(backends.SERVICE_ADMIN_ROLE_NAME)
-            backends.SERVICE_ADMIN_ROLE_ID = role.id
+            if role:
+                backends.SERVICE_ADMIN_ROLE_ID = role.id
+            else:
+                LOG.warn('No service admin role is defined.')
 
         for role_ref in api.ROLE.ref_get_all_global_roles(user.id):
             if (role_ref.role_id == backends.ADMIN_ROLE_ID or \
