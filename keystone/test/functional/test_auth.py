@@ -69,7 +69,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         self.assertEqual(r.json['access']['user']['id'], self.user['id'])
         self.assertEqual(r.json['access']['user']['username'],
             self.user['name'])
-        self.assertEqual(r.json['access']['user']['roleRefs'], [])
+        self.assertEqual(r.json['access']['user']['roles'], [])
 
     def test_get_request_fails(self):
         """GET /tokens should return a 404 (Github issue #5)"""

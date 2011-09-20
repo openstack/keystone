@@ -36,8 +36,8 @@ class ValidateToken(common.FunctionalTestCase):
         r = self.get_token_belongsto(self.token['id'], self.tenant['id'],
             assert_status=200)
 
-        self.assertIsNotNone(r.json['access']['user']["roleRefs"])
-        self.assertEqual(r.json['access']['user']["roleRefs"][0]['id'],
+        self.assertIsNotNone(r.json['access']['user']["roles"])
+        self.assertEqual(r.json['access']['user']["roles"][0]['id'],
             self.role_ref['id'])
 
     def test_validate_token_true_using_service_token(self):
@@ -45,8 +45,8 @@ class ValidateToken(common.FunctionalTestCase):
         r = self.get_token_belongsto(self.token['id'], self.tenant['id'],
             assert_status=200)
 
-        self.assertIsNotNone(r.json['access']['user']["roleRefs"])
-        self.assertEqual(r.json['access']['user']["roleRefs"][0]['id'],
+        self.assertIsNotNone(r.json['access']['user']["roles"])
+        self.assertEqual(r.json['access']['user']["roles"][0]['id'],
             self.role_ref['id'])
 
     def test_validate_token_true_xml(self):
@@ -58,10 +58,10 @@ class ValidateToken(common.FunctionalTestCase):
         user = r.xml.find('{%s}user' % self.xmlns)
         self.assertIsNotNone(user)
 
-        roleRefs = user.find('{%s}roleRefs' % self.xmlns)
-        self.assertIsNotNone(roleRefs)
+        roles = user.find('{%s}roles' % self.xmlns)
+        self.assertIsNotNone(roles)
 
-        roleRef = roleRefs.find('{%s}roleRef' % self.xmlns)
+        roleRef = roles.find('{%s}roleRef' % self.xmlns)
         self.assertIsNotNone(roleRef)
         self.assertEqual(self.role_ref['id'], roleRef.get("id"))
 

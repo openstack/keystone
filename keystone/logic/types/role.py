@@ -205,7 +205,7 @@ class RoleRefs(object):
         return etree.tostring(dom)
 
     def to_dom(self):
-        dom = etree.Element("roleRefs")
+        dom = etree.Element("roles")
         dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
@@ -219,7 +219,7 @@ class RoleRefs(object):
     def to_json(self):
         values = [t.to_dict()["roleRef"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"roleRefs": {"values": values, "links": links}})
+        return json.dumps({"roles": {"values": values, "links": links}})
 
     def to_json_values(self):
         values = [t.to_dict()["roleRef"] for t in self.values]

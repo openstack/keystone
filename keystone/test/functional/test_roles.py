@@ -296,12 +296,12 @@ class GetRoleRefsTest(RolesTest):
 
     def test_get_rolerefs(self):
         r = self.get_user_roles(self.user['id'], assert_status=200)
-        self.assertIsNotNone(r.json['roleRefs']['values'])
+        self.assertIsNotNone(r.json['roles']['values'])
 
     def test_get_rolerefs_xml(self):
         r = self.get_user_roles(self.user['id'], assert_status=200,
             headers={'Accept': 'application/xml'})
-        self.assertEqual(r.xml.tag, "{%s}roleRefs" % self.xmlns)
+        self.assertEqual(r.xml.tag, "{%s}roles" % self.xmlns)
 
     def test_get_rolerefs_using_expired_token(self):
         self.admin_token = self.expired_admin_token
@@ -350,37 +350,37 @@ class DeleteRoleRefTest(RolesTest):
         self.role = self.create_role().json['role']
         self.grant_role_to_user(self.user['id'], self.role['id'],
             self.tenant['id'])
-        self.role_refs = self.get_user_roles(self.user['id']).\
-            json['roleRefs']['values']
+        self.roles = self.get_user_roles(self.user['id']).\
+            json['roles']['values']
 
     def test_delete_roleref(self):
-        self.delete_user_role(self.user['id'], self.role_refs[0]['id'],
+        self.delete_user_role(self.user['id'], self.roles[0]['id'],
             assert_status=204)
 
     def test_delete_roleref_xml(self):
         self.assertIsNotNone(self.user['id'])
         self.assertIsNotNone(self.role['id'])
-        self.delete_user_role(self.user['id'], self.role_refs[0]['id'],
+        self.delete_user_role(self.user['id'], self.roles[0]['id'],
             assert_status=204, headers={'Accept': 'application/xml'})
 
     def test_delete_roleref_using_expired_token(self):
         self.admin_token = self.expired_admin_token
-        self.delete_user_role(self.user['id'], self.role_refs[0]['id'],
+        self.delete_user_role(self.user['id'], self.roles[0]['id'],
             assert_status=403)
 
     def test_delete_roleref_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
-        self.delete_user_role(self.user['id'], self.role_refs[0]['id'],
+        self.delete_user_role(self.user['id'], self.roles[0]['id'],
             assert_status=403)
 
     def test_delete_roleref_using_missing_token(self):
         self.admin_token = ''
-        self.delete_user_role(self.user['id'], self.role_refs[0]['id'],
+        self.delete_user_role(self.user['id'], self.roles[0]['id'],
             assert_status=401)
 
     def test_delete_roleref_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.delete_user_role(self.user['id'], self.role_refs[0]['id'],
+        self.delete_user_role(self.user['id'], self.roles[0]['id'],
             assert_status=404)
 
 

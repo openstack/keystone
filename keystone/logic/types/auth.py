@@ -325,7 +325,7 @@ class ValidateData(object):
             "tenantId": unicode(self.user.tenant_id)}
 
         if self.user.role_refs is not None:
-            user["roleRefs"] = self.user.role_refs.to_json_values()
+            user["roles"] = self.user.role_refs.to_json_values()
 
         return json.dumps({
             "access": {
