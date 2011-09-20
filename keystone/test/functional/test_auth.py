@@ -15,8 +15,8 @@ class TestAdminAuthentication(common.FunctionalTestCase):
         r = self.authenticate(self.admin_username, self.admin_password)
 
         # Assert we get back a token with an expiration date
-        self.assertTrue(r.json['auth']['token']['id'])
-        self.assertTrue(r.json['auth']['token']['expires'])
+        self.assertTrue(r.json['access']['token']['id'])
+        self.assertTrue(r.json['access']['token']['expires'])
 
 
 class TestAdminAuthenticationNegative(common.FunctionalTestCase):
@@ -32,7 +32,7 @@ class TestAdminAuthenticationNegative(common.FunctionalTestCase):
 
         # Replace our admin_token with a mere service token
         self.admin_token = self.authenticate(user['name'], user['password']).\
-            json['auth']['token']['id']
+            json['access']['token']['id']
 
         # Try creating another user using the wrong token
         self.create_user(assert_status=401)
@@ -57,7 +57,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
             'passwordCredentials': {
                 'username': self.user['name'],
                 'password': self.user['password']}}}).\
-            json['auth']['token']['id']
+            json['access']['token']['id']
 
         # In the real world, the service user would then pass his/her token
         # to some service that depends on keystone, which would then need to

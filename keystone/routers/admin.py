@@ -47,6 +47,9 @@ class AdminApi(wsgi.Router):
                         action="validate_token",
                         conditions=dict(method=["GET"]))
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
+                        action="check_token",
+                        conditions=dict(method=["HEAD"]))
+        mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
 

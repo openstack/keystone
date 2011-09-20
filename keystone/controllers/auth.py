@@ -24,14 +24,22 @@ class AuthController(wsgi.Controller):
         return utils.send_result(200, req,
             config.SERVICE.authenticate_ec2(creds))
 
-    @utils.wrap_error
-    def validate_token(self, req, token_id):
-        belongs_to = req.GET.get("belongsTo", None)
-
-        rval = config.SERVICE.validate_token(
+    def _validate_token(self, req, token_id):
+        """Validates the token, and that it belongs to the specified tenant"""
+        belongs_to = req.GET.get('belongsTo')
+        return config.SERVICE.validate_token(
             utils.get_auth_token(req), token_id, belongs_to)
 
-        return utils.send_result(200, req, rval)
+    @utils.wrap_error
+    def validate_token(self, req, token_id):
+        result = self._validate_token(req, token_id)
+        return utils.send_result(200, req, result)
+
+    @utils.wrap_error
+    def check_token(self, req, token_id):
+        """Validates the token, but only returns a status code (HEAD)"""
+        self._validate_token(req, token_id)
+        return utils.send_result(200, req)
 
     @utils.wrap_error
     def delete_token(self, req, token_id):

@@ -123,10 +123,16 @@ class IdentityService(object):
 
         if not api.TOKEN.get(token_id):
             raise fault.UnauthorizedFault("Bad token, please reauthenticate")
-
         (token, user) = self.__validate_token(token_id, belongs_to)
-
         return self.__get_validate_data(token, user)
+
+    def check_token(self, admin_token, token_id, belongs_to=None):
+        self.__validate_service_or_keystone_admin_token(admin_token)
+
+        if not api.TOKEN.get(token_id):
+            raise fault.UnauthorizedFault("Bad token, please reauthenticate")
+
+        self.__validate_token(token_id, belongs_to)
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_admin_token(admin_token)
