@@ -229,9 +229,9 @@ def process(*args):
         print ("ERROR: unrecognized command %s %s" % (object_type, command))
 
 
-def main():
+def main(args=None):
     try:
-        process(*parse_args())
+        process(*parse_args(args))
     except optparse.OptParseError as exc:
         print >> sys.stderr, exc
         sys.exit(2)
@@ -244,8 +244,11 @@ def main():
         else:
             print "ERROR: %s: %s" % (exc.args[0], info)
             logging.error(exc.args[0], exc_info=info)
-        sys.exit(1)
+        raise exc
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as exc:
+        sys.exit(1)

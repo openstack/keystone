@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env python
 
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
@@ -19,6 +19,23 @@
 # This file is to read a export file from Nova that will import users, tenants and EC2 credentials 
 # The file should be in the keystone-manage format
 
-while read line; do 
-  ./bin/keystone-manage $line
-done < $1 
+import os
+import sys
+import shlex
+
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
+    sys.path.insert(0, possible_topdir)
+
+import keystone.manage
+
+with open(sys.argv[1], 'r') as line:
+    try:
+        keystone.manage.main(shlex.split(line))
+    except Exception as exc:
+        # Main prints all of the errors we need
+        sys.exit(1)
