@@ -615,7 +615,7 @@ class FunctionalTestCase(ApiTestCase):
         tenant_id = optional_str(tenant_id)
 
         data = {
-            "roleRef": {
+            "role": {
                 "tenantId": tenant_id,
                 "roleId": role_id}}
 

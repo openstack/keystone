@@ -134,24 +134,24 @@ class RoleRef(object):
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
-                            "roleRef")
+                            "role")
             if root == None:
-                raise fault.BadRequestFault("Expecting RoleRef")
+                raise fault.BadRequestFault("Expecting Role")
             role_id = root.get("roleId")
             tenant_id = root.get("tenantId")
             if role_id == None:
                 raise fault.BadRequestFault("Expecting Role")
             return RoleRef('', role_id, tenant_id)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse RoleRef", str(e))
+            raise fault.BadRequestFault("Cannot parse Role", str(e))
 
     @staticmethod
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            if not "roleRef" in obj:
-                raise fault.BadRequestFault("Expecting Role Ref")
-            role_ref = obj["roleRef"]
+            if not "role" in obj:
+                raise fault.BadRequestFault("Expecting Role")
+            role_ref = obj["role"]
 
             role_id = role_ref.get('roleId')
             tenant_id = role_ref.get('tenantId')
@@ -166,7 +166,7 @@ class RoleRef(object):
             raise fault.BadRequestFault("Cannot parse Role", str(e))
 
     def to_dom(self):
-        dom = etree.Element("roleRef",
+        dom = etree.Element("role",
                         xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.role_ref_id:
             dom.set("id", unicode(self.role_ref_id))
@@ -187,7 +187,7 @@ class RoleRef(object):
             role_ref["roleId"] = unicode(self.role_id)
         if self.tenant_id:
             role_ref["tenantId"] = unicode(self.tenant_id)
-        return {'roleRef': role_ref}
+        return {'role': role_ref}
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -217,10 +217,10 @@ class RoleRefs(object):
         return dom
 
     def to_json(self):
-        values = [t.to_dict()["roleRef"] for t in self.values]
+        values = [t.to_dict()["role"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
         return json.dumps({"roles": {"values": values, "links": links}})
 
     def to_json_values(self):
-        values = [t.to_dict()["roleRef"] for t in self.values]
+        values = [t.to_dict()["role"] for t in self.values]
         return values

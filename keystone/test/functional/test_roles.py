@@ -241,7 +241,7 @@ class CreateRoleRefTest(RolesTest):
 
     def test_grant_role_xml(self):
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
-            '<roleRef xmlns="http://docs.openstack.org/identity/api/v2.0" '
+            '<role xmlns="http://docs.openstack.org/identity/api/v2.0" '
             'tenantId="%s" roleId="%s"/> ') % (
                 self.tenant['id'], self.role['id'])
         self.post_user_role(self.user['id'], as_xml=data, assert_status=201)

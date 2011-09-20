@@ -28,7 +28,7 @@ class ValidateToken(common.FunctionalTestCase):
             tenant_id=self.tenant['id']).json['user']
         self.role = self.create_role().json['role']
         self.role_ref = self.grant_role_to_user(self.user['id'],
-            self.role['id'], self.tenant['id']).json['roleRef']
+            self.role['id'], self.tenant['id']).json['role']
         self.token = self.authenticate(self.user['name'],
             self.user['password'], self.tenant['id']).json['auth']['token']
 
@@ -61,9 +61,9 @@ class ValidateToken(common.FunctionalTestCase):
         roles = user.find('{%s}roles' % self.xmlns)
         self.assertIsNotNone(roles)
 
-        roleRef = roles.find('{%s}roleRef' % self.xmlns)
-        self.assertIsNotNone(roleRef)
-        self.assertEqual(self.role_ref['id'], roleRef.get("id"))
+        role = roles.find('{%s}role' % self.xmlns)
+        self.assertIsNotNone(role)
+        self.assertEqual(self.role_ref['id'], role.get("id"))
 
     def test_validate_token_expired(self):
         self.get_token(self.expired_admin_token, assert_status=403)

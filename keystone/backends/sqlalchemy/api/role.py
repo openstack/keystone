@@ -21,17 +21,17 @@ from keystone.backends.api import BaseRoleAPI
 
 class RoleAPI(BaseRoleAPI):
     def create(self, values):
-        role_ref = models.Role()
-        role_ref.update(values)
-        role_ref.save()
-        return role_ref
+        role = models.Role()
+        role.update(values)
+        role.save()
+        return role
 
     def delete(self, id, session=None):
         if not session:
             session = get_session()
         with session.begin():
-            role_ref = self.get(id, session)
-            session.delete(role_ref)
+            role = self.get(id, session)
+            session.delete(role)
 
     def get(self, id, session=None):
         if not session:
