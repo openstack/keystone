@@ -289,7 +289,7 @@ class ValidateData(object):
         self.user = user
 
     def to_xml(self):
-        dom = etree.Element("auth",
+        dom = etree.Element("access",
             xmlns="http://docs.openstack.org/identity/api/v2.0")
 
         token = etree.Element("token",
@@ -328,6 +328,6 @@ class ValidateData(object):
             user["roleRefs"] = self.user.role_refs.to_json_values()
 
         return json.dumps({
-            "auth": {
+            "access": {
                 "token": token,
                 "user": user}})

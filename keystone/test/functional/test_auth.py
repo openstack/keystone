@@ -64,11 +64,12 @@ class TestServiceAuthentication(common.FunctionalTestCase):
 
         # Admin independently validates the user token
         r = self.get_token(self.service_token)
-        self.assertTrue(r.json['auth']['token']['expires'])
-        self.assertEqual(r.json['auth']['token']['id'], self.service_token)
-        self.assertEqual(r.json['auth']['user']['id'], self.user['id'])
-        self.assertEqual(r.json['auth']['user']['username'], self.user['name'])
-        self.assertEqual(r.json['auth']['user']['roleRefs'], [])
+        self.assertTrue(r.json['access']['token']['expires'])
+        self.assertEqual(r.json['access']['token']['id'], self.service_token)
+        self.assertEqual(r.json['access']['user']['id'], self.user['id'])
+        self.assertEqual(r.json['access']['user']['username'],
+            self.user['name'])
+        self.assertEqual(r.json['access']['user']['roleRefs'], [])
 
     def test_get_request_fails(self):
         """GET /tokens should return a 404 (Github issue #5)"""

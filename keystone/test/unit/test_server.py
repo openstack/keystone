@@ -53,11 +53,11 @@ class TestServer(unittest.TestCase):
         self.assertTrue(response.headers['content-type'] ==
             "application/json; charset=UTF-8")
         dict = json.loads(response.unicode_body)
-        self.assertTrue(dict['auth']['user']['id'], 'id')
-        self.assertTrue(dict['auth']['user']['username'], 'username')
-        self.assertTrue(dict['auth']['user']['tenantId'], '12345')
-        self.assertTrue(dict['auth']['token']['id'], '2231312')
-        self.assertTrue(dict['auth']['token']['expires'],
+        self.assertTrue(dict['access']['user']['id'], 'id')
+        self.assertTrue(dict['access']['user']['username'], 'username')
+        self.assertTrue(dict['access']['user']['tenantId'], '12345')
+        self.assertTrue(dict['access']['token']['id'], '2231312')
+        self.assertTrue(dict['access']['token']['expires'],
             datetime.date.today())
 
     def test_get_auth_token(self):
