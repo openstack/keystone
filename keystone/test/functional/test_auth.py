@@ -53,9 +53,10 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         """Admin should be able to validate a user's token"""
         # Authenticate as user to get a token
         self.service_token = self.post_token(as_json={
+            'auth': {
             'passwordCredentials': {
                 'username': self.user['name'],
-                'password': self.user['password']}}).\
+                'password': self.user['password']}}}).\
             json['auth']['token']['id']
 
         # In the real world, the service user would then pass his/her token
@@ -87,42 +88,44 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         """Authenticating with an unknown username returns a 401"""
         # Authenticate as user to get a token
         self.post_token(assert_status=401, as_json={
-            'passwordCredentials': {
+            'auth': {'passwordCredentials': {
                 'username': 'this-is-completely-wrong',
-                'password': self.user['password']}})
+                'password': self.user['password']}}})
 
     def test_user_auth_with_no_name(self):
         """Authenticating without a username returns a 401"""
         # Authenticate as user to get a token
         self.post_token(assert_status=401, as_json={
-            'passwordCredentials': {
+            'auth': {'passwordCredentials': {
                 'username': None,
-                'password': self.user['password']}})
+                'password': self.user['password']}}})
 
     def test_user_auth_with_wrong_password(self):
         """Authenticating with an invalid password returns a 401"""
         # Authenticate as user to get a token
         self.post_token(assert_status=401, as_json={
-            'passwordCredentials': {
+            'auth': {'passwordCredentials': {
                 'username': self.user['name'],
-                'password': 'this-is-completely-wrong'}})
+                'password': 'this-is-completely-wrong'}}})
 
     def test_user_auth_with_no_password(self):
         """Authenticating with an invalid password returns a 401"""
         # Authenticate as user to get a token
         self.post_token(assert_status=401, as_json={
-            'passwordCredentials': {
+            'auth': {'passwordCredentials': {
                 'username': self.user['name'],
-                'password': None}})
+                'password': None}}})
 
     def test_user_auth_with_invalid_tenant(self):
         """Authenticating with an invalid password returns a 401"""
         # Authenticate as user to get a token
         self.post_token(assert_status=401, as_json={
+            'auth': {
             'passwordCredentials': {
                 'username': self.user['name'],
                 'password': self.user['password'],
-                'tenantId': 'this-is-completely-wrong'}})
+                },
+             'tenantId': 'this-is-completely-wrong'}})
 
 
 if __name__ == '__main__':

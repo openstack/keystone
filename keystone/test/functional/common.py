@@ -463,12 +463,13 @@ class FunctionalTestCase(ApiTestCase):
         user_password = optional_str(user_password)
 
         data = {
-            "passwordCredentials": {
+            "auth": {
+                "passwordCredentials": {
                 "username": user_name,
-                "password": user_password}}
+                "password": user_password}}}
 
         if tenant_id:
-            data["passwordCredentials"]["tenantId"] = tenant_id
+            data["auth"]["tenantId"] = tenant_id
 
         return self.post_token(as_json=data, **kwargs)
 

@@ -19,11 +19,7 @@ from lxml import etree
 from keystone.logic.types import fault
 
 
-class PasswordCredentials(object):
-    """Credentials based on username, password, and (optional) tenant_id.
-        To handle multiple token for a user depending on tenants.
-    """
-
+class AuthWithPasswordCredentials(object):
     def __init__(self, username, password, tenant_id):
         self.username = username
         self.password = password
@@ -35,31 +31,48 @@ class PasswordCredentials(object):
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}"
-                            "passwordCredentials")
+                            "auth")
             if root == None:
+                raise fault.BadRequestFault("Expecting auth")
+            tenant_id = root.get("tenantId")
+            password_credentials = \
+                root.find("{http://docs.openstack.org/identity/api/v2.0}"
+                "passwordCredentials")
+            if password_credentials == None:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
-            username = root.get("username")
+            username = password_credentials.get("username")
             if username == None:
                 raise fault.BadRequestFault("Expecting a username")
-            password = root.get("password")
+            password = password_credentials.get("password")
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
-            tenant_id = root.get("tenantId")
-            return PasswordCredentials(username, password, tenant_id)
+            return AuthWithPasswordCredentials(username, password, tenant_id)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse password credentials",
+            raise fault.BadRequestFault("Cannot parse password access",
                                         str(e))
 
     @staticmethod
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            if not "passwordCredentials" in obj:
+            if not "auth" in obj:
+                raise fault.BadRequestFault("Expecting auth")
+            auth = obj["auth"]
+            invalid = [key for key in auth if key not in\
+                       ['tenantId', 'passwordCredentials']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+            if "tenantId" in auth:
+                tenant_id = auth["tenantId"]
+            else:
+                tenant_id = None
+            if not "passwordCredentials" in auth:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
-            cred = obj["passwordCredentials"]
+            cred = auth["passwordCredentials"]
             # Check that fields are valid
             invalid = [key for key in cred if key not in\
-                       ['username', 'tenantId', 'password']]
+                       ['username', 'password']]
             if invalid != []:
                 raise fault.BadRequestFault("Invalid attribute(s): %s"
                                             % invalid)
@@ -69,13 +82,9 @@ class PasswordCredentials(object):
             if not "password" in cred:
                 raise fault.BadRequestFault("Expecting a password")
             password = cred["password"]
-            if "tenantId" in cred:
-                tenant_id = cred["tenantId"]
-            else:
-                tenant_id = None
-            return PasswordCredentials(username, password, tenant_id)
+            return AuthWithPasswordCredentials(username, password, tenant_id)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse password credentials",
+            raise fault.BadRequestFault("Cannot parse auth",
                                         str(e))
 
 

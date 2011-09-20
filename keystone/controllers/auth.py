@@ -12,10 +12,11 @@ class AuthController(wsgi.Controller):
 
     @utils.wrap_error
     def authenticate(self, req):
-        creds = utils.get_normalized_request_content(
-            auth.PasswordCredentials, req)
+        auth_with_credentials = utils.get_normalized_request_content(
+            auth.AuthWithPasswordCredentials, req)
 
-        return utils.send_result(200, req, config.SERVICE.authenticate(creds))
+        return utils.send_result(200, req,
+            config.SERVICE.authenticate(auth_with_credentials))
 
     @utils.wrap_error
     def authenticate_ec2(self, req):

@@ -61,9 +61,9 @@ class AuthProtocol(object):
         """ Handle incoming request. Transform. And send downstream. """
         request = Request(env)
         if env['KEYSTONE_API_VERSION'] in ['1.0', '1.1']:
-            params = {"passwordCredentials":
+            params = {"auth": {"passwordCredentials":
                 {"username": utils.get_auth_user(request),
-                    "password": utils.get_auth_key(request)}}
+                    "password": utils.get_auth_key(request)}}}
             #Make request to keystone
             new_request = Request.blank('/tokens')
             new_request.method = 'POST'

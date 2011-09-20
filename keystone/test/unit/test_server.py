@@ -70,12 +70,13 @@ class TestServer(unittest.TestCase):
 
     def test_get_normalized_request_content_xml(self):
         self.request.environ["CONTENT_TYPE"] = "application/xml"
-        auth.PasswordCredentials("username", "password", "1")
+        auth.AuthWithPasswordCredentials("username", "password", "1")
         body = '<?xml version="1.0" encoding="UTF-8"?> \
+                <auth xmlns="http://docs.openstack.org/identity/api/v2.0">\
                 <passwordCredentials \
                 xmlns="http://docs.openstack.org/identity/api/v2.0" \
                 password="secret" username="disabled" \
-                />'
+                /></auth>'
         str = StringIO()
         str.write(body)
         self.request.environ["wsgi.input"] = str

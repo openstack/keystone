@@ -41,19 +41,23 @@ class IdentityService(object):
     #
     #  Token Operations
     #
-    def authenticate(self, credentials):
-        # Check credentials
-        if not isinstance(credentials, auth.PasswordCredentials):
-            raise fault.BadRequestFault("Expecting Password Credentials!")
+    def authenticate(self, auth_with_password_credentials):
+        # Check auth_with_password_credentials
+        if not isinstance(auth_with_password_credentials,
+            auth.AuthWithPasswordCredentials):
+            raise fault.BadRequestFault(
+                "Expecting auth_with_password_credentials!")
 
         def validate(duser):
-            return api.USER.check_password(duser, credentials.password)
+            return api.USER.check_password(
+                duser, auth_with_password_credentials.password)
 
-        user = api.USER.get_by_name(credentials.username)
+        user = api.USER.get_by_name(auth_with_password_credentials.username)
         if not user:
             raise fault.UnauthorizedFault("Unauthorized")
 
-        return self._authenticate(validate, user.id, credentials.tenant_id)
+        return self._authenticate(
+            validate, user.id, auth_with_password_credentials.tenant_id)
 
     def authenticate_ec2(self, credentials):
         # Check credentials
