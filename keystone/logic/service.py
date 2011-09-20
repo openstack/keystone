@@ -24,7 +24,8 @@ import keystone.backends.api as api
 import keystone.backends.models as models
 from keystone.logic.types import fault
 from keystone.logic.types.tenant import Tenant, Tenants
-from keystone.logic.types.role import Role, RoleRef, RoleRefs, Roles
+from keystone.logic.types.role import Role, RoleRef, RoleRefs, Roles, \
+    UserRole, UserRoles
 from keystone.logic.types.service import Service, Services
 from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
@@ -446,15 +447,17 @@ class IdentityService(object):
             drole_refs = api.ROLE.ref_get_all_tenant_roles(duser.id,
                 dtoken.tenant_id)
             for drole_ref in drole_refs:
-                ts.append(RoleRef(drole_ref.id, drole_ref.role_id,
+                drole = api.ROLE.get(drole_ref.role_id)
+                ts.append(UserRole(drole_ref.role_id, drole.name,
                     drole_ref.tenant_id))
         drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
         for drole_ref in drole_refs:
-            ts.append(RoleRef(drole_ref.id, drole_ref.role_id,
+            drole = api.ROLE.get(drole_ref.role_id)
+            ts.append(UserRole(drole_ref.role_id, drole.name,
                 drole_ref.tenant_id))
 
         user = auth.User(duser.id, duser.name, duser.tenant_id,
-            RoleRefs(ts, []))
+            UserRoles(ts, []))
 
         return auth.ValidateData(token, user)
 

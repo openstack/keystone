@@ -38,7 +38,9 @@ class ValidateToken(common.FunctionalTestCase):
 
         self.assertIsNotNone(r.json['access']['user']["roles"])
         self.assertEqual(r.json['access']['user']["roles"][0]['id'],
-            self.role_ref['id'])
+            self.role['id'])
+        self.assertEqual(r.json['access']['user']["roles"][0]['name'],
+            self.role['name'])
 
     def test_validate_token_true_using_service_token(self):
         self.admin_token = self.service_admin_token
@@ -47,7 +49,9 @@ class ValidateToken(common.FunctionalTestCase):
 
         self.assertIsNotNone(r.json['access']['user']["roles"])
         self.assertEqual(r.json['access']['user']["roles"][0]['id'],
-            self.role_ref['id'])
+            self.role['id'])
+        self.assertEqual(r.json['access']['user']["roles"][0]['name'],
+            self.role['name'])
 
     def test_validate_token_true_xml(self):
         r = self.get_token_belongsto(self.token['id'], self.tenant['id'],
@@ -63,7 +67,8 @@ class ValidateToken(common.FunctionalTestCase):
 
         role = roles.find('{%s}role' % self.xmlns)
         self.assertIsNotNone(role)
-        self.assertEqual(self.role_ref['id'], role.get("id"))
+        self.assertEqual(self.role['id'], role.get("id"))
+        self.assertEqual(self.role['name'], role.get("name"))
 
     def test_validate_token_expired(self):
         self.get_token(self.expired_admin_token, assert_status=403)
