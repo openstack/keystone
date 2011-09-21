@@ -69,7 +69,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
 
         expected = {
             u'access': {
-                u'serviceCatalog': {},
+                u'serviceCatalog': [],
                 u'token': {
                     u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
                     u'id': self.auth_token_id,

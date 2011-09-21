@@ -58,7 +58,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
         return session.query(models.EndpointTemplates).\
-            filter_by(service=service_id).all()
+            filter_by(service_id=service_id).all()
 
     def get_page(self, marker, limit, session=None):
         if not session:

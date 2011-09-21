@@ -166,7 +166,7 @@ class EndpointTemplates(Base, KeystoneBase):
     __api__ = 'endpoint_template'
     id = Column(Integer, primary_key=True)
     region = Column(String(255))
-    service = Column(String(255))
+    service_id = Column(Integer, ForeignKey('services.id'))
     public_url = Column(String(2000))
     admin_url = Column(String(2000))
     internal_url = Column(String(2000))

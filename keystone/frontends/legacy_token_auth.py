@@ -94,9 +94,9 @@ class AuthProtocol(object):
                 service_mappings = ast.literal_eval(
                     self.conf["service-header-mappings"])
                 for service in services:
-                    service_name = service
+                    service_name = service["name"]
                     service_urls = ''
-                    for endpoint in services[service_name]:
+                    for endpoint in service["endpoints"]:
                         if len(service_urls) > 0:
                             service_urls += ','
                         service_urls += endpoint["publicURL"]

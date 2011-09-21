@@ -114,7 +114,7 @@ class EndpointTemplate(object):
         if self.region:
             dom.set("region", self.region)
         if self.service:
-            dom.set("serviceId", self.service)
+            dom.set("serviceId", str(self.service))
         if self.public_url:
             dom.set("publicURL", self.public_url)
         if self.admin_url:

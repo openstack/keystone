@@ -683,15 +683,18 @@ class IdentityService(object):
         if not isinstance(endpoint_template, EndpointTemplate):
             raise fault.BadRequestFault("Expecting a EndpointTemplate")
 
-        #Check if the passed service exist.
+        if endpoint_template.service == None or \
+            len(endpoint_template.service.strip()) == 0:
+            raise fault.BadRequestFault(
+                    "Expecting serviceId.")
         if endpoint_template.service != None and\
             len(endpoint_template.service.strip()) > 0 and\
             api.SERVICE.get(endpoint_template.service) == None:
             raise fault.BadRequestFault(
-                    "A service with that id doesnt exist.")
+                    "A service with that id doesn't exist.")
         dendpoint_template = models.EndpointTemplates()
         dendpoint_template.region = endpoint_template.region
-        dendpoint_template.service = endpoint_template.service
+        dendpoint_template.service_id = endpoint_template.service
         dendpoint_template.public_url = endpoint_template.public_url
         dendpoint_template.admin_url = endpoint_template.admin_url
         dendpoint_template.internal_url = endpoint_template.internal_url
@@ -719,7 +722,7 @@ class IdentityService(object):
             raise fault.BadRequestFault(
                     "A service with that id doesn't exist.")
         dendpoint_template.region = endpoint_template.region
-        dendpoint_template.service = endpoint_template.service
+        dendpoint_template.service_id = endpoint_template.service
         dendpoint_template.public_url = endpoint_template.public_url
         dendpoint_template.admin_url = endpoint_template.admin_url
         dendpoint_template.internal_url = endpoint_template.internal_url
@@ -730,7 +733,7 @@ class IdentityService(object):
         return EndpointTemplate(
             dendpoint_template.id,
             dendpoint_template.region,
-            dendpoint_template.service,
+            dendpoint_template.service_id,
             dendpoint_template.public_url,
             dendpoint_template.admin_url,
             dendpoint_template.internal_url,
@@ -760,7 +763,7 @@ class IdentityService(object):
             ts.append(EndpointTemplate(
                 dendpoint_template.id,
                 dendpoint_template.region,
-                dendpoint_template.service,
+                dendpoint_template.service_id,
                 dendpoint_template.public_url,
                 dendpoint_template.admin_url,
                 dendpoint_template.internal_url,
@@ -786,7 +789,7 @@ class IdentityService(object):
         return EndpointTemplate(
             dendpoint_template.id,
             dendpoint_template.region,
-            dendpoint_template.service,
+            dendpoint_template.service_id,
             dendpoint_template.public_url,
             dendpoint_template.admin_url,
             dendpoint_template.internal_url,

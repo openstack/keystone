@@ -108,7 +108,7 @@ def add_endpoint_template(region, service, public_url, admin_url, internal_url,
     enabled, is_global):
     obj = db_models.EndpointTemplates()
     obj.region = region
-    obj.service = service
+    obj.service_id = service
     obj.public_url = public_url
     obj.admin_url = admin_url
     obj.internal_url = internal_url

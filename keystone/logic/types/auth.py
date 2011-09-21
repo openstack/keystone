@@ -17,6 +17,7 @@ import json
 from lxml import etree
 
 from keystone.logic.types import fault
+import keystone.backends.api as db_api
 
 
 class AuthWithPasswordCredentials(object):
@@ -235,8 +236,12 @@ class AuthData(object):
         if self.base_urls != None:
             service_catalog = etree.Element("serviceCatalog")
             for key, key_base_urls in self.d.items():
+                dservice = db_api.SERVICE.get(key)
+                if not dservice:
+                    raise fault.ItemNotFoundFault(
+                        "The service could not be found")
                 service = etree.Element("service",
-                                 name=key)
+                                 name=dservice.name, type=dservice.type)
                 for base_url in key_base_urls:
                     endpoint = etree.Element("endpoint")
                     if base_url.region:
@@ -254,9 +259,9 @@ class AuthData(object):
 
     def __convert_baseurls_to_dict(self):
         for base_url in self.base_urls:
-            if base_url.service not in self.d:
-                self.d[base_url.service] = list()
-            self.d[base_url.service].append(base_url)
+            if base_url.service_id not in self.d:
+                self.d[base_url.service_id] = list()
+            self.d[base_url.service_id].append(base_url)
 
     def to_json(self):
         token = {}
@@ -265,8 +270,9 @@ class AuthData(object):
         auth = {}
         auth["token"] = token
         if self.base_urls != None:
-            service_catalog = {}
+            service_catalog = []
             for key, key_base_urls in self.d.items():
+                service = {}
                 endpoints = []
                 for base_url in key_base_urls:
                     endpoint = {}
@@ -280,7 +286,14 @@ class AuthData(object):
                                     str(self.token.tenant_id)) \
                                 if self.token.tenant_id else base_url_item
                     endpoints.append(endpoint)
-                service_catalog[key] = endpoints
+                    dservice = db_api.SERVICE.get(key)
+                    if not dservice:
+                        raise fault.ItemNotFoundFault(
+                        "The service could not be found for" + str(key))
+                service["name"] = dservice.name
+                service["type"] = dservice.type
+                service["endpoints"] = endpoints
+                service_catalog.append(service)
             auth["serviceCatalog"] = service_catalog
         ret = {}
         ret["access"] = auth

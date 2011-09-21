@@ -90,6 +90,9 @@ def register_models(options):
     """Register Models and create properties"""
     global _ENGINE
     assert _ENGINE
+    # Need to decide.Not This is missing
+    # and prevents foreign key reference checks.
+    # _ENGINE.execute('pragma foreign_keys=on')
     supported_alchemy_models = ast.literal_eval(
                     options["backend_entities"])
     supported_alchemy_tables = []

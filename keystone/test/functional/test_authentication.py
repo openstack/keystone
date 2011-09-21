@@ -66,7 +66,7 @@ class AuthenticationTest(common.FunctionalTestCase):
 
         self.assertIsNotNone(r.getheader('x-auth-token'))
         for service in self.services.values():
-            self.assertIsNotNone(r.getheader('x-' + service['id']))
+            self.assertIsNotNone(r.getheader('x-' + service['name']))
 
     def test_authorize_user_disabled(self):
         self.disable_user(self.user['id'])

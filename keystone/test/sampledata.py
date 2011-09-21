@@ -22,46 +22,68 @@ DEFAULT_FIXTURE = [
     ('role', 'grant', 'Admin', 'joeadmin', 'ANOTHER:TENANT'),
     ('role', 'add', 'Member'),
     ('role', 'grant', 'Member', 'joeuser', '1234'),
+# Add Services
+    #1 Service Name:exampleservice Type:example type
+    ('service', 'add', 'exampleservice',
+        'example type', 'example description'),
+    #2 Service Name:swift Type:object-store
+    ('service', 'add', 'swift',
+        'object-store', 'Swift-compatible service'),
+    #3 Service Name:cdn Type:object-store
+    ('service', 'add', 'cdn',
+        'object-store', 'Swift-compatible service'),
+    #4 Service Name:nova Type:compute
+    ('service', 'add', 'nova',
+        'compute', 'OpenStack Compute Service'),
+    #5 Service Name:nova_compat Type:Compute
+    ('service', 'add', 'nova_compat',
+        'compute', 'OpenStack Compute Service'),
+    #6 Service Name:glance Type:image-service
+    ('service', 'add', 'glance',
+        'image-service', 'OpenStack Compute Service'),
+    #7 Service Name:glance Type:image-service
+    ('service', 'add', 'identity',
+        'identity-service', 'OpenStack Compute Service'),
 # Keeping for compatibility for a while till dashboard catches up
-    ('endpointTemplates', 'add', 'RegionOne', 'swift',
+    ('endpointTemplates', 'add', 'RegionOne', '2',
         'http://swift.publicinternets.com/v1/AUTH_%tenant_id%',
         'http://swift.admin-nets.local:8080/',
         'http://127.0.0.1:8080/v1/AUTH_%tenant_id%', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'nova_compat',
+    ('endpointTemplates', 'add', 'RegionOne', '5',
         'http://nova.publicinternets.com/v1.0/',
         'http://127.0.0.1:8774/v1.0', 'http://localhost:8774/v1.0', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'nova',
+    ('endpointTemplates', 'add', 'RegionOne', '4',
         'http://nova.publicinternets.com/v1.1/', 'http://127.0.0.1:8774/v1.1',
         'http://localhost:8774/v1.1', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'glance',
+    ('endpointTemplates', 'add', 'RegionOne', '6',
         'http://glance.publicinternets.com/v1.1/%tenant_id%',
         'http://nova.admin-nets.local/v1.1/%tenant_id%',
         'http://127.0.0.1:9292/v1.1/%tenant_id%', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'cdn',
+    ('endpointTemplates', 'add', 'RegionOne', '3',
         'http://cdn.publicinternets.com/v1.1/%tenant_id%',
         'http://cdn.admin-nets.local/v1.1/%tenant_id%',
         'http://127.0.0.1:7777/v1.1/%tenant_id%', '1', '0'),
 # endpointTemplates
-    ('endpointTemplates', 'add', 'RegionOne', 'object_store',
+    ('endpointTemplates', 'add', 'RegionOne', '2',
         'http://swift.publicinternets.com/v1/AUTH_%tenant_id%',
         'http://swift.admin-nets.local:8080/',
         'http://127.0.0.1:8080/v1/AUTH_%tenant_id%', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'compute',
+    ('endpointTemplates', 'add', 'RegionOne', '4',
         'http://nova.publicinternets.com/v1.0/', 'http://127.0.0.1:8774/v1.0',
         'http://localhost:8774/v1.0', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'compute_v1',
+    ('endpointTemplates', 'add', 'RegionOne', '5',
         'http://nova.publicinternets.com/v1.1/', 'http://127.0.0.1:8774/v1.1',
         'http://localhost:8774/v1.1', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'image',
+    ('endpointTemplates', 'add', 'RegionOne', '6',
         'http://glance.publicinternets.com/v1.1/%tenant_id%',
         'http://nova.admin-nets.local/v1.1/%tenant_id%',
         'http://127.0.0.1:9292/v1.1/%tenant_id%', '1', '0'),
-    ('endpointTemplates', 'add', 'RegionOne', 'cdn',
+    ('endpointTemplates', 'add', 'RegionOne', '3',
         'http://cdn.publicinternets.com/v1.1/%tenant_id%',
         'http://cdn.admin-nets.local/v1.1/%tenant_id%',
         'http://127.0.0.1:7777/v1.1/%tenant_id%', '1', '0'),
 # Global endpointTemplate
-    ('endpointTemplates', 'add', 'RegionOne', 'identity',
+    ('endpointTemplates', 'add', 'RegionOne', '7',
         'http://keystone.publicinternets.com/v2.0',
         'http://127.0.0.1:5001/v2.0', 'http://127.0.0.1:5000/v2.0', '1', '1'),
 # Tokens
@@ -77,11 +99,8 @@ DEFAULT_FIXTURE = [
     ('endpoint', 'add', '1234', '3'),
     ('endpoint', 'add', '1234', '4'),
     ('endpoint', 'add', '1234', '5'),
-# Add Services
-    ('service', 'add', 'exampleservice',
-        'example type', 'example description'),
 # Add Credentials
-    ('credentials', 'add', 'admin', 'EC2', 'admin:admin', 'admin', 'admin'),
+    ('credentials', 'add', 'admin', 'EC2', 'admin:admin', 'admin', '1'),
 ]
 
 
