@@ -279,10 +279,10 @@ class AuthProtocol(object):
 
         token_info = json.loads(data)
         roles = []
-        role_refs = token_info["access"]["user"]["roleRefs"]
+        role_refs = token_info["access"]["user"]["roles"]
         if role_refs != None:
             for role_ref in role_refs:
-                roles.append(role_ref["roleId"])
+                roles.append(role_ref["id"])
 
         try:
             tenant = token_info['access']['token']['tenantId']
