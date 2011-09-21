@@ -226,7 +226,7 @@ class AuthData(object):
             self.__convert_baseurls_to_dict()
 
     def to_xml(self):
-        dom = etree.Element("auth",
+        dom = etree.Element("access",
             xmlns="http://docs.openstack.org/identity/api/v2.0")
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
@@ -245,8 +245,8 @@ class AuthData(object):
                         base_url_item = getattr(base_url, url_kind + "_url")
                         if base_url_item:
                             endpoint.set(url_kind + "URL", base_url_item.\
-                                replace('%tenant_id%', self.token.tenant_id)
-                                if self.token.tenant_id else base_url_item)
+                            replace('%tenant_id%', str(self.token.tenant_id))
+                            if self.token.tenant_id else base_url_item)
                     service.append(endpoint)
                 service_catalog.append(service)
             dom.append(service_catalog)
@@ -283,7 +283,7 @@ class AuthData(object):
                 service_catalog[key] = endpoints
             auth["serviceCatalog"] = service_catalog
         ret = {}
-        ret["auth"] = auth
+        ret["access"] = auth
         return json.dumps(ret)
 
 

@@ -212,19 +212,19 @@ class AuthProtocol(object):
 
         identity_info = json.loads(data)
         roles = []
-        role_refs = identity_info["auth"]["user"]["roleRefs"]
+        role_refs = identity_info["access"]["user"]["roleRefs"]
         if role_refs is not None:
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])
 
         try:
-            tenant = identity_info['auth']['token']['tenantId']
+            tenant = identity_info['access']['token']['tenantId']
         except:
             tenant = None
         if not tenant:
-            tenant = identity_info['auth']['user']['tenantId']
+            tenant = identity_info['access']['user']['tenantId']
         # TODO(Ziad): add groups back in
-        identity = {'user': identity_info['auth']['user']['username'],
+        identity = {'user': identity_info['access']['user']['username'],
                     'tenant': tenant,
                     'roles': roles}
 

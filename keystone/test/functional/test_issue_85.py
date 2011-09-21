@@ -16,7 +16,7 @@ class TestIssue85(common.FunctionalTestCase):
 
         # Authenticate as user to get a token *for a specific tenant*
         user_token = self.authenticate(user['name'], user['password'],
-            tenant['id']).json['auth']['token']['id']
+            tenant['id']).json['access']['token']['id']
 
         # Validate and check that token belongs to tenant
         tenantid = self.get_token(user_token).\

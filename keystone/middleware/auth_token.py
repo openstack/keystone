@@ -279,18 +279,18 @@ class AuthProtocol(object):
 
         token_info = json.loads(data)
         roles = []
-        role_refs = token_info["auth"]["user"]["roleRefs"]
+        role_refs = token_info["access"]["user"]["roleRefs"]
         if role_refs != None:
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])
 
         try:
-            tenant = token_info['auth']['token']['tenantId']
+            tenant = token_info['access']['token']['tenantId']
         except:
             tenant = None
         if not tenant:
-            tenant = token_info['auth']['user']['tenantId']
-        verified_claims = {'user': token_info['auth']['user']['username'],
+            tenant = token_info['access']['user']['tenantId']
+        verified_claims = {'user': token_info['access']['user']['username'],
                     'tenant': tenant,
                     'roles': roles}
         return verified_claims

@@ -43,8 +43,8 @@ class AuthenticationTest(common.FunctionalTestCase):
         r = self.authenticate(self.user['name'], self.user['password'],
             self.tenant['id'], assert_status=200)
 
-        self.assertIsNotNone(r.json['auth']['token'])
-        self.assertIsNotNone(r.json['auth']['serviceCatalog'])
+        self.assertIsNotNone(r.json['access']['token'])
+        self.assertIsNotNone(r.json['access']['serviceCatalog'])
 
     def test_authorize_xml(self):
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
@@ -55,7 +55,7 @@ class AuthenticationTest(common.FunctionalTestCase):
             self.user['name'], self.user['password'])
         r = self.post_token(as_xml=data, assert_status=200)
 
-        self.assertEquals(r.xml.tag, '{%s}auth' % self.xmlns)
+        self.assertEquals(r.xml.tag, '{%s}access' % self.xmlns)
         serviceCatalog = r.xml.find('{%s}serviceCatalog' % self.xmlns)
         self.assertIsNotNone(serviceCatalog)
 
@@ -79,7 +79,7 @@ class AuthenticationTest(common.FunctionalTestCase):
                 "passwordCredentials": {
                     "username-field-completely-wrong": self.user['name'],
                     "password": self.user['password']},
-                "tenantId": self.tenant['id']}}
+                    "tenantId": self.tenant['id']}}
         self.post_token(as_json=data, assert_status=400)
 
     def test_authorize_user_wrong_xml(self):

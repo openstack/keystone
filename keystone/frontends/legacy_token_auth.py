@@ -85,8 +85,8 @@ class AuthProtocol(object):
     def __transform_headers(self, content):
         """Transform Keystone auth to legacy headers"""
         headers = {}
-        if "auth" in content:
-            auth = content["auth"]
+        if "access" in content:
+            auth = content["access"]
             if "token" in auth:
                 headers["X-Auth-Token"] = auth["token"]["id"]
             if "serviceCatalog" in auth:

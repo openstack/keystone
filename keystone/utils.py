@@ -106,7 +106,7 @@ def send_error(code, req, result):
     return resp
 
 
-def send_result(code, req, result):
+def send_result(code, req, result=None):
     content = None
 
     resp = Response()

@@ -128,7 +128,7 @@ class GetTenantsTest(TenantTest):
         user = self.create_user_with_known_password(tenant_id=tenant['id']).\
             json['user']
         token = self.authenticate(user['name'], user['password'],
-            tenant['id']).json['auth']['token']
+            tenant['id']).json['access']['token']
         self.service_token = token['id']
         tenants = self.service_request(method='GET', path='/tenants',
             assert_status=200).json['tenants']['values']
@@ -140,7 +140,7 @@ class GetTenantsTest(TenantTest):
         user = self.create_user_with_known_password(tenant_id=tenant['id']).\
             json['user']
         token = self.authenticate(user['name'], user['password'],
-            tenant['id']).json['auth']['token']
+            tenant['id']).json['access']['token']
         self.service_token = token['id']
 
         r = self.service_request(method='GET', path='/tenants',
