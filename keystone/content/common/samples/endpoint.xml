@@ -2,6 +2,7 @@
 
 <endpoint
             id="1" 
+            tenantId="1"
             type="compute"
             name="Compute"
             region="North"

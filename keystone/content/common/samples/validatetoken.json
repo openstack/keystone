@@ -10,7 +10,12 @@
             "roles":[{
                     "id":"234",
                     "name":"compute:admin"
-                }
+                },
+				{
+                    "id":"234",
+                    "name":"object-store:admin",
+                    "tenantId":"1"
+                }                
             ],
             "roles_links":[]
         }

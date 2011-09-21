@@ -1,6 +1,7 @@
 {
   "endpoint": {
   "id": 1,
+  "tenantId":1,
   "region": "North",
   "type": "compute",
   "publicURL": "https://compute.north.public.com/v1",

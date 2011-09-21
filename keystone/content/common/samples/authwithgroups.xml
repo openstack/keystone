@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+<access xmlns="http://docs.openstack.org/identity/api/v2.0">
 	<token expires="2010-11-01T03:32:15-05:00"
            id="ab48a9efdfedb23ty3494"/>
     <serviceCatalog>
         <service type="compute" name="Computers in the Cloud">
-			<endpoint region="North" tenantId="1234"
+			<endpoint region="North" tenantId="1"
 				publicURL="https://north.compute.public.com/v2.0/1234"
 				internalURL="https://north.compute.internal.com/v2.0/1234">
 				<version id="2.0"
@@ -57,7 +57,9 @@
     <user xmlns="http://docs.openstack.org/identity/api/v2.0"
       id="123" username="jqsmith">
 	<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-	  <role id="234" name="Admin" tenantId="1234" description="All Access" />
+	  <role id="123" name="Admin" tenantId="1234" description="All Access" />
+	  <role id="234" name="object-store:admin" tenantId="1"/>
+	  
 	</roles>
 	<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
 	    <group id="test_global_group_add">

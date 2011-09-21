@@ -14,7 +14,7 @@
         xmlns:atom="http://www.w3.org/2005/Atom"
         targetNamespace="http://docs.openstack.org/identity/api/v2.0"
     >
-
+    <include schemaLocation="api.xsd"/>
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
@@ -136,6 +136,17 @@
                 </xsd:documentation>
             </annotation>
         </attribute>
+        <attribute name="tenantId" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        Tenant id to which the endpoints belong.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>        
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
     <complexType name="EndpointList">

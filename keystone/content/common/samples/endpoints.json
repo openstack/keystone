@@ -1,6 +1,7 @@
 {
     "endpoints":[{
                 "id":1,
+                "tenantId":"1",
                 "region":"North",
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
@@ -11,6 +12,7 @@
             },
             {
                 "id":2,
+                "tenantId":"1",
                 "region":"South",
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
@@ -21,6 +23,7 @@
             },
             {
                 "id":3,
+                "tenantId":"1",
                 "region":"East",
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
@@ -31,6 +34,7 @@
             },
             {
                 "id":4,
+                "tenantId":"1",
                 "region":"West",
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
@@ -41,6 +45,7 @@
             },
             {
                 "id":5,
+                "tenantId":"1",
                 "region":"Global",
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
