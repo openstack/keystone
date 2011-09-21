@@ -211,7 +211,7 @@
 		<xsdxt:code href="../common/samples/auth_credentials.xml"/>
 	      </doc>
 	    </representation>
-            <representation mediaType="application/json">>
+        <representation mediaType="application/json">
 	      <doc>
 		<xsdxt:code href="../common/samples/auth_credentials.json"/>
 	      </doc>
@@ -494,13 +494,14 @@
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:roles">
 	      <doc>
-		<xsdxt:code href="../common/samples/roles.xml"/>
+		     <xsdxt:code href="../common/samples/roles.xml"/>
 	      </doc>
+            </representation>
             <representation mediaType="application/json">
 	      <doc>
                 <xsdxt:code href="../common/samples/roles.json"/>
 	      </doc>
-	    </representation>
+	     </representation>
         </response>
         &commonFaults;
         &getFaults;
