@@ -48,9 +48,9 @@
             <resource id="tokens" path="tokens">
                 <method href="#authenticate"/>
                 <resource id="tokenById" path="{tokenId}">
-		        <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
-		            <doc>You need a valid admin token for access.</doc>
-		        </param>                
+			        <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+			            <doc>You need a valid admin token for access.</doc>
+			        </param>
                     <param name="tokenId" style="template" type="xsd:string" required="true"/>
                     <param name="belongsTo" style="query" type="xsd:string" required="false"/>
                     <method href="#validateToken"/>

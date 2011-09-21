@@ -1,6 +1,7 @@
 from keystone import utils
 from keystone.common import wsgi
 from keystone.logic.types import auth
+from keystone.logic.types import fault
 import keystone.config as config
 
 
@@ -12,11 +13,16 @@ class AuthController(wsgi.Controller):
 
     @utils.wrap_error
     def authenticate(self, req):
-        auth_with_credentials = utils.get_normalized_request_content(
-            auth.AuthWithPasswordCredentials, req)
+        try:
+            auth_with_credentials = utils.get_normalized_request_content(
+                auth.AuthWithPasswordCredentials, req)
+            result = config.SERVICE.authenticate(auth_with_credentials)
+        except fault.BadRequestFault:
+            unscoped = utils.get_normalized_request_content(
+                auth.AuthWithUnscopedToken, req)
+            result = config.SERVICE.authenticate_with_unscoped_token(unscoped)
 
-        return utils.send_result(200, req,
-            config.SERVICE.authenticate(auth_with_credentials))
+        return utils.send_result(200, req, result)
 
     @utils.wrap_error
     def authenticate_ec2(self, req):

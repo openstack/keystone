@@ -41,23 +41,40 @@ class IdentityService(object):
     #
     #  Token Operations
     #
-    def authenticate(self, auth_with_password_credentials):
+    def authenticate(self, auth_request):
         # Check auth_with_password_credentials
-        if not isinstance(auth_with_password_credentials,
-            auth.AuthWithPasswordCredentials):
+        if not isinstance(auth_request, auth.AuthWithPasswordCredentials):
             raise fault.BadRequestFault(
                 "Expecting auth_with_password_credentials!")
 
         def validate(duser):
-            return api.USER.check_password(
-                duser, auth_with_password_credentials.password)
+            return api.USER.check_password(duser, auth_request.password)
 
-        user = api.USER.get_by_name(auth_with_password_credentials.username)
+        user = api.USER.get_by_name(auth_request.username)
         if not user:
             raise fault.UnauthorizedFault("Unauthorized")
 
         return self._authenticate(
-            validate, user.id, auth_with_password_credentials.tenant_id)
+            validate, user.id, auth_request.tenant_id)
+
+    def authenticate_with_unscoped_token(self, auth_request):
+        # Check auth_with_unscoped_token
+        if not isinstance(auth_request, auth.AuthWithUnscopedToken):
+            raise fault.BadRequestFault("Expecting auth_with_unscoped_token!")
+
+        # We *should* check for an unscoped token here, but as long as
+        # POST /tokens w/ credentials auto-scopes to User.tenantId, users can't
+        # reach this flow.
+        # _token, user = self.__validate_unscoped_token(auth_request.token_id)
+        _token, user = self.__validate_token(auth_request.token_id)
+
+        self.__validate_tenant(auth_request.tenant_id)
+
+        def validate(duser):
+            # The user is already authenticated
+            return True
+
+        return self._authenticate(validate, user.id, auth_request.tenant_id)
 
     def authenticate_ec2(self, credentials):
         # Check credentials
@@ -206,7 +223,8 @@ class IdentityService(object):
                 tenants_for_user_get_page_markers(user, marker, limit)
 
         for dtenant in dtenants:
-            ts.append(Tenant(dtenant.id, dtenant.desc, dtenant.enabled))
+            ts.append(Tenant(id=dtenant.id, name=dtenant.name,
+                description=dtenant.desc, enabled=dtenant.enabled))
 
         links = []
         if prev_page:
@@ -455,18 +473,46 @@ class IdentityService(object):
 
     def __get_auth_data(self, dtoken):
         """return AuthData object for a token"""
+        tenant = None
         endpoints = None
-        try:
-            endpoints = api.TENANT.get_all_endpoints(dtoken.tenant_id)
-        except:
-            pass
-        token = auth.Token(dtoken.expires, dtoken.id, dtoken.tenant_id)
 
-        return auth.AuthData(token, endpoints)
+        if dtoken.tenant_id:
+            dtenant = api.TENANT.get(dtoken.tenant_id)
+            tenant = auth.Tenant(id=dtenant.id, name=dtenant.name)
+
+            endpoints = api.TENANT.get_all_endpoints(dtoken.tenant_id)
+
+        token = auth.Token(dtoken.expires, dtoken.id, tenant)
+
+        duser = api.USER.get(dtoken.user_id)
+
+        ts = []
+        if dtoken.tenant_id:
+            drole_refs = api.ROLE.ref_get_all_tenant_roles(duser.id,
+                dtoken.tenant_id)
+            for drole_ref in drole_refs:
+                drole = api.ROLE.get(drole_ref.role_id)
+                ts.append(UserRole(drole_ref.role_id, drole.name,
+                    drole_ref.tenant_id))
+        drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
+        for drole_ref in drole_refs:
+            drole = api.ROLE.get(drole_ref.role_id)
+            ts.append(UserRole(drole_ref.role_id, drole.name,
+                drole_ref.tenant_id))
+
+        user = auth.User(duser.id, duser.name, None, UserRoles(ts, []))
+
+        return auth.AuthData(token, user, endpoints)
 
     def __get_validate_data(self, dtoken, duser):
         """return ValidateData object for a token/user pair"""
-        token = auth.Token(dtoken.expires, dtoken.id, dtoken.tenant_id)
+        tenant = None
+        if dtoken.tenant_id:
+            dtenant = api.TENANT.get(dtoken.tenant_id)
+            tenant = auth.Tenant(id=dtenant.id, name=dtenant.name)
+
+        token = auth.Token(dtoken.expires, dtoken.id, tenant)
+
         ts = []
         if dtoken.tenant_id:
             drole_refs = api.ROLE.ref_get_all_tenant_roles(duser.id,
@@ -522,6 +568,14 @@ class IdentityService(object):
 
         if belongs_to and unicode(token.tenant_id) != unicode(belongs_to):
             raise fault.UnauthorizedFault("Unauthorized on this tenant")
+
+        return (token, user)
+
+    def __validate_unscoped_token(self, token_id, belongs_to=None):
+        (token, user) = self.__validate_token(token_id, belongs_to)
+
+        if token.tenant_id:
+            raise fault.ForbiddenFault("Expecting unscoped token")
 
         return (token, user)
 
