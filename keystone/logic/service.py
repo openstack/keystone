@@ -242,7 +242,7 @@ class IdentityService(object):
         dtenant = api.TENANT.get(tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-        return Tenant(dtenant.id, dtenant.desc, dtenant.enabled)
+        return Tenant(dtenant.id, dtenant.name, dtenant.desc, dtenant.enabled)
 
     def update_tenant(self, admin_token, tenant_id, tenant):
         self.__validate_admin_token(admin_token)
@@ -342,7 +342,7 @@ class IdentityService(object):
         dtenantusers = api.USER.users_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
         for dtenantuser in dtenantusers:
-            ts.append(User(None, dtenantuser.id, tenant_id,
+            ts.append(User(None, dtenantuser.id, tenant_id, dtenantuser.name,
                            dtenantuser.email, dtenantuser.enabled,
                            dtenantuser.tenant_roles if hasattr(dtenantuser,
                                                     "tenant_roles") else None))
@@ -363,7 +363,7 @@ class IdentityService(object):
         ts = []
         dusers = api.USER.users_get_page(marker, limit)
         for duser in dusers:
-            ts.append(User(None, duser.id, duser.tenant_id,
+            ts.append(User(None, duser.id, duser.tenant_id, duser.name,
                                    duser.email, duser.enabled))
         links = []
         if ts.__len__():
