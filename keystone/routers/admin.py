@@ -21,7 +21,6 @@ from keystone.common import wsgi
 import keystone.backends as db
 from keystone.controllers.auth import AuthController
 from keystone.controllers.endpointtemplates import EndpointTemplatesController
-from keystone.controllers.roles import RolesController
 from keystone.controllers.staticfiles import StaticFilesController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.user import UserController
@@ -113,26 +112,6 @@ class AdminApi(wsgi.Router):
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
-
-        #Roles
-        roles_controller = RolesController(options)
-        mapper.connect("/roles", controller=roles_controller,
-                    action="create_role", conditions=dict(method=["POST"]))
-        mapper.connect("/roles", controller=roles_controller,
-                    action="get_roles", conditions=dict(method=["GET"]))
-        mapper.connect("/roles/{role_id}", controller=roles_controller,
-                    action="get_role", conditions=dict(method=["GET"]))
-        mapper.connect("/roles/{role_id}", controller=roles_controller,
-            action="delete_role", conditions=dict(method=["DELETE"]))
-        mapper.connect("/users/{user_id}/roleRefs",
-            controller=roles_controller, action="get_role_refs",
-            conditions=dict(method=["GET"]))
-        mapper.connect("/users/{user_id}/roleRefs",
-            controller=roles_controller, action="create_role_ref",
-            conditions=dict(method=["POST"]))
-        mapper.connect("/users/{user_id}/roleRefs/{role_ref_id}",
-            controller=roles_controller, action="delete_role_ref",
-            conditions=dict(method=["DELETE"]))
 
         #EndpointTemplatesControllers and Endpoints
         endpoint_templates_controller = EndpointTemplatesController(options)

@@ -724,6 +724,21 @@ class IdentityService(object):
         api.ROLE.ref_delete(role_ref_id)
         return None
 
+    def add_global_role_to_user(self, admin_token, user_id, role_id):
+        self.__validate_service_or_keystone_admin_token(admin_token)
+        duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+
+        drole = api.ROLE.get(role_id)
+        if drole == None:
+            raise fault.ItemNotFoundFault("The role not found")
+
+        drole_ref = models.UserRoleAssociation()
+        drole_ref.user_id = duser.id
+        drole_ref.role_id = drole.id
+        api.USER.user_role_add(drole_ref)
+
     def get_user_roles(self, admin_token, marker, limit, url, user_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
         duser = api.USER.get(user_id)

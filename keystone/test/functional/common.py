@@ -290,21 +290,23 @@ class ApiTestCase(RestfulTestCase):
 
     def post_role(self, **kwargs):
         """POST /roles"""
-        return self.admin_request(method='POST', path='/roles', **kwargs)
+        return self.admin_request(method='POST',
+            path='/OS-KSADM/roles', **kwargs)
 
     def get_roles(self, **kwargs):
         """GET /roles"""
-        return self.admin_request(method='GET', path='/roles', **kwargs)
+        return self.admin_request(method='GET',
+            path='/OS-KSADM/roles', **kwargs)
 
     def get_role(self, role_id, **kwargs):
         """GET /roles/{role_id}"""
         return self.admin_request(method='GET',
-            path='/roles/%s' % (role_id,), **kwargs)
+            path='/OS-KSADM/roles/%s' % (role_id,), **kwargs)
 
     def delete_role(self, role_id, **kwargs):
         """DELETE /roles/{role_id}"""
         return self.admin_request(method='DELETE',
-            path='/roles/%s' % (role_id,), **kwargs)
+            path='/OS-KSADM/roles/%s' % (role_id,), **kwargs)
 
     def get_endpoint_templates(self, **kwargs):
         """GET /endpointTemplates"""
