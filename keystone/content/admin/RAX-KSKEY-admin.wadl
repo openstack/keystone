@@ -45,7 +45,7 @@
                         <resource id="userCredentials" path="credentials">
                             <method href="#addUserCredential"/>
                             <method href="#listCredentials"/>
-                            <resource id="userCredentialsByType" path="RAX-KSKEY:apikeyCredentials">
+                            <resource id="userCredentialsByType" path="RAX-KSKEY:apiKeyCredentials">
                                 <method href="#updateUserCredential"/>
                                 <method href="#deleteUserCredential"/>
                                 <method href="#getUserCredential"/>
@@ -68,24 +68,24 @@
         <request>
             <representation mediaType="application/xml" element="identity:credentials">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.xml"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.xml"/>
             </doc>
          </representation>
             <representation mediaType="application/json">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.json"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.json"/>
             </doc>
          </representation>
         </request>
         <response status="201">
             <representation mediaType="application/xml" element="identity:credentials">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.xml"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.xml"/>
             </doc>
          </representation>
             <representation mediaType="application/json">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.json"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.json"/>
             </doc>
          </representation>
         </response>
@@ -150,24 +150,24 @@
         <request>
             <representation mediaType="application/xml" element="identity:credentials">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.xml"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.xml"/>
             </doc>
          </representation>
             <representation mediaType="application/json">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.json"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.json"/>
             </doc>
          </representation>
         </request>
         <response status="200">
             <representation mediaType="application/xml" element="identity:credentials">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.xml"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.xml"/>
             </doc>
          </representation>
             <representation mediaType="application/json">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.json"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.json"/>
             </doc>
          </representation>
         </response>
@@ -193,12 +193,12 @@
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:credentials">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.xml"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.xml"/>
             </doc>
          </representation>
             <representation mediaType="application/json">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.json"/>
+               <xsdxt:code href="../common/samples/apiKeyCredentials.json"/>
             </doc>
          </representation>
         </response>
@@ -206,3 +206,4 @@
         &getFaults;
     </method>
 </application>
+
