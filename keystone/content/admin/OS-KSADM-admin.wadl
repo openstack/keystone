@@ -46,19 +46,22 @@
                 <resource id="userById" path="{userId}">
                     <method href="#updateUser"/>
                     <method href="#deleteUser"/>
-                    <resource id="user-OS-KSADM" path="OS-KSADM">
-                        <resource id="enabled" path="enabled">
-                            <method href="#setUserEnabled"/>
-                        </resource>
-                        
-                        <resource id="userRoles" path="roles">
-                            <method href="#listUserRoles"/>
+
+                    <resource id="userRoles" path="roles">
+                        <method href="#listUserRoles"/>
+                        <resource id="user-roles-OS-KSADM" path="OS-KSADM">
                             <resource id="userRoleById" path="{roleId}">
                                 <param name="roleId" style="template" type="xsd:int"/>
                                 <method href="#addUserRole"/>
                                 <method href="#getUserRole"/>
                                 <method href="#deleteUserRole"/>
                             </resource>
+                        </resource>
+                    </resource>
+                    
+                    <resource id="user-OS-KSADM" path="OS-KSADM">
+                        <resource id="enabled" path="enabled">
+                            <method href="#setUserEnabled"/>
                         </resource>
                         
                         <resource id="userCredentials" path="credentials">
