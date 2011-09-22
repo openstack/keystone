@@ -29,3 +29,4 @@ webtest
 unittest2
 pylint
 pep8
+mox

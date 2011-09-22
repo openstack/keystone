@@ -52,6 +52,10 @@ class AdminApi(wsgi.Router):
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
+        mapper.connect("/tokens/{token_id}/endpoints",
+                        controller=auth_controller,
+                        action="endpoints",
+                        conditions=dict(method=["GET"]))
 
         # Tenant Operations
         tenant_controller = TenantController(options)

@@ -45,3 +45,10 @@ class AuthController(wsgi.Controller):
     def delete_token(self, req, token_id):
         return utils.send_result(204, req,
             config.SERVICE.revoke_token(utils.get_auth_token(req), token_id))
+
+    @utils.wrap_error
+    def endpoints(self, req, token_id):
+        x = utils.send_result(200, req,
+            config.SERVICE.get_endpoints_for_token(utils.get_auth_token(req),
+                                                   token_id))
+        return x
