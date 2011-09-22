@@ -24,10 +24,15 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):
 
         return super(TenantAPI, self).create(values)
 
-    def get_user_tenants(self, user_id):
+    def get_user_tenants(self, user_id, include_roles=True):
         user_dn = self.api.user._id_to_dn(user_id)
         query = '(member=%s)' % (user_dn,)
-        return self.get_all(query)
+        memberships = self.get_all(query)
+        if include_roles:
+            roles = self.api.role.ref_get_all_tenant_roles(user_id)
+            for role in roles:
+                memberships.append(self.get(role.tenant_id))
+        return memberships
 
     def tenants_for_user_get_page(self, user, marker, limit):
         return self._get_page(marker, limit, self.get_user_tenants(user.id))

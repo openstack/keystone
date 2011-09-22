@@ -25,7 +25,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
 
     def _ldap_res_to_model(self, res):
         obj = super(UserAPI, self)._ldap_res_to_model(res)
-        tenants = self.api.tenant.get_user_tenants(obj.id)
+        tenants = self.api.tenant.get_user_tenants(obj.id, False)
         if len(tenants) > 0:
             obj.tenant_id = tenants[0].id
         return obj
@@ -83,7 +83,9 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         if tenant is not None:
             return user
         else:
-            return None
+            if self.api.role.ref_get_all_tenant_roles(id, tenant_id):
+                return user
+        return None
 
     def delete_tenant_user(self, id, tenant_id):
         self.api.tenant.remove_user(tenant_id, id)
