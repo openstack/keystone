@@ -54,10 +54,11 @@
             </xsd:appinfo>
         </annotation>
         <sequence>
+            <element name="tenant" type="identity:TenantForAuthenticateResponse"/>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="expires" type="xsd:dateTime" use="required"/>
         <attribute name="id" type="xsd:string" use="required"/>
+        <attribute name="expires" type="xsd:dateTime" use="required"/>
         <anyAttribute namespace="##other" processContents="lax"/>
     </complexType>
 
@@ -76,6 +77,12 @@
             <element name="roles" type="identity:RoleList" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
+        <attribute name="id" type="xsd:string"/>
+        <attribute name="name" type="xsd:string"/>
+        <anyAttribute namespace="##other" processContents="lax"/>
+    </complexType>
+    
+    <complexType name="TenantForAuthenticateResponse">
         <attribute name="id" type="xsd:string"/>
         <attribute name="name" type="xsd:string"/>
         <anyAttribute namespace="##other" processContents="lax"/>

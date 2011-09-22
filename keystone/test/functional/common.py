@@ -448,8 +448,8 @@ class FunctionalTestCase(ApiTestCase):
     """Abstracts functional CRUD of the identity API"""
     service_token = None
 
-    admin_user_id = None
     admin_token = None
+    admin_user_id = None
     admin_username = 'admin'
     admin_password = 'secrete'
 
@@ -463,10 +463,11 @@ class FunctionalTestCase(ApiTestCase):
     def setUp(self):
         """Prepare keystone for system tests"""
         # Authenticate as admin user to establish admin_token
-        self.admin_token = self.authenticate(self.admin_username,
-            self.admin_password).json['access']['token']['id']
-        self.admin_user_id = self.fetch_user_by_name('admin').\
-            json['users']['values'][0]['id']
+        access = self.authenticate(self.admin_username, self.admin_password).\
+            json['access']
+
+        self.admin_token = access['token']['id']
+        self.admin_user_id = access['user']['id']
 
     def authenticate(self, user_name=None, user_password=None, tenant_id=None,
             **kwargs):
@@ -483,9 +484,15 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.post_token(as_json=data, **kwargs)
 
-    def validate_token(self, token_id=None, **kwargs):
+    def validate_token(self, token_id=None, tenant_id=None, **kwargs):
         token_id = optional_str(token_id)
-        return self.get_token(token_id, **kwargs)
+
+        if tenant_id:
+            # validate scoped token
+            return self.get_token_belongsto(token_id, tenant_id, **kwargs)
+        else:
+            # validate unscoped token
+            return self.get_token(token_id, **kwargs)
 
     def remove_token(self, token_id=None, **kwargs):
         token_id = optional_str(token_id)

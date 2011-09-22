@@ -9,7 +9,7 @@ DEFAULT_FIXTURE = [
 # Users
     ('user', 'add', 'joeuser', 'secrete', '1234'),
     ('user', 'add', 'joeadmin', 'secrete', '1234'),
-    ('user', 'add', 'admin', 'secrete', '1234'),
+    ('user', 'add', 'admin', 'secrete'),
     ('user', 'add', 'serviceadmin', 'secrete', '1234'),
     ('user', 'add', 'disabled', 'secrete', '1234'),
     ('user', 'disable', 'disabled'),

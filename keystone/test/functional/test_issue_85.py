@@ -19,9 +19,9 @@ class TestIssue85(common.FunctionalTestCase):
             tenant['id']).json['access']['token']['id']
 
         # Validate and check that token belongs to tenant
-        tenantid = self.get_token(user_token).\
-            json['access']['token']['tenantId']
-        self.assertEqual(tenantid, tenant['id'])
+        tenant_id = self.get_token(user_token).\
+            json['access']['token']['tenant']['id']
+        self.assertEqual(tenant_id, tenant['id'])
 
         # Disable tenant
         r = self.admin_request(method='PUT', path='/tenants/%s' % tenant['id'],

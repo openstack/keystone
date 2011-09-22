@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <access xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns="http://docs.openstack.org/identity/api/v2.0">
-	<token expires="2010-11-01T03:32:15-05:00"
-	id="ab48a9efdfedb23ty3494"/>
+	<token id="ab48a9efdfedb23ty3494" expires="2010-11-01T03:32:15-05:00">
+		<tenant id="456" name="My Project" />
+	</token>
 	<user id="testId" name="test">
 		<roles>
 			<role id="123" name="compute:admin"/>

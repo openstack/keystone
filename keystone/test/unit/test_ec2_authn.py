@@ -69,13 +69,14 @@ class EC2AuthnMethods(base.ServiceAPITest):
 
         expected = {
             u'access': {
-                u'serviceCatalog': [],
                 u'token': {
-                    u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f"),
                     u'id': self.auth_token_id,
-                }
-            }
-        }
+                    u'expires': self.expires.strftime("%Y-%m-%dT%H:%M:%S.%f")},
+                u'user': {
+                    u'id': unicode(self.auth_user['id']),
+                    u'name': self.auth_user['name'],
+                    u'roles': []}}}
+
         self.assert_dict_equal(expected, json.loads(self.res.body))
         self.status_ok()
 
