@@ -56,7 +56,7 @@ import json
 import os
 from paste.deploy import loadapp
 from urlparse import urlparse
-from webob.exc import HTTPUnauthorized, HTTPUseProxy
+from webob.exc import HTTPUnauthorized
 from webob.exc import Request, Response
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 
