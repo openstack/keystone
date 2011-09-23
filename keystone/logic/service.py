@@ -342,7 +342,7 @@ class IdentityService(object):
         dtenantusers = api.USER.users_get_by_tenant_get_page(tenant_id, marker,
                                                           limit)
         for dtenantuser in dtenantusers:
-            ts.append(User(None, dtenantuser.id, tenant_id, dtenantuser.name,
+            ts.append(User(None, dtenantuser.id, dtenantuser.name, tenant_id,
                            dtenantuser.email, dtenantuser.enabled,
                            dtenantuser.tenant_roles if hasattr(dtenantuser,
                                                     "tenant_roles") else None))
@@ -363,7 +363,7 @@ class IdentityService(object):
         ts = []
         dusers = api.USER.users_get_page(marker, limit)
         for duser in dusers:
-            ts.append(User(None, duser.id, duser.tenant_id, duser.name,
+            ts.append(User(None, duser.id, duser.name, duser.tenant_id,
                                    duser.email, duser.enabled))
         links = []
         if ts.__len__():
