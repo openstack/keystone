@@ -40,8 +40,7 @@ class TestAdminAuthenticationNegative(common.FunctionalTestCase):
         access = self.post_token(as_json={
             'auth': {
                 'token': {
-                   'id': self.admin_token
-                 },
+                   'id': self.admin_token},
                 'tenantId': tenant['id']}}).json['access']
 
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
@@ -54,8 +53,7 @@ class TestAdminAuthenticationNegative(common.FunctionalTestCase):
         self.post_token(as_json={
             'auth': {
                 'token': {
-                   'id': self.admin_token
-                 },
+                   'id': self.admin_token},
             'tenantId': tenant['id']}}, assert_status=401)
 
     def test_service_token_as_admin_token(self):
@@ -146,8 +144,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         scoped = self.post_token(as_json={
             'auth': {
                 'token': {
-                   'id': unscoped['token']['id']
-                 },
+                   'id': unscoped['token']['id']},
                 'tenantId': tenant['id']}}).json['access']
 
         self.assertEqual(scoped['token']['tenant']['id'], tenant['id'])
@@ -161,6 +158,83 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         self.assertEqual(access['user']['username'], self.user['name'])
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
         self.assertEqual(access['token']['tenant']['name'], tenant['name'])
+
+    def test_scope_to_tenant_by_name(self):
+        # Additonal setUp
+        tenant = self.create_tenant().json['tenant']
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'], role['id'], tenant['id'])
+
+        # Create an unscoped token
+        unscoped = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']}}}).json['access']
+
+        # We can now get a token scoped to our tenant
+        scoped = self.post_token(as_json={
+            'auth': {
+                'token': {
+                    'id': unscoped['token']['id']},
+                'tenantName': tenant['name']}}).json['access']
+
+        self.assertEqual(scoped['token']['tenant']['id'], tenant['id'])
+        self.assertEqual(scoped['token']['tenant']['name'], tenant['name'])
+
+        # And an admin should be able to validate that our new token is scoped
+        r = self.validate_token(scoped['token']['id'], tenant['id'])
+        access = r.json['access']
+
+        self.assertEqual(access['user']['id'], self.user['id'])
+        self.assertEqual(access['user']['username'], self.user['name'])
+        self.assertEqual(access['token']['tenant']['id'], tenant['id'])
+        self.assertEqual(access['token']['tenant']['name'], tenant['name'])
+
+    def test_scope_to_tenant_by_name_with_credentials(self):
+        # Additonal setUp
+        tenant = self.create_tenant().json['tenant']
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'], role['id'], tenant['id'])
+
+        scoped = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']},
+                'tenantName': tenant['name']}}).json['access']
+
+        self.assertEqual(scoped['token']['tenant']['id'], tenant['id'])
+        self.assertEqual(scoped['token']['tenant']['name'], tenant['name'])
+
+        # And an admin should be able to validate that our new token is scoped
+        r = self.validate_token(scoped['token']['id'], tenant['id'])
+        access = r.json['access']
+
+        self.assertEqual(access['user']['id'], self.user['id'])
+        self.assertEqual(access['user']['username'], self.user['name'])
+        self.assertEqual(access['token']['tenant']['id'], tenant['id'])
+        self.assertEqual(access['token']['tenant']['name'], tenant['name'])
+
+    def test_scope_to_tenant_by_bad_request(self):
+        # Additonal setUp
+        tenant = self.create_tenant().json['tenant']
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'], role['id'], tenant['id'])
+
+        # Create an unscoped token
+        unscoped = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']}}}).json['access']
+
+        # tenant Name & ID should never be provided together
+        self.post_token(as_json={
+            'auth': {
+                'tokenId': unscoped['token']['id'],
+                'tenantId': tenant['id'],
+                'tenantName': tenant['name']}}, assert_status=400)
 
     def test_get_request_fails(self):
         """GET /tokens should return a 404 (Github issue #5)"""

@@ -17,10 +17,14 @@ class AuthController(wsgi.Controller):
             auth_with_credentials = utils.get_normalized_request_content(
                 auth.AuthWithPasswordCredentials, req)
             result = config.SERVICE.authenticate(auth_with_credentials)
-        except fault.BadRequestFault:
-            unscoped = utils.get_normalized_request_content(
-                auth.AuthWithUnscopedToken, req)
-            result = config.SERVICE.authenticate_with_unscoped_token(unscoped)
+        except fault.BadRequestFault as e1:
+            try:
+                unscoped = utils.get_normalized_request_content(
+                    auth.AuthWithUnscopedToken, req)
+                result = config.SERVICE.authenticate_with_unscoped_token(
+                    unscoped)
+            except fault.BadRequestFault as e2:
+                raise fault.BadRequestFault(e1.msg + ' or ' + e2.msg)
 
         return utils.send_result(200, req, result)
 

@@ -50,6 +50,10 @@ class IdentityService(object):
         def validate(duser):
             return api.USER.check_password(duser, auth_request.password)
 
+        if auth_request.tenant_name:
+            dtenant = api.TENANT.get_by_name(auth_request.tenant_name)
+            auth_request.tenant_id = dtenant.id
+
         user = api.USER.get_by_name(auth_request.username)
         if not user:
             raise fault.UnauthorizedFault("Unauthorized")
@@ -67,6 +71,10 @@ class IdentityService(object):
         # reach this flow.
         # _token, user = self.__validate_unscoped_token(auth_request.token_id)
         _token, user = self.__validate_token(auth_request.token_id)
+
+        if auth_request.tenant_name:
+            dtenant = api.TENANT.get_by_name(auth_request.tenant_name)
+            auth_request.tenant_id = dtenant.id
 
         self.__validate_tenant(auth_request.tenant_id)
 

@@ -21,9 +21,10 @@ import keystone.backends.api as db_api
 
 
 class AuthWithUnscopedToken(object):
-    def __init__(self, token_id, tenant_id):
+    def __init__(self, token_id, tenant_id=None, tenant_name=None):
         self.token_id = token_id
         self.tenant_id = tenant_id
+        self.tenant_name = tenant_name
 
     @staticmethod
     def from_xml(xml_str):
@@ -34,20 +35,23 @@ class AuthWithUnscopedToken(object):
                 "auth")
             if root == None:
                 raise fault.BadRequestFault("Expecting auth")
-            token = \
-                root.find("{http://docs.openstack.org/identity/api/v2.0}"
+            token = root.find("{http://docs.openstack.org/identity/api/v2.0}"
                 "token")
             if token is None:
                 raise fault.BadRequestFault("Expecting token")
+
             token_id = token.get("id")
+            tenant_id = root.get("tenantId")
+            tenant_name = root.get("tenantName")
+
             if token_id is None:
                 raise fault.BadRequestFault("Expecting a token id")
 
-            tenant_id = root.get("tenantId")
-            if tenant_id is None:
-                raise fault.BadRequestFault("Expecting a tenant id")
+            if tenant_id and tenant_name:
+                raise fault.BadRequestFault(
+                    "Expecting either Tenant ID or Tenant Name, but not both")
 
-            return AuthWithUnscopedToken(token_id, tenant_id)
+            return AuthWithUnscopedToken(token_id, tenant_id, tenant_name)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse password access", str(e))
 
@@ -57,27 +61,31 @@ class AuthWithUnscopedToken(object):
             obj = json.loads(json_str)
             if not obj.get("auth"):
                 raise fault.BadRequestFault("Expecting auth")
-            if not "token" in obj.get("auth"):
+            if not obj["auth"].get("token"):
                 raise fault.BadRequestFault("Expecting token")
             token = obj['auth']['token']
             if not token.get("id"):
                 raise fault.BadRequestFault("Expecting token id")
-            if not obj['auth'].get("tenantId"):
-                raise fault.BadRequestFault("Expecting tenant id")
 
-            tenant_id = obj["auth"]["tenantId"]
             token_id = obj["auth"]["token"]["id"]
+            tenant_id = obj["auth"].get("tenantId")
+            tenant_name = obj["auth"].get("tenantName")
 
-            return AuthWithUnscopedToken(token_id, tenant_id)
+            if tenant_id and tenant_name:
+                raise fault.BadRequestFault(
+                    "Expecting either Tenant ID or Tenant Name, but not both")
+
+            return AuthWithUnscopedToken(token_id, tenant_id, tenant_name)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse auth", str(e))
 
 
 class AuthWithPasswordCredentials(object):
-    def __init__(self, username, password, tenant_id):
+    def __init__(self, username, password, tenant_id=None, tenant_name=None):
         self.username = username
         self.password = password
         self.tenant_id = tenant_id
+        self.tenant_name = tenant_name
 
     @staticmethod
     def from_xml(xml_str):
@@ -89,6 +97,7 @@ class AuthWithPasswordCredentials(object):
             if root == None:
                 raise fault.BadRequestFault("Expecting auth")
             tenant_id = root.get("tenantId")
+            tenant_name = root.get("tenantName")
             password_credentials = \
                 root.find("{http://docs.openstack.org/identity/api/v2.0}"
                 "passwordCredentials")
@@ -101,7 +110,12 @@ class AuthWithPasswordCredentials(object):
             if password == None:
                 raise fault.BadRequestFault("Expecting a password")
 
-            return AuthWithPasswordCredentials(username, password, tenant_id)
+            if tenant_id and tenant_name:
+                raise fault.BadRequestFault(
+                    "Expecting either Tenant ID or Tenant Name, but not both")
+
+            return AuthWithPasswordCredentials(username, password, tenant_id,
+                tenant_name)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse password access", str(e))
 
@@ -113,14 +127,14 @@ class AuthWithPasswordCredentials(object):
                 raise fault.BadRequestFault("Expecting auth")
             auth = obj["auth"]
             invalid = [key for key in auth if key not in\
-                       ['tenantId', 'passwordCredentials']]
+                       ['tenantId', 'tenantName', 'passwordCredentials']]
             if invalid != []:
                 raise fault.BadRequestFault("Invalid attribute(s): %s"
                                             % invalid)
-            if "tenantId" in auth:
-                tenant_id = auth["tenantId"]
-            else:
-                tenant_id = None
+
+            tenant_id = auth.get('tenantId')
+            tenant_name = auth.get('tenantName')
+
             if not "passwordCredentials" in auth:
                 raise fault.BadRequestFault("Expecting passwordCredentials")
             cred = auth["passwordCredentials"]
@@ -136,10 +150,10 @@ class AuthWithPasswordCredentials(object):
             if not "password" in cred:
                 raise fault.BadRequestFault("Expecting a password")
             password = cred["password"]
-            return AuthWithPasswordCredentials(username, password, tenant_id)
+            return AuthWithPasswordCredentials(username, password, tenant_id,
+                tenant_name)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse auth",
-                                        str(e))
+            raise fault.BadRequestFault("Cannot parse auth", str(e))
 
 
 class Ec2Credentials(object):
