@@ -22,7 +22,7 @@
 	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
 		http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
 		http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
-		http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0 ../common/xsd/OS-KSEC2-credentials.xsd
+		http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0 ../common/xsd/OS-KSEC2-credentials.xsd
 		">
 
     <grammars>
@@ -151,12 +151,12 @@
         <request>
             <representation mediaType="application/xml" element="identity:credentials">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.xml"/>
+               <xsdxt:code href="../common/samples/ec2Credentials.xml"/>
             </doc>
          </representation>
             <representation mediaType="application/json">
             <doc xml:lang="EN">
-               <xsdxt:code href="../common/samples/apikeyCredentials.json"/>
+               <xsdxt:code href="../common/samples/ec2Credentials.json"/>
             </doc>
          </representation>
         </request>

@@ -209,6 +209,8 @@ def process(*args):
             print 'SUCCESS: Token %s deleted.' % (object_id,)
 
     elif (object_type, command) == ('service', 'add'):
+        require_args(args, 4, "Missing arguments: service add name "
+            "type")
         type = optional_arg(args, 3)
         desc = optional_arg(args, 4)
         if api.add_service(name=object_id, type=type, desc=desc):
