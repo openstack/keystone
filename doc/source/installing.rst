@@ -35,10 +35,24 @@ Debian/Ubuntu
 
    $> sudo apt-get install keystone
 
+
 RedHat/Fedora
 #############
 
-.. todo:: Need some help on this one...
+On some OSes, specifically Fedora 15, the current versions of
+greenlet/eventlet segfault when running keystone. To fix this, install
+the development versions of greenlet and eventlet::
+
+    $ pip uninstall greenlet eventlet
+    $ cd <appropriate working directory>
+    $ hg clone https://bitbucket.org/ambroff/greenlet
+    $ cd greenlet
+    $ sudo python setup.py install
+
+    $ cd <appropriate working directory>
+    $ hg clone https://bitbucket.org/which_linden/eventlet
+    $ cd greenlet
+    $ sudo python setup.py install
 
 Mac OSX
 #######
@@ -51,13 +65,17 @@ Installing from source tarballs
 To install the latest version of Keystone from the Launchpad Bazaar repositories,
 following the following instructions.
 
-1. Grab the source tarball from `Github <https://github.com/openstack/keystone>`_
+#. Grab the source tarball from `Github <https://github.com/openstack/keystone>`_
 
-2. Untar the source tarball::
+#. Untar the source tarball::
 
    $> tar -xzf <FILE>
 
-3. Change into the package directory and build/install::
+#. Install dependencies::
+
+   $> sudo apt-get install -y git python-pip gcc python-lxml libxml2 python-greenlet-dbg python-dev libsqlite3-dev libldap2-dev libssl-dev libxml2-dev libxslt1-dev libsasl2-dev
+
+#. Change into the package directory and build/install::
 
    $> cd keystone-<RELEASE>
    $> sudo python setup.py install
@@ -71,22 +89,21 @@ see the following instructions.
 Debian/Ubuntu
 #############
 
-1. Install Git and build dependencies::
+.. note::
+   If you want to build the Keystone documentation locally, you will also want
+   to install the python-sphinx package in the first step.
+
+#. Install Git and build dependencies::
 
    $> sudo apt-get install git python-eventlet python-routes python-greenlet swift
    $> sudo apt-get install python-argparse python-sqlalchemy python-wsgiref python-pastedeploy
 
-.. note::
-
-   If you want to build the Keystone documentation locally, you will also want
-   to install the python-sphinx package
-
-1. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)::
+#. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)::
    
    $> git checkout master
    $> git pull origin master
 
-1. Install Keystone::
+#. Install Keystone::
    
    $> sudo python setup.py install
 
