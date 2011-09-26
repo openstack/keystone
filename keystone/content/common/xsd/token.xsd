@@ -24,7 +24,6 @@
     
     <!-- Elements -->
     <element name="access" type="identity:AuthenticateResponse"/>
-    <element name="token" type="identity:Token"/>
     
     <!-- Complex Types -->
     <complexType name="Token">
