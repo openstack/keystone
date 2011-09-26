@@ -106,9 +106,12 @@ def grant_role(role, user, tenant=None):
 
 def add_endpoint_template(region, service, public_url, admin_url, internal_url,
     enabled, is_global):
+    db_service = db_api.SERVICE.get_by_name(service)
+    if db_service == None:
+        raise IndexError("Service %s not found" % service)
     obj = db_models.EndpointTemplates()
     obj.region = region
-    obj.service_id = service
+    obj.service_id = db_service.id
     obj.public_url = public_url
     obj.admin_url = admin_url
     obj.internal_url = internal_url
@@ -121,14 +124,16 @@ def list_tenant_endpoints(tenant):
     objects = db_api.ENDPOINT_TEMPLATE.endpoint_get_by_tenant(tenant)
     if objects == None:
         raise IndexError("URLs not found")
-    return [[o.service, o.region, o.public_url] for o in objects]
+    return [[db_api.SERVICE.get(o.service_id).name,
+             o.region, o.public_url] for o in objects]
 
 
 def list_endpoint_templates():
     objects = db_api.ENDPOINT_TEMPLATE.get_all()
     if objects == None:
         raise IndexError("URLs not found")
-    return [[o.service, o.region, o.public_url] for o in objects]
+    return [[db_api.SERVICE.get(o.service_id).name,
+             o.region, o.public_url] for o in objects]
 
 
 def add_endpoint(tenant, endpoint_template):
@@ -175,7 +180,7 @@ def list_services():
     objects = db_api.SERVICE.get_all()
     if objects == None:
         raise IndexError("Services not found")
-    return [[o.id] for o in objects]
+    return [[o.id, o.name, o.type] for o in objects]
 
 
 def add_credentials(user, type, key, secrete, tenant=None):

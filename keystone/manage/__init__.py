@@ -215,7 +215,7 @@ def process(*args):
             print "SUCCESS: Service %s created successfully." % (object_id,)
 
     elif (object_type, command) == ('service', 'list'):
-        print_table(('service'), api.list_services())
+        print_table(('id', 'name', 'type'), api.list_services())
 
     elif (object_type, command) == ('credentials', 'add'):
         require_args(args, 6, 'Creating a credentials requires a type, key, '
