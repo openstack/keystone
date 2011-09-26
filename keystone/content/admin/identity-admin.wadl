@@ -208,12 +208,14 @@
         <request>
             <representation mediaType="application/xml" element="identity:auth">
 	      <doc>
-		<xsdxt:code href="../common/samples/auth_credentials.xml"/>
+				<xsdxt:code href="../common/samples/auth_credentials.xml"/>
+				<xsdxt:code href="../common/samples/auth_with_token.xml"/>
 	      </doc>
 	    </representation>
         <representation mediaType="application/json">
 	      <doc>
-		<xsdxt:code href="../common/samples/auth_credentials.json"/>
+				<xsdxt:code href="../common/samples/auth_credentials.json"/>
+				<xsdxt:code href="../common/samples/auth_with_token.json"/>
 	      </doc>
 	    </representation>
         </request>

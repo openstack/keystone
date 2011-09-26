@@ -14,7 +14,7 @@
 
 <application xmlns="http://wadl.dev.java.net/2009/02"
 	xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
-	xmlns:OS-KSADM="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"	
+	xmlns:RAX-KSKEY="http://docs.openstack.org/identity/api/ext/RAX-KSKEY/v1.0"	
 	xmlns:capi="http://docs.openstack.org/common/api/v2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -22,13 +22,13 @@
 	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
 		http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
 		http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
-		http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0 ../common/xsd/OS-KSADM.xsd
+		http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0 ../common/xsd/RAX-KSKEY-credentials.xsd
 		">
 
     <grammars>
         <include href="../common/xsd/api.xsd"/>
         <include href="../common/xsd/api-common.xsd"/>
-        <include href="../common/xsd/OS-KSADM.xsd" />
+        <include href="../common/xsd/RAX-KSKEY-credentials.xsd" />
     </grammars>
     <!--*******************************************************-->
     <!--             All Resoruces                             -->

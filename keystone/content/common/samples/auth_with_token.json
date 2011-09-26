@@ -1,0 +1,8 @@
+{
+    "auth": {
+        "tenantId": "1234",
+        "token": {
+            "id": "abcdefghijk"
+        }
+    }
+}
