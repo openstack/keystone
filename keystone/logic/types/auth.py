@@ -34,13 +34,16 @@ class AuthWithUnscopedToken(object):
                 "auth")
             if root == None:
                 raise fault.BadRequestFault("Expecting auth")
-
-            token_id = root.get("tokenId")
-            tenant_id = root.get("tenantId")
-
+            token = \
+                root.find("{http://docs.openstack.org/identity/api/v2.0}"
+                "token")
+            if token is None:
+                raise fault.BadRequestFault("Expecting token")
+            token_id = token.get("id")
             if token_id is None:
                 raise fault.BadRequestFault("Expecting a token id")
 
+            tenant_id = root.get("tenantId")
             if tenant_id is None:
                 raise fault.BadRequestFault("Expecting a tenant id")
 
@@ -52,16 +55,18 @@ class AuthWithUnscopedToken(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-
             if not obj.get("auth"):
                 raise fault.BadRequestFault("Expecting auth")
-            if not obj['auth'].get("tokenId"):
+            if not "token" in obj.get("auth"):
+                raise fault.BadRequestFault("Expecting token")
+            token = obj['auth']['token']
+            if not token.get("id"):
                 raise fault.BadRequestFault("Expecting token id")
             if not obj['auth'].get("tenantId"):
                 raise fault.BadRequestFault("Expecting tenant id")
 
             tenant_id = obj["auth"]["tenantId"]
-            token_id = obj["auth"]["tokenId"]
+            token_id = obj["auth"]["token"]["id"]
 
             return AuthWithUnscopedToken(token_id, tenant_id)
         except (ValueError, TypeError) as e:
