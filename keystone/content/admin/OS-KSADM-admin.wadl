@@ -44,6 +44,7 @@
                 <method href="#listUsers"/>
                 <method href="#addUser"/>
                 <resource id="userById" path="{userId}">
+                    <param name="userId" style="template" required="true" type="xsd:string"/>
                     <method href="#updateUser"/>
                     <method href="#deleteUser"/>
 
@@ -51,7 +52,7 @@
                         <method href="#listUserRoles"/>
                         <resource id="user-roles-OS-KSADM" path="OS-KSADM">
                             <resource id="userRoleById" path="{roleId}">
-                                <param name="roleId" style="template" type="xsd:int"/>
+                                <param name="roleId" style="template" type="xsd:string"/>
                                 <method href="#addUserRole"/>
                                 <method href="#getUserRole"/>
                                 <method href="#deleteUserRole"/>
@@ -97,6 +98,7 @@
                             <resource id="userRolesForTenant" path="roles">
                                 <resource id="tenant-user-role-OS-KSADM" path="OS-KSADM">
                                     <resource id="userSpecificRoleForTenant" path="{roleId}">
+                                        <param name="roleId" style="template" type="xsd:string"/>
                                         <method href="#addRolesToUserOnTenant"/>
                                         <method href="#deleteRoleFromUserOnTenant"/>
                                     </resource>

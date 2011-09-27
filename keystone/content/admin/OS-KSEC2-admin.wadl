@@ -42,6 +42,8 @@
             </param>            
             <resource id="users" path="users">
                 <resource id="userById" path="{userId}">
+                    <param name="userId" style="template" required="true" type="xsd:string"/>
+                    <resource id="user-OS-KSADM" path="OS-KSADM">
                         <resource id="userCredentials" path="credentials">
                             <method href="#addUserCredential"/>
                             <method href="#listCredentials"/>
@@ -52,6 +54,7 @@
                             </resource>
                         </resource>
                     </resource>
+                  </resource>  
                 </resource>
             </resource>
     </resources>
