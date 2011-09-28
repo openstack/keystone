@@ -22,7 +22,7 @@ class TestExtensions(common.ApiTestCase):
         self.assertTrue('xml' in r.getheader('Content-Type'))
         content = r.xml
         extension = content.find(
-            "{http://docs.openstack.org/common/api/v2.0}extension")
+            "{http://docs.openstack.org/common/api/v1.0}extension")
         self.assertEqual(extension.get("alias"), "RAX-KSKEY")
 
 

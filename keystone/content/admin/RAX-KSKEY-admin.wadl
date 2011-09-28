@@ -15,7 +15,7 @@
 <application xmlns="http://wadl.dev.java.net/2009/02"
 	xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
 	xmlns:RAX-KSKEY="http://docs.openstack.org/identity/api/ext/RAX-KSKEY/v1.0"	
-	xmlns:capi="http://docs.openstack.org/common/api/v2.0"
+	xmlns:capi="http://docs.openstack.org/common/api/v1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"

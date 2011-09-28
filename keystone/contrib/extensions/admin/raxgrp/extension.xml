@@ -9,5 +9,7 @@
                         enabling groups.
             </description>
             <atom:link rel="describedby" type="application/pdf"
-                        href="http://docs.rackspacecloud.com/identity/api/ext/RAX-KSGRP-service-devguide.pdf"/>
+                        href="https://github.com/openstack/keystone/raw/master/keystone/content/admin/RAX-KSGRP-admin-devguide.pdf"/>
+            <atom:link rel="describedby" type="application/vnd.sun.wadl+xml"
+                        href="https://github.com/openstack/keystone/raw/master/keystone/content/admin/RAX-KSGRP-admin.wadl"/>
 </extension>
