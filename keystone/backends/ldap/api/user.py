@@ -1,7 +1,7 @@
 import ldap
 import ldap.filter
 
-from keystone import utils
+import keystone.backends.backendutils as utils
 from keystone.backends.api import BaseUserAPI
 from keystone.backends.sqlalchemy.api.user import UserAPI as SQLUserAPI
 
@@ -37,7 +37,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         # Persist the 'name' as the UID
         values['id'] = values['name']
         delattr(values, 'name')
-
+        utils.set_hashed_password(values)
         values = super(UserAPI, self).create(values)
         if values['tenant_id'] is not None:
             self.api.tenant.add_user(values['tenant_id'], values['id'])
@@ -55,6 +55,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
                     self.api.tenant.remove_user(old_obj.tenant_id, id)
                 if new_tenant:
                     self.api.tenant.add_user(new_tenant, id)
+        utils.set_hashed_password(values)
         super(UserAPI, self).update(id, values, old_obj)
 
     def delete(self, id):
@@ -113,13 +114,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
                 self.api.tenant.get_users(tenant_id))
 
     def check_password(self, user, password):
-        try:
-            self.api.get_connection(self._id_to_dn(user.id), password)
-        except (ldap.NO_SUCH_OBJECT, ldap.INAPPROPRIATE_AUTH,
-                ldap.INVALID_CREDENTIALS):
-            return False
-        else:
-            return True
+        return utils.check_password(password, user.password)
 
     add_redirects(locals(), SQLUserAPI, ['get_by_group', 'tenant_group',
         'tenant_group_delete', 'user_groups_get_all',

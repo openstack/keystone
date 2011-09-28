@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import keystone.utils as utils
+import keystone.backends.backendutils as utils
 from keystone.backends.sqlalchemy import get_session, models, aliased, \
     joinedload
 from keystone.backends.api import BaseUserAPI
@@ -29,16 +29,10 @@ class UserAPI(BaseUserAPI):
 
     def create(self, values):
         user_ref = models.User()
-        self.__check_and_use_hashed_password(values)
+        utils.set_hashed_password(values)
         user_ref.update(values)
         user_ref.save()
         return user_ref
-
-    def __check_and_use_hashed_password(self, values):
-        if type(values) is dict and 'password' in values.keys():
-            values['password'] = utils.get_hashed_password(values['password'])
-        elif type(values) is models.User:
-            values.password = utils.get_hashed_password(values.password)
 
     def get(self, id, session=None):
         if not session:
@@ -119,7 +113,7 @@ class UserAPI(BaseUserAPI):
             session = get_session()
         with session.begin():
             user_ref = self.get(id, session)
-            self.__check_and_use_hashed_password(values)
+            utils.set_hashed_password(values)
             user_ref.update(values)
             user_ref.save(session=session)
 
@@ -315,7 +309,7 @@ class UserAPI(BaseUserAPI):
         return (prev_page, next_page)
 
     def check_password(self, user, password):
-        return user.password == utils.get_hashed_password(password)
+        return utils.check_password(password, user.password)
 
 
 def get():

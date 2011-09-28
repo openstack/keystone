@@ -101,6 +101,7 @@ class ServiceAPITest(unittest.TestCase):
         },
         'keystone-admin-role': 'Admin',
         'keystone-service-admin-role': 'KeystoneServiceAdmin',
+        'hash-password': 'True',
     }
 
     def setUp(self):

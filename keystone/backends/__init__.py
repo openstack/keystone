@@ -28,6 +28,7 @@ ADMIN_ROLE_ID = None
 ADMIN_ROLE_NAME = None
 SERVICE_ADMIN_ROLE_ID = None
 SERVICE_ADMIN_ROLE_NAME = None
+SHOULD_HASH_PASSWORD = None
 
 
 def configure_backends(options):
@@ -43,3 +44,8 @@ def configure_backends(options):
 
     global SERVICE_ADMIN_ROLE_NAME
     SERVICE_ADMIN_ROLE_NAME = options["keystone-service-admin-role"]
+
+    global SHOULD_HASH_PASSWORD
+    if "hash-password" in options\
+        and ast.literal_eval(options["hash-password"]) == True:
+        SHOULD_HASH_PASSWORD = options["hash-password"]
