@@ -87,9 +87,17 @@ def normalize_accept_header(env):
 
     Sets KEYSTONE_RESPONSE_ENCODING and KEYSTONE_API_VERSION, if appropriate.
     """
-    if env.get('HTTP_ACCEPT'):
-        accept = webob.acceptparse.Accept('Accept', env.get('HTTP_ACCEPT'))
+    accept_value = env.get('HTTP_ACCEPT')
+
+    if accept_value:
+        try:
+            accept = webob.acceptparse.Accept(accept_value)
+        except TypeError:
+            # Support `webob` v1.1 and older.
+            accept = webob.acceptparse.Accept('Accept', accept_value)
+
         best_accept = accept.best_match(ACCEPT_HEADERS.keys())
+
         if best_accept:
             response_encoding, api_version = ACCEPT_HEADERS[best_accept]
 
