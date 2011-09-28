@@ -526,7 +526,7 @@
             <p xmlns="http://www.w3.org/1999/xhtml">Adds a credential to a user.</p>
         </doc>
         <request>
-            <representation mediaType="application/xml" element="identity:credentials">
+            <representation mediaType="application/xml" element="identity:credential">
                 <doc xml:lang="EN">
                     <xsdxt:code href="../common/samples/passwordcredentials.xml"/>
                 </doc>
@@ -538,7 +538,7 @@
             </representation>
         </request>
         <response status="201">
-            <representation mediaType="application/xml" element="identity:credentials">
+            <representation mediaType="application/xml" element="identity:credential">
                 <doc xml:lang="EN">
                     <xsdxt:code href="../common/samples/passwordcredentials.xml"/>
                 </doc>
@@ -610,7 +610,7 @@
                         
         </doc>
         <request>
-            <representation mediaType="application/xml" element="identity:credentials">
+            <representation mediaType="application/xml" element="identity:credential">
                 <doc xml:lang="EN">
                     <xsdxt:code href="../common/samples/passwordcredentials.xml"/>
                 </doc>
@@ -622,7 +622,7 @@
             </representation>
         </request>
         <response status="200">
-            <representation mediaType="application/xml" element="identity:credentials">
+            <representation mediaType="application/xml" element="identity:credential">
                 <doc xml:lang="EN">
                     <xsdxt:code href="../common/samples/passwordcredentials.xml"/>
                 </doc>
@@ -654,7 +654,7 @@
                         
         </doc>
         <response status="200 203">
-            <representation mediaType="application/xml" element="identity:credentials">
+            <representation mediaType="application/xml" element="identity:credential">
                 <doc xml:lang="EN">
                     <xsdxt:code href="../common/samples/passwordcredentials.xml"/>
                 </doc>
