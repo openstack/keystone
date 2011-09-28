@@ -39,7 +39,9 @@ class TestAdminAuthenticationNegative(common.FunctionalTestCase):
         # Try to authenticate for this tenant
         access = self.post_token(as_json={
             'auth': {
-                'tokenId': self.admin_token,
+                'token': {
+                   'id': self.admin_token
+                 },
                 'tenantId': tenant['id']}}).json['access']
 
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
@@ -51,8 +53,10 @@ class TestAdminAuthenticationNegative(common.FunctionalTestCase):
         # Try (and fail) to authenticate for this tenant
         self.post_token(as_json={
             'auth': {
-                'tokenId': self.admin_token,
-                'tenantId': tenant['id']}}, assert_status=401)
+                'token': {
+                   'id': self.admin_token
+                 },
+            'tenantId': tenant['id']}}, assert_status=401)
 
     def test_service_token_as_admin_token(self):
         """Admin actions should fail for mere service tokens"""
@@ -141,7 +145,9 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         # We can now get a token scoped to our tenant
         scoped = self.post_token(as_json={
             'auth': {
-                'tokenId': unscoped['token']['id'],
+                'token': {
+                   'id': unscoped['token']['id']
+                 },
                 'tenantId': tenant['id']}}).json['access']
 
         self.assertEqual(scoped['token']['tenant']['id'], tenant['id'])
