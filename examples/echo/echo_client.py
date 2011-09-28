@@ -69,7 +69,7 @@ if __name__ == '__main__':
     # Call the keystone service to get a token
     # NOTE: assumes the test_setup.sql script has loaded this user
     print "\033[91mTrying with valid test credentials...\033[0m"
-    auth = get_auth_token("joeuser", "secrete", "1234")
+    auth = get_auth_token("joeuser", "secrete", "customer-x")
     obj = json.loads(auth)
     token = obj["auth"]["token"]["id"]
     print "Token obtained:", token

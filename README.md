@@ -205,7 +205,7 @@ in troubleshooting:
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
+    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantName": "customer-x"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get an admin token
 
@@ -217,7 +217,7 @@ in troubleshooting:
 <pre>
    # Create post data
 
-   $ echo '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantId": "1234"}}' > post_data
+   $ echo '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantName": "customer-x"}}' > post_data
 
    # Call Apache Bench
 
