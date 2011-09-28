@@ -15,7 +15,7 @@
       under the License.
 
 Curl Admin API examples
-=====
+=======================
 
 All examples assume default port usage (5001) and use the example admin account created
 on the Getting Started page.
@@ -54,7 +54,7 @@ Retrieve a list of tenants:
 
 This will return something like::
 
-	$> {"tenants": {"values": [{"enabled": 1, "id": "MyTenant", "description": null}], "links": []}}
+	$> {"tenants": {"values": [{"enabled": 1, "id": "145", "name": "MyTenant", "description": null}], "links": []}}
 	
 Retrieve a list of users:
 #####
@@ -64,7 +64,7 @@ Retrieve a list of users:
 	
 This will return something like::
 
-    $> {"users": {"values": [{"email": null, "enabled": true, "id": "MyAdmin", "tenantId": "MyTenant"}], "links": []}}
+    $> {"users": {"values": [{"email": null, "enabled": true, "id": "1227", "name": "MyAdmin", "tenantId": "MyTenant"}], "links": []}}
 	
 Retrieve information about the token:
 #####
@@ -74,7 +74,7 @@ Retrieve information about the token:
 		
 This will return something like::
 
-	$> {"auth": {"token": {"expires": "2011-08-11T04:26:58.145171", "id": "0eed0ced-4667-4221-a0b2-24c91f242b0b"}, "user": {"username": "MyAdmin", "roleRefs": [{"roleId": "Admin", "id": 1}], "tenantId": "MyTenant"}}}	
+	$> {"auth": {"token": {"expires": "2011-08-11T04:26:58.145171", "id": "0eed0ced-4667-4221-a0b2-24c91f242b0b"}, "user": {"username": "MyAdmin", "roles": [{"roleId": "Admin", "id": 1}], "tenant": {"id": 932, "name": "MyTenant"}}}}	
 
 Revoking a token:
 #####	
@@ -86,7 +86,7 @@ Creating a tenant:
 #####
 	Run::
 	
-	$> curl -H "X-Auth-Token:999888777666" -H "Content-type: application/json" -d '{"tenant":{"id":"MyTenant2", "description":"My 2nd Tenant", "enabled":true}}'  http://localhost:5001/tenants
+	$> curl -H "X-Auth-Token:999888777666" -H "Content-type: application/json" -d '{"tenant":{"id": 416, "name":"MyTenant2", "description":"My 2nd Tenant", "enabled":true}}'  http://localhost:5001/tenants
 	
 This will return something like::
 	

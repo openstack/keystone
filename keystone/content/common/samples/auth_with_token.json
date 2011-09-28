@@ -1,6 +1,6 @@
 {
     "auth": {
-        "tenantId": "1234",
+        "tenantName": "customer-x",
         "token": {
             "id": "abcdefghijk"
         }
