@@ -51,8 +51,10 @@ class IdentityService(object):
             return api.USER.check_password(duser, auth_request.password)
 
         if auth_request.tenant_name:
-            dtenant = api.TENANT.get_by_name(auth_request.tenant_name)
+            dtenant = self.__validate_tenant_by_name(auth_request.tenant_name)
             auth_request.tenant_id = dtenant.id
+        elif auth_request.tenant_id:
+            dtenant = self.__validate_tenant_by_id(auth_request.tenant_id)
 
         user = api.USER.get_by_name(auth_request.username)
         if not user:
@@ -73,10 +75,10 @@ class IdentityService(object):
         _token, user = self.__validate_token(auth_request.token_id)
 
         if auth_request.tenant_name:
-            dtenant = api.TENANT.get_by_name(auth_request.tenant_name)
+            dtenant = self.__validate_tenant_by_name(auth_request.tenant_name)
             auth_request.tenant_id = dtenant.id
-
-        self.__validate_tenant(auth_request.tenant_id)
+        elif auth_request.tenant_id:
+            dtenant = self.__validate_tenant_by_id(auth_request.tenant_id)
 
         def validate(duser):
             # The user is already authenticated
@@ -540,17 +542,31 @@ class IdentityService(object):
 
         return auth.ValidateData(token, user)
 
-    def __validate_tenant(self, tenant_id):
-        if not tenant_id:
-            raise fault.UnauthorizedFault("Missing tenant")
+    def __validate_tenant(self, dtenant):
+        if not dtenant:
+            raise fault.UnauthorizedFault("Tenant not found")
 
-        tenant = api.TENANT.get(tenant_id)
-        if not tenant:
-            tenant = api.TENANT.get_by_name(name=tenant_id)
-
-        if not tenant.enabled:
+        if not dtenant.enabled:
             raise fault.TenantDisabledFault("Tenant %s has been disabled!"
-                                          % tenant.id)
+                % dtenant.id)
+
+        return dtenant
+
+    def __validate_tenant_by_id(self, tenant_id):
+        if not tenant_id:
+            raise fault.UnauthorizedFault("Missing tenant id")
+
+        dtenant = api.TENANT.get(tenant_id)
+
+        return self.__validate_tenant(dtenant)
+
+    def __validate_tenant_by_name(self, tenant_name):
+        if not tenant_name:
+            raise fault.UnauthorizedFault("Missing tenant name")
+
+        dtenant = api.TENANT.get_by_name(name=tenant_name)
+
+        return self.__validate_tenant(dtenant)
 
     def __validate_token(self, token_id, belongs_to=None):
         if not token_id:
@@ -569,10 +585,10 @@ class IdentityService(object):
                 % user.id)
 
         if user.tenant_id:
-            self.__validate_tenant(user.tenant_id)
+            self.__validate_tenant_by_id(user.tenant_id)
 
         if token.tenant_id:
-            self.__validate_tenant(token.tenant_id)
+            self.__validate_tenant_by_id(token.tenant_id)
 
         if belongs_to and unicode(token.tenant_id) != unicode(belongs_to):
             raise fault.UnauthorizedFault("Unauthorized on this tenant")

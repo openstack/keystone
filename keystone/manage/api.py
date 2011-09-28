@@ -5,9 +5,8 @@ import keystone.backends.models as db_models
 
 
 def add_user(name, password, tenant=None):
-    dbtenant = db_api.TENANT.get_by_name(tenant)
-    if dbtenant:
-        tenant = dbtenant.id
+    if tenant:
+        tenant = db_api.TENANT.get_by_name(tenant).id
 
     obj = db_models.User()
     obj.name = name
@@ -19,7 +18,7 @@ def add_user(name, password, tenant=None):
 
 def disable_user(name):
     user = db_api.USER.get_by_name(name)
-    if user == None:
+    if user is None:
         raise IndexError("User %s not found" % name)
     user.enabled = False
     return db_api.USER.update(user.id, user)
@@ -28,7 +27,7 @@ def disable_user(name):
 def list_users():
     objects = db_api.USER.get_all()
     if objects == None:
-        raise IndexError("Users not found")
+        raise IndexError("No users found")
     return [[o.id, o.enabled, o.tenant_id] for o in objects]
 
 
@@ -69,11 +68,8 @@ def list_role_assignments(tenant):
 
 
 def list_roles(tenant=None):
-
     if tenant:
-        dbtenant = db_api.TENANT.get_by_name(tenant)
-        if dbtenant:
-            tenant = dbtenant.id
+        tenant = db_api.TENANT.get_by_name(tenant).id
         return list_role_assignments(tenant)
     else:
         objects = db_api.ROLE.get_all()
@@ -84,17 +80,11 @@ def list_roles(tenant=None):
 
 def grant_role(role, user, tenant=None):
     """Grants `role` to `user` (and optionally, on `tenant`)"""
-    drole = db_api.ROLE.get_by_name(name=role)
-    if drole:
-        role = drole.id
+    role = db_api.ROLE.get_by_name(name=role).id
+    user = db_api.USER.get_by_name(name=user).id
 
-    duser = db_api.USER.get_by_name(name=user)
-    if duser:
-        user = duser.id
-
-    dtenant = db_api.TENANT.get_by_name(name=tenant)
-    if dtenant:
-        tenant = dtenant.id
+    if tenant:
+        tenant = db_api.TENANT.get_by_name(name=tenant).id
 
     obj = db_models.UserRoleAssociation()
     obj.role_id = role
@@ -107,7 +97,7 @@ def grant_role(role, user, tenant=None):
 def add_endpoint_template(region, service, public_url, admin_url, internal_url,
     enabled, is_global):
     db_service = db_api.SERVICE.get_by_name(service)
-    if db_service == None:
+    if db_service is None:
         raise IndexError("Service %s not found" % service)
     obj = db_models.EndpointTemplates()
     obj.region = region
@@ -137,6 +127,8 @@ def list_endpoint_templates():
 
 
 def add_endpoint(tenant, endpoint_template):
+    tenant = db_api.TENANT.get_by_name(name=tenant).id
+
     obj = db_models.Endpoints()
     obj.tenant_id = tenant
     obj.endpoint_template_id = endpoint_template
@@ -145,6 +137,9 @@ def add_endpoint(tenant, endpoint_template):
 
 
 def add_token(token, user, tenant, expires):
+    user = db_api.USER.get_by_name(name=user).id
+    tenant = db_api.TENANT.get_by_name(name=tenant).id
+
     obj = db_models.Token()
     obj.id = token
     obj.user_id = user
@@ -184,14 +179,10 @@ def list_services():
 
 
 def add_credentials(user, type, key, secrete, tenant=None):
+    user = db_api.USER.get_by_name(user).id
 
-    duser = db_api.USER.get_by_name(name=user)
-    if duser:
-        user = duser.id
-
-    dbtenant = db_api.TENANT.get_by_name(tenant)
-    if dbtenant:
-        tenant = dbtenant.id
+    if tenant:
+        tenant = db_api.TENANT.get_by_name(tenant).id
 
     obj = db_models.Token()
     obj.user_id = user
