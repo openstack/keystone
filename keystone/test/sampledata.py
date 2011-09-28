@@ -2,26 +2,26 @@ import keystone.manage
 
 DEFAULT_FIXTURE = [
 # Tenants
-    ('tenant', 'add', '1234'),
+    ('tenant', 'add', 'customer-x'),
     ('tenant', 'add', 'ANOTHER:TENANT'),
-    ('tenant', 'add', '0000'),
-    ('tenant', 'disable', '0000'),
+    ('tenant', 'add', 'project-y'),
+    ('tenant', 'disable', 'project-y'),
 # Users
-    ('user', 'add', 'joeuser', 'secrete', '1234'),
-    ('user', 'add', 'joeadmin', 'secrete', '1234'),
+    ('user', 'add', 'joeuser', 'secrete', 'customer-x'),
+    ('user', 'add', 'joeadmin', 'secrete', 'customer-x'),
     ('user', 'add', 'admin', 'secrete'),
-    ('user', 'add', 'serviceadmin', 'secrete', '1234'),
-    ('user', 'add', 'disabled', 'secrete', '1234'),
+    ('user', 'add', 'serviceadmin', 'secrete', 'customer-x'),
+    ('user', 'add', 'disabled', 'secrete', 'customer-x'),
     ('user', 'disable', 'disabled'),
 # Roles
     ('role', 'add', 'Admin'),
     ('role', 'add', 'KeystoneServiceAdmin'),
     ('role', 'grant', 'Admin', 'admin'),
     ('role', 'grant', 'KeystoneServiceAdmin', 'serviceadmin'),
-    ('role', 'grant', 'Admin', 'joeadmin', '1234'),
+    ('role', 'grant', 'Admin', 'joeadmin', 'customer-x'),
     ('role', 'grant', 'Admin', 'joeadmin', 'ANOTHER:TENANT'),
     ('role', 'add', 'Member'),
-    ('role', 'grant', 'Member', 'joeuser', '1234'),
+    ('role', 'grant', 'Member', 'joeuser', 'customer-x'),
 # Add Services
     #1 Service Name:exampleservice Type:example type
     ('service', 'add', 'exampleservice',
@@ -87,20 +87,24 @@ DEFAULT_FIXTURE = [
         'http://keystone.publicinternets.com/v2.0',
         'http://127.0.0.1:5001/v2.0', 'http://127.0.0.1:5000/v2.0', '1', '1'),
 # Tokens
-    ('token', 'add', '887665443383838', 'joeuser', '1234', '2012-02-05T00:00'),
-    ('token', 'add', '999888777666', 'admin', '1234', '2015-02-05T00:00'),
-    ('token', 'add', '111222333444', 'serviceadmin', '1234',
+    ('token', 'add', '887665443383838', 'joeuser', 'customer-x',
+        '2012-02-05T00:00'),
+    ('token', 'add', '999888777666', 'admin', 'customer-x',
         '2015-02-05T00:00'),
-    ('token', 'add', '000999', 'admin', '1234', '2010-02-05T00:00'),
-    ('token', 'add', '999888777', 'disabled', '1234', '2015-02-05T00:00'),
+    ('token', 'add', '111222333444', 'serviceadmin', 'customer-x',
+        '2015-02-05T00:00'),
+    ('token', 'add', '000999', 'admin', 'customer-x', '2010-02-05T00:00'),
+    ('token', 'add', '999888777', 'disabled', 'customer-x',
+        '2015-02-05T00:00'),
 # Tenant endpointsGlobal endpoint not added
-    ('endpoint', 'add', '1234', '1'),
-    ('endpoint', 'add', '1234', '2'),
-    ('endpoint', 'add', '1234', '3'),
-    ('endpoint', 'add', '1234', '4'),
-    ('endpoint', 'add', '1234', '5'),
+    ('endpoint', 'add', 'customer-x', '1'),
+    ('endpoint', 'add', 'customer-x', '2'),
+    ('endpoint', 'add', 'customer-x', '3'),
+    ('endpoint', 'add', 'customer-x', '4'),
+    ('endpoint', 'add', 'customer-x', '5'),
 # Add Credentials
-    ('credentials', 'add', 'admin', 'EC2', 'admin:admin', 'admin', '1'),
+    ('credentials', 'add', 'admin', 'EC2', 'admin:admin', 'admin',
+        'customer-x'),
 ]
 
 

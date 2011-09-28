@@ -216,6 +216,42 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
         self.assertEqual(access['token']['tenant']['name'], tenant['name'])
 
+    def test_user_auth_against_nonexistent_tenant(self):
+        # Create an unscoped token
+        unscoped = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']}}}).json['access']
+
+        # Invalid tenant id
+        self.post_token(assert_status=401, as_json={
+            'auth': {
+                'token': {'id': unscoped['token']['id']},
+                'tenantId': common.unique_str()}})
+
+        # Invalid tenant name
+        self.post_token(assert_status=401, as_json={
+            'auth': {
+                'token': {'id': unscoped['token']['id']},
+                'tenantName': common.unique_str()}})
+
+        # Invalid tenant id
+        self.post_token(assert_status=401, as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']},
+                'tenantId': common.unique_str()}})
+
+        # Invalid tenant name
+        self.post_token(assert_status=401, as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']},
+                'tenantName': common.unique_str()}})
+
     def test_scope_to_tenant_by_bad_request(self):
         # Additonal setUp
         tenant = self.create_tenant().json['tenant']
