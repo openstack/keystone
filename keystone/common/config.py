@@ -191,6 +191,7 @@ def find_config_file(options, args):
         * ~.keystone/
         * ~
         * /etc/keystone
+        * /etc/init
         * /etc
     :if no config file is given get from possible_topdir/etc/keystone.conf
 
