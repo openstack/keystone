@@ -310,6 +310,11 @@ class AuthData(object):
         token = etree.Element("token",
                              expires=self.token.expires.isoformat())
         token.set("id", self.token.id)
+        if self.token.tenant:
+            tenant = etree.Element("tenant",
+                id=unicode(self.token.tenant.id),
+                name=unicode(self.token.tenant.name))
+            token.append(tenant)
         dom.append(token)
 
         user = etree.Element("user",
@@ -424,10 +429,12 @@ class ValidateData(object):
 
         user = etree.Element("user",
             id=unicode(self.user.id),
-            username=unicode(self.user.username),
-            tenantId=unicode(self.user.tenant_id))
+            username=unicode(self.user.username))
 
-        if self.user.role_refs != None:
+        if self.user.tenant_id is not None:
+            user.set('tenantId', unicode(self.user.tenant_id))
+
+        if self.user.role_refs is not None:
             user.append(self.user.role_refs.to_dom())
 
         dom.append(token)
@@ -446,8 +453,10 @@ class ValidateData(object):
 
         user = {
             "id": unicode(self.user.id),
-            "username": unicode(self.user.username),
-            "tenantId": unicode(self.user.tenant_id)}
+            "username": unicode(self.user.username)}
+
+        if self.user.tenant_id is not None:
+            user['tenantId'] = unicode(self.user.tenant_id)
 
         if self.user.role_refs is not None:
             user["roles"] = self.user.role_refs.to_json_values()
