@@ -212,7 +212,7 @@ class AuthProtocol(object):
 
         identity_info = json.loads(data)
         roles = []
-        role_refs = identity_info["access"]["user"]["roleRefs"]
+        role_refs = identity_info["access"]["user"]["roles"]
         if role_refs is not None:
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])
