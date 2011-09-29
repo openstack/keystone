@@ -54,11 +54,6 @@ the development versions of greenlet and eventlet::
     $ cd greenlet
     $ sudo python setup.py install
 
-Mac OSX
-#######
-
-.. todo:: No idea how to do install on Mac OSX. Somebody with a Mac should complete this section
-
 Installing from source tarballs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -99,12 +94,12 @@ Debian/Ubuntu
    $> sudo apt-get install python-argparse python-sqlalchemy python-wsgiref python-pastedeploy
 
 #. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)::
-   
+
    $> git checkout master
    $> git pull origin master
 
 #. Install Keystone::
-   
+
    $> sudo python setup.py install
 
 RedHat/Fedora
@@ -115,4 +110,27 @@ RedHat/Fedora
 Mac OSX
 #######
 
-.. todo:: No idea how to do install on Mac OSX. Somebody with a Mac should complete this section
+#. Install git - on your Mac this is most easily done by installing Xcode.
+
+#. Branch Keystone's trunk branch:: (see http://wiki.openstack.org/GerritWorkflow to get the project initially setup)::
+
+   $> git checkout master
+   $> git pull origin master
+
+#. Set up the virtual environment to get the additional dependencies
+
+   $> python tools/install_venv.py
+
+   If you don't want to use a virtual environment, install the dependencies
+   directly using:
+
+   $> sudo pip install -r tools/pip-requires
+
+#. Activate the virtual environment
+
+   $> source .keystone-venv/bin/activate
+
+#. Install keystone:
+
+   $> python setup.py develop
+
