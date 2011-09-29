@@ -123,6 +123,10 @@ class GetTenantsTest(TenantTest):
         self.get_tenants(assert_status=200, headers={
             'Accept': 'application/xml'})
 
+    def test_get_tenants_using_admin_token_xml_on_service_api(self):
+        self.get_tenants(assert_status=200, headers={
+            'Accept': 'application/xml'}, request_type='service')
+
     def test_get_tenants_using_user_token(self):
         tenant = self.create_tenant().json['tenant']
         user = self.create_user_with_known_password(tenant_id=tenant['id']).\
