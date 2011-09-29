@@ -14,6 +14,7 @@ admin_host = 0.0.0.0
 admin_port = 5001
 keystone-admin-role = Admin
 keystone-service-admin-role = KeystoneServiceAdmin
+hash-password = True
 
 [keystone.backends.sqlalchemy]
 sql_connection = for_testing_only
