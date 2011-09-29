@@ -8,8 +8,9 @@ from . import get_marker_limit_and_url
 class TenantController(wsgi.Controller):
     """Controller for Tenant related operations"""
 
-    def __init__(self, options):
+    def __init__(self, options, is_service_operation=None):
         self.options = options
+        self.is_service_operation = is_service_operation
 
     @utils.wrap_error
     def create_tenant(self, req):
@@ -21,7 +22,7 @@ class TenantController(wsgi.Controller):
     def get_tenants(self, req):
         marker, limit, url = get_marker_limit_and_url(req)
         tenants = config.SERVICE.get_tenants(utils.get_auth_token(req),
-            marker, limit, url)
+            marker, limit, url, self.is_service_operation)
         return utils.send_result(200, req, tenants)
 
     @utils.wrap_error

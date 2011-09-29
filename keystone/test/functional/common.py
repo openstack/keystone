@@ -208,7 +208,12 @@ class ApiTestCase(RestfulTestCase):
 
     def get_tenants(self, **kwargs):
         """GET /tenants"""
-        return self.admin_request(method='GET', path='/tenants', **kwargs)
+        if 'request_type' in kwargs and \
+            kwargs.pop('request_type') == 'service':
+            return self.service_request(method='GET',
+                path='/tenants', **kwargs)
+        else:
+            return self.admin_request(method='GET', path='/tenants', **kwargs)
 
     def get_tenant(self, tenant_id, **kwargs):
         """GET /tenants/{tenant_id}"""

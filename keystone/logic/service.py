@@ -211,19 +211,13 @@ class IdentityService(object):
         tenant.id = dtenant.id
         return tenant
 
-    def get_tenants(self, admin_token, marker, limit, url):
-        """Fetch tenants for either an admin user or service user."""
+    def get_tenants(self, admin_token, marker, limit, url,
+                    is_service_operation=False):
+        """Fetch tenants for either an admin or service operation."""
         ts = []
 
-        try:
-            # If Global admin...
-            (_token, user) = self.__validate_admin_token(admin_token)
-
-            # Return all tenants
-            dtenants = api.TENANT.get_page(marker, limit)
-            prev_page, next_page = api.TENANT.get_page_markers(marker, limit)
-        except fault.UnauthorizedFault:
-            # If not global admin...
+        if is_service_operation:
+            # Check regular token validity.
             (_token, user) = self.__validate_token(admin_token, False)
 
             # Return tenants specific to user
@@ -231,6 +225,12 @@ class IdentityService(object):
                 user, marker, limit)
             prev_page, next_page = api.TENANT.\
                 tenants_for_user_get_page_markers(user, marker, limit)
+        else:
+            #Check Admin Token
+            (_token, user) = self.__validate_admin_token(admin_token)
+            # Return all tenants
+            dtenants = api.TENANT.get_page(marker, limit)
+            prev_page, next_page = api.TENANT.get_page_markers(marker, limit)
 
         for dtenant in dtenants:
             ts.append(Tenant(id=dtenant.id, name=dtenant.name,
