@@ -159,6 +159,90 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
         self.assertEqual(access['token']['tenant']['name'], tenant['name'])
 
+    def test_user_auth_with_role_on_tenant_xml(self):
+        # Additonal setUp
+        tenant = self.create_tenant().json['tenant']
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'], role['id'], tenant['id'])
+
+        # Create an unscoped token
+        r = self.post_token(as_xml='<?xml version="1.0" encoding="UTF-8"?>'
+            '<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+                    'xmlns="http://docs.openstack.org/identity/api/v2.0">'
+                '<passwordCredentials username="%s" password="%s"/>'
+            '</auth>' % (self.user['name'], self.user['password']))
+
+        # The token shouldn't be scoped to a tenant nor have roles just yet
+        self.assertEqual(r.xml.tag, '{%s}access' % self.xmlns)
+
+        token = r.xml.find('{%s}token' % self.xmlns)
+        self.assertIsNotNone(token)
+        self.assertIsNotNone(token.get('id'))
+        self.assertIsNotNone(token.get('expires'))
+
+        user = r.xml.find('{%s}user' % self.xmlns)
+        self.assertIsNotNone(user)
+        self.assertEqual(user.get('id'), self.user['id'])
+        self.assertEqual(user.get('name'), self.user['name'])
+        self.assertIsNone(user.get('tenantId'))
+
+        roles = user.find('{%s}roles' % self.xmlns)
+        self.assertIsNotNone(roles)
+        self.assertEqual(len(roles), 0)
+
+        # Request our tenant list as a service user
+        self.service_token = token.get('id')
+        r = self.service_request(method='GET', path='/tenants', headers={
+            'Accept': 'application/xml'})
+
+        self.assertEqual(r.xml.tag, '{%s}tenants' % self.xmlns)
+        tenants = r.xml.findall('{%s}tenant' % self.xmlns)
+
+        # Our tenant should be the only tenant in the list
+        self.assertEqual(len(tenants), 1, tenants)
+        self.assertEqual(tenant['id'], tenants[0].get('id'))
+        self.assertEqual(tenant['name'], tenants[0].get('name'))
+        self.assertEqual(str(tenant['enabled']).lower(),
+            tenants[0].get('enabled'))
+        description = tenants[0].find('{%s}description' % self.xmlns)
+        self.assertEqual(tenant['description'], description.text)
+
+        # We can now get a token scoped to our tenant
+        r = self.post_token(as_xml='<?xml version="1.0" encoding="UTF-8"?>'
+            '<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                    'xmlns="http://docs.openstack.org/identity/api/v2.0" '
+                    'tenantId="%s">'
+                '<passwordCredentials username="%s" password="%s"/>'
+            '</auth>' % (tenant['id'], self.user['name'],
+                self.user['password']))
+
+        self.assertEqual(r.xml.tag, '{%s}access' % self.xmlns)
+
+        token = r.xml.find('{%s}token' % self.xmlns)
+        self.assertIsNotNone(token)
+        tenant_scope = token.find('{%s}tenant' % self.xmlns)
+        self.assertIsNotNone(tenant_scope)
+        self.assertEqual(tenant_scope.get('id'), tenant['id'])
+        self.assertEqual(tenant_scope.get('name'), tenant['name'])
+
+        # And an admin should be able to validate that our new token is scoped
+        r = self.validate_token(token.get('id'), tenant['id'], headers={
+            'Accept': 'application/xml'})
+        self.assertEqual(r.xml.tag, '{%s}access' % self.xmlns)
+
+        token = r.xml.find('{%s}token' % self.xmlns)
+        self.assertIsNotNone(token)
+        tenant_scope = token.find('{%s}tenant' % self.xmlns)
+        self.assertIsNotNone(tenant_scope)
+        self.assertEqual(tenant_scope.get('id'), tenant['id'])
+        self.assertEqual(tenant_scope.get('name'), tenant['name'])
+
+        user = r.xml.find('{%s}user' % self.xmlns)
+        self.assertIsNotNone(user)
+        self.assertEqual(user.get('id'), self.user['id'])
+        self.assertEqual(user.get('username'), self.user['name'])
+        self.assertIsNone(user.get('tenantId'))
+
     def test_scope_to_tenant_by_name(self):
         # Additonal setUp
         tenant = self.create_tenant().json['tenant']
