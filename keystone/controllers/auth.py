@@ -24,7 +24,10 @@ class AuthController(wsgi.Controller):
                 result = config.SERVICE.authenticate_with_unscoped_token(
                     unscoped)
             except fault.BadRequestFault as e2:
-                raise fault.BadRequestFault(e1.msg + ' or ' + e2.msg)
+                if e1.msg == e2.msg:
+                    raise e1
+                else:
+                    raise fault.BadRequestFault(e1.msg + ' or ' + e2.msg)
 
         return utils.send_result(200, req, result)
 
