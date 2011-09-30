@@ -20,11 +20,50 @@ from keystone.logic.types import fault
 import keystone.backends.api as db_api
 
 
-class AuthWithUnscopedToken(object):
-    def __init__(self, token_id, tenant_id=None, tenant_name=None):
-        self.token_id = token_id
+class AuthBase(object):
+    def __init__(self, tenant_id=None, tenant_name=None):
         self.tenant_id = tenant_id
         self.tenant_name = tenant_name
+
+    @staticmethod
+    def _validate_auth(obj, *valid_keys):
+        if not 'auth' in obj:
+            raise fault.BadRequestFault('Expecting auth')
+
+        auth = obj.get('auth')
+
+        for key in auth:
+            if not key in valid_keys:
+                raise fault.BadRequestFault('Invalid attribute(s): %s' % key)
+
+        if auth.get('tenantId') and auth.get('tenantName'):
+            raise fault.BadRequestFault(
+                'Expecting either Tenant ID or Tenant Name, but not both')
+
+        return auth
+
+    @staticmethod
+    def _validate_key(obj, key, *required_keys):
+        if not key in obj:
+            raise fault.BadRequestFault('Expecting %s' % key)
+
+        ret = obj[key]
+
+        for skey in ret:
+            if not skey in required_keys:
+                raise fault.BadRequestFault('Invalid attribute(s): %s' % skey)
+
+        for required_key in required_keys:
+            if not ret.get(required_key):
+                raise fault.BadRequestFault('Expecting %s:%s' %
+                                            (key, required_key))
+        return ret
+
+
+class AuthWithUnscopedToken(AuthBase):
+    def __init__(self, token_id, tenant_id=None, tenant_name=None):
+        super(AuthWithUnscopedToken, self).__init__(tenant_id, tenant_name)
+        self.token_id = token_id
 
     @staticmethod
     def from_xml(xml_str):
@@ -59,33 +98,24 @@ class AuthWithUnscopedToken(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            if not obj.get("auth"):
-                raise fault.BadRequestFault("Expecting auth")
-            if not obj["auth"].get("token"):
-                raise fault.BadRequestFault("Expecting token")
-            token = obj['auth']['token']
-            if not token.get("id"):
-                raise fault.BadRequestFault("Expecting token id")
 
-            token_id = obj["auth"]["token"]["id"]
-            tenant_id = obj["auth"].get("tenantId")
-            tenant_name = obj["auth"].get("tenantName")
+            auth = AuthBase._validate_auth(obj, 'tenantId', 'tenantName',
+                                           'token')
+            token = AuthBase._validate_key(auth, 'token', 'id')
 
-            if tenant_id and tenant_name:
-                raise fault.BadRequestFault(
-                    "Expecting either Tenant ID or Tenant Name, but not both")
-
-            return AuthWithUnscopedToken(token_id, tenant_id, tenant_name)
+            return AuthWithUnscopedToken(token['id'],
+                                         auth.get('tenantId'),
+                                         auth.get('tenantName'))
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse auth", str(e))
 
 
-class AuthWithPasswordCredentials(object):
+class AuthWithPasswordCredentials(AuthBase):
     def __init__(self, username, password, tenant_id=None, tenant_name=None):
+        super(AuthWithPasswordCredentials, self).__init__(tenant_id,
+                                                          tenant_name)
         self.username = username
         self.password = password
-        self.tenant_id = tenant_id
-        self.tenant_name = tenant_name
 
     @staticmethod
     def from_xml(xml_str):
@@ -123,35 +153,16 @@ class AuthWithPasswordCredentials(object):
     def from_json(json_str):
         try:
             obj = json.loads(json_str)
-            if not "auth" in obj:
-                raise fault.BadRequestFault("Expecting auth")
-            auth = obj["auth"]
-            invalid = [key for key in auth if key not in\
-                       ['tenantId', 'tenantName', 'passwordCredentials']]
-            if invalid != []:
-                raise fault.BadRequestFault("Invalid attribute(s): %s"
-                                            % invalid)
 
-            tenant_id = auth.get('tenantId')
-            tenant_name = auth.get('tenantName')
+            auth = AuthBase._validate_auth(obj, 'tenantId', 'tenantName',
+                                           'passwordCredentials')
+            cred = AuthBase._validate_key(auth, 'passwordCredentials',
+                                          'username', 'password')
 
-            if not "passwordCredentials" in auth:
-                raise fault.BadRequestFault("Expecting passwordCredentials")
-            cred = auth["passwordCredentials"]
-            # Check that fields are valid
-            invalid = [key for key in cred if key not in\
-                       ['username', 'password']]
-            if invalid != []:
-                raise fault.BadRequestFault("Invalid attribute(s): %s"
-                                            % invalid)
-            if not "username" in cred:
-                raise fault.BadRequestFault("Expecting a username")
-            username = cred["username"]
-            if not "password" in cred:
-                raise fault.BadRequestFault("Expecting a password")
-            password = cred["password"]
-            return AuthWithPasswordCredentials(username, password, tenant_id,
-                tenant_name)
+            return AuthWithPasswordCredentials(cred['username'],
+                                               cred['password'],
+                                               auth.get('tenantId'),
+                                               auth.get('tenantName'))
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse auth", str(e))
 

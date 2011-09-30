@@ -293,11 +293,10 @@ class TestServiceAuthentication(common.FunctionalTestCase):
                 'password': self.user['password']}}})
 
     def test_user_auth_with_no_name(self):
-        """Authenticating without a username returns a 401"""
+        """Authenticating without a username returns a 400"""
         # Authenticate as user to get a token
-        self.post_token(assert_status=401, as_json={
+        self.post_token(assert_status=400, as_json={
             'auth': {'passwordCredentials': {
-                'username': None,
                 'password': self.user['password']}}})
 
     def test_user_auth_with_wrong_password(self):
@@ -309,9 +308,9 @@ class TestServiceAuthentication(common.FunctionalTestCase):
                 'password': 'this-is-completely-wrong'}}})
 
     def test_user_auth_with_no_password(self):
-        """Authenticating with an invalid password returns a 401"""
+        """Authenticating with an invalid password returns a 400"""
         # Authenticate as user to get a token
-        self.post_token(assert_status=401, as_json={
+        self.post_token(assert_status=400, as_json={
             'auth': {'passwordCredentials': {
                 'username': self.user['name'],
                 'password': None}}})
