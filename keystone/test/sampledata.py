@@ -38,12 +38,12 @@ DEFAULT_FIXTURE = [
     #5 Service Name:nova_compat Type:Compute
     ('service', 'add', 'nova_compat',
         'compute', 'OpenStack Compute Service'),
-    #6 Service Name:glance Type:image-service
+    #6 Service Name:glance Type:image
     ('service', 'add', 'glance',
-        'image-service', 'OpenStack Compute Service'),
-    #7 Service Name:glance Type:image-service
+        'image', 'OpenStack Image Service'),
+    #7 Service Name:keystone Type:identity
     ('service', 'add', 'identity',
-        'identity-service', 'OpenStack Compute Service'),
+        'identity', 'OpenStack Identity Service'),
 # Keeping for compatibility for a while till dashboard catches up
     ('endpointTemplates', 'add', 'RegionOne', 'swift',
         'http://swift.publicinternets.com/v1/AUTH_%tenant_id%',
