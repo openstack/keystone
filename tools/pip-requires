@@ -3,32 +3,31 @@
 #   sudo apt-get install python-dev libxml2-dev libxslt1-dev libsasl2-dev libldap2-dev libsqlite3-dev libssl-dev
 
 # Production
-eventlet
-lxml
-paste
-pastedeploy
-pastescript
-pysqlite
-sqlalchemy
-webob
-Routes
-httplib2
-#For Hashing
-passlib
+httplib2 # handles additional HTTP features such as SSL, HEAD/PUT/DELETE, etc
+eventlet # scalable networking lib
+paste # wsgi framework
+pastedeploy # loads & configures wsgi apps
+pastescript # command line frontend
+webob # wsgi framework
+Routes # URL matching / controller routing
+sqlalchemy # core backend
+pysqlite # default backend database lib
+lxml # xml library providing ElementTree API
+passlib # password hashing
 
 # Optional backend: LDAP
-python-ldap==2.3.13
+python-ldap==2.3.13 # authenticate against an existing LDAP server
 
 # Optional backend: Memcache
-python-memcached
+python-memcached # increases performance of token validation calls
 
 # Development
 Sphinx # required to build documentation
 coverage # computes code coverage percentages
 
 # Testing
-webtest
-unittest2
-pylint
-pep8
-mox
+unittest2 # backport of unittest lib in python 2.7
+webtest # test wsgi apps without starting an http server
+pylint # static code analysis
+pep8 # checks for PEP8 code style compliance
+mox # mock object framework
