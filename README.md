@@ -209,7 +209,7 @@ in troubleshooting:
 
     # Get an admin token
 
-    $ curl -d '{"auth": {"passwordCredentials": {"username": "admin", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:5001/v2.0/tokens
+    $ curl -d '{"auth": {"passwordCredentials": {"username": "admin", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
 </pre>
 
 #### Load Testing
@@ -221,7 +221,7 @@ in troubleshooting:
 
    # Call Apache Bench
 
-   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:5001/v2.0/tokens
+   $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:35357/v2.0/tokens
 </pre>
 
 ## NOVA Integration
@@ -264,7 +264,7 @@ Assuming you added the test data using bin/sampledata, you can then use joeuser/
         $ cd ~/keystone/bin && ./keystone
         Starting the Legacy Authentication component
         Service API listening on 0.0.0.0:5000
-        Admin API listening on 0.0.0.0:5001
+        Admin API listening on 0.0.0.0:35357
 
 4.  In another window, edit the `~/keystone/keystone/test/sampledata.py` file,
     find the `swift.publicinternets.com` text and replace it with the URL to
@@ -295,7 +295,7 @@ Assuming you added the test data using bin/sampledata, you can then use joeuser/
         use = egg:keystone#tokenauth
         auth_protocol = http
         auth_host = 127.0.0.1
-        auth_port = 5001
+        auth_port = 35357
         admin_token = 999888777666
         delay_auth_decision = 0
         service_protocol = http

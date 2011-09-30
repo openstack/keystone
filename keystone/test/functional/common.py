@@ -148,7 +148,7 @@ class ApiTestCase(RestfulTestCase):
         return self.restful_request(port=port, path=path, headers=headers,
             **kwargs)
 
-    def admin_request(self, version='2.0', path='', port=5001, headers=None,
+    def admin_request(self, version='2.0', path='', port=35357, headers=None,
             **kwargs):
         """Returns a request to the admin API"""
 

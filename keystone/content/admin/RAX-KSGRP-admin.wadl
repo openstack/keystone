@@ -34,7 +34,7 @@
     <!--*******************************************************-->
     
     <!-- We should use SSL in production -->
-    <resources base="http://localhost:5001">
+    <resources base="http://localhost:35357">
         <resource id="version" path="v2.0">
             <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
                 <doc>You need a valid admin token for access.</doc>

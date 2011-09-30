@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Handle a special argument to support starting two endpoints
     common_group.add_option(
         '-a', '--admin-port', dest="admin_port", metavar="PORT",
-        help="specifies port for Admin API to listen on (default is 5001)")
+        help="specifies port for Admin API to listen on (default is 35357)")
 
     # Parse arguments and load config
     (options, args) = config.parse_options(parser)

@@ -11,7 +11,7 @@ service-header-mappings = {
 service_host = 0.0.0.0
 service_port = 5000
 admin_host = 0.0.0.0
-admin_port = 5001
+admin_port = 35357
 keystone-admin-role = Admin
 keystone-service-admin-role = KeystoneServiceAdmin
 

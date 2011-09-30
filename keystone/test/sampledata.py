@@ -85,7 +85,7 @@ DEFAULT_FIXTURE = [
 # Global endpointTemplate
     ('endpointTemplates', 'add', 'RegionOne', 'identity',
         'http://keystone.publicinternets.com/v2.0',
-        'http://127.0.0.1:5001/v2.0', 'http://127.0.0.1:5000/v2.0', '1', '1'),
+        'http://127.0.0.1:35357/v2.0', 'http://127.0.0.1:5000/v2.0', '1', '1'),
 # Tokens
     ('token', 'add', '887665443383838', 'joeuser', 'customer-x',
         '2012-02-05T00:00'),
