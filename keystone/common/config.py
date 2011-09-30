@@ -343,7 +343,7 @@ def load_paste_app(app_name, options, args):
             logger.info("*" * 50)
         app = deploy.loadapp("config:%s" % conf_file, name=app_name,
             global_conf=conf.global_conf)
-    except (LookupError, ImportError):
+    except (LookupError, ImportError) as e:
         raise RuntimeError("Unable to load %(app_name)s from "
                            "configuration file %(conf_file)s."
                            "\nGot: %(e)r" % locals())
