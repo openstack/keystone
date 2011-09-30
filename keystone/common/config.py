@@ -191,7 +191,6 @@ def find_config_file(options, args):
         * ~.keystone/
         * ~
         * /etc/keystone
-        * /etc/init
         * /etc
     :if no config file is given get from possible_topdir/etc/keystone.conf
 
@@ -214,7 +213,6 @@ def find_config_file(options, args):
                         fix_path(os.path.join('~', '.keystone')),
                         fix_path('~'),
                         '/etc/keystone/',
-                        '/etc/init/',
                         '/etc']
 
     for cfg_dir in config_file_dirs:
