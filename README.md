@@ -11,7 +11,7 @@ This initial proof of concept aims to address the current use cases in Swift and
 
 ## User Guide & Concepts
 
-The [`Developer Guide`](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) 
+The [`Developer Guide`](https://github.com/openstack/keystone/raw/master/keystone/content/identitydevguide.pdf) 
 documents the APIs to call and how to use them.
 
 #### Core Concepts:
@@ -169,7 +169,7 @@ Users of the Keystone API are often developers making ReSTfull calls to Keystone
 information is therefore called a `Developer Guide`. Developer in this case is not to be confused with developers
 working on the Keystone source code itself.
 
-The [dev guide](https://github.com/rackspace/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
+The [dev guide](https://github.com/openstack/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
 generated from XML and other artifacts that live in the [OpenStack Manuals project](https://launchpad.net/openstack-manuals).
 
 To build the Developer Guide from source, you need [Maven](http://maven.apache.org/). To build the docs and publish a new PDF:
@@ -230,7 +230,7 @@ Initial support for using keystone as nova's identity component has been started
 
     # clone projects
     bzr clone lp:nova
-    git clone git://github.com/rackspace/keystone.git
+    git clone git://github.com/openstack/keystone.git
 
     # link keystone into the nova root dir
     ln -s keystone/keystone nova/keystone
@@ -254,7 +254,7 @@ Assuming you added the test data using bin/sampledata, you can then use joeuser/
 
 2.  Obtain and install a source copy of Keystone:
 
-        $ git clone https://github.com/rackspace/keystone.git ~/keystone
+        $ git clone https://github.com/openstack/keystone.git ~/keystone
         ...
         $ cd ~/keystone && sudo python setup.py develop
         ...
