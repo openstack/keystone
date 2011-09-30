@@ -201,15 +201,15 @@ in troubleshooting:
 <pre>
     # Get an unscoped token
     
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
+    $ curl -d '{"auth": {"passwordCredentials": {"username": "joeuser", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get a token for a tenant
 
-    $ curl -d '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantName": "customer-x"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
+    $ curl -d '{"auth": {"passwordCredentials": {"username": "joeuser", "password": "secrete"}, "tenantName": "customer-x"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get an admin token
 
-    $ curl -d '{"passwordCredentials": {"username": "admin", "password": "secrete"}}' -H "Content-type: application/json" http://localhost:5001/v2.0/tokens
+    $ curl -d '{"auth": {"passwordCredentials": {"username": "admin", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:5001/v2.0/tokens
 </pre>
 
 #### Load Testing
@@ -217,7 +217,7 @@ in troubleshooting:
 <pre>
    # Create post data
 
-   $ echo '{"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantName": "customer-x"}}' > post_data
+   $ echo '{"auth": {"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantName": "customer-x"}}}' > post_data
 
    # Call Apache Bench
 
