@@ -46,7 +46,7 @@ from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPExpectationFailed
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 from swift.common.middleware.acl import clean_acl, parse_acl, referrer_allowed
-from swift.common.utils import cache_from_env, get_logger, split_path
+from swift.common.utils import get_logger, split_path
 
 
 PROTOCOL_NAME = "Swift Token Authentication"
@@ -213,9 +213,10 @@ class AuthProtocol(object):
         identity_info = json.loads(data)
         roles = []
         role_refs = identity_info["access"]["user"]["roles"]
+
         if role_refs is not None:
             for role_ref in role_refs:
-                roles.append(role_ref["roleId"])
+                roles.append(role_ref["id"])
 
         try:
             tenant = identity_info['access']['token']['tenantId']
