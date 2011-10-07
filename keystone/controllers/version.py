@@ -1,12 +1,12 @@
 import os
-import sys
 from webob import Response
 
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
-possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir))
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(__file__),
+                                                os.pardir,
+                                                os.pardir,
+                                                os.pardir))
 
 from keystone import utils
 from keystone.common import template, wsgi
