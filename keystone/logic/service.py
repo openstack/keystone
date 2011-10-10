@@ -510,7 +510,7 @@ class IdentityService(object):
             ts.append(UserRole(drole_ref.role_id, drole.name,
                 drole_ref.tenant_id))
 
-        user = auth.User(duser.id, duser.name, None, UserRoles(ts, []))
+        user = auth.User(duser.id, duser.name, None, None, UserRoles(ts, []))
 
         return auth.AuthData(token, user, endpoints)
 
@@ -537,8 +537,14 @@ class IdentityService(object):
             ts.append(UserRole(drole_ref.role_id, drole.name,
                 drole_ref.tenant_id))
 
+        # Also get the user's tenant's name
+        tenant_name = None
+        if duser.tenant_id:
+            utenant = api.TENANT.get(duser.tenant_id)
+            tenant_name = utenant.name
+
         user = auth.User(duser.id, duser.name, duser.tenant_id,
-            UserRoles(ts, []))
+            tenant_name, UserRoles(ts, []))
 
         return auth.ValidateData(token, user)
 

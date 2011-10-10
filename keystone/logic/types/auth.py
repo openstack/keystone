@@ -293,12 +293,14 @@ class User(object):
     id = None
     username = None
     tenant_id = None
+    tenant_name = None
     role_refs = None
 
-    def __init__(self, id, username, tenant_id, role_refs=None):
+    def __init__(self, id, username, tenant_id, tenant_name, role_refs=None):
         self.id = id
         self.username = username
         self.tenant_id = tenant_id
+        self.tenant_name = tenant_name
         self.role_refs = role_refs
 
 
@@ -444,6 +446,8 @@ class ValidateData(object):
 
         if self.user.tenant_id is not None:
             user.set('tenantId', unicode(self.user.tenant_id))
+            if self.user.tenant_name is not None:
+                user.set('tenantName', unicode(self.user.tenant_name))
 
         if self.user.role_refs is not None:
             user.append(self.user.role_refs.to_dom())
@@ -468,6 +472,8 @@ class ValidateData(object):
 
         if self.user.tenant_id is not None:
             user['tenantId'] = unicode(self.user.tenant_id)
+            if self.user.tenant_name is not None:
+                user['tenantName'] = unicode(self.user.tenant_name)
 
         if self.user.role_refs is not None:
             user["roles"] = self.user.role_refs.to_json_values()
