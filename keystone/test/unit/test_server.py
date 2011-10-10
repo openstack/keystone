@@ -20,7 +20,7 @@ class TestServer(unittest.TestCase):
         environ = {'wsgi.url_scheme': 'http'}
         self.request = webob.Request(environ)
         self.auth_data = auth.ValidateData(auth.Token(datetime.date.today(),
-            "2231312"), auth.User("id", "username", "12345"))
+            "2231312"), auth.User("id", "username", "12345", "aTenant"))
 
     #def tearDown(self):
 
