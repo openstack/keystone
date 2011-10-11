@@ -4,22 +4,24 @@
 
 import uuid
 
-from keystonelight import identity
+from keystonelight import utils
 
-STORE = {}
 
 class Manager(object):
     def __init__(self, options):
         self.options = options
+        self.driver = utils.import_object(options['token_driver'],
+                                          options=options)
 
     def create_token(self, context, data):
         token = uuid.uuid4().hex
-        STORE[token] = data
-        return token
+        data['id'] = token
+        token_ref = self.driver.create_token(token, data)
+        return token_ref
 
     def validate_token(self, context, token_id):
         """Return info for a token if it is valid."""
-        return STORE.get(token_id)
+        return self.driver.get_token(token_id)
 
     def revoke_token(self, context, token_id):
-        STORE.pop(token_id)
+        self.driver.delete_token(token_id)

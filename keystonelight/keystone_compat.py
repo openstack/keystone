@@ -25,7 +25,8 @@ class KeystoneIdentityController(service.IdentityController):
 
     def get_tenants(self, context):
         tenants = super(KeystoneIdentityController, self).get_tenants(context)
-        return {'tenants': {'values': [{'id': x['id'], 'description': x['name'], 'enabled': True}
+        return {'tenants': {'values': [{'id': x['id'],
+                'description': x['name'], 'enabled': True}
                                        for x in tenants]}}
 
 

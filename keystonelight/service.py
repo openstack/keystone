@@ -149,7 +149,7 @@ class IdentityController(BaseApplication):
         token = self.token_api.validate_token(context, token_id)
 
         return self.identity_api.get_tenants(context,
-                                             user_id=token['user']['id'])
+                                             user_id=token['user'])
 
 
 class Router(wsgi.Router):

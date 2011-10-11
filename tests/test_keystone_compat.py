@@ -42,27 +42,27 @@ class CompatTestCase(test.TestCase):
         os.path.join(self.sampledir, 'tenants.json')))
 
     # For the tenants for token call
-    self.user_foo = self.backend._create_user(
+    self.user_foo = self.identity_backend._create_user(
         'foo',
         models.User(id='foo', tenants=['1234', '3456']))
-    self.tenant_1234 = self.backend._create_tenant(
+    self.tenant_1234 = self.identity_backend._create_tenant(
         '1234',
         models.Tenant(id='1234',
                       name='ACME Corp',
                       description='A description...',
                       enabled=True))
-    self.tenant_3456 = self.backend._create_tenant(
+    self.tenant_3456 = self.identity_backend._create_tenant(
         '3456',
         models.Tenant(id='3456',
                       name='Iron Works',
                       description='A description...',
                       enabled=True))
 
-    self.token_foo_unscoped = self.backend._create_token(
+    self.token_foo_unscoped = self.token_backend.create_token(
         'foo_unscoped',
         models.Token(id='foo_unscoped',
                      user='foo'))
-    self.token_foo_scoped = self.backend._create_token(
+    self.token_foo_scoped = self.token_backend.create_token(
         'foo_scoped',
         models.Token(id='foo_unscoped',
                      user='foo',
@@ -75,8 +75,10 @@ class HeadCompatTestCase(CompatTestCase):
     self.sampledir = os.path.join(revdir, SAMPLE_DIR)
     self.app = self.loadapp('keystone_compat_HEAD')
 
-    self.backend = utils.import_object(
+    self.identity_backend = utils.import_object(
         self.app.options['identity_driver'], options=self.app.options)
+    self.token_backend = utils.import_object(
+        self.app.options['token_driver'], options=self.app.options)
 
     super(HeadCompatTestCase, self).setUp()
 
