@@ -73,18 +73,23 @@ class HeadCompatTestCase(CompatTestCase):
   def setUp(self):
     revdir = checkout_samples('HEAD')
     self.sampledir = os.path.join(revdir, SAMPLE_DIR)
+    self.app = self.loadapp('keystone_compat_HEAD')
+
+    self.backend = utils.import_object(
+        self.app.options['identity_driver'], options=self.app.options)
+
     super(HeadCompatTestCase, self).setUp()
 
   def test_tenants_for_token_unscoped(self):
     # get_tenants_for_token
-    client = self.api.client(token=self.token_foo_unscoped['id'])
+    client = self.client(self.app, token=self.token_foo_unscoped['id'])
     resp = client.get('/v2.0/tenants')
     data = json.loads(resp.body)
     self.assertDictEquals(self.tenants_for_token, data)
 
   def test_tenants_for_token_scoped(self):
     # get_tenants_for_token
-    client = self.api.client(token=self.token_foo_scoped['id'])
+    client = self.client(self.app, token=self.token_foo_scoped['id'])
     resp = client.get('/v2.0/tenants')
     data = json.loads(resp.body)
     self.assertDictEquals(self.tenants_for_token, data)

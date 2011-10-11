@@ -9,6 +9,9 @@ from keystonelight import identity
 STORE = {}
 
 class Manager(object):
+    def __init__(self, options):
+        self.options = options
+
     def create_token(self, context, data):
         token = uuid.uuid4().hex
         STORE[token] = data

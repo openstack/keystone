@@ -4,20 +4,14 @@
 # backends will make use of them to return something that conforms to their apis
 
 
-import hflags as flags
-
 from keystonelight import utils
 
 
-FLAGS = flags.FLAGS
-flags.DEFINE_string('identity_driver',
-                    'keystonelight.backends.pam.PamIdentity',
-                    'identity driver to handle identity requests')
-
-
 class Manager(object):
-    def __init__(self):
-        self.driver = utils.import_object(FLAGS.identity_driver)
+    def __init__(self, options):
+        self.driver = utils.import_object(options['identity_driver'],
+                                          options=options)
+        self.options = options
 
     def authenticate(self, context, **kwargs):
         """Passthru authentication to the identity driver.

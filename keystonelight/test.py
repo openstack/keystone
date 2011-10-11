@@ -1,15 +1,19 @@
 import os
 import unittest
 
+from paste import deploy
+
 from keystonelight import wsgi
 
 
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
+TESTSDIR = os.path.join(ROOTDIR, 'tests')
+
 
 class TestClient(object):
-  def __init__(self, endpoint=None, token=None):
-    self.endpoint = None
+  def __init__(self, app=None, token=None):
+    self.app = app
     self.token = token
 
   def request(self, method, path, headers=None, body=None):
@@ -21,7 +25,7 @@ class TestClient(object):
       req.headers[k] = v
     if req.body:
       req.body = body
-    return req.get_response(self.endpoint)
+    return req.get_response(self.app)
 
   def get(self, path, headers=None):
     return self.request('GET', path=path, headers=headers)
@@ -34,6 +38,14 @@ class TestClient(object):
 
 
 class TestCase(unittest.TestCase):
+  def loadapp(self, config):
+    if not config.startswith('config:'):
+      config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
+    return deploy.loadapp(config)
+
+  def client(self, app, *args, **kw):
+    return TestClient(app, *args, **kw)
+
   def assertDictEquals(self, expected, actual):
     for k in expected:
       self.assertTrue(k in actual,

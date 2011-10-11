@@ -1,12 +1,14 @@
+
 class DictKvs(dict):
   def set(self, key, value):
-    return self[key] = value
+    self[key] = value
 
+INMEMDB = DictKvs()
 
 class KvsIdentity(object):
-  def __init__(self, db=None):
+  def __init__(self, options, db=None):
     if db is None:
-      db = DictKvs()
+      db = INMEMDB
     self.db = db
 
   # Public Interface
@@ -22,9 +24,12 @@ class KvsIdentity(object):
   # Private CRUD for testing
   def _create_user(self, id, user):
     self.db.set('user-%s' % id, user)
+    return user
 
   def _create_tenant(self, id, tenant):
     self.db.set('tenant-%s' % id, tenant)
+    return tenant
 
   def _create_token(self, id, token):
     self.db.set('token-%s' % id, token)
+    return token

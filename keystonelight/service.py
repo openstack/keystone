@@ -5,7 +5,6 @@
 import json
 import logging
 
-import hflags as flags
 import routes
 import webob.dec
 import webob.exc
@@ -14,17 +13,6 @@ from keystonelight import identity
 from keystonelight import token
 from keystonelight import utils
 from keystonelight import wsgi
-
-
-FLAGS = flags.FLAGS
-
-# TODO(termie): these should probably be paste configs instead
-flags.DEFINE_string('token_controller',
-                    'keystonelight.service.TokenController',
-                    'token controller')
-flags.DEFINE_string('identity_controller',
-                    'keystonelight.service.IdentityController',
-                    'identity controller')
 
 
 class BaseApplication(wsgi.Application):
@@ -123,8 +111,9 @@ class JsonBodyMiddleware(wsgi.Middleware):
 class TokenController(BaseApplication):
     """Validate and pass through calls to TokenManager."""
 
-    def __init__(self):
-        self.token_api = token.Manager()
+    def __init__(self, options):
+        self.token_api = token.Manager(options=options)
+        self.options = options
 
     def validate_token(self, context, token_id):
         token_info = self.token_api.validate_token(context, token_id)
@@ -140,9 +129,10 @@ class IdentityController(BaseApplication):
     a specific driver.
     """
 
-    def __init__(self):
-        self.identity_api = identity.Manager()
-        self.token_api = token.Manager()
+    def __init__(self, options):
+        self.identity_api = identity.Manager(options=options)
+        self.token_api = token.Manager(options=options)
+        self.options = options
 
     def authenticate(self, context, **kwargs):
         tenant, user, extras = self.identity_api.authenticate(context, **kwargs)
@@ -163,27 +153,34 @@ class IdentityController(BaseApplication):
 
 
 class Router(wsgi.Router):
-    def __init__(self):
-        token_controller = utils.import_object(FLAGS.token_controller)
-        identity_controller = utils.import_object(FLAGS.identity_controller)
+    def __init__(self, options):
+        self.options = options
+        token_controller = utils.import_object(
+                options['token_controller'],
+                options=options)
+        identity_controller = utils.import_object(
+                options['identity_controller'],
+                options=options)
         mapper = routes.Mapper()
-
         mapper.connect('/v2.0/tokens', controller=identity_controller,
                        action='authenticate')
         mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
-
         mapper.connect("/v2.0/tenants", controller=identity_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
-
         super(Router, self).__init__(mapper)
 
 
 class AdminRouter(wsgi.Router):
-    def __init__(self):
-        token_controller = utils.import_object(FLAGS.token_controller)
-        identity_controller = utils.import_object(FLAGS.identity_controller)
+    def __init__(self, options):
+        self.options = options
+        token_controller = utils.import_object(
+                options['token_controller'],
+                options=options)
+        identity_controller = utils.import_object(
+                options['identity_controller'],
+                options=options)
         mapper = routes.Mapper()
 
         mapper.connect('/v2.0/tokens', controller=identity_controller,
@@ -195,3 +192,10 @@ class AdminRouter(wsgi.Router):
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
         super(AdminRouter, self).__init__(mapper)
+
+
+def identity_app_factory(global_conf, **local_conf):
+    conf = global_conf.copy()
+    conf.update(local_conf)
+    return Router(conf)
+

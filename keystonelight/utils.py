@@ -33,14 +33,14 @@ def import_class(import_str):
         raise
 
 
-def import_object(import_str):
+def import_object(import_str, *args, **kw):
     """Returns an object including a module or module and class."""
     try:
         __import__(import_str)
         return sys.modules[import_str]
     except ImportError:
         cls = import_class(import_str)
-        return cls()
+        return cls(*args, **kw)
 
 # From python 2.7
 def check_output(*popenargs, **kwargs):

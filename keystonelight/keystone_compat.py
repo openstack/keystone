@@ -4,6 +4,7 @@
 import logging
 
 from keystonelight import service
+from keystonelight import wsgi
 
 def _token_to_keystone(token):
     return {'id': token,
@@ -28,7 +29,6 @@ class KeystoneIdentityController(service.IdentityController):
                                        for x in tenants]}}
 
 
-
 class KeystoneTokenController(service.TokenController):
     def validate_token(self, context, token_id):
         token = super(KeystoneTokenController, self).validate_token(
@@ -49,3 +49,4 @@ class KeystoneTokenController(service.TokenController):
                                   'roleRefs': roles,
                                   'username': token['user']['name'],
                                   'tenantId': token['tenant']['id']}}}
+
