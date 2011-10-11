@@ -19,7 +19,6 @@ class Manager(object):
     def __init__(self):
         self.driver = utils.import_object(FLAGS.identity_driver)
 
-
     def authenticate(self, context, **kwargs):
         """Passthru authentication to the identity driver.
 
