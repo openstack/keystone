@@ -130,7 +130,7 @@ def process(*args):
             print "SUCCESS: User %s disabled." % object_id
 
     elif (object_type, command) == ('user', 'list'):
-        print_table(('id', 'enabled', 'tenant'), api.list_users())
+        print_table(('id', 'name', 'enabled', 'tenant'), api.list_users())
 
     elif (object_type, command) == ('tenant', 'add'):
         if api.add_tenant(name=object_id):

@@ -28,7 +28,7 @@ def list_users():
     objects = db_api.USER.get_all()
     if objects == None:
         raise IndexError("No users found")
-    return [[o.id, o.enabled, o.tenant_id] for o in objects]
+    return [[o.id, o.name, o.enabled, o.tenant_id] for o in objects]
 
 
 def add_tenant(name):
