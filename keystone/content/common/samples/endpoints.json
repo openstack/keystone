@@ -6,6 +6,7 @@
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
                 "internalURL":"https://compute.north.internal.com/v1",
+                "adminURL" : "https://compute.north.internal.com/v1",
                 "versionId":"1",
                 "versionInfo":"https://compute.north.public.com/v1/",
                 "versionList":"https://compute.north.public.com/"
@@ -17,6 +18,7 @@
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
                 "internalURL":"https://compute.north.internal.com/v1",
+                "adminURL" : "https://compute.north.internal.com/v1",
                 "versionId":"1",
                 "versionInfo":"https://compute.north.public.com/v1/",
                 "versionList":"https://compute.north.public.com/"
@@ -28,6 +30,7 @@
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
                 "internalURL":"https://compute.north.internal.com/v1",
+                "adminURL" : "https://compute.north.internal.com/v1",
                 "versionId":"1",
                 "versionInfo":"https://compute.north.public.com/v1/",
                 "versionList":"https://compute.north.public.com/"
@@ -39,6 +42,7 @@
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
                 "internalURL":"https://compute.north.internal.com/v1",
+                "adminURL" : "https://compute.north.internal.com/v1",
                 "versionId":"1",
                 "versionInfo":"https://compute.north.public.com/v1/",
                 "versionList":"https://compute.north.public.com/"
@@ -50,6 +54,7 @@
                 "type":"compute",
                 "publicURL":"https://compute.north.public.com/v1",
                 "internalURL":"https://compute.north.internal.com/v1",
+                "adminURL" : "https://compute.north.internal.com/v1",
                 "versionId":"1",
                 "versionInfo":"https://compute.north.public.com/v1/",
                 "versionList":"https://compute.north.public.com/"
