@@ -195,7 +195,8 @@ class AuthProtocol(object):
         validate a user's token. Validate_token is a priviledged call so
         it needs to be authenticated by a service that is calling it
         """
-        headers = {"Content-type": "application/json", "Accept": "text/json"}
+        headers = {"Content-type": "application/json",
+                   "Accept": "application/json"}
         params = {"passwordCredentials": {"username": username,
                                           "password": password,
                                           "tenantId": "1"}}
@@ -238,7 +239,7 @@ class AuthProtocol(object):
         # since this is a priviledged op,m we need to auth ourselves
         # by using an admin token
         headers = {"Content-type": "application/json",
-                    "Accept": "text/json",
+                    "Accept": "application/json",
                     "X-Auth-Token": self.admin_token}
                     ##TODO(ziad):we need to figure out how to auth to keystone
                     #since validate_token is a priviledged call
@@ -264,7 +265,7 @@ class AuthProtocol(object):
         # Valid token. Get user data and put it in to the call
         # so the downstream service can use it
         headers = {"Content-type": "application/json",
-                    "Accept": "text/json",
+                    "Accept": "application/json",
                     "X-Auth-Token": self.admin_token}
                     ##TODO(ziad):we need to figure out how to auth to keystone
                     #since validate_token is a priviledged call
