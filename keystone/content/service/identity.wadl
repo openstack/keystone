@@ -73,7 +73,7 @@
 
     <!-- Version -->
 
-    <method name="GET" id="versionDetails">
+    <method name="GET" id="getVersionInfo">
         <doc xml:lang="EN" title="Version Details">
             <p xmlns="http://www.w3.org/1999/xhtml">
                 Returns detailed information about this specific version of the API.
