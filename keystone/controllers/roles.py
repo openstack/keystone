@@ -59,4 +59,4 @@ class RolesController(wsgi.Controller):
     def add_global_role_to_user(self, req, user_id, role_id):
         config.SERVICE.add_global_role_to_user(utils.get_auth_token(req),
             user_id, role_id)
-        return utils.send_result(201)
+        return utils.send_result(201, None)
