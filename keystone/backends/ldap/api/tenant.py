@@ -1,4 +1,5 @@
 import ldap
+import uuid
 
 from keystone.backends.api import BaseTenantAPI
 from keystone.backends.sqlalchemy.api.tenant import TenantAPI as SQLTenantAPI
@@ -13,15 +14,19 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):
     options_name = 'tenant'
     object_class = 'keystoneTenant'
     model = models.Tenant
-    attribute_mapping = {'desc': 'description', 'enabled': 'keystoneEnabled'}
+    attribute_mapping = {'desc': 'description', 'enabled': 'keystoneEnabled',
+                         'name': 'keystoneName'}
 
     def get_by_name(self, name, filter=None):
-        return self.get(name, filter)
+        tenants = self.get_all('(keystoneName=%s)' % \
+                            (ldap.filter.escape_filter_chars(name),))
+        try:
+            return tenants[0]
+        except IndexError:
+            return None
 
     def create(self, values):
-        values['id'] = values['name']
-        delattr(values, 'name')
-
+        values['id'] = str(uuid.uuid4())
         return super(TenantAPI, self).create(values)
 
     def get_user_tenants(self, user_id, include_roles=True):

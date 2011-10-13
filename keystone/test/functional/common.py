@@ -586,7 +586,7 @@ class FunctionalTestCase(ApiTestCase):
         return self.query_user(user_name, **kwargs)
 
     def update_user(self, user_id=None, user_email=None, user_enabled=None,
-            **kwargs):
+            user_name=None, **kwargs):
         user_id = optional_str(user_id)
 
         data = {"user": {}}
@@ -596,7 +596,8 @@ class FunctionalTestCase(ApiTestCase):
 
         if user_enabled is not None:
             data['user']['enabled'] = user_enabled
-
+        if user_name is not None:
+            data['user']['name'] = user_name
         return self.put_user(user_id, as_json=data, **kwargs)
 
     def update_user_password(self, user_id=None, user_password=None, **kwargs):

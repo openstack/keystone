@@ -32,7 +32,12 @@ attributetype (
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
     SINGLE-VALUE
     )
-
+attributetype: (
+    keystoneAttrs:5
+    NAME 'keystoneName'
+    SUP distinguishedName
+    SINGLE-VALUE
+    )
 objectClass (
     keystoneOCs:1
     NAME 'keystoneUidObject'
@@ -46,6 +51,7 @@ objectClass (
     NAME 'keystoneUser'
     SUP top
     AUXILIARY
+    MUST ( keystoneName )
     MUST ( keystoneEnabled )
     MAY ( mail $ userPassword )
     )
@@ -64,6 +70,7 @@ objectClass (
     NAME 'keystoneTenant'
     SUP top
     AUXILIARY
+    MUST ( keystoneName )
     MUST ( keystoneEnabled )
     MAY ( member $ description )
     )
