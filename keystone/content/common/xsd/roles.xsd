@@ -47,10 +47,6 @@
 
     <!-- Complex Types -->
     <complexType name="Role">
-        <sequence>
-            <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
-        </sequence>
         <attribute name="id" type="xsd:string" use="optional"/>
         <attribute name="name" type="xsd:string" use="required"/>
         <attribute name="description" type="xsd:string"  use="optional"/>

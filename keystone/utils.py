@@ -120,7 +120,6 @@ def send_result(code, req, result=None):
         else:
             content = result.to_json()
             resp.headers['content-type'] = "application/json"
-
         resp.content_type_params = {'charset': 'UTF-8'}
         resp.unicode_body = content.decode('UTF-8')
 
