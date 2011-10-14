@@ -101,7 +101,7 @@ class CreateTenantTest(TenantTest):
 
     def test_create_tenant_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.create_tenant(assert_status=404)
+        self.create_tenant(assert_status=401)
 
     def test_create_tenant_invalid_token_xml(self):
         self.admin_token = common.unique_str()
@@ -111,7 +111,7 @@ class CreateTenantTest(TenantTest):
             <description>A description...</description> \
             </tenant>' % (common.unique_str())
 
-        self.post_tenant(as_xml=data, assert_status=404)
+        self.post_tenant(as_xml=data, assert_status=401)
 
 
 class GetTenantsTest(TenantTest):
