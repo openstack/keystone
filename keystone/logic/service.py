@@ -263,10 +263,18 @@ class IdentityService(object):
         dtenant = api.TENANT.get(tenant_id)
         if dtenant == None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-        values = {'desc': tenant.description, 'enabled': tenant.enabled}
+
+        if not tenant.name or not tenant.name.strip():
+            raise fault.BadRequestFault("Expecting a unique Tenant Name")
+
+        if tenant.name != dtenant.name and api.TENANT.get_by_name(tenant.name):
+            raise fault.TenantConflictFault(
+                "A tenant with that name already exists")
+        values = {'desc': tenant.description, 'enabled': tenant.enabled,
+                  'name': tenant.name}
         api.TENANT.update(tenant_id, values)
-        tenant = api.TENANT.get(tenant_id)
-        return Tenant(tenant.id, tenant.name, tenant.desc, tenant.enabled)
+        dtenant = api.TENANT.get(tenant_id)
+        return Tenant(dtenant.id, dtenant.name, dtenant.desc, dtenant.enabled)
 
     def delete_tenant(self, admin_token, tenant_id):
         self.__validate_admin_token(admin_token)
@@ -392,7 +400,7 @@ class IdentityService(object):
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
         return User_Update(id=duser.id, tenant_id=duser.tenant_id,
-                email=duser.email, enabled=duser.enabled)
+                email=duser.email, enabled=duser.enabled, name=duser.name)
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_admin_token(admin_token)
@@ -405,11 +413,19 @@ class IdentityService(object):
         if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
+        if user.name is None or not user.name.strip():
+            raise fault.BadRequestFault("Expecting a unique username")
+
+        if user.name != duser.name and \
+          api.USER.get_by_name(user.name):
+            raise fault.UserConflictFault(
+                "A user with that name already exists")
+
         if user.email != duser.email and \
                 api.USER.get_by_email(user.email) is not None:
             raise fault.EmailConflictFault("Email already exists")
 
-        values = {'email': user.email}
+        values = {'email': user.email, 'name': user.name}
         api.USER.update(user_id, values)
         duser = api.USER.user_get_update(user_id)
         return User(duser.password, duser.id, duser.name, duser.tenant_id,

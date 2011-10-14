@@ -153,7 +153,7 @@ class Credentials(Base, KeystoneBase):
 
 
 class Token(Base, KeystoneBase):
-    __tablename__ = 'token'
+    __tablename__ = 'tokens'
     __api__ = 'token'
     id = Column(String(255), primary_key=True, unique=True)
     user_id = Column(Integer)

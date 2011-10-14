@@ -27,6 +27,7 @@ class TestIssue85(common.FunctionalTestCase):
         r = self.admin_request(method='PUT', path='/tenants/%s' % tenant['id'],
             as_json={
                 'tenant': {
+                    'name': tenant['name'],
                     'description': 'description',
                     'enabled': False}})
         self.assertFalse(r.json['tenant']['enabled'])

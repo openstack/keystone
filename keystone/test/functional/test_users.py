@@ -182,9 +182,18 @@ class UpdateUserTest(UserTest):
 
     def test_update_user_email(self):
         new_user_email = common.unique_email()
-        self.update_user(self.user['id'], user_email=new_user_email)
+        self.update_user(self.user['id'], user_name=self.user['name'],
+                         user_email=new_user_email)
         r = self.fetch_user(self.user['id'])
         self.assertTrue(r.json['user']['email'], new_user_email)
+
+    def test_update_user_name(self):
+        new_user_name = common.unique_str()
+        new_user_email = common.unique_email()
+        self.update_user(self.user['id'], user_name=new_user_name,
+            user_email=new_user_email)
+        r = self.fetch_user(self.user['id'])
+        self.assertTrue(r.json['user']['name'], new_user_name)
 
     def test_enable_disable_user(self):
         self.assertFalse(self.disable_user(self.user['id']).\
@@ -230,6 +239,7 @@ class TestUpdateConflict(UserTest):
     def test_update_user_email_conflict(self):
         """Replace the second user's email with that of the first"""
         self.update_user(user_id=self.users[1]['id'],
+                user_name=self.users[1]['name'],
             user_email=self.users[0]['email'], assert_status=409)
 
 

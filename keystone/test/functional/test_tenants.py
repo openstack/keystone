@@ -190,25 +190,30 @@ class UpdateTenantTest(TenantTest):
         self.tenant = self.create_tenant().json['tenant']
 
     def test_update_tenant(self):
+        new_tenant_name = common.unique_str()
         new_description = common.unique_str()
         updated_tenant = self.update_tenant(self.tenant['id'],
+            tenant_name=new_tenant_name,
             tenant_description=new_description, assert_status=200).\
             json['tenant']
+        self.assertEqual(updated_tenant['name'], new_tenant_name)
         self.assertEqual(updated_tenant['description'], new_description)
 
     def test_update_tenant_xml(self):
+        new_tenant_name = common.unique_str()
         new_description = common.unique_str()
-
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
              '<tenant xmlns="http://docs.openstack.org/identity/api/v2.0" '
+             'name="%s" '
              'enabled="false"> '
              '<description>%s</description> '
-             '</tenant>') % (new_description,)
+             '</tenant>') % (new_tenant_name, new_description,)
         r = self.put_tenant(self.tenant['id'], as_xml=data, assert_status=200)
 
         self.assertEqual(r.xml.tag, "{%s}tenant" % self.xmlns)
 
         description = r.xml.find("{%s}description" % self.xmlns)
+        self.assertEqual(r.xml.get('name'), new_tenant_name)
         self.assertEqual(description.text, new_description)
         self.assertEqual(r.xml.get('id'), self.tenant['id'])
         self.assertEqual(r.xml.get('enabled'), 'false')
