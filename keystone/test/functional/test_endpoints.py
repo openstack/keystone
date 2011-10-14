@@ -106,7 +106,7 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_using_invalid_auth_token(self):
         self.admin_token = common.unique_str()
-        self.list_endpoint_templates(assert_status=404)
+        self.list_endpoint_templates(assert_status=401)
 
     def test_get_endpoint_templates_xml(self):
         r = self.get_endpoint_templates(assert_status=200, headers={
@@ -130,7 +130,7 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
 
     def test_get_endpoint_templates_xml_invalid_auth_token(self):
         self.admin_token = common.unique_str()
-        self.get_endpoint_templates(assert_status=404, headers={
+        self.get_endpoint_templates(assert_status=401, headers={
             'Accept': 'application/xml'})
 
 
@@ -162,7 +162,7 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
     def test_get_endpoint_using_invalid_auth_token(self):
         self.admin_token = common.unique_str()
         self.fetch_endpoint_template(self.endpoint_template['id'],
-            assert_status=404)
+            assert_status=401)
 
     def test_get_endpoint_xml(self):
         r = self.get_endpoint_template(self.endpoint_template['id'],
@@ -258,7 +258,7 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
     def test_update_endpoint_template_with_invalid_token(self):
         self.admin_token = common.unique_str()
         self.update_endpoint_template(self.endpoint_template['id'],
-            assert_status=404)
+            assert_status=401)
 
     def test_update_invalid_endpoint_template(self):
         self.update_endpoint_template(assert_status=404)
@@ -283,7 +283,7 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
     def test_endpoint_create_json_using_invalid_token(self):
         self.admin_token = common.unique_str()
         self.create_endpoint_template(service_id=self.service['id'],
-            assert_status=404)
+            assert_status=401)
 
     def test_endpoint_create_json(self):
         self.create_endpoint_template(service_id=self.service['id'],
@@ -367,7 +367,7 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
             'internalURL="%s" enabled="%s" global="%s"/>') % (
                 common.unique_str(), self.service['id'], common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
-        self.post_endpoint_template(as_xml=data, assert_status=404, headers={
+        self.post_endpoint_template(as_xml=data, assert_status=401, headers={
                 'Accept': 'application/xml'})
 
 
@@ -398,7 +398,7 @@ class GetEndPointTest(EndpointTemplatesTest):
 
     def test_get_tenant_endpoint_xml_using_invalid_auth_token(self):
         self.admin_token = common.unique_str()
-        self.get_tenant_endpoints(self.tenant['id'], assert_status=404,
+        self.get_tenant_endpoints(self.tenant['id'], assert_status=401,
             headers={"Accept": "application/xml"})
 
     def test_get_tenant_endpoint_json(self):
@@ -419,7 +419,7 @@ class GetEndPointTest(EndpointTemplatesTest):
 
     def test_get_endpoint_json_using_invalid_auth_token(self):
         self.admin_token = common.unique_str()
-        self.get_tenant_endpoints(self.tenant['id'], assert_status=404)
+        self.get_tenant_endpoints(self.tenant['id'], assert_status=401)
 
 
 class DeleteEndpointsTest(EndpointTemplatesTest):
@@ -452,7 +452,7 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
     def test_delete_endpoint_using_invalid_auth_token(self):
         self.admin_token = common.unique_str()
         self.delete_tenant_endpoint(self.tenant['id'],
-            self.endpoint_template['id'], assert_status=404)
+            self.endpoint_template['id'], assert_status=401)
 
 
 if __name__ == '__main__':

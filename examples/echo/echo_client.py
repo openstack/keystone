@@ -23,7 +23,7 @@ import json
 
 
 def get_auth_token(username, password, tenant):
-    headers = {"Content-type": "application/json", "Accept": "text/json"}
+    headers = {"Content-type": "application/json", "Accept": "application/json"}
     params = {"passwordCredentials": {"username": username,
                                       "password": password,
                                       "tenantId": tenant}}
@@ -39,7 +39,7 @@ def get_auth_token(username, password, tenant):
 def call_service(token):
     headers = {"X-Auth-Token": token,
                "Content-type": "application/json",
-               "Accept": "text/json"}
+               "Accept": "application/json"}
     params = '{"ping": "abcdefg"}'
     conn = httplib.HTTPConnection("localhost:8090")
     conn.request("POST", "/", params, headers=headers)
@@ -53,7 +53,7 @@ def hack_attempt(token):
     # Injecting headers in the request
     headers = {"X-Auth-Token": token,
                "Content-type": "application/json",
-               "Accept": "text/json\nX_AUTHORIZATION: someone else\n"
+               "Accept": "application/json\nX_AUTHORIZATION: someone else\n"
                "X_IDENTITY_STATUS: Confirmed\nINJECTED_HEADER: aha!"}
     params = '{"ping": "abcdefg"}'
     conn = httplib.HTTPConnection("localhost:8090")

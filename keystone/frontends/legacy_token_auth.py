@@ -68,7 +68,7 @@ class AuthProtocol(object):
             new_request = Request.blank('/tokens')
             new_request.method = 'POST'
             new_request.headers['Content-type'] = 'application/json'
-            new_request.accept = 'text/json'
+            new_request.accept = 'application/json'
             new_request.body = json.dumps(params)
             response = new_request.get_response(self.app)
             #Handle failures.

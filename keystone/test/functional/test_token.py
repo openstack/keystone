@@ -71,17 +71,17 @@ class ValidateToken(common.FunctionalTestCase):
         self.assertEqual(self.role['name'], role.get("name"))
 
     def test_validate_token_expired(self):
-        self.get_token(self.expired_admin_token, assert_status=403)
+        self.get_token(self.expired_admin_token, assert_status=404)
 
     def test_validate_token_expired_xml(self):
-        self.get_token(self.expired_admin_token, assert_status=403, headers={
+        self.get_token(self.expired_admin_token, assert_status=404, headers={
             'Accept': 'application/xml'})
 
     def test_validate_token_invalid(self):
-        self.get_token(common.unique_str(), assert_status=401)
+        self.get_token(common.unique_str(), assert_status=404)
 
     def test_validate_token_invalid_xml(self):
-        self.get_token(common.unique_str(), assert_status=401, headers={
+        self.get_token(common.unique_str(), assert_status=404, headers={
             'Accept': 'application/xml'})
 
 
@@ -104,14 +104,14 @@ class CheckToken(common.FunctionalTestCase):
             assert_status=200)
 
     def test_validate_token_expired(self):
-        self.check_token(self.expired_admin_token, assert_status=403)
+        self.check_token(self.expired_admin_token, assert_status=404)
 
     def test_validate_token_expired_xml(self):
-        self.check_token(self.expired_admin_token, assert_status=403, headers={
+        self.check_token(self.expired_admin_token, assert_status=404, headers={
             'Accept': 'application/xml'})
 
     def test_validate_token_invalid(self):
-        self.check_token(common.unique_str(), assert_status=401)
+        self.check_token(common.unique_str(), assert_status=404)
 
 
 class TokenEndpointTest(unittest.TestCase):

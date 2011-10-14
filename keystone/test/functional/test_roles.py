@@ -35,7 +35,7 @@ class CreateRolesTest(RolesTest):
     def test_create_role_using_service_token(self):
         user = self.create_user_with_known_password().json['user']
         self.admin_token = self.authenticate(user['name'], user['password'])
-        self.create_role(assert_status=404)
+        self.create_role(assert_status=401)
 
     def test_create_roles_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
@@ -51,7 +51,7 @@ class CreateRolesTest(RolesTest):
 
     def test_create_roles_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.create_role(assert_status=404)
+        self.create_role(assert_status=401)
 
     def test_create_role_mapped_to_a_service(self):
         service = self.create_service().json['OS-KSADM:service']
@@ -102,7 +102,7 @@ class DeleteRoleTest(RolesTest):
 
     def test_delete_roles_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.delete_role(self.role['id'], assert_status=404)
+        self.delete_role(self.role['id'], assert_status=401)
 
     def test_create_and_delete_role_that_has_references(self):
         tenant = self.create_tenant().json['tenant']
@@ -218,11 +218,11 @@ class GetRoleTest(RolesTest):
 
     def test_get_role_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.fetch_role(self.role['id'], assert_status=404)
+        self.fetch_role(self.role['id'], assert_status=401)
 
     def test_get_role_xml_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.get_role(self.role['id'], assert_status=404, headers={
+        self.get_role(self.role['id'], assert_status=401, headers={
             'Accept': 'application/xml'})
 
 
@@ -273,7 +273,7 @@ class CreateRoleAssignmentTest(RolesTest):
     def test_grant_role_using_invalid_token(self):
         self.admin_token = common.unique_str()
         self.grant_role_to_user(self.user['id'], self.role['id'],
-            self.tenant['id'], assert_status=404)
+            self.tenant['id'], assert_status=401)
 
     def test_grant_global_role_json(self):
         self.grant_global_role_to_user(
@@ -329,11 +329,11 @@ class GetRoleAssignmentsTest(RolesTest):
 
     def test_get_role_assignments_json_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.get_user_roles(self.user['id'], assert_status=404)
+        self.get_user_roles(self.user['id'], assert_status=401)
 
     def test_get_role_assignments_xml_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.get_user_roles(self.user['id'], assert_status=404, headers={
+        self.get_user_roles(self.user['id'], assert_status=401, headers={
             'Accept': 'application/xml'})
 
 
@@ -372,7 +372,7 @@ class DeleteRoleAssignmentsTest(RolesTest):
     def test_delete_role_assignment_using_invalid_token(self):
         self.admin_token = common.unique_str()
         self.delete_user_role(self.user['id'], self.role['id'],
-            self.tenant['id'], assert_status=404)
+            self.tenant['id'], assert_status=401)
 
 
 class DeleteGlobalRoleAssignmentsTest(RolesTest):
@@ -409,7 +409,7 @@ class DeleteGlobalRoleAssignmentsTest(RolesTest):
     def test_delete_role_assignment_using_invalid_token(self):
         self.admin_token = common.unique_str()
         self.delete_user_role(self.user['id'], self.role['id'],
-            None, assert_status=404)
+            None, assert_status=401)
 
 if __name__ == '__main__':
     unittest.main()

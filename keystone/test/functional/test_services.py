@@ -71,7 +71,7 @@ class GetServicesTest(ServicesTest):
 
     def test_get_services_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.list_services(assert_status=404)
+        self.list_services(assert_status=401)
 
 
 class GetServiceTest(ServicesTest):
@@ -109,7 +109,7 @@ class GetServiceTest(ServicesTest):
 
     def test_get_service_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.fetch_service(service_id=self.service['id'], assert_status=404)
+        self.fetch_service(service_id=self.service['id'], assert_status=401)
 
 
 class CreateServiceTest(ServicesTest):
@@ -160,7 +160,7 @@ class CreateServiceTest(ServicesTest):
 
     def test_service_create_json_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.create_service(assert_status=404)
+        self.create_service(assert_status=401)
 
 
 class DeleteServiceTest(ServicesTest):
@@ -200,7 +200,7 @@ class DeleteServiceTest(ServicesTest):
 
     def test_service_delete_json_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.remove_service(self.service['id'], assert_status=404)
+        self.remove_service(self.service['id'], assert_status=401)
 
 
 if __name__ == '__main__':

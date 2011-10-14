@@ -146,19 +146,8 @@ class IdentityService(object):
 
     def validate_token(self, admin_token, token_id, belongs_to=None):
         self.__validate_service_or_keystone_admin_token(admin_token)
-
-        if not api.TOKEN.get(token_id):
-            raise fault.UnauthorizedFault("Bad token, please reauthenticate")
-        (token, user) = self.__validate_token(token_id, belongs_to)
+        (token, user) = self.__validate_token(token_id, belongs_to, True)
         return self.__get_validate_data(token, user)
-
-    def check_token(self, admin_token, token_id, belongs_to=None):
-        self.__validate_service_or_keystone_admin_token(admin_token)
-
-        if not api.TOKEN.get(token_id):
-            raise fault.UnauthorizedFault("Bad token, please reauthenticate")
-
-        self.__validate_token(token_id, belongs_to)
 
     def revoke_token(self, admin_token, token_id):
         self.__validate_admin_token(admin_token)
@@ -589,17 +578,33 @@ class IdentityService(object):
 
         return self.__validate_tenant(dtenant)
 
-    def __validate_token(self, token_id, belongs_to=None):
+    def __validate_token(self, token_id, belongs_to=None, is_check_token=None):
+        """
+        Method to validate a token.
+        token_id -- value of actual token that need to be validated.
+        belngs_to -- optional tenant_id to check whether the token is
+        mapped to a specific tenant.
+        is_check_token -- optional argument that tells whether
+        we check the existence of a Token using another Token
+        to authenticate.This value decides the faults that are to be thrown.
+        """
         if not token_id:
             raise fault.UnauthorizedFault("Missing token")
 
         (token, user) = self.__get_dauth_data(token_id)
 
         if not token:
-            raise fault.ItemNotFoundFault("Bad token, please reauthenticate")
+            if is_check_token:
+                raise fault.ItemNotFoundFault("Token does not exist.")
+            else:
+                raise fault.UnauthorizedFault(
+                    "Bad token, please reauthenticate")
 
         if token.expires < datetime.now():
-            raise fault.ForbiddenFault("Token expired, please renew")
+            if is_check_token:
+                raise fault.ItemNotFoundFault("Token expired, please renew.")
+            else:
+                raise fault.ForbiddenFault("Token expired, please renew.")
 
         if not user.enabled:
             raise fault.UserDisabledFault("User %s has been disabled!"

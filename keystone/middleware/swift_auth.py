@@ -196,7 +196,7 @@ class AuthProtocol(object):
 
         self.log.debug('Asking keystone to validate token')
         headers = {"Content-type": "application/json",
-                    "Accept": "text/json",
+                    "Accept": "application/json",
                     "X-Auth-Token": self.admin_token}
         self.log.debug('headers: %r', headers)
         self.log.debug('url: %s', self.keystone_url)
