@@ -28,7 +28,7 @@ class ValidateToken(common.FunctionalTestCase):
             tenant_id=self.tenant['id']).json['user']
         self.role = self.create_role().json['role']
         self.role_ref = self.grant_role_to_user(self.user['id'],
-            self.role['id'], self.tenant['id']).json['role']
+            self.role['id'], self.tenant['id'])
         self.token = self.authenticate(self.user['name'],
             self.user['password'], self.tenant['id']).json['access']['token']
 

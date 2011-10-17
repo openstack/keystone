@@ -1,6 +1,6 @@
 from keystone import utils
 from keystone.common import wsgi
-from keystone.logic.types.role import Role, RoleRef
+from keystone.logic.types.role import Role
 import keystone.config as config
 from . import get_marker_limit_and_url
 
@@ -36,10 +36,16 @@ class RolesController(wsgi.Controller):
         return utils.send_result(200, req, role)
 
     @utils.wrap_error
-    def create_role_ref(self, req, user_id):
-        roleRef = utils.get_normalized_request_content(RoleRef, req)
-        return utils.send_result(201, req, config.SERVICE.create_role_ref(
-            utils.get_auth_token(req), user_id, roleRef))
+    def add_role_to_user(self, req, user_id, role_id, tenant_id=None):
+        config.SERVICE.add_role_to_user(utils.get_auth_token(req),
+            user_id, role_id, tenant_id)
+        return utils.send_result(201, None)
+
+    @utils.wrap_error
+    def delete_role_from_user(self, req, user_id, role_id, tenant_id=None):
+        config.SERVICE.remove_role_from_user(utils.get_auth_token(req),
+            user_id, role_id, tenant_id)
+        return utils.send_result(204, req, None)
 
     @utils.wrap_error
     def get_role_refs(self, req, user_id):
@@ -48,15 +54,3 @@ class RolesController(wsgi.Controller):
             utils.get_auth_token(req), marker, limit, url, user_id)
 
         return utils.send_result(200, req, roleRefs)
-
-    @utils.wrap_error
-    def delete_role_ref(self, req, user_id, role_ref_id):
-        rval = config.SERVICE.delete_role_ref(utils.get_auth_token(req),
-            role_ref_id)
-        return utils.send_result(204, req, rval)
-
-    @utils.wrap_error
-    def add_global_role_to_user(self, req, user_id, role_id):
-        config.SERVICE.add_global_role_to_user(utils.get_auth_token(req),
-            user_id, role_id)
-        return utils.send_result(201, None)

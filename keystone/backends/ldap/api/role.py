@@ -236,3 +236,39 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                     role_id=role_id,
                     tenant_id=tenant_id))
         return res
+
+    def ref_get_by_user(self, user_id, role_id, tenant_id):
+        conn = self.api.get_connection()
+        user_dn = self.api.user._id_to_dn(user_id)
+        query = '(&(objectClass=keystoneTenantRole)(member=%s))' % (user_dn,)
+        if tenant_id is not None:
+            tenant_dn = self.api.tenant._id_to_dn(tenant_id)
+            try:
+                roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
+            except ldap.NO_SUCH_OBJECT:
+                return None
+            if len(roles) == 0:
+                return None
+            for role_dn, _ in roles:
+                ldap_role_id = self._dn_to_id(role_dn)
+                if role_id == ldap_role_id:
+                    res = models.UserRoleAssociation(
+                           id=self._create_ref(role_id, tenant_id, user_id),
+                           user_id=user_id,
+                           role_id=role_id,
+                           tenant_id=tenant_id)
+                    return res
+        else:
+            try:
+                roles = self.get_all('(member=%s)' % (user_dn,))
+            except ldap.NO_SUCH_OBJECT:
+                return None
+            if len(roles) == 0:
+                return None
+            for role in roles:
+                if role.id == role_id:
+                    return models.UserRoleAssociation(
+                                id=self._create_ref(role.id, None, user_id),
+                                role_id=role.id,
+                                user_id=user_id)
+        return None

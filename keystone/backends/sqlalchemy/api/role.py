@@ -199,6 +199,19 @@ class RoleAPI(BaseRoleAPI):
             filter_by(role_id=role_id).all()
         return result
 
+    def ref_get_by_user(self, user_id, role_id, tenant_id, session=None):
+        if not session:
+            session = get_session()
+        if tenant_id is None:
+            result = session.query(models.UserRoleAssociation).\
+                filter_by(user_id=user_id).filter("tenant_id is null").\
+                filter_by(role_id=role_id).first()
+        else:
+            result = session.query(models.UserRoleAssociation).\
+                filter_by(user_id=user_id).filter_by(tenant_id=tenant_id).\
+                filter_by(role_id=role_id).first()
+        return result
+
 
 def get():
     return RoleAPI()

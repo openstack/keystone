@@ -190,6 +190,9 @@ class BaseRoleAPI(object):
     def ref_get_page_markers(self, user_id, marker, limit):
         raise NotImplementedError
 
+    def ref_get_by_user(self, user_id, role_id, tenant_id):
+        raise NotImplementedError
+
 
 class BaseEndpointTemplateAPI(object):
     def create(self, values):

@@ -283,15 +283,29 @@ class ApiTestCase(RestfulTestCase):
         return self.admin_request(method='GET',
             path='/users/%s/roleRefs' % (user_id,), **kwargs)
 
-    def post_user_role(self, user_id, **kwargs):
-        """POST /users/{user_id}/roleRefs"""
-        return self.admin_request(method='POST',
-            path='/users/%s/roleRefs' % (user_id,), **kwargs)
+    def post_user_role(self, user_id, role_id, tenant_id, **kwargs):
+        if tenant_id is None:
+            """POST /users/{user_id}/roles/OS-KSADM/{role_id}"""
+            return self.admin_request(method='POST',
+                path='/users/%s/roles/OS-KSADM/%s' %
+                (user_id, role_id), **kwargs)
+        else:
+            """POST /tenants/{tenant_id}/users/{user_id}/
+            roles/OS-KSADM/{role_id}"""
+            return self.admin_request(method='POST',
+                path='/tenants/%s/users/%s/roles/OS-KSADM/%s' % (tenant_id,
+                    user_id, role_id,), **kwargs)
 
-    def delete_user_role(self, user_id, role_id, **kwargs):
-        """DELETE /users/{user_id}/roleRefs/{role_ref_id}"""
-        return self.admin_request(method='DELETE',
-            path='/users/%s/roleRefs/%s' % (user_id, role_id), **kwargs)
+    def delete_user_role(self, user_id, role_id,  tenant_id, **kwargs):
+        """DELETE /users/{user_id}/roles/{role_id}"""
+        if tenant_id is None:
+            return self.admin_request(method='DELETE',
+                path='/users/%s/roles/OS-KSADM/%s'
+                % (user_id, role_id), **kwargs)
+        else:
+            return self.admin_request(method='DELETE',
+                path='/tenants/%s/users/%s/roles/OS-KSADM/%s' %
+                    (tenant_id, user_id, role_id), **kwargs)
 
     def post_role(self, **kwargs):
         """POST /roles"""
@@ -639,19 +653,26 @@ class FunctionalTestCase(ApiTestCase):
         user_id = optional_str(user_id)
         role_id = optional_str(role_id)
         tenant_id = optional_str(tenant_id)
+        return self.post_user_role(user_id, role_id, tenant_id, **kwargs)
 
-        data = {
-            "role": {
-                "tenantId": tenant_id,
-                "roleId": role_id}}
-
-        return self.post_user_role(user_id, as_json=data, **kwargs)
-
-    def revoke_role_from_user(self, user_id=None, role_id=None, **kwargs):
+    def grant_global_role_to_user(self, user_id=None, role_id=None,
+            **kwargs):
         user_id = optional_str(user_id)
         role_id = optional_str(role_id)
+        return self.post_user_role(user_id, role_id, None, **kwargs)
 
+    def revoke_global_role_from_user(self,
+        user_id=None, role_id=None, **kwargs):
+        user_id = optional_str(user_id)
+        role_id = optional_str(role_id)
         return self.delete_user_role(user_id, role_id, **kwargs)
+
+    def revoke_role_from_user(self,
+        user_id=None, role_id=None, tenant_id=None, **kwargs):
+        user_id = optional_str(user_id)
+        role_id = optional_str(role_id)
+        tenant_id = optional_str(tenant_id)
+        return self.delete_user_role(user_id, tenant_id, **kwargs)
 
     def create_role(self, role_name=None, role_description=None,
             service_id=None, **kwargs):

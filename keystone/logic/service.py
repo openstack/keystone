@@ -770,7 +770,8 @@ class IdentityService(object):
         api.ROLE.ref_delete(role_ref_id)
         return None
 
-    def add_global_role_to_user(self, admin_token, user_id, role_id):
+    def add_role_to_user(self, admin_token,
+        user_id, role_id, tenant_id=None):
         self.__validate_service_or_keystone_admin_token(admin_token)
         duser = api.USER.get(user_id)
         if not duser:
@@ -779,11 +780,31 @@ class IdentityService(object):
         drole = api.ROLE.get(role_id)
         if drole == None:
             raise fault.ItemNotFoundFault("The role not found")
+        if tenant_id != None:
+            dtenant = api.TENANT.get(tenant_id)
+            if dtenant == None:
+                raise fault.ItemNotFoundFault("The tenant not found")
+
+        drole_ref = api.ROLE.ref_get_by_user(user_id, role_id, tenant_id)
+        if drole_ref is not None:
+            raise fault.RoleConflictFault(
+                "This role is already mapped to the user.")
 
         drole_ref = models.UserRoleAssociation()
         drole_ref.user_id = duser.id
         drole_ref.role_id = drole.id
+        if tenant_id != None:
+            drole_ref.tenant_id = dtenant.id
         api.USER.user_role_add(drole_ref)
+
+    def remove_role_from_user(self, admin_token,
+        user_id, role_id, tenant_id=None):
+        self.__validate_service_or_keystone_admin_token(admin_token)
+        drole_ref = api.ROLE.ref_get_by_user(user_id, role_id, tenant_id)
+        if drole_ref is None:
+            raise fault.ItemNotFoundFault(
+                "This role is not mapped to the user.")
+        api.ROLE.ref_delete(drole_ref.id)
 
     def get_user_roles(self, admin_token, marker, limit, url, user_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
