@@ -220,9 +220,9 @@ class ApiTestCase(RestfulTestCase):
         return self.admin_request(method='GET',
             path='/tenants/%s' % (tenant_id,), **kwargs)
 
-    def put_tenant(self, tenant_id, **kwargs):
+    def post_tenant_for_update(self, tenant_id, **kwargs):
         """GET /tenants/{tenant_id}"""
-        return self.admin_request(method='PUT',
+        return self.admin_request(method='POST',
             path='/tenants/%s' % (tenant_id,), **kwargs)
 
     def get_tenant_users(self, tenant_id, **kwargs):
@@ -253,9 +253,9 @@ class ApiTestCase(RestfulTestCase):
         return self.admin_request(method='GET',
             path='/users?username=%s' % (user_name,), **kwargs)
 
-    def put_user(self, user_id, **kwargs):
-        """PUT /users/{user_id}"""
-        return self.admin_request(method='PUT',
+    def post_user_for_update(self, user_id, **kwargs):
+        """POST /users/{user_id}"""
+        return self.admin_request(method='POST',
             path='/users/%s' % (user_id,), **kwargs)
 
     def put_user_password(self, user_id, **kwargs):
@@ -554,7 +554,7 @@ class FunctionalTestCase(ApiTestCase):
         if tenant_enabled is not None:
             data['tenant']['enabled'] = tenant_enabled
 
-        return self.put_tenant(tenant_id, as_json=data, **kwargs)
+        return self.post_tenant_for_update(tenant_id, as_json=data, **kwargs)
 
     def list_tenant_users(self, tenant_id, **kwargs):
         tenant_id = optional_str(tenant_id)
@@ -612,7 +612,7 @@ class FunctionalTestCase(ApiTestCase):
             data['user']['enabled'] = user_enabled
         if user_name is not None:
             data['user']['name'] = user_name
-        return self.put_user(user_id, as_json=data, **kwargs)
+        return self.post_user_for_update(user_id, as_json=data, **kwargs)
 
     def update_user_password(self, user_id=None, user_password=None, **kwargs):
         user_id = optional_str(user_id)

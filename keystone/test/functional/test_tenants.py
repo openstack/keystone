@@ -208,7 +208,8 @@ class UpdateTenantTest(TenantTest):
              'enabled="false"> '
              '<description>%s</description> '
              '</tenant>') % (new_tenant_name, new_description,)
-        r = self.put_tenant(self.tenant['id'], as_xml=data, assert_status=200)
+        r = self.post_tenant_for_update(
+            self.tenant['id'], as_xml=data, assert_status=200)
 
         self.assertEqual(r.xml.tag, "{%s}tenant" % self.xmlns)
 
@@ -221,7 +222,8 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant_bad(self):
         data = '{"tenant": { "description_bad": "A NEW description...",\
                 "enabled":true  }}'
-        self.put_tenant(self.tenant['id'], as_json=data, assert_status=400)
+        self.post_tenant_for_update(
+            self.tenant['id'], as_json=data, assert_status=400)
 
     def test_update_tenant_bad_xml(self):
         data = '<?xml version="1.0" encoding="UTF-8"?> \
@@ -229,7 +231,8 @@ class UpdateTenantTest(TenantTest):
              enabled="true"> \
              <description_bad>A NEW description...</description> \
              </tenant>'
-        self.put_tenant(self.tenant['id'], as_xml=data, assert_status=400)
+        self.post_tenant_for_update(
+            self.tenant['id'], as_xml=data, assert_status=400)
 
     def test_update_tenant_not_found(self):
         self.update_tenant(assert_status=404)
@@ -240,7 +243,8 @@ class UpdateTenantTest(TenantTest):
             'enabled="true"> '
             '<description>A NEW description...</description> '
             '</tenant>')
-        self.put_tenant(common.unique_str(), as_xml=data, assert_status=404)
+        self.post_tenant_for_update(
+            common.unique_str(), as_xml=data, assert_status=404)
 
 
 class DeleteTenantTest(TenantTest):

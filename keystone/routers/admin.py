@@ -49,6 +49,7 @@ class AdminApi(wsgi.Router):
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="check_token",
                         conditions=dict(method=["HEAD"]))
+        # Do we need this.API doesn't have delete token.
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
@@ -60,64 +61,21 @@ class AdminApi(wsgi.Router):
         # Tenant Operations
         tenant_controller = TenantController(options)
         mapper.connect("/tenants", controller=tenant_controller,
-                    action="create_tenant",
-                    conditions=dict(method=["POST"]))
-        mapper.connect("/tenants", controller=tenant_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
-                    action="update_tenant", conditions=dict(method=["PUT"]))
-        mapper.connect("/tenants/{tenant_id}",
-                    controller=tenant_controller,
                     action="get_tenant", conditions=dict(method=["GET"]))
-        mapper.connect("/tenants/{tenant_id}",
-                    controller=tenant_controller,
-                    action="delete_tenant", conditions=dict(method=["DELETE"]))
-
+        roles_controller = RolesController(options)
+        mapper.connect("/tenants/{tenant_id}/users/{user_id}/roles",
+            controller=roles_controller, action="get_user_roles",
+            conditions=dict(method=["GET"]))
         # User Operations
         user_controller = UserController(options)
-        mapper.connect("/users",
-                    controller=user_controller,
-                    action="create_user",
-                    conditions=dict(method=["POST"]))
-        mapper.connect("/users",
-                    controller=user_controller,
-                    action="get_users",
-                    conditions=dict(method=["GET"]))
         mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="get_user",
                     conditions=dict(method=["GET"]))
-        mapper.connect("/users/{user_id}",
-                    controller=user_controller,
-                    action="update_user",
-                    conditions=dict(method=["PUT"]))
-        mapper.connect("/users/{user_id}",
-                    controller=user_controller,
-                    action="delete_user",
-                    conditions=dict(method=["DELETE"]))
-        mapper.connect("/users/{user_id}/password",
-                    controller=user_controller,
-                    action="set_user_password",
-                    conditions=dict(method=["PUT"]))
-        mapper.connect("/users/{user_id}/tenant",
-                    controller=user_controller,
-                    action="update_user_tenant",
-                    conditions=dict(method=["PUT"]))
-        # Test this, test failed
-        mapper.connect("/users/{user_id}/enabled",
-                    controller=user_controller,
-                    action="set_user_enabled",
-                    conditions=dict(method=["PUT"]))
-        mapper.connect("/tenants/{tenant_id}/users",
-                    controller=user_controller,
-                    action="get_tenant_users",
-                    conditions=dict(method=["GET"]))
-        roles_controller = RolesController(options)
         mapper.connect("/users/{user_id}/roles",
-            controller=roles_controller, action="get_user_roles",
-            conditions=dict(method=["GET"]))
-        mapper.connect("/tenants/{tenant_id}/users/{user_id}/roles",
             controller=roles_controller, action="get_user_roles",
             conditions=dict(method=["GET"]))
 

@@ -207,7 +207,8 @@ class UpdateUserTest(UserTest):
 
     def test_update_user_bad_request(self):
         data = '{"user_bad": { "bad": "%s"}}' % (common.unique_email(),)
-        self.put_user(self.user['id'], assert_status=400, body=data, headers={
+        self.post_user_for_update(
+            self.user['id'], assert_status=400, body=data, headers={
             "Content-Type": "application/json"})
 
     def test_update_user_expired_token(self):
