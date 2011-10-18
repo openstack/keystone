@@ -58,7 +58,7 @@ class ExtensionHandler(BaseExtensionHandler):
         #Add/Delete Global role.
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
             controller=roles_controller, action="add_role_to_user",
-            conditions=dict(method=["POST"]))
+            conditions=dict(method=["PUT"]))
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
             controller=roles_controller, action="delete_role_from_user",
             conditions=dict(method=["DELETE"]))
@@ -67,12 +67,8 @@ class ExtensionHandler(BaseExtensionHandler):
         mapper.connect(
             "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
             controller=roles_controller, action="add_role_to_user",
-            conditions=dict(method=["POST"]))
+            conditions=dict(method=["PUT"]))
         mapper.connect(
             "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
             controller=roles_controller, action="delete_role_from_user",
             conditions=dict(method=["DELETE"]))
-
-        mapper.connect("/users/{user_id}/roleRefs",
-            controller=roles_controller, action="get_role_refs",
-            conditions=dict(method=["GET"]))

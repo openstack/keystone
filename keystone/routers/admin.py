@@ -21,6 +21,7 @@ from keystone.common import wsgi
 import keystone.backends as db
 from keystone.controllers.auth import AuthController
 from keystone.controllers.endpointtemplates import EndpointTemplatesController
+from keystone.controllers.roles import RolesController
 from keystone.controllers.staticfiles import StaticFilesController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.user import UserController
@@ -112,6 +113,13 @@ class AdminApi(wsgi.Router):
                     controller=user_controller,
                     action="get_tenant_users",
                     conditions=dict(method=["GET"]))
+        roles_controller = RolesController(options)
+        mapper.connect("/users/{user_id}/roles",
+            controller=roles_controller, action="get_user_roles",
+            conditions=dict(method=["GET"]))
+        mapper.connect("/tenants/{tenant_id}/users/{user_id}/roles",
+            controller=roles_controller, action="get_user_roles",
+            conditions=dict(method=["GET"]))
 
         #EndpointTemplatesControllers and Endpoints
         endpoint_templates_controller = EndpointTemplatesController(options)

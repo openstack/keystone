@@ -196,16 +196,22 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.NotFound("No such user in role")
 
-    def ref_get_page(self, marker, limit, user_id):
-        all_roles = self.ref_get_all_global_roles(user_id)
-        for tenant in self.api.tenant.get_all():
-            all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
+    def ref_get_page(self, marker, limit, user_id, tenant_id):
+        all_roles = []
+        if tenant_id is None:
+            all_roles += self.ref_get_all_global_roles(user_id)
+        else:
+            for tenant in self.api.tenant.get_all():
+                all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
         return self._get_page(marker, limit, all_roles)
 
-    def ref_get_page_markers(self, user_id, marker, limit):
-        all_roles = self.ref_get_all_global_roles(user_id)
-        for tenant in self.api.tenant.get_all():
-            all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
+    def ref_get_page_markers(self, user_id, tenant_id, marker, limit):
+        all_roles = []
+        if tenant_id is None:
+            all_roles = self.ref_get_all_global_roles(user_id)
+        else:
+            for tenant in self.api.tenant.get_all():
+                all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
         return self._get_page_markers(marker, limit, all_roles)
 
     def ref_get_by_role(self, id):

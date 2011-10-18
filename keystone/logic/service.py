@@ -24,8 +24,7 @@ import keystone.backends.api as api
 import keystone.backends.models as models
 from keystone.logic.types import fault
 from keystone.logic.types.tenant import Tenant, Tenants
-from keystone.logic.types.role import Role, RoleRef, RoleRefs, Roles, \
-    UserRole, UserRoles
+from keystone.logic.types.role import Role, Roles
 from keystone.logic.types.service import Service, Services
 from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
@@ -518,15 +517,15 @@ class IdentityService(object):
                 dtoken.tenant_id)
             for drole_ref in drole_refs:
                 drole = api.ROLE.get(drole_ref.role_id)
-                ts.append(UserRole(drole_ref.role_id, drole.name,
-                    drole_ref.tenant_id))
+                ts.append(Role(drole_ref.role_id, drole.name,
+                    None, drole_ref.tenant_id))
         drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
         for drole_ref in drole_refs:
             drole = api.ROLE.get(drole_ref.role_id)
-            ts.append(UserRole(drole_ref.role_id, drole.name,
-                drole_ref.tenant_id))
+            ts.append(Role(drole_ref.role_id, drole.name,
+                None, drole_ref.tenant_id))
 
-        user = auth.User(duser.id, duser.name, None, None, UserRoles(ts, []))
+        user = auth.User(duser.id, duser.name, None, None, Roles(ts, []))
 
         return auth.AuthData(token, user, endpoints)
 
@@ -545,13 +544,13 @@ class IdentityService(object):
                 dtoken.tenant_id)
             for drole_ref in drole_refs:
                 drole = api.ROLE.get(drole_ref.role_id)
-                ts.append(UserRole(drole_ref.role_id, drole.name,
-                    drole_ref.tenant_id))
+                ts.append(Role(drole_ref.role_id, drole.name,
+                    None, drole_ref.tenant_id))
         drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
         for drole_ref in drole_refs:
             drole = api.ROLE.get(drole_ref.role_id)
-            ts.append(UserRole(drole_ref.role_id, drole.name,
-                drole_ref.tenant_id))
+            ts.append(Role(drole_ref.role_id, drole.name,
+                None, drole_ref.tenant_id))
 
         # Also get the user's tenant's name
         tenant_name = None
@@ -560,7 +559,7 @@ class IdentityService(object):
             tenant_name = utenant.name
 
         user = auth.User(duser.id, duser.name, duser.tenant_id,
-            tenant_name, UserRoles(ts, []))
+            tenant_name, Roles(ts, []))
 
         return auth.ValidateData(token, user)
 
@@ -734,42 +733,6 @@ class IdentityService(object):
                 api.ROLE.ref_delete(role_ref.id)
         api.ROLE.delete(role_id)
 
-    def create_role_ref(self, admin_token, user_id, role_ref):
-        self.__validate_service_or_keystone_admin_token(admin_token)
-        duser = api.USER.get(user_id)
-
-        if not duser:
-            raise fault.ItemNotFoundFault("The user could not be found")
-
-        if not isinstance(role_ref, RoleRef):
-            raise fault.BadRequestFault("Expecting a Role Ref")
-
-        if role_ref.role_id == None:
-            raise fault.BadRequestFault("Expecting a Role Id")
-
-        drole = api.ROLE.get(role_ref.role_id)
-        if drole == None:
-            raise fault.ItemNotFoundFault("The role not found")
-
-        if role_ref.tenant_id != None:
-            dtenant = api.TENANT.get(role_ref.tenant_id)
-            if dtenant == None:
-                raise fault.ItemNotFoundFault("The tenant not found")
-
-        drole_ref = models.UserRoleAssociation()
-        drole_ref.user_id = duser.id
-        drole_ref.role_id = drole.id
-        if role_ref.tenant_id != None:
-            drole_ref.tenant_id = dtenant.id
-        user_role_ref = api.USER.user_role_add(drole_ref)
-        role_ref.role_ref_id = user_role_ref.id
-        return role_ref
-
-    def delete_role_ref(self, admin_token, role_ref_id):
-        self.__validate_service_or_keystone_admin_token(admin_token)
-        api.ROLE.ref_delete(role_ref_id)
-        return None
-
     def add_role_to_user(self, admin_token,
         user_id, role_id, tenant_id=None):
         self.__validate_service_or_keystone_admin_token(admin_token)
@@ -806,19 +769,26 @@ class IdentityService(object):
                 "This role is not mapped to the user.")
         api.ROLE.ref_delete(drole_ref.id)
 
-    def get_user_roles(self, admin_token, marker, limit, url, user_id):
+    def get_user_roles(self, admin_token, marker,
+        limit, url, user_id, tenant_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
         duser = api.USER.get(user_id)
 
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
+        if tenant_id is not None:
+            dtenant = api.TENANT.get(tenant_id)
+            if not dtenant:
+                raise fault.ItemNotFoundFault("The tenant could not be found.")
         ts = []
-        drole_refs = api.ROLE.ref_get_page(marker, limit, user_id)
+        drole_refs = api.ROLE.ref_get_page(marker, limit, user_id, tenant_id)
         for drole_ref in drole_refs:
-            ts.append(RoleRef(drole_ref.id, drole_ref.role_id,
-                                     drole_ref.tenant_id))
-        prev, next = api.ROLE.ref_get_page_markers(user_id, marker, limit)
+            drole = api.ROLE.get(drole_ref.role_id)
+            ts.append(Role(drole.id, drole.name,
+                    drole.desc, drole.service_id))
+        prev, next = api.ROLE.ref_get_page_markers(
+            user_id, tenant_id, marker, limit)
         links = []
         if prev:
             links.append(atom.Link('prev',
@@ -826,7 +796,7 @@ class IdentityService(object):
         if next:
             links.append(atom.Link('next',
                 "%s?'marker=%s&limit=%s'" % (url, next, limit)))
-        return RoleRefs(ts, links)
+        return Roles(ts, links)
 
     def add_endpoint_template(self, admin_token, endpoint_template):
         self.__validate_service_or_keystone_admin_token(admin_token)

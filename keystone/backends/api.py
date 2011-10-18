@@ -166,7 +166,7 @@ class BaseRoleAPI(object):
     def get_page(self, marker, limit):
         raise NotImplementedError
 
-    def ref_get_page(self, marker, limit, user_id):
+    def ref_get_page(self, marker, limit, user_id, tenant_id):
         raise NotImplementedError
 
     def ref_get_all_global_roles(self, user_id):
@@ -187,7 +187,7 @@ class BaseRoleAPI(object):
     def get_page_markers(self, marker, limit):
         raise NotImplementedError
 
-    def ref_get_page_markers(self, user_id, marker, limit):
+    def ref_get_page_markers(self, user_id, tenant_id, marker, limit):
         raise NotImplementedError
 
     def ref_get_by_user(self, user_id, role_id, tenant_id):

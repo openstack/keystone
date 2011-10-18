@@ -48,9 +48,8 @@ class RolesController(wsgi.Controller):
         return utils.send_result(204, req, None)
 
     @utils.wrap_error
-    def get_role_refs(self, req, user_id):
+    def get_user_roles(self, req, user_id, tenant_id=None):
         marker, limit, url = get_marker_limit_and_url(req)
-        roleRefs = config.SERVICE.get_user_roles(
-            utils.get_auth_token(req), marker, limit, url, user_id)
-
-        return utils.send_result(200, req, roleRefs)
+        roles = config.SERVICE.get_user_roles(
+            utils.get_auth_token(req), marker, limit, url, user_id, tenant_id)
+        return utils.send_result(200, req, roles)

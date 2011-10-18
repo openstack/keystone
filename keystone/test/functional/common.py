@@ -279,20 +279,20 @@ class ApiTestCase(RestfulTestCase):
             path='/users/%s' % (user_id,), **kwargs)
 
     def get_user_roles(self, user_id, **kwargs):
-        """GET /users/{user_id}/roleRefs"""
+        """GET /users/{user_id}/roles"""
         return self.admin_request(method='GET',
-            path='/users/%s/roleRefs' % (user_id,), **kwargs)
+            path='/users/%s/roles' % (user_id,), **kwargs)
 
-    def post_user_role(self, user_id, role_id, tenant_id, **kwargs):
+    def put_user_role(self, user_id, role_id, tenant_id, **kwargs):
         if tenant_id is None:
-            """POST /users/{user_id}/roles/OS-KSADM/{role_id}"""
-            return self.admin_request(method='POST',
+            """PUT /users/{user_id}/roles/OS-KSADM/{role_id}"""
+            return self.admin_request(method='PUT',
                 path='/users/%s/roles/OS-KSADM/%s' %
                 (user_id, role_id), **kwargs)
         else:
-            """POST /tenants/{tenant_id}/users/{user_id}/
+            """PUT /tenants/{tenant_id}/users/{user_id}/
             roles/OS-KSADM/{role_id}"""
-            return self.admin_request(method='POST',
+            return self.admin_request(method='PUT',
                 path='/tenants/%s/users/%s/roles/OS-KSADM/%s' % (tenant_id,
                     user_id, role_id,), **kwargs)
 
@@ -653,13 +653,13 @@ class FunctionalTestCase(ApiTestCase):
         user_id = optional_str(user_id)
         role_id = optional_str(role_id)
         tenant_id = optional_str(tenant_id)
-        return self.post_user_role(user_id, role_id, tenant_id, **kwargs)
+        return self.put_user_role(user_id, role_id, tenant_id, **kwargs)
 
     def grant_global_role_to_user(self, user_id=None, role_id=None,
             **kwargs):
         user_id = optional_str(user_id)
         role_id = optional_str(role_id)
-        return self.post_user_role(user_id, role_id, None, **kwargs)
+        return self.put_user_role(user_id, role_id, None, **kwargs)
 
     def revoke_global_role_from_user(self,
         user_id=None, role_id=None, **kwargs):

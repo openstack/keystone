@@ -280,9 +280,9 @@ class CreateRoleAssignmentTest(RolesTest):
             self.user['id'], self.role['id'], assert_status=201)
 
 
-class GetRoleRefsTest(RolesTest):
+class GetRoleAssignmentsTest(RolesTest):
     def setUp(self, *args, **kwargs):
-        super(GetRoleRefsTest, self).setUp(*args, **kwargs)
+        super(GetRoleAssignmentsTest, self).setUp(*args, **kwargs)
 
         self.tenant = self.create_tenant().json['tenant']
         self.user = self.create_user_with_known_password(
@@ -291,47 +291,47 @@ class GetRoleRefsTest(RolesTest):
         self.grant_role_to_user(self.user['id'], self.role['id'],
             self.tenant['id'])
 
-    def test_get_rolerefs(self):
+    def test_get_role_assignments(self):
         r = self.get_user_roles(self.user['id'], assert_status=200)
         self.assertIsNotNone(r.json['roles']['values'])
 
-    def test_get_rolerefs_xml(self):
+    def test_get_roler_assignments_xml(self):
         r = self.get_user_roles(self.user['id'], assert_status=200,
             headers={'Accept': 'application/xml'})
         self.assertEqual(r.xml.tag, "{%s}roles" % self.xmlns)
 
-    def test_get_rolerefs_using_expired_token(self):
+    def test_get_role_assignments_using_expired_token(self):
         self.admin_token = self.expired_admin_token
         self.get_user_roles(self.user['id'], assert_status=403)
 
-    def test_get_rolerefs_xml_using_expired_token(self):
+    def test_get_role_assignments_xml_using_expired_token(self):
         self.admin_token = self.expired_admin_token
         self.get_user_roles(self.user['id'], assert_status=403, headers={
             'Accept': 'application/xml'})
 
-    def test_get_rolerefs_using_disabled_token(self):
+    def test_get_role_assignments_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
         self.get_user_roles(self.user['id'], assert_status=403)
 
-    def test_get_rolerefs_xml_using_disabled_token(self):
+    def test_get_role_assignments_xml_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
         self.get_user_roles(self.user['id'], assert_status=403, headers={
             'Accept': 'application/xml'})
 
-    def test_get_rolerefs_using_missing_token(self):
+    def test_get_role_assignments_using_missing_token(self):
         self.admin_token = ''
         self.get_user_roles(self.user['id'], assert_status=401)
 
-    def test_get_rolerefs_xml_using_missing_token(self):
+    def test_get_role_assignments_xml_using_missing_token(self):
         self.admin_token = ''
         self.get_user_roles(self.user['id'], assert_status=401, headers={
             'Accept': 'application/xml'})
 
-    def test_get_rolerefs_json_using_invalid_token(self):
+    def test_get_role_assignments_json_using_invalid_token(self):
         self.admin_token = common.unique_str()
         self.get_user_roles(self.user['id'], assert_status=404)
 
-    def test_get_rolerefs_xml_using_invalid_token(self):
+    def test_get_role_assignments_xml_using_invalid_token(self):
         self.admin_token = common.unique_str()
         self.get_user_roles(self.user['id'], assert_status=404, headers={
             'Accept': 'application/xml'})
