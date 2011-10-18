@@ -1,86 +1,36 @@
 # Keystone: OpenStack Identity Service
 
-Keystone is a proposed independent authentication service for [OpenStack](http://www.openstack.org).
+Keystone is an identity service for [OpenStack](http://www.openstack.org).
 
-This initial proof of concept aims to address the current use cases in Swift and Nova which are:
+This project aims to address the current use cases in Swift and Nova which are:
 
-* REST-based, token auth for Swift
-* many-to-many relationship between identity and tenant for Nova.
+* RESTful token auth for Swift
+* Many-to-many relationship between identity and tenant for Nova.
 
-# For Users
+# Documentation
 
-## User Guide & Concepts
+Learn about installing, configuring, managing, and developing the OpenStack Identity Service at the
+[OpenStack Documentation](http://docs.openstack.org/) site.
 
-The [`Developer Guide`](https://github.com/openstack/keystone/raw/master/keystone/content/identitydevguide.pdf) 
-documents the APIs to call and how to use them.
+NOTE: Contributors probably don't want to install keystone from packaging, and should instead follow the directions below.
 
-#### Core Concepts:
-<table>
-  <tr>
-    <th>Concept</th><th align="left">Description</th>
-  </tr>
-  <tr>
-    <td>User</td><td>An identity stored in the Keystone identity store used by a client to authenticate to Keystone.</td>
-  </tr>
-  <tr>
-    <td>Tenant</td><td>A container which houses multiple resources. <br/>For example, a tenant might represent an 'account' or 'company' which contains an arbitrary number of compute resources. One or more users may be assiciated and have rights to a tenant.</td>
-  </tr>
-  <tr>
-    <td>Role</td><td>A responsibility which is linked to a given user (and optionally scoped to a particular tenant).</td>
-  </tr>
-  <tr>
-    <td>Token</td><td>A 'token' describes a temporary object obtained by clients from Keystone and used to identify themselves to an OpenStack service.</td>
-  </tr>
-</table>
+# For Contributors
 
-## Running Keystone
+## What's in the box?
 
-#### Setup
-
-    $ sudo pip install -r tools/pip-requires
-    $ sudo python setup.py install
-
-#### Starting services
-Starting both Admin and Service API endpoints:
-
-    $ ./bin/keystone
-
-### Temporary fix for Segfault
-
-On some OSes, specifically Fedora 15, the current versions of
-greenlet/eventlet segfault when running keystone. To fix this, install
-the development versions of greenlet and eventlet
-
-    $ pip uninstall greenlet eventlet
-    $ cd <appropriate working directory>
-    $ hg clone https://bitbucket.org/ambroff/greenlet
-    $ cd greenlet
-    $ sudo python setup.py install
-
-    $ cd <appropriate working directory>
-    $ hg clone https://bitbucket.org/which_linden/eventlet
-    $ cd eventlet
-    $ sudo python setup.py install
-
-
-# For Keystone Contributors
-
-## Components
-
-#### Services
+### Services
 
 * Keystone    - identity store and authentication service
 * Auth_Token  - WSGI middleware that can be used to handle token auth protocol (WSGI or remote proxy)
 * Echo        - A sample service that responds by returning call details
 
-#### Also included:
+### Also included:
 
-* Keystone    - Service and Admin API are available separately. Admin API allows management of tenants, roles, and users as well.
 * Auth_Basic  - Stub for WSGI middleware that will be used to handle basic auth
 * Auth_OpenID - Stub for WSGI middleware that will be used to handle openid auth protocol (to be implemented)
 * RemoteAuth  - WSGI middleware that can be used in services (like Swift, Nova, and Glance) when Auth middleware is running remotely
 
-#### Built-In commands:
+### Built-In commands:
 
 * bin/keystone  - Provides HTTP API for users and administrators
 * bin/keystone-admin - Provides HTTP API for administrators
@@ -89,20 +39,38 @@ the development versions of greenlet and eventlet
 
 By default, configuration parameters are parsed from `etc/keystone.conf`.
 
-## Dependencies
+## Installing Dependencies
 
-You may need to prefix your `pip install` commands with `sudo`, depending on your environment.
+Keystone maintains a list of PyPi dependencies, designed for use by [pip](http://pypi.python.org/pypi/pip).
 
-<pre>
-# Show dependencies
-$ cat tools/pip-requires
+*However*, your system may need additional dependencies that `pip` (and by extension, PyPi) cannot satisfy.
+A list of such dependences is maintained in the `tools/pip-requires` file, and should be installed prior to using `pip`.
 
-# Install dependencies (for production, testing, and development)
-$ pip install -r tools/pip-requires
+You may also need to prefix `pip install` with `sudo`, depending on your environment.
 
-# Optional: Install Memcache (if enabled as a backend)
-Refer #(http://memcached.org/)
-</pre>
+    # Describe dependencies (including non-PyPi dependencies)
+    $ cat tools/pip-requires
+
+    # Install all PyPi dependencies (for production, testing, and development)
+    $ pip install -r tools/pip-requires
+
+## Updating your PYTHONPATH
+
+There are a number of methods for getting Keystone into your PYTHON PATH, the easiest of which is:
+
+    # Fake-install the project by symlinking Keystone into your Python site-packages
+    $ python setup.py develop
+
+You should then be able to `import keystone` from your Python shell without issue:
+
+    >>> import keystone
+    >>>
+
+## Testing Keystone
+
+To run the entire test suite, with test progress shown in realtime, use:
+
+    $ ./run_tests.sh --with-progress
 
 ## Running Keystone
 
@@ -120,57 +88,31 @@ Starting the admin server only (exposes the Admin API):
 
 By default, configuration parameters (such as the IP and port binding for each service) are parsed from `etc/keystone.conf`.
 
+## Configuring Keystone
 
-## Running Tests
+Keystone gets its configuration from command-line parameters or a `.conf` file. While command line parameters take precedence,
+Keystone looks in the following location to find a configuration file:
 
-Before running tests, ensure you have installed the testing dependencies as described in the Dependencies section above.
+ 1. Command line parameter
+ 2. /etc/keystone.conf
+ 3. /etc/keystone/keystone.conf
+ 4. <topdir>/etc/keystone.conf
 
-To run the test suite in a single command:
+Additional configuration templates are maintained in `keystone/test/etc/` that may be useful as a reference.
 
-    $ python keystone/test/run_tests.py
+## Contributing Changes
 
-
-#### Sample data
-A set of sample data can be added by running a shell script:
-
-    $ ./bin/sampledata
-
-The script calls `keystone-manage` to create the sample data.
-
-After starting keystone or running `keystone-manage` a `keystone.db` sqlite database should be created in the keystone folder.
-
-
-#### Demo
-To run client demo (with all auth middleware running locally on sample service):
-
-    $ ./examples/echo/bin/echod
-    $ python examples/echo/echo_client.py
-
-
-#### API Validation
-To perform contract validation and load testing, use SoapUI (for now).
-
-Using SOAPUI:
-
-1. First, download [SOAPUI](http://sourceforge.net/projects/soapui/files/):
-
-2. To Test Keystone Service:
-
-* File->Import Project
-* Select tests/IdentitySOAPUI.xml
-* Double click on "Keystone Tests" and press the green play (>) button
-
-
+Refer to our [Gerrit-Jenkins-Github Workflow](http://wiki.openstack.org/GerritJenkinsGithub).
 ## Writing Documentation
 
-### Editing and Compiling the Developer Guide
+### Editing and Building the API Developer Guide
 
-Users of the Keystone API are often developers making ReSTfull calls to Keystone. The guide to provide them
-information is therefore called a `Developer Guide`. Developer in this case is not to be confused with developers
-working on the Keystone source code itself.
+Users of the Keystone API are often developers making ReSTful API calls to Keystone. The guide to provide them
+information is therefore called a `Developer Guide`. Developer in this case is not to be confused with contributors
+working on the Keystone codebase itself.
 
-The [dev guide](https://github.com/openstack/keystone/raw/master/keystone/content/identitydevguide.pdf) is automatically
-generated from XML and other artifacts that live in the [OpenStack Manuals project](https://launchpad.net/openstack-manuals).
+The developer guides are automatically generated from XML and other artifacts that live in the
+[OpenStack Manuals project](https://launchpad.net/openstack-manuals).
 
 To build the Developer Guide from source, you need [Maven](http://maven.apache.org/). To build the docs and publish a new PDF:
 
@@ -179,48 +121,52 @@ To build the Developer Guide from source, you need [Maven](http://maven.apache.o
 
 The output will go into the `target` folder (the source is in `src`). Output generated is PDF and webhelp.
 
-### Editing and Compiling the Admin Guide
+### Editing and Building the Admin Guide
 
-The Admin guide is written in RST and compiled using sphinx. From the `keystone` folder:
+The Admin guide is written in RST and built using sphinx. From the `keystone` folder:
 
     $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
 
+# Additional Information:
 
-## Additional Information:
+## Sample data
 
-#### Configuration:
-Keystone gets its configuration from command-line parameters or a .conf file. The file can be provided explicitely
-on the command line otherwise the following logic applies (the conf file in use will be output to help
-in troubleshooting:
+A set of sample data can be loaded by running a shell script:
 
-1. config.py takes the config file from <topdir>/etc/keystone.conf
-2. If the keystone package is also intalled on the system,
-    /etc/keystone.conf or /etc/keystone/keystone.conf have higher priority than <top_dir>/etc/keystone.conf.
+    $ ./bin/sampledata
 
-#### CURL commands
+The script calls `keystone-manage` to import the sample data.
+
+After starting keystone or running `keystone-manage` a `keystone.db` sqlite database should be created in the keystone folder,
+per the default configuration.
+
+## Demo
+
+To run client demo (with all auth middleware running locally on sample service):
+
+    $ ./examples/echo/bin/echod
+    $ python examples/echo/echo_client.py
+
+## CURL commands
+
 <pre>
     # Get an unscoped token
-    
     $ curl -d '{"auth": {"passwordCredentials": {"username": "joeuser", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get a token for a tenant
-
     $ curl -d '{"auth": {"passwordCredentials": {"username": "joeuser", "password": "secrete"}, "tenantName": "customer-x"}}' -H "Content-type: application/json" http://localhost:5000/v2.0/tokens
 
     # Get an admin token
-
     $ curl -d '{"auth": {"passwordCredentials": {"username": "admin", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
 </pre>
 
-#### Load Testing
+## Load Testing
 
 <pre>
    # Create post data
-
    $ echo '{"auth": {"passwordCredentials": {"username": "joeuser", "password": "secrete", "tenantName": "customer-x"}}}' > post_data
 
    # Call Apache Bench
-
    $ ab -c 30 -n 1000 -T "application/json" -p post_data http://127.0.0.1:35357/v2.0/tokens
 </pre>
 
@@ -335,61 +281,32 @@ account.**
 
 But, it works as a demo!
 
-
-## I want OpenStack (all of it)
-
-To get an opinionated install of nova, keystone, dashboard and glance using openstack apis:
-
-    # create a maverick cloud server
-    curl -O https://github.com/cloudbuilders/deploy.sh/raw/master/nova.sh
-    chmod 755 nova.sh
-    export USE_GIT=1         # checkout source using github mirror
-    export ENABLE_VOLUMES=0  # disable volumes
-    export ENABLE_DASH=1     # install & configure dashboard
-    export ENABLE_GLANCE=1   # install & configure glance image service
-    export ENABLE_KEYSTONE=1 # install & configure keystone (unified auth)
-    ./nova.sh branch
-    ./nova.sh install
-    # nova's patched libvirt ppa doesn't work on cloud servers, revert to old libvirt
-    apt-get install -y --force-yes libvirt0=0.8.3-1ubuntu14.1 libvirt-bin=0.8.3-1ubuntu14.1 python-libvirt=0.8.3-1ubuntu14.1
-    ./nova.sh run
-
-
-## Relevant Technologies, Standards, and Links
-
-### Useful links
-
-https://sites.google.com/site/oauthgoog/Overlap
-
-
-### Protocols
-We could potentially integrate with those:
-
-[WebID](http://www.w3.org/2005/Incubator/webid/spec/) - See also: (http://www.w3.org/wiki/Foaf+ssl)
-
-[OpenID](http://openid.net/) and/or [OpenIDConnect](http://openidconnect.com/)
-
-[OAUTH2](http://oauth.net/2/)
-
-[SAML] (http://saml.xml.org/)
-
-### LDAP Setup
-
-#### On a Mac
+## LDAP Setup on a Mac
 
 Using macports:
 
-	sudo port install openldap
+    sudo port install openldap
 
 It appears the package `python-ldap` needs to be recompiled to work. So,
 download it from: http://pypi.python.org/pypi/python-ldap/2.4.1
 
 After unpacking, edit `setup.cfg` as shown below:
 
-	library_dirs = /opt/local/lib
-	include_dirs = /opt/local/include /usr/include/sasl
+    library_dirs = /opt/local/lib
+    include_dirs = /opt/local/include /usr/include/sasl
 
 Then, run:
 
-	python setup.py build
-	sudo python setup.py install
+    python setup.py build
+    sudo python setup.py install
+
+# Relevant Standards and Technologies
+
+[Overlap of Identity Technologies](https://sites.google.com/site/oauthgoog/Overlap)
+
+Keystone could potentially integrate with:
+
+ 1. [WebID](http://www.w3.org/2005/Incubator/webid/spec/) (See also [FOAF+SSL](http://www.w3.org/wiki/Foaf+ssl))
+ 2. [OpenID](http://openid.net/) and/or [OpenIDConnect](http://openidconnect.com/)
+ 3. [OAUTH2](http://oauth.net/2/)
+ 4. [SAML](http://saml.xml.org/)
