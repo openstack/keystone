@@ -69,19 +69,21 @@ class KeystoneController(service.BaseApplication):
             password = auth['passwordCredentials'].get('password', '')
             tenant = auth.get('tenantName', None)
 
-            (user_ref, tenant_ref, extras) = \
+            (user_ref, tenant_ref, extras_ref) = \
                     self.identity_api.authenticate(context=context,
                                                    user_id=username,
                                                    password=password,
                                                    tenant_id=tenant)
-            token_ref = self.token_api.create_token(context=context,
-                                                    user=user_ref,
-                                                    tenant=tenant_ref,
-                                                    extras=extras)
-            catalog_ref = self.catalog_api.get_catalog(context=context,
-                                                       user=user_ref,
-                                                       tenant=tenant_ref,
-                                                       extras=extras)
+            token_ref = self.token_api.create_token(context,
+                                                    dict(expires='',
+                                                         user=user_ref,
+                                                         tenant=tenant_ref,
+                                                         extras=extras_ref))
+            catalog_ref = self.catalog_api.get_catalog(
+                    context=context,
+                    user_id=user_ref['id'],
+                    tenant_id=tenant_ref['id'],
+                    extras=extras_ref)
 
         elif 'tokenCredentials' in auth:
             token = auth['tokenCredentials'].get('token', None)
@@ -95,23 +97,27 @@ class KeystoneController(service.BaseApplication):
 
             tenant_ref = self.identity_api.get_tenant(context=context,
                                                       tenant_id=tenant)
-            extras = self.identity_api.get_extras(
+            extras_ref = self.identity_api.get_extras(
                     context=context,
                     user_id=user_ref['id'],
                     tenant_id=tenant_ref['tenant']['id'])
-            token_ref = self.token_api.create_token(context=context,
-                                                    user=user_ref,
-                                                    tenant=tenant_ref,
-                                                    extras=extras)
-            catalog_ref = self.catalog_api.get_catalog(context=context,
-                                                       user=user_ref,
-                                                       tenant=tenant_ref,
-                                                       extras=extras)
+            token_ref = self.token_api.create_token(context,
+                                                    dict(expires='',
+                                                         user=user_ref,
+                                                         tenant=tenant_ref,
+                                                         extras=extras_ref))
+            catalog_ref = self.catalog_api.get_catalog(
+                    context=context,
+                    user_id=user_ref['id'],
+                    tenant_id=tenant_ref['id'],
+                    extras=extras_ref)
 
         return self._format_authenticate(token_ref, catalog_ref)
 
-    def _format_authenticate(sef, token_ref, catalog_ref):
-        return {}
+    def _format_authenticate(self, token_ref, catalog_ref):
+        o = self._format_token(token_ref)
+        o['access']['serviceCatalog'] = catalog_ref
+        return o
 
     #admin-only
     def validate_token(self, context, token_id, belongs_to=None):
@@ -128,13 +134,14 @@ class KeystoneController(service.BaseApplication):
 
     def _format_token(self, token_ref):
         user_ref = token_ref['user']
+        extras_ref = token_ref['extras']
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': token_ref['expires']
                                   },
                         'user': {'id': user_ref['id'],
                                  'name': user_ref['name'],
-                                 'roles': user_ref['roles'] or [],
-                                 'roles_links': user_ref['roles_links'] or []
+                                 'roles': extras_ref['roles'] or [],
+                                 'roles_links': extras_ref['roles_links'] or []
                                  }
                         }
              }

@@ -2,6 +2,7 @@ import copy
 import os
 import json
 
+from keystonelight import logging
 from keystonelight import models
 from keystonelight import test
 from keystonelight import utils
@@ -35,15 +36,16 @@ class CompatTestCase(test.TestCase):
   def setUp(self):
     super(CompatTestCase, self).setUp()
 
-    self.auth_creds = json.load(open(
-        os.path.join(self.sampledir, 'auth_credentials.json')))
-    self.auth_creds_notenant = copy.deepcopy(self.auth_creds)
-    self.auth_creds_notenant['auth'].pop('tenantName', None)
-
     self.tenants_for_token = json.load(open(
         os.path.join(self.sampledir, 'tenants.json')))
     self.validate_token = json.load(open(
         os.path.join(self.sampledir, 'validatetoken.json')))
+    # NOTE(termie): stupid hack to deal with the keystone samples being
+    #               completely inconsistent
+    self.validate_token['access']['user']['roles'][1]['id'] = u'235'
+
+    self.auth_response = json.load(open(
+        os.path.join(self.sampledir, 'auth.json')))
 
     # validate_token call
     self.tenant_345 = self.identity_backend._create_tenant(
@@ -51,19 +53,36 @@ class CompatTestCase(test.TestCase):
         models.Tenant(id='345', name='My Project'))
     self.user_123 = self.identity_backend._create_user(
         '123',
-        models.User(id='123', name='jqsmith', tenants=[self.tenant_345['id']],
-                    roles=[{'id': '234',
-                            'name': 'compute:admin'},
-                           {'id': '234',
-                            'name': 'object-store:admin',
-                            'tenantId': '1'}],
-                    roles_links=[]))
+        models.User(id='123',
+                    name='jqsmith',
+                    tenants=[self.tenant_345['id']],
+                    password='password'))
+    self.extras_123 = self.identity_backend._create_extras(
+        self.user_123['id'], self.tenant_345['id'],
+        dict(roles=[{'id': '234',
+                     'name': 'compute:admin'},
+                    {'id': '235',
+                     'name': 'object-store:admin',
+                     'tenantId': '1'}],
+             roles_links=[]))
     self.token_123 = self.token_backend.create_token(
         'ab48a9efdfedb23ty3494',
         models.Token(id='ab48a9efdfedb23ty3494',
                      expires='2010-11-01T03:32:15-05:00',
                      user=self.user_123,
-                     tenant=self.tenant_345))
+                     tenant=self.tenant_345,
+                     extras=self.extras_123))
+
+    # auth call
+    # NOTE(termie): the service catalog in the sample doesn't really have
+    #               anything to do with the auth being returned, so just load
+    #               it fully from a fixture and add it to our db
+    catalog = json.load(open(
+        os.path.join(os.path.dirname(__file__),
+                     'keystone_compat_diablo_sample_catalog.json')))
+    self.catalog_backend._create_catalog(self.user_123['id'],
+                                         self.tenant_345['id'],
+                                         catalog)
 
     # tenants_for_token call
     self.user_foo = self.identity_backend._create_user(
@@ -108,6 +127,29 @@ class DiabloCompatTestCase(CompatTestCase):
         self.options['catalog_driver'], options=self.options)
 
     super(DiabloCompatTestCase, self).setUp()
+
+  def test_authenticate_scoped(self):
+    client = self.client(self.app)
+    post_data = json.dumps(
+        {'auth': {'passwordCredentials': {'username': self.user_123['id'],
+                                          'password': self.user_123['password'],
+                                          },
+                  'tenantName': self.tenant_345['id']}})
+
+    resp = client.post('/v2.0/tokens', body=post_data)
+    data = json.loads(resp.body)
+    logging.debug('KEYS: %s', data['access'].keys())
+    self.assert_('expires' in data['access']['token'])
+    self.assertDeepEquals(self.auth_response['access']['user'],
+                          data['access']['user'])
+    self.assertDeepEquals(self.auth_response['access']['serviceCatalog'],
+                          data['access']['serviceCatalog'])
+
+  def test_validate_token_scoped(self):
+    client = self.client(self.app, token=self.token_123['id'])
+    resp = client.get('/v2.0/tokens/%s' % self.token_123['id'])
+    data = json.loads(resp.body)
+    self.assertDeepEquals(self.validate_token, data)
 
   def test_validate_token_scoped(self):
     client = self.client(self.app, token=self.token_123['id'])

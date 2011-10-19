@@ -15,6 +15,18 @@ class KvsIdentity(object):
     self.db = db
 
   # Public interface
+  def authenticate(self, user_id=None, tenant_id=None, password=None):
+    user_ref = self.get_user(user_id)
+    tenant_ref = None
+    extras_ref = None
+    if user_ref['password'] != password:
+      raise AssertionError('Invalid user / password')
+
+    if tenant_id and tenant_id in user_ref['tenants']:
+      tenant_ref = self.get_tenant(tenant_id)
+      extras_ref = self.get_extras(user_id, tenant_id)
+    return (user_ref, tenant_ref, extras_ref)
+
   def get_tenant(self, tenant_id):
     tenant_ref = self.db.get('tenant-%s' % tenant_id)
     return tenant_ref
@@ -22,6 +34,9 @@ class KvsIdentity(object):
   def get_user(self, user_id):
     user_ref = self.db.get('user-%s' % user_id)
     return user_ref
+
+  def get_extras(self, user_id, tenant_id):
+    return self.db.get('extras-%s-%s' % (user_id, tenant_id))
 
   # Private CRUD for testing
   def _create_user(self, id, user):
@@ -31,6 +46,12 @@ class KvsIdentity(object):
   def _create_tenant(self, id, tenant):
     self.db.set('tenant-%s' % id, tenant)
     return tenant
+
+  def _create_extras(self, user_id, tenant_id, extras):
+    self.db.set('extras-%s-%s' % (user_id, tenant_id), extras)
+    return extras
+
+
 
 
 class KvsToken(object):
@@ -58,5 +79,9 @@ class KvsCatalog(object):
     self.db = db
 
   # Public interface
-  def get_catalog(self, user, tenant, extras=None):
-    return self.db.get('catalog-%s' % tenant['id'])
+  def get_catalog(self, user_id, tenant_id, extras=None):
+    return self.db.get('catalog-%s' % tenant_id)
+
+  # Private interface
+  def _create_catalog(self, user_id, tenant_id, data):
+    self.db.set('catalog-%s' % tenant_id, data)

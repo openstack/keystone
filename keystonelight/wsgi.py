@@ -228,6 +228,11 @@ class Debug(Middleware):
         for key, value in req.environ.items():
             logging.debug('%s = %s', key, value)
         logging.debug('')
+        logging.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
+        for line in req.body_file:
+            logging.debug(line)
+        logging.debug('')
+
 
         resp = req.get_response(self.application)
 
@@ -243,10 +248,10 @@ class Debug(Middleware):
     @staticmethod
     def print_generator(app_iter):
         """Iterator that prints the contents of a wrapper string."""
-        print ('*' * 40) + ' BODY'
+        logging.debug('%s %s %s', ('*' * 20), 'RESPONSE BODY', ('*' * 20))
         for part in app_iter:
             sys.stdout.write(part)
-            sys.stdout.flush()
+            #sys.stdout.flush()
             yield part
         print
 

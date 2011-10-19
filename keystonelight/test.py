@@ -27,7 +27,7 @@ class TestClient(object):
     req.method = method
     for k, v in headers.iteritems():
       req.headers[k] = v
-    if req.body:
+    if body:
       req.body = body
     return req.get_response(self.app)
 
@@ -57,20 +57,20 @@ class TestCase(unittest.TestCase):
 
   def assertListEquals(self, expected, actual):
     copy = expected[:]
-    print expected, actual
+    #print expected, actual
     self.assertEquals(len(expected), len(actual))
     while copy:
       item = copy.pop()
       matched = False
       for x in actual:
-        print 'COMPARE', item, x,
+        #print 'COMPARE', item, x,
         try:
           self.assertDeepEquals(item, x)
           matched = True
-          print 'MATCHED'
+          #print 'MATCHED'
           break
         except AssertionError as e:
-          print e
+          #print e
           pass
       if not matched:
         raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
