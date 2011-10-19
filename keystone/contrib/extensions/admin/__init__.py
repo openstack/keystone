@@ -19,8 +19,13 @@
 
 from keystone.contrib.extensions.admin.osksadm.extension_handler\
     import ExtensionHandler as KSADMExtensionHandler
+from keystone.contrib.extensions.admin.oskscatalog.extension_handler\
+    import ExtensionHandler as KSCATALOGExtensionHandler
 
 
 def configure_extensions(mapper, options):
+    #TODO: Make extensions configurable.
     ksadm_extenion_handler = KSADMExtensionHandler()
     ksadm_extenion_handler.map_extension_methods(mapper, options)
+    kscatalog_extension_handler = KSCATALOGExtensionHandler()
+    kscatalog_extension_handler.map_extension_methods(mapper, options)
