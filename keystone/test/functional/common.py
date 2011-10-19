@@ -328,48 +328,56 @@ class ApiTestCase(RestfulTestCase):
             path='/OS-KSADM/roles/%s' % (role_id,), **kwargs)
 
     def get_endpoint_templates(self, **kwargs):
-        """GET /endpointTemplates"""
-        return self.admin_request(method='GET', path='/endpointTemplates',
+        """GET /OS-KSCATALOG/endpointTemplates"""
+        return self.admin_request(method='GET',
+            path='/OS-KSCATALOG/endpointTemplates',
             **kwargs)
 
     def post_endpoint_template(self, **kwargs):
-        """POST /endpointTemplates"""
-        return self.admin_request(method='POST', path='/endpointTemplates',
+        """POST /OS-KSCATALOG/endpointTemplates"""
+        return self.admin_request(method='POST',
+            path='/OS-KSCATALOG/endpointTemplates',
             **kwargs)
 
     def put_endpoint_template(self, endpoint_template_id, **kwargs):
-        """PUT /endpointTemplates/{endpoint_template_id}"""
+        """PUT /OS-KSCATALOG/endpointTemplates/{endpoint_template_id}"""
         return self.admin_request(method='PUT',
-            path='/endpointTemplates/%s' % (endpoint_template_id,),
+            path='/OS-KSCATALOG/endpointTemplates/%s'
+            % (endpoint_template_id,),
             **kwargs)
 
     def get_endpoint_template(self, endpoint_template_id, **kwargs):
-        """GET /endpointTemplates/{endpoint_template_id}"""
+        """GET /OS-KSCATALOG/endpointTemplates/{endpoint_template_id}"""
         return self.admin_request(method='GET',
-            path='/endpointTemplates/%s' % (endpoint_template_id,),
+            path='/OS-KSCATALOG/endpointTemplates/%s'
+            % (endpoint_template_id,),
             **kwargs)
 
     def delete_endpoint_template(self, endpoint_template_id, **kwargs):
-        """DELETE /endpointTemplates/{endpoint_template_id}"""
+        """DELETE /OS-KSCATALOG/endpointTemplates/{endpoint_template_id}"""
         return self.admin_request(method='DELETE',
-            path='/endpointTemplates/%s' % (endpoint_template_id,),
+            path='/OS-KSCATALOG/endpointTemplates/%s' %
+            (endpoint_template_id,),
             **kwargs)
 
     def get_tenant_endpoints(self, tenant_id, **kwargs):
-        """GET /tenants/{tenant_id}/endpoints"""
+        """GET /tenants/{tenant_id}/OS-KSCATALOG/endpoints"""
         return self.admin_request(method='GET',
-            path='/tenants/%s/endpoints' % (tenant_id,),
+            path='/tenants/%s/OS-KSCATALOG/endpoints' %
+            (tenant_id,),
             **kwargs)
 
     def post_tenant_endpoint(self, tenant_id, **kwargs):
-        """POST /tenants/{tenant_id}/endpoints"""
+        """POST /tenants/{tenant_id}/OS-KSCATALOG/endpoints"""
         return self.admin_request(method='POST',
-            path='/tenants/%s/endpoints' % (tenant_id,), **kwargs)
+            path='/tenants/%s/OS-KSCATALOG/endpoints' %
+            (tenant_id,), **kwargs)
 
     def delete_tenant_endpoint(self, tenant_id, endpoint_id, **kwargs):
-        """DELETE /tenants/{tenant_id}/endpoints/{endpoint_id}"""
+        """DELETE /tenants/{tenant_id}/OS-KSCATALOG/endpoints/{endpoint_id}"""
         return self.admin_request(method='DELETE',
-            path='/tenants/%s/endpoints/%s' % (tenant_id, endpoint_id,),
+            path='/tenants/%s/OS-KSCATALOG/endpoints/%s' %
+            (tenant_id, endpoint_id,),
             **kwargs)
 
     def post_service(self, **kwargs):

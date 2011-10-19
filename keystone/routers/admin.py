@@ -20,7 +20,6 @@ import routes
 from keystone.common import wsgi
 import keystone.backends as db
 from keystone.controllers.auth import AuthController
-from keystone.controllers.endpointtemplates import EndpointTemplatesController
 from keystone.controllers.roles import RolesController
 from keystone.controllers.staticfiles import StaticFilesController
 from keystone.controllers.tenant import TenantController
@@ -78,43 +77,6 @@ class AdminApi(wsgi.Router):
         mapper.connect("/users/{user_id}/roles",
             controller=roles_controller, action="get_user_roles",
             conditions=dict(method=["GET"]))
-
-        #EndpointTemplatesControllers and Endpoints
-        endpoint_templates_controller = EndpointTemplatesController(options)
-        mapper.connect("/endpointTemplates",
-            controller=endpoint_templates_controller,
-                action="get_endpoint_templates",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/endpointTemplates",
-            controller=endpoint_templates_controller,
-                action="add_endpoint_template",
-                    conditions=dict(method=["POST"]))
-        mapper.connect("/endpointTemplates/{endpoint_template_id}",
-                controller=endpoint_templates_controller,
-                    action="get_endpoint_template",
-                        conditions=dict(method=["GET"]))
-        mapper.connect("/endpointTemplates/{endpoint_template_id}",
-                controller=endpoint_templates_controller,
-                    action="modify_endpoint_template",
-                        conditions=dict(method=["PUT"]))
-        mapper.connect("/endpointTemplates/{endpoint_template_id}",
-                controller=endpoint_templates_controller,
-                    action="delete_endpoint_template",
-                        conditions=dict(method=["DELETE"]))
-        mapper.connect("/tenants/{tenant_id}/endpoints",
-                       controller=endpoint_templates_controller,
-                    action="get_endpoints_for_tenant",
-                    conditions=dict(method=["GET"]))
-        mapper.connect("/tenants/{tenant_id}/endpoints",
-                       controller=endpoint_templates_controller,
-                     action="add_endpoint_to_tenant",
-                     conditions=dict(method=["POST"]))
-        mapper.connect(
-                "/tenants/{tenant_id}/endpoints/{endpoint_id}",
-                controller=endpoint_templates_controller,
-                action="remove_endpoint_from_tenant",
-                conditions=dict(method=["DELETE"]))
-
         # Miscellaneous Operations
         version_controller = VersionController(options)
         mapper.connect("/", controller=version_controller,
