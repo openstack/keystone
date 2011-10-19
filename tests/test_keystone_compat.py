@@ -49,13 +49,13 @@ class CompatTestCase(test.TestCase):
         '1234',
         models.Tenant(id='1234',
                       name='ACME Corp',
-                      description='A description...',
+                      description='A description ...',
                       enabled=True))
     self.tenant_3456 = self.identity_backend._create_tenant(
         '3456',
         models.Tenant(id='3456',
                       name='Iron Works',
-                      description='A description...',
+                      description='A description ...',
                       enabled=True))
 
     self.token_foo_unscoped = self.token_backend.create_token(
@@ -90,11 +90,11 @@ class HeadCompatTestCase(CompatTestCase):
     client = self.client(self.app, token=self.token_foo_unscoped['id'])
     resp = client.get('/v2.0/tenants')
     data = json.loads(resp.body)
-    self.assertDictEquals(self.tenants_for_token, data)
+    self.assertDeepEquals(self.tenants_for_token, data)
 
   def test_tenants_for_token_scoped(self):
     # get_tenants_for_token
     client = self.client(self.app, token=self.token_foo_scoped['id'])
     resp = client.get('/v2.0/tenants')
     data = json.loads(resp.body)
-    self.assertDictEquals(self.tenants_for_token, data)
+    self.assertDeepEquals(self.tenants_for_token, data)

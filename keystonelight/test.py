@@ -55,14 +55,49 @@ class TestCase(unittest.TestCase):
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)
 
+
+  def assertListEquals(self, expected, actual):
+    copy = expected[:]
+    self.assertEquals(len(expected), len(actual))
+    while copy:
+      item = copy.pop()
+      matched = False
+      for x in actual:
+        #print 'COMPARE', item, x,
+        try:
+          self.assertDeepEquals(item, x)
+          matched = True
+          #print 'MATCHED'
+          break
+        except AssertionError as e:
+          #print e
+          pass
+      if not matched:
+        raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
+
+
   def assertDictEquals(self, expected, actual):
     for k in expected:
       self.assertTrue(k in actual,
                       "Expected key %s not in %s." % (k, actual))
-      self.assertEquals(expected[k], actual[k],
-                        "Expected value for %s to be '%s', not '%s'."
-                            % (k, expected[k], actual[k]))
+      self.assertDeepEquals(expected[k], actual[k])
+
     for k in actual:
       self.assertTrue(k in expected,
                       "Unexpected key %s in %s." % (k, actual))
+
+
+
+  def assertDeepEquals(self, expected, actual):
+    try:
+      if type(expected) is type([]) or type(expected) is type(tuple()):
+        # assert items equal, ignore order
+        self.assertListEquals(expected, actual)
+      elif type(expected) is type({}):
+        self.assertDictEquals(expected, actual)
+      else:
+        self.assertEquals(expected, actual)
+    except AssertionError as e:
+      raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
+
 

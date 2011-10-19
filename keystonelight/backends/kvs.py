@@ -23,6 +23,14 @@ class KvsIdentity(object):
 
     return o
 
+  def get_tenant(self, tenant_id):
+    tenant_ref = self.db.get('tenant-%s' % tenant_id)
+    return tenant_ref
+
+  def get_user(self, user_id):
+    user_ref = self.db.get('user-%s' % user_id)
+    return user_ref
+
   # Private CRUD for testing
   def _create_user(self, id, user):
     self.db.set('user-%s' % id, user)

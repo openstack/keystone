@@ -20,5 +20,8 @@ class Manager(object):
         """
         return self.driver.authenticate(**kwargs)
 
-    def get_tenants(self, context, user_id):
-        return self.driver.get_tenants(user_id)
+    def get_user(self, context, user_id):
+        return self.driver.get_user(user_id)
+
+    def get_tenant(self, context, tenant_id):
+        return self.driver.get_tenant(tenant_id)

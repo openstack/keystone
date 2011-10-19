@@ -149,7 +149,8 @@ class KeystoneController(service.BaseApplication):
         return self._format_tenants_for_token(tenant_refs)
 
     def _format_tenants_for_token(self, tenant_refs):
-        return [{}]
+        o = {'tenants': {'values': tenant_refs}}
+        return o
 
 
 def app_factory(global_conf, **local_conf):

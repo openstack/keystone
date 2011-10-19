@@ -4,6 +4,7 @@
 
 import uuid
 
+from keystonelight import logging
 from keystonelight import utils
 
 
@@ -19,6 +20,7 @@ class Manager(object):
         token_ref = self.driver.create_token(token, data)
         return token_ref
 
+    @logging.log_debug
     def get_token(self, context, token_id):
         """Return info for a token if it is valid."""
         return self.driver.get_token(token_id)
