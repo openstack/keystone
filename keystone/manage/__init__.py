@@ -108,17 +108,17 @@ def process(*args):
 
     if len(args) == 2 and action not in ['list']:
         raise optparse.OptParseError(ID_NOT_SPECIFIED)
-    else:
+    elif action not in ['list']:
         object_id = args[2]
 
     # Helper functions
-
     def require_args(args, min, msg):
         """Ensure there are at least `min` arguments"""
         if len(args) < min:
             raise optparse.OptParseError(msg)
 
-    optional_arg = (lambda args, x: len(args) > x and args[x] or None)
+    optional_arg = (lambda args, x:
+        len(args) > x and str(args[x]).strip() or None)
 
     def print_table(header_row, rows):
         """Prints a lists of lists as table in a human readable format"""
@@ -187,9 +187,14 @@ def process(*args):
         require_args(args, 9, "Missing arguments: endpointTemplates add "
             "'region' 'service' 'publicURL' 'adminURL' 'internalURL' "
             "'enabled' 'global'")
+        version_id = optional_arg(args, 9)
+        version_list = optional_arg(args, 10)
+        version_info = optional_arg(args, 11)
         if api.add_endpoint_template(region=args[2], service=args[3],
                 public_url=args[4], admin_url=args[5], internal_url=args[6],
-                enabled=args[7], is_global=args[8]):
+                enabled=args[7], is_global=args[8],
+                version_id=version_id, version_list=version_list,
+                version_info=version_info):
             print("SUCCESS: Created EndpointTemplates for %s pointing to %s." %
                 (args[3], args[4]))
 

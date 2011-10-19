@@ -27,8 +27,10 @@ class EndpointTemplate(object):
         try:
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
-            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
-                            "endpointTemplate")
+            root = dom.find(
+                "{http://docs.openstack.org/identity"\
+                "/api/ext/OSKSCATALOG/v1.0}" \
+                "endpointTemplate")
             if root == None:
                 raise fault.BadRequestFault("Expecting endpointTemplate")
             id = root.get("id")
@@ -39,8 +41,24 @@ class EndpointTemplate(object):
             internal_url = root.get("internalURL")
             enabled = root.get("enabled")
             is_global = root.get("global")
+            version = root.find(
+                "{http://docs.openstack.org/identity/"\
+                "api/ext/OSKSCATALOG/v1.0}" \
+                "version")
+            version_id = None
+            version_info = None
+            version_list = None
+            if version is not None:
+                if version.get('id'):
+                    version_id = version.get("id")
+                if version.get('info'):
+                    version_info = version.get("info")
+                if version.get('list'):
+                    version_list = version.get("list")
+
             return EndpointTemplate(id, region, service, public_url, admin_url,
-                internal_url, enabled, is_global)
+                internal_url, enabled, is_global,
+                version_id, version_list, version_info)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse endpointTemplate",
                 str(e))
@@ -56,15 +74,19 @@ class EndpointTemplate(object):
             internal_url = None
             enabled = None
             is_global = None
-
-            if not "endpointTemplate" in obj:
-                raise fault.BadRequestFault("Expecting endpointTemplate")
-            endpoint_template = obj["endpointTemplate"]
+            version_id = None
+            version_list = None
+            version_info = None
+            if not "OS-KSCATALOG:endpointTemplate" in obj:
+                raise fault.BadRequestFault(
+                "Expecting OS-KSCATALOG:endpointTemplate")
+            endpoint_template = obj["OS-KSCATALOG:endpointTemplate"]
 
             # Check that fields are valid
             invalid = [key for key in endpoint_template if key not in
                        ['id', 'region', 'serviceId', 'publicURL',
-                        'adminURL', 'internalURL', 'enabled', 'global']]
+                        'adminURL', 'internalURL', 'enabled', 'global',
+                        'versionId', 'versionInfo', 'versionList']]
             if invalid != []:
                 raise fault.BadRequestFault("Invalid attribute(s): %s"
                                             % invalid)
@@ -88,15 +110,30 @@ class EndpointTemplate(object):
                 enabled = endpoint_template["enabled"]
             if 'global' in endpoint_template:
                 is_global = endpoint_template["global"]
+            if 'versionId' in endpoint_template:
+                version_id = endpoint_template["versionId"]
+            else:
+                version_id = None
+            if 'versionInfo' in endpoint_template:
+                version_info = endpoint_template["versionInfo"]
+            else:
+                version_info = None
+            if 'versionList' in endpoint_template:
+                version_list = endpoint_template["versionList"]
+            else:
+                version_list = None
 
-            return EndpointTemplate(id, region, service, public_url, admin_url,
-                           internal_url, enabled, is_global)
+            return EndpointTemplate(
+                    id, region, service, public_url, admin_url,
+                    internal_url, enabled, is_global, version_id,
+                    version_list, version_info)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault(\
                 "Cannot parse endpointTemplate", str(e))
 
     def __init__(self, id, region, service, public_url, admin_url,
-                 internal_url, enabled, is_global):
+                 internal_url, enabled, is_global,
+                 version_id=None, version_list=None, version_info=None):
         self.id = id
         self.region = region
         self.service = service
@@ -105,10 +142,14 @@ class EndpointTemplate(object):
         self.internal_url = internal_url
         self.enabled = bool(enabled)
         self.is_global = bool(is_global)
+        self.version_id = version_id
+        self.version_list = version_list
+        self.version_info = version_info
 
     def to_dom(self):
         dom = etree.Element("endpointTemplate",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
+            xmlns="http://docs.openstack.org/"
+            "identity/api/ext/OSKSCATALOG/v1.0")
         if self.id:
             dom.set("id", str(self.id))
         if self.region:
@@ -125,6 +166,16 @@ class EndpointTemplate(object):
             dom.set("enabled", str(self.enabled).lower())
         if self.is_global:
             dom.set("global", str(self.is_global).lower())
+        version = etree.Element("version",
+            xmlns="http://docs.openstack.org"
+            "/identity/api/ext/OSKSCATALOG/v1.0")
+        if self.version_id:
+            version.set("id", self.version_id)
+            if self.version_info:
+                version.set("info", self.version_info)
+            if self.version_list:
+                version.set("list", self.version_list)
+            dom.append(version)
         return dom
 
     def to_xml(self):
@@ -148,7 +199,13 @@ class EndpointTemplate(object):
             endpoint_template["enabled"] = self.enabled
         if self.is_global:
             endpoint_template["global"] = self.is_global
-        return {'endpointTemplate': endpoint_template}
+        if self.version_id:
+            endpoint_template["versionId"] = self.version_id
+            if self.version_info:
+                endpoint_template["versionInfo"] = self.version_info
+            if self.version_list:
+                endpoint_template["versionList"] = self.version_list
+        return {'OS-KSCATALOG:endpointTemplate': endpoint_template}
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -163,7 +220,8 @@ class EndpointTemplates(object):
 
     def to_xml(self):
         dom = etree.Element("endpointTemplates")
-        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
+        dom.set(u"xmlns",
+            "http://docs.openstack.org/identity/api/ext/OSKSCATALOG/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -174,10 +232,12 @@ class EndpointTemplates(object):
         return etree.tostring(dom)
 
     def to_json(self):
-        values = [t.to_dict()["endpointTemplate"] for t in self.values]
+        values = [t.to_dict()["OS-KSCATALOG:endpointTemplate"]
+            for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"endpointTemplates":\
-            {"values": values, "links": links}})
+        return json.dumps({"OS-KSCATALOG:endpointTemplates":\
+            {"OS-KSCATALOG:endpointTemplates": values,
+             "OS-KSCATALOG:endpointTemplates_links": links}})
 
 
 class Endpoint(object):
@@ -189,7 +249,8 @@ class Endpoint(object):
 
     def to_dom(self):
         dom = etree.Element("endpoint",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0")
+            xmlns="http://docs.openstack.org/"
+            "identity/api/ext/OSKSCATALOG/v1.0")
         if self.id:
             dom.set("id", str(self.id))
         if self.href:
@@ -220,7 +281,8 @@ class Endpoints(object):
 
     def to_xml(self):
         dom = etree.Element("endpoints")
-        dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
+        dom.set(u"xmlns",
+            "http://docs.openstack.org/identity/api/ext/OSKSCATALOG/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())

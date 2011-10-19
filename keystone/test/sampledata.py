@@ -62,7 +62,8 @@ DEFAULT_FIXTURE = [
     ('endpointTemplates', 'add', 'RegionOne', 'cdn',
         'http://cdn.publicinternets.com/v1.1/%tenant_id%',
         'http://cdn.admin-nets.local/v1.1/%tenant_id%',
-        'http://127.0.0.1:7777/v1.1/%tenant_id%', '1', '0'),
+        'http://127.0.0.1:7777/v1.1/%tenant_id%', '1',
+        '0', '1.1', 'http://127.0.0.1:7777/', 'http://127.0.0.1:7777/v1.1'),
 # endpointTemplates
     ('endpointTemplates', 'add', 'RegionOne', 'swift',
         'http://swift.publicinternets.com/v1/AUTH_%tenant_id%',

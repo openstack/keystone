@@ -826,6 +826,9 @@ class IdentityService(object):
         dendpoint_template.internal_url = endpoint_template.internal_url
         dendpoint_template.enabled = endpoint_template.enabled
         dendpoint_template.is_global = endpoint_template.is_global
+        dendpoint_template.version_id = endpoint_template.version_id
+        dendpoint_template.version_list = endpoint_template.version_list
+        dendpoint_template.version_info = endpoint_template.version_info
         dendpoint_template = api.ENDPOINT_TEMPLATE.create(dendpoint_template)
         endpoint_template.id = dendpoint_template.id
         return endpoint_template
@@ -854,6 +857,9 @@ class IdentityService(object):
         dendpoint_template.internal_url = endpoint_template.internal_url
         dendpoint_template.enabled = endpoint_template.enabled
         dendpoint_template.is_global = endpoint_template.is_global
+        dendpoint_template.version_id = endpoint_template.version_id
+        dendpoint_template.version_list = endpoint_template.version_list
+        dendpoint_template.version_info = endpoint_template.version_info
         dendpoint_template = api.ENDPOINT_TEMPLATE.update(
             endpoint_template_id, dendpoint_template)
         return EndpointTemplate(
@@ -864,7 +870,11 @@ class IdentityService(object):
             dendpoint_template.admin_url,
             dendpoint_template.internal_url,
             dendpoint_template.enabled,
-            dendpoint_template.is_global)
+            dendpoint_template.is_global,
+            dendpoint_template.version_id,
+            dendpoint_template.version_list,
+            dendpoint_template.version_info
+            )
 
     def delete_endpoint_template(self, admin_token, endpoint_template_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
@@ -894,7 +904,11 @@ class IdentityService(object):
                 dendpoint_template.admin_url,
                 dendpoint_template.internal_url,
                 dendpoint_template.enabled,
-                dendpoint_template.is_global))
+                dendpoint_template.is_global,
+                dendpoint_template.version_id,
+                dendpoint_template.version_list,
+                dendpoint_template.version_info
+                ))
         prev, next = api.ENDPOINT_TEMPLATE.get_page_markers(marker, limit)
         links = []
         if prev:
@@ -920,7 +934,11 @@ class IdentityService(object):
             dendpoint_template.admin_url,
             dendpoint_template.internal_url,
             dendpoint_template.enabled,
-            dendpoint_template.is_global)
+            dendpoint_template.is_global,
+            dendpoint_template.version_id,
+            dendpoint_template.version_list,
+            dendpoint_template.version_info
+            )
 
     def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
