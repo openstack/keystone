@@ -19,6 +19,10 @@ class TestClient(object):
   def request(self, method, path, headers=None, body=None):
     if headers is None:
       headers = {}
+
+    if self.token:
+      headers.setdefault('X-Auth-Token', self.token)
+
     req = wsgi.Request.blank(path)
     req.method = method
     for k, v in headers.iteritems():

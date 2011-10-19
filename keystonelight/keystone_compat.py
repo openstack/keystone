@@ -129,7 +129,6 @@ class KeystoneController(service.BaseApplication):
     def _format_token(self, token_ref):
         return {}
 
-
     def tenants_for_token(self, context):
         """Get valid tenants for token based on token used to authenticate.
 

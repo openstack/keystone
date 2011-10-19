@@ -22,7 +22,7 @@ class BaseApplication(wsgi.Application):
         action = arg_dict['action']
         del arg_dict['action']
         del arg_dict['controller']
-        logging.info('arg_dict: %s', arg_dict)
+        logging.debug('arg_dict: %s', arg_dict)
 
         context = req.environ.get('openstack.context', {})
         # allow middleware up the stack to override the params
@@ -46,9 +46,7 @@ class BaseApplication(wsgi.Application):
 
 class TokenAuthMiddleware(wsgi.Middleware):
     def process_request(self, request):
-        logging.info('GOT HEADERS %s', request.headers)
         token = request.headers.get('X-Auth-Token')
-        logging.info('GOT TOKEN %s', token)
         context = request.environ.get('openstack.context', {})
         context['token_id'] = token
         request.environ['openstack.context'] = context
@@ -142,12 +140,11 @@ class IdentityController(BaseApplication):
                                             dict(tenant=tenant,
                                                  user=user,
                                                  extras=extras))
-        logging.info(token)
+        logging.debug('TOKEN: %s', token)
         return token
 
     def get_tenants(self, context):
         token_id = context.get('token')
-        logging.info("GET TENANTS %s", token_id)
         token = self.token_api.validate_token(context, token_id)
 
         return self.identity_api.get_tenants(context,

@@ -224,16 +224,17 @@ class Debug(Middleware):
 
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
-        print ('*' * 40) + ' REQUEST ENVIRON'
+        logging.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
         for key, value in req.environ.items():
-            print key, '=', value
-        print
+            logging.debug('%s = %s', key, value)
+        logging.debug('')
+
         resp = req.get_response(self.application)
 
-        print ('*' * 40) + ' RESPONSE HEADERS'
+        logging.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
         for (key, value) in resp.headers.iteritems():
-            print key, '=', value
-        print
+            logging.debug('%s = %s', key, value)
+        logging.debug('')
 
         resp.app_iter = self.print_generator(resp.app_iter)
 

@@ -61,12 +61,12 @@ class CompatTestCase(test.TestCase):
     self.token_foo_unscoped = self.token_backend.create_token(
         'foo_unscoped',
         models.Token(id='foo_unscoped',
-                     user='foo'))
+                     user=self.user_foo))
     self.token_foo_scoped = self.token_backend.create_token(
         'foo_scoped',
-        models.Token(id='foo_unscoped',
-                     user='foo',
-                     tenant='1234'))
+        models.Token(id='foo_scoped',
+                     user=self.user_foo,
+                     tenant=self.tenant_1234))
 
 
 class HeadCompatTestCase(CompatTestCase):
