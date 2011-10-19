@@ -74,11 +74,14 @@ class HeadCompatTestCase(CompatTestCase):
     revdir = checkout_samples('HEAD')
     self.sampledir = os.path.join(revdir, SAMPLE_DIR)
     self.app = self.loadapp('keystone_compat_HEAD')
+    self.options = self.appconfig('keystone_compat_HEAD')
 
     self.identity_backend = utils.import_object(
-        self.app.options['identity_driver'], options=self.app.options)
+        self.options['identity_driver'], options=self.options)
     self.token_backend = utils.import_object(
-        self.app.options['token_driver'], options=self.app.options)
+        self.options['token_driver'], options=self.options)
+    self.catalog_backend = utils.import_object(
+        self.options['catalog_driver'], options=self.options)
 
     super(HeadCompatTestCase, self).setUp()
 

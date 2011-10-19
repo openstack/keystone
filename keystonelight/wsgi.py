@@ -182,11 +182,14 @@ class Middleware(Application):
 
         """
         def _factory(app):
-            return cls(app, **local_config)
+            conf = global_config.copy()
+            conf.update(local_config)
+            return cls(app, conf)
         return _factory
 
-    def __init__(self, application):
+    def __init__(self, application, options):
         self.application = application
+        self.options = options
 
     def process_request(self, req):
         """Called on each request.

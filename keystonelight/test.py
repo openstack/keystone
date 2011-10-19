@@ -43,6 +43,11 @@ class TestCase(unittest.TestCase):
       config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
     return deploy.loadapp(config)
 
+  def appconfig(self, config):
+    if not config.startswith('config:'):
+      config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
+    return deploy.appconfig(config)
+
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)
 

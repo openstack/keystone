@@ -70,13 +70,16 @@ class KeystoneController(service.BaseApplication):
             tenant = auth.get('tenantName', None)
 
             (user_ref, tenant_ref, extras) = \
-                    self.identity_api.authenticate(user_id=username,
+                    self.identity_api.authenticate(context=context,
+                                                   user_id=username,
                                                    password=password,
                                                    tenant_id=tenant)
-            token_ref = self.token_api.create_token(user=user_ref,
+            token_ref = self.token_api.create_token(context=context,
+                                                    user=user_ref,
                                                     tenant=tenant_ref,
                                                     extras=extras)
-            catalog_ref = self.catalog_api.get_catalog(user=user_ref,
+            catalog_ref = self.catalog_api.get_catalog(context=context,
+                                                       user=user_ref,
                                                        tenant=tenant_ref,
                                                        extras=extras)
 
@@ -84,22 +87,26 @@ class KeystoneController(service.BaseApplication):
             token = auth['tokenCredentials'].get('token', None)
             tenant = auth.get('tenantName')
 
-            old_token_ref = self.token_api.get_token(token_id=token)
+            old_token_ref = self.token_api.get_token(context=context,
+                                                     token_id=token)
             user_ref = old_token_ref['user']
 
             assert tenant in user_ref['tenants']
 
-            tenant_ref = self.identity_api.get_tenant(tenant)
+            tenant_ref = self.identity_api.get_tenant(context=context,
+                                                      tenant_id=tenant)
             extras = self.identity_api.get_extras(
+                    context=context,
                     user_id=user_ref['id'],
                     tenant_id=tenant_ref['tenant']['id'])
-            token_ref = self.token_api.create_token(user=user_ref,
-                                                        tenant=tenant_ref,
-                                                        extras=extras)
-            catalog_ref = self.catalog_api.get_catalog(
-                    user=user_ref,
-                    tenant=tenant_ref,
-                    extras=extras)
+            token_ref = self.token_api.create_token(context=context,
+                                                    user=user_ref,
+                                                    tenant=tenant_ref,
+                                                    extras=extras)
+            catalog_ref = self.catalog_api.get_catalog(context=context,
+                                                       user=user_ref,
+                                                       tenant=tenant_ref,
+                                                       extras=extras)
 
         return self._format_authenticate(token_ref, catalog_ref)
 
@@ -113,7 +120,8 @@ class KeystoneController(service.BaseApplication):
         Optionally, also ensure that it is owned by a specific tenant.
 
         """
-        token_ref = self.token_api.get_token(token_id)
+        token_ref = self.token_api.get_token(context=context,
+                                             token_id=token_id)
         if belongs_to:
             assert token_ref['tenant']['id'] == belongs_to
         return self._format_token(token_ref)
@@ -131,11 +139,14 @@ class KeystoneController(service.BaseApplication):
         Doesn't care about token scopedness.
 
         """
-        token_ref = self.token_api.get_token(context['token_id'])
+        token_ref = self.token_api.get_token(context=context,
+                                             token_id=context['token_id'])
         user_ref = token_ref['user']
         tenant_refs = []
         for tenant_id in user_ref['tenants']:
-            tenant_refs.append(self.identity_api.get_tenant(tenant_id))
+            tenant_refs.append(self.identity_api.get_tenant(
+                    context=context,
+                    tenant_id=tenant_id))
         return self._format_tenants_for_token(tenant_refs)
 
     def _format_tenants_for_token(self, tenant_refs):
