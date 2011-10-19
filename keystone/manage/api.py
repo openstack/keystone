@@ -95,7 +95,7 @@ def grant_role(role, user, tenant=None):
 
 
 def add_endpoint_template(region, service, public_url, admin_url, internal_url,
-    enabled, is_global):
+    enabled, is_global, version_id, version_list, version_info):
     db_service = db_api.SERVICE.get_by_name(service)
     if db_service is None:
         raise IndexError("Service %s not found" % service)
@@ -107,6 +107,9 @@ def add_endpoint_template(region, service, public_url, admin_url, internal_url,
     obj.internal_url = internal_url
     obj.enabled = enabled
     obj.is_global = is_global
+    obj.version_id = version_id
+    obj.version_list = version_list
+    obj.version_info = version_info
     return db_api.ENDPOINT_TEMPLATE.create(obj)
 
 

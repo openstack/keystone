@@ -488,6 +488,8 @@ class FunctionalTestCase(ApiTestCase):
 
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'
     xmlns_ksadm = 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0'
+    xmlns_kscatalog = "http://docs.openstack.org/identity/api/ext"\
+        + "/OSKSCATALOG/v1.0"
 
     def setUp(self):
         """Prepare keystone for system tests"""
@@ -736,7 +738,7 @@ class FunctionalTestCase(ApiTestCase):
         tenant_id = optional_str(tenant_id)
         endpoint_template_id = optional_str(endpoint_template_id)
 
-        data = {"endpointTemplate": {"id": endpoint_template_id}}
+        data = {"OS-KSCATALOG:endpointTemplate": {"id": endpoint_template_id}}
 
         return self.post_tenant_endpoint(tenant_id, as_json=data, **kwargs)
 
@@ -765,24 +767,31 @@ class FunctionalTestCase(ApiTestCase):
 
     def create_endpoint_template(self, region=None, service_id=None,
             public_url=None, admin_url=None, internal_url=None, enabled=True,
-            is_global=True, **kwargs):
+            is_global=True, version_id=None,
+            version_list=None, version_info=None, **kwargs):
 
         region = optional_str(region)
         service_id = optional_str(service_id)
         public_url = optional_url(public_url)
         admin_url = optional_url(admin_url)
         internal_url = optional_url(internal_url)
+        version_id = optional_url(version_id)
+        version_list = optional_url(version_list)
+        version_info = optional_url(version_info)
 
         data = {
-            "endpointTemplate": {
+            "OS-KSCATALOG:endpointTemplate": {
                 "region": region,
                 "serviceId": service_id,
                 "publicURL": public_url,
                 "adminURL": admin_url,
                 "internalURL": internal_url,
                 "enabled": enabled,
-                "global": is_global}}
-
+                "global": is_global,
+                "versionId": version_id,
+                "versionInfo": version_info,
+                "versionList": version_list
+                }}
         return self.post_endpoint_template(as_json=data, **kwargs)
 
     def remove_endpoint_template(self, endpoint_template_id=None, **kwargs):
@@ -795,30 +804,40 @@ class FunctionalTestCase(ApiTestCase):
 
     def update_endpoint_template(self, endpoint_template_id=None, region=None,
             service_id=None, public_url=None, admin_url=None,
-            internal_url=None, enabled=None, is_global=None, **kwargs):
+            internal_url=None, enabled=None, is_global=None,
+            version_id=None, version_list=None, version_info=None, **kwargs):
 
-        data = {"endpointTemplate": {}}
+        data = {"OS-KSCATALOG:endpointTemplate": {}}
 
         if region is not None:
-            data['endpointTemplate']['region'] = region
+            data['OS-KSCATALOG:endpointTemplate']['region'] = region
 
         if service_id is not None:
-            data['endpointTemplate']['serviceId'] = service_id
+            data['OS-KSCATALOG:endpointTemplate']['serviceId'] = service_id
 
         if public_url is not None:
-            data['endpointTemplate']['publicURL'] = public_url
+            data['OS-KSCATALOG:endpointTemplate']['publicURL'] = public_url
 
         if admin_url is not None:
-            data['endpointTemplate']['adminURL'] = admin_url
+            data['OS-KSCATALOG:endpointTemplate']['adminURL'] = admin_url
 
         if internal_url is not None:
-            data['endpointTemplate']['internalURL'] = internal_url
+            data['OS-KSCATALOG:endpointTemplate']['internalURL'] = internal_url
 
         if enabled is not None:
-            data['endpointTemplate']['enabled'] = enabled
+            data['OS-KSCATALOG:endpointTemplate']['enabled'] = enabled
 
         if is_global is not None:
-            data['endpointTemplate']['global'] = is_global
+            data['OS-KSCATALOG:endpointTemplate']['global'] = is_global
+
+        if version_id is not None:
+            data['OS-KSCATALOG:endpointTemplate']['versionId'] = version_id
+
+        if version_list is not None:
+            data['OS-KSCATALOG:endpointTemplate']['versionList'] = version_list
+
+        if version_info is not None:
+            data['OS-KSCATALOG:endpointTemplate']['versionInfo'] = version_info
 
         return self.put_endpoint_template(endpoint_template_id, as_json=data,
             **kwargs)
