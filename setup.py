@@ -15,8 +15,7 @@
 # limitations under the License.
 
 from setuptools import setup, find_packages
-
-version = '1.0'
+import keystone
 
 cmdclass = {}
 
@@ -39,7 +38,7 @@ except:
 
 setup(
     name='keystone',
-    version=version,
+    version=keystone.version(),
     description="Authentication service - proposed for OpenStack",
     license='Apache License (2.0)',
     classifiers=["Programming Language :: Python"],

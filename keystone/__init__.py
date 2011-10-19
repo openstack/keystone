@@ -12,17 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-'''Main module for Keystone service. This installs the gettext function
-for all sub modules and packages.'''
-
 import gettext
 
-__version__ = '0.9'
+
+API_VERSION = "2.0"
+API_VERSION_STATUS = "beta"
+API_VERSION_DATE = "2011-11-19T00:00:00Z"
+
+RELEASE_VERSION = "essex"
+RELEASE_VERSION_FINAL = False  # becomes true at Release Candidate time
+
+
+def version():
+    if RELEASE_VERSION_FINAL:
+        return RELEASE_VERSION
+    else:
+        return '%s-dev' % (RELEASE_VERSION)
+
 
 # This installs the _(...) function as a built-in so all other modules
 # don't need to.
 gettext.install('keystone')
-
-
-def version():
-    return __version__
