@@ -3,51 +3,146 @@
 # this is the web service frontend that emulates keystone
 import logging
 
+import routes
+
+from keystonelight import catalog
+from keystonelight import identity
 from keystonelight import service
+from keystonelight import token
 from keystonelight import wsgi
 
-def _token_to_keystone(token):
-    return {'id': token,
-            'expires': ''}
+
+class KeystoneRouter(wsgi.Router):
+    def __init__(self, options):
+        self.options = options
+        self.keystone_controller = KeystoneController(options)
 
 
-SERVICE_CATALOG = {"cdn": [{"adminURL": "http://cdn.admin-nets.local/v1.1/1234", "region": "RegionOne", "internalURL": "http://33.33.33.10:7777/v1.1/1234", "publicURL": "http://cdn.publicinternets.com/v1.1/1234"}], "nova_compat": [{"adminURL": "http://33.33.33.10:8774/v1.0", "region": "RegionOne", "internalURL": "http://33.33.33.10:8774/v1.0", "publicURL": "http://nova.publicinternets.com/v1.0/"}], "nova": [{"adminURL": "http://33.33.33.10:8774/v1.1", "region": "RegionOne", "internalURL": "http://33.33.33.10:8774/v1.1", "publicURL": "http://nova.publicinternets.com/v1.1/"}], "keystone": [{"adminURL": "http://33.33.33.10:8081/v2.0", "region": "RegionOne", "internalURL": "http://33.33.33.10:8080/v2.0", "publicURL": "http://keystone.publicinternets.com/v2.0"}], "glance": [{"adminURL": "http://nova.admin-nets.local/v1.1/1234", "region": "RegionOne", "internalURL": "http://33.33.33.10:9292/v1.1/1234", "publicURL": "http://glance.publicinternets.com/v1.1/1234"}], "swift": [{"adminURL": "http://swift.admin-nets.local:8080/", "region": "RegionOne", "internalURL": "http://33.33.33.10:8080/v1/AUTH_1234", "publicURL": "http://swift.publicinternets.com/v1/AUTH_1234"}]}
+        mapper = routes.Mapper()
+        mapper.connect('/v2.0/tokens',
+                       controller=self.keystone_controller,
+                       action='authenticate',
+                       conditions=dict(method=['POST']))
+        mapper.connect('/v2.0/tokens/{token_id}',
+                       controller=self.keystone_controller,
+                       action='validate_token',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/v2.0/tenants',
+                       controller=self.keystone_controller,
+                       action='tenants_for_token',
+                       conditions=dict(method=['GET']))
+        super(KeystoneRouter, self).__init__(mapper)
 
 
+class KeystoneController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+        self.catalog_api = catalog.Manager(options)
+        self.identity_api = identity.Manager(options)
+        self.token_api = token.Manager(options)
+        pass
 
-class KeystoneIdentityController(service.IdentityController):
-    def authenticate(self, context, **kwargs):
-        kwargs = kwargs['passwordCredentials']
-        token = super(KeystoneIdentityController, self).authenticate(
-                context, **kwargs)
-        return {'auth': {'token': _token_to_keystone(token),
-                         'serviceCatalog': SERVICE_CATALOG}}
+    def authenticate(self, context, auth=None):
+        """Authenticate credentials and return a token.
 
-    def get_tenants(self, context):
-        tenants = super(KeystoneIdentityController, self).get_tenants(context)
-        return {'tenants': {'values': [{'id': x['id'],
-                'description': x['name'], 'enabled': True}
-                                       for x in tenants]}}
+        Keystone accepts auth as a dict that looks like:
+
+        {
+            "auth":{
+                "passwordCredentials":{
+                    "username":"test_user",
+                    "password":"mypass"
+                },
+                "tenantName":"customer-x"
+            }
+        }
+
+        In this case, tenant is optional, if not provided the token will be
+        considered "unscoped" and can later be used to get a scoped token.
+
+        Alternatively, this call accepts auth with only a token and tenant
+        that will return a token that is scoped to that tenant.
+        """
+
+        if 'passwordCredentials' in auth:
+            username = auth['passwordCredentials'].get('username', '')
+            password = auth['passwordCredentials'].get('password', '')
+            tenant = auth.get('tenantName', None)
+
+            (user_ref, tenant_ref, extras) = \
+                    self.identity_api.authenticate(user_id=username,
+                                                   password=password,
+                                                   tenant_id=tenant)
+            token_ref = self.token_api.create_token(user=user_ref,
+                                                    tenant=tenant_ref,
+                                                    extras=extras)
+            catalog_ref = self.catalog_api.get_catalog(user=user_ref,
+                                                       tenant=tenant_ref,
+                                                       extras=extras)
+
+        elif 'tokenCredentials' in auth:
+            token = auth['tokenCredentials'].get('token', None)
+            tenant = auth.get('tenantName')
+
+            old_token_ref = self.token_api.get_token(token_id=token)
+            user_ref = old_token_ref['user']
+
+            assert tenant in user_ref['tenants']
+
+            tenant_ref = self.identity_api.get_tenant(tenant)
+            extras = self.identity_api.get_extras(
+                    user_id=user_ref['id'],
+                    tenant_id=tenant_ref['tenant']['id'])
+            token_ref = self.token_api.create_token(user=user_ref,
+                                                        tenant=tenant_ref,
+                                                        extras=extras)
+            catalog_ref = self.catalog_api.get_catalog(
+                    user=user_ref,
+                    tenant=tenant_ref,
+                    extras=extras)
+
+        return self._format_authenticate(token_ref, catalog_ref)
+
+    def _format_authenticate(sef, token_ref, catalog_ref):
+        return {}
+
+    #admin-only
+    def validate_token(self, context, token_id, belongs_to=None):
+        """Check that a token is valid.
+
+        Optionally, also ensure that it is owned by a specific tenant.
+
+        """
+        token_ref = self.token_api.get_token(token_id)
+        if belongs_to:
+            assert token_ref['tenant']['id'] == belongs_to
+        return self._format_token(token_ref)
+
+    def _format_token(self, token_ref):
+        return {}
 
 
-class KeystoneTokenController(service.TokenController):
-    def validate_token(self, context, token_id):
-        token = super(KeystoneTokenController, self).validate_token(
-                context, token_id)
-        # TODO(termie): munge into keystone format
+    def tenants_for_token(self, context):
+        """Get valid tenants for token based on token used to authenticate.
 
-        tenants = [{'tenantId': token['tenant']['id'],
-                    'name': token['tenant']['name']}]
-        roles = []
-        if token['extras'].get('is_admin'):
-            roles.append({
-                    'roleId': 'Admin',
-                    'href': 'https://www.openstack.org/identity/v2.0/roles/admin',
-                    'tenantId': token['tenant']['id']})
+        Pulls the token from the context, validates it and gets the valid
+        tenants for the user in the token.
 
-        return {'auth': {'token': _token_to_keystone(token),
-                         'user': {'groups': {'group': tenants},
-                                  'roleRefs': roles,
-                                  'username': token['user']['name'],
-                                  'tenantId': token['tenant']['id']}}}
+        Doesn't care about token scopedness.
 
+        """
+        token_ref = self.token_api.get_token(context['token_id'])
+        user_ref = token_ref['user']
+        tenant_refs = []
+        for tenant_id in user_ref['tenants']:
+            tenant_refs.append(self.identity_api.get_tenant(tenant_id))
+        return self._format_tenants_for_token(tenant_refs)
+
+    def _format_tenants_for_token(self, tenant_refs):
+        return [{}]
+
+
+def app_factory(global_conf, **local_conf):
+    conf = global_conf.copy()
+    conf.update(local_conf)
+    return KeystoneRouter(conf)

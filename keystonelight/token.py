@@ -19,9 +19,9 @@ class Manager(object):
         token_ref = self.driver.create_token(token, data)
         return token_ref
 
-    def validate_token(self, context, token_id):
+    def get_token(self, context, token_id):
         """Return info for a token if it is valid."""
         return self.driver.get_token(token_id)
 
-    def revoke_token(self, context, token_id):
+    def delete_token(self, context, token_id):
         self.driver.delete_token(token_id)

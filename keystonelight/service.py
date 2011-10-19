@@ -49,7 +49,9 @@ class TokenAuthMiddleware(wsgi.Middleware):
         logging.info('GOT HEADERS %s', request.headers)
         token = request.headers.get('X-Auth-Token')
         logging.info('GOT TOKEN %s', token)
-        request.environ['openstack.context'] = {'token': token}
+        context = request.environ.get('openstack.context', {})
+        context['token_id'] = token
+        request.environ['openstack.context'] = context
 
 
 class PostParamsMiddleware(wsgi.Middleware):

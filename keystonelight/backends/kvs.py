@@ -49,3 +49,14 @@ class KvsToken(object):
 
   def delete_token(self, id):
     return self.db.delete('token-%s' % id)
+
+
+class KvsCatalog(object):
+  def __init__(self, options, db=None):
+    if db is None:
+      db = INMEMDB
+    self.db = db
+
+  # Public interface
+  def get_catalog(self, user, tenant, extras=None):
+    return self.db.get('catalog-%s' % tenant['id'])
