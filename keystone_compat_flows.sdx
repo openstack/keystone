@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram>
+<source><![CDATA[client:client "Client"
+compat:compat "Compat"
+token:token "Token Service"
+identity:identity "Identity Service"
+catalog:catalog "Catalog Service"
+
+[c "Auth, No Tenant"]
+client:{token, user, service_catalog}=compat.POST /v2.0/tokens {'username': user, 'password': password}
+	compat:(user, password, None)=identity.authenticate(user, password, tenant=None)
+	compat:(id, user, password, None)=token.create_token(user, password, tenant=None)
+	compat:{service_catalog (includes all tenants)}=catalog.get_catalog(user, None)
+[/c]
+
+[c "Auth, With Tenant"]
+client:{scoped_token, user, service_catalog}=compat.POST /v2.0/tokens {'username': user, 'password': password, 'tenant': tenant}
+	compat:(user, password, tenant)=identity.authenticate(user, password, tenant)
+	compat:(id, user, password, tenant)=token.create_token(user, password, tenant)
+	compat:{service_catalog (includes all tenants)}=catalog.get_catalog(user, tenant)
+[/c]
+
+[c "Validate Token, Unscoped"]
+client:{token, user, tenant=None}=compat.GET /v2.0/tokens/$token
+compat:{token, user, tenant}=token.get_token($token)
+[/c]
+
+[c "Validate Token, With Tenant"]
+client:{token, user, tenant}=compat.GET /v2.0/tokens/$token?belongs_to=$tenant
+compat:{token, user, tenant}=token.get_token($token)
+[/c]
+
+[c "Tenants for Token"]
+client:{tenants}=compat.(X-Auth-Token: $token) GET /v2.0/tenants
+compat:{token, user, tenant}=token.get_token($token)
+compat:{token, user, tenant}=identity.get_tenants($user)
+[/c]]]></source>
+<configuration>
+<property name="activationBarBorderThickness" value="1"/>
+<property name="actorWidth" value="25"/>
+<property name="arrowColor" value="-14803256"/>
+<property name="arrowSize" value="6"/>
+<property name="arrowThickness" value="1"/>
+<property name="colorizeThreads" value="true"/>
+<property name="destructorWidth" value="30"/>
+<property name="explicitReturns" value="false"/>
+<property family="Dialog" name="font" size="12" style="0"/>
+<property name="fragmentBorderThickness" value="2"/>
+<property name="fragmentEdgeColor" value="-16751616"/>
+<property name="fragmentLabelBgColor" value="-36"/>
+<property name="fragmentMargin" value="8"/>
+<property name="fragmentPadding" value="10"/>
+<property name="fragmentTextPadding" value="3"/>
+<property name="glue" value="10"/>
+<property name="headHeight" value="35"/>
+<property name="headLabelPadding" value="5"/>
+<property name="headWidth" value="100"/>
+<property name="initialSpace" value="10"/>
+<property name="labeledBoxBgColor" value="-76"/>
+<property name="leftMargin" value="5"/>
+<property name="lifelineThickness" value="1"/>
+<property name="lineWrap" value="false"/>
+<property name="lowerMargin" value="5"/>
+<property name="mainLifelineWidth" value="8"/>
+<property name="messageLabelSpace" value="3"/>
+<property name="messagePadding" value="6"/>
+<property name="noteBgColor" value="-76"/>
+<property name="noteBorderThickness" value="1"/>
+<property name="noteMargin" value="6"/>
+<property name="notePadding" value="6"/>
+<property name="opaqueMessageText" value="false"/>
+<property name="returnArrowVisible" value="true"/>
+<property name="rightMargin" value="5"/>
+<property name="selfMessageHorizontalSpace" value="15"/>
+<property name="separatorBottomMargin" value="8"/>
+<property name="separatorTopMargin" value="15"/>
+<property name="shouldShadowParticipants" value="true"/>
+<property name="slackMode" value="false"/>
+<property name="spaceBeforeActivation" value="2"/>
+<property name="spaceBeforeAnswerToSelf" value="10"/>
+<property name="spaceBeforeConstruction" value="6"/>
+<property name="spaceBeforeSelfMessage" value="7"/>
+<property name="subLifelineWidth" value="6"/>
+<property name="tc0" value="-1118482"/>
+<property name="tc1" value="-256"/>
+<property name="tc2" value="-65536"/>
+<property name="tc3" value="-16776961"/>
+<property name="tc4" value="-16711936"/>
+<property name="tc5" value="-4144960"/>
+<property name="tc6" value="-65281"/>
+<property name="tc7" value="-14336"/>
+<property name="tc8" value="-20561"/>
+<property name="tc9" value="-12566464"/>
+<property name="threadNumbersVisible" value="false"/>
+<property name="threaded" value="true"/>
+<property name="upperMargin" value="5"/>
+<property name="verticallySplit" value="true"/>
+</configuration>
+</diagram>
