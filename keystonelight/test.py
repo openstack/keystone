@@ -55,26 +55,25 @@ class TestCase(unittest.TestCase):
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)
 
-
   def assertListEquals(self, expected, actual):
     copy = expected[:]
+    print expected, actual
     self.assertEquals(len(expected), len(actual))
     while copy:
       item = copy.pop()
       matched = False
       for x in actual:
-        #print 'COMPARE', item, x,
+        print 'COMPARE', item, x,
         try:
           self.assertDeepEquals(item, x)
           matched = True
-          #print 'MATCHED'
+          print 'MATCHED'
           break
         except AssertionError as e:
-          #print e
+          print e
           pass
       if not matched:
         raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
-
 
   def assertDictEquals(self, expected, actual):
     for k in expected:
@@ -86,8 +85,6 @@ class TestCase(unittest.TestCase):
       self.assertTrue(k in expected,
                       "Unexpected key %s in %s." % (k, actual))
 
-
-
   def assertDeepEquals(self, expected, actual):
     try:
       if type(expected) is type([]) or type(expected) is type(tuple()):
@@ -98,6 +95,7 @@ class TestCase(unittest.TestCase):
       else:
         self.assertEquals(expected, actual)
     except AssertionError as e:
+      raise
       raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
 
 

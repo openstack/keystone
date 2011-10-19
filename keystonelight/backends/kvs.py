@@ -15,14 +15,6 @@ class KvsIdentity(object):
     self.db = db
 
   # Public interface
-  def tenants_for_user(self, user_id):
-    user = self.db.get('user-%s' % user_id)
-    o = []
-    for tenant_id in user['tenants']:
-      o.append(self.db.get('tenant-%s' % tenant_id))
-
-    return o
-
   def get_tenant(self, tenant_id):
     tenant_ref = self.db.get('tenant-%s' % tenant_id)
     return tenant_ref

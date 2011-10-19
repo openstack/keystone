@@ -8,9 +8,11 @@ from keystonelight import utils
 
 
 IDENTITY_API_REPO = 'git://github.com/openstack/identity-api.git'
+KEYSTONE_REPO = 'git://github.com/openstack/keystone.git'
 
 
-SAMPLE_DIR = 'openstack-identity-api/src/docbkx/samples'
+IDENTITY_SAMPLE_DIR = 'openstack-identity-api/src/docbkx/samples'
+KEYSTONE_SAMPLE_DIR = 'keystone/content/common/samples'
 
 
 cd = os.chdir
@@ -18,14 +20,14 @@ cd = os.chdir
 
 def checkout_samples(rev):
   """Make sure we have a checkout of the API docs."""
-  revdir = os.path.join(test.VENDOR, 'identity-api-%s' % rev)
+  revdir = os.path.join(test.VENDOR, 'keystone-%s' % rev.replace('/', '_'))
 
   if not os.path.exists(revdir):
-    utils.git('clone', IDENTITY_API_REPO, revdir)
+    utils.git('clone', KEYSTONE_REPO, revdir)
 
   cd(revdir)
   utils.git('pull')
-  utils.git('checkout', rev)
+  utils.git('checkout', '-q', rev)
   return revdir
 
 
@@ -40,8 +42,30 @@ class CompatTestCase(test.TestCase):
 
     self.tenants_for_token = json.load(open(
         os.path.join(self.sampledir, 'tenants.json')))
+    self.validate_token = json.load(open(
+        os.path.join(self.sampledir, 'validatetoken.json')))
 
-    # For the tenants for token call
+    # validate_token call
+    self.tenant_345 = self.identity_backend._create_tenant(
+        '345',
+        models.Tenant(id='345', name='My Project'))
+    self.user_123 = self.identity_backend._create_user(
+        '123',
+        models.User(id='123', name='jqsmith', tenants=[self.tenant_345['id']],
+                    roles=[{'id': '234',
+                            'name': 'compute:admin'},
+                           {'id': '234',
+                            'name': 'object-store:admin',
+                            'tenantId': '1'}],
+                    roles_links=[]))
+    self.token_123 = self.token_backend.create_token(
+        'ab48a9efdfedb23ty3494',
+        models.Token(id='ab48a9efdfedb23ty3494',
+                     expires='2010-11-01T03:32:15-05:00',
+                     user=self.user_123,
+                     tenant=self.tenant_345))
+
+    # tenants_for_token call
     self.user_foo = self.identity_backend._create_user(
         'foo',
         models.User(id='foo', tenants=['1234', '3456']))
@@ -69,12 +93,12 @@ class CompatTestCase(test.TestCase):
                      tenant=self.tenant_1234))
 
 
-class HeadCompatTestCase(CompatTestCase):
+class DiabloCompatTestCase(CompatTestCase):
   def setUp(self):
-    revdir = checkout_samples('HEAD')
-    self.sampledir = os.path.join(revdir, SAMPLE_DIR)
-    self.app = self.loadapp('keystone_compat_HEAD')
-    self.options = self.appconfig('keystone_compat_HEAD')
+    revdir = checkout_samples('stable/diablo')
+    self.sampledir = os.path.join(revdir, KEYSTONE_SAMPLE_DIR)
+    self.app = self.loadapp('keystone_compat_diablo')
+    self.options = self.appconfig('keystone_compat_diablo')
 
     self.identity_backend = utils.import_object(
         self.options['identity_driver'], options=self.options)
@@ -83,7 +107,13 @@ class HeadCompatTestCase(CompatTestCase):
     self.catalog_backend = utils.import_object(
         self.options['catalog_driver'], options=self.options)
 
-    super(HeadCompatTestCase, self).setUp()
+    super(DiabloCompatTestCase, self).setUp()
+
+  def test_validate_token_scoped(self):
+    client = self.client(self.app, token=self.token_123['id'])
+    resp = client.get('/v2.0/tokens/%s' % self.token_123['id'])
+    data = json.loads(resp.body)
+    self.assertDeepEquals(self.validate_token, data)
 
   def test_tenants_for_token_unscoped(self):
     # get_tenants_for_token

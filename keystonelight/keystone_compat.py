@@ -127,7 +127,20 @@ class KeystoneController(service.BaseApplication):
         return self._format_token(token_ref)
 
     def _format_token(self, token_ref):
-        return {}
+        user_ref = token_ref['user']
+        o = {'access': {'token': {'id': token_ref['id'],
+                                  'expires': token_ref['expires']
+                                  },
+                        'user': {'id': user_ref['id'],
+                                 'name': user_ref['name'],
+                                 'roles': user_ref['roles'] or [],
+                                 'roles_links': user_ref['roles_links'] or []
+                                 }
+                        }
+             }
+        if 'tenant' in token_ref:
+            o['access']['token']['tenant'] = token_ref['tenant']
+        return o
 
     def tenants_for_token(self, context):
         """Get valid tenants for token based on token used to authenticate.
@@ -149,7 +162,8 @@ class KeystoneController(service.BaseApplication):
         return self._format_tenants_for_token(tenant_refs)
 
     def _format_tenants_for_token(self, tenant_refs):
-        o = {'tenants': {'values': tenant_refs}}
+        o = {'tenants': tenant_refs,
+             'tenants_links': []}
         return o
 
 
