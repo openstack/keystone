@@ -70,19 +70,35 @@ if __name__ == '__main__':
             print "Using config file:", config_file
 
         # Load Service API server
-        server = wsgi.Server()
-        server.start(app, int(conf['service_port']), conf['service_host'])
+        if conf['service_ssl'] == 'True':
+            server = wsgi.SslServer()
+            server.start(app, int(conf['service_port']), conf['service_host'], 
+                         certfile=conf['certfile'], keyfile=conf['keyfile'], 
+                         ca_certs=conf['ca_certs'], 
+                         cert_required=conf['cert_required'])
+        else:
+            server = wsgi.Server()
+            server.start(app, int(conf['service_port']), conf['service_host'])
+        
 
-        print "Service API listening on %s:%s" % (
-            conf['service_host'], conf['service_port'])
+        print "Service API (ssl=%s) listening on %s:%s" % (
+            conf['service_ssl'], conf['service_host'], conf['service_port'])
 
         # Load Admin API server
-        admin_server = wsgi.Server()
-        admin_server.start(admin_app,
-            int(conf['admin_port']), conf['admin_host'])
+        if conf['admin_ssl'] == 'True':
+            admin_server = wsgi.SslServer()
+            admin_server.start(admin_app, 
+                               int(conf['admin_port']), conf['admin_host'], 
+                               certfile=conf['certfile'], keyfile=conf['keyfile'], 
+                               ca_certs=conf['ca_certs'], 
+                               cert_required=conf['cert_required'])            
+        else:
+            admin_server = wsgi.Server()
+            admin_server.start(admin_app,
+                               int(conf['admin_port']), conf['admin_host'])
 
-        print "Admin API listening on %s:%s" % (
-            conf['admin_host'], conf['admin_port'])
+        print "Admin API (ssl=%s) listening on %s:%s" % (
+            conf['admin_ssl'], conf['admin_host'], conf['admin_port'])
 
         # Wait until done
         server.wait()

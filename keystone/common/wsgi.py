@@ -25,6 +25,7 @@ import json
 import logging
 import sys
 import datetime
+import ssl
 
 import eventlet.wsgi
 eventlet.patcher.monkey_patch(all=False, socket=True)
@@ -109,6 +110,24 @@ class Server(object):
         # caller. Maybe something to do with paste?
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
                              log=WritableLogger(logger, logging.root.level))
+
+
+class SslServer(Server):
+    """SSL Server class to manage multiple WSGI sockets and applications."""
+    def start(self, application, port, host='0.0.0.0', backlog=128,
+              certfile=None, keyfile=None, ca_certs=None,
+              cert_required='True'):
+        """Run a 2-way SSL WSGI server with the given application."""
+        socket = eventlet.listen((host, port), backlog=backlog)
+        if cert_required == 'True':
+            cert_reqs = ssl.CERT_REQUIRED
+        else:
+            cert_reqs = ssl.CERT_NONE
+        sslsocket = eventlet.wrap_ssl(socket, certfile=certfile,
+                                      keyfile=keyfile,
+                                      server_side=True, cert_reqs=cert_reqs,
+                                      ca_certs=ca_certs)
+        self.pool.spawn_n(self._run, application, sslsocket)
 
 
 class Middleware(object):

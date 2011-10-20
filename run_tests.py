@@ -10,6 +10,12 @@ class SQLTest(KeystoneTest):
     test_files = ('keystone.db',)
 
 
+class SSLTest(KeystoneTest):
+    config_name = 'ssl.conf.template'
+    test_files = ('keystone.db',)
+    isSsl = True
+
+
 class MemcacheTest(KeystoneTest):
     """Test defined using only SQLAlchemy and Memcache back-end"""
     config_name = 'memcache.conf.template'
@@ -25,6 +31,7 @@ TESTS = [
     SQLTest,
     # currently failing, and has yet to pass in jenkins: MemcacheTest,
     LDAPTest,
+    SSLTest,
 ]
 
 if __name__ == '__main__':

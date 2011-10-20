@@ -2,7 +2,15 @@ import unittest2 as unittest
 import httplib
 import uuid
 import json
+import os
 from xml.etree import ElementTree
+
+
+def isSsl():
+    """ See if we are testing with SSL.  If cert is non-empty, we are! """
+    if 'cert_file' in os.environ:
+        return os.environ['cert_file']
+    return None
 
 
 class HttpTestCase(unittest.TestCase):
@@ -23,7 +31,13 @@ class HttpTestCase(unittest.TestCase):
         headers = {} if not headers else headers
 
         # Initialize a connection
-        connection = httplib.HTTPConnection(host, port, timeout=20)
+        cert_file = isSsl()
+        if (cert_file != None):
+            connection = httplib.HTTPSConnection(host, port,
+                                            cert_file=cert_file,
+                                            timeout=20)
+        else:
+            connection = httplib.HTTPConnection(host, port, timeout=20)
 
         # Perform the request
         connection.request(method, path, body, headers)
@@ -906,8 +920,7 @@ class FunctionalTestCase(ApiTestCase):
                 "global": is_global,
                 "versionId": version_id,
                 "versionInfo": version_info,
-                "versionList": version_list
-                }}
+                "versionList": version_list}}
         return self.post_endpoint_template(as_json=data, **kwargs)
 
     def remove_endpoint_template(self, endpoint_template_id=None, **kwargs):

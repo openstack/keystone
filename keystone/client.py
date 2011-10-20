@@ -30,7 +30,7 @@ class ServiceClient(object):
 
     _default_port = 5000
 
-    def __init__(self, host, port=None):
+    def __init__(self, host, port=None, is_ssl=False, cert_file=None):
         """Initialize client.
 
         :param host: The hostname or IP of the Keystone service to use
@@ -39,6 +39,8 @@ class ServiceClient(object):
         """
         self.host = host
         self.port = port or self._default_port
+        self.is_ssl = is_ssl
+        self.cert_file = cert_file
 
     def _http_request(self, verb, path, body=None, headers=None):
         """Perform an HTTP request and return the HTTP response.
@@ -50,7 +52,11 @@ class ServiceClient(object):
         :returns: httplib.HTTPResponse object
 
         """
-        connection = httplib.HTTPConnection(self.auth_address)
+        if (self.is_ssl):
+            connection = httplib.HTTPSConnection(self.auth_address,
+                                                 cert_file=self.cert_file)
+        else:
+            connection = httplib.HTTPConnection(self.auth_address)
         connection.request(verb, path, body=body, headers=headers)
 
         response = connection.getresponse()
@@ -109,7 +115,8 @@ class AdminClient(ServiceClient):
     _default_admin_name = "admin"
     _default_admin_pass = "password"
 
-    def __init__(self, host, port=None, admin_name=None, admin_pass=None):
+    def __init__(self, host, port=None, is_ssl=False, cert_file=None,
+                 admin_name=None, admin_pass=None):
         """Initialize client.
 
         :param host: The hostname or IP of the Keystone service to use
@@ -118,7 +125,8 @@ class AdminClient(ServiceClient):
         :param admin_pass: The password to use for the admin account
 
         """
-        super(AdminClient, self).__init__(host, port=port)
+        super(AdminClient, self).__init__(host, port=port, is_ssl=is_ssl,
+                                          cert_file=cert_file)
         self.admin_name = admin_name or self._default_admin_name
         self.admin_pass = admin_pass or self._default_admin_pass
         self._admin_token = None

@@ -2,6 +2,7 @@ import unittest
 
 import keystone.common.exception
 import keystone.client
+from common import isSsl
 
 
 class TestAdminClient(unittest.TestCase):
@@ -13,7 +14,10 @@ class TestAdminClient(unittest.TestCase):
         """
         Run before each test.
         """
+        cert_file = isSsl()
         self.client = keystone.client.AdminClient("127.0.0.1",
+                                                  is_ssl=(cert_file != None),
+                                                  cert_file=cert_file,
                                                   admin_name="admin",
                                                   admin_pass="secrete")
 
@@ -71,7 +75,10 @@ class TestServiceClient(unittest.TestCase):
         """
         Run before each test.
         """
-        self.client = keystone.client.ServiceClient("127.0.0.1")
+        cert_file = isSsl()
+        self.client = keystone.client.ServiceClient("127.0.0.1",
+                                                    is_ssl=(cert_file != None),
+                                                    cert_file=cert_file)
 
     def test_admin_get_token(self):
         """

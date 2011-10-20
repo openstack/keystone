@@ -42,11 +42,11 @@ addlargs=
 wrapper=""
 just_pep8=0
 just_pylint=0
-RUNTESTS="python run_tests.py $addlargs"
 
 for arg in "$@"; do
   process_option $arg
 done
+RUNTESTS="python run_tests.py $addlargs"
 
 function run_tests {
   # Just run the test suites in current environment
