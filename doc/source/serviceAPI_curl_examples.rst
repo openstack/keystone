@@ -15,18 +15,17 @@
       under the License.
 
 Curl Service API examples
-=====
+=========================
 
 All examples assume default port usage (5000)
 
-Initial GET 
-#############
+Initial GET
+###########
+
 Retrieves version, full API url, pdf doc link, and wadl link::
 
-	$> curl http://0.0.0.0:5000
+    $> curl http://0.0.0.0:5000
+
 or::
 
-	$> curl http://0.0.0.0:5000/v2.0/
-
-
-
+    $> curl http://0.0.0.0:5000/v2.0/
