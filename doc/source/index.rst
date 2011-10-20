@@ -14,22 +14,14 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-Welcome to Keystone's documentation!
-====================================
+Keystone for Contributors
+=========================
 
-The Keystone project provides services for authenticating and managing 
-user, account, and role information.
+Keystone is the cononical implementation of
+[Openstack's Identity API](https://github.com/openstack/identity-api), which
+includes authentication and (soon) authorization services.
 
-Concepts
-========
-
-.. toctree::
-   :maxdepth: 1
-
-   users
-   tenants
-   groups
-   roles
+This document describes keystone for contributors of the project.
 
 Using Keystone
 ==============
@@ -37,9 +29,9 @@ Using Keystone
 .. toctree::
    :maxdepth: 1
 
-   installing  
+   installing
    gettingstarted
-   
+
 Developer Docs
 ==============
 
