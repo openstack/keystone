@@ -23,6 +23,7 @@ class ServiceAPI(BaseServiceAPI):
     def __init__(self):
         pass
 
+    # pylint: disable=W0221
     def create(self, values):
         service_ref = models.Service()
         service_ref.update(values)
@@ -38,6 +39,14 @@ class ServiceAPI(BaseServiceAPI):
         if not session:
             session = get_session()
         return session.query(models.Service).filter_by(name=name).first()
+
+    def get_by_name_and_type(self, name, type, session=None):
+        if not session:
+            session = get_session()
+        return session.query(models.Service).\
+        filter_by(name=name).\
+        filter_by(type=type).\
+        first()
 
     def get_all(self, session=None):
         if not session:

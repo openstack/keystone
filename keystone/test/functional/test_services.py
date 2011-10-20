@@ -182,8 +182,8 @@ class DeleteServiceTest(ServicesTest):
         user = self.create_user(tenant_id=tenant['id']).json['user']
 
         self.grant_role_to_user(user['id'], role['id'], tenant['id'])
-        self.create_endpoint_template(service_id=self.service['id'])
-
+        self.create_endpoint_template(name=self.service['name'],
+            type=self.service['type'])
         self.remove_service(self.service['id'], assert_status=204)
 
     def test_service_delete_json_using_expired_token(self):

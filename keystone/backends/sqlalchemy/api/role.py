@@ -20,6 +20,7 @@ from keystone.backends.api import BaseRoleAPI
 
 
 class RoleAPI(BaseRoleAPI):
+    # pylint: disable=W0221
     def create(self, values):
         role = models.Role()
         role.update(values)

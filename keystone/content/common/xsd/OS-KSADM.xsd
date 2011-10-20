@@ -63,6 +63,7 @@
     <!-- Complex Types -->
     <complexType name="Service">
         <attribute name="id" type="xsd:string" use="required"/>
+        <attribute name="name" type="xsd:string" use="required"/>
         <attribute name="type" type="identity:ExtensibleServiceType" use="required"/>
         <attribute name="description" type="xsd:string"  use="optional"/>
         <anyAttribute namespace="##other" processContents="lax"/>
