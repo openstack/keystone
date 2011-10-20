@@ -25,7 +25,7 @@ Having trouble? We'd like to help!
 
 * Try the documentation first — it's got answers to many common questions.
 * Search for information in the archives of the [OpenStack mailing list](http://wiki.openstack.org/MailingLists), or post a question.
-* Ask a question in the [#openstack IRC channel](irc://irc.freenode.net/).
+* Ask a question in the [#openstack IRC channel](http://wiki.openstack.org/UsingIRC).
 * If you notice errors, please [open a bug](https://bugs.launchpad.net/keystone) and let us know! Please only use the bug tracker for criticisms and improvements. For tech support, use the resources above.
 
 # For Contributors
