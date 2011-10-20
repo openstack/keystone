@@ -19,47 +19,46 @@ Quick Guide to Getting Started with Keystone
 
 
 Dependencies
----------------------------------
-First, you will need to install keystone, if you haven't done so already
- 
+------------
+
+First, you will need to install keystone, if you haven't done so already.
+
 .. toctree::
    :maxdepth: 1
 
-   installing  
-   
+   installing
+
+
 Creating your first global admin
----------------------------------   
+--------------------------------
 Change driectory to your install path
 
-   
-   
+
 Creating your first tenant admin
----------------------------------   
-Change directory to your install path. 
-   
-   
-1. Run the following to create the first tennant::
+--------------------------------
+
+Change directory to your install path.
+
+#. Run the following to create the first tennant::
 
    $>  bin/keystone-manage tenant add "MyTenant"
 
-2. Run the following to create the first tenant admin::
-   
+#. Run the following to create the first tenant admin::
+
    $>  bin/keystone-manage user add MyAdmin P@ssw0rd MyTenant
-   
+
 .. note::
-   
+
    Some reserved roles are defined (and can be modified) through the keystone.conf in the /etc folder.
 
-3. Associate your tenant admin with the Admin role::
+#. Associate your tenant admin with the Admin role::
 
    $> bin/keystone-manage role grant Admin MyAdmin
 
-   
-   
-
 
 Curl examples
----------------------------------
+-------------
+
 .. toctree::
    :maxdepth: 1
 
