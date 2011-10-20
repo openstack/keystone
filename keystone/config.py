@@ -1,5 +1,4 @@
-VERSION_STATUS = "ALPHA"
-VERSION_DATE = "2011-04-23T00:00:00Z"
+"""TODO: This file should be dissolved"""
 
 from keystone.logic.service import IdentityService
 SERVICE = IdentityService()

@@ -1,8 +1,8 @@
 {
     "version" : {
-        "id" : "v2.0",
-        "status" : "{{VERSION_STATUS}}",
-        "updated" : "{{VERSION_DATE}}",
+        "id" : "v{{API_VERSION}}",
+        "status" : "{{API_VERSION_STATUS}}",
+        "updated" : "{{API_VERSION_DATE}}",
         "links": [
             {
                 "rel" : "self",

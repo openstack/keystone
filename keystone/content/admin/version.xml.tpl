@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <version xmlns="http://docs.openstack.org/common/api/v2.0"
          xmlns:atom="http://www.w3.org/2005/Atom"
-         id="v2.0" status="{{VERSION_STATUS}}" updated="{{VERSION_DATE}}">
+         id="v{{API_VERSION}}" status="{{API_VERSION_STATUS}}" updated="{{API_VERSION_DATE}}">
 
     <media-types>
         <media-type base="application/xml"
