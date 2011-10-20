@@ -1,6 +1,6 @@
 # Keystone: OpenStack Identity Service
 
-Keystone is an identity service for [OpenStack](http://www.openstack.org).
+Keystone is a Python implementation of the [OpenStack](http://www.openstack.org) identity service API.
 
 This project aims to address the current use cases in Swift and Nova which are:
 
@@ -9,10 +9,24 @@ This project aims to address the current use cases in Swift and Nova which are:
 
 # Documentation
 
-Learn about installing, configuring, managing, and developing the OpenStack Identity Service at the
-[OpenStack Documentation](http://docs.openstack.org/) site.
+## For new users, deployers, and system administrators
 
-NOTE: Contributors probably don't want to install keystone from packaging, and should instead follow the directions below.
+Learn how to install, configure, manage, and interact with the OpenStack
+Identity Service API at the [OpenStack Documentation](http://docs.openstack.org/) site.
+
+## For contributors
+
+Learn how to setup a development environment and then test, run, and contribute to Keystone at the
+[Contributor Documentation](http://keystone.openstack.org/) site.
+
+# Questions/Feedback
+
+Having trouble? We'd like to help!
+
+* Try the documentation first — it's got answers to many common questions.
+* Search for information in the archives of the [OpenStack mailing list](http://wiki.openstack.org/MailingLists), or post a question.
+* Ask a question in the [#openstack IRC channel](irc://irc.freenode.net/).
+* If you notice errors, please [open a bug](https://bugs.launchpad.net/keystone) and let us know! Please only use the bug tracker for criticisms and improvements. For tech support, use the resources above.
 
 # For Contributors
 
@@ -121,11 +135,19 @@ To build the Developer Guide from source, you need [Maven](http://maven.apache.o
 
 The output will go into the `target` folder (the source is in `src`). Output generated is PDF and webhelp.
 
-### Editing and Building the Admin Guide
+### Editing and Building the Contributor Guide
 
-The Admin guide is written in RST and built using sphinx. From the `keystone` folder:
+This guide is written by contributors, for contributors.
 
-    $ python setup.py build_sphinx && firefox build/sphinx/html/index.html
+The source is maintained in the `doc/source` folder using
+[reStructuredText](http://docutils.sourceforge.net/rst.html)
+and built by [Sphinx](http://sphinx.pocoo.org/) (a dependency from `tools/pip-requires`).
+
+To rebuild the documentation from the root of the project:
+
+    $ python setup.py build_sphinx && open build/sphinx/html/index.html
+
+Note: This will fail with an `invalid command` error if you do not have Sphinx installed.
 
 # Additional Information:
 
