@@ -29,7 +29,7 @@ class CredentialsAPI(BaseCredentialsAPI):
     def get(self, id, session=None):
         if not session:
             session = get_session()
-        result = session.query(models.Group).filter_by(id=id).first()
+        result = session.query(models.Credentials).filter_by(id=id).first()
         return result
 
     def get_by_access(self, access, session=None):

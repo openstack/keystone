@@ -43,7 +43,7 @@ class EndpointTemplate(object):
             is_global = root.get("global")
             version = root.find(
                 "{http://docs.openstack.org/identity/"\
-                "api/ext/OSKSCATALOG/v1.0}" \
+                "api/v2.0}" \
                 "version")
             version_id = None
             version_info = None
@@ -168,7 +168,7 @@ class EndpointTemplate(object):
             dom.set("global", str(self.is_global).lower())
         version = etree.Element("version",
             xmlns="http://docs.openstack.org"
-            "/identity/api/ext/OSKSCATALOG/v1.0")
+            "/identity/api/v2.0")
         if self.version_id:
             version.set("id", self.version_id)
             if self.version_info:
@@ -235,26 +235,54 @@ class EndpointTemplates(object):
         values = [t.to_dict()["OS-KSCATALOG:endpointTemplate"]
             for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"OS-KSCATALOG:endpointTemplates":\
-            {"OS-KSCATALOG:endpointTemplates": values,
-             "OS-KSCATALOG:endpointTemplates_links": links}})
+        return json.dumps({"OS-KSCATALOG:endpointTemplates": values,
+             "OS-KSCATALOG:endpointTemplates_links": links})
 
 
 class Endpoint(object):
     """Document me!"""
 
-    def __init__(self, id, href):
+    def __init__(self, id, tenant_id, region, service, public_url, admin_url,
+                 internal_url, version_id=None,
+                 version_list=None, version_info=None):
         self.id = id
-        self.href = href
+        self.tenant_id = tenant_id
+        self.region = region
+        self.service = service
+        self.public_url = public_url
+        self.admin_url = admin_url
+        self.internal_url = internal_url
+        self.version_id = version_id
+        self.version_list = version_list
+        self.version_info = version_info
 
     def to_dom(self):
         dom = etree.Element("endpoint",
-            xmlns="http://docs.openstack.org/"
-            "identity/api/ext/OSKSCATALOG/v1.0")
+            xmlns="http://docs.openstack.org/identity/api/v2.0")
         if self.id:
             dom.set("id", str(self.id))
-        if self.href:
-            dom.set("href", self.href)
+        if self.tenant_id:
+            dom.set("tenantId", self.tenant_id)
+        if self.region:
+            dom.set("region", self.region)
+        if self.service:
+            dom.set("serviceId", str(self.service))
+        if self.public_url:
+            dom.set("publicURL", self.public_url)
+        if self.admin_url:
+            dom.set("adminURL", self.admin_url)
+        if self.internal_url:
+            dom.set("internalURL", self.internal_url)
+        version = etree.Element("version",
+            xmlns="http://docs.openstack.org"
+            "/identity/api/v2.0")
+        if self.version_id:
+            version.set("id", self.version_id)
+            if self.version_info:
+                version.set("info", self.version_info)
+            if self.version_list:
+                version.set("list", self.version_list)
+            dom.append(version)
         return dom
 
     def to_xml(self):
@@ -264,8 +292,24 @@ class Endpoint(object):
         endpoint = {}
         if self.id:
             endpoint["id"] = self.id
-        if self.href:
-            endpoint["href"] = self.href
+        if self.tenant_id:
+            endpoint["tenantId"] = self.tenant_id
+        if self.region:
+            endpoint["region"] = self.region
+        if self.service:
+            endpoint["serviceId"] = self.service
+        if self.public_url:
+            endpoint["publicURL"] = self.public_url
+        if self.admin_url:
+            endpoint["adminURL"] = self.admin_url
+        if self.internal_url:
+            endpoint["internalURL"] = self.internal_url
+        if self.version_id:
+            endpoint["versionId"] = self.version_id
+            if self.version_info:
+                endpoint["versionInfo"] = self.version_info
+            if self.version_list:
+                endpoint["versionList"] = self.version_list
         return {'endpoint': endpoint}
 
     def to_json(self):
@@ -282,7 +326,7 @@ class Endpoints(object):
     def to_xml(self):
         dom = etree.Element("endpoints")
         dom.set(u"xmlns",
-            "http://docs.openstack.org/identity/api/ext/OSKSCATALOG/v1.0")
+            "http://docs.openstack.org/identity/api/v2.0")
 
         for t in self.values:
             dom.append(t.to_dom())
@@ -295,4 +339,4 @@ class Endpoints(object):
     def to_json(self):
         values = [t.to_dict()["endpoint"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"endpoints": {"values": values, "links": links}})
+        return json.dumps({"endpoints": values, "endpoints_links": links})

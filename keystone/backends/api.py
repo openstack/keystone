@@ -275,9 +275,6 @@ class BaseCredentialsAPI(object):
     def get(self, id):
         raise NotImplementedError
 
-    def get_all(self):
-        raise NotImplementedError
-
     def get_by_access(self, access):
         raise NotImplementedError
 

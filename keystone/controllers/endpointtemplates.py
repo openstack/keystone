@@ -59,7 +59,7 @@ class EndpointTemplatesController(wsgi.Controller):
         endpoint = utils.get_normalized_request_content(EndpointTemplate, req)
         return utils.send_result(201, req,
             config.SERVICE.create_endpoint_for_tenant(
-                utils.get_auth_token(req), tenant_id, endpoint, get_url(req)))
+                utils.get_auth_token(req), tenant_id, endpoint))
 
     @utils.wrap_error
     def remove_endpoint_from_tenant(self, req, tenant_id, endpoint_id):

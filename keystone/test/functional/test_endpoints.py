@@ -272,76 +272,69 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
 
 
 class CreateEndpointRefsTest(EndpointTemplatesTest):
+
+    def setUp(self, *args, **kwargs):
+        super(CreateEndpointRefsTest, self).setUp(*args, **kwargs)
+        self.tenant = self.create_tenant().json['tenant']
+
     def test_endpoint_create_json_using_expired_token(self):
         self.admin_token = self.expired_admin_token
-        self.create_endpoint_template(service_id=self.service['id'],
-            assert_status=403)
+        self.create_endpoint_for_tenant(self.tenant['id'],
+            self.endpoint_template['id'], assert_status=403)
 
     def test_endpoint_create_json_using_disabled_token(self):
         self.admin_token = self.disabled_admin_token
-        self.create_endpoint_template(service_id=self.service['id'],
-            assert_status=403)
+        self.create_endpoint_for_tenant(self.tenant['id'],
+            self.endpoint_template['id'], assert_status=403)
 
     def test_endpoint_create_json_using_missing_token(self):
         self.admin_token = ''
-        self.create_endpoint_template(service_id=self.service['id'],
-            assert_status=401)
+        self.create_endpoint_for_tenant(self.tenant['id'],
+            self.endpoint_template['id'], assert_status=401)
 
     def test_endpoint_create_json_using_invalid_token(self):
         self.admin_token = common.unique_str()
-        self.create_endpoint_template(service_id=self.service['id'],
-            assert_status=401)
+        self.create_endpoint_for_tenant(self.tenant['id'],
+            self.endpoint_template['id'], assert_status=401)
 
     def test_endpoint_create_json(self):
-        self.create_endpoint_template(service_id=self.service['id'],
-            assert_status=201)
+        endpoint = self.create_endpoint_for_tenant(self.tenant['id'],
+            self.endpoint_template['id'], assert_status=201).json['endpoint']
+        self.assertEqual(str(endpoint["serviceId"]), str(self.service['id']))
+        self.assertEqual(endpoint["region"], self.endpoint_template["region"])
+        self.assertEqual(endpoint["publicURL"],
+            self.endpoint_template["publicURL"])
+        self.assertEqual(endpoint["adminURL"],
+            self.endpoint_template["adminURL"])
+        self.assertEqual(endpoint["internalURL"],
+            self.endpoint_template["internalURL"])
 
 #    def test_endpoint_create_using_service_admin_token(self):
 #        self.admin_token = service_admin_token
 #        self.create_endpoint_template(assert_status=201)
 
     def test_endpoint_create_xml(self):
-        region = common.unique_str()
-        public_url = common.unique_url()
-        admin_url = common.unique_url()
-        internal_url = common.unique_url()
-        enabled = True
-        is_global = True
-        version_id = common.unique_url()
-        version_info = common.unique_url()
-        version_list = common.unique_url()
-
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<endpointTemplate '
-            'xmlns="http://docs.openstack.org/'
-            'identity/api/ext/OSKSCATALOG/v1.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
-            'internalURL="%s" enabled="%s" global="%s">'
-            '<version id="%s" info="%s" list="%s"/>'
-            '</endpointTemplate>') % (region,
-                self.service['id'], public_url, admin_url, internal_url,
-                enabled, is_global, version_id, version_info, version_list)
-        r = self.post_endpoint_template(as_xml=data, assert_status=201,
+            'xmlns="%s" id="%s">'
+            '</endpointTemplate>') % (self.xmlns_kscatalog,
+            self.endpoint_template["id"])
+        r = self.post_tenant_endpoint(self.tenant['id'],
+            as_xml=data, assert_status=201,
             headers={'Accept': 'application/xml'})
 
         self.assertEqual(r.xml.tag,
-            '{%s}endpointTemplate' % self.xmlns_kscatalog)
+            '{%s}endpoint' % self.xmlns)
 
         self.assertIsNotNone(r.xml.get("id"))
         self.assertEqual(r.xml.get("serviceId"), self.service['id'])
-        self.assertEqual(r.xml.get("region"), region)
-        self.assertEqual(r.xml.get("publicURL"), public_url)
-        self.assertEqual(r.xml.get("adminURL"), admin_url)
-        self.assertEqual(r.xml.get("internalURL"), internal_url)
-        self.assertEqual(r.xml.get("enabled"), str(enabled).lower())
-        self.assertEqual(r.xml.get("global"), str(is_global).lower())
-        version = r.xml.find(
-            "{http://docs.openstack.org/identity/"\
-            "api/ext/OSKSCATALOG/v1.0}" \
-            "version")
-        self.assertEqual(version.get("id"), version_id)
-        self.assertEqual(version.get("info"), version_info)
-        self.assertEqual(version.get("list"), version_list)
+        self.assertEqual(r.xml.get("region"), self.endpoint_template["region"])
+        self.assertEqual(r.xml.get("publicURL"),
+            self.endpoint_template["publicURL"])
+        self.assertEqual(r.xml.get("adminURL"),
+            self.endpoint_template["adminURL"])
+        self.assertEqual(r.xml.get("internalURL"),
+            self.endpoint_template["internalURL"])
 
     def test_endpoint_create_xml_using_expired_token(self):
         self.admin_token = self.expired_admin_token
