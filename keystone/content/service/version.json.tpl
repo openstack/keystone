@@ -10,8 +10,13 @@
             },
             {
                 "rel" : "describedby",
+                "type" : "text/html",
+                "href" : "http://docs.openstack.org/api/openstack-identity-service/{{API_VERSION}}/content/"
+            },
+            {
+                "rel" : "describedby",
                 "type" : "application/pdf",
-                "href" : "http://{{HOST}}:{{PORT}}/v2.0/identitydevguide.pdf"
+                "href" : "http://docs.openstack.org/api/openstack-identity-service/{{API_VERSION}}/identity-dev-guide-{{API_VERSION}}.pdf"
             },
             {
                 "rel" : "describedby",
