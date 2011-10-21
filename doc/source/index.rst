@@ -27,19 +27,35 @@ Using Keystone
 ==============
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 1
 
-   installing
-   gettingstarted
+    installing
+    gettingstarted
 
 Developer Docs
 ==============
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 1
 
-   architecture
-   community
+    architecture
+    community
+
+Man Pages
+=========
+
+.. toctree::
+    :maxdepth: 1
+
+    man/keystonemanage.rst
+
+Source Code
+===========
+
+.. toctree::
+    :maxdepth: 1
+
+    sourcecode/autoindex
 
 Outstanding Documentation Tasks
 ===============================

@@ -38,19 +38,34 @@ Refer to: http://wiki.openstack.org/openstack-authn
 
 HEADERS
 -------
-HTTP_ is a standard http header
-HTTP_X is an extended http header
 
-> Coming in from initial call
-HTTP_X_AUTH_TOKEN   : the client token being passed in
-HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
-                      to support cloud files
-> Used for communication between components
-www-authenticate    : only used if this component is being used remotely
-HTTP_AUTHORIZATION  : basic auth password used to validate the connection
+* HTTP\_ is a standard http header
+* HTTP_X is an extended http header
 
-> What we add to the request for use by the OpenStack service
-HTTP_X_AUTHORIZATION: the client identity being passed in
+Coming in from initial call
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTTP_X_AUTH_TOKEN
+    the client token being passed in
+
+HTTP_X_STORAGE_TOKEN
+    the client token being passed in (legacy Rackspace use) to support
+    cloud files
+
+Used for communication between components
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+www-authenticate
+    only used if this component is being used remotely
+
+HTTP_AUTHORIZATION
+    basic auth password used to validate the connection
+
+What we add to the request for use by the OpenStack service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTTP_X_AUTHORIZATION
+    the client identity being passed in
 
 
 """

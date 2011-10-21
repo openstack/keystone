@@ -59,16 +59,18 @@ class RestfulTestCase(HttpTestCase):
 
         Dynamically encodes json or xml as request body if one is provided.
 
-        WARNING: Existing Content-Type header will be overwritten.
-        WARNING: If both as_json and as_xml are provided, as_xml is ignored.
-        WARNING: If either as_json or as_xml AND a body is provided, the body
-            is ignored.
+        .. WARNING::
+           * Existing Content-Type header will be overwritten.
+           * If both as_json and as_xml are provided, as_xml is ignored.
+           * If either as_json or as_xml AND a body is provided, the body
+             is ignored.
 
         Dynamically returns 'as_json' or 'as_xml' attribute based on the
         detected response type, and fails the current test case if
         unsuccessful.
 
         response.as_json: standard python dictionary
+
         response.as_xml: as_etree.ElementTree
         """
 

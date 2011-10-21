@@ -144,7 +144,7 @@ class ServiceAPITest(unittest.TestCase):
         """
         Creates a tenant fixture.
 
-        :params **kwargs: Attributes of the tenant to create
+        :params \*\*kwargs: Attributes of the tenant to create
         """
         values = kwargs.copy()
         user = db_api.USER.get_by_name(values['user_name'])
@@ -159,7 +159,7 @@ class ServiceAPITest(unittest.TestCase):
         """
         Creates a tenant fixture.
 
-        :params **kwargs: Attributes of the tenant to create
+        :params \*\*kwargs: Attributes of the tenant to create
         """
         values = kwargs.copy()
         tenant = db_api.TENANT.create(values)
@@ -171,7 +171,7 @@ class ServiceAPITest(unittest.TestCase):
         Creates a user fixture. If the user's tenant ID is set, and the tenant
         does not exist in the database, the tenant is created.
 
-        :params **kwargs: Attributes of the user to create
+        :params \*\*kwargs: Attributes of the user to create
         """
         values = kwargs.copy()
         tenant_name = values.get('tenant_name')
@@ -189,7 +189,7 @@ class ServiceAPITest(unittest.TestCase):
         """
         Creates a token fixture.
 
-        :params **kwargs: Attributes of the token to create
+        :params \*\*kwargs: Attributes of the token to create
         """
         values = kwargs.copy()
         token = db_api.TOKEN.create(values)
