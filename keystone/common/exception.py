@@ -81,6 +81,10 @@ class DatabaseMigrationError(Error):
     pass
 
 
+class ClientError(Error):
+    pass
+
+
 def wrap_exception(f):
     def _wrap(*args, **kw):
         try:
