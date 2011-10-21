@@ -20,10 +20,17 @@ class TenantController(wsgi.Controller):
 
     @utils.wrap_error
     def get_tenants(self, req):
-        marker, limit, url = get_marker_limit_and_url(req)
-        tenants = config.SERVICE.get_tenants(utils.get_auth_token(req),
-            marker, limit, url, self.is_service_operation)
-        return utils.send_result(200, req, tenants)
+        tenant_name = req.GET["name"] if "name" in req.GET else None
+        if tenant_name:
+            tenant = config.SERVICE.get_tenant_by_name(
+                utils.get_auth_token(req),
+                tenant_name)
+            return utils.send_result(200, req, tenant)
+        else:
+            marker, limit, url = get_marker_limit_and_url(req)
+            tenants = config.SERVICE.get_tenants(utils.get_auth_token(req),
+                marker, limit, url, self.is_service_operation)
+            return utils.send_result(200, req, tenants)
 
     @utils.wrap_error
     def get_tenant(self, req, tenant_id):

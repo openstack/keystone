@@ -184,6 +184,28 @@ class GetTenantTest(TenantTest):
             'Accept': 'application/xml'})
 
 
+class GetTenantByNameTest(TenantTest):
+    def setUp(self, *args, **kwargs):
+        super(TenantTest, self).setUp(*args, **kwargs)
+        self.tenant = self.create_tenant().json['tenant']
+
+    def test_get_tenant(self):
+        self.fetch_tenant_by_name(self.tenant['name'], assert_status=200)
+
+    def test_get_tenant_xml(self):
+        self.fetch_tenant_by_name(
+            self.tenant['name'], assert_status=200, headers={
+            "Accept": "application/xml"})
+
+    def test_get_tenant_not_found(self):
+        self.fetch_tenant_by_name(assert_status=404)
+
+    def test_get_tenant_not_found_xml(self):
+        self.fetch_tenant_by_name(
+            common.unique_str(), assert_status=404, headers={
+            'Accept': 'application/xml'})
+
+
 class UpdateTenantTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(UpdateTenantTest, self).setUp(*args, **kwargs)

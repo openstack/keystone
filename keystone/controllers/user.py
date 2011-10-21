@@ -19,10 +19,17 @@ class UserController(wsgi.Controller):
 
     @utils.wrap_error
     def get_users(self, req):
-        marker, limit, url = get_marker_limit_and_url(req)
-        users = config.SERVICE.get_users(utils.get_auth_token(req), marker,
-            limit, url)
-        return utils.send_result(200, req, users)
+        user_name = req.GET["name"] if "name" in req.GET else None
+        if user_name:
+            tenant = config.SERVICE.get_user_by_name(
+                utils.get_auth_token(req),
+                user_name)
+            return utils.send_result(200, req, tenant)
+        else:
+            marker, limit, url = get_marker_limit_and_url(req)
+            users = config.SERVICE.get_users(utils.get_auth_token(req), marker,
+                limit, url)
+            return utils.send_result(200, req, users)
 
     @utils.wrap_error
     def get_user(self, req, user_id):

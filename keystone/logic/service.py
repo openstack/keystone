@@ -238,6 +238,14 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The tenant could not be found")
         return Tenant(dtenant.id, dtenant.name, dtenant.desc, dtenant.enabled)
 
+    def get_tenant_by_name(self, admin_token, tenant_name):
+        self.__validate_admin_token(admin_token)
+
+        dtenant = api.TENANT.get_by_name(tenant_name)
+        if not dtenant:
+            raise fault.ItemNotFoundFault("The tenant could not be found")
+        return Tenant(dtenant.id, dtenant.name, dtenant.desc, dtenant.enabled)
+
     def update_tenant(self, admin_token, tenant_id, tenant):
         self.__validate_admin_token(admin_token)
 
@@ -381,6 +389,14 @@ class IdentityService(object):
     def get_user(self, admin_token, user_id):
         self.__validate_admin_token(admin_token)
         duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+        return User_Update(id=duser.id, tenant_id=duser.tenant_id,
+                email=duser.email, enabled=duser.enabled, name=duser.name)
+
+    def get_user_by_name(self, admin_token, user_name):
+        self.__validate_admin_token(admin_token)
+        duser = api.USER.get_by_name(user_name)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
         return User_Update(id=duser.id, tenant_id=duser.tenant_id,

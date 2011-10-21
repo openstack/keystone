@@ -220,6 +220,11 @@ class ApiTestCase(RestfulTestCase):
         return self.admin_request(method='GET',
             path='/tenants/%s' % (tenant_id,), **kwargs)
 
+    def get_tenant_by_name(self, tenant_name, **kwargs):
+        """GET /tenants?name=tenant_name"""
+        return self.admin_request(method='GET',
+            path='/tenants?name=%s' % (tenant_name,), **kwargs)
+
     def post_tenant_for_update(self, tenant_id, **kwargs):
         """GET /tenants/{tenant_id}"""
         return self.admin_request(method='POST',
@@ -249,9 +254,9 @@ class ApiTestCase(RestfulTestCase):
             path='/users/%s' % (user_id,), **kwargs)
 
     def query_user(self, user_name, **kwargs):
-        """GET /users?username={user_name}"""
+        """GET /users?name={user_name}"""
         return self.admin_request(method='GET',
-            path='/users?username=%s' % (user_name,), **kwargs)
+            path='/users?name=%s' % (user_name,), **kwargs)
 
     def post_user_for_update(self, user_id, **kwargs):
         """POST /users/{user_id}"""
@@ -555,6 +560,11 @@ class FunctionalTestCase(ApiTestCase):
     def fetch_tenant(self, tenant_id=None, **kwargs):
         tenant_id = optional_str(tenant_id)
         return self.get_tenant(tenant_id, **kwargs)
+
+    def fetch_tenant_by_name(self, tenant_name=None, **kwargs):
+        tenant_name = optional_str(tenant_name)
+        if tenant_name:
+            return self.get_tenant_by_name(tenant_name, **kwargs)
 
     def update_tenant(self, tenant_id=None, tenant_name=None,
             tenant_description=None, tenant_enabled=True, **kwargs):
