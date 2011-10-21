@@ -158,20 +158,16 @@ class IdentityService(object):
 
         api.TOKEN.delete(token_id)
 
-    def get_endpoints_for_token(self, admin_token, token_id):
-        self.__validate_admin_token(admin_token)
-
+    def get_endpoints_for_token(self, admin_token,
+            token_id, marker, limit, url,):
+        self.__validate_service_or_keystone_admin_token(admin_token)
         dtoken = api.TOKEN.get(token_id)
         if not dtoken:
             raise fault.ItemNotFoundFault("Token not found")
-
-        endpoints = api.TENANT.get_all_endpoints(dtoken.tenant_id)
-
-        # For now it's easier to resend the token data as well.
-        # Who knows, might be useful and the client can reuse their
-        # auth parsing code.
-        token = auth.Token(dtoken.expires, dtoken.id, dtoken.tenant_id)
-        return auth.AuthData(token, endpoints)
+        if not dtoken.tenant_id:
+            raise fault.ItemNotFoundFault("Token not mapped to any tenant.")
+        return self.fetch_tenant_endpoints(
+            marker, limit, url, dtoken.tenant_id)
 
     #
     #   Tenant Operations
@@ -960,6 +956,9 @@ class IdentityService(object):
 
     def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
+        return self.fetch_tenant_endpoints(marker, limit, url, tenant_id)
+
+    def fetch_tenant_endpoints(self, marker, limit, url, tenant_id):
         if tenant_id == None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
 

@@ -380,6 +380,13 @@ class ApiTestCase(RestfulTestCase):
             (tenant_id, endpoint_id,),
             **kwargs)
 
+    def get_token_endpoints(self, token_id, **kwargs):
+        """GET /tokens/{token_id}/endpoints"""
+        return self.admin_request(method='GET',
+            path='/tokens/%s/endpoints' %
+            (token_id,),
+            **kwargs)
+
     def post_service(self, **kwargs):
         """POST /services"""
         return self.admin_request(method='POST',

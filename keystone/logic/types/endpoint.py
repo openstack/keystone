@@ -261,9 +261,9 @@ class Endpoint(object):
         self.region = region
         self.name = name
         self.type = type
-        self.public_url = public_url
-        self.admin_url = admin_url
-        self.internal_url = internal_url
+        self.public_url = self.substitute_tenant_id(public_url)
+        self.admin_url = self.substitute_tenant_id(admin_url)
+        self.internal_url = self.substitute_tenant_id(internal_url)
         self.version_id = version_id
         self.version_list = version_list
         self.version_info = version_info
@@ -274,7 +274,7 @@ class Endpoint(object):
         if self.id:
             dom.set("id", str(self.id))
         if self.tenant_id:
-            dom.set("tenantId", self.tenant_id)
+            dom.set("tenantId", str(self.tenant_id))
         if self.region:
             dom.set("region", self.region)
         if self.name:
@@ -327,6 +327,12 @@ class Endpoint(object):
             if self.version_list:
                 endpoint["versionList"] = self.version_list
         return {'endpoint': endpoint}
+
+    def substitute_tenant_id(self, url):
+        if url:
+            return url.replace('%tenant_id%',
+                str(self.tenant_id))
+        return url
 
     def to_json(self):
         return json.dumps(self.to_dict())

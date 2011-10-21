@@ -3,6 +3,7 @@ from keystone.common import wsgi
 from keystone.logic.types import auth
 from keystone.logic.types import fault
 import keystone.config as config
+from . import get_marker_limit_and_url
 
 
 class AuthController(wsgi.Controller):
@@ -61,7 +62,8 @@ class AuthController(wsgi.Controller):
 
     @utils.wrap_error
     def endpoints(self, req, token_id):
-        x = utils.send_result(200, req,
-            config.SERVICE.get_endpoints_for_token(utils.get_auth_token(req),
-                                                   token_id))
-        return x
+        marker, limit, url = get_marker_limit_and_url(req)
+        return utils.send_result(200, req,
+            config.SERVICE.get_endpoints_for_token(
+                utils.get_auth_token(req),
+                token_id, marker, limit, url))

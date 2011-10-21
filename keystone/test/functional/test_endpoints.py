@@ -494,5 +494,73 @@ class DeleteEndpointsTest(EndpointTemplatesTest):
             self.endpoint_template['id'], assert_status=401)
 
 
+class GetEndPointsForTokenTest(EndpointTemplatesTest):
+    def setUp(self, *args, **kwargs):
+        super(GetEndPointsForTokenTest, self).setUp(*args, **kwargs)
+        password = common.unique_str()
+        self.tenant = self.create_tenant().json['tenant']
+        self.user = self.create_user(user_password=password,
+            tenant_id=self.tenant['id']).json['user']
+        self.user['password'] = password
+
+        self.services = {}
+        self.endpoint_templates = {}
+        for x in range(0, 5):
+            self.services[x] = self.create_service().json['OS-KSADM:service']
+            self.endpoint_templates[x] = self.create_endpoint_template(
+                name=self.services[x]['name'], \
+                type=self.services[x]['type']).\
+                json['OS-KSCATALOG:endpointTemplate']
+            self.create_endpoint_for_tenant(self.tenant['id'],
+                self.endpoint_templates[x]['id'])
+        r = self.authenticate(self.user['name'], self.user['password'],
+            self.tenant['id'], assert_status=200)
+        self.token = r.json['access']['token']['id']
+
+    def test_get_token_endpoints_xml(self):
+        self.get_token_endpoints(self.token, assert_status=200,
+            headers={"Accept": "application/xml"})
+
+    def test_get_token_endpoints_xml_using_expired_auth_token(self):
+        self.admin_token = self.expired_admin_token
+        self.get_token_endpoints(self.token, assert_status=403,
+            headers={"Accept": "application/xml"})
+
+    def test_get_token_endpoints_xml_using_disabled_auth_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.get_token_endpoints(self.token, assert_status=403,
+            headers={"Accept": "application/xml"})
+
+    def test_get_token_endpoints_xml_using_missing_auth_token(self):
+        self.admin_token = ''
+        self.get_token_endpoints(self.token, assert_status=401,
+            headers={"Accept": "application/xml"})
+
+    def test_get_token_endpoints_xml_using_invalid_auth_token(self):
+        self.admin_token = common.unique_str()
+        self.get_token_endpoints(self.token, assert_status=401,
+            headers={"Accept": "application/xml"})
+
+    def test_get_token_endpoints_json(self):
+        r = self.get_token_endpoints(self.token, assert_status=200)
+        self.assertIsNotNone(r.json.get('endpoints'), r.json)
+
+    def test_get_token_endpoints_json_using_expired_auth_token(self):
+        self.admin_token = self.expired_admin_token
+        self.get_token_endpoints(self.token, assert_status=403)
+
+    def test_get_token_endpoints_json_using_disabled_auth_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.get_token_endpoints(self.token, assert_status=403)
+
+    def test_get_token_endpoints_json_using_missing_auth_token(self):
+        self.admin_token = ''
+        self.get_token_endpoints(self.token, assert_status=401)
+
+    def test_get_token_endpoints_json_using_invalid_auth_token(self):
+        self.admin_token = common.unique_str()
+        self.get_token_endpoints(self.token, assert_status=401)
+
+
 if __name__ == '__main__':
     unittest.main()
