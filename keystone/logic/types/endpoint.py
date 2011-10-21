@@ -35,7 +35,8 @@ class EndpointTemplate(object):
                 raise fault.BadRequestFault("Expecting endpointTemplate")
             id = root.get("id")
             region = root.get("region")
-            service = root.get("serviceId")
+            name = root.get("name")
+            type = root.get("type")
             public_url = root.get("publicURL")
             admin_url = root.get("adminURL")
             internal_url = root.get("internalURL")
@@ -56,7 +57,8 @@ class EndpointTemplate(object):
                 if version.get('list'):
                     version_list = version.get("list")
 
-            return EndpointTemplate(id, region, service, public_url, admin_url,
+            return EndpointTemplate(id, region,
+                name, type, public_url, admin_url,
                 internal_url, enabled, is_global,
                 version_id, version_list, version_info)
         except etree.LxmlError as e:
@@ -68,7 +70,8 @@ class EndpointTemplate(object):
         try:
             obj = json.loads(json_str)
             region = None
-            service = None
+            name = None
+            type = None
             public_url = None
             admin_url = None
             internal_url = None
@@ -84,7 +87,7 @@ class EndpointTemplate(object):
 
             # Check that fields are valid
             invalid = [key for key in endpoint_template if key not in
-                       ['id', 'region', 'serviceId', 'publicURL',
+                       ['id', 'region', 'name', 'type', 'publicURL',
                         'adminURL', 'internalURL', 'enabled', 'global',
                         'versionId', 'versionInfo', 'versionList']]
             if invalid != []:
@@ -98,8 +101,10 @@ class EndpointTemplate(object):
 
             if 'region' in endpoint_template:
                 region = endpoint_template["region"]
-            if 'serviceId' in endpoint_template:
-                service = endpoint_template["serviceId"]
+            if 'name' in endpoint_template:
+                name = endpoint_template["name"]
+            if 'type' in endpoint_template:
+                type = endpoint_template["type"]
             if 'publicURL' in endpoint_template:
                 public_url = endpoint_template["publicURL"]
             if 'adminURL' in endpoint_template:
@@ -124,19 +129,20 @@ class EndpointTemplate(object):
                 version_list = None
 
             return EndpointTemplate(
-                    id, region, service, public_url, admin_url,
+                    id, region, name, type, public_url, admin_url,
                     internal_url, enabled, is_global, version_id,
                     version_list, version_info)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault(\
                 "Cannot parse endpointTemplate", str(e))
 
-    def __init__(self, id, region, service, public_url, admin_url,
+    def __init__(self, id, region, name, type, public_url, admin_url,
                  internal_url, enabled, is_global,
                  version_id=None, version_list=None, version_info=None):
         self.id = id
         self.region = region
-        self.service = service
+        self.name = name
+        self.type = type
         self.public_url = public_url
         self.admin_url = admin_url
         self.internal_url = internal_url
@@ -154,8 +160,10 @@ class EndpointTemplate(object):
             dom.set("id", str(self.id))
         if self.region:
             dom.set("region", self.region)
-        if self.service:
-            dom.set("serviceId", str(self.service))
+        if self.name:
+            dom.set("name", str(self.name))
+        if self.type:
+            dom.set("type", str(self.type))
         if self.public_url:
             dom.set("publicURL", self.public_url)
         if self.admin_url:
@@ -187,8 +195,10 @@ class EndpointTemplate(object):
             endpoint_template["id"] = unicode(self.id)
         if self.region:
             endpoint_template["region"] = self.region
-        if self.service:
-            endpoint_template["serviceId"] = self.service
+        if self.name:
+            endpoint_template["name"] = self.name
+        if self.type:
+            endpoint_template["type"] = self.type
         if self.public_url:
             endpoint_template["publicURL"] = self.public_url
         if self.admin_url:
@@ -242,13 +252,15 @@ class EndpointTemplates(object):
 class Endpoint(object):
     """Document me!"""
 
-    def __init__(self, id, tenant_id, region, service, public_url, admin_url,
+    def __init__(self, id, tenant_id, region,
+                 name, type, public_url, admin_url,
                  internal_url, version_id=None,
                  version_list=None, version_info=None):
         self.id = id
         self.tenant_id = tenant_id
         self.region = region
-        self.service = service
+        self.name = name
+        self.type = type
         self.public_url = public_url
         self.admin_url = admin_url
         self.internal_url = internal_url
@@ -265,8 +277,10 @@ class Endpoint(object):
             dom.set("tenantId", self.tenant_id)
         if self.region:
             dom.set("region", self.region)
-        if self.service:
-            dom.set("serviceId", str(self.service))
+        if self.name:
+            dom.set("name", str(self.name))
+        if self.type:
+            dom.set("type", str(self.type))
         if self.public_url:
             dom.set("publicURL", self.public_url)
         if self.admin_url:
@@ -296,8 +310,10 @@ class Endpoint(object):
             endpoint["tenantId"] = self.tenant_id
         if self.region:
             endpoint["region"] = self.region
-        if self.service:
-            endpoint["serviceId"] = self.service
+        if self.name:
+            endpoint["name"] = self.name
+        if self.type:
+            endpoint["type"] = self.type
         if self.public_url:
             endpoint["publicURL"] = self.public_url
         if self.admin_url:

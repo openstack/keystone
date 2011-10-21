@@ -809,18 +809,22 @@ class IdentityService(object):
         if not isinstance(endpoint_template, EndpointTemplate):
             raise fault.BadRequestFault("Expecting a EndpointTemplate")
 
-        if endpoint_template.service == None or \
-            len(endpoint_template.service.strip()) == 0:
+        if endpoint_template.name == None or \
+            not endpoint_template.name.strip() \
+            or  endpoint_template.type == None or\
+            not endpoint_template.type.strip():
             raise fault.BadRequestFault(
-                    "Expecting serviceId.")
-        if endpoint_template.service != None and\
-            len(endpoint_template.service.strip()) > 0 and\
-            api.SERVICE.get(endpoint_template.service) == None:
+                    "Expecting name and type (Service).")
+
+        dservice = api.SERVICE.get_by_name_and_type(
+            endpoint_template.name,
+            endpoint_template.type)
+        if dservice == None:
             raise fault.BadRequestFault(
-                    "A service with that id doesn't exist.")
+                    "A service with that name and type doesn't exist.")
         dendpoint_template = models.EndpointTemplates()
         dendpoint_template.region = endpoint_template.region
-        dendpoint_template.service_id = endpoint_template.service
+        dendpoint_template.service_id = dservice.id
         dendpoint_template.public_url = endpoint_template.public_url
         dendpoint_template.admin_url = endpoint_template.admin_url
         dendpoint_template.internal_url = endpoint_template.internal_url
@@ -845,13 +849,22 @@ class IdentityService(object):
                 "The endpoint template could not be found")
 
         #Check if the passed service exist.
-        if endpoint_template.service != None and\
-            len(endpoint_template.service.strip()) > 0 and\
-            api.SERVICE.get(endpoint_template.service) == None:
+        if endpoint_template.name == None or \
+            not endpoint_template.name.strip() \
+            or  endpoint_template.type == None or\
+            not endpoint_template.type.strip():
             raise fault.BadRequestFault(
-                    "A service with that id doesn't exist.")
+                    "Expecting name and type (Service).")
+
+        dservice = api.SERVICE.get_by_name_and_type(
+            endpoint_template.name,
+            endpoint_template.type)
+
+        if dservice == None:
+            raise fault.BadRequestFault(
+                    "A service with that name and type doesn't exist.")
         dendpoint_template.region = endpoint_template.region
-        dendpoint_template.service_id = endpoint_template.service
+        dendpoint_template.service_id = dservice.id
         dendpoint_template.public_url = endpoint_template.public_url
         dendpoint_template.admin_url = endpoint_template.admin_url
         dendpoint_template.internal_url = endpoint_template.internal_url
@@ -865,7 +878,8 @@ class IdentityService(object):
         return EndpointTemplate(
             dendpoint_template.id,
             dendpoint_template.region,
-            dendpoint_template.service_id,
+            dservice.name,
+            dservice.type,
             dendpoint_template.public_url,
             dendpoint_template.admin_url,
             dendpoint_template.internal_url,
@@ -896,10 +910,12 @@ class IdentityService(object):
         ts = []
         dendpoint_templates = api.ENDPOINT_TEMPLATE.get_page(marker, limit)
         for dendpoint_template in dendpoint_templates:
+            dservice = api.SERVICE.get(dendpoint_template.service_id)
             ts.append(EndpointTemplate(
                 dendpoint_template.id,
                 dendpoint_template.region,
-                dendpoint_template.service_id,
+                dservice.name,
+                dservice.type,
                 dendpoint_template.public_url,
                 dendpoint_template.admin_url,
                 dendpoint_template.internal_url,
@@ -923,13 +939,15 @@ class IdentityService(object):
         self.__validate_service_or_keystone_admin_token(admin_token)
 
         dendpoint_template = api.ENDPOINT_TEMPLATE.get(endpoint_template_id)
+        dservice = api.SERVICE.get(dendpoint_template.service_id)
         if not dendpoint_template:
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
         return EndpointTemplate(
             dendpoint_template.id,
             dendpoint_template.region,
-            dendpoint_template.service_id,
+            dservice.name,
+            dservice.type,
             dendpoint_template.public_url,
             dendpoint_template.admin_url,
             dendpoint_template.internal_url,
@@ -957,11 +975,13 @@ class IdentityService(object):
         for dtenant_endpoint in dtenant_endpoints:
             dendpoint_template = api.ENDPOINT_TEMPLATE.get(
                 dtenant_endpoint.endpoint_template_id)
+            dservice = api.SERVICE.get(dendpoint_template.service_id)
             ts.append(Endpoint(
                             dtenant_endpoint.id,
                             dtenant_endpoint.tenant_id,
                             dendpoint_template.region,
-                            dendpoint_template.service_id,
+                            dservice.name,
+                            dservice.type,
                             dendpoint_template.public_url,
                             dendpoint_template.admin_url,
                             dendpoint_template.internal_url,
@@ -998,11 +1018,13 @@ class IdentityService(object):
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
         dendpoint = api.ENDPOINT_TEMPLATE.endpoint_add(dendpoint)
+        dservice = api.SERVICE.get(dendpoint_template.service_id)
         dendpoint = Endpoint(
                             dendpoint.id,
                             dendpoint.tenant_id,
                             dendpoint_template.region,
-                            dendpoint_template.service_id,
+                            dservice.name,
+                            dservice.type,
                             dendpoint_template.public_url,
                             dendpoint_template.admin_url,
                             dendpoint_template.internal_url,

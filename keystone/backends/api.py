@@ -252,6 +252,9 @@ class BaseServiceAPI:
     def get_by_name(self, name):
         raise NotImplementedError
 
+    def get_by_name_and_type(self, name, type):
+        raise NotImplementedError
+
     def get_all(self):
         raise NotImplementedError
 

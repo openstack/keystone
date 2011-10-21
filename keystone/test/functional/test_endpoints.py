@@ -25,18 +25,22 @@ class EndpointTemplatesTest(common.FunctionalTestCase):
         self.service = self.create_service().json['OS-KSADM:service']
 
         self.endpoint_template = self.create_endpoint_template(
-            service_id=self.service['id']).\
+            name=self.service['name'], \
+            type=self.service['type']).\
             json['OS-KSCATALOG:endpointTemplate']
 
 
 class CreateEndpointTemplatesTest(EndpointTemplatesTest):
     def test_create_endpoint_template(self):
         endpoint_template = self.create_endpoint_template(
-            service_id=self.service['id'], assert_status=201).\
+            name=self.service['name'],
+            type=self.service['type'],
+            assert_status=201).\
             json['OS-KSCATALOG:endpointTemplate']
 
         self.assertIsNotNone(endpoint_template['id'], endpoint_template)
-        self.assertIsNotNone(endpoint_template['serviceId'], endpoint_template)
+        self.assertIsNotNone(endpoint_template['name'], endpoint_template)
+        self.assertIsNotNone(endpoint_template['type'], endpoint_template)
 
     def test_create_endpoint_template_xml(self):
         region = common.unique_str()
@@ -47,18 +51,20 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
         is_global = True
 
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
-            '<endpointTemplate xmlns="%s" region="%s" serviceId="%s" '
-            'publicURL="%s" adminURL="%s" '
+            '<endpointTemplate xmlns="%s" region="%s" name="%s" '
+            'type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>'
-            ) % (self.xmlns_kscatalog, region, self.service['id'],
-                public_url, admin_url, internal_url, enabled, is_global)
+            ) % (self.xmlns_kscatalog, region, self.service['name'],
+                self.service['type'], public_url, admin_url, internal_url,
+                enabled, is_global)
         r = self.post_endpoint_template(as_xml=data, assert_status=201)
 
         self.assertEqual(r.xml.tag,
             '{%s}endpointTemplate' % self.xmlns_kscatalog)
 
         self.assertIsNotNone(r.xml.get("id"))
-        self.assertEqual(r.xml.get("serviceId"), self.service['id'])
+        self.assertEqual(r.xml.get("name"), self.service['name'])
+        self.assertEqual(r.xml.get("type"), self.service['type'])
         self.assertEqual(r.xml.get("region"), region)
         self.assertEqual(r.xml.get("publicURL"), public_url)
         self.assertEqual(r.xml.get("adminURL"), admin_url)
@@ -78,11 +84,14 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
     def test_create_endpoint_template_using_service_admin_token(self):
         self.admin_token = self.service_admin_token
         endpoint_template = self.create_endpoint_template(
-            service_id=self.service['id'], assert_status=201).\
+            name=self.service['name'],
+            type=self.service['type'],
+            assert_status=201).\
             json['OS-KSCATALOG:endpointTemplate']
 
         self.assertIsNotNone(endpoint_template['id'])
-        self.assertEqual(endpoint_template['serviceId'], self.service['id'])
+        self.assertEqual(endpoint_template['name'], self.service['name'])
+        self.assertEqual(endpoint_template['type'], self.service['type'])
 
 
 class GetEndpointTemplatesTest(EndpointTemplatesTest):
@@ -179,8 +188,8 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 class UpdateEndpointTemplateTest(EndpointTemplatesTest):
     def test_update_endpoint(self):
         self.update_endpoint_template(self.endpoint_template['id'],
+            name=self.service['name'], type=self.service['type'],
             assert_status=201)
-
 #       self.assertIsNotNone(r.json['endpointTemplate'].get('enabled'), r.json)
 
     def test_update_endpoint_xml(self):
@@ -195,9 +204,11 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
             '<endpointTemplate '
             'xmlns="http://docs.openstack.org'
             '/identity/api/ext/OSKSCATALOG/v1.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
-            'internalURL="%s" enabled="%s" global="%s"/>') % (region,
-                self.service['id'], public_url, admin_url, internal_url,
+            'region="%s" name="%s" type="%s"'
+            ' publicURL="%s" adminURL="%s"'
+            ' internalURL="%s" enabled="%s" global="%s"/>') % (region,
+                self.service['name'], self.service['type'],
+                public_url, admin_url, internal_url,
                 enabled, is_global)
         r = self.put_endpoint_template(self.endpoint_template['id'],
             as_xml=data, assert_status=201, headers={
@@ -207,7 +218,8 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
             '{%s}endpointTemplate' % self.xmlns_kscatalog)
 
         self.assertIsNotNone(r.xml.get("id"))
-        self.assertEqual(r.xml.get("serviceId"), self.service['id'])
+        self.assertEqual(r.xml.get("name"), self.service['name'])
+        self.assertEqual(r.xml.get("type"), self.service['type'])
         self.assertEqual(r.xml.get("region"), region)
         self.assertEqual(r.xml.get("publicURL"), public_url)
         self.assertEqual(r.xml.get("adminURL"), admin_url)
@@ -300,7 +312,8 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
     def test_endpoint_create_json(self):
         endpoint = self.create_endpoint_for_tenant(self.tenant['id'],
             self.endpoint_template['id'], assert_status=201).json['endpoint']
-        self.assertEqual(str(endpoint["serviceId"]), str(self.service['id']))
+        self.assertEqual(str(endpoint["name"]), str(self.service['name']))
+        self.assertEqual(str(endpoint["type"]), str(self.service['type']))
         self.assertEqual(endpoint["region"], self.endpoint_template["region"])
         self.assertEqual(endpoint["publicURL"],
             self.endpoint_template["publicURL"])
@@ -327,7 +340,8 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
             '{%s}endpoint' % self.xmlns)
 
         self.assertIsNotNone(r.xml.get("id"))
-        self.assertEqual(r.xml.get("serviceId"), self.service['id'])
+        self.assertEqual(r.xml.get("name"), self.service['name'])
+        self.assertEqual(r.xml.get("type"), self.service['type'])
         self.assertEqual(r.xml.get("region"), self.endpoint_template["region"])
         self.assertEqual(r.xml.get("publicURL"),
             self.endpoint_template["publicURL"])
@@ -342,9 +356,12 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
             '<endpointTemplate '
             'xmlns="http://docs.openstack.org/identity'
             '/api/ext/OSKSCATALOG/v1.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
+            'region="%s" name="%s"'
+            ' type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
-                common.unique_str(), self.service['id'], common.unique_url(),
+                common.unique_str(),
+                self.service['name'],
+                self.service['type'], common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
         self.post_endpoint_template(as_xml=data, assert_status=403, headers={
                 'Accept': 'application/xml'})
@@ -355,9 +372,10 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
             '<endpointTemplate '
             'xmlns="http://docs.openstack.org/identity'
             '/api/ext/OSKSCATALOG/v1.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
+            'region="%s" name="%s" type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
-                common.unique_str(), self.service['id'], common.unique_url(),
+                common.unique_str(), self.service['name'],
+                self.service['type'], common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
         self.post_endpoint_template(as_xml=data, assert_status=403, headers={
                 'Accept': 'application/xml'})
@@ -368,9 +386,11 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
             '<endpointTemplate '
             'xmlns="http://docs.openstack.org'
             '/identity/api/ext/OSKSCATALOG/v1.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
+            'region="%s" name="%s" type="%s"  publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
-                common.unique_str(), self.service['id'], common.unique_url(),
+                common.unique_str(),
+                self.service['name'], self.service['type'],
+                common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
         self.post_endpoint_template(as_xml=data, assert_status=401, headers={
                 'Accept': 'application/xml'})
@@ -381,9 +401,10 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
             '<endpointTemplate '
             'xmlns="http://docs.openstack.org/'
             'identity/api/ext/OSKSCATALOG/v1.0" '
-            'region="%s" serviceId="%s" publicURL="%s" adminURL="%s" '
+            'region="%s" name="%s" type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
-                common.unique_str(), self.service['id'], common.unique_url(),
+                common.unique_str(), self.service['name'],
+                self.service['type'], common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
         self.post_endpoint_template(as_xml=data, assert_status=401, headers={
                 'Accept': 'application/xml'})

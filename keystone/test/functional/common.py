@@ -765,13 +765,14 @@ class FunctionalTestCase(ApiTestCase):
     def list_endpoint_templates(self, **kwargs):
         return self.get_endpoint_templates(**kwargs)
 
-    def create_endpoint_template(self, region=None, service_id=None,
+    def create_endpoint_template(self, region=None, name=None, type=None,
             public_url=None, admin_url=None, internal_url=None, enabled=True,
             is_global=True, version_id=None,
             version_list=None, version_info=None, **kwargs):
 
         region = optional_str(region)
-        service_id = optional_str(service_id)
+        name = optional_str(name)
+        type = optional_str(type)
         public_url = optional_url(public_url)
         admin_url = optional_url(admin_url)
         internal_url = optional_url(internal_url)
@@ -782,7 +783,8 @@ class FunctionalTestCase(ApiTestCase):
         data = {
             "OS-KSCATALOG:endpointTemplate": {
                 "region": region,
-                "serviceId": service_id,
+                "name": name,
+                "type": type,
                 "publicURL": public_url,
                 "adminURL": admin_url,
                 "internalURL": internal_url,
@@ -803,7 +805,7 @@ class FunctionalTestCase(ApiTestCase):
         return self.get_endpoint_template(endpoint_template_id, **kwargs)
 
     def update_endpoint_template(self, endpoint_template_id=None, region=None,
-            service_id=None, public_url=None, admin_url=None,
+            name=None, type=None, public_url=None, admin_url=None,
             internal_url=None, enabled=None, is_global=None,
             version_id=None, version_list=None, version_info=None, **kwargs):
 
@@ -812,8 +814,11 @@ class FunctionalTestCase(ApiTestCase):
         if region is not None:
             data['OS-KSCATALOG:endpointTemplate']['region'] = region
 
-        if service_id is not None:
-            data['OS-KSCATALOG:endpointTemplate']['serviceId'] = service_id
+        if name is not None:
+            data['OS-KSCATALOG:endpointTemplate']['name'] = name
+
+        if type is not None:
+            data['OS-KSCATALOG:endpointTemplate']['type'] = type
 
         if public_url is not None:
             data['OS-KSCATALOG:endpointTemplate']['publicURL'] = public_url
