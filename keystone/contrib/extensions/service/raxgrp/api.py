@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import keystone.backends.api
+from keystone.backends.api import BaseUserAPI
 
 
 #Base APIs

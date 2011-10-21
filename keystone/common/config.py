@@ -47,7 +47,8 @@ def parse_options(parser, cli_args=None):
     :param parser: The option parser
     :param cli_args: (Optional) Set of arguments to process. If not present,
                      sys.argv[1:] is used.
-    :retval tuple of (options, args)
+    :returns: tuple of (options, args)
+
     """
 
     (options, args) = parser.parse_args(cli_args)
@@ -187,14 +188,16 @@ def find_config_file(options, args):
     * If --config-file option is used, use that
     * If args[0] is a file, use that
     * Search for keystone.conf in standard directories:
-        * .
-        * ~.keystone/
-        * ~
-        * /etc/keystone
-        * /etc
-    :if no config file is given get from possible_topdir/etc/keystone.conf
 
-    :retval Full path to config file, or None if no config file found
+      * .
+      * ~.keystone/
+      * ~
+      * /etc/keystone
+      * /etc
+
+    If no config file is given get from possible_topdir/etc/keystone.conf
+
+    :returns: Full path to config file, or None if no config file found
     """
     POSSIBLE_TOPDIR = os.path.normpath(os.path.join(\
                     os.path.abspath(sys.argv[0]),
@@ -234,9 +237,11 @@ def load_paste_config(app_name, options, args):
     config file path and a configuration mapping from a paste config file.
 
     We search for the paste config file in the following order:
+
     * If --config-file option is used, use that
     * If args[0] is a file, use that
     * Search for keystone.conf in standard directories:
+
         * .
         * ~.keystone/
         * ~
@@ -248,10 +253,9 @@ def load_paste_config(app_name, options, args):
                      the config file.
     :param options: Set of typed options returned from parse_options()
     :param args: Command line arguments from argv[1:]
-    :retval Tuple of (conf_file, conf)
-
-    :raises RuntimeError when config file cannot be located or there was a
-            problem loading the configuration file.
+    :returns: Tuple of (conf_file, conf)
+    :raises: RuntimeError when config file cannot be located or there was a
+             problem loading the configuration file.
     """
     conf_file = find_config_file(options, args)
     if not conf_file:
@@ -299,6 +303,7 @@ def load_paste_app(app_name, options, args):
     * If --config-file option is used, use that
     * If args[0] is a file, use that
     * Search for keystone.conf in standard directories:
+
         * .
         * ~.keystone/
         * ~
@@ -308,9 +313,8 @@ def load_paste_app(app_name, options, args):
     :param app_name: Name of the application to load (server, admin, proxy, ..)
     :param options: Set of typed options returned from parse_options()
     :param args: Command line arguments from argv[1:]
-
-    :raises RuntimeError when config file cannot be located or application
-            cannot be loaded from config file
+    :raises: RuntimeError when config file cannot be located or application
+             cannot be loaded from config file
     """
     conf_file, conf = load_paste_config(app_name, options, args)
 
