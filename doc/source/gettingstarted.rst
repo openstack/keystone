@@ -63,4 +63,4 @@ Curl examples
    :maxdepth: 1
 
    adminAPI_curl_examples
-   serviceAPI_curl_examples 
+   serviceAPI_curl_examples

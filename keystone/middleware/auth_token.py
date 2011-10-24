@@ -20,32 +20,48 @@
 TOKEN-BASED AUTH MIDDLEWARE
 
 This WSGI component performs multiple jobs:
-- it verifies that incoming client requests have valid tokens by verifying
-    tokens with the auth service.
-- it will reject unauthenticated requests UNLESS it is in 'delay_auth_decision'
-    mode, which means the final decision is delegated to the downstream WSGI
-    component (usually the OpenStack service)
-- it will collect and forward identity information from a valid token
-    such as user name etc...
+
+* it verifies that incoming client requests have valid tokens by verifying
+  tokens with the auth service.
+* it will reject unauthenticated requests UNLESS it is in 'delay_auth_decision'
+  mode, which means the final decision is delegated to the downstream WSGI
+  component (usually the OpenStack service)
+* it will collect and forward identity information from a valid token
+  such as user name etc...
 
 Refer to: http://wiki.openstack.org/openstack-authn
 
 
 HEADERS
 -------
-Headers starting with HTTP_ is a standard http header
-Headers starting with HTTP_X is an extended http header
 
-> Coming in from initial call from client or customer
-HTTP_X_AUTH_TOKEN   : the client token being passed in
-HTTP_X_STORAGE_TOKEN: the client token being passed in (legacy Rackspace use)
-                      to support cloud files
-> Used for communication between components
-www-authenticate    : only used if this component is being used remotely
-HTTP_AUTHORIZATION  : basic auth password used to validate the connection
+* Headers starting with HTTP\_ is a standard http header
+* Headers starting with HTTP_X is an extended http header
 
-> What we add to the request for use by the OpenStack service
-HTTP_X_AUTHORIZATION: the client identity being passed in
+Coming in from initial call from client or customer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTTP_X_AUTH_TOKEN
+    the client token being passed in
+
+HTTP_X_STORAGE_TOKEN
+    the client token being passed in (legacy Rackspace use) to support
+    cloud files
+
+Used for communication between components
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+www-authenticate
+    only used if this component is being used remotely
+
+HTTP_AUTHORIZATION
+    basic auth password used to validate the connection
+
+What we add to the request for use by the OpenStack service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTTP_X_AUTHORIZATION
+    the client identity being passed in
 
 """
 

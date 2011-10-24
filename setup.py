@@ -14,8 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup, find_packages
 import keystone
+import os
+import subprocess
+
+from setuptools import setup, find_packages
 
 cmdclass = {}
 
@@ -27,6 +30,9 @@ try:
 
     class local_BuildDoc(BuildDoc):
         def run(self):
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            subprocess.Popen(["python", "generate_autodoc_index.py"],
+                             cwd=os.path.join(base_dir, "doc")).communicate()
             for builder in ['html', 'man']:
                 self.builder = builder
                 self.finalize_options()

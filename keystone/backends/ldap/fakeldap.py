@@ -206,11 +206,9 @@ class FakeLDAP(object):
     def modify_s(self, dn, attrs):
         """Modify the object at dn using the attribute list.
 
-        Args:
-        dn -- a dn
-        attrs -- a list of tuples in the following form:
-            ([MOD_ADD | MOD_DELETE | MOD_REPACE], attribute, value)
-
+        :param dn: an LDAP DN
+        :param attrs: a list of tuples in the following form:
+                      ([MOD_ADD | MOD_DELETE | MOD_REPACE], attribute, value)
         """
         if server_fail:
             raise ldap.SERVER_DOWN

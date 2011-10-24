@@ -21,10 +21,11 @@
 BASIC AUTH MIDDLEWARE - STUB
 
 This WSGI component should perform multiple jobs:
-- validate incoming basic claims
-- perform all basic auth interactions with clients
-- collect and forward identity information from the authentication process
-    such as user name, groups, etc...
+
+* validate incoming basic claims
+* perform all basic auth interactions with clients
+* collect and forward identity information from the authentication process
+  such as user name, groups, etc...
 
 This is an Auth component as per: http://wiki.openstack.org/openstack-authn
 
