@@ -60,6 +60,9 @@ tenant
 role
 ^^^^
 
+Roles are used to associated users to tenants. Two roles are defined related
+to the Keystone service in it's configuration file :doc:`../keystone.conf`
+
 * **role add** [role_name]
 
   adds a role
@@ -93,13 +96,12 @@ endpointTemplate
 
   example::
 
-  keystone-manage endpointTemplates add RegionOne \
-                  keystone \
-                  http://keystone_host:5000/v2.0 \
-                  http://keystone_host:35357/v2.0 \
-                  http://keystone_host:5000/v2.0 \
-                  1 \
-                  1
+      keystone-manage endpointTemplates add RegionOne \
+                      keystone \
+                      http://keystone_host:5000/v2.0 \
+                      http://keystone_host:35357/v2.0 \
+                      http://keystone_host:5000/v2.0 \
+                      1 1
 
 
 * **endpointTemplate list** ([tenant_name])

@@ -17,23 +17,50 @@
 Keystone for Contributors
 =========================
 
-Keystone is the cononical implementation of
-[Openstack's Identity API](https://github.com/openstack/identity-api), which
-includes authentication and (soon) authorization services.
+Keystone is the canonical implementation of `Openstack's Identity API
+<https://github.com/openstack/identity-api>`_, which provides authentication,
+an OpenStack service catalog, and (soon) authorization services.
 
 This document describes keystone for contributors of the project.
 
 Using Keystone
-==============
+--------------
 
 .. toctree::
     :maxdepth: 1
 
     installing
-    gettingstarted
+    configuring
+    usingkeystone
+
+Configuration File Examples
+---------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    nova-api-paste
+    keystone.conf
+
+Man Pages
+---------
+
+.. toctree::
+    :maxdepth: 1
+
+    man/keystonemanage.rst
+
+example API usage
+-----------------
+
+.. toctree::
+    :maxdepth: 1
+
+    adminAPI_curl_examples
+    serviceAPI_curl_examples
 
 Developer Docs
-==============
+--------------
 
 .. toctree::
     :maxdepth: 1
@@ -41,29 +68,18 @@ Developer Docs
     architecture
     community
 
-Man Pages
-=========
-
-.. toctree::
-    :maxdepth: 1
-
-    man/keystonemanage.rst
-
-Source Code
-===========
-
 .. toctree::
     :maxdepth: 1
 
     sourcecode/autoindex
 
 Outstanding Documentation Tasks
-===============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. todolist::
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
