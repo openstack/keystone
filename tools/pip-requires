@@ -16,7 +16,7 @@ lxml # xml library providing ElementTree API
 passlib # password hashing
 
 # Optional backend: LDAP
-python-ldap==2.3.13 # authenticate against an existing LDAP server
+python-ldap # authenticate against an existing LDAP server
 
 # Optional backend: Memcache
 python-memcached # increases performance of token validation calls
