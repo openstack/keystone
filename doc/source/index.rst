@@ -14,27 +14,42 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+=========================
 Keystone for Contributors
 =========================
 
-Keystone is the canonical implementation of `Openstack's Identity API
-<https://github.com/openstack/identity-api>`_, which provides authentication,
-an OpenStack service catalog, and (soon) authorization services.
+Keystone is a cloud identity service written in Python, which provides
+authentication, authorization, and an OpenStack service catalog. It
+implements `OpenStack's Identity API`_.
 
-This document describes keystone for contributors of the project.
+This document describes Keystone for contributors of the project, and assumes
+that you are already familiar with Keystone from an `end-user perspective`_.
 
-Using Keystone
---------------
+.. _`OpenStack's Identity API`: https://github.com/openstack/identity-api
+.. _`end-user perspective`: http://docs.openstack.org/
+
+Getting Started
+===============
 
 .. toctree::
     :maxdepth: 1
 
-    installing
-    configuring
-    usingkeystone
+    setup
+    testing
+    configuration
+    community
+
+API Use Case Examples
+=====================
+
+.. toctree::
+    :maxdepth: 1
+
+    adminAPI_curl_examples
+    serviceAPI_curl_examples
 
 Configuration File Examples
----------------------------
+===========================
 
 .. toctree::
     :maxdepth: 1
@@ -43,43 +58,24 @@ Configuration File Examples
     keystone.conf
 
 Man Pages
----------
+=========
 
 .. toctree::
     :maxdepth: 1
 
     man/keystonemanage.rst
 
-example API usage
------------------
-
-.. toctree::
-    :maxdepth: 1
-
-    adminAPI_curl_examples
-    serviceAPI_curl_examples
-
 Developer Docs
---------------
+==============
 
 .. toctree::
     :maxdepth: 1
 
     architecture
-    community
-
-.. toctree::
-    :maxdepth: 1
-
     sourcecode/autoindex
 
-Outstanding Documentation Tasks
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. todolist::
-
 Indices and tables
-------------------
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`

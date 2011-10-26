@@ -1,6 +1,5 @@
-# You may need to install development files before using 'pip install'
-# For example:
-#   sudo apt-get install python-dev libxml2-dev libxslt1-dev libsasl2-dev libldap2-dev libsqlite3-dev libssl-dev
+# NOTE: You may need to install additional binary packages prior to using 'pip install'
+#       See the Contributor Documentation for more information
 
 # Production
 httplib2 # handles additional HTTP features such as SSL, HEAD/PUT/DELETE, etc

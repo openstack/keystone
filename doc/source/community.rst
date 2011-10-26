@@ -14,6 +14,7 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+================
 Getting Involved
 ================
 
@@ -21,14 +22,20 @@ The Keystone community is a very friendly group and there are places online to j
 community. Feel free to ask questions. This document points you to some of the places where you can
 communicate with people.
 
-How to Join the Keystone Community
-----------------------------------
+How to Join the Community
+=========================
 
 Our community welcomes all people interested in open source cloud computing, and there are no formal
 membership requirements. The best way to join the community is to talk with others online or at a meetup
-and offer contributions through Launchpad, the wiki, or blogs. We welcome all types of contributions, 
-from blueprint designs to documentation to testing to deployment scripts. 
+and offer contributions through Launchpad_, the wiki_, or blogs. We welcome all types of contributions,
+from blueprint designs to documentation to testing to deployment scripts.
 
-Contributing Code
------------------
+.. _Launchpad: https://launchpad.net/keystone
+.. _wiki: http://wiki.openstack.org/
 
+Contributing Changes
+====================
+
+To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workflow`_.
+
+.. _`Gerrit-Jenkins-Github Workflow`: http://wiki.openstack.org/GerritJenkinsGithub
