@@ -1,6 +1,14 @@
-==========================
-Building the Documentation
-==========================
+==================================
+Building Contributor Documentation
+==================================
+
+This documentation is written by contributors, for contributors.
+
+The source is maintained in the `doc/source` folder using
+`reStructuredText`_ and built by `Sphinx`_ (a dependency from `tools/pip-requires`).
+
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _Sphinx: http://sphinx.pocoo.org/
 
 Building automatically
 ======================
@@ -16,7 +24,7 @@ Building manually
 
     $ python doc/generate_autodoc_index.py
 
-#. Run `sphinx_build` to produce the docs in HTML::
+#. Use `sphinx-build` to produce the docs in HTML::
 
     $ sphinx-build -b html doc/source/ build/sphinx/html/
 
