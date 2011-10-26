@@ -226,6 +226,74 @@ class GetRoleTest(RolesTest):
             'Accept': 'application/xml'})
 
 
+class GetRoleByNameTest(RolesTest):
+    def setUp(self, *args, **kwargs):
+        super(GetRoleByNameTest, self).setUp(*args, **kwargs)
+
+        self.role = self.create_role().json['role']
+
+    def test_get_role(self):
+        role = self.fetch_role_by_name(
+                self.role['name'], assert_status=200).json['role']
+        self.assertEqual(role['id'], self.role['id'])
+        self.assertEqual(role['name'], self.role['name'])
+        self.assertEqual(role['description'], self.role['description'])
+        self.assertEqual(role.get('serviceId'), self.role.get('serviceId'))
+
+    def test_get_role_xml(self):
+        r = self.get_role_by_name(self.role['name'],
+            assert_status=200, headers={
+            'Accept': 'application/xml'})
+        self.assertEqual(r.xml.tag, '{%s}role' % self.xmlns)
+        self.assertEqual(r.xml.get('id'), self.role['id'])
+        self.assertEqual(r.xml.get('name'), self.role['name'])
+        self.assertEqual(r.xml.get('description'), self.role['description'])
+        self.assertEqual(r.xml.get('serviceId'), self.role.get('serviceId'))
+
+    def test_get_role_bad(self):
+        self.fetch_role_by_name(common.unique_str(), assert_status=404)
+
+    def test_get_role_xml_bad(self):
+        self.get_role_by_name(common.unique_str(), assert_status=404, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_role_expired_token(self):
+        self.admin_token = self.expired_admin_token
+        self.fetch_role_by_name(self.role['name'], assert_status=403)
+
+    def test_get_role_xml_using_expired_token(self):
+        self.admin_token = self.expired_admin_token
+        self.get_role_by_name(self.role['name'], assert_status=403, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_role_using_disabled_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.fetch_role_by_name(self.role['name'], assert_status=403)
+
+    def test_get_role_xml_using_disabled_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.get_role_by_name(self.role['name'], assert_status=403, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_role_using_missing_token(self):
+        self.admin_token = ''
+        self.fetch_role_by_name(self.role['name'], assert_status=401)
+
+    def test_get_role_xml_using_missing_token(self):
+        self.admin_token = ''
+        self.get_role_by_name(self.role['name'], assert_status=401, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_role_using_invalid_token(self):
+        self.admin_token = common.unique_str()
+        self.fetch_role_by_name(self.role['name'], assert_status=401)
+
+    def test_get_role_xml_using_invalid_token(self):
+        self.admin_token = common.unique_str()
+        self.get_role_by_name(self.role['name'], assert_status=401, headers={
+            'Accept': 'application/xml'})
+
+
 class CreateRoleAssignmentTest(RolesTest):
     def setUp(self, *args, **kwargs):
         super(CreateRoleAssignmentTest, self).setUp(*args, **kwargs)

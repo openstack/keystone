@@ -739,6 +739,14 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The role could not be found")
         return Role(drole.id, drole.name, drole.desc, drole.service_id)
 
+    def get_role_by_name(self, admin_token, role_name):
+        self.__validate_service_or_keystone_admin_token(admin_token)
+
+        drole = api.ROLE.get_by_name(role_name)
+        if not drole:
+            raise fault.ItemNotFoundFault("The role could not be found")
+        return Role(drole.id, drole.name, drole.desc, drole.service_id)
+
     def delete_role(self, admin_token, role_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
         drole = api.ROLE.get(role_id)
@@ -1100,6 +1108,14 @@ class IdentityService(object):
         self.__validate_service_or_keystone_admin_token(admin_token)
 
         dservice = api.SERVICE.get(service_id)
+        if not dservice:
+            raise fault.ItemNotFoundFault("The service could not be found")
+        return Service(dservice.id, dservice.name, dservice.type,
+            dservice.desc)
+
+    def get_service_by_name(self, admin_token, service_name):
+        self.__validate_service_or_keystone_admin_token(admin_token)
+        dservice = api.SERVICE.get_by_name(service_name)
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
         return Service(dservice.id, dservice.name, dservice.type,

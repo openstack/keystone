@@ -112,6 +112,49 @@ class GetServiceTest(ServicesTest):
         self.fetch_service(service_id=self.service['id'], assert_status=401)
 
 
+class GetServiceByNameTest(ServicesTest):
+    def setUp(self, *args, **kwargs):
+        super(GetServiceByNameTest, self).setUp(*args, **kwargs)
+        self.service = self.create_service().json['OS-KSADM:service']
+
+    def test_service_get_json(self):
+        service = self.fetch_service_by_name(service_name=self.service['name'],
+            assert_status=200).json['OS-KSADM:service']
+
+        self.assertIsNotNone(service['id'])
+        self.assertIsNotNone(service['name'])
+        self.assertIsNotNone(service['description'])
+
+    def test_service_get_xml(self):
+        service = self.fetch_service_by_name(service_name=self.service['name'],
+            assert_status=200, headers={'Accept': 'application/xml'}).xml
+
+        self.assertEqual(service.tag, '{%s}service' % self.xmlns_ksadm)
+        self.assertIsNotNone(service.get('id'))
+        self.assertIsNotNone(service.get('name'))
+        self.assertIsNotNone(service.get('description'))
+
+    def test_get_service_using_disabled_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.fetch_service_by_name(
+            service_name=self.service['name'], assert_status=403)
+
+    def test_get_service_using_missing_token(self):
+        self.admin_token = ''
+        self.fetch_service_by_name(
+            service_name=self.service['name'], assert_status=401)
+
+    def test_get_service_using_expired_token(self):
+        self.admin_token = self.expired_admin_token
+        self.fetch_service_by_name(
+            service_name=self.service['name'], assert_status=403)
+
+    def test_get_service_using_invalid_token(self):
+        self.admin_token = common.unique_str()
+        self.fetch_service_by_name(
+            service_name=self.service['name'], assert_status=401)
+
+
 class CreateServiceTest(ServicesTest):
     def test_service_create_json(self):
         name = common.unique_str()
