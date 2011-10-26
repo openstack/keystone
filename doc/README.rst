@@ -2,29 +2,29 @@
 Building the Documentation
 ==========================
 
-Using setup.py
-==============
+Building automatically
+======================
 
 From the project root, just type::
 
-  % setup.py build_sphinx
+    $ python setup.py build_sphinx
 
+Building manually
+=================
 
+#. Generate the code.rst file so that Sphinx will pull in our docstrings::
 
-Manually
-========
+    $ python doc/generate_autodoc_index.py
 
-  1. Generate the code.rst file so that Sphinx will pull in our docstrings::
+#. Run `sphinx_build` to produce the docs in HTML::
 
-      % ./generate_autodoc_index.py
+    $ sphinx-build -b html doc/source/ build/sphinx/html/
 
-  2. Run `sphinx_build`::
+#. Similarly, build the man pages (optional)::
 
-      % sphinx-build -b html source build/html
+    $ sphinx-build -b man doc/source/ build/sphinx/man/
 
+After building
+==============
 
-The docs have been built
-========================
-
-Check out the `build` directory to find them. Yay!
-
+Navigate to the `build/sphinx/html` directory to browse generated the HTML docs.

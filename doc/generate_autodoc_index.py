@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 """Generates files for sphinx documentation using a simple Autodoc based
 template.
-To use:
-cd keystone/doc
-./generate_autodoc_index.py
+
+To use, just run as a script:
+    $ python doc/generate_autodoc_index.py
 """
 
 import os
 
-RSTDIR="source/sourcecode"
-SOURCE="../keystone"
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+RSTDIR=os.path.join(base_dir, "source", "sourcecode")
+SOURCE=os.path.join(base_dir, "..", "keystone")
+
 
 def find_autodoc_modules():
     """returns a list of modules in the SOURCE directory"""
