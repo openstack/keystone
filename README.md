@@ -137,17 +137,7 @@ The output will go into the `target` folder (the source is in `src`). Output gen
 
 ### Editing and Building the Contributor Guide
 
-This guide is written by contributors, for contributors.
-
-The source is maintained in the `doc/source` folder using
-[reStructuredText](http://docutils.sourceforge.net/rst.html)
-and built by [Sphinx](http://sphinx.pocoo.org/) (a dependency from `tools/pip-requires`).
-
-To rebuild the documentation from the root of the project:
-
-    $ python setup.py build_sphinx && open build/sphinx/html/index.html
-
-Note: This will fail with an `invalid command` error if you do not have Sphinx installed.
+Refer to `doc/README.rst`.
 
 # Additional Information:
 
