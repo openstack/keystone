@@ -2,14 +2,9 @@
 
 Keystone is a Python implementation of the [OpenStack](http://www.openstack.org) identity service API.
 
-This project aims to address the current use cases in Swift and Nova which are:
-
-* RESTful token auth for Swift
-* Many-to-many relationship between identity and tenant for Nova.
-
 # Documentation
 
-## For new users, deployers, and system administrators
+## For users and sysadmins
 
 Learn how to install, configure, manage, and interact with the OpenStack
 Identity Service API at the [OpenStack Documentation](http://docs.openstack.org/) site.
@@ -51,41 +46,6 @@ Having trouble? We'd like to help!
 * bin/keystone-service - Provides HTTP API for users
 * bin/keystone-manage - Provides command-line interface for managing all aspects of Keystone
 
-By default, configuration parameters are parsed from `etc/keystone.conf`.
-
-## Installing Dependencies
-
-Keystone maintains a list of PyPi dependencies, designed for use by [pip](http://pypi.python.org/pypi/pip).
-
-*However*, your system may need additional dependencies that `pip` (and by extension, PyPi) cannot satisfy.
-A list of such dependences is maintained in the `tools/pip-requires` file, and should be installed prior to using `pip`.
-
-You may also need to prefix `pip install` with `sudo`, depending on your environment.
-
-    # Describe dependencies (including non-PyPi dependencies)
-    $ cat tools/pip-requires
-
-    # Install all PyPi dependencies (for production, testing, and development)
-    $ pip install -r tools/pip-requires
-
-## Updating your PYTHONPATH
-
-There are a number of methods for getting Keystone into your PYTHON PATH, the easiest of which is:
-
-    # Fake-install the project by symlinking Keystone into your Python site-packages
-    $ python setup.py develop
-
-You should then be able to `import keystone` from your Python shell without issue:
-
-    >>> import keystone
-    >>>
-
-## Testing Keystone
-
-To run the entire test suite, with test progress shown in realtime, use:
-
-    $ ./run_tests.sh --with-progress
-
 ## Running Keystone
 
 Starting both Admin and Service API endpoints:
@@ -114,11 +74,6 @@ Keystone looks in the following location to find a configuration file:
 
 Additional configuration templates are maintained in `keystone/test/etc/` that may be useful as a reference.
 
-## Contributing Changes
-
-Refer to our [Gerrit-Jenkins-Github Workflow](http://wiki.openstack.org/GerritJenkinsGithub).
-## Writing Documentation
-
 ### Editing and Building the API Developer Guide
 
 Users of the Keystone API are often developers making ReSTful API calls to Keystone. The guide to provide them
@@ -134,10 +89,6 @@ To build the Developer Guide from source, you need [Maven](http://maven.apache.o
     $ mvn clean generate-sources && cp target/docbkx/pdf/identitydevguide.pdf ../../keystone/content/identitydevguide.pdf
 
 The output will go into the `target` folder (the source is in `src`). Output generated is PDF and webhelp.
-
-### Editing and Building the Contributor Guide
-
-Refer to `doc/README.rst`.
 
 # Additional Information:
 

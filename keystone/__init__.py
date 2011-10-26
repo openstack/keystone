@@ -19,7 +19,7 @@ API_VERSION = "2.0"
 API_VERSION_STATUS = "beta"
 API_VERSION_DATE = "2011-11-19T00:00:00Z"
 
-RELEASE_VERSION = "essex"
+RELEASE_VERSION = "2012.1"
 RELEASE_VERSION_FINAL = False  # becomes true at Release Candidate time
 
 
