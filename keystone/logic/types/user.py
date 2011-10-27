@@ -271,4 +271,4 @@ class Users(object):
     def to_json(self):
         values = [t.to_dict()["user"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"users": {"values": values, "links": links}})
+        return json.dumps({"users": values, "users_links": links})

@@ -130,7 +130,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         # Request our tenant list as a service user
         self.service_token = unscoped['token']['id']
         tenants = self.service_request(method='GET', path='/tenants').\
-            json['tenants']['values']
+            json['tenants']
         self.service_token = None  # Should become a service_request() param...
 
         # Our tenant should be the only tenant in the list

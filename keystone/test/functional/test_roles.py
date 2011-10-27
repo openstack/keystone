@@ -139,7 +139,7 @@ class DeleteRoleTest(RolesTest):
 class GetRolesTest(RolesTest):
     def test_get_roles(self):
         r = self.list_roles(assert_status=200)
-        self.assertTrue(len(r.json['roles']['values']))
+        self.assertTrue(len(r.json['roles']))
 
     def test_get_roles_xml(self):
         r = self.get_roles(assert_status=200, headers={
@@ -361,7 +361,7 @@ class GetRoleAssignmentsTest(RolesTest):
 
     def test_get_role_assignments(self):
         r = self.get_user_roles(self.user['id'], assert_status=200)
-        self.assertIsNotNone(r.json['roles']['values'])
+        self.assertIsNotNone(r.json['roles'])
 
     def test_get_roler_assignments_xml(self):
         r = self.get_user_roles(self.user['id'], assert_status=200,
@@ -416,7 +416,7 @@ class DeleteRoleAssignmentsTest(RolesTest):
         self.grant_role_to_user(self.user['id'], self.role['id'],
             self.tenant['id'])
         self.roles = self.get_user_roles(self.user['id']).\
-            json['roles']['values']
+            json['roles']
 
     def test_delete_role_assignment(self):
         self.delete_user_role(self.user['id'], self.role['id'],
@@ -453,7 +453,7 @@ class DeleteGlobalRoleAssignmentsTest(RolesTest):
         self.role = self.create_role().json['role']
         self.grant_global_role_to_user(self.user['id'], self.role['id'])
         self.roles = self.get_user_roles(self.user['id']).\
-            json['roles']['values']
+            json['roles']
 
     def test_delete_role_assignment(self):
         self.delete_user_role(self.user['id'], self.role['id'],

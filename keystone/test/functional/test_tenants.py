@@ -135,7 +135,7 @@ class GetTenantsTest(TenantTest):
             tenant['id']).json['access']['token']
         self.service_token = token['id']
         tenants = self.service_request(method='GET', path='/tenants',
-            assert_status=200).json['tenants']['values']
+            assert_status=200).json['tenants']
         self.assertTrue(len(tenants) == 1)
         self.assertIn(tenant['id'], [tenant['id'] for tenant in tenants])
 

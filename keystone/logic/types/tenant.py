@@ -136,7 +136,7 @@ class Tenants(object):
     def to_json(self):
         values = [t.to_dict()["tenant"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"tenants": {"values": values, "links": links}})
+        return json.dumps({"tenants": values, "tenants_links": links})
 
 
 class User(object):

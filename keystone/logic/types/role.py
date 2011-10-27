@@ -135,7 +135,7 @@ class Roles(object):
     def to_json(self):
         values = [t.to_dict()["role"] for t in self.values]
         links = [t.to_dict()["links"] for t in self.links]
-        return json.dumps({"roles": {"values": values, "links": links}})
+        return json.dumps({"roles": values, "roles_links": links})
 
     def to_json_values(self):
         values = [t.to_dict()["role"] for t in self.values]
