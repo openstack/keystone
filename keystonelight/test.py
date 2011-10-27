@@ -1,14 +1,35 @@
 import os
 import unittest
+import sys
 
 from paste import deploy
 
+from keystonelight import utils
 from keystonelight import wsgi
 
 
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
 TESTSDIR = os.path.join(ROOTDIR, 'tests')
+
+
+cd = os.chdir
+
+
+def checkout_vendor(repo, rev):
+  name = repo.split('/')[-1]
+  if name.endswith('.git'):
+    name = name[:-4]
+
+  revdir = os.path.join(VENDOR, '%s-%s' % (name, rev.replace('/', '_')))
+
+  if not os.path.exists(revdir):
+    utils.git('clone', repo, revdir)
+
+  cd(revdir)
+  utils.git('pull')
+  utils.git('checkout', '-q', rev)
+  return revdir
 
 
 class TestClient(object):
@@ -42,6 +63,16 @@ class TestClient(object):
 
 
 class TestCase(unittest.TestCase):
+  def __init__(self, *args, **kw):
+    super(TestCase, self).__init__(*args, **kw)
+    self._paths = []
+
+  def tearDown(self):
+    for path in self._paths:
+      if path in sys.path:
+        sys.path.remove(path)
+    super(TestCase, self).tearDown()
+
   def loadapp(self, config):
     if not config.startswith('config:'):
       config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
@@ -54,6 +85,10 @@ class TestCase(unittest.TestCase):
 
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)
+
+  def add_path(self, path):
+    sys.path.insert(0, path)
+    self._paths.append(path)
 
   def assertListEquals(self, expected, actual):
     copy = expected[:]

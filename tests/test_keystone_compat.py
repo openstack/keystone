@@ -1,6 +1,7 @@
 import copy
-import os
 import json
+import os
+import sys
 
 from keystonelight import logging
 from keystonelight import models
@@ -10,26 +11,11 @@ from keystonelight import utils
 
 IDENTITY_API_REPO = 'git://github.com/openstack/identity-api.git'
 KEYSTONE_REPO = 'git://github.com/openstack/keystone.git'
+NOVACLIENT_REPO = 'git://github.com/rackspace/python-novaclient.git'
 
 
 IDENTITY_SAMPLE_DIR = 'openstack-identity-api/src/docbkx/samples'
 KEYSTONE_SAMPLE_DIR = 'keystone/content/common/samples'
-
-
-cd = os.chdir
-
-
-def checkout_samples(rev):
-  """Make sure we have a checkout of the API docs."""
-  revdir = os.path.join(test.VENDOR, 'keystone-%s' % rev.replace('/', '_'))
-
-  if not os.path.exists(revdir):
-    utils.git('clone', KEYSTONE_REPO, revdir)
-
-  cd(revdir)
-  utils.git('pull')
-  utils.git('checkout', '-q', rev)
-  return revdir
 
 
 class CompatTestCase(test.TestCase):
@@ -114,7 +100,7 @@ class CompatTestCase(test.TestCase):
 
 class DiabloCompatTestCase(CompatTestCase):
   def setUp(self):
-    revdir = checkout_samples('stable/diablo')
+    revdir = test.checkout_vendor(KEYSTONE_REPO, 'stable/diablo')
     self.sampledir = os.path.join(revdir, KEYSTONE_SAMPLE_DIR)
     self.app = self.loadapp('keystone_compat_diablo')
     self.options = self.appconfig('keystone_compat_diablo')

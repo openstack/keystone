@@ -17,9 +17,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import logging
 import subprocess
 import sys
+
+from keystonelight import logging
 
 
 def import_class(import_str):

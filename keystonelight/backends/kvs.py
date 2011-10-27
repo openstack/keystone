@@ -36,7 +36,7 @@ class KvsIdentity(object):
     return user_ref
 
   def get_extras(self, user_id, tenant_id):
-    return self.db.get('extras-%s-%s' % (user_id, tenant_id))
+    return self.db.get('extras-%s-%s' % (tenant_id, user_id))
 
   # Private CRUD for testing
   def _create_user(self, id, user):
@@ -45,13 +45,12 @@ class KvsIdentity(object):
 
   def _create_tenant(self, id, tenant):
     self.db.set('tenant-%s' % id, tenant)
+    self.db.set('tenant_name-%s' % tenant['name'], tenant)
     return tenant
 
   def _create_extras(self, user_id, tenant_id, extras):
-    self.db.set('extras-%s-%s' % (user_id, tenant_id), extras)
+    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
     return extras
-
-
 
 
 class KvsToken(object):
