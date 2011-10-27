@@ -19,10 +19,16 @@ class ServicesController(wsgi.Controller):
 
     @utils.wrap_error
     def get_services(self, req):
-        marker, limit, url = get_marker_limit_and_url(req)
-        services = config.SERVICE.get_services(
-            utils.get_auth_token(req), marker, limit, url)
-        return utils.send_result(200, req, services)
+        service_name = req.GET["name"] if "name" in req.GET else None
+        if service_name:
+            tenant = config.SERVICE.get_service_by_name(
+                    utils.get_auth_token(req), service_name)
+            return utils.send_result(200, req, tenant)
+        else:
+            marker, limit, url = get_marker_limit_and_url(req)
+            services = config.SERVICE.get_services(
+                utils.get_auth_token(req), marker, limit, url)
+            return utils.send_result(200, req, services)
 
     @utils.wrap_error
     def get_service(self, req, service_id):

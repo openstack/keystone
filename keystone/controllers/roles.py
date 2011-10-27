@@ -25,10 +25,16 @@ class RolesController(wsgi.Controller):
 
     @utils.wrap_error
     def get_roles(self, req):
-        marker, limit, url = get_marker_limit_and_url(req)
-        roles = config.SERVICE.get_roles(
-            utils.get_auth_token(req), marker, limit, url)
-        return utils.send_result(200, req, roles)
+        role_name = req.GET["name"] if "name" in req.GET else None
+        if role_name:
+            tenant = config.SERVICE.get_role_by_name(
+                utils.get_auth_token(req), role_name)
+            return utils.send_result(200, req, tenant)
+        else:
+            marker, limit, url = get_marker_limit_and_url(req)
+            roles = config.SERVICE.get_roles(
+                utils.get_auth_token(req), marker, limit, url)
+            return utils.send_result(200, req, roles)
 
     @utils.wrap_error
     def get_role(self, req, role_id):

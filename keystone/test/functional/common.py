@@ -329,6 +329,11 @@ class ApiTestCase(RestfulTestCase):
         return self.admin_request(method='GET',
             path='/OS-KSADM/roles/%s' % (role_id,), **kwargs)
 
+    def get_role_by_name(self, role_name, **kwargs):
+        """GET /roles?name={role_name}"""
+        return self.admin_request(method='GET',
+            path='/OS-KSADM/roles?name=%s' % (role_name,), **kwargs)
+
     def delete_role(self, role_id, **kwargs):
         """DELETE /roles/{role_id}"""
         return self.admin_request(method='DELETE',
@@ -408,6 +413,11 @@ class ApiTestCase(RestfulTestCase):
         """GET /services/{service_id}"""
         return self.admin_request(method='GET',
             path='/OS-KSADM/services/%s' % (service_id,), **kwargs)
+
+    def get_service_by_name(self, service_name, **kwargs):
+        """GET /services?name={service_name}"""
+        return self.admin_request(method='GET',
+            path='/OS-KSADM/services?name=%s' % (service_name,), **kwargs)
 
     def delete_service(self, service_id, **kwargs):
         """DELETE /services/{service_id}"""
@@ -725,6 +735,10 @@ class FunctionalTestCase(ApiTestCase):
         role_id = optional_str(role_id)
         return self.get_role(role_id, **kwargs)
 
+    def fetch_role_by_name(self, role_name=None, **kwargs):
+        role_name = optional_str(role_name)
+        return self.get_role_by_name(role_name, **kwargs)
+
     def remove_role(self, role_id=None, **kwargs):
         role_id = optional_str(role_id)
         return self.delete_role(role_id, **kwargs)
@@ -747,6 +761,10 @@ class FunctionalTestCase(ApiTestCase):
     def fetch_service(self, service_id=None, **kwargs):
         service_id = optional_str(service_id)
         return self.get_service(service_id, **kwargs)
+
+    def fetch_service_by_name(self, service_name=None, **kwargs):
+        service_name = optional_str(service_name)
+        return self.get_service_by_name(service_name, **kwargs)
 
     def remove_service(self, service_id=None, **kwargs):
         service_id = optional_str(service_id)
