@@ -149,6 +149,9 @@ class TestServiceAuthentication(common.FunctionalTestCase):
 
         self.assertEqual(scoped['token']['tenant']['id'], tenant['id'])
         self.assertEqual(scoped['token']['tenant']['name'], tenant['name'])
+        self.assertEqual(scoped['user']['roles'][0]['id'], role['id'])
+        self.assertEqual(scoped['user']['roles'][0]['name'], role['name'])
+        self.assertEqual(scoped['user']['roles'][0]['tenantId'], tenant['id'])
 
         # And an admin should be able to validate that our new token is scoped
         r = self.validate_token(scoped['token']['id'], tenant['id'])
