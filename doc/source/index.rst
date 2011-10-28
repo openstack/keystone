@@ -36,6 +36,7 @@ Getting Started
 
     setup
     testing
+    migration
     configuration
     community
     usingkeystone
