@@ -11,24 +11,29 @@ import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 RSTDIR=os.path.join(base_dir, "source", "sourcecode")
-SOURCE=os.path.join(base_dir, "..", "keystone")
+SOURCEDIR=os.path.join(base_dir, "..")
 
 
-def find_autodoc_modules():
+def find_autodoc_modules(module_name, sourcedir):
     """returns a list of modules in the SOURCE directory"""
     modlist = []
-    for root, dirs, files in os.walk(SOURCE):
+    os.chdir(os.path.join(sourcedir, module_name))
+    print "SEARCHING %s" % os.path.join(sourcedir, module_name)
+    for root, dirs, files in os.walk("."):
         for filename in files:
             if filename.endswith(".py"):
-                # root = ../keystone/test/unit
+                # root = ./keystone/test/unit
                 # filename = base.py
-                # remove the first two pieces of the root
-                elements = root.split(os.path.sep)[1:]
+                elements = root.split(os.path.sep)
+                # replace the leading "." with the module name
+                elements[0] = module_name
                 # and get the base module name
                 base, extension = os.path.splitext(filename)
                 if not (base == "__init__"):
                     elements.append(base)
-                modlist.append(".".join(elements))
+                result = (".".join(elements))
+                print result
+                modlist.append(result)
     return modlist
 
 if not(os.path.exists(RSTDIR)):
@@ -41,7 +46,7 @@ INDEXOUT.write(".. toctree::\n")
 INDEXOUT.write("   :maxdepth: 1\n")
 INDEXOUT.write("\n")
 
-for module in find_autodoc_modules():
+for module in find_autodoc_modules('keystone', SOURCEDIR):
     generated_file = "%s/%s.rst" % (RSTDIR, module)
     print "Generating %s" % generated_file
 
