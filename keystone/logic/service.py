@@ -519,12 +519,12 @@ class IdentityService(object):
             for drole_ref in drole_refs:
                 drole = api.ROLE.get(drole_ref.role_id)
                 ts.append(Role(drole_ref.role_id, drole.name,
-                    None, drole_ref.tenant_id))
+                    drole.desc, None, drole_ref.tenant_id))
         drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
         for drole_ref in drole_refs:
             drole = api.ROLE.get(drole_ref.role_id)
             ts.append(Role(drole_ref.role_id, drole.name,
-                None, drole_ref.tenant_id))
+                drole.desc, None, drole_ref.tenant_id))
 
         user = auth.User(duser.id, duser.name, None, None, Roles(ts, []))
 
