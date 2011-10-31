@@ -23,7 +23,8 @@ import json
 
 
 def get_auth_token(username, password, tenant):
-    headers = {"Content-type": "application/json", "Accept": "application/json"}
+    headers = {"Content-type": "application/json",
+               "Accept": "application/json"}
     params = {"passwordCredentials": {"username": username,
                                       "password": password,
                                       "tenantId": tenant}}
