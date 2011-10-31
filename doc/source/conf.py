@@ -127,8 +127,18 @@ modindex_common_prefix = ['keystone.']
 # List of tuples 'sourcefile', 'target', u'title', u'Authors name', 'manual'
 
 man_pages = [
-    ('man/keystonemanage', 'keystone-manage', u'Keystone Management Utility',
-     [u'OpenStack'], 1)
+    ('man/keystone-manage', 'keystone-manage', u'Keystone Management Utility',
+     [u'OpenStack'], 1),
+    ('man/keystone', 'keystone', u'Keystone Startup Command',
+     [u'OpenStack'], 1),
+    ('man/keystone-auth', 'keystone-auth', u'Keystone Startup Command',
+     [u'OpenStack'], 1),
+    ('man/keystone-admin', 'keystone-admin', u'Keystone Startup Command',
+     [u'OpenStack'], 1),
+    ('man/keystone-import', 'keystone-import', u'Keystone Management Utility',
+     [u'OpenStack'], 1),
+    ('man/keystone-control', 'keystone-control',
+     u'Keystone Management Utility', [u'OpenStack'], 1)
  ]
 
 
