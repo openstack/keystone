@@ -38,6 +38,7 @@ Getting Started
     testing
     configuration
     community
+    usingkeystone
 
 API Use Case Examples
 =====================
@@ -63,7 +64,13 @@ Man Pages
 .. toctree::
     :maxdepth: 1
 
-    man/keystonemanage.rst
+    man/keystone-manage
+    man/keystone
+    man/keystone-auth
+    man/keystone-admin
+    man/keystone-import
+    man/keystone-control
+    man/sampledata
 
 Developer Docs
 ==============
