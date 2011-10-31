@@ -94,7 +94,6 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
         params_json = request.body
         if not params_json:
-            print "ASDASDASDASD"
             return
 
         params_parsed = json.loads(params_json)

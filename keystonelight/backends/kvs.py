@@ -31,6 +31,10 @@ class KvsIdentity(object):
     tenant_ref = self.db.get('tenant-%s' % tenant_id)
     return tenant_ref
 
+  def get_tenant_by_name(self, tenant_name):
+    tenant_ref = self.db.get('tenant_name-%s' % tenant_name)
+    return tenant_ref
+
   def get_user(self, user_id):
     user_ref = self.db.get('user-%s' % user_id)
     return user_ref

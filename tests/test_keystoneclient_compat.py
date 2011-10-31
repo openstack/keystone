@@ -35,7 +35,33 @@ class DiabloCompatTestCase(CompatTestCase):
     self.catalog_backend = utils.import_object(
         self.options['catalog_driver'], options=self.options)
 
+    self.server = self.serveapp('keystone_compat_diablo')
+
+    self.tenant_bar = self.identity_backend._create_tenant(
+        'bar',
+        models.Tenant(id='bar', name='BAR'))
+
+    self.user_foo = self.identity_backend._create_user(
+        'foo',
+        models.User(id='foo',
+                    name='FOO',
+                    tenants=[self.tenant_bar['id']],
+                    password='foo'))
+
+    self.extras_bar_foo = self.identity_backend._create_extras(
+        self.user_foo['id'], self.tenant_bar['id'],
+        dict(roles=[],
+             roles_links=[]))
+
     super(DiabloCompatTestCase, self).setUp()
 
   def test_pass(self):
+    from keystoneclient.v2_0 import client as ks_client
+
+    port = self.server.socket_info['socket'][1]
+    client = ks_client.Client(auth_url="http://localhost:%s/v2.0" % port,
+                              username='foo',
+                              password='foo',
+                              project_id='bar')
+    client.authenticate()
     pass

@@ -83,6 +83,12 @@ class TestCase(unittest.TestCase):
       config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
     return deploy.appconfig(config)
 
+  def serveapp(self, config):
+    app = self.loadapp(config)
+    server = wsgi.Server()
+    server.start(app, 0, key='socket')
+    return server
+
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)
 
