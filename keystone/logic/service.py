@@ -29,7 +29,7 @@ from keystone.logic.types.service import Service, Services
 from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
     EndpointTemplate, EndpointTemplates
-
+from keystone.logic.types.credential import Credentials, PasswordCredentials
 
 LOG = logging.getLogger('keystone.logic.service')
 
@@ -1148,3 +1148,77 @@ class IdentityService(object):
                         api.ROLE.ref_delete(role_ref.id)
                 api.ROLE.delete(role.id)
         api.SERVICE.delete(service_id)
+
+    def get_credentials(self, admin_token, user_id, marker, limit, url):
+        self.__validate_admin_token(admin_token)
+        ts = []
+        duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+        ts.append(PasswordCredentials(duser.name, None))
+        links = []
+        return Credentials(ts, links)
+
+    def get_password_credentials(self, admin_token, user_id):
+        self.__validate_admin_token(admin_token)
+        duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+        if not duser.password:
+            raise fault.ItemNotFoundFault(
+                "Password credentials could not be found")
+        return PasswordCredentials(duser.name, None)
+
+    def delete_password_credentials(self, admin_token, user_id):
+        self.__validate_admin_token(admin_token)
+        duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+        values = {'password': None}
+        api.USER.update(user_id, values)
+        return
+
+    def update_password_credentials(self, admin_token,
+        user_id, password_credentials):
+        self.__validate_admin_token(admin_token)
+        duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+
+        if password_credentials.user_name is None\
+            or not password_credentials.user_name.strip():
+            raise fault.BadRequestFault("Expecting a username.")
+        duser_name = api.USER.get_by_name(password_credentials.user_name)
+        if duser_name.id != duser.id:
+            raise fault.UserConflictFault(
+                "A user with that name already exists")
+        values = {'password': password_credentials.password,\
+            'name': password_credentials.user_name}
+        api.USER.update(user_id, values)
+        duser = api.USER.get(user_id)
+        return PasswordCredentials(duser.name, duser.password)
+
+    def create_password_credentials(self, admin_token, user_id,\
+        password_credentials):
+        self.__validate_admin_token(admin_token)
+        duser = api.USER.get(user_id)
+        if not duser:
+            raise fault.ItemNotFoundFault("The user could not be found")
+
+        if password_credentials.user_name is None or\
+            not password_credentials.user_name.strip():
+            raise fault.BadRequestFault("Expecting a username.")
+
+        if password_credentials.user_name != duser.name:
+            duser_name = api.USER.get_by_name(password_credentials.user_name)
+            if duser_name:
+                raise fault.UserConflictFault(
+                    "A user with that name already exists")
+        if duser.password:
+            raise fault.BadRequestFault(
+                "Password credentials already available.")
+        values = {'password': password_credentials.password,\
+            'name': password_credentials.user_name}
+        api.USER.update(user_id, values)
+        duser = api.USER.get(user_id)
+        return PasswordCredentials(duser.name, duser.password)
