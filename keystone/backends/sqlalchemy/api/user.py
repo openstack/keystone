@@ -22,6 +22,7 @@ from keystone.backends.api import BaseUserAPI
 
 
 class UserAPI(BaseUserAPI):
+    # pylint: disable=W0221
     def get_all(self, session=None):
         if not session:
             session = get_session()
@@ -225,7 +226,7 @@ class UserAPI(BaseUserAPI):
             next_page = next_page.id
         return (prev_page, next_page)
 
-    def users_get_by_tenant_get_page(self, tenant_id, marker, limit,
+    def users_get_by_tenant_get_page(self, tenant_id, role_id, marker, limit,
             session=None):
         # This is broken.  If a user has more than one role per project
         # shit hits the fan because we're limiting the wrong model.
@@ -233,22 +234,26 @@ class UserAPI(BaseUserAPI):
         if not session:
             session = get_session()
         user = aliased(models.UserRoleAssociation)
+        query = session.query(user).\
+            filter("tenant_id = :tenant_id").\
+            params(tenant_id='%s' % tenant_id)
+
+        if role_id:
+            query = query.filter(
+                user.role_id == role_id)
+
         if marker:
-            rv = session.query(user).\
-                         filter("tenant_id = :tenant_id").\
-                         params(tenant_id='%s' % tenant_id).\
-                         filter("id>=:marker").\
+            rv = query.filter("id>=:marker").\
                          params(marker='%s' % marker).\
                          order_by("id").\
                          limit(limit).\
                          all()
         else:
-            rv = session.query(user).\
-                         filter("tenant_id = :tenant_id").\
-                         params(tenant_id='%s' % tenant_id).\
+            rv = query.\
                          order_by("id").\
                          limit(limit).\
                          all()
+
         user_ids = set([str(assoc.user_id) for assoc in rv])
         users = session.query(models.User).\
                       filter("id in ('%s')" % "','".join(user_ids)).\
@@ -260,31 +265,32 @@ class UserAPI(BaseUserAPI):
                     usr.tenant_roles.add(role.role_id)
         return users
 
-    def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit, \
-            session=None):
+    def users_get_by_tenant_get_page_markers(self, tenant_id,\
+            role_id, marker, limit, session=None):
         if not session:
             session = get_session()
         user = aliased(models.UserRoleAssociation)
-        first = session.query(user).\
-                        filter(user.tenant_id == tenant_id).\
-                        order_by(user.id).first()
-        last = session.query(user).\
-                            filter(user.tenant_id == tenant_id).\
-                            order_by(user.id.desc()).first()
+        query = session.query(user).\
+                        filter(user.tenant_id == tenant_id)
+        if role_id:
+            query = query.filter(
+                user.role_id == role_id)
+        first = query.\
+            order_by(user.id).first()
+        last = query.\
+            order_by(user.id.desc()).first()
         if first is None:
             return (None, None)
         if marker is None:
             marker = first.id
-        next_page = session.query(user).\
-                        filter(user.tenant_id == tenant_id).\
-                        filter("id > :marker").params(\
-                        marker='%s' % marker).order_by(user.id).\
-                        limit(int(limit)).all()
-        prev_page = session.query(user).\
-                        filter(user.tenant_id == tenant_id).\
-                        filter("id < :marker").params(
-                        marker='%s' % marker).order_by(
-                        user.id.desc()).limit(int(limit)).all()
+        next_page = query.\
+            filter("id > :marker").params(\
+            marker='%s' % marker).order_by(user.id).\
+            limit(int(limit)).all()
+        prev_page = query.\
+            filter("id < :marker").params(
+            marker='%s' % marker).order_by(
+            user.id.desc()).limit(int(limit)).all()
         next_len = len(next_page)
         prev_len = len(prev_page)
 
@@ -310,6 +316,7 @@ class UserAPI(BaseUserAPI):
 
     def check_password(self, user, password):
         return utils.check_password(password, user.password)
+    # pylint: enable=W0221
 
 
 def get():

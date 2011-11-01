@@ -338,7 +338,8 @@ class IdentityService(object):
                     "Your account has been disabled")
             return dtenant
 
-    def get_tenant_users(self, admin_token, tenant_id, marker, limit, url):
+    def get_tenant_users(self, admin_token, tenant_id,
+        role_id, marker, limit, url):
         self.__validate_admin_token(admin_token)
 
         if tenant_id == None:
@@ -348,9 +349,12 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The tenant not found")
         if not dtenant.enabled:
             raise fault.TenantDisabledFault("Your account has been disabled")
+        if role_id:
+            if not api.ROLE.get(role_id):
+                raise fault.ItemNotFoundFault("The role not found")
         ts = []
-        dtenantusers = api.USER.users_get_by_tenant_get_page(tenant_id, marker,
-                                                          limit)
+        dtenantusers = api.USER.users_get_by_tenant_get_page(
+            tenant_id, role_id, marker, limit)
         for dtenantuser in dtenantusers:
             ts.append(User(None, dtenantuser.id, dtenantuser.name, tenant_id,
                            dtenantuser.email, dtenantuser.enabled,
@@ -359,7 +363,7 @@ class IdentityService(object):
         links = []
         if ts.__len__():
             prev, next = api.USER.users_get_by_tenant_get_page_markers(
-                    tenant_id, marker, limit)
+                    tenant_id, role_id, marker, limit)
             if prev:
                 links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
                                       (url, prev, limit)))

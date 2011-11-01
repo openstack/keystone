@@ -110,13 +110,14 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
     def users_get_page_markers(self, marker, limit):
         return self.get_page_markers(marker, limit)
 
-    def users_get_by_tenant_get_page(self, tenant_id, marker, limit):
+    def users_get_by_tenant_get_page(self, tenant_id, role_id, marker, limit):
         return self._get_page(marker, limit,
-                self.api.tenant.get_users(tenant_id))
+                self.api.tenant.get_users(tenant_id, role_id))
 
-    def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit):
+    def users_get_by_tenant_get_page_markers(self, tenant_id,
+        role_id, marker, limit):
         return self._get_page_markers(marker, limit,
-                self.api.tenant.get_users(tenant_id))
+                self.api.tenant.get_users(tenant_id, role_id))
 
     def check_password(self, user, password):
         return utils.check_password(password, user.password)

@@ -53,7 +53,6 @@
                             <resource id="userRoleById" path="{roleId}">
                                 <param name="roleId" style="template" type="xsd:string"/>
                                 <method href="#addUserRole"/>
-                                <method href="#getUserRole"/>
                                 <method href="#deleteUserRole"/>
                             </resource>
                         </resource>
@@ -84,11 +83,6 @@
                     <param name="tenantId" style="template" type="xsd:string"/>
                     <method href="#updateTenant"/>
                     <method href="#deleteTenant"/>
-                    <resource id="tenant-OS-KSADM" path="OS-KSADM">
-                        <resource id="rolesForTenant" path="roles">
-                            <method href="#listRolesForTenant"/>
-                        </resource>
-                    </resource>        
                     <resource id="usersForTenant" path="users">
                         <method href="#listUsersForTenant"/>
                         <resource id="userForTenant" path="{userId}">
@@ -220,31 +214,6 @@
         &getFaults;
     </method>
     
-    <method name="GET" id="listRolesForTenant">
-        <doc xml:lang="EN" title="List roles for a Tenant.">
-            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">Lists all the roles for a tenant.</p>
-            <p xmlns="http://www.w3.org/1999/xhtml">Lists all the roles for a tenant.</p>
-        </doc>
-        <request>
-            <param name="marker" style="query" required="false" type="xsd:string"/>
-            <param name="limit" style="query" required="false" type="xsd:int"/>
-        </request>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="identity:roles">
-                <doc xml:lang="EN">
-                    <xsdxt:code href="../common/samples/roles.xml"/>
-                </doc>
-            </representation>
-            <representation mediaType="application/json">
-                <doc xml:lang="EN">
-                    <xsdxt:code href="../common/samples/roles.json"/>
-                </doc>
-            </representation>
-        </response>
-        &commonFaults;
-        &getFaults;
-    </method>
-
     <method name="GET" id="listUsersForTenant">
         <doc xml:lang="EN" title="List users for a Tenant.">
             <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">Lists all the users for a tenant.</p>
@@ -433,28 +402,6 @@
         &postPutFaults;
         &getFaults;
     </method>    
-    
-    <method name="GET" id="getUserRole">
-        <doc xml:lang="EN" title="Get user Role">
-            <p xmlns="http://www.w3.org/1999/xhtml">Get information about a global role that belongs to a user.</p>
-                        
-        </doc>
-        <response status="200 203">
-            <representation mediaType="application/xml" element="identity:role">
-                <doc xml:lang="EN">
-                    <xsdxt:code href="../common/samples/role.xml"/>
-                </doc>
-            </representation>
-            <representation mediaType="application/json">
-                <doc xml:lang="EN">
-                    <xsdxt:code href="../common/samples/role.json"/>
-                </doc>
-            </representation>
-        </response>
-        &commonFaults;
-        &postPutFaults;
-        &getFaults;
-    </method>
     
     <method name="DELETE" id="deleteUserRole">
         <doc xml:lang="EN" title="Delete Global Roles on User.">

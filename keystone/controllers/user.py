@@ -72,6 +72,7 @@ class UserController(wsgi.Controller):
     @utils.wrap_error
     def get_tenant_users(self, req, tenant_id):
         marker, limit, url = get_marker_limit_and_url(req)
+        role_id = req.GET["roleId"] if "roleId" in req.GET else None
         users = config.SERVICE.get_tenant_users(utils.get_auth_token(req),
-            tenant_id, marker, limit, url)
+            tenant_id, role_id, marker, limit, url)
         return utils.send_result(200, req, users)

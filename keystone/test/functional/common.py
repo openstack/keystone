@@ -235,7 +235,13 @@ class ApiTestCase(RestfulTestCase):
     def get_tenant_users(self, tenant_id, **kwargs):
         """GET /tenants/{tenant_id}/users"""
         return self.admin_request(method='GET',
-            path='/tenants/%s' % (tenant_id,), **kwargs)
+            path='/tenants/%s/users' % (tenant_id,), **kwargs)
+
+    def get_tenant_users_by_role(self, tenant_id, role_id, **kwargs):
+        """GET /tenants/{tenant_id}/users?roleId={roleId}"""
+        return self.admin_request(method='GET',
+            path='/tenants/%s/users?roleId=%s' % (\
+                tenant_id, role_id), **kwargs)
 
     def delete_tenant(self, tenant_id, **kwargs):
         """DELETE /tenants/{tenant_id}"""
@@ -624,9 +630,12 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.post_tenant_for_update(tenant_id, as_json=data, **kwargs)
 
-    def list_tenant_users(self, tenant_id, **kwargs):
+    def list_tenant_users(self, tenant_id, role_id=None, **kwargs):
         tenant_id = optional_str(tenant_id)
-        return self.get_tenant_users(tenant_id, **kwargs)
+        if role_id:
+            return self.get_tenant_users_by_role(tenant_id, role_id, **kwargs)
+        else:
+            return self.get_tenant_users(tenant_id, **kwargs)
 
     def remove_tenant(self, tenant_id=None, **kwargs):
         tenant_id = optional_str(tenant_id)
