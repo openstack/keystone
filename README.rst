@@ -54,6 +54,15 @@ Largely designed for a common use case around service catalogs in the Keystone
 project, a Catalog backend that simply expands pre-configured templates to
 provide catalog data.
 
+Example paste.deploy config (uses $ instead of % to avoid ConfigParser's
+interpolation)::
+
+  [DEFAULT]
+  catalog.RegionOne.identity.publicURL = http://localhost:$(public_port)s/v2.0
+  catalog.RegionOne.identity.adminURL = http://localhost:$(public_port)s/v2.0
+  catalog.RegionOne.identity.internalURL = http://localhost:$(public_port)s/v2.0
+  catalog.RegionOne.identity.name = 'Identity Service'
+
 
 ---------------
 Keystone Compat
