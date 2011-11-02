@@ -18,15 +18,17 @@ class CompatTestCase(test.TestCase):
     super(CompatTestCase, self).setUp()
 
 
-class DiabloCompatTestCase(CompatTestCase):
+class MasterCompatTestCase(CompatTestCase):
   def setUp(self):
+    super(MasterCompatTestCase, self).setUp()
+
     revdir = test.checkout_vendor(KEYSTONECLIENT_REPO, 'master')
     self.add_path(revdir)
     from keystoneclient.v2_0 import client as ks_client
     reload(ks_client)
 
-    self.app = self.loadapp('keystone_compat_diablo')
-    self.options = self.appconfig('keystone_compat_diablo')
+    self.app = self.loadapp('keystoneclient_compat_master')
+    self.options = self.appconfig('keystoneclient_compat_master')
 
     self.identity_backend = utils.import_object(
         self.options['identity_driver'], options=self.options)
@@ -35,7 +37,7 @@ class DiabloCompatTestCase(CompatTestCase):
     self.catalog_backend = utils.import_object(
         self.options['catalog_driver'], options=self.options)
 
-    self.server = self.serveapp('keystone_compat_diablo')
+    self.server = self.serveapp('keystoneclient_compat_master')
 
     self.tenant_bar = self.identity_backend._create_tenant(
         'bar',
@@ -53,7 +55,6 @@ class DiabloCompatTestCase(CompatTestCase):
         dict(roles=[],
              roles_links=[]))
 
-    super(DiabloCompatTestCase, self).setUp()
 
   def test_pass(self):
     from keystoneclient.v2_0 import client as ks_client

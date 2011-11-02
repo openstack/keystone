@@ -1,3 +1,4 @@
+import ConfigParser
 import os
 import unittest
 import sys
@@ -67,6 +68,9 @@ class TestCase(unittest.TestCase):
     super(TestCase, self).__init__(*args, **kw)
     self._paths = []
 
+  def setUp(self):
+    super(TestCase, self).setUp()
+
   def tearDown(self):
     for path in self._paths:
       if path in sys.path:
@@ -87,6 +91,11 @@ class TestCase(unittest.TestCase):
     app = self.loadapp(config)
     server = wsgi.Server()
     server.start(app, 0, key='socket')
+
+    # Service catalog tests need to know the port we ran on.
+    options = self.appconfig(config)
+    port = server.socket_info['socket'][1]
+    options['public_port'] = port
     return server
 
   def client(self, app, *args, **kw):

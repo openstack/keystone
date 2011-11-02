@@ -71,7 +71,10 @@ class KeystoneController(service.BaseApplication):
 
             # more compat
             if tenant_name:
-                tenant_id = self.identity_api.get_tenant_by_name(tenant_name)
+                tenant_ref = self.identity_api.get_tenant_by_name(
+                        context=context, tenant_name=tenant_name)
+                tenant_id = tenant_ref['id']
+                logging.debug('RENANT: %s', tenant_ref)
             else:
                 tenant_id = auth.get('tenantId', None)
 

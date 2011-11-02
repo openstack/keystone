@@ -19,6 +19,15 @@ KEYSTONE_SAMPLE_DIR = 'keystone/content/common/samples'
 
 
 class CompatTestCase(test.TestCase):
+  """Test compatibility against various versions of keystone's docs.
+
+  It should be noted that the docs for any given revision have rarely, if ever,
+  reflected the actual usage or reliable sample output of the system, so these
+  tests are largely a study of frustration and its effects on developer
+  productivity.
+
+  """
+
   def setUp(self):
     super(CompatTestCase, self).setUp()
 
@@ -120,7 +129,7 @@ class DiabloCompatTestCase(CompatTestCase):
         {'auth': {'passwordCredentials': {'username': self.user_123['id'],
                                           'password': self.user_123['password'],
                                           },
-                  'tenantName': self.tenant_345['id']}})
+                  'tenantName': self.tenant_345['name']}})
 
     resp = client.post('/v2.0/tokens', body=post_data)
     data = json.loads(resp.body)
