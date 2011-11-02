@@ -35,7 +35,6 @@ class TemplatedCatalog(object):
     else:
       self._load_templates(options)
 
-
   def _load_templates(self, options):
     o = {}
     for k, v in options.iteritems():

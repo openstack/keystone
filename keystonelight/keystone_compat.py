@@ -125,8 +125,44 @@ class KeystoneController(service.BaseApplication):
 
     def _format_authenticate(self, token_ref, catalog_ref):
         o = self._format_token(token_ref)
-        o['access']['serviceCatalog'] = catalog_ref
+        o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
         return o
+
+    def _format_catalog(self, catalog_ref):
+        """KeystoneLight catalogs look like:
+
+        {$REGION: {
+            {$SERVICE: {
+                $key1: $value1,
+                ...
+                }
+            }
+        }
+
+        Keystone's look like
+
+        [{'name': $SERVICE[name],
+          'type': $SERVICE,
+          'endpoints': [{
+              'tenantId': $tenant_id,
+              ...
+              'region': $REGION,
+              }],
+          'endpoints_links': [],
+         }]
+
+        """
+        if not catalog_ref:
+            return {}
+
+        o = []
+        services = {}
+        for region, region_ref in catalog_ref.iteritems():
+            for service, service_ref in region_ref.iteritems():
+                new_service_ref = services.get(service, {})
+                new_service_ref['name'] = service_ref['name']
+
+
 
     #admin-only
     def validate_token(self, context, token_id, belongs_to=None):

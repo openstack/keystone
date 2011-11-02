@@ -56,7 +56,7 @@ class MasterCompatTestCase(CompatTestCase):
              roles_links=[]))
 
 
-  def test_pass(self):
+  def test_authenticate(self):
     from keystoneclient.v2_0 import client as ks_client
 
     port = self.server.socket_info['socket'][1]
