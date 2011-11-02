@@ -27,7 +27,7 @@ function process_option {
     -h|--help) usage;;
     -V|--virtual-env) let always_venv=1; let never_venv=0;;
     -N|--no-virtual-env) let always_venv=0; let never_venv=1;;
-    -p|--pep8) let just_pep8=1; let never_venv=1;;
+    -p|--pep8) let just_pep8=1;;
     -l|--pylint) let just_pylint=1; let never_venv=0;;
     -f|--force) let force=1;;
     --unittests-only) noseargs="$noseargs --exclude-dir=keystone/tests/functional --exclude-dir=keystone/tests/system";;
@@ -59,7 +59,7 @@ function run_pep8 {
   PEP8_EXCLUDE="vcsversion.py"
   PEP8_OPTIONS="--exclude=$PEP8_EXCLUDE --repeat --show-pep8 --show-source"
   PEP8_INCLUDE="bin/k* keystone examples tools setup.py run_tests.py"
-  pep8 $PEP8_OPTIONS $PEP8_INCLUDE
+  ${wrapper} pep8 $PEP8_OPTIONS $PEP8_INCLUDE
 }
 
 function run_pylint {
@@ -94,7 +94,7 @@ then
       if [ "x$use_ve" = "xY" -o "x$use_ve" = "x" -o "x$use_ve" = "xy" ]; then
         # Install the virtualenv and run the test suite in it
         python tools/install_venv.py
-		    wrapper=${with_venv}
+        wrapper=${with_venv}
       fi
     fi
   fi
