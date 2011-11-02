@@ -1,31 +1,82 @@
+Keystone *Light*
+================
+
+*Always Smooth*
+
+Keystone Light is a re-interpretation of the Keystone project that provides
+Identity, Token and Catalog services for use specifically by projects in the
+OpenStack family.
 
 
-General expected data model:
+----------
+Data Model
+----------
 
-  ( tenants >--< users ) --< roles
+Keystone Light was designed from the ground up to be amenable to multiple
+styles of backends and as such many of the methods and data types will happily
+accept more data than they know what to do with and pass them on to a backend.
 
-  Tenants and Users have a many-to-many relationship.
-  A given Tenant-User pair can have many Roles.
+There are a few main data types:
 
+ * **User**: has account credentials, is associated with one or more tenants
+ * **Tenant**: unit of ownership in openstack, contains one or more users
+ * **Token**: identifying credential associated with a user or user and tenant
+ * **Extras**: bucket of key-values associated with a user-tenant pair,
+               typically used to define roles
 
-Tenant Schema:
-  id: something big and unique
-  name: something displayable
-  .. created_at: datetime
-  .. deleted_at: datetime
-
-User Schema:
-  id: something big and unique
-  name: something displayable
-  .. created_at: datetime
-  .. deleted_at: datetime
-
-
-General service model:
-
-  (1) a web service with an API
-  (2) a variety of backend storage schemes for tenant-user pairs.
-  (3) a simple token datastore
+While the general data model allows a many-to-many relationship between Users
+and Tenants and a many-to-one relationship between Extras and User-Tenant pairs,
+the actual backend implementations take varying levels of advantage of that
+functionality.
 
 
+KVS Backend
+-----------
 
+A simple backend interface meant to be further backended on anything that can
+support primary key lookups, the most trivial implementation being an in-memory
+dict.
+
+Supports all features of the general data model.
+
+
+PAM Backend
+-----------
+
+Extra simple backend that uses the current system's PAM service to authenticate,
+providing a one-to-one relationship between Users and Tenants with the `root`
+User also having the 'admin' role.
+
+
+Templated Backend
+-----------------
+
+Largely designed for a common use case around service catalogs in the Keystone
+project, a Catalog backend that simply expands pre-configured templates to
+provide catalog data.
+
+
+---------------
+Keystone Compat
+---------------
+
+While Keystone Light takes a fundamentally different approach to its services
+from Keystone, a compatibility layer is included to make switching much easier
+for projects already attempting to use Keystone.
+
+The compatibility service is activated by defining an alternate application in
+the paste.deploy config and adding it to your main pipeline::
+
+  [app:keystone]
+  paste.app_factory = keystonelight.keystone_compat:app_factory
+
+
+-----------
+Still To Do
+-----------
+
+* Dev and testing setups would do well with some user/tenant/etc CRUD, for the
+  KVS backends at least.
+* Fixture loading functionality would also be killer tests and dev.
+* LDAP backend.
+* Keystone import.
