@@ -31,7 +31,7 @@
         <include href="../common/xsd/OS-KSEC2-credentials.xsd" />
     </grammars>
     <!--*******************************************************-->
-    <!--             All Resoruces                             -->
+    <!--             All Resources                             -->
     <!--*******************************************************-->
 
     <!-- We should use SSL in production -->

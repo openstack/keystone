@@ -30,7 +30,7 @@
         <include href="../common/xsd/RAX-KSGRP-groups.xsd"/>
     </grammars>
     <!--*******************************************************-->
-    <!--             All Resoruces                             -->
+    <!--             All Resources                             -->
     <!--*******************************************************-->
     
     <!-- We should use SSL in production -->
