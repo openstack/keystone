@@ -21,8 +21,7 @@ There are a few main data types:
  * **User**: has account credentials, is associated with one or more tenants
  * **Tenant**: unit of ownership in openstack, contains one or more users
  * **Token**: identifying credential associated with a user or user and tenant
- * **Extras**: bucket of key-values associated with a user-tenant pair,
-               typically used to define roles
+ * **Extras**: bucket of key-values associated with a user-tenant pair, typically used to define roles.
 
 While the general data model allows a many-to-many relationship between Users
 and Tenants and a many-to-one relationship between Extras and User-Tenant pairs,
