@@ -21,6 +21,7 @@ from keystone.controllers.services import ServicesController
 from keystone.controllers.roles import RolesController
 from keystone.controllers.user import UserController
 from keystone.controllers.tenant import TenantController
+from keystone.controllers.credentials import CredentialsController
 
 
 class ExtensionHandler(BaseExtensionHandler):
@@ -28,6 +29,7 @@ class ExtensionHandler(BaseExtensionHandler):
         tenant_controller = TenantController(options)
         roles_controller = RolesController(options)
         user_controller = UserController(options)
+        credentials_controller = CredentialsController(options)
 
         # Tenant Operations
         mapper.connect("/tenants", controller=tenant_controller,
@@ -92,6 +94,7 @@ class ExtensionHandler(BaseExtensionHandler):
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
             controller=roles_controller, action="delete_role_from_user",
             conditions=dict(method=["DELETE"]))
+
         # Services Operations
         services_controller = ServicesController(options)
         mapper.connect("/OS-KSADM/services",
@@ -120,4 +123,27 @@ class ExtensionHandler(BaseExtensionHandler):
                 conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/roles/{role_id}",
             controller=roles_controller, action="delete_role",
+            conditions=dict(method=["DELETE"]))
+
+        #Credentials Operations
+        mapper.connect("/users/{user_id}/OS-KSADM/credentials",
+            controller=credentials_controller, action="get_credentials",
+            conditions=dict(method=["GET"]))
+        mapper.connect("/users/{user_id}/OS-KSADM/credentials",
+            controller=credentials_controller, action="add_credential",
+            conditions=dict(method=["POST"]))
+        mapper.connect("/users/{user_id}/OS-KSADM/"\
+            "credentials/passwordCredentials",
+            controller=credentials_controller,
+            action="get_password_credential",
+            conditions=dict(method=["GET"]))
+        mapper.connect("/users/{user_id}/OS-KSADM/credentials"\
+            "/passwordCredentials",
+            controller=credentials_controller,
+            action="update_password_credential",
+            conditions=dict(method=["POST"]))
+        mapper.connect("/users/{user_id}/"\
+            "OS-KSADM/credentials/passwordCredentials",
+            controller=credentials_controller,
+            action="delete_password_credential",
             conditions=dict(method=["DELETE"]))

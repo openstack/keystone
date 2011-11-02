@@ -477,6 +477,35 @@ class ApiTestCase(RestfulTestCase):
         return self.service_request(method='GET',
             path='/samples/%s' % (filename,), **kwargs)
 
+    def get_user_credentials(self, user_id, **kwargs):
+        """GET /users/{user_id}/OS-KSADM/credentials"""
+        return self.admin_request(method='GET',
+            path='/users/%s/OS-KSADM/credentials' % (user_id,), **kwargs)
+
+    def get_user_credentials_by_type(self,
+        user_id, credentials_type, **kwargs):
+        """GET /users/{user_id}/OS-KSADM/credentials/{credentials_type}"""
+        return self.admin_request(method='GET',
+            path='/users/%s/OS-KSADM/credentials/%s'\
+            % (user_id, credentials_type,), **kwargs)
+
+    def post_credentials(self, user_id, **kwargs):
+        """POST /users/{user_id}/OS-KSADM/credentials"""
+        return self.admin_request(method='POST',
+            path='/users/%s/OS-KSADM/credentials' % (user_id,), **kwargs)
+
+    def post_credentials_by_type(self, user_id, credentials_type, **kwargs):
+        """POST /users/{user_id}/OS-KSADM/credentials/{credentials_type}"""
+        return self.admin_request(method='POST',
+            path='/users/%s/OS-KSADM/credentials/%s' %\
+            (user_id, credentials_type), **kwargs)
+
+    def delete_user_credentials_by_type(self, user_id,\
+        credentials_type, **kwargs):
+        """DELETE /users/{user_id}/OS-KSADM/credentials/{credentials_type}"""
+        return self.admin_request(method='DELETE',
+            path='/users/%s/OS-KSADM/credentials/%s' %\
+            (user_id, credentials_type,), **kwargs)
 
 # Generates and return a unique string
 unique_str = lambda: str(uuid.uuid4())
@@ -883,3 +912,37 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.put_endpoint_template(endpoint_template_id, as_json=data,
             **kwargs)
+
+    def fetch_user_credentials(self, user_id=None, **kwargs):
+        user_id = optional_str(user_id)
+        return self.get_user_credentials(user_id, **kwargs)
+
+    def fetch_password_credentials(self, user_id=None, **kwargs):
+        user_id = optional_str(user_id)
+        return self.get_user_credentials_by_type(
+            user_id, 'passwordCredentials', **kwargs)
+
+    def create_password_credentials(self, user_id, user_name, **kwargs):
+        user_id = optional_str(user_id)
+        password = unique_str()
+        data = {
+            "passwordCredentials": {
+                "username": user_name,
+                "password": password}}
+        return self.post_credentials(user_id, as_json=data, **kwargs)
+
+    def update_password_credentials(self, user_id, user_name,
+                password=None, **kwargs):
+        user_id = optional_str(user_id)
+        password = optional_str(password)
+        data = {
+            "passwordCredentials": {
+                "username": user_name,
+                "password": password}}
+        return self.post_credentials_by_type(
+            user_id, 'passwordCredentials', as_json=data, **kwargs)
+
+    def delete_password_credentials(self, user_id, **kwargs):
+        user_id = optional_str(user_id)
+        return self.delete_user_credentials_by_type(
+                user_id, 'passwordCredentials', **kwargs)

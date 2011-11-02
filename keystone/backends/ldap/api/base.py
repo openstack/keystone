@@ -58,7 +58,10 @@ class BaseLdapAPI(object):
             except KeyError:
                 pass
             else:
-                obj[k] = v[0]
+                try:
+                    obj[k] = v[0]
+                except IndexError:
+                    obj[k] = None
         return obj
 
     def create(self, values):
