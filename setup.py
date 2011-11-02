@@ -44,7 +44,7 @@ except:
 
 setup(
     name='keystone',
-    version=keystone.version(),
+    version=keystone.canonical_version(),
     description="Authentication service - proposed for OpenStack",
     license='Apache License (2.0)',
     classifiers=["Programming Language :: Python"],
