@@ -55,14 +55,25 @@ class MasterCompatTestCase(CompatTestCase):
         dict(roles=[],
              roles_links=[]))
 
+  #def test_authenticate(self):
+  #  from keystoneclient.v2_0 import client as ks_client
 
-  def test_authenticate(self):
+  #  port = self.server.socket_info['socket'][1]
+  #  client = ks_client.Client(auth_url="http://localhost:%s/v2.0" % port,
+  #                            username='foo',
+  #                            password='foo',
+  #                            project_id='bar')
+  #  client.authenticate()
+
+  def test_authenticate_and_tenants(self):
     from keystoneclient.v2_0 import client as ks_client
 
     port = self.server.socket_info['socket'][1]
+    self.options['public_port'] = port
     client = ks_client.Client(auth_url="http://localhost:%s/v2.0" % port,
                               username='foo',
                               password='foo',
                               project_id='bar')
     client.authenticate()
-    pass
+    tenants = client.tenants.list()
+    self.assertEquals(tenants[0].id, self.tenant_bar['id'])

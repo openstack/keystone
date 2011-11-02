@@ -58,6 +58,7 @@ class Server(object):
 
     def start(self, application, port, host='0.0.0.0', key=None, backlog=128):
         """Run a WSGI server with the given application."""
+        self.application = application
         arg0 = sys.argv[0]
         logging.debug('Starting %(arg0)s on %(host)s:%(port)s' % locals())
         socket = eventlet.listen((host, port), backlog=backlog)

@@ -5,6 +5,7 @@ import sys
 
 from paste import deploy
 
+from keystonelight import logging
 from keystonelight import utils
 from keystonelight import wsgi
 
@@ -67,6 +68,7 @@ class TestCase(unittest.TestCase):
   def __init__(self, *args, **kw):
     super(TestCase, self).__init__(*args, **kw)
     self._paths = []
+    self._memo = {}
 
   def setUp(self):
     super(TestCase, self).setUp()
@@ -93,10 +95,25 @@ class TestCase(unittest.TestCase):
     server.start(app, 0, key='socket')
 
     # Service catalog tests need to know the port we ran on.
-    options = self.appconfig(config)
     port = server.socket_info['socket'][1]
-    options['public_port'] = port
+    self._update_server_options(server, 'public_port', port)
+    logging.debug('PUBLIC PORT: %s', app.options['public_port'])
     return server
+
+  def _update_server_options(self, server, key, value):
+    """Hack to allow us to make changes to the options used by backends.
+
+    A possible better solution would be to have a global config registry.
+
+    """
+    last = server
+    while hasattr(last, 'application') or hasattr(last, 'options'):
+      logging.debug('UPDATE %s', last.__class__)
+      if hasattr(last, 'options'):
+        last.options[key] = value
+      if not hasattr(last, 'application'):
+        break
+      last = last.application
 
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)

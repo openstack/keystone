@@ -1,3 +1,6 @@
+from keystonelight import logging
+
+
 class TemplatedCatalog(object):
   """A backend that generates endpoints for the Catalog based on templates.
 
@@ -29,6 +32,7 @@ class TemplatedCatalog(object):
 
   def __init__(self, options, templates=None):
     self.options = options
+    logging.debug('CATALOG PUBLIC PORT BEFORE: %s', options['public_port'])
 
     if templates:
       self.templates = templates
