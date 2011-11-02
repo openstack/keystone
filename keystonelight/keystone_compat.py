@@ -74,7 +74,6 @@ class KeystoneController(service.BaseApplication):
                 tenant_ref = self.identity_api.get_tenant_by_name(
                         context=context, tenant_name=tenant_name)
                 tenant_id = tenant_ref['id']
-                logging.debug('RENANT: %s', tenant_ref)
             else:
                 tenant_id = auth.get('tenantId', None)
 
@@ -94,22 +93,31 @@ class KeystoneController(service.BaseApplication):
                     tenant_id=tenant_ref['id'],
                     extras=extras_ref)
 
-        elif 'tokenCredentials' in auth:
-            token = auth['tokenCredentials'].get('token', None)
-            tenant = auth.get('tenantName')
+        elif 'token' in auth:
+            token = auth['token'].get('id', None)
+
+            tenant_name = auth.get('tenantName')
+
+            # more compat
+            if tenant_name:
+                tenant_ref = self.identity_api.get_tenant_by_name(
+                        context=context, tenant_name=tenant_name)
+                tenant_id = tenant_ref['id']
+            else:
+                tenant_id = auth.get('tenantId', None)
 
             old_token_ref = self.token_api.get_token(context=context,
                                                      token_id=token)
             user_ref = old_token_ref['user']
 
-            assert tenant in user_ref['tenants']
+            assert tenant_id in user_ref['tenants']
 
             tenant_ref = self.identity_api.get_tenant(context=context,
                                                       tenant_id=tenant_id)
             extras_ref = self.identity_api.get_extras(
                     context=context,
                     user_id=user_ref['id'],
-                    tenant_id=tenant_ref['tenant']['id'])
+                    tenant_id=tenant_ref['id'])
             token_ref = self.token_api.create_token(context,
                                                     dict(expires='',
                                                          user=user_ref,
@@ -155,14 +163,22 @@ class KeystoneController(service.BaseApplication):
         if not catalog_ref:
             return {}
 
-        o = []
         services = {}
         for region, region_ref in catalog_ref.iteritems():
             for service, service_ref in region_ref.iteritems():
                 new_service_ref = services.get(service, {})
-                new_service_ref['name'] = service_ref['name']
+                new_service_ref['name'] = service_ref.pop('name')
+                new_service_ref['type'] = service
+                new_service_ref['endpoints_links'] = []
+                service_ref['region'] = region
 
+                endpoints_ref = new_service_ref.get('endpoints', [])
+                endpoints_ref.append(service_ref)
 
+                new_service_ref['endpoints'] = endpoints_ref
+                services[service] = new_service_ref
+
+        return services.values()
 
     #admin-only
     def validate_token(self, context, token_id, belongs_to=None):

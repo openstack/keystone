@@ -28,3 +28,6 @@ class Manager(object):
 
     def get_tenant_by_name(self, context, tenant_name):
         return self.driver.get_tenant_by_name(tenant_name)
+
+    def get_extras(self, context, user_id, tenant_id):
+        return self.driver.get_extras(user_id, tenant_id)
