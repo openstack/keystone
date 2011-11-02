@@ -46,6 +46,18 @@ def execute(cmd, raise_error=True):
 
 
 class KeystoneTest(object):
+    """Primary test class for invoking keystone tests. Controls
+    initialization of environment with temporary configuration files,
+    starts keystone admin and service API WSIG servers, and then uses
+    :py:mod:`unittest2` to discover and iterate over existing tests.
+
+    :py:class:`keystone.test.KeystoneTest` is expected to be
+    subclassed and invoked in ``run_tests.py`` where subclasses define
+    a config_name (that matches a template existing in
+    ``keystone/test/etc``) and test_files (that are cleared at the
+    end of test execution from the temporary space used to run these
+    tests).
+    """
     CONF_PARAMS = {'test_dir': TEST_DIR}
 
     def clear_database(self):

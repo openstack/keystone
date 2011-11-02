@@ -71,6 +71,7 @@ Developer Docs
 .. toctree::
     :maxdepth: 1
 
+    developing
     architecture
     sourcecode/autoindex
 

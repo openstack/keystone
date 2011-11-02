@@ -6,7 +6,14 @@ from xml.etree import ElementTree
 
 
 class HttpTestCase(unittest.TestCase):
-    """Performs generic HTTP request testing"""
+    """Performs generic HTTP request testing.
+
+    Defines a ``request`` method for use in test cases that makes
+    HTTP requests, and two new asserts:
+
+    * assertResponseSuccessful
+    * assertResponseStatus
+    """
 
     def request(self, host='127.0.0.1', port=80, method='GET', path='/',
             headers=None, body=None, assert_status=None):
@@ -38,13 +45,29 @@ class HttpTestCase(unittest.TestCase):
         return response
 
     def assertResponseSuccessful(self, response):
-        """Asserts that a status code lies inside the 2xx range"""
+        """Asserts that a status code lies inside the 2xx range
+
+        :param response: :py:class:`httplib.HTTPResponse` to be
+        verified to have a status code between 200 and 299.
+
+        example::
+
+            >>> self.assertResponseSuccessful(response, 203)
+        """
         self.assertTrue(response.status >= 200 and response.status <= 299,
             'Status code %d is outside of the expected range (2xx)\n\n%s' %
             (response.status, response.body))
 
     def assertResponseStatus(self, response, assert_status):
-        """Asserts a specific status code on the response"""
+        """Asserts a specific status code on the response
+
+        :param response: :py:class:`httplib.HTTPResponse`
+        :param assert_status: The specific ``status`` result expected
+
+        example::
+
+            >>> self.assertResponseStatus(response, 203)
+        """
         self.assertEqual(response.status, assert_status,
             'Status code %s is not %s, as expected)\n\n%s' %
             (response.status, assert_status, response.body))
@@ -104,11 +127,27 @@ class RestfulTestCase(HttpTestCase):
 
     @staticmethod
     def _encode_json(data):
-        """Returns a JSON-encoded string of the given python dictionary"""
+        """Returns a JSON-encoded string of the given python dictionary
+
+        :param data: python object to be encoded into JSON
+        :returns: string of JSON encoded data
+        """
         return json.dumps(data)
 
     def _decode_response_body(self, response):
-        """Detects response body type, and attempts to decode it"""
+        """Detects response body type, and attempts to decode it
+
+        :param response: :py:class:`httplib.HTTPResponse`
+        :returns: response object with additions:
+
+        If context type is application/json, the response will have an
+        additional attribute ``json`` that will have the decoded JSON
+        result (typically a dict)
+
+        If context type is application/xml, the response will have an
+        additional attribute ``xml`` that will have the an ElementTree
+        result.
+        """
         if response.body != None and response.body.strip():
             if 'application/json' in response.getheader('Content-Type', ''):
                 response.json = self._decode_json(response.body)
