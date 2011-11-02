@@ -183,6 +183,14 @@ class Debug(Middleware):
         print
 
 
+def debug_filter_factory(global_conf):
+    """Filter factor to easily insert a debugging middleware into the
+    paste.deploy pipeline"""
+    def filter(app):
+        return Debug(app)
+    return filter
+
+
 class Router(object):
     """
     WSGI middleware that maps incoming requests to WSGI apps.

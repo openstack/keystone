@@ -7,7 +7,6 @@ function usage {
   echo "  -V, --virtual-env        Always use virtualenv.  Install automatically if not present"
   echo "  -N, --no-virtual-env     Don't use virtualenv.  Run tests in local environment"
   echo "  -f, --force              Force a clean re-build of the virtual environment. Useful when dependencies have been added."
-  echo "  --unittests-only         Run unit tests only, exclude functional tests."
   echo "  --with-coverage          Runs tests with python code coverage (useful for jenkins)"
   echo "                             Note: cannot be used in combination --with-progress"
   echo "  --with-progress          Runs tests with progress (useful for developers)"
@@ -30,8 +29,7 @@ function process_option {
     -p|--pep8) let just_pep8=1;;
     -l|--pylint) let just_pylint=1; let never_venv=0;;
     -f|--force) let force=1;;
-    --unittests-only) noseargs="$noseargs --exclude-dir=keystone/tests/functional --exclude-dir=keystone/tests/system";;
-    *) noseargs="$noseargs $1"
+    *) addlargs="$addlargs $1"
   esac
 }
 
@@ -40,10 +38,11 @@ with_venv=tools/with_venv.sh
 always_venv=0
 never_venv=0
 force=0
-noseargs=
+addlargs=
 wrapper=""
 just_pep8=0
 just_pylint=0
+RUNTESTS="python run_tests.py $addlargs"
 
 for arg in "$@"; do
   process_option $arg
@@ -51,7 +50,7 @@ done
 
 function run_tests {
   # Just run the test suites in current environment
-  ${wrapper} $NOSETESTS
+  ${wrapper} $RUNTESTS
 }
 
 function run_pep8 {
@@ -70,9 +69,6 @@ function run_pylint {
   pylint $PYLINT_OPTIONS $PYLINT_INCLUDE | grep 'keystone/' | wc -l
   echo "Run 'pylint $PYLINT_OPTIONS $PYLINT_INCLUDE' for a full report."
 }
-
-
-NOSETESTS="python run_tests.py $noseargs"
 
 if [ $never_venv -eq 0 ]
 then
@@ -111,7 +107,3 @@ if [ $just_pylint -eq 1 ]; then
 fi
 
 run_tests || exit
-
-#if [ -z "$noseargs" ]; then
-#  run_pep8
-#fi
