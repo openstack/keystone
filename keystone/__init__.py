@@ -23,6 +23,10 @@ RELEASE_VERSION = "2012.1"
 RELEASE_VERSION_FINAL = False  # becomes true at Release Candidate time
 
 
+def canonical_version():
+    return RELEASE_VERSION
+
+
 def version():
     if RELEASE_VERSION_FINAL:
         return RELEASE_VERSION
