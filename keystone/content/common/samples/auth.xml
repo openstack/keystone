@@ -1,69 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <access xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://docs.openstack.org/identity/api/v2.0">
+	xmlns="http://docs.openstack.org/identity/api/v2.0">
 	<token id="ab48a9efdfedb23ty3494" expires="2010-11-01T03:32:15-05:00">
-		<tenant id="456" name="My Project" />
+		<tenant id="t1000" name="My Project" />
 	</token>
-	<user id="testId" name="test">
+	<user id="u123" name="jqsmith">
 		<roles>
-			<role id="123" name="compute:admin"/>
-			<role id="234" name="object-store:admin" tenantId="1"/>
+			<role id="100" name="compute:admin"/>
+			<role id="101" name="object-store:admin" tenantId="t1000"/>
 		</roles>
 	</user>
 	<serviceCatalog>
-		<service type="compute" name="Computers in the Cloud">
+		<service type="compute" name="Cloud Servers">
 			<endpoint
-            tenantId="3456"
-			region="North"
-			publicURL="https://north.compute.public.com/v2.0/1234"
-			internalURL="https://north.compute.internal.com/v2.0/1234">
-				<version
-				id="2.0"
-				info="https://north.compute.public.com/v2.0/"
-				list="https://north.compute.public.com/" 
-				tenantId="1"/>
-			</endpoint>
-			<endpoint
-            tenantId="3456"
-			region="South"
-			publicURL="https://south.compute.public.com/v2.0/3456"
-			internalURL="https://south.compute.internal.com/v2.0/3456">
-				<version
-				id="2.0"
-				info="https://south.compute.public.com/v2.0/"
-				list="https://south.compute.public.com/" />
-			</endpoint>
-		</service>
-		<service type="object-store" name="HTTP Object Store">
-			<endpoint
-            tenantId="3456"
-			region="North"
-			publicURL="https://north.object-store.public.com/v1/1234"
-			internalURL="https://north.object-store.internal.com/v1/1234">
+        tenantId="t1000"
+				region="North"
+				publicURL="https://compute.north.host.com/v1/t1000"
+				internalURL="https://compute.north.host.internal/v1/t1000">
 				<version
 				id="1"
-				info="https://north.object-store.public.com/v1/"
-				list="https://north.object-store.public.com/" />
+				info="https://compute.north.host.com/v1/"
+				list="https://compute.north.host.com/"
+				/>
 			</endpoint>
 			<endpoint
-            tenantId="3456"
-			region="South"
-			publicURL="https://south.object-store.public.com/v2.0/3456"
-			internalURL="https://south.object-store.internal.com/v2.0/3456">
+        tenantId="t1000"
+				region="North"
+				publicURL="https://compute.north.host.com/v1.1/t1000"
+				internalURL="https://compute.north.host.internal/v1.1/t1000">
 				<version
-				id="2.0"
-				info="https://south.object-store.public.com/v1/"
-				list="https://south.object-store.public.com/" />
+				id="1.1"
+				info="https://compute.north.host.com/v1.1/"
+				list="https://compute.north.host.com/" />
+			</endpoint>
+		</service>
+		<service type="object-store" name="Cloud Files">
+			<endpoint
+        tenantId="t1000"
+				region="North"
+				publicURL="https://storage.north.host.com/v1/t1000"
+				internalURL="https://storage.north.host.internal/v1/t1000">
+				<version
+				id="1"
+				info="https://storage.north.host.com/v1/"
+				list="https://storage.north.host.com/" />
+			</endpoint>
+			<endpoint
+        tenantId="t1000"
+				region="South"
+				publicURL="https://storage.south.host.com/v1/t1000"
+				internalURL="https://storage.south.host.internal/v1/t1000">
+				<version
+				id="1"
+				info="https://storage.south.host.com/v1/"
+				list="https://storage.south.host.com/" />
 			</endpoint>
 		</service>
 		<service type="dnsextension:dns" name="DNS-as-a-Service">
 			<endpoint
-            tenantId="3456"
-			publicURL="https://dns.public.com/v2.0/blah-blah">
+        tenantId="t1000"
+				publicURL="https://dns.host.com/v2.0/t1000">
 				<version
 				id="2.0"
-				info="https://dns.public.com/v2.0/"
-				list="https://dns.public.com/" />
+				info="https://dns.host.com/v2.0/"
+				list="https://dns.host.com/" />
 			</endpoint>
 		</service>
 	</serviceCatalog>
