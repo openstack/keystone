@@ -58,8 +58,8 @@ class TestAdminClient(unittest.TestCase):
         """
         Test incorrect credentials generates a client error.
         """
-        with self.assertRaises(keystone.common.exception.ClientError):
-            token = self.client.get_token("bad_user", "bad_pass")
+        self.assertRaises(keystone.common.exception.ClientError,
+            self.client.get_token, "bad_user", "bad_pass")
 
 
 class TestServiceClient(unittest.TestCase):
@@ -84,5 +84,5 @@ class TestServiceClient(unittest.TestCase):
         """
         Test incorrect credentials generates a client error.
         """
-        with self.assertRaises(keystone.common.exception.ClientError):
-            token = self.client.get_token("bad_user", "bad_pass")
+        self.assertRaises(keystone.common.exception.ClientError,
+            self.client.get_token, "bad_user", "bad_pass")
