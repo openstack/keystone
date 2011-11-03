@@ -1,3 +1,4 @@
+import uuid
 
 from keystonelight import models
 from keystonelight import test
@@ -108,3 +109,24 @@ class KvsIdentity(test.TestCase):
         user_id=self.user_foo['id'],
         tenant_id=self.tenant_bar['id'])
     self.assertDictEquals(extras_ref, self.extras_foobar)
+
+
+class KvsToken(test.TestCase):
+  def setUp(self):
+    super(KvsToken, self).setUp()
+    options = self.appconfig('default')
+    self.token_api = kvs.KvsToken(options=options, db={})
+
+  def test_token_crud(self):
+    token_id = uuid.uuid4().hex
+    data = {'id': token_id,
+            'a': 'b'}
+    data_ref = self.token_api.create_token(token_id, data)
+    self.assertDictEquals(data_ref, data)
+
+    new_data_ref = self.token_api.get_token(token_id)
+    self.assertEquals(new_data_ref, data)
+
+    self.token_api.delete_token(token_id)
+    deleted_data_ref = self.token_api.get_token(token_id)
+    self.assert_(deleted_data_ref is None)

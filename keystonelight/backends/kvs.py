@@ -70,6 +70,8 @@ class KvsToken(object):
   def __init__(self, options, db=None):
     if db is None:
       db = INMEMDB
+    elif type(db) is type({}):
+      db = DictKvs(db)
     self.db = db
 
   # Public interface
@@ -88,6 +90,8 @@ class KvsCatalog(object):
   def __init__(self, options, db=None):
     if db is None:
       db = INMEMDB
+    elif type(db) is type({}):
+      db = DictKvs(db)
     self.db = db
 
   # Public interface
