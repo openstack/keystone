@@ -1,6 +1,8 @@
 import ConfigParser
+import logging
 import os
 import unittest
+import subprocess
 import sys
 
 from paste import deploy
@@ -24,13 +26,16 @@ def checkout_vendor(repo, rev):
     name = name[:-4]
 
   revdir = os.path.join(VENDOR, '%s-%s' % (name, rev.replace('/', '_')))
+  try:
+    if not os.path.exists(revdir):
+      utils.git('clone', repo, revdir)
 
-  if not os.path.exists(revdir):
-    utils.git('clone', repo, revdir)
-
-  cd(revdir)
-  utils.git('pull')
-  utils.git('checkout', '-q', rev)
+    cd(revdir)
+    utils.git('pull')
+    utils.git('checkout', '-q', rev)
+  except subprocess.CalledProcessError as e:
+    logging.warning('Failed to checkout %s', repo)
+    pass
   return revdir
 
 

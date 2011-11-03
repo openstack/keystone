@@ -27,12 +27,13 @@ class KvsIdentity(object):
     user_ref = self.get_user(user_id)
     tenant_ref = None
     extras_ref = None
-    if user_ref['password'] != password:
+    if not user_ref or user_ref.get('password') != password:
       raise AssertionError('Invalid user / password')
+    if tenant_id and tenant_id not in user_ref['tenants']:
+      raise AssertionError('Invalid tenant')
 
-    if tenant_id and tenant_id in user_ref['tenants']:
-      tenant_ref = self.get_tenant(tenant_id)
-      extras_ref = self.get_extras(user_id, tenant_id)
+    tenant_ref = self.get_tenant(tenant_id)
+    extras_ref = self.get_extras(user_id, tenant_id)
     return (user_ref, tenant_ref, extras_ref)
 
   def get_tenant(self, tenant_id):
