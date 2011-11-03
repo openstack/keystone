@@ -184,6 +184,93 @@ class GetTenantTest(TenantTest):
             'Accept': 'application/xml'})
 
 
+class GetTenantUsersTest(TenantTest):
+    def setUp(self, *args, **kwargs):
+        super(TenantTest, self).setUp(*args, **kwargs)
+        self.tenant = self.create_tenant().json['tenant']
+        password = common.unique_str()
+        self.user = self.create_user(user_password=password).json['user']
+        self.user['password'] = password
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'], role['id'], self.tenant['id'])
+
+    def test_list_tenant_users(self):
+        user = self.list_tenant_users(self.tenant['id'],
+            assert_status=200).json['users'][0]
+        self.assertEquals(user['name'], self.user['name'])
+
+    def test_list_tenant_users_xml(self):
+        r = self.list_tenant_users(self.tenant['id'],
+            assert_status=200, headers={
+            "Accept": "application/xml"})
+        self.assertEquals(r.xml.tag, '{%s}users' % self.xmlns)
+        users = r.xml.findall('{%s}user' % self.xmlns)
+        for user in users:
+            self.assertEqual(user.get('name'), self.user['name'])
+
+    def test_list_tenant_users_expired_token(self):
+        self.admin_token = self.expired_admin_token
+        self.list_tenant_users(self.tenant['id'], assert_status=403)
+
+    def test_list_tenant_users_disabled_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.list_tenant_users(self.tenant['id'], assert_status=403)
+
+    def test_list_tenant_users_missing_token(self):
+        self.admin_token = ''
+        self.list_tenant_users(self.tenant['id'], assert_status=401)
+
+    def test_list_tenant_users_invalid_token(self):
+        self.admin_token = common.unique_str()
+        self.list_tenant_users(self.tenant['id'], assert_status=401)
+
+
+class GetTenantUsersByRoleTest(TenantTest):
+    def setUp(self, *args, **kwargs):
+        super(TenantTest, self).setUp(*args, **kwargs)
+        self.tenant = self.create_tenant().json['tenant']
+        password = common.unique_str()
+        self.user = self.create_user(user_password=password).json['user']
+        self.user['password'] = password
+        self.role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'],
+            self.role['id'], self.tenant['id'])
+
+    def test_list_tenant_users(self):
+        user = self.list_tenant_users(self.tenant['id'],
+            self.role['id'], assert_status=200).json['users'][0]
+        self.assertEquals(user['name'], self.user['name'])
+
+    def test_list_tenant_users_xml(self):
+        r = self.list_tenant_users(self.tenant['id'],
+            self.role['id'], assert_status=200, headers={
+            "Accept": "application/xml"})
+        self.assertEquals(r.xml.tag, '{%s}users' % self.xmlns)
+        users = r.xml.findall('{%s}user' % self.xmlns)
+        for user in users:
+            self.assertEqual(user.get('name'), self.user['name'])
+
+    def test_list_tenant_users_expired_token(self):
+        self.admin_token = self.expired_admin_token
+        self.list_tenant_users(self.tenant['id'],
+            self.role['id'], assert_status=403)
+
+    def test_list_tenant_users_disabled_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.list_tenant_users(self.tenant['id'],
+            self.role['id'], assert_status=403)
+
+    def test_list_tenant_users_missing_token(self):
+        self.admin_token = ''
+        self.list_tenant_users(self.tenant['id'],
+            self.role['id'], assert_status=401)
+
+    def test_list_tenant_users_invalid_token(self):
+        self.admin_token = common.unique_str()
+        self.list_tenant_users(self.tenant['id'],
+            self.role['id'], assert_status=401)
+
+
 class GetTenantByNameTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(TenantTest, self).setUp(*args, **kwargs)

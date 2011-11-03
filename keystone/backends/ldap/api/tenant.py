@@ -68,13 +68,20 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):
         conn.modify_s(self._id_to_dn(tenant_id),
             [(ldap.MOD_DELETE, 'member', self.api.user._id_to_dn(user_id))])
 
-    def get_users(self, tenant_id):
+    def get_users(self, tenant_id, role_id=None):
         tenant = self._ldap_get(tenant_id)
         res = []
-        for user_dn in tenant[1].get('member', []):
-            if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
-                continue
-            res.append(self.api.user.get(self.api.user._dn_to_id(user_dn)))
+        if not role_id:
+            # Get users who have default tenant mapping
+            for user_dn in tenant[1].get('member', []):
+                if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
+                    continue
+                res.append(self.api.user.get(self.api.user._dn_to_id(user_dn)))
+        role_refs = self.api.role.get_role_assignments(tenant_id)
+        # Get users who are explicitly mapped via a tenant
+        for role_ref in role_refs:
+            if role_id is None or role_ref.role_id == role_id:
+                res.append(self.api.user.get(role_ref.user_id))
         return res
 
     add_redirects(locals(), SQLTenantAPI, ['get_all_endpoints'])
