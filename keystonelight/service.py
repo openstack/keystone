@@ -198,3 +198,8 @@ def identity_app_factory(global_conf, **local_conf):
     conf.update(local_conf)
     return Router(conf)
 
+
+def app_factory(global_conf, **local_conf):
+    conf = global_conf.copy()
+    conf.update(local_conf)
+    return Router(conf)
