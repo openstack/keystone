@@ -96,8 +96,9 @@ class KvsCatalog(object):
 
   # Public interface
   def get_catalog(self, user_id, tenant_id, extras=None):
-    return self.db.get('catalog-%s' % tenant_id)
+    return self.db.get('catalog-%s-%s' % (tenant_id, user_id))
 
   # Private interface
   def _create_catalog(self, user_id, tenant_id, data):
-    self.db.set('catalog-%s' % tenant_id, data)
+    self.db.set('catalog-%s-%s' % (tenant_id, user_id), data)
+    return data
