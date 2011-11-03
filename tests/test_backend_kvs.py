@@ -62,3 +62,49 @@ class KvsIdentity(test.TestCase):
     self.assertDictEquals(user_ref, self.user_foo)
     self.assertDictEquals(tenant_ref, self.tenant_bar)
     self.assertDictEquals(extras_ref, self.extras_foobar)
+
+  def test_get_tenant_bad_tenant(self):
+    tenant_ref = self.identity_api.get_tenant(
+        tenant_id=self.tenant_bar['id'] + 'WRONG')
+    self.assert_(tenant_ref is None)
+
+  def test_get_tenant(self):
+    tenant_ref = self.identity_api.get_tenant(tenant_id=self.tenant_bar['id'])
+    self.assertDictEquals(tenant_ref, self.tenant_bar)
+
+  def test_get_tenant_by_name_bad_tenant(self):
+    tenant_ref = self.identity_api.get_tenant(
+        tenant_id=self.tenant_bar['name'] + 'WRONG')
+    self.assert_(tenant_ref is None)
+
+  def test_get_tenant_by_name(self):
+    tenant_ref = self.identity_api.get_tenant_by_name(
+        tenant_name=self.tenant_bar['name'])
+    self.assertDictEquals(tenant_ref, self.tenant_bar)
+
+  def test_get_user_bad_user(self):
+    user_ref = self.identity_api.get_user(
+        user_id=self.user_foo['id'] + 'WRONG')
+    self.assert_(user_ref is None)
+
+  def test_get_user(self):
+    user_ref = self.identity_api.get_user(user_id=self.user_foo['id'])
+    self.assertDictEquals(user_ref, self.user_foo)
+
+  def test_get_extras_bad_user(self):
+    extras_ref = self.identity_api.get_extras(
+        user_id=self.user_foo['id'] + 'WRONG',
+        tenant_id=self.tenant_bar['id'])
+    self.assert_(extras_ref is None)
+
+  def test_get_extras_bad_tenant(self):
+    extras_ref = self.identity_api.get_extras(
+        user_id=self.user_foo['id'],
+        tenant_id=self.tenant_bar['id'] + 'WRONG')
+    self.assert_(extras_ref is None)
+
+  def test_get_extras(self):
+    extras_ref = self.identity_api.get_extras(
+        user_id=self.user_foo['id'],
+        tenant_id=self.tenant_bar['id'])
+    self.assertDictEquals(extras_ref, self.extras_foobar)
