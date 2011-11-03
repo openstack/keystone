@@ -22,7 +22,7 @@ Configuring Keystone
    :maxdepth: 1
 
    keystone.conf
-   man/keystonemanage.rst
+   man/keystone-manage
 
 Once Keystone is installed, it needs to be configured with any services
 that will be using Keystone, and those services need to be provided with
@@ -44,7 +44,7 @@ systems may authenticate against them. For the keystone service itself, two
 Roles are pre-defined in the keystone configuration file
 (:doc:`keystone.conf`).
 
-These roles still need to be created using :doc:`man/keystonemanage`
+These roles still need to be created using :doc:`man/keystone-manage`
 commands to be able to use them::
 
     $> keystone-manage user add admin secrete
@@ -54,9 +54,9 @@ commands to be able to use them::
     $> keystone-manage role grant KeystoneServiceAdmin admin
 
 Once these are defined, you should now have the choice of using the
-administrative API (as well as the :doc:`man/keystonemanage` commands) to further
-configure keystone. There are a number of examples of how to use that API at
-:doc:`adminAPI_curl_examples`.
+administrative API (as well as the :doc:`man/keystone-manage` commands) to
+further configure keystone. There are a number of examples of how to use
+that API at :doc:`adminAPI_curl_examples`.
 
 Setting up service endpoints
 ============================
@@ -175,6 +175,24 @@ Let's also add the admin user as an Admin role to the demo tenant::
 
     $> keystone-manage role grant Admin admin demo
 
+Creating EC2 credentials
+########################
+
+To add EC2 credentials for the `admin` and `demo` accounts::
+
+    $> keystone-manage credentials add admin EC2 'admin' 'secretpassword'
+    $> keystone-manage credentials add admin EC2 'demo' 'secretpassword'
+
+If you have a large number of credentials to create, you can put them all
+into a single large file and import them using :doc:`man/keystone-import`. The
+format of the document looks like::
+
+    credentials add admin EC2 'username' 'password'
+    credentials add admin EC2 'username' 'password'
+
+Then use::
+
+    $> keystone-import `filename`
 
 Configuring Nova to use Keystone
 ################################
