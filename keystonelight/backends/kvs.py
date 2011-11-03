@@ -12,10 +12,18 @@ class KvsIdentity(object):
   def __init__(self, options, db=None):
     if db is None:
       db = INMEMDB
+    elif type(db) is type({}):
+      db = DictKvs(db)
     self.db = db
 
   # Public interface
   def authenticate(self, user_id=None, tenant_id=None, password=None):
+    """Authenticate based on a user, tenant and password.
+
+    Expects the user object to have a password field and the tenant to be
+    in the list of tenants on the user.
+
+    """
     user_ref = self.get_user(user_id)
     tenant_ref = None
     extras_ref = None
