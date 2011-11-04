@@ -6,7 +6,9 @@ class DictKvs(dict):
   def delete(self, key):
     del self[key]
 
+
 INMEMDB = DictKvs()
+
 
 class KvsIdentity(object):
   def __init__(self, options, db=None):
