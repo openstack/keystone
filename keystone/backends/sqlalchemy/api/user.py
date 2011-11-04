@@ -265,7 +265,7 @@ class UserAPI(BaseUserAPI):
                     usr.tenant_roles.add(role.role_id)
         return users
 
-    def users_get_by_tenant_get_page_markers(self, tenant_id,\
+    def users_get_by_tenant_get_page_markers(self, tenant_id, \
             role_id, marker, limit, session=None):
         if not session:
             session = get_session()

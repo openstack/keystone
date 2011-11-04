@@ -44,7 +44,6 @@ import cgi
 import re
 import os
 import functools
-import sys
 import time
 import tokenize
 import mimetypes

@@ -44,8 +44,8 @@ PROTOCOL_NAME = "Basic Authentication"
 
 
 def _decorate_request_headers(header, value, proxy_headers, env):
-        proxy_headers[header] = value
-        env["HTTP_%s" % header] = value
+    proxy_headers[header] = value
+    env["HTTP_%s" % header] = value
 
 
 class AuthProtocol(object):

@@ -72,14 +72,13 @@ if __name__ == '__main__':
         # Load Service API server
         if conf['service_ssl'] == 'True':
             server = wsgi.SslServer()
-            server.start(app, int(conf['service_port']), conf['service_host'], 
-                         certfile=conf['certfile'], keyfile=conf['keyfile'], 
-                         ca_certs=conf['ca_certs'], 
+            server.start(app, int(conf['service_port']), conf['service_host'],
+                         certfile=conf['certfile'], keyfile=conf['keyfile'],
+                         ca_certs=conf['ca_certs'],
                          cert_required=conf['cert_required'])
         else:
             server = wsgi.Server()
             server.start(app, int(conf['service_port']), conf['service_host'])
-        
 
         print "Service API (ssl=%s) listening on %s:%s" % (
             conf['service_ssl'], conf['service_host'], conf['service_port'])
@@ -87,11 +86,12 @@ if __name__ == '__main__':
         # Load Admin API server
         if conf['admin_ssl'] == 'True':
             admin_server = wsgi.SslServer()
-            admin_server.start(admin_app, 
-                               int(conf['admin_port']), conf['admin_host'], 
-                               certfile=conf['certfile'], keyfile=conf['keyfile'], 
-                               ca_certs=conf['ca_certs'], 
-                               cert_required=conf['cert_required'])            
+            admin_server.start(admin_app,
+                               int(conf['admin_port']), conf['admin_host'],
+                               certfile=conf['certfile'],
+                               keyfile=conf['keyfile'],
+                               ca_certs=conf['ca_certs'],
+                               cert_required=conf['cert_required'])
         else:
             admin_server = wsgi.Server()
             admin_server.start(admin_app,

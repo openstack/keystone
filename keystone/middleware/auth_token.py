@@ -134,8 +134,23 @@ class AuthProtocol(object):
 
     def __init__(self, app, conf):
         """ Common initialization code """
-
         #TODO(ziad): maybe we refactor this into a superclass
+        # Defining instance variables here for improving pylint score
+        # NOTE(salvatore-orlando): the following vars are assigned values
+        # either in init_protocol or init_protocol_common. We should not
+        # worry about them being initialized to None
+        self.admin_password = None
+        self.admin_token = None
+        self.admin_user = None
+        self.auth_api_version = None
+        self.auth_host = None
+        self.auth_location = None
+        self.auth_port = None
+        self.auth_protocol = None
+        self.service_host = None
+        self.service_port = None
+        self.service_protocol = None
+        self.service_url = None
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(conf)  # Specific to this protocol
 

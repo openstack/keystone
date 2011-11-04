@@ -1196,13 +1196,13 @@ class IdentityService(object):
         if duser_name.id != duser.id:
             raise fault.UserConflictFault(
                 "A user with that name already exists")
-        values = {'password': password_credentials.password,\
+        values = {'password': password_credentials.password, \
             'name': password_credentials.user_name}
         api.USER.update(user_id, values)
         duser = api.USER.get(user_id)
         return PasswordCredentials(duser.name, duser.password)
 
-    def create_password_credentials(self, admin_token, user_id,\
+    def create_password_credentials(self, admin_token, user_id, \
         password_credentials):
         self.__validate_admin_token(admin_token)
         duser = api.USER.get(user_id)
@@ -1221,7 +1221,7 @@ class IdentityService(object):
         if duser.password:
             raise fault.BadRequestFault(
                 "Password credentials already available.")
-        values = {'password': password_credentials.password,\
+        values = {'password': password_credentials.password, \
             'name': password_credentials.user_name}
         api.USER.update(user_id, values)
         duser = api.USER.get(user_id)
