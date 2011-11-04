@@ -7,6 +7,9 @@ Keystone Light is a re-interpretation of the Keystone project that provides
 Identity, Token and Catalog services for use specifically by projects in the
 OpenStack family.
 
+Much of the design is precipitated from the expectation that the auth backends
+for most deployments will actually be shims in front of existing user systems.
+
 
 ----------
 Data Model
@@ -86,6 +89,18 @@ with sdedit_)
 Diagram: keystone_compat_flows.sdx_
 
 ..  _: https://raw.github.com/termie/keystonelight/master/docs/keystone_compat_flows.sdx
+
+----------------
+Approach to CRUD
+----------------
+
+While it is expected that any "real" deployment at a large company will manage
+their users, tenants and other metadata in their existing user systems, a
+variety of CRUD operations are provided for the sake of development and testing.
+
+CRUD is treated as an extension or additional feature to the core feature set in
+that it is not required that a backend support it.
+
 
 -----------
 Still To Do
