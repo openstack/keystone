@@ -74,7 +74,13 @@ class KeystoneAuthShim(wsgi.Middleware):
             self.auth.modify_user(user_ref, admin=is_admin)
 
         # create a project for tenant
-        project_id = req.headers['X_TENANT']
+        if 'X_TENANT_ID' in req.headers:
+            # This is the new header since Keystone went to ID/Name
+            project_id = req.headers['X_TENANT_ID']
+        else:
+            # This is for legacy compatibility
+            project_id = req.headers['X_TENANT']
+
         if project_id:
             try:
                 project_ref = self.auth.get_project(project_id)
