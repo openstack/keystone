@@ -78,6 +78,14 @@ the paste.deploy config and adding it to your main pipeline::
   [app:keystone]
   paste.app_factory = keystonelight.keystone_compat:app_factory
 
+Also relevant to Keystone compatibility are these sequence diagrams (openable
+with sdedit_)
+
+.. _sdedit: http://sourceforge.net/projects/sdedit/files/sdedit/4.0/
+
+Diagram: keystone_compat_flows.sdx_
+
+..  _: https://raw.github.com/termie/keystonelight/master/docs/keystone_compat_flows.sdx
 
 -----------
 Still To Do
