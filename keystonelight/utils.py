@@ -43,6 +43,7 @@ def import_object(import_str, *args, **kw):
         cls = import_class(import_str)
         return cls(*args, **kw)
 
+
 # From python 2.7
 def check_output(*popenargs, **kwargs):
   r"""Run command with arguments and return its output as a byte string.

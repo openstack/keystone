@@ -1,7 +1,8 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # these will be the basic data types for tenants and users
-# backends will make use of them to return something that conforms to their apis
+# backends will make use of them to return something that conforms to their
+# apis
 
 
 from keystonelight import utils
