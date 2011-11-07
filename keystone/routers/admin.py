@@ -140,5 +140,5 @@ class AdminApi(wsgi.Router):
                     action="get_static_file",
                     root="content/common/", path="samples/",
                     conditions=dict(method=["GET"]))
-        extension.configure_extensions(mapper, options)
+        extension.get_extension_configurer().configure(mapper, options)
         super(AdminApi, self).__init__(mapper)

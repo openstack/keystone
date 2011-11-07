@@ -20,6 +20,7 @@ from keystone.backends.api import BaseTenantAPI
 
 
 class TenantAPI(BaseTenantAPI):
+    # pylint: disable=W0221
     def create(self, values):
         tenant_ref = models.Tenant()
         tenant_ref.update(values)
