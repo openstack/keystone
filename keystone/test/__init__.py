@@ -93,8 +93,8 @@ class KeystoneTest(object):
         self.server = subprocess.Popen(
             [os.path.join(BASE_DIR, 'bin/keystone'), '-c', self.conf_fp.name])
 
-        # blatent hack.
-        time.sleep(3)
+        # blatant hack.
+        time.sleep(5)
         if self.server.poll() is not None:
             raise RuntimeError('Failed to start server')
 
