@@ -1,5 +1,5 @@
-Keystone *Light*
-================
+Keystone Light
+==============
 
 *Always Smooth*
 
