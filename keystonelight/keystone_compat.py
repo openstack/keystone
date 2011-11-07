@@ -17,7 +17,6 @@ class KeystoneRouter(wsgi.Router):
         self.options = options
         self.keystone_controller = KeystoneController(options)
 
-
         mapper = routes.Mapper()
         mapper.connect('/v2.0/tokens',
                        controller=self.keystone_controller,

@@ -91,8 +91,9 @@ Diagram: keystone_compat_flows.sdx_
 Still To Do
 -----------
 
-* Dev and testing setups would do well with some user/tenant/etc CRUD, for the
-  KVS backends at least.
-* Fixture loading functionality would also be killer tests and dev.
-* LDAP backend.
-* Keystone import.
+ * Dev and testing setups would do well with some user/tenant/etc CRUD, for the
+   KVS backends at least.
+ * Fixture loading functionality would also be killer tests and dev.
+ * LDAP backend.
+ * Keystone import.
+ * Admin-only interface
