@@ -26,16 +26,12 @@ import sys
 import eventlet
 import eventlet.wsgi
 eventlet.patcher.monkey_patch(all=False, socket=True, time=True)
-import hflags as flags
 import routes
 import routes.middleware
 import webob
 import webob.dec
 import webob.exc
 from paste import deploy
-
-
-FLAGS = flags.FLAGS
 
 
 class WritableLogger(object):

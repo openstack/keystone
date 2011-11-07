@@ -97,3 +97,4 @@ Still To Do
  * LDAP backend.
  * Keystone import.
  * Admin-only interface
+ * Don't check git checkouts as often, to speed up tests
