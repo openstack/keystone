@@ -17,9 +17,9 @@ class CompatTestCase(test.TestCase):
     super(CompatTestCase, self).setUp()
 
 
-class MasterCompatTestCase(CompatTestCase):
+class NovaClientCompatMasterTestCase(CompatTestCase):
   def setUp(self):
-    super(MasterCompatTestCase, self).setUp()
+    super(NovaClientCompatMasterTestCase, self).setUp()
 
     revdir = test.checkout_vendor(KEYSTONECLIENT_REPO, 'master')
     self.add_path(revdir)
@@ -64,12 +64,17 @@ class MasterCompatTestCase(CompatTestCase):
     port = self.server.socket_info['socket'][1]
     self.options['public_port'] = port
 
-    # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
+    # NOTE(termie): novaclient wants a "/" TypeErrorat the end, keystoneclient does not
+    # NOTE(termie): projectid is apparently sent as tenantName, so... that's
+    #               unfortunate.
+    # NOTE(termie): novaclient seems to care about the region more than
+    #               keystoneclient
     conn = base_client.HTTPClient(auth_url="http://localhost:%s/v2.0/" % port,
                                   user='foo',
                                   apikey='foo',
-                                  projectid='bar')
+                                  projectid='BAR',
+                                  region_name='RegionOne')
     client = ks_client.Client(conn)
     client.authenticate()
-    #tenants = client.tenants.list()
-    #self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+    # NOTE(termie): novaclient doesn't know about tenants or anything like that
+    #               so just test that we can validate
