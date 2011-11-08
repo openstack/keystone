@@ -31,9 +31,9 @@ log = logging.log
 
 # handlers
 StreamHandler = logging.StreamHandler
-WatchedFileHandler = logging.handlers.WatchedFileHandler
+#WatchedFileHandler = logging.handlers.WatchedFileHandler
 # logging.SysLogHandler is nicer than logging.logging.handler.SysLogHandler.
-SysLogHandler = logging.handlers.SysLogHandler
+#SysLogHandler = logging.handlers.SysLogHandler
 
 
 def log_debug(f):

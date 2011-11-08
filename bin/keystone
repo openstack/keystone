@@ -14,33 +14,18 @@ if os.path.exists(os.path.join(possible_topdir,
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-import logging
+from paste import deploy
 
-import hflags as flags
-
-from keystonelight import service
 from keystonelight import wsgi
 
 
-FLAGS = flags.FLAGS
-
-flags.DEFINE_boolean('verbose', True, 'verbose logging')
-flags.DEFINE_flag(flags.HelpFlag())
-
 if __name__ == '__main__':
-    args = FLAGS(sys.argv)
-    if FLAGS.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+    default_conf = os.path.join(possible_topdir,
+                                'etc',
+                                'keystone.conf')
 
-    public = service.Router()
-    admin = service.AdminRouter()
-
-    public = service.TokenAuthMiddleware(public)
-    public = service.JsonBodyMiddleware(public)
-
-    admin = service.TokenAuthMiddleware(admin)
-
+    conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
+    app = deploy.loadapp('config:%s' % conf)
     server = wsgi.Server()
-    server.start(public, 8080)
-    server.start(admin, 8081)
+    server.start(app, int(app.options['public_port']))
     server.wait()
