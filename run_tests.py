@@ -340,7 +340,9 @@ if __name__ == '__main__':
     argv = []
     for x in sys.argv:
         if x.startswith('test_'):
-            argv.append('tests.%s' % x)
+            pass
+            #argv.append('tests.%s' % x)
+            argv.append(x)
         elif x.startswith('--hide-elapsed'):
             show_elapsed = False
         else:
