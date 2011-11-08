@@ -40,6 +40,7 @@ class CompatTestCase(test.TestCase):
     # NOTE(termie): stupid hack to deal with the keystone samples being
     #               completely inconsistent
     self.validate_token['access']['user']['roles'][1]['id'] = u'235'
+    self.admin_token = 'ADMIN'
 
     self.auth_response = json.load(open(
         os.path.join(self.sampledir, 'auth.json')))
@@ -129,7 +130,7 @@ class DiabloCompatTestCase(CompatTestCase):
   def test_authenticate_scoped(self):
     # NOTE(termie): the docs arbitrarily changed and inserted a 'u' in front
     #               of one of the user ids, but none of the others
-    raise exc.SkipTest()
+    raise exc.SkipTest('The docs have arbitrarily changed.')
     client = self.client(self.app)
     post_data = json.dumps(
         {'auth': {'passwordCredentials': {'username': self.user_123['id'],
@@ -149,13 +150,7 @@ class DiabloCompatTestCase(CompatTestCase):
     #                      data['access']['serviceCatalog'])
 
   def test_validate_token_scoped(self):
-    client = self.client(self.app, token=self.token_123['id'])
-    resp = client.get('/v2.0/tokens/%s' % self.token_123['id'])
-    data = json.loads(resp.body)
-    self.assertDeepEquals(self.validate_token, data)
-
-  def test_validate_token_scoped(self):
-    client = self.client(self.app, token=self.token_123['id'])
+    client = self.client(self.app, token=self.admin_token)
     resp = client.get('/v2.0/tokens/%s' % self.token_123['id'])
     data = json.loads(resp.body)
     self.assertDeepEquals(self.validate_token, data)

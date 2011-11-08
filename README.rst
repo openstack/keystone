@@ -111,5 +111,5 @@ Still To Do
  * Fixture loading functionality would also be killer tests and dev.
  * LDAP backend.
  * Keystone import.
- * Admin-only interface
+ * (./) Admin-only interface
  * Don't check git checkouts as often, to speed up tests

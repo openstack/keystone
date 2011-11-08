@@ -52,6 +52,20 @@ class TokenAuthMiddleware(wsgi.Middleware):
         request.environ['openstack.context'] = context
 
 
+class AdminTokenAuthMiddleware(wsgi.Middleware):
+    """A trivial filter that checks for a pre-defined admin token.
+
+    Sets 'is_admin' to true in the context, expected to be checked by
+    methods that are admin-only.
+
+    """
+    def process_request(self, request):
+        token = request.headers.get('X-Auth-Token')
+        context = request.environ.get('openstack.context', {})
+        context['is_admin'] = (token == self.options['admin_token'])
+        request.environ['openstack.context'] = context
+
+
 class PostParamsMiddleware(wsgi.Middleware):
     """Middleware to allow method arguments to be passed as POST parameters.
 

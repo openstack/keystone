@@ -186,6 +186,8 @@ class KeystoneController(service.BaseApplication):
         Optionally, also ensure that it is owned by a specific tenant.
 
         """
+        assert context['is_admin']
+
         token_ref = self.token_api.get_token(context=context,
                                              token_id=token_id)
         if belongs_to:
@@ -220,6 +222,8 @@ class KeystoneController(service.BaseApplication):
         """
         token_ref = self.token_api.get_token(context=context,
                                              token_id=context['token_id'])
+        assert token_ref is not None
+
         user_ref = token_ref['user']
         tenant_refs = []
         for tenant_id in user_ref['tenants']:
