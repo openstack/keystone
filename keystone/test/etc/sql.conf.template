@@ -4,6 +4,7 @@ debug = False
 default_store = sqlite
 log_file = %(test_dir)s/keystone.sql.log
 backends = keystone.backends.sqlalchemy
+extensions= osksadm,oskscatalog
 service-header-mappings = {
 	'nova' : 'X-Server-Management-Url',
 	'swift' : 'X-Storage-Url',
