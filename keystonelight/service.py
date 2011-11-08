@@ -135,7 +135,8 @@ class IdentityController(BaseApplication):
         self.options = options
 
     def authenticate(self, context, **kwargs):
-        tenant, user, extras = self.identity_api.authenticate(context, **kwargs)
+        tenant, user, extras = self.identity_api.authenticate(context,
+                                                              **kwargs)
         token = self.token_api.create_token(context,
                                             dict(tenant=tenant,
                                                  user=user,

@@ -1,2 +1,14 @@
+# keystonelight dependencies
+pam==0.1.4
+WebOb==0.9.8
+eventlet==0.9.12
+PasteDeploy
+paste
+routes
+
+# keystonelight testing dependencies
+nose
+
 # for python-keystoneclient
 httplib2
+pep8

@@ -75,10 +75,3 @@ class TemplatedCatalog(object):
           o[region][service][k] = v % d
 
     return o
-
-
-
-
-
-
-

@@ -230,7 +230,6 @@ class Debug(Middleware):
             logging.debug(line)
         logging.debug('')
 
-
         resp = req.get_response(self.application)
 
         logging.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
@@ -308,57 +307,3 @@ class Router(object):
             return webob.exc.HTTPNotFound()
         app = match['controller']
         return app
-
-
-def paste_config_file(basename):
-    """Find the best location in the system for a paste config file.
-
-    Search Order
-    ------------
-
-    The search for a paste config file honors `FLAGS.state_path`, which in a
-    version checked out from bzr will be the `nova` directory in the top level
-    of the checkout, and in an installation for a package for your distribution
-    will likely point to someplace like /etc/nova.
-
-    This method tries to load places likely to be used in development or
-    experimentation before falling back to the system-wide configuration
-    in `/etc/nova/`.
-
-    * Current working directory
-    * the `etc` directory under state_path, because when working on a checkout
-      from bzr this will point to the default
-    * top level of FLAGS.state_path, for distributions
-    * /etc/nova, which may not be diffrerent from state_path on your distro
-
-    """
-    configfiles = [basename,
-                   os.path.join(FLAGS.state_path, 'etc', 'nova', basename),
-                   os.path.join(FLAGS.state_path, 'etc', basename),
-                   os.path.join(FLAGS.state_path, basename),
-                   '/etc/nova/%s' % basename]
-    for configfile in configfiles:
-        if os.path.exists(configfile):
-            return configfile
-
-
-def load_paste_configuration(filename, appname):
-    """Returns a paste configuration dict, or None."""
-    filename = os.path.abspath(filename)
-    config = None
-    try:
-        config = deploy.appconfig('config:%s' % filename, name=appname)
-    except LookupError:
-        pass
-    return config
-
-
-def load_paste_app(filename, appname):
-    """Builds a wsgi app from a paste config, None if app not configured."""
-    filename = os.path.abspath(filename)
-    app = None
-    try:
-        app = deploy.loadapp('config:%s' % filename, name=appname)
-    except LookupError:
-        pass
-    return app

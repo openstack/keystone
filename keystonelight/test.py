@@ -169,5 +169,3 @@ class TestCase(unittest.TestCase):
     except AssertionError as e:
       raise
       raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
-
-

@@ -1,4 +1,3 @@
-
 class DictKvs(dict):
   def set(self, key, value):
     self[key] = value
