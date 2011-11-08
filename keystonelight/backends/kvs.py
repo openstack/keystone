@@ -52,6 +52,19 @@ class KvsIdentity(object):
   def get_extras(self, user_id, tenant_id):
     return self.db.get('extras-%s-%s' % (tenant_id, user_id))
 
+  def create_user(self, id, user):
+    self.db.set('user-%s' % id, user)
+    return user
+
+  def create_tenant(self, id, tenant):
+    self.db.set('tenant-%s' % id, tenant)
+    self.db.set('tenant_name-%s' % tenant['name'], tenant)
+    return tenant
+
+  def create_extras(self, user_id, tenant_id, extras):
+    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
+    return extras
+
   # Private CRUD for testing
   def _create_user(self, id, user):
     self.db.set('user-%s' % id, user)
