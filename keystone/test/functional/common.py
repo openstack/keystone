@@ -601,7 +601,7 @@ class FunctionalTestCase(ApiTestCase):
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'
     xmlns_ksadm = 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0'
     xmlns_kscatalog = "http://docs.openstack.org/identity/api/ext"\
-        + "/OSKSCATALOG/v1.0"
+        + "/OS-KSCATALOG/v1.0"
 
     def setUp(self):
         """Prepare keystone for system tests"""

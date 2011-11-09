@@ -202,11 +202,11 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
 
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<endpointTemplate '
-            'xmlns="http://docs.openstack.org'
-            '/identity/api/ext/OSKSCATALOG/v1.0" '
+            'xmlns="%s" '
             'region="%s" name="%s" type="%s"'
             ' publicURL="%s" adminURL="%s"'
-            ' internalURL="%s" enabled="%s" global="%s"/>') % (region,
+            ' internalURL="%s" enabled="%s" global="%s"/>') % (
+                self.xmlns_kscatalog, region,
                 self.service['name'], self.service['type'],
                 public_url, admin_url, internal_url,
                 enabled, is_global)
@@ -354,11 +354,11 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
         self.admin_token = self.expired_admin_token
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<endpointTemplate '
-            'xmlns="http://docs.openstack.org/identity'
-            '/api/ext/OSKSCATALOG/v1.0" '
+            'xmlns="%s" '
             'region="%s" name="%s"'
             ' type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
+                self.xmlns_kscatalog,
                 common.unique_str(),
                 self.service['name'],
                 self.service['type'], common.unique_url(),
@@ -370,11 +370,11 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
         self.admin_token = self.disabled_admin_token
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<endpointTemplate '
-            'xmlns="http://docs.openstack.org/identity'
-            '/api/ext/OSKSCATALOG/v1.0" '
+            'xmlns="%s" '
             'region="%s" name="%s" type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
-                common.unique_str(), self.service['name'],
+                self.xmlns_kscatalog, common.unique_str(),
+                self.service['name'],
                 self.service['type'], common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
         self.post_endpoint_template(as_xml=data, assert_status=403, headers={
@@ -384,10 +384,10 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
         self.admin_token = ''
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<endpointTemplate '
-            'xmlns="http://docs.openstack.org'
-            '/identity/api/ext/OSKSCATALOG/v1.0" '
+            'xmlns="%s" '
             'region="%s" name="%s" type="%s"  publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
+                self.xmlns_kscatalog,
                 common.unique_str(),
                 self.service['name'], self.service['type'],
                 common.unique_url(),
@@ -399,11 +399,11 @@ class CreateEndpointRefsTest(EndpointTemplatesTest):
         self.admin_token = common.unique_str()
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<endpointTemplate '
-            'xmlns="http://docs.openstack.org/'
-            'identity/api/ext/OSKSCATALOG/v1.0" '
+            'xmlns="%s" '
             'region="%s" name="%s" type="%s" publicURL="%s" adminURL="%s" '
             'internalURL="%s" enabled="%s" global="%s"/>') % (
-                common.unique_str(), self.service['name'],
+                self.xmlns_kscatalog, common.unique_str(),
+                self.service['name'],
                 self.service['type'], common.unique_url(),
                 common.unique_url(), common.unique_url(), True, True)
         self.post_endpoint_template(as_xml=data, assert_status=401, headers={

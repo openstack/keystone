@@ -29,7 +29,7 @@ class EndpointTemplate(object):
             dom.append(etree.fromstring(xml_str))
             root = dom.find(
                 "{http://docs.openstack.org/identity"\
-                "/api/ext/OSKSCATALOG/v1.0}" \
+                "/api/ext/OS-KSCATALOG/v1.0}" \
                 "endpointTemplate")
             if root == None:
                 raise fault.BadRequestFault("Expecting endpointTemplate")
@@ -155,7 +155,7 @@ class EndpointTemplate(object):
     def to_dom(self):
         dom = etree.Element("endpointTemplate",
             xmlns="http://docs.openstack.org/"
-            "identity/api/ext/OSKSCATALOG/v1.0")
+            "identity/api/ext/OS-KSCATALOG/v1.0")
         if self.id:
             dom.set("id", str(self.id))
         if self.region:
@@ -231,7 +231,7 @@ class EndpointTemplates(object):
     def to_xml(self):
         dom = etree.Element("endpointTemplates")
         dom.set(u"xmlns",
-            "http://docs.openstack.org/identity/api/ext/OSKSCATALOG/v1.0")
+            "http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0")
 
         for t in self.values:
             dom.append(t.to_dom())
