@@ -14,16 +14,18 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-Curl Admin API examples
-=======================
+=============================
+Admin API Examples Using Curl
+=============================
 
-All examples assume default port usage (35357) and use the example admin account created
-on the Getting Started page.
+These examples assume a default port value of 35357, and depend on the
+``sampledata`` bundled with keystone.
 
-Initial GET
-###########
+GET /
+=====
 
-Retrieves version, full API url, pdf doc link, and wadl link::
+Disover API version information, links to documentation (PDF, HTML, WADL),
+and supported media types::
 
     $ curl http://0.0.0.0:35357
 
@@ -31,98 +33,301 @@ or::
 
     $ curl http://0.0.0.0:35357/v2.0/
 
+Returns::
 
-Retrieve token
-##############
+    {
+        "version":{
+            "id":"v2.0",
+            "status":"ALPHA",
+            "updated":"2011-11-19T00:00:00Z",
+            "links":[
+                {
+                    "rel":"self",
+                    "href":"http://127.0.0.1:35357/v2.0/"
+                },
+                {
+                    "rel":"describedby",
+                    "type":"text/html",
+                    "href":"http://docs.openstack.org/api/openstack-identity-service/2.0/content/"
+                },
+                {
+                    "rel":"describedby",
+                    "type":"application/pdf",
+                    "href":"http://docs.openstack.org/api/openstack-identity-service/2.0/identity-dev-guide-2.0.pdf"
+                },
+                {
+                    "rel":"describedby",
+                    "type":"application/vnd.sun.wadl+xml",
+                    "href":"http://127.0.0.1:35357/v2.0/identity-admin.wadl"
+                }
+            ],
+            "media-types":[
+                {
+                    "base":"application/xml",
+                    "type":"application/vnd.openstack.identity-v2.0+xml"
+                },
+                {
+                    "base":"application/json",
+                    "type":"application/vnd.openstack.identity-v2.0+json"
+                }
+            ]
+        }
+    }
 
-Retrieves the token and expiration date for a user::
+GET /extensions
+===============
 
-    $ curl -d '{"passwordCredentials":{"username": "MyAdmin", "password": "P@ssw0rd"}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
+Discover the API extensions enabled at the endpoint::
 
-This will return something like::
+    $ curl http://0.0.0.0:35357/extensions
 
-    {"auth": {"token": {"expires": "2011-08-10T17:45:22.838440", "id": "0eed0ced-4667-4221-a0b2-24c91f242b0b"}}}
+Returns::
+
+    {
+        "extensions":{
+            "values":[]
+        }
+    }
+
+POST /tokens
+============
+
+Authenticate by exchanging credentials for an access token::
+
+    $ curl -d '{"auth":{"passwordCredentials":{"username": "joeuser", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
+
+Returns::
+
+    {
+        "access":{
+            "token":{
+                "expires":"2012-02-05T00:00:00",
+                "id":"887665443383838",
+                "tenant":{
+                    "id":"1",
+                    "name":"customer-x"
+                }
+            },
+            "serviceCatalog":[
+                {
+                    "endpoints":[
+                    {
+                        "adminURL":"http://swift.admin-nets.local:8080/",
+                        "region":"RegionOne",
+                        "internalURL":"http://127.0.0.1:8080/v1/AUTH_1",
+                        "publicURL":"http://swift.publicinternets.com/v1/AUTH_1"
+                    }
+                    ],
+                    "type":"object-store",
+                    "name":"swift"
+                },
+                {
+                    "endpoints":[
+                    {
+                        "adminURL":"http://cdn.admin-nets.local/v1.1/1",
+                        "region":"RegionOne",
+                        "internalURL":"http://127.0.0.1:7777/v1.1/1",
+                        "publicURL":"http://cdn.publicinternets.com/v1.1/1"
+                    }
+                    ],
+                    "type":"object-store",
+                    "name":"cdn"
+                }
+            ],
+            "user":{
+                "id":"1",
+                "roles":[
+                    {
+                    "tenantId":"1",
+                    "id":"3",
+                    "name":"Member"
+                    }
+                ],
+                "name":"joeuser"
+            }
+        }
+    }
 
 .. note::
 
-    Take note of the value ['auth']['token']['id'] value here, as you'll be using it in the calls below.
+    Take note of the value ['access']['token']['id'] value produced here (``887665443383838``, above), as you can use it in the calls below.
 
-Retrieve a list of tenants
-##########################
+GET /tokens/{token_id}
+======================
 
-Run::
+.. note::
+
+    This call refers to a token known to be valid, ``887665443383838`` in this case.
+
+Validate a token::
+
+    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838
+
+If the token is valid, returns::
+
+    {
+        "access":{
+            "token":{
+                "expires":"2012-02-05T00:00:00",
+                "id":"887665443383838",
+                "tenant":{
+                    "id":"1",
+                    "name":"customer-x"
+                }
+            },
+            "user":{
+                "username":"joeuser",
+                "tenantName":"customer-x",
+                "id":"1",
+                "roles":[
+                    {
+                    "tenantId":"1",
+                    "id":"3",
+                    "name":"Member"
+                    }
+                ],
+                "tenantId":"1"
+            }
+        }
+    }
+
+HEAD /tokens/{token_id}
+=======================
+
+This is a high-performance variant of the GET call documented above, which
+by definition, returns no response body::
+
+    $ curl -I -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838
+
+... which returns ``200``, indicating the token is valid::
+
+    HTTP/1.1 200 OK
+    Content-Length: 0
+    Content-Type: None
+    Date: Tue, 08 Nov 2011 23:07:44 GMT
+
+GET /tokens/{token_id}/endpoints
+================================
+
+.. note::
+
+    Not implemented in stable/diablo! This resource is available in essex milestone 1.
+
+GET /tenants
+============
+
+List all of the tenants in the system (requires an Admin ``X-Auth-Token``)::
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants
 
-This will return something like::
+Returns::
 
-    {"tenants": {"values": [{"enabled": 1, "id": "145", "name": "MyTenant", "description": null}], "links": []}}
+    {
+        "tenants":{
+            "values":[
+                {
+                    "enabled":false,
+                    "description":"None",
+                    "name":"project-y",
+                    "id":"3"
+                },
+                {
+                    "enabled":true,
+                    "description":"None",
+                    "name":"ANOTHER:TENANT",
+                    "id":"2"
+                },
+                {
+                    "enabled":true,
+                    "description":"None",
+                    "name":"customer-x",
+                    "id":"1"
+                }
+            ],
+            "links":[
 
-Retrieve a list of users
-########################
+            ]
+        }
+    }
 
-Run::
+GET /tenants/{tenant_id}
+========================
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users
+Retrieve information about a tenant, by tenant ID::
 
-This will return something like::
+    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/1
 
-    {"users": {"values": [{"email": null, "enabled": true, "id": "1227", "name": "MyAdmin", "tenantId": "MyTenant"}], "links": []}}
+Returns::
 
-Retrieve information about the token
-####################################
+    {
+        "tenant":{
+            "enabled":true,
+            "description":"None",
+            "name":"customer-x",
+            "id":"1"
+        }
+    }
 
-Run::
+GET /tenants/{tenant_id}/users/{user_id}/roles
+==============================================
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/0eed0ced-4667-4221-a0b2-24c91f242b0b
+.. note::
 
-This will return something like::
+    Not implemented in stable/diablo! This resource is available in essex milestone 1.
 
-    {"auth": {"token": {"expires": "2011-08-11T04:26:58.145171", "id": "0eed0ced-4667-4221-a0b2-24c91f242b0b"}, "user": {"username": "MyAdmin", "roles": [{"roleId": "Admin", "id": 1}], "tenant": {"id": 932, "name": "MyTenant"}}}}   
+List the roles a user has been granted on a tenant::
 
-Revoking a token
-################
+    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/1/users/1/roles
 
-Run::
+Returns::
 
-    $ curl -X DELETE -H "X-Auth-Token:999888777666" http://localhost:35357/tokens/0eed0ced-4667-4221-a0b2-24c91f242b0b
+    {
+        "roles_links":[],
+        "roles":[
+            {
+                "id":"3",
+                "name":"Member"
+            }
+        ]
+    }
 
-Creating a tenant
-#################
+GET /users/{user_id}
+====================
 
-Run::
+Retrieve information about a user, by user ID::
 
-    $ curl -H "X-Auth-Token:999888777666" -H "Content-type: application/json" -d '{"tenant":{"id": 416, "name":"MyTenant2", "description":"My 2nd Tenant", "enabled":true}}'  http://localhost:35357/tenants
+    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users/1
 
-This will return something like::
+Returns::
 
-    {"tenant": {"enabled": true, "id": "MyTenant2", "description": "My 2nd Tenant"}}
+    {
+        "user":{
+            "tenantId":"1",
+            "enabled":true,
+            "id":"1",
+            "name":"joeuser"
+        }
+    }
 
-Verifying the tenant
-####################
+GET /users/{user_id}/roles
+==========================
 
-Run::
+.. note::
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/MyTenant2
+    Not implemented in stable/diablo! This resource is available in essex milestone 1.
 
-This will return something like::
+Retrieve the roles granted to a user, given a user ID::
 
-    {"tenant": {"enabled": 1, "id": "MyTenant2", "description": "My 2nd Tenant"}}
+    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users/4/roles
 
-Updating the tenant
-###################
+Returns::
 
-Run::
-
-    $ curl -X PUT -H "X-Auth-Token:999888777666" -H "Content-type: application/json" -d '{"tenant":{"description":"My NEW 2nd Tenant"}}' http://localhost:35357/v2.0/tenants/MyTenant2
-
-This will return something like::
-
-    {"tenant": {"enabled": true, "id": "MyTenant2", "description": "My NEW 2nd Tenant"}}       
-
-Deleting the tenant
-###################
-
-Run::
-
-    $> curl -X DELETE -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/MyTenant2
+    {
+        "roles_links":[],
+        "roles":[
+            {
+                "id":"2",
+                "name":"KeystoneServiceAdmin"
+            }
+        ]
+    }
