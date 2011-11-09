@@ -325,19 +325,19 @@ class ApiTestCase(RestfulTestCase):
             path='/users/%s' % (user_id,), **kwargs)
 
     def put_user_password(self, user_id, **kwargs):
-        """PUT /users/{user_id}/password"""
+        """PUT /users/{user_id}/OS-KSADM/password"""
         return self.admin_request(method='PUT',
-            path='/users/%s/password' % (user_id,), **kwargs)
+            path='/users/%s/OS-KSADM/password' % (user_id,), **kwargs)
 
     def put_user_tenant(self, user_id, **kwargs):
-        """PUT /users/{user_id}/tenant"""
+        """PUT /users/{user_id}/OS-KSADM/tenant"""
         return self.admin_request(method='PUT',
-            path='/users/%s/tenant' % (user_id,), **kwargs)
+            path='/users/%s/OS-KSADM/tenant' % (user_id,), **kwargs)
 
     def put_user_enabled(self, user_id, **kwargs):
-        """PUT /users/{user_id}/enabled"""
+        """PUT /users/{user_id}/OS-KSADM/enabled"""
         return self.admin_request(method='PUT',
-            path='/users/%s/enabled' % (user_id,), **kwargs)
+            path='/users/%s/OS-KSADM/enabled' % (user_id,), **kwargs)
 
     def delete_user(self, user_id, **kwargs):
         """DELETE /users/{user_id}"""

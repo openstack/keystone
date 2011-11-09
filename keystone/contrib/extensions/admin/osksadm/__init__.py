@@ -73,16 +73,16 @@ class ExtensionHandler(BaseExtensionHandler):
                     action="delete_user",
                     conditions=dict(method=["DELETE"]))
         #API doesn't have any of the shorthand updates as of now.
-        mapper.connect("/users/{user_id}/password",
+        mapper.connect("/users/{user_id}/OS-KSADM/password",
                     controller=user_controller,
                     action="set_user_password",
                     conditions=dict(method=["PUT"]))
-        mapper.connect("/users/{user_id}/tenant",
+        mapper.connect("/users/{user_id}/OS-KSADM/tenant",
                     controller=user_controller,
                     action="update_user_tenant",
                     conditions=dict(method=["PUT"]))
         # Test this, test failed
-        mapper.connect("/users/{user_id}/enabled",
+        mapper.connect("/users/{user_id}/OS-KSADM/enabled",
                     controller=user_controller,
                     action="set_user_enabled",
                     conditions=dict(method=["PUT"]))
