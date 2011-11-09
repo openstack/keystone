@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import logging
 import os
 import sys
 
@@ -23,6 +24,7 @@ if __name__ == '__main__':
     default_conf = os.path.join(possible_topdir,
                                 'etc',
                                 'keystone.conf')
+    logging.getLogger().setLevel(logging.DEBUG)
 
     conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
     app = deploy.loadapp('config:%s' % conf)

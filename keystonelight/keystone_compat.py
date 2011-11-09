@@ -18,6 +18,9 @@ class KeystoneRouter(wsgi.Router):
         self.keystone_controller = KeystoneController(options)
 
         mapper = routes.Mapper()
+        mapper.connect('/',
+                       controller=self.keystone_controller,
+                       action='noop')
         mapper.connect('/v2.0/tokens',
                        controller=self.keystone_controller,
                        action='authenticate',
@@ -40,6 +43,9 @@ class KeystoneController(service.BaseApplication):
         self.identity_api = identity.Manager(options)
         self.token_api = token.Manager(options)
         pass
+
+    def noop(self, context):
+        return {}
 
     def authenticate(self, context, auth=None):
         """Authenticate credentials and return a token.
