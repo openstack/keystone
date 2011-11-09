@@ -78,7 +78,8 @@ class GetUserTest(UserTest):
         self.user = self.create_user().json['user']
 
     def test_get_user(self):
-        self.fetch_user(self.user['id'])
+        user = self.fetch_user(self.user['id']).json['user']
+        self.assertEqual(self.user['name'], user.get('name'))
 
     def test_query_user(self):
         self.fetch_user_by_name(self.user['name'])

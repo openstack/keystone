@@ -381,7 +381,7 @@ class IdentityService(object):
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
         return User_Update(id=duser.id, tenant_id=duser.tenant_id,
-                email=duser.email, enabled=duser.enabled)
+                email=duser.email, enabled=duser.enabled, name=duser.name)
 
     def update_user(self, admin_token, user_id, user):
         self.__validate_admin_token(admin_token)
