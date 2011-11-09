@@ -41,7 +41,14 @@ class NovaKeystoneContext(wsgi.Middleware):
             return webob.exc.HTTPUnauthorized()
         # get the roles
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
-        project_id = req.headers['X_TENANT']
+
+        if 'X_TENANT_ID' in req.headers:
+            # This is the new header since Keystone went to ID/Name
+            project_id = req.headers['X_TENANT_ID']
+        else:
+            # This is for legacy compatibility
+            project_id = req.headers['X_TENANT']
+
         # Get the auth token
         auth_token = req.headers.get('X_AUTH_TOKEN',
                                      req.headers.get('X_STORAGE_TOKEN'))
