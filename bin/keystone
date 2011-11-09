@@ -30,4 +30,5 @@ if __name__ == '__main__':
     app = deploy.loadapp('config:%s' % conf)
     server = wsgi.Server()
     server.start(app, int(app.options['public_port']))
+    server.start(app, int(app.options['admin_port']))
     server.wait()
