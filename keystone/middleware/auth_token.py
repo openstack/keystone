@@ -181,11 +181,18 @@ class AuthProtocol(object):
                 if claims:
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
                         claims['user'], env, proxy_headers)
+
+                    # For legacy compatibility before we had ID and Name
                     self._decorate_request('X_TENANT',
+                        claims['tenant'], env, proxy_headers)
+
+                    # Services should use these
+                    self._decorate_request('X_TENANT_NAME',
                         claims.get('tenant_name', claims['tenant']),
                         env, proxy_headers)
                     self._decorate_request('X_TENANT_ID',
                         claims['tenant'], env, proxy_headers)
+
                     self._decorate_request('X_USER',
                         claims['user'], env, proxy_headers)
                     if 'roles' in claims and len(claims['roles']) > 0:
