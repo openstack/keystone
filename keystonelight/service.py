@@ -1,7 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
-# this is the web service frontend
-
 import json
 import logging
 
@@ -13,6 +9,41 @@ from keystonelight import identity
 from keystonelight import token
 from keystonelight import utils
 from keystonelight import wsgi
+
+
+HIGH_LEVEL_CALLS = {
+    'authenticate': ('POST', '/tokens'),
+    'get_tenants': ('GET', '/user/%(user_id)s/tenants'),
+    'get_user': ('GET', '/user/%(user_id)s'),
+    'get_tenant': ('GET', '/tenant/%(tenant_id)s'),
+    'get_tenant_by_name': ('GET', '/tenant_name/%(tenant_name)s'),
+    'get_extras': ('GET', '/extras/%(tenant_id)s-%(user_id)s'),
+    'get_token': ('GET', '/token/%(token_id)s'),
+    }
+
+# NOTE(termie): creates are seperate from updates to allow duplication checks
+LOW_LEVEL_CALLS = {
+    # tokens
+    'create_token': ('POST', '/token'),
+    'delete_token': ('DELETE', '/token/%(token_id)s'),
+    # users
+    'create_user': ('POST', '/user'),
+    'update_user': ('PUT', '/user/%(user_id)s'),
+    'delete_user': ('DELETE', '/user/%(user_id)s'),
+    # tenants
+    'create_tenant': ('POST', '/tenant'),
+    'update_tenant': ('PUT', '/tenant/%(tenant_id)s'),
+    'delete_tenant': ('DELETE', '/tenant/%(tenant_id)s'),
+    # extras
+    # NOTE(termie): these separators are probably going to bite us eventually
+    'create_extras': ('POST', '/extras'),
+    'update_extras': ('PUT', '/extras/%(tenant_id)s-%(user_id)s'),
+    'delete_extras': ('DELETE', '/extras/%(tenant_id)s-%(user_id)s'),
+    }
+
+
+URLMAP = HIGH_LEVEL_CALLS.copy()
+URLMAP.update(LOW_LEVEL_CALLS)
 
 
 class BaseApplication(wsgi.Application):
@@ -81,10 +112,11 @@ class IdentityController(BaseApplication):
         logging.debug('TOKEN: %s', token_ref)
         return token_ref
 
-    def get_tenants(self, context):
+    def get_tenants(self, context, user_id=None):
         token_id = context.get('token_id')
         token_ref = self.token_api.get_token(context, token_id)
         assert token_ref
+        assert token_ref['user']['id'] == user_id
         tenants_ref = []
         for tenant_id in token_ref['user']['tenants']:
             tenants_ref.append(self.identity_api.get_tenant(context,
@@ -98,19 +130,30 @@ class Router(wsgi.Router):
         self.options = options
         self.identity_controller = IdentityController(options)
         self.token_controller = TokenController(options)
-        mapper = routes.Mapper()
-        mapper.connect('/tokens',
-                       controller=self.identity_controller,
-                       action='authenticate')
-        mapper.connect('/tokens/{token_id}',
-                       controller=self.token_controller,
-                       action='revoke_token',
-                       conditions=dict(method=['DELETE']))
-        mapper.connect("/tenants",
-                       controller=self.identity_controller,
-                       action="get_tenants",
-                       conditions=dict(method=["GET"]))
+
+        mapper = self._build_map(URLMAP)
         super(Router, self).__init__(mapper)
+
+    def _build_map(self, urlmap):
+        """Build a routes.Mapper based on URLMAP."""
+        mapper = routes.Mapper()
+        for k, v in urlmap.iteritems():
+            # NOTE(termie): hack
+            if 'token' in k:
+                controller = self.token_controller
+            else:
+                controller = self.identity_controller
+            action = k
+            method, path = v
+            path = path.replace('%(', '{').replace(')s', '}')
+            print path
+
+            mapper.connect(path,
+                           controller=controller,
+                           action=action,
+                           conditions=dict(method=[method]))
+
+        return mapper
 
 
 def app_factory(global_conf, **local_conf):

@@ -6,7 +6,11 @@ import json
 import httplib2
 import webob
 
+from keystonelight import service
 from keystonelight import wsgi
+
+
+URLMAP = service.URLMAP
 
 
 class Client(object):
@@ -33,6 +37,35 @@ class Client(object):
       headers.setdefault('X-Auth-Token', self.token)
 
     return headers
+
+  def __getattr__(self, key):
+    """Lazy way to define a bunch of dynamic urls based on URLMAP.
+
+    Turns something like
+
+      c.authenticate(user_id='foo', password='bar')
+
+    into
+
+      c.request('POST', '/token', body={'user_id': 'foo', 'password': 'bar'})
+
+    """
+    if key not in URLMAP:
+      raise AttributeError(key)
+
+    method, path = URLMAP[key]
+
+    def _internal(method_=method, path_=path, **kw):
+      path_ = path_ % kw
+      params = {'method': method_,
+                'path': path_}
+      if method.lower() in ('put', 'post'):
+        params['body'] = kw
+      return self.request(**params)
+
+    setattr(self, key, _internal)
+
+    return getattr(self, key)
 
 
 class HttpClient(Client):

@@ -51,7 +51,7 @@ class IdentityApi(test.TestCase):
     post_data = {'user_id': self.user_foo['id'],
                  'tenant_id': self.tenant_bar['id'],
                  'password': self.user_foo['password']}
-    resp = c.post('/tokens', body=post_data)
+    resp = c.authenticate(**post_data)
     data = json.loads(resp.body)
     self.assertEquals(self.user_foo['id'], data['user']['id'])
     self.assertEquals(self.tenant_bar['id'], data['tenant']['id'])
@@ -61,7 +61,7 @@ class IdentityApi(test.TestCase):
     c = client.TestClient(self.app)
     post_data = {'user_id': self.user_foo['id'],
                  'password': self.user_foo['password']}
-    resp = c.post('/tokens', body=post_data)
+    resp = c.authenticate(**post_data)
     data = json.loads(resp.body)
     self.assertEquals(self.user_foo['id'], data['user']['id'])
     self.assertEquals(None, data['tenant'])
@@ -70,6 +70,6 @@ class IdentityApi(test.TestCase):
   def test_get_tenants(self):
     token = self._login()
     c = client.TestClient(self.app, token['id'])
-    resp = c.get('/tenants')
+    resp = c.get_tenants(user_id=self.user_foo['id'])
     data = json.loads(resp.body)
     self.assertDictEquals(self.tenant_bar, data[0])
