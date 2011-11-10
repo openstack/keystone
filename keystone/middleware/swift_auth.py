@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-#
-# Copyright (c) 2010-2011 OpenStack, LLC.
+# Copyright (c) 2011 OpenStack, LLC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,220 +13,214 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-"""
-TOKEN-BASED AUTH MIDDLEWARE FOR SWIFT
-
-Authentication on incoming request
-    * grab token from X-Auth-Token header
-    * TODO: grab the memcache servers from the request env
-    * TODOcheck for auth information in memcache
-    * check for auth information from keystone
-    * return if unauthorized
-    * decorate the request for authorization in swift
-    * forward to the swift proxy app
-
-Authorization via callback
-    * check the path and extract the tenant
-    * get the auth information stored in keystone.identity during
-        authentication
-    * TODO: check if the user is an account admin or a reseller admin
-    * determine what object-type to authorize (account, container, object)
-    * use knowledge of tenant, admin status, and container acls to authorize
-
-"""
-
 import json
+
+from urllib import quote
 from urlparse import urlparse
-from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPExpectationFailed
 
-from keystone.common.bufferedhttp import http_connect_raw as http_connect
+from webob.exc import HTTPForbidden, HTTPNotFound, \
+    HTTPUnauthorized, HTTPBadRequest
+from webob import Request
 
+from swift.common.utils import cache_from_env, get_logger, split_path, \
+    get_remote_client
 from swift.common.middleware.acl import clean_acl, parse_acl, referrer_allowed
-from swift.common.utils import get_logger, split_path
-
-
-PROTOCOL_NAME = "Swift Token Authentication"
+from swift.common.bufferedhttp import http_connect_raw as http_connect
+from time import time, mktime
+from datetime import datetime
 
 
 class AuthProtocol(object):
-    """Handles authenticating and aurothrizing client calls.
+    """
+    Keystone to Swift authentication and authorization system.
 
-    Add to your pipeline in paste config like:
+    Add to your pipeline in proxy-server.conf, such as::
 
         [pipeline:main]
-        pipeline = catch_errors healthcheck cache keystone proxy-server
+        pipeline = catch_errors cache keystone proxy-server
+
+    Set account auto creation to true::
+
+        [app:proxy-server]
+        account_autocreate = true
+
+    And add a keystone filter section, such as::
 
         [filter:keystone]
         use = egg:keystone#swiftauth
-        keystone_url = http://127.0.0.1:8080
-        keystone_admin_token = 999888777666
+        keystone_url = http://keystone_url:5000/v2.0
+        keystone_admin_token = admin_token
+        keystone_admin_group = Admin
+
+    This middleware handle ACL as well and allow Keystone groups to
+    map to swift ACL.
+
+    :param app: The next WSGI app in the pipeline
+    :param conf: The dict of configuration values
     """
-
     def __init__(self, app, conf):
-        """Store valuable bits from the conf and set up logging."""
         self.app = app
+        self.conf = conf
+        self.logger = get_logger(conf, log_route='keystone')
+        self.reseller_prefix = conf.get('reseller_prefix', 'AUTH').strip()
+        #TODO: Error out if no url
         self.keystone_url = urlparse(conf.get('keystone_url'))
+        self.keystone_admin_group = conf.get('keystone_admin_group', 'Admin')
         self.admin_token = conf.get('keystone_admin_token')
-        self.reseller_prefix = conf.get('reseller_prefix', 'AUTH')
-        self.log = get_logger(conf, log_route='keystone')
-        self.log.info('Keystone middleware started')
+        self.allowed_sync_hosts = [h.strip()
+            for h in conf.get('allowed_sync_hosts', '127.0.0.1').split(',')
+            if h.strip()]
 
-    def __call__(self, env, start_response):
-        """Authenticate the incoming request.
+    def __call__(self, environ, start_response):
+        self.logger.debug('Initialising keystone middleware')
 
-        If authentication fails return an appropriate http status here,
-        otherwise forward through the rest of the app.
+        req = Request(environ)
+        token = environ.get('HTTP_X_AUTH_TOKEN',
+                            environ.get('HTTP_X_STORAGE_TOKEN'))
+        if not token:
+            self.logger.debug('No token: exiting')
+            environ['swift.authorize'] = self.denied_response
+            return self.app(environ, start_response)
+
+        self.logger.debug('Got token: %s' % (token))
+
+        identity = None
+        memcache_client = cache_from_env(environ)
+        memcache_key = 'tokens/%s' % (token)
+        candidate_cache = memcache_client.get(memcache_key)
+        if candidate_cache:
+            expires, _identity = candidate_cache
+            if expires > time():
+                self.logger.debug('getting identity info from memcache')
+                identity = _identity
+
+        if not identity:
+            identity = self._keystone_validate_token(token)
+            if identity and memcache_client:
+                expires = identity['expires']
+                memcache_client.set(memcache_key,
+                                    (expires, identity),
+                                    timeout=expires - time())
+                ts = str(datetime.fromtimestamp(expires))
+                self.logger.debug('setting memcache expiration to %s' % ts)
+            else:  # if we didn't get identity it means there was an error.
+                return HTTPBadRequest(request=req)
+
+        if not identity:
+            #TODO: non authenticated access allow via refer
+            environ['swift.authorize'] = self.denied_response
+            return self.app(environ, start_response)
+
+        self.logger.debug("Using identity: %r" % (identity))
+        environ['keystone.identity'] = identity
+        environ['REMOTE_USER'] = identity.get('tenant')
+        environ['swift.authorize'] = self.authorize
+        environ['swift.clean_acl'] = clean_acl
+        return self.app(environ, start_response)
+
+    def convert_date(self, date):
+        """ Convert datetime to unix timestamp """
+        return mktime(datetime.strptime(
+                date[:date.rfind(':')].replace('-', ''), "%Y%m%dT%H:%M",
+                ).timetuple())
+
+    def _keystone_validate_token(self, claim):
         """
-
-        self.log.debug('Keystone middleware called')
-        token = self._get_claims(env)
-        self.log.debug('token: %s', token)
-        if token:
-            identity = self._validate_claims(token)
-            if identity:
-                self.log.debug('request authenticated: %r', identity)
-                return self.perform_authenticated_request(identity, env,
-                                                          start_response)
-            else:
-                self.log.debug('anonymous request')
-                return self.unauthorized_request(env, start_response)
-        self.log.debug('no auth token in request headers')
-        return self.perform_unidentified_request(env, start_response)
-
-    def unauthorized_request(self, env, start_response):
-        """Clinet provided a token that wasn't acceptable, error out."""
-        return HTTPUnauthorized()(env, start_response)
-
-    def unauthorized(self, req):
-        """Return unauthorized given a webob Request object.
-
-        This can be stuffed into the evironment for swift.authorize or
-        called from the authoriztion callback when authorization fails.
+        Will take a claimed token and validate it in keystone.
         """
-        return HTTPUnauthorized(request=req)
+        headers = {"X-Auth-Token": self.admin_token}
+        conn = http_connect(self.keystone_url.hostname,
+                            self.keystone_url.port, 'GET',
+                            '%s/tokens/%s' % \
+                                (self.keystone_url.path,
+                                 quote(claim)),
+                            headers=headers,
+                            ssl=(self.keystone_url.scheme == 'https'))
+        resp = conn.getresponse()
+        data = resp.read()
+        conn.close()
 
-    def perform_authenticated_request(self, identity, env, start_response):
-        """Client provieded a valid identity, so use it for authorization."""
-        env['keystone.identity'] = identity
-        env['swift.authorize'] = self.authorize
-        env['swift.clean_acl'] = clean_acl
-        self.log.debug('calling app: %s // %r', start_response, env)
-        rv = self.app(env, start_response)
-        self.log.debug('return from app: %r', rv)
-        return rv
+        if not str(resp.status).startswith('20'):
+            #TODO: Make the self.keystone_url more meaningfull
+            raise Exception('Error: Keystone : %s Returned: %d' % \
+                                (self.keystone_url, resp.status))
+            return False
+        identity_info = json.loads(data)
 
-    def perform_unidentified_request(self, env, start_response):
-        """Withouth authentication data, use acls for access control."""
-        env['swift.authorize'] = self.authorize_via_acl
-        env['swift.clean_acl'] = self.authorize_via_acl
-        return self.app(env, start_response)
+        try:
+            tenant = identity_info['access']['token']['tenant']['id']
+            expires = self.convert_date(
+                identity_info['access']['token']['expires'])
+            user = identity_info['access']['user']['username']
+            roles = [x['name'] for x in \
+                         identity_info['access']['user']['roles']]
+        except(KeyError, IndexError):
+            raise Exception("Could not get information from keystone")
+
+        identity = {'user': user,
+                    'tenant': tenant,
+                    'roles': roles,
+                    'expires': expires,
+                    }
+
+        return identity
 
     def authorize(self, req):
-        """Used when we have a valid identity from keystone."""
-        self.log.debug('keystone middleware authorization begin')
         env = req.environ
-        tenant = env.get('keystone.identity', {}).get('tenant')
-        if not tenant:
-            self.log.warn('identity info not present in authorize request')
-            return HTTPExpectationFailed('Unable to locate auth claim',
-                                         request=req)
-        # TODO(todd): everyone under a tenant can do anything to that tenant.
-        #             more realistic would be role/group checking to do things
-        #             like deleting the account or creating/deleting containers
-        #             esp. when owned by other users in the same tenant.
-        if req.path.startswith('/v1/%s_%s' % (self.reseller_prefix, tenant)):
-            self.log.debug('AUTHORIZED OKAY')
-            return None
+        env_identity = env.get('keystone.identity', {})
+        tenant = env_identity.get('tenant')
 
-        self.log.debug('tenant mismatch: %r', tenant)
-        return self.unauthorized(req)
-
-    def authorize_via_acl(self, req):
-        """Anon request handling.
-
-        For now this only allows anon read of objects.  Container and account
-        actions are prohibited.
-        """
-
-        self.log.debug('authorizing anonymous request')
         try:
             version, account, container, obj = split_path(req.path, 1, 4, True)
         except ValueError:
             return HTTPNotFound(request=req)
 
-        if obj:
-            return self._authorize_anon_object(req, account, container, obj)
+        if account != '%s_%s' % (self.reseller_prefix, tenant):
+            self.log.debug('tenant mismatch')
+            return self.denied_response(req)
 
-        if container:
-            return self._authorize_anon_container(req, account, container)
+        user_groups = env_identity.get('roles', [])
+        if self.keystone_admin_group in user_groups:
+            req.environ['swift_owner'] = True
+            return None
 
-        if account:
-            return self._authorize_anon_account(req, account)
+        # Allow container sync
+        if (req.environ.get('swift_sync_key') and
+            req.environ['swift_sync_key'] ==
+                req.headers.get('x-container-sync-key', None) and
+            'x-timestamp' in req.headers and
+            (req.remote_addr in self.allowed_sync_hosts or
+             get_remote_client(req) in self.allowed_sync_hosts)):
+            self.logger.debug('allowing container-sync')
+            return None
 
-        return self._authorize_anon_toplevel(req)
-
-    def _authorize_anon_object(self, req, account, container, obj):
+        # Check if Referrer allow it
         referrers, groups = parse_acl(getattr(req, 'acl', None))
         if referrer_allowed(req.referer, referrers):
-            self.log.debug('anonymous request AUTHORIZED OKAY')
-            return None
-        return self.unauthorized(req)
+            if obj or '.rlistings' in groups:
+                self.logger.debug('authorizing via ACL')
+                return None
+            return self.denied_response(req)
 
-    def _authorize_anon_container(self, req, account, container):
-        return self.unauthorized(req)
+        # Check if we have the group in the usergroups and allow it
+        for user_group in user_groups:
+            if user_group in groups:
+                self.logger.debug('user in group: %s authorizing' % \
+                                      (user_group))
+                return None
 
-    def _authorize_anon_account(self, req, account):
-        return self.unauthorized(req)
+        # last but not least retun deny
+        return self.denied_response(req)
 
-    def _authorize_anon_toplevel(self, req):
-        return self.unauthorized(req)
-
-    def _get_claims(self, env):
-        claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
-        return claims
-
-    def _validate_claims(self, claims):
-        """Ask keystone (as keystone admin) for information for this user."""
-
-        # TODO(todd): cache
-
-        self.log.debug('Asking keystone to validate token')
-        headers = {"Content-type": "application/json",
-                    "Accept": "application/json",
-                    "X-Auth-Token": self.admin_token}
-        self.log.debug('headers: %r', headers)
-        self.log.debug('url: %s', self.keystone_url)
-        conn = http_connect(self.keystone_url.hostname, self.keystone_url.port,
-                            'GET', '/v2.0/tokens/%s' % claims, headers=headers)
-        resp = conn.getresponse()
-        data = resp.read()
-        conn.close()
-
-        # Check http status code for the "OK" family of responses
-        if not str(resp.status).startswith('20'):
-            return False
-
-        identity_info = json.loads(data)
-        roles = []
-        role_refs = identity_info["access"]["user"]["roles"]
-
-        if role_refs is not None:
-            for role_ref in role_refs:
-                roles.append(role_ref["id"])
-
-        try:
-            tenant = identity_info['access']['token']['tenantId']
-        except:
-            tenant = None
-        if not tenant:
-            tenant = identity_info['access']['user']['tenantId']
-        # TODO(Ziad): add groups back in
-        identity = {'user': identity_info['access']['user']['username'],
-                    'tenant': tenant,
-                    'roles': roles}
-
-        return identity
+    def denied_response(self, req):
+        """
+        Returns a standard WSGI response callable with the status of 403 or 401
+        depending on whether the REMOTE_USER is set or not.
+        """
+        if req.remote_user:
+            return HTTPForbidden(request=req)
+        else:
+            return HTTPUnauthorized(request=req)
 
 
 def filter_factory(global_conf, **local_conf):
@@ -239,5 +230,4 @@ def filter_factory(global_conf, **local_conf):
 
     def auth_filter(app):
         return AuthProtocol(app, conf)
-
     return auth_filter
