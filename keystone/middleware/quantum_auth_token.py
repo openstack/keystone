@@ -317,7 +317,7 @@ class AuthProtocol(object):
             for role_ref in role_refs:
                 roles.append(role_ref["roleId"])
 
-        verified_claims = {'user': token_info['access']['user']['username'],
+        verified_claims = {'user': token_info['access']['user']['name'],
                     'tenant': token_info['access']['user']['tenantId'],
                     'roles': roles}
 

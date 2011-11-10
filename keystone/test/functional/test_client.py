@@ -28,7 +28,7 @@ class TestAdminClient(unittest.TestCase):
         token = self.client.admin_token
         result = self.client.validate_token(token)
         self.assertEquals("admin",
-                          result["access"]["user"]["username"])
+                          result["access"]["user"]["name"])
 
     def test_admin_check_token(self):
         """

@@ -41,7 +41,7 @@ class TestServer(unittest.TestCase):
         user = xml.find("{http://docs.openstack.org/identity/api/v2.0}user")
         token = xml.find("{http://docs.openstack.org/identity/api/v2.0}token")
 
-        self.assertTrue(user.get("username"), "username")
+        self.assertTrue(user.get("name"), "username")
         self.assertTrue(user.get("id"), "id")
         self.assertTrue(user.get("tenantId"), '12345')
         self.assertTrue(token.get("id"), '2231312')
@@ -54,7 +54,7 @@ class TestServer(unittest.TestCase):
             "application/json; charset=UTF-8")
         dict = json.loads(response.unicode_body)
         self.assertTrue(dict['access']['user']['id'], 'id')
-        self.assertTrue(dict['access']['user']['username'], 'username')
+        self.assertTrue(dict['access']['user']['name'], 'username')
         self.assertTrue(dict['access']['user']['tenantId'], '12345')
         self.assertTrue(dict['access']['token']['id'], '2231312')
         self.assertTrue(dict['access']['token']['expires'],

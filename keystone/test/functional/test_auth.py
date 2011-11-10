@@ -102,7 +102,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         self.assertEqual(r.json['access']['token']['id'], self.service_token)
         self.assertTrue(r.json['access']['token']['expires'])
         self.assertEqual(r.json['access']['user']['id'], self.user['id'])
-        self.assertEqual(r.json['access']['user']['username'],
+        self.assertEqual(r.json['access']['user']['name'],
             self.user['name'])
         self.assertEqual(r.json['access']['user']['roles'], [])
 
@@ -121,9 +121,9 @@ class TestServiceAuthentication(common.FunctionalTestCase):
 
         # The token shouldn't be scoped to a tenant nor have roles just yet
         self.assertIsNone(unscoped['token'].get('tenant'))
+        self.assertIsNotNone(unscoped.get('user'))
         self.assertIsNotNone(unscoped['user'].get('roles'))
         self.assertEqual(len(unscoped['user']['roles']), 0)
-        self.assertIsNotNone(unscoped.get('user'))
         self.assertEqual(unscoped['user'].get('id'), self.user['id'])
         self.assertEqual(unscoped['user'].get('name'), self.user['name'])
 
@@ -158,7 +158,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         access = r.json['access']
 
         self.assertEqual(access['user']['id'], self.user['id'])
-        self.assertEqual(access['user']['username'], self.user['name'])
+        self.assertEqual(access['user']['name'], self.user['name'])
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
         self.assertEqual(access['token']['tenant']['name'], tenant['name'])
 
@@ -243,7 +243,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         user = r.xml.find('{%s}user' % self.xmlns)
         self.assertIsNotNone(user)
         self.assertEqual(user.get('id'), self.user['id'])
-        self.assertEqual(user.get('username'), self.user['name'])
+        self.assertEqual(user.get('name'), self.user['name'])
         self.assertIsNone(user.get('tenantId'))
 
     def test_scope_to_tenant_by_name(self):
@@ -274,7 +274,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         access = r.json['access']
 
         self.assertEqual(access['user']['id'], self.user['id'])
-        self.assertEqual(access['user']['username'], self.user['name'])
+        self.assertEqual(access['user']['name'], self.user['name'])
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
         self.assertEqual(access['token']['tenant']['name'], tenant['name'])
 
@@ -299,7 +299,7 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         access = r.json['access']
 
         self.assertEqual(access['user']['id'], self.user['id'])
-        self.assertEqual(access['user']['username'], self.user['name'])
+        self.assertEqual(access['user']['name'], self.user['name'])
         self.assertEqual(access['token']['tenant']['id'], tenant['id'])
         self.assertEqual(access['token']['tenant']['name'], tenant['name'])
 

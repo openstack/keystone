@@ -151,7 +151,7 @@ class AuthProtocol(object):
             tenant = identity_info['access']['token']['tenant']['id']
             expires = self.convert_date(
                 identity_info['access']['token']['expires'])
-            user = identity_info['access']['user']['username']
+            user = identity_info['access']['user']['name']
             roles = [x['name'] for x in \
                          identity_info['access']['user']['roles']]
         except(KeyError, IndexError):
