@@ -92,5 +92,3 @@ class JsonBodyMiddleware(wsgi.Middleware):
             params[k] = v
 
         request.environ[PARAMS_ENV] = params
-
-

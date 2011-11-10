@@ -71,21 +71,26 @@ class IdentityController(BaseApplication):
         self.options = options
 
     def authenticate(self, context, **kwargs):
-        tenant, user, extras = self.identity_api.authenticate(context,
-                                                              **kwargs)
-        token = self.token_api.create_token(context,
-                                            dict(tenant=tenant,
-                                                 user=user,
-                                                 extras=extras))
-        logging.debug('TOKEN: %s', token)
-        return token
+        user_ref, tenant_ref, extras_ref = self.identity_api.authenticate(
+                context, **kwargs)
+        # TODO(termie): strip password from return values
+        token_ref = self.token_api.create_token(context,
+                                                dict(tenant=tenant_ref,
+                                                     user=user_ref,
+                                                     extras=extras_ref))
+        logging.debug('TOKEN: %s', token_ref)
+        return token_ref
 
     def get_tenants(self, context):
-        token_id = context.get('token')
-        token = self.token_api.validate_token(context, token_id)
+        token_id = context.get('token_id')
+        token_ref = self.token_api.get_token(context, token_id)
+        assert token_ref
+        tenants_ref = []
+        for tenant_id in token_ref['user']['tenants']:
+            tenants_ref.append(self.identity_api.get_tenant(context,
+                                                            tenant_id))
 
-        return self.identity_api.get_tenants(context,
-                                             user_id=token['user'])
+        return tenants_ref
 
 
 class Router(wsgi.Router):
@@ -94,14 +99,14 @@ class Router(wsgi.Router):
         self.identity_controller = IdentityController(options)
         self.token_controller = TokenController(options)
         mapper = routes.Mapper()
-        mapper.connect('/v2.0/tokens',
+        mapper.connect('/tokens',
                        controller=self.identity_controller,
                        action='authenticate')
-        mapper.connect('/v2.0/tokens/{token_id}',
+        mapper.connect('/tokens/{token_id}',
                        controller=self.token_controller,
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
-        mapper.connect("/v2.0/tenants",
+        mapper.connect("/tenants",
                        controller=self.identity_controller,
                        action="get_tenants",
                        conditions=dict(method=["GET"]))
