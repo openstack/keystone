@@ -44,84 +44,6 @@ class BaseApplication(wsgi.Application):
         return json.dumps(result)
 
 
-class TokenAuthMiddleware(wsgi.Middleware):
-    def process_request(self, request):
-        token = request.headers.get('X-Auth-Token')
-        context = request.environ.get('openstack.context', {})
-        context['token_id'] = token
-        request.environ['openstack.context'] = context
-
-
-class AdminTokenAuthMiddleware(wsgi.Middleware):
-    """A trivial filter that checks for a pre-defined admin token.
-
-    Sets 'is_admin' to true in the context, expected to be checked by
-    methods that are admin-only.
-
-    """
-    def process_request(self, request):
-        token = request.headers.get('X-Auth-Token')
-        context = request.environ.get('openstack.context', {})
-        context['is_admin'] = (token == self.options['admin_token'])
-        request.environ['openstack.context'] = context
-
-
-class PostParamsMiddleware(wsgi.Middleware):
-    """Middleware to allow method arguments to be passed as POST parameters.
-
-    Filters out the parameters `self`, `context` and anything beginning with
-    an underscore.
-
-    """
-
-    def process_request(self, request):
-        params_parsed = request.params
-        params = {}
-        for k, v in params_parsed.iteritems():
-            if k in ('self', 'context'):
-                continue
-            if k.startswith('_'):
-                continue
-            params[k] = v
-
-        request.environ['openstack.params'] = params
-
-
-class JsonBodyMiddleware(wsgi.Middleware):
-    """Middleware to allow method arguments to be passed as serialized JSON.
-
-    Accepting arguments as JSON is useful for accepting data that may be more
-    complex than simple primitives.
-
-    In this case we accept it as urlencoded data under the key 'json' as in
-    json=<urlencoded_json> but this could be extended to accept raw JSON
-    in the POST body.
-
-    Filters out the parameters `self`, `context` and anything beginning with
-    an underscore.
-
-    """
-
-    def process_request(self, request):
-        #if 'json' not in request.params:
-        #    return
-
-        params_json = request.body
-        if not params_json:
-            return
-
-        params_parsed = json.loads(params_json)
-        params = {}
-        for k, v in params_parsed.iteritems():
-            if k in ('self', 'context'):
-                continue
-            if k.startswith('_'):
-                continue
-            params[k] = v
-
-        request.environ['openstack.params'] = params
-
-
 class TokenController(BaseApplication):
     """Validate and pass through calls to TokenManager."""
 
@@ -169,49 +91,21 @@ class IdentityController(BaseApplication):
 class Router(wsgi.Router):
     def __init__(self, options):
         self.options = options
-        token_controller = utils.import_object(
-                options['token_controller'],
-                options=options)
-        identity_controller = utils.import_object(
-                options['identity_controller'],
-                options=options)
+        self.identity_controller = IdentityController(options)
+        self.token_controller = TokenController(options)
         mapper = routes.Mapper()
-        mapper.connect('/v2.0/tokens', controller=identity_controller,
+        mapper.connect('/v2.0/tokens',
+                       controller=self.identity_controller,
                        action='authenticate')
-        mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
+        mapper.connect('/v2.0/tokens/{token_id}',
+                       controller=self.token_controller,
                        action='revoke_token',
                        conditions=dict(method=['DELETE']))
-        mapper.connect("/v2.0/tenants", controller=identity_controller,
-                    action="get_tenants", conditions=dict(method=["GET"]))
+        mapper.connect("/v2.0/tenants",
+                       controller=self.identity_controller,
+                       action="get_tenants",
+                       conditions=dict(method=["GET"]))
         super(Router, self).__init__(mapper)
-
-
-class AdminRouter(wsgi.Router):
-    def __init__(self, options):
-        self.options = options
-        token_controller = utils.import_object(
-                options['token_controller'],
-                options=options)
-        identity_controller = utils.import_object(
-                options['identity_controller'],
-                options=options)
-        mapper = routes.Mapper()
-
-        mapper.connect('/v2.0/tokens', controller=identity_controller,
-                       action='authenticate')
-        mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
-                       action='validate_token',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/v2.0/tokens/{token_id}', controller=token_controller,
-                       action='revoke_token',
-                       conditions=dict(method=['DELETE']))
-        super(AdminRouter, self).__init__(mapper)
-
-
-def identity_app_factory(global_conf, **local_conf):
-    conf = global_conf.copy()
-    conf.update(local_conf)
-    return Router(conf)
 
 
 def app_factory(global_conf, **local_conf):
