@@ -295,14 +295,26 @@ class User(object):
 
 
 class AuthData(object):
-    """Authentation Information returned upon successful login."""
+    """Authentation Information returned upon successful login.
 
-    url_kinds = ["internal", "public", "admin"]
+        This class handles rendering to JSON and XML. It renders
+        the token, the user data, the roles, and the service catalog.
 
-    def __init__(self, token, user, base_urls=None):
+        The list of endpoint URLs in the service catalog can be filtered by
+        URL type. For example, when we respond to a public call from a user
+        without elevated privileges, the "adminURL" is not returned. The
+        url_types paramater in the initializer lists the types to return.
+        The actual authorization is done in logic/service.py
+    """
+
+    def __init__(self, token, user, base_urls=None, url_types=None):
         self.token = token
         self.user = user
         self.base_urls = base_urls
+        if url_types is None:
+            self.url_types = ["internal", "public", "admin"]
+        else:
+            self.url_types = url_types
         self.d = {}
         if self.base_urls != None:
             self.__convert_baseurls_to_dict()
@@ -341,7 +353,7 @@ class AuthData(object):
                     endpoint = etree.Element("endpoint")
                     if base_url.region:
                         endpoint.set("region", base_url.region)
-                    for url_kind in AuthData.url_kinds:
+                    for url_kind in self.url_types:
                         base_url_item = getattr(base_url, url_kind + "_url")
                         if base_url_item:
                             endpoint.set(url_kind + "URL", base_url_item.\
@@ -384,7 +396,7 @@ class AuthData(object):
                     endpoint = {}
                     if base_url.region:
                         endpoint["region"] = base_url.region
-                    for url_kind in AuthData.url_kinds:
+                    for url_kind in self.url_types:
                         base_url_item = getattr(base_url, url_kind + "_url")
                         if base_url_item:
                             endpoint[url_kind + "URL"] = base_url_item.\

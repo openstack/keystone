@@ -231,7 +231,14 @@ class ApiTestCase(RestfulTestCase):
 
     def post_token(self, **kwargs):
         """POST /tokens"""
-        return self.service_request(method='POST', path='/tokens', **kwargs)
+        #Setting service call as the default behavior."""
+        if 'request_type' in kwargs and \
+            kwargs.pop('request_type') == 'admin':
+            return self.admin_request(method='POST',
+                path='/tokens', **kwargs)
+        else:
+            return self.service_request(method='POST',
+                path='/tokens', **kwargs)
 
     def get_token(self, token_id, **kwargs):
         """GET /tokens/{token_id}"""
@@ -628,6 +635,18 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.post_token(as_json=data, **kwargs)
 
+    def authenticate_using_token(self, token, tenant_id=None,
+            **kwargs):
+
+        data = {
+            "auth": {
+                "token": {
+                "id": token,
+                }}}
+        if tenant_id:
+            data["auth"]["tenantId"] = tenant_id
+        return self.post_token(as_json=data, **kwargs)
+
     def validate_token(self, token_id=None, tenant_id=None, **kwargs):
         token_id = optional_str(token_id)
 
@@ -1009,6 +1028,55 @@ class FunctionalTestCase(ApiTestCase):
         user_id = optional_str(user_id)
         return self.delete_user_credentials_by_type(
                 user_id, 'passwordCredentials', **kwargs)
+
+    def check_urls_for_regular_user(self, service_catalog):
+        self.assertIsNotNone(service_catalog)
+        for x in range(0, len(service_catalog)):
+            endpoints = service_catalog[x]['endpoints']
+            for y in range(0, len(endpoints)):
+                endpoint = endpoints[y]
+                for key in endpoint:
+                    #Checks whether adminURL is not present.
+                    self.assertNotEquals(key, 'adminURL')
+
+    def check_urls_for_regular_user_xml(self, service_catalog):
+        self.assertIsNotNone(service_catalog)
+        services = service_catalog.findall('{%s}service' % self.xmlns)
+        self.assertIsNotNone(services)
+        for service in services:
+            endpoints = service.findall('{%s}endpoint' % self.xmlns)
+            self.assertIsNotNone(endpoints)
+            for endpoint in endpoints:
+                #Checks whether adminURL is not present.
+                self.assertIsNone(endpoint.get('adminURL'))
+        self.assertIsNotNone(service_catalog)
+
+    def check_urls_for_admin_user(self, service_catalog):
+        self.assertIsNotNone(service_catalog)
+        for x in range(0, len(service_catalog)):
+            endpoints = service_catalog[x]['endpoints']
+            is_admin__url_present = None
+            for y in range(0, len(endpoints)):
+                endpoint = endpoints[y]
+                for key in endpoint:
+                    if key == 'adminURL':
+                        is_admin__url_present = True
+            self.assertTrue(is_admin__url_present,
+                            "Admin API does not return admin URL")
+
+    def check_urls_for_admin_user_xml(self, service_catalog):
+        self.assertIsNotNone(service_catalog)
+        services = service_catalog.findall('{%s}service' % self.xmlns)
+        self.assertIsNotNone(services)
+        is_admin_url_present = None
+        for service in services:
+            endpoints = service.findall('{%s}endpoint' % self.xmlns)
+            self.assertIsNotNone(endpoints)
+            for endpoint in endpoints:
+                if endpoint.get('adminURL'):
+                    is_admin_url_present = True
+        self.assertTrue(is_admin_url_present,
+            "Admin API does not return admin URL")
 
 
 class HeaderApp(object):
