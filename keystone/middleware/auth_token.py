@@ -129,7 +129,9 @@ class AuthProtocol(object):
         # and the OpenSTack service is running remotely
         self.service_protocol = conf.get('service_protocol', 'https')
         self.service_host = conf.get('service_host')
-        self.service_port = int(conf.get('service_port'))
+        service_port = conf.get('service_port')
+        if service_port:
+            self.service_port = int(service_port)
         self.service_url = '%s://%s:%s' % (self.service_protocol,
                                            self.service_host,
                                            self.service_port)
@@ -279,7 +281,7 @@ class AuthProtocol(object):
             start_response)
 
     def _validate_claims(self, claims):
-        """Validate claims, and provide identity information isf applicable """
+        """Validate claims, and provide identity information if applicable """
 
         # Step 1: We need to auth with the keystone service, so get an
         # admin token
@@ -304,16 +306,15 @@ class AuthProtocol(object):
                             ssl=(self.auth_protocol == 'https'),
                             key_file=self.key_file, cert_file=self.cert_file)
         resp = conn.getresponse()
-        # data = resp.read()
         conn.close()
 
         if not str(resp.status).startswith('20'):
             # Keystone rejected claim
             return False
         else:
-            #TODO(Ziad): there is an optimization we can do here. We have just
-            #received data from Keystone that we can use instead of making
-            #another call in _expound_claims
+            #TODO(Ziad): there is an optimization we can do here. We can make
+            #one call and reuse the data instead of calling again
+            #in _expound_claims
             return True
 
     def _expound_claims(self, claims):

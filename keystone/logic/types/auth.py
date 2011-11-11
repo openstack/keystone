@@ -468,7 +468,9 @@ class ValidateData(object):
 
         user = {
             "id": unicode(self.user.id),
-            "name": unicode(self.user.username)}
+            "name": unicode(self.user.username),
+            # TODO(ziad) temporary until we are comfortable clients are updated
+            "username": unicode(self.user.username)}
 
         if self.user.tenant_id is not None:
             user['tenantId'] = unicode(self.user.tenant_id)
