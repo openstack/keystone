@@ -19,18 +19,17 @@
 """
 TOKEN-BASED AUTH MIDDLEWARE
 
-This WSGI component performs multiple jobs:
+This WSGI component:
 
-* it verifies that incoming client requests have valid tokens by verifying
+* Verifies that incoming client requests have valid tokens by validating
   tokens with the auth service.
-* it will reject unauthenticated requests UNLESS it is in 'delay_auth_decision'
+* Rejects unauthenticated requests UNLESS it is in 'delay_auth_decision'
   mode, which means the final decision is delegated to the downstream WSGI
   component (usually the OpenStack service)
-* it will collect and forward identity information from a valid token
-  such as user name etc...
+* Collects and forwards identity information based on a valid token
+  such as user name, tenant, etc
 
 Refer to: http://wiki.openstack.org/openstack-authn
-
 
 HEADERS
 -------
@@ -42,10 +41,10 @@ Coming in from initial call from client or customer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTTP_X_AUTH_TOKEN
-    the client token being passed in
+    The client token being passed in.
 
 HTTP_X_STORAGE_TOKEN
-    the client token being passed in (legacy Rackspace use) to support
+    The client token being passed in (legacy Rackspace use) to support
     cloud files
 
 Used for communication between components
@@ -61,13 +60,44 @@ What we add to the request for use by the OpenStack service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTTP_X_AUTHORIZATION
-    the client identity being passed in
+    The client identity being passed in
+
+HTTP_X_IDENTITY_STATUS
+    'Confirmed' or 'Invalid'
+    The underlying service will only see a value of 'Invalid' if the Middleware
+    is configured to run in 'delay_auth_decision' mode
+
+HTTP_X_TENANT
+    *Deprecated* in favor of HTTP_X_TENANT_ID and HTTP_X_TENANT_NAME
+    Keystone-assigned unique identifier, deprecated
+
+HTTP_X_TENANT_ID
+    Identity service managed unique identifier, string
+
+HTTP_X_TENANT_NAME
+    Unique tenant identifier, string
+
+HTTP_X_USER
+    *Deprecated* in favor of HTTP_X_USER_ID and HTTP_X_USER_NAME
+    Unique user name, string
+
+HTTP_X_USER_ID
+    Identity-service managed unique identifier, string
+
+HTTP_X_USER_NAME
+    Unique user identifier, string
+
+HTTP_X_ROLE
+    *Deprecated* in favor of HTTP_X_ROLES
+    This is being renamed, and the new header contains the same data.
+
+HTTP_X_ROLES
+    Comma delimited list of case-sensitive Roles
 
 """
 
 import eventlet
 from eventlet import wsgi
-import httplib
 import json
 import os
 from paste.deploy import loadapp
@@ -77,6 +107,7 @@ from webob.exc import Request, Response
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
+
 
 PROTOCOL_NAME = "Token Authentication"
 
@@ -201,31 +232,31 @@ class AuthProtocol(object):
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
                         claims['user'], env, proxy_headers)
 
-                    # For legacy compatibility before we had ID and Name
-                    self._decorate_request('X_TENANT',
-                        claims['tenant'], env, proxy_headers)
-
-                    # Services should use these
-                    self._decorate_request('X_TENANT_NAME',
-                        claims.get('tenant_name', claims['tenant']),
-                        env, proxy_headers)
                     self._decorate_request('X_TENANT_ID',
-                        claims['tenant'], env, proxy_headers)
+                        claims['tenant']['id'], env, proxy_headers)
+                    self._decorate_request('X_TENANT_NAME',
+                        claims['tenant']['name'], env, proxy_headers)
 
+                    self._decorate_request('X_USER_ID',
+                        claims['user']['id'], env, proxy_headers)
+                    self._decorate_request('X_USER_NAME',
+                        claims['user']['name'], env, proxy_headers)
+
+                    roles = ','.join(claims['roles'])
+                    self._decorate_request('X_ROLES',
+                        roles, env, proxy_headers)
+
+                    # Deprecated in favor of X_TENANT_ID and _NAME
+                    self._decorate_request('X_TENANT',
+                        claims['tenant']['id'], env, proxy_headers)
+
+                    # Deprecated in favor of X_USER_ID and _NAME
                     self._decorate_request('X_USER',
-                        claims['user'], env, proxy_headers)
-                    if 'roles' in claims and len(claims['roles']) > 0:
-                        if claims['roles'] != None:
-                            roles = ''
-                            for role in claims['roles']:
-                                if len(roles) > 0:
-                                    roles += ','
-                                roles += role
-                            self._decorate_request('X_ROLE',
-                                roles, env, proxy_headers)
+                        claims['user']['id'], env, proxy_headers)
 
-                    # NOTE(todd): unused
-                    self.expanded = True
+                    # Deprecated in favor of X_ROLES
+                    self._decorate_request('X_ROLE',
+                        roles, env, proxy_headers)
 
         #Send request downstream
         return self._forward_request(env, start_response, proxy_headers)
@@ -288,48 +319,53 @@ class AuthProtocol(object):
     def _expound_claims(self, claims):
         # Valid token. Get user data and put it in to the call
         # so the downstream service can use it
-        headers = {"Content-type": "application/json",
-                    "Accept": "application/json",
-                    "X-Auth-Token": self.admin_token}
-                    ##TODO(ziad):we need to figure out how to auth to keystone
-                    #since validate_token is a priviledged call
-                    #Khaled's version uses creds to get a token
-                    # "X-Auth-Token": admin_token}
-                    # we're using a test token from the ini file for now
+        headers = {
+            "Content-type": "application/json",
+            "Accept": "application/json",
+            "X-Auth-Token": self.admin_token}
+            ##TODO(ziad):we need to figure out how to auth to keystone
+            #since validate_token is a priviledged call
+            #Khaled's version uses creds to get a token
+            # "X-Auth-Token": admin_token}
+            # we're using a test token from the ini file for now
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                            '/v2.0/tokens/%s' % claims, headers=headers,
-                            ssl=(self.auth_protocol == 'https'),
-                            key_file=self.key_file, cert_file=self.cert_file)
+            '/v2.0/tokens/%s' % claims, headers=headers,
+            ssl=(self.auth_protocol == 'https'),
+            key_file=self.key_file, cert_file=self.cert_file)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()
 
-        if not str(resp.status).startswith('20'):
+        if not (resp.status >= 200 and resp.status <= 209):
             raise LookupError('Unable to locate claims: %s' % resp.status)
 
         token_info = json.loads(data)
-        roles = []
-        role_refs = token_info["access"]["user"]["roles"]
-        if role_refs != None:
-            for role_ref in role_refs:
-                # Nova looks for the non case-sensitive role 'Admin'
-                # to determine admin-ness
-                roles.append(role_ref["name"])
 
-        try:
-            tenant = token_info['access']['token']['tenant']['id']
-            tenant_name = token_info['access']['token']['tenant']['name']
-        except:
-            tenant = None
-            tenant_name = None
-        if not tenant:
-            tenant = token_info['access']['user'].get('tenantId')
+        roles = [role['name'] for role in token_info[
+            "access"]["user"]["roles"]]
+
+        # in diablo, there were two ways to get tenant data
+        tenant = token_info['access']['token'].get('tenant')
+        if tenant:
+            # post diablo
+            tenant_id = tenant['id']
+            tenant_name = tenant['name']
+        else:
+            # diablo only
+            tenant_id = token_info['access']['user'].get('tenantId')
             tenant_name = token_info['access']['user'].get('tenantName')
-        verified_claims = {'user': token_info['access']['user']['name'],
-                    'tenant': tenant,
-                    'roles': roles}
-        if tenant_name:
-            verified_claims['tenantName'] = tenant_name
+
+        verified_claims = {
+            'user': {
+                'id': token_info['access']['user']['id'],
+                'name': token_info['access']['user']['name'],
+            },
+            'tenant': {
+                'id': tenant_id,
+                'name': tenant_name
+            },
+            'roles': roles}
+
         return verified_claims
 
     def _decorate_request(self, index, value, env, proxy_headers):
