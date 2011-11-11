@@ -19,8 +19,8 @@ API_VERSION = "2.0"
 API_VERSION_STATUS = "ALPHA"
 API_VERSION_DATE = "2011-11-19T00:00:00Z"
 
-RELEASE_VERSION = "0.9.1"
-RELEASE_VERSION_FINAL = False  # becomes true at Release Candidate time
+RELEASE_VERSION = "2011.3.1"
+RELEASE_VERSION_FINAL = True  # becomes true at Release Candidate time
 
 
 def canonical_version():
