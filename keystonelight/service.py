@@ -125,13 +125,17 @@ class IdentityController(BaseApplication):
 
     return tenants_ref
 
+  def get_user(self, context, user_id):
+    return self.identity_api.get_user(context, user_id=user_id)
+
   def create_user(self, context, **kw):
     user_id = uuid.uuid4().hex
     kw['id'] = user_id
     return self.identity_api.create_user(context, user_id=user_id, data=kw)
 
-  def get_user(self, context, user_id):
-    return self.identity_api.get_user(context, user_id=user_id)
+  def delete_user(self, context, user_id):
+    return self.identity_api.delete_user(context, user_id=user_id)
+
 
 
 class Router(wsgi.Router):
