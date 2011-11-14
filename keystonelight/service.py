@@ -166,7 +166,6 @@ class Router(wsgi.Router):
 
     return mapper
 
-
 def app_factory(global_conf, **local_conf):
   conf = global_conf.copy()
   conf.update(local_conf)
