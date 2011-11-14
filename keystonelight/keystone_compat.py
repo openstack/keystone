@@ -136,6 +136,59 @@ class KeystoneController(service.BaseApplication):
 
         return self._format_authenticate(token_ref, catalog_ref)
 
+    #admin-only
+    def validate_token(self, context, token_id, belongs_to=None):
+        """Check that a token is valid.
+
+        Optionally, also ensure that it is owned by a specific tenant.
+
+        """
+        assert context['is_admin']
+
+        token_ref = self.token_api.get_token(context=context,
+                                             token_id=token_id)
+        if belongs_to:
+            assert token_ref['tenant']['id'] == belongs_to
+        return self._format_token(token_ref)
+
+    def tenants_for_token(self, context):
+        """Get valid tenants for token based on token used to authenticate.
+
+        Pulls the token from the context, validates it and gets the valid
+        tenants for the user in the token.
+
+        Doesn't care about token scopedness.
+
+        """
+        token_ref = self.token_api.get_token(context=context,
+                                             token_id=context['token_id'])
+        assert token_ref is not None
+
+        user_ref = token_ref['user']
+        tenant_refs = []
+        for tenant_id in user_ref['tenants']:
+            tenant_refs.append(self.identity_api.get_tenant(
+                    context=context,
+                    tenant_id=tenant_id))
+        return self._format_tenants_for_token(tenant_refs)
+
+    def _format_token(self, token_ref):
+        user_ref = token_ref['user']
+        extras_ref = token_ref['extras']
+        o = {'access': {'token': {'id': token_ref['id'],
+                                  'expires': token_ref['expires']
+                                  },
+                        'user': {'id': user_ref['id'],
+                                 'name': user_ref['name'],
+                                 'roles': extras_ref['roles'] or [],
+                                 'roles_links': extras_ref['roles_links'] or []
+                                 }
+                        }
+             }
+        if 'tenant' in token_ref:
+            o['access']['token']['tenant'] = token_ref['tenant']
+        return o
+
     def _format_authenticate(self, token_ref, catalog_ref):
         o = self._format_token(token_ref)
         o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
@@ -184,59 +237,6 @@ class KeystoneController(service.BaseApplication):
                 services[service] = new_service_ref
 
         return services.values()
-
-    #admin-only
-    def validate_token(self, context, token_id, belongs_to=None):
-        """Check that a token is valid.
-
-        Optionally, also ensure that it is owned by a specific tenant.
-
-        """
-        assert context['is_admin']
-
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=token_id)
-        if belongs_to:
-            assert token_ref['tenant']['id'] == belongs_to
-        return self._format_token(token_ref)
-
-    def _format_token(self, token_ref):
-        user_ref = token_ref['user']
-        extras_ref = token_ref['extras']
-        o = {'access': {'token': {'id': token_ref['id'],
-                                  'expires': token_ref['expires']
-                                  },
-                        'user': {'id': user_ref['id'],
-                                 'name': user_ref['name'],
-                                 'roles': extras_ref['roles'] or [],
-                                 'roles_links': extras_ref['roles_links'] or []
-                                 }
-                        }
-             }
-        if 'tenant' in token_ref:
-            o['access']['token']['tenant'] = token_ref['tenant']
-        return o
-
-    def tenants_for_token(self, context):
-        """Get valid tenants for token based on token used to authenticate.
-
-        Pulls the token from the context, validates it and gets the valid
-        tenants for the user in the token.
-
-        Doesn't care about token scopedness.
-
-        """
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=context['token_id'])
-        assert token_ref is not None
-
-        user_ref = token_ref['user']
-        tenant_refs = []
-        for tenant_id in user_ref['tenants']:
-            tenant_refs.append(self.identity_api.get_tenant(
-                    context=context,
-                    tenant_id=tenant_id))
-        return self._format_tenants_for_token(tenant_refs)
 
     def _format_tenants_for_token(self, tenant_refs):
         o = {'tenants': tenant_refs,
