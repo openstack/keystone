@@ -141,6 +141,28 @@ class IdentityController(BaseApplication):
   def delete_user(self, context, user_id):
     return self.identity_api.delete_user(context, user_id=user_id)
 
+  def get_tenant(self, context, tenant_id):
+    return self.identity_api.get_tenant(context, tenant_id=tenant_id)
+
+  def get_tenant_by_name(self, context, tenant_name):
+    return self.identity_api.get_tenant_by_name(
+        context, tenant_name=tenant_name)
+
+  def create_tenant(self, context, **kw):
+    tenant_id = uuid.uuid4().hex
+    kw['id'] = tenant_id
+    return self.identity_api.create_tenant(
+        context, tenant_id=tenant_id, data=kw)
+
+  def update_tenant(self, context, tenant_id, **kw):
+    kw['id'] = tenant_id
+    kw.pop('tenant_id', None)
+    return self.identity_api.update_tenant(
+        context, tenant_id=tenant_id, data=kw)
+
+  def delete_tenant(self, context, tenant_id):
+    return self.identity_api.delete_tenant(context, tenant_id=tenant_id)
+
 
 class Router(wsgi.Router):
   def __init__(self, options):

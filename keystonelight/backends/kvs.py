@@ -69,6 +69,20 @@ class KvsIdentity(object):
     self.db.set('tenant_name-%s' % tenant['name'], tenant)
     return tenant
 
+  def update_tenant(self, id, tenant):
+    # get the old name and delete it too
+    old_tenant = self.db.get('tenant-%s' % id)
+    self.db.delete('tenant_name-%s' % old_tenant['name'])
+    self.db.set('tenant-%s' % id, tenant)
+    self.db.set('tenant_name-%s' % tenant['name'], tenant)
+    return tenant
+
+  def delete_tenant(self, id):
+    old_tenant = self.db.get('tenant-%s' % id)
+    self.db.delete('tenant_name-%s' % old_tenant['name'])
+    self.db.delete('tenant-%s' % id)
+    return None
+
   def create_extras(self, user_id, tenant_id, extras):
     self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
     return extras

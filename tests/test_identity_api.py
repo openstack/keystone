@@ -102,3 +102,47 @@ class IdentityApi(test.TestCase):
     self.assertEquals(delget_resp.body, '')
     # TODO(termie): we should probably return not founds instead of None
     #self.assertEquals(delget_resp.status, '404 Not Found')
+
+  def test_crud_tenant(self):
+    token_id = self.options['admin_token']
+    c = client.TestClient(self.app, token=token_id)
+    tenant_ref = models.Tenant(name='BAZ')
+    resp = c.create_tenant(**tenant_ref)
+    data = json.loads(resp.body)
+    self.assert_(data['id'])
+
+    get_resp = c.get_tenant(tenant_id=data['id'])
+    get_data = json.loads(get_resp.body)
+    self.assertDictEquals(data, get_data)
+
+    getname_resp = c.get_tenant_by_name(tenant_name=data['name'])
+    getname_data = json.loads(getname_resp.body)
+    self.assertDictEquals(data, getname_data)
+
+    update_resp = c.update_tenant(tenant_id=data['id'],
+                                id=data['id'],
+                                name='NEWBAZ')
+    update_data = json.loads(update_resp.body)
+
+    self.assertEquals(data['id'], update_data['id'])
+    self.assertEquals('NEWBAZ', update_data['name'])
+
+    # make sure we can't get the old name
+    getname_resp = c.get_tenant_by_name(tenant_name=data['name'])
+    self.assertEquals(getname_resp.body, '')
+
+    # but can get the new name
+    getname_resp = c.get_tenant_by_name(tenant_name=update_data['name'])
+    getname_data = json.loads(getname_resp.body)
+    self.assertDictEquals(update_data, getname_data)
+
+    del_resp = c.delete_tenant(tenant_id=data['id'])
+    self.assertEquals(del_resp.body, '')
+
+    delget_resp = c.get_tenant(tenant_id=data['id'])
+    self.assertEquals(delget_resp.body, '')
+
+    delgetname_resp = c.get_tenant_by_name(tenant_name=update_data['name'])
+    self.assertEquals(delgetname_resp.body, '')
+    # TODO(termie): we should probably return not founds instead of None
+    #self.assertEquals(delget_resp.status, '404 Not Found')
