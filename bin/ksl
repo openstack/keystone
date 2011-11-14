@@ -33,7 +33,6 @@ class LoadData(BaseApp):
     pass
 
 
-
 CMDS = {'loaddata': LoadData,
         }
 
