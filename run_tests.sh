@@ -85,7 +85,7 @@ function run_pep8 {
   ignore_files="*eventlet-patch:*pip-requires"
   ignore_dirs="*ajaxterm*"
   GLOBIGNORE="$ignore_scripts:$ignore_files:$ignore_dirs"
-  srcfiles=`find bin -type f`
+  srcfiles=`find bin -type f ! -name .*.swp`
   srcfiles+=" keystonelight"
   # Just run PEP8 in current environment
   ${wrapper} pep8 --repeat --show-pep8 --show-source \
