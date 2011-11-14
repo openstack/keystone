@@ -73,3 +73,16 @@ class IdentityApi(test.TestCase):
     resp = c.get_tenants(user_id=self.user_foo['id'])
     data = json.loads(resp.body)
     self.assertDictEquals(self.tenant_bar, data[0])
+
+  def test_create_user(self):
+    token_id = self.options['admin_token']
+    c = client.TestClient(self.app, token=token_id)
+    user_ref = models.User()
+    resp = c.create_user(**user_ref)
+    data = json.loads(resp.body)
+    self.assert_(data['id'])
+
+    new_resp = c.get_user(user_id=data['id'])
+    new_data = json.loads(new_resp.body)
+
+    self.assertDictEquals(data, new_data)

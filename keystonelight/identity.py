@@ -32,28 +32,28 @@ class Manager(object):
     return self.driver.get_extras(user_id, tenant_id)
 
   # CRUD operations
-  def create_user(self, context, user_id, **data):
+  def create_user(self, context, user_id, data):
     return self.driver.create_user(user_id, data)
 
-  def update_user(self, context, user_id, **data):
+  def update_user(self, context, user_id, data):
     return self.driver.update_user(user_id, data)
 
   def delete_user(self, context, user_id):
     return self.driver.delete_user(user_id)
 
-  def create_tenant(self, context, tenant_id, **data):
+  def create_tenant(self, context, tenant_id, data):
     return self.driver.create_tenant(tenant_id, data)
 
-  def update_tenant(self, context, tenant_id, **data):
+  def update_tenant(self, context, tenant_id, data):
     return self.driver.update_tenant(tenant_id, data)
 
   def delete_tenant(self, context, tenant_id):
     return self.driver.delete_tenant(tenant_id)
 
-  def create_extras(self, context, user_id, tenant_id, **data):
+  def create_extras(self, context, user_id, tenant_id, data):
     return self.driver.create_extras(user_id, tenant_id, data)
 
-  def update_extras(self, context, user_id, tenant_id, **data):
+  def update_extras(self, context, user_id, tenant_id, data):
     return self.driver.update_extras(user_id, tenant_id, data)
 
   def delete_extras(self, context, user_id, tenant_id):
