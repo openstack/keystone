@@ -71,7 +71,7 @@ class MasterCompatTestCase(CompatTestCase):
     port = self.server.socket_info['socket'][1]
     self.options['public_port'] = port
     # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-    client = ks_client.Client(auth_url="http://localhost:%s/v2.0" % port,
+    client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
                               username='foo',
                               password='foo',
                               project_id='bar')

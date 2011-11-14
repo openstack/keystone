@@ -192,7 +192,11 @@ class Router(wsgi.Router):
     self.token_controller = TokenController(options)
 
     mapper = self._build_map(URLMAP)
+    mapper.connect('/', controller=self, action='noop')
     super(Router, self).__init__(mapper)
+
+  def noop(self, context, *args, **kw):
+    return ''
 
   def _build_map(self, urlmap):
     """Build a routes.Mapper based on URLMAP."""

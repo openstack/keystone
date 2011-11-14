@@ -102,7 +102,6 @@ class TestCase(unittest.TestCase):
     # Service catalog tests need to know the port we ran on.
     port = server.socket_info['socket'][1]
     self._update_server_options(server, 'public_port', port)
-    logging.debug('PUBLIC PORT: %s', app.options['public_port'])
     return server
 
   def _update_server_options(self, server, key, value):
@@ -112,13 +111,32 @@ class TestCase(unittest.TestCase):
 
     """
     last = server
-    while hasattr(last, 'application') or hasattr(last, 'options'):
-      logging.debug('UPDATE %s', last.__class__)
+
+    applications = []
+
+    while (hasattr(last, 'applications')
+           or hasattr(last, 'application')
+           or hasattr(last, 'options')):
+
+      logging.debug('UPDATE %s: O %s A %s AS %s',
+                    last.__class__,
+                    getattr(last, 'options', None),
+                    getattr(last, 'application', None),
+                    getattr(last, 'applications', None))
       if hasattr(last, 'options'):
         last.options[key] = value
-      if not hasattr(last, 'application'):
+
+      # NOTE(termie): paste.urlmap.URLMap stores applications in this format
+      if hasattr(last, 'applications'):
+        for app in last.applications:
+          applications.append(app[1])
+
+      if hasattr(last, 'application'):
+        last = last.application
+      elif len(applications):
+        last = applications.pop()
+      else:
         break
-      last = last.application
 
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)

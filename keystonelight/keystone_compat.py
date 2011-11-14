@@ -21,15 +21,15 @@ class KeystoneRouter(wsgi.Router):
         mapper.connect('/',
                        controller=self.keystone_controller,
                        action='noop')
-        mapper.connect('/v2.0/tokens',
+        mapper.connect('/tokens',
                        controller=self.keystone_controller,
                        action='authenticate',
                        conditions=dict(method=['POST']))
-        mapper.connect('/v2.0/tokens/{token_id}',
+        mapper.connect('/tokens/{token_id}',
                        controller=self.keystone_controller,
                        action='validate_token',
                        conditions=dict(method=['GET']))
-        mapper.connect('/v2.0/tenants',
+        mapper.connect('/tenants',
                        controller=self.keystone_controller,
                        action='tenants_for_token',
                        conditions=dict(method=['GET']))
