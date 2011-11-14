@@ -56,6 +56,10 @@ class KvsIdentity(object):
     self.db.set('user-%s' % id, user)
     return user
 
+  def update_user(self, id, user):
+    self.db.set('user-%s' % id, user)
+    return user
+
   def delete_user(self, id):
     self.db.delete('user-%s' % id)
     return None

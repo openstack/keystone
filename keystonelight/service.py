@@ -133,6 +133,11 @@ class IdentityController(BaseApplication):
     kw['id'] = user_id
     return self.identity_api.create_user(context, user_id=user_id, data=kw)
 
+  def update_user(self, context, user_id, **kw):
+    kw['id'] = user_id
+    kw.pop('user_id', None)
+    return self.identity_api.update_user(context, user_id=user_id, data=kw)
+
   def delete_user(self, context, user_id):
     return self.identity_api.delete_user(context, user_id=user_id)
 

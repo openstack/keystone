@@ -87,6 +87,14 @@ class IdentityApi(test.TestCase):
 
     self.assertDictEquals(data, get_data)
 
+    update_resp = c.update_user(user_id=data['id'],
+                                id=data['id'],
+                                password='foo')
+    update_data = json.loads(update_resp.body)
+
+    self.assertEquals(data['id'], update_data['id'])
+    self.assertEquals('foo', update_data['password'])
+
     del_resp = c.delete_user(user_id=data['id'])
     self.assertEquals(del_resp.body, '')
 
