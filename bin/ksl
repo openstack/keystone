@@ -74,17 +74,20 @@ class CrudCommands(BaseApp):
 
 class UserCommands(CrudCommands):
   ACTION_MAP = {'add': 'create_user',
-                'create': 'create_user',}
+                'create': 'create_user',
+                }
 
 
 class TenantCommands(CrudCommands):
   ACTION_MAP = {'add': 'create_tenant',
-                'create': 'create_tenant',}
+                'create': 'create_tenant',
+                }
 
 
 class ExtrasCommands(CrudCommands):
   ACTION_MAP = {'add': 'create_extras',
-                'create': 'create_extras',}
+                'create': 'create_extras',
+                }
 
 
 class Auth(BaseApp):
@@ -99,7 +102,6 @@ class Auth(BaseApp):
     kv = self._parse_keyvalues(self.params.keyvalues)
     resp = c.authenticate(**kv)
     print resp
-
 
 
 CMDS = {'loaddata': LoadData,
