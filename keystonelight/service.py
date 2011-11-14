@@ -47,116 +47,115 @@ URLMAP.update(LOW_LEVEL_CALLS)
 
 
 class BaseApplication(wsgi.Application):
-    @webob.dec.wsgify
-    def __call__(self, req):
-        arg_dict = req.environ['wsgiorg.routing_args'][1]
-        action = arg_dict['action']
-        del arg_dict['action']
-        del arg_dict['controller']
-        logging.debug('arg_dict: %s', arg_dict)
+  @webob.dec.wsgify
+  def __call__(self, req):
+    arg_dict = req.environ['wsgiorg.routing_args'][1]
+    action = arg_dict['action']
+    del arg_dict['action']
+    del arg_dict['controller']
+    logging.debug('arg_dict: %s', arg_dict)
 
-        context = req.environ.get('openstack.context', {})
-        # allow middleware up the stack to override the params
-        params = {}
-        if 'openstack.params' in req.environ:
-            params = req.environ['openstack.params']
-        params.update(arg_dict)
+    context = req.environ.get('openstack.context', {})
+    # allow middleware up the stack to override the params
+    params = {}
+    if 'openstack.params' in req.environ:
+      params = req.environ['openstack.params']
+    params.update(arg_dict)
 
-        # TODO(termie): do some basic normalization on methods
-        method = getattr(self, action)
+    # TODO(termie): do some basic normalization on methods
+    method = getattr(self, action)
 
-        # NOTE(vish): make sure we have no unicode keys for py2.6.
-        params = dict([(str(k), v) for (k, v) in params.iteritems()])
-        result = method(context, **params)
+    # NOTE(vish): make sure we have no unicode keys for py2.6.
+    params = dict([(str(k), v) for (k, v) in params.iteritems()])
+    result = method(context, **params)
 
-        if result is None or type(result) is str or type(result) is unicode:
-            return result
+    if result is None or type(result) is str or type(result) is unicode:
+      return result
 
-        return json.dumps(result)
+    return json.dumps(result)
 
 
 class TokenController(BaseApplication):
-    """Validate and pass through calls to TokenManager."""
+  """Validate and pass through calls to TokenManager."""
 
-    def __init__(self, options):
-        self.token_api = token.Manager(options=options)
-        self.options = options
+  def __init__(self, options):
+    self.token_api = token.Manager(options=options)
+    self.options = options
 
-    def validate_token(self, context, token_id):
-        token_info = self.token_api.validate_token(context, token_id)
-        if not token_info:
-            raise webob.exc.HTTPUnauthorized()
-        return token_info
+  def validate_token(self, context, token_id):
+    token_info = self.token_api.validate_token(context, token_id)
+    if not token_info:
+      raise webob.exc.HTTPUnauthorized()
+    return token_info
 
 
 class IdentityController(BaseApplication):
-    """Validate and pass calls through to IdentityManager.
+  """Validate and pass calls through to IdentityManager.
 
-    IdentityManager will also pretty much just pass calls through to
-    a specific driver.
-    """
+  IdentityManager will also pretty much just pass calls through to
+  a specific driver.
+  """
 
-    def __init__(self, options):
-        self.identity_api = identity.Manager(options=options)
-        self.token_api = token.Manager(options=options)
-        self.options = options
+  def __init__(self, options):
+    self.identity_api = identity.Manager(options=options)
+    self.token_api = token.Manager(options=options)
+    self.options = options
 
-    def authenticate(self, context, **kwargs):
-        user_ref, tenant_ref, extras_ref = self.identity_api.authenticate(
-                context, **kwargs)
-        # TODO(termie): strip password from return values
-        token_ref = self.token_api.create_token(context,
-                                                dict(tenant=tenant_ref,
-                                                     user=user_ref,
-                                                     extras=extras_ref))
-        logging.debug('TOKEN: %s', token_ref)
-        return token_ref
+  def authenticate(self, context, **kwargs):
+    user_ref, tenant_ref, extras_ref = self.identity_api.authenticate(
+        context, **kwargs)
+    # TODO(termie): strip password from return values
+    token_ref = self.token_api.create_token(context,
+                                            dict(tenant=tenant_ref,
+                                                 user=user_ref,
+                                                 extras=extras_ref))
+    logging.debug('TOKEN: %s', token_ref)
+    return token_ref
 
-    def get_tenants(self, context, user_id=None):
-        token_id = context.get('token_id')
-        token_ref = self.token_api.get_token(context, token_id)
-        assert token_ref
-        assert token_ref['user']['id'] == user_id
-        tenants_ref = []
-        for tenant_id in token_ref['user']['tenants']:
-            tenants_ref.append(self.identity_api.get_tenant(context,
-                                                            tenant_id))
+  def get_tenants(self, context, user_id=None):
+    token_id = context.get('token_id')
+    token_ref = self.token_api.get_token(context, token_id)
+    assert token_ref
+    assert token_ref['user']['id'] == user_id
+    tenants_ref = []
+    for tenant_id in token_ref['user']['tenants']:
+      tenants_ref.append(self.identity_api.get_tenant(context,
+                                                      tenant_id))
 
-        return tenants_ref
+    return tenants_ref
 
 
 class Router(wsgi.Router):
-    def __init__(self, options):
-        self.options = options
-        self.identity_controller = IdentityController(options)
-        self.token_controller = TokenController(options)
+  def __init__(self, options):
+    self.options = options
+    self.identity_controller = IdentityController(options)
+    self.token_controller = TokenController(options)
 
-        mapper = self._build_map(URLMAP)
-        super(Router, self).__init__(mapper)
+    mapper = self._build_map(URLMAP)
+    super(Router, self).__init__(mapper)
 
-    def _build_map(self, urlmap):
-        """Build a routes.Mapper based on URLMAP."""
-        mapper = routes.Mapper()
-        for k, v in urlmap.iteritems():
-            # NOTE(termie): hack
-            if 'token' in k:
-                controller = self.token_controller
-            else:
-                controller = self.identity_controller
-            action = k
-            method, path = v
-            path = path.replace('%(', '{').replace(')s', '}')
-            print path
+  def _build_map(self, urlmap):
+    """Build a routes.Mapper based on URLMAP."""
+    mapper = routes.Mapper()
+    for k, v in urlmap.iteritems():
+      # NOTE(termie): hack
+      if 'token' in k:
+        controller = self.token_controller
+      else:
+        controller = self.identity_controller
+        action = k
+        method, path = v
+        path = path.replace('%(', '{').replace(')s', '}')
 
-            mapper.connect(path,
-                           controller=controller,
-                           action=action,
-                           conditions=dict(method=[method]))
+        mapper.connect(path,
+                       controller=controller,
+                       action=action,
+                       conditions=dict(method=[method]))
 
-        return mapper
+    return mapper
 
 
 def app_factory(global_conf, **local_conf):
-    conf = global_conf.copy()
-    conf.update(local_conf)
-    return Router(conf)
+  conf = global_conf.copy()
+  conf.update(local_conf)
+  return Router(conf)
