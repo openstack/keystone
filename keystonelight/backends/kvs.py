@@ -56,6 +56,10 @@ class KvsIdentity(object):
     self.db.set('user-%s' % id, user)
     return user
 
+  def delete_user(self, id):
+    self.db.delete('user-%s' % id)
+    return None
+
   def create_tenant(self, id, tenant):
     self.db.set('tenant-%s' % id, tenant)
     self.db.set('tenant_name-%s' % tenant['name'], tenant)

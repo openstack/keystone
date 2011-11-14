@@ -137,7 +137,6 @@ class IdentityController(BaseApplication):
     return self.identity_api.delete_user(context, user_id=user_id)
 
 
-
 class Router(wsgi.Router):
   def __init__(self, options):
     self.options = options

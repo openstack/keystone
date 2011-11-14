@@ -74,7 +74,7 @@ class IdentityApi(test.TestCase):
     data = json.loads(resp.body)
     self.assertDictEquals(self.tenant_bar, data[0])
 
-  def test_create_user(self):
+  def test_crud_user(self):
     token_id = self.options['admin_token']
     c = client.TestClient(self.app, token=token_id)
     user_ref = models.User()
@@ -91,3 +91,6 @@ class IdentityApi(test.TestCase):
     self.assertEquals(del_resp.body, '')
 
     delget_resp = c.get_user(user_id=data['id'])
+    self.assertEquals(delget_resp.body, '')
+    # TODO(termie): we should probably return not founds instead of None
+    #self.assertEquals(delget_resp.status, '404 Not Found')
