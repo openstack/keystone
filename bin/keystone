@@ -23,11 +23,11 @@ from keystonelight import wsgi
 if __name__ == '__main__':
     default_conf = os.path.join(possible_topdir,
                                 'etc',
-                                'keystone.conf')
+                                'default.conf')
     logging.getLogger().setLevel(logging.DEBUG)
 
     conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
-    app = deploy.loadapp('config:%s' % conf)
+    app = deploy.loadapp('config:%s' % conf, name='keystone')
     server = wsgi.Server()
     server.start(app, int(app.options['public_port']))
     server.start(app, int(app.options['admin_port']))
