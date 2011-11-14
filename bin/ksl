@@ -5,9 +5,16 @@ import sys
 import cli.app
 import cli.log
 
+from keystonelight import client
+
 
 DEFAULT_PARAMS = (
-    (('--url',), {'dest': 'url', 'action': 'store'}),
+    (('--config',), {'dest': 'configfile',
+                     'action': 'store',
+                     'default': './etc/default.conf'}),
+    (('--url',), {'dest': 'url',
+                  'action': 'store',
+                  'default': 'http://localhost:5000'}),
     (('--token',), {'dest': 'token', 'action': 'store'}),
     )
 
@@ -21,6 +28,20 @@ class BaseApp(cli.log.LoggingApp):
     for args, kw in DEFAULT_PARAMS:
       self.add_param(*args, **kw)
 
+  def _parse_keyvalues(self, args):
+    kv = {}
+    for x in args:
+      key, value = x.split('=', 1)
+      # make lists if there are multiple values
+      if key in kv:
+        if type(kv) is type(tuple()):
+          kv[key] = kv[key] + (value,)
+        else:
+          kv[key] = (kv[key], value)
+      else:
+        kv[key] = value
+    return kv
+
 
 class LoadData(BaseApp):
   def __init__(self, *args, **kw):
@@ -33,7 +54,59 @@ class LoadData(BaseApp):
     pass
 
 
+class CrudCommands(BaseApp):
+  ACTION_MAP = {}
+
+  def __init__(self, *args, **kw):
+    super(CrudCommands, self).__init__(*args, **kw)
+    self.add_default_params()
+    self.add_param('action')
+    self.add_param('keyvalues', nargs='+')
+
+  def main(self):
+    """Given some keyvalues create the appropriate data in Keystone Light."""
+    c = client.HttpClient(self.params.url, token=self.params.token)
+    action_name = self.ACTION_MAP[self.params.action]
+    kv = self._parse_keyvalues(self.params.keyvalues)
+    resp = getattr(c, action_name)(**kv)
+    print resp
+
+
+class UserCommands(CrudCommands):
+  ACTION_MAP = {'add': 'create_user',
+                'create': 'create_user',}
+
+
+class TenantCommands(CrudCommands):
+  ACTION_MAP = {'add': 'create_tenant',
+                'create': 'create_tenant',}
+
+
+class ExtrasCommands(CrudCommands):
+  ACTION_MAP = {'add': 'create_extras',
+                'create': 'create_extras',}
+
+
+class Auth(BaseApp):
+  def __init__(self, *args, **kw):
+    super(Auth, self).__init__(*args, **kw)
+    self.add_default_params()
+    self.add_param('keyvalues', nargs='+')
+
+  def main(self):
+    """Attempt to authenticate against the Keystone Light API."""
+    c = client.HttpClient(self.params.url, token=self.params.token)
+    kv = self._parse_keyvalues(self.params.keyvalues)
+    resp = c.authenticate(**kv)
+    print resp
+
+
+
 CMDS = {'loaddata': LoadData,
+        'user': UserCommands,
+        'tenant': TenantCommands,
+        'extras': ExtrasCommands,
+        'auth': Auth,
         }
 
 

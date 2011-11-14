@@ -28,7 +28,8 @@ if __name__ == '__main__':
 
     conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
     app = deploy.loadapp('config:%s' % conf)
+    options = deploy.appconfig('config:%s' % conf)
     server = wsgi.Server()
-    server.start(app, int(app.options['public_port']))
-    server.start(app, int(app.options['admin_port']))
+    server.start(app, int(options['public_port']))
+    server.start(app, int(options['admin_port']))
     server.wait()

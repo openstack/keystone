@@ -77,9 +77,10 @@ class HttpClient(Client):
     if type(body) is type({}):
       body = json.dumps(body)
     headers = self._build_headers(headers)
-    h = httplib.Http()
-    resp, content = h.request(path, method=method, headers=headers, body=body)
-    return webob.Response(content, status=resp.status, headerlist=resp.headers)
+    h = httplib2.Http()
+    url = '%s%s' % (self.endpoint, path)
+    resp, content = h.request(url, method=method, headers=headers, body=body)
+    return webob.Response(content, status=resp.status, headerlist=resp.items())
 
 
 class TestClient(Client):
