@@ -87,6 +87,14 @@ class KvsIdentity(object):
     self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
     return extras
 
+  def update_extras(self, user_id, tenant_id, extras):
+    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
+    return extras
+
+  def delete_extras(self, user_id, tenant_id):
+    self.db.delete('extras-%s-%s' % (tenant_id, user_id))
+    return None
+
   # Private CRUD for testing
   def _create_user(self, id, user):
     self.db.set('user-%s' % id, user)

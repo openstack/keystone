@@ -125,6 +125,7 @@ class IdentityController(BaseApplication):
 
     return tenants_ref
 
+  # crud api
   def get_user(self, context, user_id):
     return self.identity_api.get_user(context, user_id=user_id)
 
@@ -162,6 +163,26 @@ class IdentityController(BaseApplication):
 
   def delete_tenant(self, context, tenant_id):
     return self.identity_api.delete_tenant(context, tenant_id=tenant_id)
+
+  def get_extras(self, context, user_id, tenant_id):
+    return self.identity_api.get_extras(
+        context, user_id=user_id, tenant_id=tenant_id)
+
+  def create_extras(self, context, **kw):
+    user_id = kw.pop('user_id')
+    tenant_id = kw.pop('tenant_id')
+    return self.identity_api.create_extras(
+        context, user_id=user_id, tenant_id=tenant_id, data=kw)
+
+  def update_extras(self, context, user_id, tenant_id, **kw):
+    kw.pop('user_id', None)
+    kw.pop('tenant_id', None)
+    return self.identity_api.update_extras(
+        context, user_id=user_id, tenant_id=tenant_id, data=kw)
+
+  def delete_extras(self, context, user_id, tenant_id):
+    return self.identity_api.delete_extras(
+        context, user_id=user_id, tenant_id=tenant_id)
 
 
 class Router(wsgi.Router):

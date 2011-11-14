@@ -146,3 +146,33 @@ class IdentityApi(test.TestCase):
     self.assertEquals(delgetname_resp.body, '')
     # TODO(termie): we should probably return not founds instead of None
     #self.assertEquals(delget_resp.status, '404 Not Found')
+
+  def test_crud_extras(self):
+    token_id = self.options['admin_token']
+    user_id = 'foo'
+    tenant_id = 'bar'
+    c = client.TestClient(self.app, token=token_id)
+    extras_ref = dict(baz='qaz')
+    resp = c.create_extras(user_id=user_id, tenant_id=tenant_id, **extras_ref)
+    data = json.loads(resp.body)
+    self.assertEquals(data['baz'], 'qaz')
+
+    get_resp = c.get_extras(user_id=user_id, tenant_id=tenant_id)
+    get_data = json.loads(get_resp.body)
+
+    self.assertDictEquals(data, get_data)
+
+    update_resp = c.update_extras(user_id=user_id,
+                                  tenant_id=tenant_id,
+                                  baz='WAZ')
+    update_data = json.loads(update_resp.body)
+
+    self.assertEquals('WAZ', update_data['baz'])
+
+    del_resp = c.delete_extras(user_id=user_id, tenant_id=tenant_id)
+    self.assertEquals(del_resp.body, '')
+
+    delget_resp = c.get_extras(user_id=user_id, tenant_id=tenant_id)
+    self.assertEquals(delget_resp.body, '')
+    # TODO(termie): we should probably return not founds instead of None
+    #self.assertEquals(delget_resp.status, '404 Not Found')
