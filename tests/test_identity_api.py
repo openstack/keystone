@@ -24,16 +24,16 @@ class IdentityApi(test.TestCase):
     self._load_fixtures()
 
   def _load_fixtures(self):
-    self.tenant_bar = self.identity_backend._create_tenant(
+    self.tenant_bar = self.identity_backend.create_tenant(
         'bar',
         models.Tenant(id='bar', name='BAR'))
-    self.user_foo = self.identity_backend._create_user(
+    self.user_foo = self.identity_backend.create_user(
         'foo',
         models.User(id='foo',
                     name='FOO',
                     password='foo2',
                     tenants=[self.tenant_bar['id']]))
-    self.extras_foobar = self.identity_backend._create_extras(
+    self.extras_foobar = self.identity_backend.create_extras(
         'foo', 'bar',
         {'extra': 'extra'})
 
@@ -77,7 +77,7 @@ class IdentityApi(test.TestCase):
   def test_crud_user(self):
     token_id = self.options['admin_token']
     c = client.TestClient(self.app, token=token_id)
-    user_ref = models.User()
+    user_ref = models.User(name='FOO')
     resp = c.create_user(**user_ref)
     data = json.loads(resp.body)
     self.assert_(data['id'])
@@ -88,6 +88,7 @@ class IdentityApi(test.TestCase):
     self.assertDictEquals(data, get_data)
 
     update_resp = c.update_user(user_id=data['id'],
+                                name='FOO',
                                 id=data['id'],
                                 password='foo')
     update_data = json.loads(update_resp.body)

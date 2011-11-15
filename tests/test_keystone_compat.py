@@ -46,16 +46,16 @@ class CompatTestCase(test.TestCase):
         os.path.join(self.sampledir, 'auth.json')))
 
     # validate_token call
-    self.tenant_345 = self.identity_backend._create_tenant(
+    self.tenant_345 = self.identity_backend.create_tenant(
         '345',
         models.Tenant(id='345', name='My Project'))
-    self.user_123 = self.identity_backend._create_user(
+    self.user_123 = self.identity_backend.create_user(
         '123',
         models.User(id='123',
                     name='jqsmith',
                     tenants=[self.tenant_345['id']],
                     password='password'))
-    self.extras_123 = self.identity_backend._create_extras(
+    self.extras_123 = self.identity_backend.create_extras(
         self.user_123['id'], self.tenant_345['id'],
         dict(roles=[{'id': '234',
                      'name': 'compute:admin'},
@@ -79,21 +79,21 @@ class CompatTestCase(test.TestCase):
     #catalog = json.load(open(
     #    os.path.join(os.path.dirname(__file__),
     #                 'keystone_compat_diablo_sample_catalog.json')))
-    #self.catalog_backend._create_catalog(self.user_123['id'],
+    #self.catalog_backend.create_catalog(self.user_123['id'],
     #                                     self.tenant_345['id'],
     #                                     catalog)
 
     # tenants_for_token call
-    self.user_foo = self.identity_backend._create_user(
+    self.user_foo = self.identity_backend.create_user(
         'foo',
-        models.User(id='foo', tenants=['1234', '3456']))
-    self.tenant_1234 = self.identity_backend._create_tenant(
+        models.User(id='foo', name='FOO', tenants=['1234', '3456']))
+    self.tenant_1234 = self.identity_backend.create_tenant(
         '1234',
         models.Tenant(id='1234',
                       name='ACME Corp',
                       description='A description ...',
                       enabled=True))
-    self.tenant_3456 = self.identity_backend._create_tenant(
+    self.tenant_3456 = self.identity_backend.create_tenant(
         '3456',
         models.Tenant(id='3456',
                       name='Iron Works',

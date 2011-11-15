@@ -39,18 +39,18 @@ class MasterCompatTestCase(CompatTestCase):
 
     self.server = self.serveapp('keystoneclient_compat_master')
 
-    self.tenant_bar = self.identity_backend._create_tenant(
+    self.tenant_bar = self.identity_backend.create_tenant(
         'bar',
         models.Tenant(id='bar', name='BAR'))
 
-    self.user_foo = self.identity_backend._create_user(
+    self.user_foo = self.identity_backend.create_user(
         'foo',
         models.User(id='foo',
                     name='FOO',
                     tenants=[self.tenant_bar['id']],
                     password='foo'))
 
-    self.extras_bar_foo = self.identity_backend._create_extras(
+    self.extras_bar_foo = self.identity_backend.create_extras(
         self.user_foo['id'], self.tenant_bar['id'],
         dict(roles=[],
              roles_links=[]))
@@ -72,7 +72,7 @@ class MasterCompatTestCase(CompatTestCase):
     self.options['public_port'] = port
     # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
     client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
-                              username='foo',
+                              username='FOO',
                               password='foo',
                               project_id='bar')
     client.authenticate()

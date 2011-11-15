@@ -13,16 +13,16 @@ class KvsIdentity(test.TestCase):
     self._load_fixtures()
 
   def _load_fixtures(self):
-    self.tenant_bar = self.identity_api._create_tenant(
+    self.tenant_bar = self.identity_api.create_tenant(
         'bar',
         models.Tenant(id='bar', name='BAR'))
-    self.user_foo = self.identity_api._create_user(
+    self.user_foo = self.identity_api.create_user(
         'foo',
         models.User(id='foo',
                     name='FOO',
                     password='foo2',
                     tenants=[self.tenant_bar['id']]))
-    self.extras_foobar = self.identity_api._create_extras(
+    self.extras_foobar = self.identity_api.create_extras(
         'foo', 'bar',
         {'extra': 'extra'})
 

@@ -49,18 +49,29 @@ class KvsIdentity(object):
     user_ref = self.db.get('user-%s' % user_id)
     return user_ref
 
+  def get_user_by_name(self, user_name):
+    user_ref = self.db.get('user_name-%s' % user_name)
+    return user_ref
+
   def get_extras(self, user_id, tenant_id):
     return self.db.get('extras-%s-%s' % (tenant_id, user_id))
 
   def create_user(self, id, user):
     self.db.set('user-%s' % id, user)
+    self.db.set('user_name-%s' % user['name'], user)
     return user
 
   def update_user(self, id, user):
+    # get the old name and delete it too
+    old_user = self.db.get('user-%s' % id)
+    self.db.delete('user_name-%s' % old_user['name'])
     self.db.set('user-%s' % id, user)
+    self.db.set('user_name-%s' % user['name'], user)
     return user
 
   def delete_user(self, id):
+    old_user = self.db.get('user-%s' % id)
+    self.db.delete('user_name-%s' % old_user['name'])
     self.db.delete('user-%s' % id)
     return None
 
@@ -94,20 +105,6 @@ class KvsIdentity(object):
   def delete_extras(self, user_id, tenant_id):
     self.db.delete('extras-%s-%s' % (tenant_id, user_id))
     return None
-
-  # Private CRUD for testing
-  def _create_user(self, id, user):
-    self.db.set('user-%s' % id, user)
-    return user
-
-  def _create_tenant(self, id, tenant):
-    self.db.set('tenant-%s' % id, tenant)
-    self.db.set('tenant_name-%s' % tenant['name'], tenant)
-    return tenant
-
-  def _create_extras(self, user_id, tenant_id, extras):
-    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
-    return extras
 
 
 class KvsToken(object):

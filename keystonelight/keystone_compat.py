@@ -74,6 +74,13 @@ class KeystoneController(service.BaseApplication):
             password = auth['passwordCredentials'].get('password', '')
             tenant_name = auth.get('tenantName', None)
 
+            if username:
+                user_ref = self.identity_api.get_user_by_name(
+                        context=context, user_name=username)
+                user_id = user_ref['id']
+            else:
+                user_id = auth['passwordCredentials'].get('userId', None)
+
             # more compat
             if tenant_name:
                 tenant_ref = self.identity_api.get_tenant_by_name(
@@ -84,7 +91,7 @@ class KeystoneController(service.BaseApplication):
 
             (user_ref, tenant_ref, extras_ref) = \
                     self.identity_api.authenticate(context=context,
-                                                   user_id=username,
+                                                   user_id=user_id,
                                                    password=password,
                                                    tenant_id=tenant_id)
             token_ref = self.token_api.create_token(context,
