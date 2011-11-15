@@ -130,7 +130,7 @@ class IdentityController(BaseApplication):
     return self.identity_api.get_user(context, user_id=user_id)
 
   def create_user(self, context, **kw):
-    user_id = uuid.uuid4().hex
+    user_id = kw.get('id', uuid.uuid4().hex)
     kw['id'] = user_id
     return self.identity_api.create_user(context, user_id=user_id, data=kw)
 
@@ -150,7 +150,7 @@ class IdentityController(BaseApplication):
         context, tenant_name=tenant_name)
 
   def create_tenant(self, context, **kw):
-    tenant_id = uuid.uuid4().hex
+    tenant_id = kw.get('id', uuid.uuid4().hex)
     kw['id'] = tenant_id
     return self.identity_api.create_tenant(
         context, tenant_id=tenant_id, data=kw)
