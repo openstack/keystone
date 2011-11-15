@@ -112,6 +112,10 @@ from keystone.common.bufferedhttp import http_connect_raw as http_connect
 PROTOCOL_NAME = "Token Authentication"
 
 
+class ValidationFailed(Exception):
+    pass
+
+
 class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
 
@@ -211,8 +215,9 @@ class AuthProtocol(object):
                 return self._reject_request(env, start_response)
         else:
             # this request is presenting claims. Let's validate them
-            valid = self._validate_claims(claims)
-            if not valid:
+            try:
+                claims = self._verify_claims(claims)
+            except ValidationFailed:
                 # Keystone rejected claim
                 if self.delay_auth_decision:
                     # Downstream service will receive call still and decide
@@ -224,10 +229,6 @@ class AuthProtocol(object):
             else:
                 self._decorate_request("X_IDENTITY_STATUS",
                     "Confirmed", env, proxy_headers)
-
-            #Collect information about valid claims
-            if valid:
-                claims = self._expound_claims(claims)
 
                 # Store authentication data
                 if claims:
@@ -280,8 +281,8 @@ class AuthProtocol(object):
         return HTTPUnauthorized()(env,
             start_response)
 
-    def _validate_claims(self, claims):
-        """Validate claims, and provide identity information if applicable """
+    def _verify_claims(self, claims):
+        """Verify claims and extract identity information, if applicable."""
 
         # Step 1: We need to auth with the keystone service, so get an
         # admin token
@@ -301,44 +302,17 @@ class AuthProtocol(object):
                     #Khaled's version uses creds to get a token
                     # "X-Auth-Token": admin_token}
                     # we're using a test token from the ini file for now
-        conn = http_connect(self.auth_host, self.auth_port, 'HEAD',
+        conn = http_connect(self.auth_host, self.auth_port, 'GET',
                             '/v2.0/tokens/%s' % claims, headers=headers,
                             ssl=(self.auth_protocol == 'https'),
                             key_file=self.key_file, cert_file=self.cert_file)
         resp = conn.getresponse()
+        data = resp.read()
         conn.close()
 
         if not str(resp.status).startswith('20'):
             # Keystone rejected claim
-            return False
-        else:
-            #TODO(Ziad): there is an optimization we can do here. We can make
-            #one call and reuse the data instead of calling again
-            #in _expound_claims
-            return True
-
-    def _expound_claims(self, claims):
-        # Valid token. Get user data and put it in to the call
-        # so the downstream service can use it
-        headers = {
-            "Content-type": "application/json",
-            "Accept": "application/json",
-            "X-Auth-Token": self.admin_token}
-            ##TODO(ziad):we need to figure out how to auth to keystone
-            #since validate_token is a priviledged call
-            #Khaled's version uses creds to get a token
-            # "X-Auth-Token": admin_token}
-            # we're using a test token from the ini file for now
-        conn = http_connect(self.auth_host, self.auth_port, 'GET',
-            '/v2.0/tokens/%s' % claims, headers=headers,
-            ssl=(self.auth_protocol == 'https'),
-            key_file=self.key_file, cert_file=self.cert_file)
-        resp = conn.getresponse()
-        data = resp.read()
-        conn.close()
-
-        if not (resp.status >= 200 and resp.status <= 209):
-            raise LookupError('Unable to locate claims: %s' % resp.status)
+            raise ValidationFailed()
 
         token_info = json.loads(data)
 
