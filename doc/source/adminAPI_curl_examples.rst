@@ -38,7 +38,7 @@ Returns::
     {
         "version":{
             "id":"v2.0",
-            "status":"ALPHA",
+            "status":"beta",
             "updated":"2011-11-19T00:00:00Z",
             "links":[
                 {
