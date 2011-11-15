@@ -65,7 +65,7 @@ class IdentityApi(test.TestCase):
     data = json.loads(resp.body)
     self.assertEquals(self.user_foo['id'], data['user']['id'])
     self.assertEquals(None, data['tenant'])
-    self.assertEquals(None, data['extras'])
+    self.assertEquals({}, data['extras'])
 
   def test_get_tenants(self):
     token = self._login()

@@ -53,7 +53,7 @@ class KvsIdentity(test.TestCase):
         password=self.user_foo['password'])
     self.assertDictEquals(user_ref, self.user_foo)
     self.assert_(tenant_ref is None)
-    self.assert_(extras_ref is None)
+    self.assert_(not extras_ref)
 
   def test_authenticate(self):
     user_ref, tenant_ref, extras_ref = self.identity_api.authenticate(

@@ -70,7 +70,7 @@ class NovaClientCompatMasterTestCase(CompatTestCase):
     # NOTE(termie): novaclient seems to care about the region more than
     #               keystoneclient
     conn = base_client.HTTPClient(auth_url="http://localhost:%s/v2.0/" % port,
-                                  user='foo',
+                                  user='FOO',
                                   apikey='foo',
                                   projectid='BAR',
                                   region_name='RegionOne')
