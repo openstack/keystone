@@ -47,7 +47,8 @@ class TemplatedCatalog(object):
       parts = k.split('.')
 
       region = parts[1]
-      service = parts[2]
+      # NOTE(termie): object-store insists on having a dash
+      service = parts[2].replace('_', '-')
       key = parts[3]
 
       region_ref = o.get(region, {})

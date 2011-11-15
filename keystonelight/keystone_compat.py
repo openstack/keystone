@@ -185,18 +185,22 @@ class KeystoneController(service.BaseApplication):
     def _format_token(self, token_ref):
         user_ref = token_ref['user']
         extras_ref = token_ref['extras']
+        roles = extras_ref.get('roles', [])
+        roles_ref = [{'id': 1, 'name': x} for x in roles]
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': token_ref['expires']
                                   },
                         'user': {'id': user_ref['id'],
                                  'name': user_ref['name'],
-                                 'roles': extras_ref.get('roles', []),
+                                 'username': user_ref['name'],
+                                 'roles': roles_ref,
                                  'roles_links': extras_ref.get('roles_links',
                                                                [])
                                  }
                         }
              }
         if 'tenant' in token_ref and token_ref['tenant']:
+            token_ref['tenant']['enabled'] = True
             o['access']['token']['tenant'] = token_ref['tenant']
         return o
 
@@ -250,6 +254,8 @@ class KeystoneController(service.BaseApplication):
         return services.values()
 
     def _format_tenants_for_token(self, tenant_refs):
+        for x in tenant_refs:
+            x['enabled'] = True
         o = {'tenants': tenant_refs,
              'tenants_links': []}
         return o

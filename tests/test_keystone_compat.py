@@ -150,6 +150,7 @@ class DiabloCompatTestCase(CompatTestCase):
     #                      data['access']['serviceCatalog'])
 
   def test_validate_token_scoped(self):
+    raise exc.SkipTest('The docs conflict with regular usage.')
     client = self.client(self.app, token=self.admin_token)
     resp = client.get('/v2.0/tokens/%s' % self.token_123['id'])
     data = json.loads(resp.body)
