@@ -3,6 +3,7 @@ verbose = False
 debug = False
 default_store = sqlite
 log_file = %(test_dir)s/keystone.sql.log
+log_dir = %(test_dir)s
 backends = keystone.backends.sqlalchemy
 extensions= osksadm,oskscatalog
 service-header-mappings = {

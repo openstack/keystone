@@ -30,6 +30,8 @@ from keystone.common.wsgi import add_console_handler
 
 DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+DEFAULT_LOG_DIR = "/var/log/keystone"
+DEFAULT_LOG_FILE = "keystone.log"
 
 
 def parse_options(parser, cli_args=None):
@@ -162,22 +164,18 @@ def setup_logging(options, conf):
     log_date_format = options.get('log_date_format', DEFAULT_LOG_DATE_FORMAT)
     formatter = logging.Formatter(log_format, log_date_format)
 
-    logfile = options.get('log_file') or conf.get('log_file')
+    # grab log_file and log_dir from config; set to defaults of not already
+    # defined
+    logfile = options.get('log_file') or conf.get('log_file', DEFAULT_LOG_FILE)
+    logdir = options.get('log_dir') or conf.get('log_dir', DEFAULT_LOG_DIR)
 
-    if logfile:
-        logdir = options.get('log_dir') or conf.get('log_dir')
-        if logdir:
-            logfile = os.path.join(logdir, logfile)
-        logfile = logging.FileHandler(logfile)
-        logfile.setFormatter(formatter)
-        root_logger.addHandler(logfile)
-        # Mirror to console if verbose or debug
-        if debug or verbose:
-            add_console_handler(root_logger, logging.INFO)
-    else:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(formatter)
-        root_logger.addHandler(handler)
+    logfile = os.path.join(logdir, logfile)
+    logfile = logging.FileHandler(logfile)
+    logfile.setFormatter(formatter)
+    root_logger.addHandler(logfile)
+    # Mirror to console if verbose or debug
+    if debug or verbose:
+        add_console_handler(root_logger, logging.INFO)
 
 
 def find_config_file(options, args):
