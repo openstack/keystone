@@ -102,6 +102,9 @@ class IdentityController(BaseApplication):
     self.token_api = token.Manager(options=options)
     self.options = options
 
+  def noop(self, context, *args, **kw):
+    return ''
+
   def authenticate(self, context, **kwargs):
     user_ref, tenant_ref, extras_ref = self.identity_api.authenticate(
         context, **kwargs)
@@ -192,11 +195,8 @@ class Router(wsgi.Router):
     self.token_controller = TokenController(options)
 
     mapper = self._build_map(URLMAP)
-    mapper.connect('/', controller=self, action='noop')
+    mapper.connect('/', controller=self.identity_controller, action='noop')
     super(Router, self).__init__(mapper)
-
-  def noop(self, context, *args, **kw):
-    return ''
 
   def _build_map(self, urlmap):
     """Build a routes.Mapper based on URLMAP."""
