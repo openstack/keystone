@@ -34,7 +34,10 @@ class KvsIdentity(object):
       raise AssertionError('Invalid tenant')
 
     tenant_ref = self.get_tenant(tenant_id)
-    extras_ref = self.get_extras(user_id, tenant_id)
+    if tenant_ref:
+      extras_ref = self.get_extras(user_id, tenant_id)
+    else:
+      extras_ref = {}
     return (user_ref, tenant_ref, extras_ref)
 
   def get_tenant(self, tenant_id):
@@ -57,6 +60,7 @@ class KvsIdentity(object):
     return self.db.get('extras-%s-%s' % (tenant_id, user_id))
 
   def create_user(self, id, user):
+    print user
     self.db.set('user-%s' % id, user)
     self.db.set('user_name-%s' % user['name'], user)
     return user

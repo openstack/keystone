@@ -99,11 +99,14 @@ class KeystoneController(service.BaseApplication):
                                                          user=user_ref,
                                                          tenant=tenant_ref,
                                                          extras=extras_ref))
-            catalog_ref = self.catalog_api.get_catalog(
-                    context=context,
-                    user_id=user_ref['id'],
-                    tenant_id=tenant_ref['id'],
-                    extras=extras_ref)
+            if tenant_ref:
+                catalog_ref = self.catalog_api.get_catalog(
+                        context=context,
+                        user_id=user_ref['id'],
+                        tenant_id=tenant_ref['id'],
+                        extras=extras_ref)
+            else:
+                catalog_ref = {}
 
         elif 'token' in auth:
             token = auth['token'].get('id', None)
@@ -187,12 +190,13 @@ class KeystoneController(service.BaseApplication):
                                   },
                         'user': {'id': user_ref['id'],
                                  'name': user_ref['name'],
-                                 'roles': extras_ref['roles'] or [],
-                                 'roles_links': extras_ref['roles_links'] or []
+                                 'roles': extras_ref.get('roles', []),
+                                 'roles_links': extras_ref.get('roles_links',
+                                                               [])
                                  }
                         }
              }
-        if 'tenant' in token_ref:
+        if 'tenant' in token_ref and token_ref['tenant']:
             o['access']['token']['tenant'] = token_ref['tenant']
         return o
 
