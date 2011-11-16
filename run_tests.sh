@@ -67,7 +67,7 @@ function run_pep8 {
 
 function run_pylint {
   echo "Running pylint ..."
-  PYLINT_OPTIONS="--rcfile=.pylintrc --output-format=parseable"
+  PYLINT_OPTIONS="--rcfile=pylintrc --output-format=parseable"
   PYLINT_INCLUDE="keystone"
   echo "Pylint messages count: "
   pylint $PYLINT_OPTIONS $PYLINT_INCLUDE | grep 'keystone/' | wc -l
