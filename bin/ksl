@@ -33,11 +33,11 @@ class BaseApp(cli.log.LoggingApp):
     for x in args:
       key, value = x.split('=', 1)
       # make lists if there are multiple values
-      if key in kv:
-        if type(kv) is type(tuple()):
-          kv[key] = kv[key] + (value,)
-        else:
-          kv[key] = (kv[key], value)
+      if key.endswith('[]'):
+        key = key[:-2]
+        existing = kv.get(key, [])
+        existing.append(value)
+        kv[key] = existing
       else:
         kv[key] = value
     return kv
