@@ -1,15 +1,21 @@
-include README.md
+include AUTHORS
+include HACKING
+include LICENSE
 include MANIFEST.in
-include run_tests.sh
+include README.md
+include pylintrc
 include run_tests.py
-include keystone/backends/ldap/keystone.ldif
-include keystone/backends/ldap/keystone.schema
-include keystone/contrib/extensions/raxkey/extension.json
-include keystone/contrib/extensions/raxkey/extension.xml
-include keystone/test/EchoSOAPUI.xml
-include keystone/test/IdentitySOAPUI.xml
+include run_tests.sh
+include setup.py
+graft bin
 graft doc
+prune doc/source/sourcecode
 graft etc
-graft tools
+graft examples
 graft keystone/content
 graft keystone/test/etc
+graft tools
+recursive-include keystone *.json *.xml *.cfg README
+include keystone/backends/ldap/keystone.ldif
+include keystone/backends/ldap/keystone.schema
+global-exclude *.pyc *.sdx *.log *.db *.swp
