@@ -14,9 +14,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-===============================================
-Setting up a Keystone a development environment
-===============================================
+=============================================
+Setting up a Keystone development environment
+=============================================
 
 This document describes setting up keystone directly from GitHub_
 for development purposes.
