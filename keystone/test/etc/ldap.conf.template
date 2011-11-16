@@ -8,7 +8,7 @@ extensions= osksadm,oskscatalog
 service-header-mappings = {
 	'nova' : 'X-Server-Management-Url',
 	'swift' : 'X-Storage-Url',
-	'cdn' : 'X-CDN-Manageent-Url'}
+	'cdn' : 'X-CDN-Management-Url'}
 service_host = 0.0.0.0
 service_port = 5000
 service_ssl = False
