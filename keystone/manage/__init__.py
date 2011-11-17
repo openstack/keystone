@@ -204,7 +204,7 @@ def process(*args):
         if tenant:
             print 'Endpoints for tenant %s' % tenant
             print_table(('service', 'region', 'Public URL'),
-                api.list_tenant_endpoints())
+                api.list_tenant_endpoints(tenant))
         else:
             print 'All EndpointTemplates'
             print_table(('service', 'region', 'Public URL'),
