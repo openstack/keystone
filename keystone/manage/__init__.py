@@ -106,10 +106,11 @@ def process(*args):
         if action not in ACTIONS:
             raise optparse.OptParseError(SUPPORTED_ACTIONS)
 
-    if len(args) == 2 and action not in ['list']:
-        raise optparse.OptParseError(ID_NOT_SPECIFIED)
-    elif action not in ['list']:
-        object_id = args[2]
+    if action not in ['list']:
+        if len(args) == 2:
+            raise optparse.OptParseError(ID_NOT_SPECIFIED)
+        else:
+            object_id = args[2]
 
     # Helper functions
     def require_args(args, min, msg):
