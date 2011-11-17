@@ -130,7 +130,7 @@ Simple Match
 ------------
 
 Given a list of matches to check for, simply verify that the credentials
-contain the matches. For example:
+contain the matches. For example::
 
   credentials = {'user_id': 'foo', 'is_admin': 1, 'roles': ['nova:netadmin']}
 
