@@ -44,7 +44,6 @@ class KeystoneController(service.BaseApplication):
         self.identity_api = identity.Manager(options)
         self.token_api = token.Manager(options)
         self.policy_api = policy.Manager(options)
-        pass
 
     def noop(self, context):
         return {}
@@ -155,7 +154,15 @@ class KeystoneController(service.BaseApplication):
         Optionally, also ensure that it is owned by a specific tenant.
 
         """
-        assert context['is_admin']
+        # TODO(termie): this stuff should probably be moved to middleware
+        if not context['is_admin']:
+            user_token_ref = self.token_api.get_token(context['token_id'])
+            creds = user_token_ref['extras'].copy()
+            creds['user_id'] = user_token_ref['user'].get('id')
+            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            # Accept either is_admin or the admin role
+            assert self.policy_api.can_haz(('is_admin:1', 'roles:admin'),
+                                           creds)
 
         token_ref = self.token_api.get_token(context=context,
                                              token_id=token_id)
