@@ -7,6 +7,7 @@ import routes
 
 from keystonelight import catalog
 from keystonelight import identity
+from keystonelight import policy
 from keystonelight import service
 from keystonelight import token
 from keystonelight import wsgi
@@ -42,6 +43,7 @@ class KeystoneController(service.BaseApplication):
         self.catalog_api = catalog.Manager(options)
         self.identity_api = identity.Manager(options)
         self.token_api = token.Manager(options)
+        self.policy_api = policy.Manager(options)
         pass
 
     def noop(self, context):

@@ -147,3 +147,15 @@ class KvsCatalog(object):
   def _create_catalog(self, user_id, tenant_id, data):
     self.db.set('catalog-%s-%s' % (tenant_id, user_id), data)
     return data
+
+
+class KvsPolicy(object):
+  def __init__(self, options, db=None):
+    if db is None:
+      db = INMEMDB
+    elif type(db) is type({}):
+      db = DictKvs(db)
+    self.db = db
+
+  def can_haz(self, target, action, credentials):
+    pass
