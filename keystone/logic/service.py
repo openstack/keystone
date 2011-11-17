@@ -30,6 +30,8 @@ from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
     EndpointTemplate, EndpointTemplates
 from keystone.logic.types.credential import Credentials, PasswordCredentials
+from keystone import utils
+
 
 LOG = logging.getLogger('keystone.logic.service')
 
@@ -114,11 +116,11 @@ class IdentityService(object):
     def _authenticate(self, validate, user_id, tenant_id=None):
         if tenant_id:
             duser = api.USER.get_by_tenant(user_id, tenant_id)
-            if duser == None:
+            if duser is None:
                 raise fault.UnauthorizedFault("Unauthorized on this tenant")
         else:
             duser = api.USER.get(user_id)
-            if duser == None:
+            if duser is None:
                 raise fault.UnauthorizedFault("Unauthorized")
 
         if not duser.enabled:
@@ -179,8 +181,7 @@ class IdentityService(object):
         if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
-        if not tenant.name:
-            raise fault.BadRequestFault("Expecting a unique Tenant Name")
+        utils.check_empty_string(tenant.name, "Expecting a unique Tenant Name")
 
         if api.TENANT.get_by_name(tenant.name) != None:
             raise fault.TenantConflictFault(
@@ -253,11 +254,10 @@ class IdentityService(object):
             raise fault.BadRequestFault("Expecting a Tenant")
 
         dtenant = api.TENANT.get(tenant_id)
-        if dtenant == None:
+        if dtenant is None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
 
-        if not tenant.name or not tenant.name.strip():
-            raise fault.BadRequestFault("Expecting a unique Tenant Name")
+        utils.check_empty_string(tenant.name, "Expecting a unique Tenant Name")
 
         if tenant.name != dtenant.name and api.TENANT.get_by_name(tenant.name):
             raise fault.TenantConflictFault(
@@ -272,7 +272,7 @@ class IdentityService(object):
         self.__validate_admin_token(admin_token)
 
         dtenant = api.TENANT.get(tenant_id)
-        if dtenant == None:
+        if dtenant is None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
 
         if not api.TENANT.is_empty(tenant_id):
@@ -307,8 +307,8 @@ class IdentityService(object):
         if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
-        if user.name is None or not user.name.strip():
-            raise fault.BadRequestFault("Expecting a unique username")
+        utils.check_empty_string(user.name,
+                "Expecting a unique user Name")
 
         if api.USER.get_by_name(user.name):
             raise fault.UserConflictFault(
@@ -331,7 +331,7 @@ class IdentityService(object):
     def validate_and_fetch_user_tenant(self, tenant_id):
         if tenant_id:
             dtenant = api.TENANT.get(tenant_id)
-            if dtenant == None:
+            if dtenant is None:
                 raise fault.ItemNotFoundFault("The tenant is not found")
             elif not dtenant.enabled:
                 raise fault.TenantDisabledFault(
@@ -342,7 +342,7 @@ class IdentityService(object):
         role_id, marker, limit, url):
         self.__validate_admin_token(admin_token)
 
-        if tenant_id == None:
+        if tenant_id is None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
         dtenant = api.TENANT.get(tenant_id)
         if dtenant is  None:
@@ -417,8 +417,8 @@ class IdentityService(object):
         if not isinstance(user, User):
             raise fault.BadRequestFault("Expecting a User")
 
-        if user.name is None or not user.name.strip():
-            raise fault.BadRequestFault("Expecting a unique username")
+        utils.check_empty_string(user.name,
+                "Expecting a unique username")
 
         if user.name != duser.name and \
           api.USER.get_by_name(user.name):
@@ -446,7 +446,7 @@ class IdentityService(object):
             raise fault.BadRequestFault("Expecting a User")
 
         duser = api.USER.get(user_id)
-        if duser == None:
+        if duser is None:
             raise fault.ItemNotFoundFault("The user could not be found")
 
         values = {'password': user.password}
@@ -480,7 +480,7 @@ class IdentityService(object):
             raise fault.BadRequestFault("Expecting a User")
 
         duser = api.USER.get(user_id)
-        if duser == None:
+        if duser is None:
             raise fault.ItemNotFoundFault("The user could not be found")
 
         self.validate_and_fetch_user_tenant(user.tenant_id)
@@ -692,8 +692,7 @@ class IdentityService(object):
         if not isinstance(role, Role):
             raise fault.BadRequestFault("Expecting a Role")
 
-        if not role.name:
-            raise fault.BadRequestFault("Expecting a Role name")
+        utils.check_empty_string(role.name, "Expecting a Role name")
 
         if api.ROLE.get(role.name) != None:
             raise fault.RoleConflictFault(
@@ -770,11 +769,11 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault("The user could not be found")
 
         drole = api.ROLE.get(role_id)
-        if drole == None:
+        if drole is None:
             raise fault.ItemNotFoundFault("The role not found")
         if tenant_id != None:
             dtenant = api.TENANT.get(tenant_id)
-            if dtenant == None:
+            if dtenant is None:
                 raise fault.ItemNotFoundFault("The tenant not found")
 
         drole_ref = api.ROLE.ref_get_by_user(user_id, role_id, tenant_id)
@@ -833,17 +832,14 @@ class IdentityService(object):
         if not isinstance(endpoint_template, EndpointTemplate):
             raise fault.BadRequestFault("Expecting a EndpointTemplate")
 
-        if endpoint_template.name == None or \
-            not endpoint_template.name.strip() \
-            or  endpoint_template.type == None or\
-            not endpoint_template.type.strip():
-            raise fault.BadRequestFault(
-                    "Expecting name and type (Service).")
-
+        utils.check_empty_string(endpoint_template.name,
+                "Expecting Endpoint Template name.")
+        utils.check_empty_string(endpoint_template.type,
+                "Expecting Endpoint Template type.")
         dservice = api.SERVICE.get_by_name_and_type(
             endpoint_template.name,
             endpoint_template.type)
-        if dservice == None:
+        if dservice is None:
             raise fault.BadRequestFault(
                     "A service with that name and type doesn't exist.")
         dendpoint_template = models.EndpointTemplates()
@@ -873,18 +869,16 @@ class IdentityService(object):
                 "The endpoint template could not be found")
 
         #Check if the passed service exist.
-        if endpoint_template.name == None or \
-            not endpoint_template.name.strip() \
-            or  endpoint_template.type == None or\
-            not endpoint_template.type.strip():
-            raise fault.BadRequestFault(
-                    "Expecting name and type (Service).")
+        utils.check_empty_string(endpoint_template.name,
+            "Expecting Endpoint Template name.")
+        utils.check_empty_string(endpoint_template.type,
+            "Expecting Endpoint Template type.")
 
         dservice = api.SERVICE.get_by_name_and_type(
             endpoint_template.name,
             endpoint_template.type)
 
-        if dservice == None:
+        if dservice is None:
             raise fault.BadRequestFault(
                     "A service with that name and type doesn't exist.")
         dendpoint_template.region = endpoint_template.region
@@ -987,10 +981,10 @@ class IdentityService(object):
         return self.fetch_tenant_endpoints(marker, limit, url, tenant_id)
 
     def fetch_tenant_endpoints(self, marker, limit, url, tenant_id):
-        if tenant_id == None:
+        if tenant_id is None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
 
-        if api.TENANT.get(tenant_id) == None:
+        if api.TENANT.get(tenant_id) is None:
             raise fault.ItemNotFoundFault("The tenant not found")
 
         ts = []
@@ -1032,9 +1026,8 @@ class IdentityService(object):
     def create_endpoint_for_tenant(self, admin_token,
                                      tenant_id, endpoint_template):
         self.__validate_service_or_keystone_admin_token(admin_token)
-        if tenant_id == None:
-            raise fault.BadRequestFault("Expecting a Tenant Id")
-        if api.TENANT.get(tenant_id) == None:
+        utils.check_empty_string(tenant_id, "Expecting a Tenant Id.")
+        if api.TENANT.get(tenant_id) is None:
             raise fault.ItemNotFoundFault("The tenant not found")
 
         dendpoint_template = api.ENDPOINT_TEMPLATE.get(endpoint_template.id)
@@ -1063,7 +1056,7 @@ class IdentityService(object):
 
     def delete_endpoint(self, admin_token, endpoint_id):
         self.__validate_service_or_keystone_admin_token(admin_token)
-        if api.ENDPOINT_TEMPLATE.get(endpoint_id) == None:
+        if api.ENDPOINT_TEMPLATE.get(endpoint_id) is None:
             raise fault.ItemNotFoundFault("The Endpoint is not found.")
         api.ENDPOINT_TEMPLATE.endpoint_delete(endpoint_id)
         return None
@@ -1074,9 +1067,6 @@ class IdentityService(object):
 
         if not isinstance(service, Service):
             raise fault.BadRequestFault("Expecting a Service")
-
-        if service.name == None:
-            raise fault.BadRequestFault("Expecting a Service Name")
 
         if api.SERVICE.get_by_name(service.name) != None:
             raise fault.ServiceConflictFault(

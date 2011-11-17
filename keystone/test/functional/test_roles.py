@@ -32,6 +32,9 @@ class CreateRolesTest(RolesTest):
     def test_create_role(self):
         self.create_role(assert_status=201)
 
+    def test_create_role_using_blank_name(self):
+        self.create_role(role_name='', assert_status=400)
+
     def test_create_role_using_service_token(self):
         user = self.create_user_with_known_password().json['user']
         self.admin_token = self.authenticate(user['name'], user['password'])
@@ -80,6 +83,14 @@ class CreateRolesTest(RolesTest):
     def test_create_role_mapped_to_a_service_using_incorrect_role_name(self):
         self.create_role(common.unique_str(), service_id=common.unique_str(),
             assert_status=400)
+
+    def test_create_role_using_empty_name_xml(self):
+        name = ''
+        description = common.unique_str()
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<role xmlns="%s" name="%s" description="%s" />') % (
+                self.xmlns, name, description)
+        self.post_role(assert_status=400, as_xml=data)
 
 
 class DeleteRoleTest(RolesTest):

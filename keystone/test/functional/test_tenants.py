@@ -32,6 +32,9 @@ class CreateTenantTest(TenantTest):
     def test_create_tenant(self):
         self.create_tenant(assert_status=201)
 
+    def test_create_tenant_blank_name(self):
+        self.create_tenant(tenant_name='', assert_status=400)
+
     def test_create_tenant_xml(self):
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<tenant xmlns="http://docs.openstack.org/identity/api/v2.0" '
@@ -112,6 +115,15 @@ class CreateTenantTest(TenantTest):
             </tenant>' % (common.unique_str())
 
         self.post_tenant(as_xml=data, assert_status=401)
+
+    def test_create_tenant_missing_name_xml(self):
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<tenant xmlns="http://docs.openstack.org/identity/api/v2.0" '
+            'enabled="true" name="%s"> '
+            '<description>A description...</description> '
+            '</tenant>') % ('',)
+        self.post_tenant(as_xml=data, assert_status=400, headers={
+            'Accept': 'application/xml'})
 
 
 class GetTenantsTest(TenantTest):

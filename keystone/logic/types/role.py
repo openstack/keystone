@@ -17,6 +17,7 @@ import json
 from lxml import etree
 
 from keystone.logic.types import fault
+from keystone import utils
 
 
 class Role(object):
@@ -34,13 +35,12 @@ class Role(object):
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
                 "role")
-            if root == None:
+            if root is None:
                 raise fault.BadRequestFault("Expecting Role")
             id = root.get("id")
             name = root.get("name")
             description = root.get("description")
-            if name is None:
-                raise fault.BadRequestFault("Expecting Role name")
+            utils.check_empty_string(name, "Expecting Role name")
             service_id = root.get("serviceId")
             return Role(id, name, description, service_id)
         except etree.LxmlError as e:
@@ -58,9 +58,7 @@ class Role(object):
             name = role.get('name')
             description = role.get('description')
             service_id = role.get('serviceId')
-            if name is None:
-                raise fault.BadRequestFault("Expecting Role name")
-
+            utils.check_empty_string(name, "Expecting Role name")
             return Role(id, name, description, service_id)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse Role", str(e))

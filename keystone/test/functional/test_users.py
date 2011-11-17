@@ -70,6 +70,13 @@ class CreateUserTest(UserTest):
         self.admin_token = common.unique_str()
         self.create_user(assert_status=401)
 
+    def test_create_user_xml_missing_name(self):
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+        '<user xmlns="http://docs.openstack.org/identity/api/v2.0" '
+              'enabled="true" email="john.smith@example.org" '
+              'name="" id="u1000"/>')
+        self.post_user(as_xml=data, assert_status=400)
+
 
 class GetUserTest(UserTest):
     def setUp(self, *args, **kwargs):

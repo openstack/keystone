@@ -57,14 +57,14 @@ class StaticFilesController(wsgi.Controller):
     def get_static_file(self, req, path, file, mimetype=None, root="content/"):
         resp = Response()
 
-        if mimetype == None:
+        if mimetype is None:
             if utils.is_xml_response(req):
                 mimetype = "application/xml"
             elif utils.is_json_response(req):
                 mimetype = "application/json"
 
         basename, extension = os.path.splitext(file)
-        if extension == None or extension == '':
+        if extension is None or extension == '':
             if mimetype == "application/xml":
                 resp_file = "%s%s%s.xml" % (root, path, file)
             elif mimetype == "application/json":

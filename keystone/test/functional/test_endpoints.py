@@ -42,6 +42,18 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
         self.assertIsNotNone(endpoint_template['name'], endpoint_template)
         self.assertIsNotNone(endpoint_template['type'], endpoint_template)
 
+    def test_create_endpoint_template_with_empty_name(self):
+        self.create_endpoint_template(
+            name=self.service['name'],
+            type='',
+            assert_status=400)
+
+    def test_create_endpoint_template_with_empty_type(self):
+        self.create_endpoint_template(
+            name='',
+            type=self.service['type'],
+            assert_status=400)
+
     def test_create_endpoint_template_xml(self):
         region = common.unique_str()
         public_url = common.unique_url()
@@ -71,6 +83,40 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
         self.assertEqual(r.xml.get("internalURL"), internal_url)
         self.assertEqual(r.xml.get("enabled"), str(enabled).lower())
         self.assertEqual(r.xml.get("global"), str(is_global).lower())
+
+    def test_create_endpoint_template_xml_using_empty_type(self):
+        region = common.unique_str()
+        public_url = common.unique_url()
+        admin_url = common.unique_url()
+        internal_url = common.unique_url()
+        enabled = True
+        is_global = True
+
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<endpointTemplate xmlns="%s" region="%s" name="%s" '
+            'type="%s" publicURL="%s" adminURL="%s" '
+            'internalURL="%s" enabled="%s" global="%s"/>'
+            ) % (self.xmlns_kscatalog, region, self.service['name'],
+                '', public_url, admin_url, internal_url,
+                enabled, is_global)
+        self.post_endpoint_template(as_xml=data, assert_status=400)
+
+    def test_create_endpoint_template_xml_using_empty_name(self):
+        region = common.unique_str()
+        public_url = common.unique_url()
+        admin_url = common.unique_url()
+        internal_url = common.unique_url()
+        enabled = True
+        is_global = True
+
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<endpointTemplate xmlns="%s" region="%s" name="%s" '
+            'type="%s" publicURL="%s" adminURL="%s" '
+            'internalURL="%s" enabled="%s" global="%s"/>'
+            ) % (self.xmlns_kscatalog, region, '',
+                self.service['type'], public_url, admin_url, internal_url,
+                enabled, is_global)
+        self.post_endpoint_template(as_xml=data, assert_status=400)
 
     def test_delete_endpoint_template_that_has_dependencies(self):
         tenant = self.create_tenant().json['tenant']
@@ -191,6 +237,16 @@ class UpdateEndpointTemplateTest(EndpointTemplatesTest):
             name=self.service['name'], type=self.service['type'],
             assert_status=201)
 #       self.assertIsNotNone(r.json['endpointTemplate'].get('enabled'), r.json)
+
+    def test_update_endpoint_with_empty_name(self):
+        self.update_endpoint_template(self.endpoint_template['id'],
+            name='', type=self.service['type'],
+            assert_status=400)
+
+    def test_update_endpoint_with_empty_type(self):
+        self.update_endpoint_template(self.endpoint_template['id'],
+            name=self.service['name'], type='',
+            assert_status=400)
 
     def test_update_endpoint_xml(self):
         region = common.unique_str()

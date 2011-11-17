@@ -104,12 +104,24 @@ class TestCreatePasswordCredentials(common.FunctionalTestCase):
             self.user['id'], self.user['name'],
             assert_status=201)
 
+    def test_create_password_credentials_using_empty_password(self):
+        self.create_password_credentials(
+            user_id=self.user['id'], user_name=self.user['name'], password='',\
+            assert_status=400)
+
     def test_create_password_credentials_xml(self):
         data = ('<?xml version="1.0" encoding="UTF-8"?> '
             '<passwordCredentials xmlns="%s"'
             ' username="%s" password="%s"/>') % (
                 self.xmlns, self.user['name'], 'passw0rd')
         self.post_credentials(self.user['id'], as_xml=data, assert_status=201)
+
+    def test_create_password_credentials_xml_using_empty_password(self):
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<passwordCredentials xmlns="%s"'
+            ' username="%s" password="%s"/>') % (
+                self.xmlns, self.user['name'], '')
+        self.post_credentials(self.user['id'], as_xml=data, assert_status=400)
 
     def test_create_password_credentials_twice(self):
         self.create_password_credentials(self.user['id'], self.user['name'],

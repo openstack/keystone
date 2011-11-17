@@ -38,7 +38,7 @@ class IdentityFault(Exception):
         msg = etree.Element("message")
         msg.text = self.msg
         dom.append(msg)
-        if self.details != None:
+        if self.details and len(self.details.strip()):
             desc = etree.Element("details")
             desc.text = self.details
             dom.append(desc)
@@ -48,7 +48,7 @@ class IdentityFault(Exception):
         fault = {}
         fault["message"] = self.msg
         fault["code"] = str(self.code)
-        if self.details != None:
+        if self.details and len(self.details.strip()):
             fault["details"] = self.details
         ret = {}
         ret[self.key] = fault
