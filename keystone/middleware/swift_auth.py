@@ -67,6 +67,7 @@ class AuthProtocol(object):
         self.keystone_url = urlparse(conf.get('keystone_url'))
         self.keystone_admin_group = conf.get('keystone_admin_group', 'Admin')
         self.admin_token = conf.get('keystone_admin_token')
+        self.auth_timeout = conf.get('keystone_auth_timeout', 30)
         self.allowed_sync_hosts = [h.strip()
             for h in conf.get('allowed_sync_hosts', '127.0.0.1').split(',')
             if h.strip()]
@@ -135,7 +136,8 @@ class AuthProtocol(object):
                                 (self.keystone_url.path,
                                  quote(claim)),
                             headers=headers,
-                            ssl=(self.keystone_url.scheme == 'https'))
+                            ssl=(self.keystone_url.scheme == 'https'),
+                            timeout=self.auth_timeout)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()

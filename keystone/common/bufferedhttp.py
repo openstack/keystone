@@ -33,6 +33,8 @@ import time
 from eventlet.green.httplib import CONTINUE, HTTPConnection, HTTPMessage, \
     HTTPResponse, HTTPSConnection, _UNKNOWN
 
+DEFAULT_TIMEOUT = 30
+
 
 class BufferedHTTPResponse(HTTPResponse):
     """HTTPResponse class that buffers reading of headers"""
@@ -102,7 +104,7 @@ class BufferedHTTPConnection(HTTPConnection):
 
 def http_connect(ipaddr, port, device, partition, method, path,
                  headers=None, query_string=None, ssl=False, key_file=None,
-                 cert_file=None):
+                 cert_file=None, timeout=None):
     """
     Helper function to create an HTTPConnection object. If ssl is set True,
     HTTPSConnection will be used. However, if ssl=False, BufferedHTTPConnection
@@ -123,12 +125,13 @@ def http_connect(ipaddr, port, device, partition, method, path,
     """
     path = quote('/' + device + '/' + str(partition) + path)
     return http_connect_raw(ipaddr, port, device, partition, method, path,
-                            headers, query_string, ssl, key_file, cert_file)
+                            headers, query_string, ssl, key_file, cert_file,
+                            timeout=timeout)
 
 
 def http_connect_raw(ipaddr, port, method, path, headers=None,
                      query_string=None, ssl=False, key_file=None,
-                     cert_file=None):
+                     cert_file=None, timeout=None):
     """
     Helper function to create an HTTPConnection object. If ssl is set True,
     HTTPSConnection will be used. However, if ssl=False, BufferedHTTPConnection
@@ -145,11 +148,14 @@ def http_connect_raw(ipaddr, port, method, path, headers=None,
     :param cert_file Certificate file (Keystore)
     :returns: HTTPConnection object
     """
+    if timeout is None:
+        timeout = DEFAULT_TIMEOUT
     if ssl:
         conn = HTTPSConnection('%s:%s' % (ipaddr, port), key_file=key_file,
-                               cert_file=cert_file)
+                               cert_file=cert_file, timeout=timeout)
     else:
-        conn = BufferedHTTPConnection('%s:%s' % (ipaddr, port))
+        conn = BufferedHTTPConnection('%s:%s' % (ipaddr, port),
+                                      timeout=timeout)
     if query_string:
         path += '?' + query_string
     conn.path = path

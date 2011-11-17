@@ -139,6 +139,7 @@ class AuthProtocol(object):
         self.service_url = '%s://%s:%s' % (self.service_protocol,
                                            self.service_host,
                                            self.service_port)
+        self.service_timeout = conf.get('service_timeout', 30)
         # used to verify this component with the OpenStack service or PAPIAuth
         self.service_pass = conf.get('service_pass')
 
@@ -153,6 +154,7 @@ class AuthProtocol(object):
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port'))
         self.auth_protocol = conf.get('auth_protocol', 'https')
+        self.auth_timeout = conf.get('auth_timeout', 30)
 
         # where to tell clients to find the auth service (default to url
         # constructed based on endpoint we have for the service to use)
@@ -305,7 +307,8 @@ class AuthProtocol(object):
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
                             '/v2.0/tokens/%s' % claims, headers=headers,
                             ssl=(self.auth_protocol == 'https'),
-                            key_file=self.key_file, cert_file=self.cert_file)
+                            key_file=self.key_file, cert_file=self.cert_file,
+                            timeout=self.auth_timeout)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()
@@ -367,7 +370,8 @@ class AuthProtocol(object):
                                 req.method,
                                 parsed.path,
                                 proxy_headers,
-                                ssl=(self.service_protocol == 'https'))
+                                ssl=(self.service_protocol == 'https'),
+                                timeout=self.service_timeout)
             resp = conn.getresponse()
             data = resp.read()
 
