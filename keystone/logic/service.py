@@ -42,6 +42,9 @@ class IdentityService(object):
     #  Token Operations
     #
     def authenticate(self, auth_request):
+        """ Authenticate the user based on the type of credentials passed in
+        and return a token, user info, and a service catalog"""
+
         # Check auth_with_password_credentials
         if not isinstance(auth_request, auth.AuthWithPasswordCredentials):
             raise fault.BadRequestFault(
@@ -64,7 +67,10 @@ class IdentityService(object):
             validate, user.id, auth_request.tenant_id)
 
     def authenticate_with_unscoped_token(self, auth_request):
-        # Check auth_with_unscoped_token
+        """ Authenticate the user using only the provided unscoped token
+        as credentials.
+        This is how a user with an unscoped token can get a scoped token
+        """
         if not isinstance(auth_request, auth.AuthWithUnscopedToken):
             raise fault.BadRequestFault("Expecting auth_with_unscoped_token!")
 
@@ -87,7 +93,9 @@ class IdentityService(object):
         return self._authenticate(validate, user.id, auth_request.tenant_id)
 
     def authenticate_ec2(self, credentials):
-        # Check credentials
+        """
+        Authenticate the user with their EC2 credentials
+        """
         if not isinstance(credentials, auth.Ec2Credentials):
             raise fault.BadRequestFault("Expecting Ec2 Credentials!")
 
@@ -179,6 +187,11 @@ class IdentityService(object):
     #
 
     def create_tenant(self, admin_token, tenant):
+        """
+        Given a token with the right privileges (an admin token), create
+        a new tenant
+        """
+
         self.__validate_admin_token(admin_token)
 
         if not isinstance(tenant, Tenant):
@@ -236,6 +249,7 @@ class IdentityService(object):
         return Tenants(ts, links)
 
     def get_tenant(self, admin_token, tenant_id):
+        """ Get a single tenant based on the tenant id"""
         self.__validate_admin_token(admin_token)
 
         dtenant = api.TENANT.get(tenant_id)
