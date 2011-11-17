@@ -65,6 +65,7 @@
                         <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
                         <param name="endpointTemplateId" style="template" type="xsd:int"/>
                         <method href="#getEndpointTemplate"/>
+                        <method href="#updateEndpointTemplate"/>
                         <method href="#deleteEndpointTemplate"/>
                     </resource>
                 </resource>
@@ -153,6 +154,39 @@
                <xsdxt:code href="../common/samples/endpointTemplate.json"/>
             </doc>
                 <param name="Location" type="xsd:anyURI" style="header"/>
+            </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+        &postPutFaults;
+    </method>
+    
+    <method name="PUT" id="updateEndpointTemplate">
+        <doc xml:lang="EN" title="Update Endpoint Template">
+            <p xmlns="http://www.w3.org/1999/xhtml">Update Endpoint Template.</p>
+        </doc>
+        <request>
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate">
+                <doc xml:lang="EN">
+                    <xsdxt:code href="../common/samples/endpointTemplate.xml"/>
+                </doc>
+            </representation>
+            <representation mediaType="application/json">
+                <doc xml:lang="EN">
+                    <xsdxt:code href="../common/samples/endpointTemplate.json"/>
+                </doc>
+            </representation>
+        </request>
+        <response status="200">
+            <representation mediaType="application/xml" element="OS-KSCATALOG:endpointTemplate">
+                <doc xml:lang="EN">
+                    <xsdxt:code href="../common/samples/endpointTemplate.xml"/>
+                </doc>
+            </representation>
+            <representation mediaType="application/json">
+                <doc xml:lang="EN">
+                    <xsdxt:code href="../common/samples/endpointTemplate.json"/>
+                </doc>
             </representation>
         </response>
         &commonFaults;
