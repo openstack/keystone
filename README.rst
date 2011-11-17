@@ -102,6 +102,51 @@ CRUD is treated as an extension or additional feature to the core feature set in
 that it is not required that a backend support it.
 
 
+----------------------------------
+Approach to Authorization (Policy)
+----------------------------------
+
+Various components in the system require that different actions are allowed
+based on whether the user is authorized to perform that action.
+
+For the purposes of Keystone Light there are only a couple levels of
+authorization being checked for:
+
+ * Require that the performing user is considered an admin.
+ * Require that the performing user matches the user being referenced.
+
+Other systems wishing to use the policy engine will require additional styles
+of checks and will possibly write completely custom backends. Backends included
+in Keystone Light are:
+
+
+Trivial True
+------------
+
+Allows all actions.
+
+
+Simple Match
+------------
+
+Given a list of matches to check for, simply verify that the credentials
+contain the matches. For example:
+
+  credentials = {'user_id': 'foo', 'is_admin': 1, 'roles': ['nova:netadmin']}
+
+  # An admin only call:
+  policy_api.can_haz(('is_admin:1',), credentials)
+
+  # An admin or owner call:
+  policy_api.can_haz(('is_admin:1', 'user_id:foo'),
+                     credentials)
+
+  # A netadmin call:
+  policy_api.can_haz(('roles:nova:netadmin',),
+                     credentials)
+
+
+
 -----------
 Still To Do
 -----------
