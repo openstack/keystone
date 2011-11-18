@@ -26,7 +26,7 @@ def disable_user(name):
 
 def list_users():
     objects = db_api.USER.get_all()
-    if objects == None:
+    if objects is None:
         raise IndexError("No users found")
     return [[o.id, o.name, o.enabled, o.tenant_id] for o in objects]
 
@@ -40,14 +40,14 @@ def add_tenant(name):
 
 def list_tenants():
     objects = db_api.TENANT.get_all()
-    if objects == None:
+    if objects is None:
         raise IndexError("Tenants not found")
     return [[o.id, o.name, o.enabled] for o in objects]
 
 
 def disable_tenant(name):
     obj = db_api.TENANT.get_by_name(name)
-    if obj == None:
+    if obj is None:
         raise IndexError("Tenant %s not found" % name)
     obj.enabled = False
     return db_api.TENANT.update(obj.id, obj)
@@ -62,7 +62,7 @@ def add_role(name):
 
 def list_role_assignments(tenant):
     objects = db_api.TENANT.get_role_assignments(tenant)
-    if objects == None:
+    if objects is None:
         raise IndexError("Assignments not found")
     return [[o.user_id, o.role_id] for o in objects]
 
@@ -73,7 +73,7 @@ def list_roles(tenant=None):
         return list_role_assignments(tenant)
     else:
         objects = db_api.ROLE.get_all()
-        if objects == None:
+        if objects is None:
             raise IndexError("Roles not found")
         return [[o.id, o.name] for o in objects]
 
@@ -115,7 +115,7 @@ def add_endpoint_template(region, service, public_url, admin_url, internal_url,
 
 def list_tenant_endpoints(tenant):
     objects = db_api.ENDPOINT_TEMPLATE.endpoint_get_by_tenant(tenant)
-    if objects == None:
+    if objects is None:
         raise IndexError("URLs not found")
     return [[db_api.SERVICE.get(o.service_id).name,
              o.region, o.public_url] for o in objects]
@@ -123,7 +123,7 @@ def list_tenant_endpoints(tenant):
 
 def list_endpoint_templates():
     objects = db_api.ENDPOINT_TEMPLATE.get_all()
-    if objects == None:
+    if objects is None:
         raise IndexError("URLs not found")
     return [[db_api.SERVICE.get(o.service_id).name,
              o.region, o.public_url] for o in objects]
@@ -154,14 +154,14 @@ def add_token(token, user, tenant, expires):
 
 def list_tokens():
     objects = db_api.TOKEN.get_all()
-    if objects == None:
+    if objects is None:
         raise IndexError("Tokens not found")
     return [[o.id, o.user_id, o.expires, o.tenant_id] for o in objects]
 
 
 def delete_token(token):
     obj = db_api.TOKEN.get(token)
-    if obj == None:
+    if obj is None:
         raise IndexError("Token %s not found" % (token,))
     return db_api.TOKEN.delete(token)
 
@@ -176,7 +176,7 @@ def add_service(name, type, desc):
 
 def list_services():
     objects = db_api.SERVICE.get_all()
-    if objects == None:
+    if objects is None:
         raise IndexError("Services not found")
     return [[o.id, o.name, o.type] for o in objects]
 

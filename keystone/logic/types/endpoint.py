@@ -15,7 +15,6 @@
 
 import json
 from lxml import etree
-
 from keystone.logic.types import fault
 
 
@@ -31,7 +30,7 @@ class EndpointTemplate(object):
                 "{http://docs.openstack.org/identity"\
                 "/api/ext/OS-KSCATALOG/v1.0}" \
                 "endpointTemplate")
-            if root == None:
+            if root is None:
                 raise fault.BadRequestFault("Expecting endpointTemplate")
             id = root.get("id")
             region = root.get("region")

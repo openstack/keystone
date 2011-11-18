@@ -983,9 +983,10 @@ class FunctionalTestCase(ApiTestCase):
         return self.get_user_credentials_by_type(
             user_id, 'passwordCredentials', **kwargs)
 
-    def create_password_credentials(self, user_id, user_name, **kwargs):
+    def create_password_credentials(self, user_id, user_name,
+                                    password=None, **kwargs):
         user_id = optional_str(user_id)
-        password = unique_str()
+        password = optional_str(password)
         data = {
             "passwordCredentials": {
                 "username": user_name,

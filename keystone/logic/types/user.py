@@ -17,6 +17,7 @@ import json
 from lxml import etree
 
 from keystone.logic.types import fault
+from keystone import utils
 
 
 class User(object):
@@ -39,19 +40,16 @@ class User(object):
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
                             "user")
-            if root == None:
+            if root is None:
                 raise fault.BadRequestFault("Expecting User")
             name = root.get("name")
             tenant_id = root.get("tenantId")
             email = root.get("email")
             password = root.get("password")
             enabled = root.get("enabled")
-            if not name:
-                raise fault.BadRequestFault("Expecting User")
-            elif not password:
-                raise fault.BadRequestFault("Expecting User password")
-            elif not email:
-                raise fault.BadRequestFault("Expecting User email")
+            utils.check_empty_string(name, "Expecting User Name")
+            utils.check_empty_string(password, "Expecting User Password")
+            utils.check_empty_string(email, "Expecting User email")
             enabled = enabled is None or enabled.lower() in ["true", "yes"]
 
             return User(password, id, name, tenant_id, email, enabled)
@@ -72,12 +70,6 @@ class User(object):
                 raise fault.BadRequestFault("Expecting User Password")
             password = user["password"]
 
-            if (id == None or len(id.strip()) == 0) and (
-                    name == None or len(name.strip()) == 0):
-                raise fault.BadRequestFault("Expecting User")
-            elif password == None or len(password.strip()) == 0:
-                raise fault.BadRequestFault("Expecting User password")
-
             if "tenantId" in user:
                 tenant_id = user["tenantId"]
             else:
@@ -85,6 +77,9 @@ class User(object):
             if "email" not in user:
                 raise fault.BadRequestFault("Expecting User Email")
             email = user["email"]
+            utils.check_empty_string(name, "Expecting User Name")
+            utils.check_empty_string(password, "Expecting User Password")
+            utils.check_empty_string(email, "Expecting User email")
             if "enabled" in user:
                 set_enabled = user["enabled"]
                 if not isinstance(set_enabled, bool):
@@ -93,7 +88,7 @@ class User(object):
                 set_enabled = True
             return User(password, id, name, tenant_id, email, set_enabled)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse Tenant", str(e))
+            raise fault.BadRequestFault("Cannot parse User", str(e))
 
     def to_dom(self):
         dom = etree.Element("user",
@@ -162,7 +157,7 @@ class User_Update(object):
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}" \
                             "user")
-            if root == None:
+            if root is None:
                 raise fault.BadRequestFault("Expecting User")
             id = root.get("id")
             name = root.get("name")
@@ -170,14 +165,14 @@ class User_Update(object):
             email = root.get("email")
             password = root.get("password")
             enabled = root.get("enabled")
-            if enabled == None or enabled == "true" or enabled == "yes":
+            if enabled is None or enabled == "true" or enabled == "yes":
                 set_enabled = True
             elif enabled == "false" or enabled == "no":
                 set_enabled = False
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
 
-            # TODO: WTF is this?!
+            # TODO: Why is this?!
             if password == '':
                 password = id
 
@@ -203,7 +198,7 @@ class User_Update(object):
             if not isinstance(enabled, bool):
                 raise fault.BadRequestFault("Bad enabled attribute!")
 
-            # TODO: WTF is this?!
+            # TODO: Why is this?!
             if password == '':
                 password = id
 

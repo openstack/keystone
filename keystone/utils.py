@@ -159,3 +159,25 @@ def import_module(module_name, class_name=None):
     except (ImportError, ValueError, AttributeError), exception:
         raise ImportError(_('Class %s.%s cannot be found (%s)') %
             (module_name, class_name, exception))
+
+
+def check_empty_string(value, message):
+    """
+    Checks whether a string is empty and raises
+    fault for empty string.
+    """
+    if is_empty_string(value):
+        raise fault.BadRequestFault(message)
+
+
+def is_empty_string(value):
+    """
+    Checks whether string is empty.
+    """
+    if value is None:
+        return True
+    if not isinstance(value, basestring):
+        return False
+    if len(value.strip()) == 0:
+        return True
+    return False

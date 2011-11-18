@@ -205,6 +205,30 @@ class CreateServiceTest(ServicesTest):
         self.admin_token = common.unique_str()
         self.create_service(assert_status=401)
 
+    def test_service_create_json_missing_name(self):
+        self.create_service(service_name='', assert_status=400)
+
+    def test_service_create_json_missing_type(self):
+        self.create_service(service_type='', assert_status=400)
+
+    def test_service_create_xml_using_missing_name(self):
+        name = ''
+        type = common.unique_str()
+        description = common.unique_str()
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<service xmlns="%s" name="%s" type="%s" description="%s"/>') % (
+                self.xmlns_ksadm, name, type, description)
+        self.post_service(as_xml=data, assert_status=400)
+
+    def test_service_create_xml_using_empty_type(self):
+        name = common.unique_str()
+        type = ''
+        description = common.unique_str()
+        data = ('<?xml version="1.0" encoding="UTF-8"?> '
+            '<service xmlns="%s" name="%s" type="%s" description="%s"/>') % (
+                self.xmlns_ksadm, name, type, description)
+        self.post_service(as_xml=data, assert_status=400)
+
 
 class DeleteServiceTest(ServicesTest):
     def setUp(self, *args, **kwargs):
