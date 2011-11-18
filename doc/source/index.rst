@@ -82,6 +82,7 @@ Developer Docs
     developing
     architecture
     middleware
+    middleware_architecture
     sourcecode/autoindex
 
 Indices and tables

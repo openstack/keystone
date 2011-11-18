@@ -13,7 +13,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 RSTDIR=os.path.join(base_dir, "source", "sourcecode")
 SOURCEDIR=os.path.join(base_dir, "..")
 
-# Exclude these modules front the autodoc results
+# Exclude these modules from the autodoc results
 EXCLUDE_MODULES = ['keystone.backends.sqlalchemy.migrate_repo.manage']
 
 def find_autodoc_modules(module_name, sourcedir):
