@@ -378,7 +378,7 @@ class AuthProtocol(object):
             #TODO(ziad): use a more sophisticated proxy
             # we are rewriting the headers now
 
-            if resp.status == 401 or resp.status == 305:
+            if resp.status in (401, 305):
                 # Add our own headers to the list
                 headers = [("WWW_AUTHENTICATE",
                    "Keystone uri='%s'" % self.auth_location)]

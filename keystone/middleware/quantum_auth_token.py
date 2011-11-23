@@ -97,11 +97,15 @@ class AuthProtocol(object):
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port'))
-        self.auth_protocol = conf.get('auth_protocol', 'https')
+        self.auth_protocol = conf.get('auth_protocol', 'http')
+        self.cert_file = conf.get('certfile', None)
+        self.key_file = conf.get('keyfile', None)
+        self.auth_timeout = conf.get('auth_timeout', 30)
         self.auth_api_version = conf.get('auth_version', '2.0')
         self.auth_location = "%s://%s:%s" % (self.auth_protocol,
                                              self.auth_host,
                                              self.auth_port)
+        self.auth_uri = conf.get('auth_uri', self.auth_location)
         LOG.debug("Authentication Service:%s", self.auth_location)
         # Credentials used to verify this component with the Auth service
         # since validating tokens is a privileged call
@@ -126,8 +130,11 @@ class AuthProtocol(object):
         self.auth_api_version = None
         self.auth_host = None
         self.auth_location = None
+        self.auth_uri = None
         self.auth_port = None
         self.auth_protocol = None
+        self.cert_file = None
+        self.key_file = None
         self.service_host = None
         self.service_port = None
         self.service_protocol = None
@@ -188,8 +195,20 @@ class AuthProtocol(object):
                     #             like tenant and group info
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
                         claims['user'])
-                    self._decorate_request('X_TENANT', claims['tenant'])
-                    self._decorate_request('X_USER', claims['user'])
+
+                    self._decorate_request('X_TENANT_ID',
+                                        claims['tenant']['id'],)
+                    self._decorate_request('X_TENANT_NAME',
+                                        claims['tenant']['name'])
+
+                    self._decorate_request('X_USER_ID',
+                                        claims['user']['id'])
+                    self._decorate_request('X_USER_NAME',
+                                        claims['user']['name'])
+
+                    self._decorate_request('X_TENANT', claims['tenant']['id'])
+                    self._decorate_request('X_USER', claims['user']['id'])
+
                     if 'group' in claims:
                         self._decorate_request('X_GROUP', claims['group'])
                     if 'roles' in claims and len(claims['roles']) > 0:
@@ -227,8 +246,11 @@ class AuthProtocol(object):
                     }
                    }
                   }
-        conn = httplib.HTTPConnection("%s:%s" \
-            % (self.auth_host, self.auth_port))
+        if self.auth_protocol == "http":
+            conn = httplib.HTTPConnection(self.auth_host, self.auth_port)
+        else:
+            conn = httplib.HTTPSConnection(self.auth_host, self.auth_port,
+                cert_file=self.cert_file)
         conn.request("POST", self._build_token_uri(), json.dumps(params), \
             headers=headers)
         response = conn.getresponse()
@@ -242,7 +264,10 @@ class AuthProtocol(object):
 
     def _reject_request(self):
         """Redirect client to auth server"""
-        return HTTPUnauthorized()(self.env, self.start_response)
+        return HTTPUnauthorized("Authentication required",
+                    [("WWW-Authenticate",
+                      "Keystone uri='%s'" % self.auth_uri)])(self.env,
+                                                        self.start_response)
 
     def _reject_claims(self):
         """Client sent bad claims"""
@@ -269,7 +294,10 @@ class AuthProtocol(object):
                     "Accept": "application/json",
                     "X-Auth-Token": self.admin_token}
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                            self._build_token_uri(claims), headers=headers)
+                            self._build_token_uri(claims), headers=headers,
+                            ssl=(self.auth_protocol == 'https'),
+                            key_file=self.key_file, cert_file=self.cert_file,
+                            timeout=self.auth_timeout)
         resp = conn.getresponse()
         conn.close()
 
@@ -302,7 +330,10 @@ class AuthProtocol(object):
                     "X-Auth-Token": self.admin_token}
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
                             self._build_token_uri(self.claims),
-                            headers=headers)
+                            headers=headers,
+                            ssl=(self.auth_protocol == 'https'),
+                            key_file=self.key_file, cert_file=self.cert_file,
+                            timeout=self.auth_timeout)
         resp = conn.getresponse()
         data = resp.read()
         conn.close()
@@ -317,15 +348,35 @@ class AuthProtocol(object):
         role_refs = token_info["access"]["user"]["roles"]
         if role_refs != None:
             for role_ref in role_refs:
-                roles.append(role_ref["roleId"])
+                roles.append(role_ref["Id"])
 
-        verified_claims = {'user': token_info['access']['user']['name'],
-                    'tenant': token_info['access']['user']['tenantId'],
-                    'roles': roles}
+        token_info = json.loads(data)
 
-        # TODO(Ziad): removed groups for now
-        #            ,'group': '%s/%s' % (first_group['id'],
-        #                                first_group['tenantId'])}
+        roles = [role['name'] for role in token_info[
+            "access"]["user"]["roles"]]
+
+        # in diablo, there were two ways to get tenant data
+        tenant = token_info['access']['token'].get('tenant')
+        if tenant:
+            # post diablo
+            tenant_id = tenant['id']
+            tenant_name = tenant['name']
+        else:
+            # diablo only
+            tenant_id = token_info['access']['user'].get('tenantId')
+            tenant_name = token_info['access']['user'].get('tenantName')
+
+        verified_claims = {
+            'user': {
+                'id': token_info['access']['user']['id'],
+                'name': token_info['access']['user']['name'],
+            },
+            'tenant': {
+                'id': tenant_id,
+                'name': tenant_name
+            },
+            'roles': roles}
+
         return verified_claims
 
     def _decorate_request(self, index, value):
