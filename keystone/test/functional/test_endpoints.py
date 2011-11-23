@@ -29,6 +29,11 @@ class EndpointTemplatesTest(common.FunctionalTestCase):
             type=self.service['type']).\
             json['OS-KSCATALOG:endpointTemplate']
 
+        admin_token = self.admin_token
+        self.admin_token = self.service_admin_token
+        self.my_service = self.create_service().json['OS-KSADM:service']
+        self.admin_token = admin_token
+
 
 class CreateEndpointTemplatesTest(EndpointTemplatesTest):
     def test_create_endpoint_template(self):
@@ -130,14 +135,14 @@ class CreateEndpointTemplatesTest(EndpointTemplatesTest):
     def test_create_endpoint_template_using_service_admin_token(self):
         self.admin_token = self.service_admin_token
         endpoint_template = self.create_endpoint_template(
-            name=self.service['name'],
-            type=self.service['type'],
+            name=self.my_service['name'],
+            type=self.my_service['type'],
             assert_status=201).\
             json['OS-KSCATALOG:endpointTemplate']
 
         self.assertIsNotNone(endpoint_template['id'])
-        self.assertEqual(endpoint_template['name'], self.service['name'])
-        self.assertEqual(endpoint_template['type'], self.service['type'])
+        self.assertEqual(endpoint_template['name'], self.my_service['name'])
+        self.assertEqual(endpoint_template['type'], self.my_service['type'])
 
 
 class GetEndpointTemplatesTest(EndpointTemplatesTest):

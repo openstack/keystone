@@ -136,7 +136,7 @@ class KeystoneTest(object):
                 if '--verbose' in sys.argv:
                     options += ' -v'
 
-                cmd = 'unit2 discover %s -f -t%s -s %s' % \
+                cmd = 'unit2 discover%s -f -t %s -s %s' % \
                             (options, BASE_DIR, TEST_DIR)
                 execute(cmd)
         finally:

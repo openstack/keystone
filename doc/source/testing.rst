@@ -26,7 +26,7 @@ Schema Migration Tests
 Schema migrations are tested using SQLAlchemy Migrate's built-in test
 runner::
 
-The test does not start testing from the very top.In order for the test to run, the database 
+The test does not start testing from the very top. In order for the test to run, the database 
 that is used to test, should be up to version above the version brought forward by the latest script.::
 
 This command would create the test db with a version of 0.::
@@ -35,7 +35,7 @@ $python keystone/backends/sqlalchemy/migrate_repo/manage.py version_control sqli
 
 Use this command to move to the version that is before our latest script.
 
-ie if our latest script has version 3, we should move to 2.::
+i.e. if our latest script has version 3, we should move to 2.::
 
 $python keystone/backends/sqlalchemy/migrate_repo/manage.py upgrade version_number --url=sqlite:///test.db   --repository=keystone/backends/sqlalchemy/migrate_repo/
 

@@ -18,6 +18,9 @@
 Instructions for Keystone x.509 client authentication
 =====================================================
 
+.. toctree::
+   :maxdepth: 1
+
 Purpose
 -------
 Allows the Keystone middleware to authenticate itself with the Keystone server 

@@ -6,7 +6,7 @@
   region="North" 
   global="true"
   type="compute"
-  name="Compute"
+  name="Nova"
   publicURL="https://service-public.com/v1"
   internalURL="https://service-internal.com/v1" 
   enabled="true">

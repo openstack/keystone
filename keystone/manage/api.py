@@ -75,7 +75,7 @@ def list_roles(tenant=None):
         objects = db_api.ROLE.get_all()
         if objects is None:
             raise IndexError("Roles not found")
-        return [[o.id, o.name] for o in objects]
+        return [[o.id, o.name, o.service_id, o.desc] for o in objects]
 
 
 def grant_role(role, user, tenant=None):
@@ -125,8 +125,11 @@ def list_endpoint_templates():
     objects = db_api.ENDPOINT_TEMPLATE.get_all()
     if objects is None:
         raise IndexError("URLs not found")
-    return [[db_api.SERVICE.get(o.service_id).name,
-             o.region, o.public_url] for o in objects]
+    return [[o.id,
+             db_api.SERVICE.get(o.service_id).name,
+             db_api.SERVICE.get(o.service_id).type,
+             o.region, o.enabled, o.is_global,
+             o.public_url, o.admin_url] for o in objects]
 
 
 def add_endpoint(tenant, endpoint_template):
@@ -166,11 +169,12 @@ def delete_token(token):
     return db_api.TOKEN.delete(token)
 
 
-def add_service(name, type, desc):
+def add_service(name, type, desc, owner_id):
     obj = db_models.Service()
     obj.name = name
     obj.type = type
     obj.desc = desc
+    obj.owner_id = owner_id
     return db_api.SERVICE.create(obj)
 
 
@@ -178,7 +182,7 @@ def list_services():
     objects = db_api.SERVICE.get_all()
     if objects is None:
         raise IndexError("Services not found")
-    return [[o.id, o.name, o.type] for o in objects]
+    return [[o.id, o.name, o.type, o.owner_id, o.desc] for o in objects]
 
 
 def add_credentials(user, type, key, secrete, tenant=None):

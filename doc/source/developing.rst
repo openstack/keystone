@@ -99,7 +99,7 @@ Get an admin token::
 
 Get a list of tenants using the admin token::
 
-    $> curl -d '{"auth": {"passwordCredentials": {"username": "admin", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
+    $> curl -H "X-Auth-Token: abcdef-my-token-35774654455" http://localhost:35357/v2.0/tenants
 
 Enabling debugging middleware
 -----------------------------
@@ -137,3 +137,17 @@ to::
         legacy_auth
         RAX-KEY-extension
         service_api
+
+
+Two simple and easy debugging tools are using the `-d` when you start keystone::
+
+    $> ./keystone -d
+    
+and the `--trace-calls` flag::
+
+    $> ./keystone -trace-calls
+
+The `-d` flag outputs debug information to the console. The `--trace-calls` flag
+outputs extensive, nested trace calls to the console and highlights any errors
+in red.
+

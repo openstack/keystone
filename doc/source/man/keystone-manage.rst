@@ -79,7 +79,7 @@ to the Keystone service in it's configuration file :doc:`../keystone.conf`
 service
 ^^^^^^^
 
-* **service add** [name] [type] [description]
+* **service add** [name] [type] [description] [owner_id]
 
   adds a service
 
@@ -90,7 +90,7 @@ service
 endpointTemplate
 ^^^^^^^^^^^^^^^^
 
-* **endpointTemplate add** [region] [service] [public_url] [admin_url] [internal_url] [enabled] [is_global]
+* **endpointTemplate add** [region] [service_name] [public_url] [admin_url] [internal_url] [enabled] [is_global]
 
   Add a service endpoint for keystone.
 

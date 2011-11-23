@@ -171,7 +171,8 @@ def process(*args):
             print_table(('User', 'Role'), api.list_roles(tenant=tenant))
         else:
             # print without tenants
-            print_table(('id', 'name'), api.list_roles())
+            print_table(('id', 'name', 'service_id', 'description'),
+                api.list_roles())
 
     elif (object_type, action) == ('role', 'grant'):
         require_args(args, 4, "Missing arguments: role grant 'role' 'user' "
@@ -186,7 +187,7 @@ def process(*args):
 
     elif (object_type, action) == ('endpointTemplates', 'add'):
         require_args(args, 9, "Missing arguments: endpointTemplates add "
-            "'region' 'service' 'publicURL' 'adminURL' 'internalURL' "
+            "'region' 'service_name' 'publicURL' 'adminURL' 'internalURL' "
             "'enabled' 'global'")
         version_id = optional_arg(args, 9)
         version_list = optional_arg(args, 10)
@@ -207,12 +208,9 @@ def process(*args):
                 api.list_tenant_endpoints(tenant))
         else:
             print 'All EndpointTemplates'
-            print_table(('service', 'region', 'Public URL'),
+            print_table(('id', 'service', 'type', 'region', 'enabled',
+                         'is_global', 'Public URL', 'Admin URL'),
                 api.list_endpoint_templates())
-
-    elif object_type == 'endpointTemplates':
-        raise optparse.OptParseError(ACTION_NOT_SUPPORTED % (
-            'endpointTemplates'))
 
     elif (object_type, action) == ('endpoint', 'add'):
         require_args(args, 4, "Missing arguments: endPoint add tenant "
@@ -243,15 +241,20 @@ def process(*args):
         raise optparse.OptParseError(ACTION_NOT_SUPPORTED % ('tokens'))
 
     elif (object_type, action) == ('service', 'add'):
-        require_args(args, 4, "Missing arguments: service add name "
+        require_args(args, 4, "Missing arguments: service add <name> " \
+                     "[type] [desc] [owner_id]"
             "type")
         type = optional_arg(args, 3)
         desc = optional_arg(args, 4)
-        if api.add_service(name=object_id, type=type, desc=desc):
+        owner_id = optional_arg(args, 5)
+
+        if api.add_service(name=object_id, type=type, desc=desc,
+                           owner_id=owner_id):
             print "SUCCESS: Service %s created successfully." % (object_id,)
 
     elif (object_type, action) == ('service', 'list'):
-        print_table(('id', 'name', 'type'), api.list_services())
+        print_table(('id', 'name', 'type', 'owner_id', 'description'),
+            api.list_services())
 
     elif object_type == 'service':
         raise optparse.OptParseError(ACTION_NOT_SUPPORTED % ('services'))

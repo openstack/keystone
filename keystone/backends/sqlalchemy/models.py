@@ -117,6 +117,7 @@ class Service(Base, KeystoneBase):
     name = Column(String(255), unique=True)
     type = Column(String(255))
     desc = Column(String(255))
+    owner_id = Column(Integer, ForeignKey('users.id'))
 
 
 class Tenant(Base, KeystoneBase):
