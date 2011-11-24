@@ -30,7 +30,9 @@ class LDAPTest(KeystoneTest):
 
 TESTS = [
     SQLTest,
-    # currently failing, and has yet to pass in jenkins: MemcacheTest,
+    # Waiting on instructions on how to start memcached in jenkins:
+    # But tests pass
+    # MemcacheTest,
     LDAPTest,
     SSLTest,
 ]

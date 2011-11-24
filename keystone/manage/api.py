@@ -191,7 +191,7 @@ def add_credentials(user, type, key, secrete, tenant=None):
     if tenant:
         tenant = db_api.TENANT.get_by_name(tenant).id
 
-    obj = db_models.Token()
+    obj = db_models.Credentials()
     obj.user_id = user
     obj.type = type
     obj.key = key

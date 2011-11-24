@@ -22,44 +22,45 @@ class TokenAPI(BaseTokenAPI):
     def create(self, token):
         if not hasattr(token, 'tenant_id'):
             token.tenant_id = None
-        if token.tenant_id != None:
-            tenant_user_key = token.tenant_id + "::" + token.user_id
+        if token.tenant_id is not None:
+            tenant_user_key = "%s::%s" % (token.tenant_id, token.user_id)
         else:
-            tenant_user_key = token.user_id
+            tenant_user_key = "U%s" % token.user_id
 
         MEMCACHE_SERVER.set(token.id, token)
         MEMCACHE_SERVER.set(tenant_user_key, token)
 
     def get(self, id):
         token = MEMCACHE_SERVER.get(id)
-        if token != None and not hasattr(token, 'tenant_id'):
+        if token is not None and not hasattr(token, 'tenant_id'):
             token.tenant_id = None
-        return  token
+        return token
 
     def delete(self, id):
         token = self.get(id)
-        if token != None:
+        if token is not None:
             MEMCACHE_SERVER.delete(id)
-            if token != None and not hasattr(token, 'tenant_id'):
+            if token is not None and not hasattr(token, 'tenant_id'):
                 token.tenant_id = None
-            if token.tenant_id != None:
-                MEMCACHE_SERVER.delete(token.tenant_id + "::" + token.user_id)
+            if token.tenant_id is not None:
+                MEMCACHE_SERVER.delete("%s::%s" % (token.tenant_id,
+                                                   token.user_id))
             else:
                 MEMCACHE_SERVER.delete(token.id)
-                MEMCACHE_SERVER.delete(token.user_id)
+                MEMCACHE_SERVER.delete("U%s" % token.user_id)
 
     def get_for_user(self, user_id):
-        token = MEMCACHE_SERVER.get(user_id)
-        if token != None and not hasattr(token, 'tenant_id'):
+        token = MEMCACHE_SERVER.get("U%s" % user_id)
+        if token is not None and not hasattr(token, 'tenant_id'):
             token.tenant_id = None
         return  token
 
     def get_for_user_by_tenant(self, user_id, tenant_id):
-        if tenant_id != None:
-            token = MEMCACHE_SERVER.get(tenant_id + "::" + user_id)
+        if tenant_id is not None:
+            token = MEMCACHE_SERVER.get("%s::%s" % (tenant_id, user_id))
         else:
-            token = MEMCACHE_SERVER.get(user_id)
-        if token != None and not hasattr(token, 'tenant_id'):
+            token = MEMCACHE_SERVER.get("U%s" % user_id)
+        if token is not None and not hasattr(token, 'tenant_id'):
             token.tenant_id = None
         return  token
 

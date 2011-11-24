@@ -37,7 +37,8 @@ class CreateRolesTest(RolesTest):
 
     def test_create_role_using_service_token(self):
         user = self.create_user_with_known_password().json['user']
-        self.admin_token = self.authenticate(user['name'], user['password'])
+        self.admin_token = self.authenticate(user['name'],
+                            user['password']).json['access']['token']['id']
         self.create_role(assert_status=401)
 
     def test_create_roles_using_disabled_token(self):
