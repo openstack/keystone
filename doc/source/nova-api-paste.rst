@@ -92,14 +92,10 @@ nova-api-paste example
     [composite:osapi]
     use = egg:Paste#urlmap
     /: osversions
-    /v1.0: openstackapi10
-    /v1.1: openstackapi11
+    /v1.1: openstackapi
 
-    [pipeline:openstackapi10]
-    pipeline = faultwrap authtoken keystonecontext ratelimit osapiapp10
-
-    [pipeline:openstackapi11]
-    pipeline = faultwrap authtoken keystonecontext ratelimit extensions osapiapp11
+    [pipeline:openstackapi]
+    pipeline = faultwrap authtoken keystonecontext ratelimit extensions osapiapp
 
     [filter:faultwrap]
     paste.filter_factory = nova.api.openstack:FaultWrapper.factory
@@ -116,11 +112,8 @@ nova-api-paste example
     [filter:extensions]
     paste.filter_factory = nova.api.openstack.extensions:ExtensionMiddleware.factory
 
-    [app:osapiapp10]
-    paste.app_factory = nova.api.openstack:APIRouterV10.factory
-
-    [app:osapiapp11]
-    paste.app_factory = nova.api.openstack:APIRouterV11.factory
+    [app:osapiapp]
+    paste.app_factory = nova.api.openstack:APIRouter.factory
 
     [pipeline:osversions]
     pipeline = faultwrap osversionapp
