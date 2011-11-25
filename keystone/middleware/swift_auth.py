@@ -50,19 +50,22 @@ class AuthProtocol(object):
         use = egg:keystone#swiftauth
         keystone_url = http://keystone_url:5000/v2.0
         keystone_admin_token = admin_token
-        keystone_admin_group = Admin
+        keystone_swift_operator_roles = Admin, SwiftOperator
+        keystone_tenant_user_admin = true
 
-    This maps tenants to account in Swift. The user who's able to give
-    ACL / Create Containers permision will be the same user as the account.
+    This maps tenants to account in Swift.
+
+    The user whose able to give ACL / create Containers permissions
+    will be the one that are inside the keystone_swift_operator_roles
+    setting which by default includes the Admin and the SwiftOperator
+    roles.
+
+    The option keystone_tenant_user_admin if set to true will allow the
+    username that has the same name as the account name to be the owner.
 
     Example: If we have the account called hellocorp with a user
     hellocorp that user will be admin on that account and can give ACL
     to all other users for hellocorp.
-
-    If there is a user who has not the same name the account and if it
-    is inside the group (or roles in keystone lingua)
-    keystone_admin_group as specifed in the configuration variable
-    (Admin by default) it will be allowed to be an admin the account.
 
     :param app: The next WSGI app in the pipeline
     :param conf: The dict of configuration values
@@ -74,9 +77,12 @@ class AuthProtocol(object):
         self.reseller_prefix = conf.get('reseller_prefix', 'AUTH').strip()
         #TODO: Error out if no url
         self.keystone_url = urlparse(conf.get('keystone_url'))
-        self.keystone_admin_group = conf.get('keystone_admin_group', 'Admin')
+        self.keystone_swift_operator_roles = \
+            conf.get('keystone_swift_operator_roles', 'Admin, SwiftOperator')
         self.admin_token = conf.get('keystone_admin_token')
-        self.auth_timeout = conf.get('keystone_auth_timeout', 30)
+        self.keystone_tenant_user_admin = \
+            conf.get('keystone_tenant_user_admin', "false").lower() in \
+            ('true', 't', '1', 'on', 'yes', 'y')
         self.allowed_sync_hosts = [h.strip()
             for h in conf.get('allowed_sync_hosts', '127.0.0.1').split(',')
             if h.strip()]
@@ -148,8 +154,7 @@ class AuthProtocol(object):
                                 (self.keystone_url.path,
                                  quote(claim)),
                             headers=headers,
-                            ssl=(self.keystone_url.scheme == 'https'),
-                            timeout=self.auth_timeout)
+                            ssl=(self.keystone_url.scheme == 'https'))
         resp = conn.getresponse()
         data = resp.read()
         conn.close()
@@ -194,18 +199,26 @@ class AuthProtocol(object):
             return HTTPNotFound(request=req)
 
         if account != '%s_%s' % (self.reseller_prefix, tenant[0]):
-            self.log.debug('tenant mismatch')
+            self.logger.debug('tenant mismatch')
             return self.denied_response(req)
 
-        # If user is in admin group then make the owner of it.
+        # If user is in the swift operator group then make the owner of it.
         user_groups = env_identity.get('roles', [])
-        if self.keystone_admin_group in user_groups:
-            req.environ['swift_owner'] = True
-            return None
+        for _group in self.keystone_swift_operator_roles.split(','):
+            _group = _group.strip()
+            if  _group in user_groups:
+                self.logger.debug(
+                    "User in group: %s allow to manage this account" % \
+                        (_group))
+                req.environ['swift_owner'] = True
+                return None
 
         # If user is of the same name of the tenant then make owner of it.
         user = env_identity.get('user', '')
-        if user == tenant[1]:
+        if self.keystone_tenant_user_admin and user == tenant[1]:
+            self.logger.debug("user: %s == %s tenant and option "\
+                               "keystone_tenant_user_admin is set" % \
+                               (user, tenant))
             req.environ['swift_owner'] = True
             return None
 
@@ -230,8 +243,8 @@ class AuthProtocol(object):
         # Check if we have the group in the usergroups and allow it
         for user_group in user_groups:
             if user_group in groups:
-                self.logger.debug('user in group: %s authorizing' % \
-                                      (user_group))
+                self.logger.debug('user in group which is allowed in" \
+                        " ACL: %s authorizing' % (user_group))
                 return None
 
         # last but not least retun deny
