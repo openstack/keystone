@@ -59,6 +59,7 @@ Administration
     configuration
     controllingservers
     configuringservices
+    endpoints
 
 
 API Use Case Examples
