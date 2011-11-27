@@ -87,7 +87,6 @@ class AdminApi(wsgi.Router):
         mapper.connect("/extensions",
                         controller=extensions_controller,
                         action="get_extensions_info",
-                        path="content/admin/extensions",
                         conditions=dict(method=["GET"]))
 
         # Static Files Controller

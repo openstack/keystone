@@ -43,6 +43,8 @@ Getting Started
 
     setup
     testing
+    migration
+    extensions
     configuration
     controllingservers
     configuringservices

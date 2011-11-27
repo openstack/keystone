@@ -56,11 +56,10 @@ class ServiceApi(wsgi.Router):
                         action="get_version_info", file="service/version",
                         conditions=dict(method=["GET"]))
 
-        extensions_controller = ExtensionsController(options)
+        extensions_controller = ExtensionsController(options, True)
         mapper.connect("/extensions",
                         controller=extensions_controller,
                         action="get_extensions_info",
-                        path="content/service/extensions",
                         conditions=dict(method=["GET"]))
 
         # Static Files Controller

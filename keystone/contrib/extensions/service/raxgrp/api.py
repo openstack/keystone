@@ -61,10 +61,11 @@ class RAXEXTBaseUserAPI(BaseUserAPI):
     def users_get_page_markers(self, marker, limit):
         raise NotImplementedError
 
-    def users_get_by_tenant_get_page(self, tenant_id, marker, limit):
+    def users_get_by_tenant_get_page(self, tenant_id, role_id, marker, limit):
         raise NotImplementedError
 
-    def users_get_by_tenant_get_page_markers(self, tenant_id, marker, limit):
+    def users_get_by_tenant_get_page_markers(self, tenant_id,
+                                             role_id, marker, limit):
         raise NotImplementedError
 
     def check_password(self, user, password):

@@ -20,21 +20,19 @@ import ast
 import logging
 from keystone import utils
 from keystone.contrib.extensions import BaseExtensionConfigurer
-DEFAULT_EXTENSIONS = 'osksadm,oskscatalog'
-CONFIGURER = None
-CONFIG_EXTENSION_PROPERTY = 'extensions'
+ADMIN_CONFIGURER = None
 EXTENSION_ADMIN_PREFIX = 'admin'
 
 
 class AdminExtensionConfigurer(BaseExtensionConfigurer):
     def configure(self, mapper, options):
-        self.configure_extensions(CONFIG_EXTENSION_PROPERTY,
+        self.configure_extensions(
                 EXTENSION_ADMIN_PREFIX,
-                DEFAULT_EXTENSIONS, mapper, options)
+                mapper, options)
 
 
 def get_extension_configurer():
-    global CONFIGURER
-    if not CONFIGURER:
-        CONFIGURER = AdminExtensionConfigurer()
-    return CONFIGURER
+    global ADMIN_CONFIGURER
+    if not ADMIN_CONFIGURER:
+        ADMIN_CONFIGURER = AdminExtensionConfigurer()
+    return ADMIN_CONFIGURER

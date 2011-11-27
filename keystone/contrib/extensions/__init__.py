@@ -20,13 +20,15 @@ import ast
 import logging
 from keystone import utils
 EXTENSION_PREFIX = 'keystone.contrib.extensions.'
+DEFAULT_EXTENSIONS = 'osksadm,oskscatalog'
+CONFIG_EXTENSION_PROPERTY = 'extensions'
 
 
 class BaseExtensionConfigurer(object):
-    def configure_extensions(self, extension_property, extension_type,
-        extension_defaults, mapper, options):
+    def configure_extensions(self, extension_type,
+        mapper, options):
         supported_extensions = options.get(
-            extension_property, extension_defaults)
+            CONFIG_EXTENSION_PROPERTY, DEFAULT_EXTENSIONS)
         for supported_extension in supported_extensions.split(','):
             self.extension_handlers = []
             supported_extension = EXTENSION_PREFIX\

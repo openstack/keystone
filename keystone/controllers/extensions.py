@@ -1,26 +1,24 @@
-from webob import Response
-
 from keystone import utils
-from keystone.common import template, wsgi
+from keystone.common import wsgi
+from keystone.logic.extension_reader import ExtensionsReader
+from keystone.contrib.extensions.admin import EXTENSION_ADMIN_PREFIX
+from keystone.contrib.extensions.service import EXTENSION_SERVICE_PREFIX
 
 
 class ExtensionsController(wsgi.Controller):
     """Controller for extensions related methods"""
 
-    def __init__(self, options):
+    def __init__(self, options, is_service_operation=None):
         super(ExtensionsController, self).__init__()
         self.options = options
+        if is_service_operation:
+            self.extension_prefix = EXTENSION_SERVICE_PREFIX
+        else:
+            self.extension_prefix = EXTENSION_ADMIN_PREFIX
+        self.extension_reader = ExtensionsReader(options,
+            self.extension_prefix)
 
     @utils.wrap_error
-    def get_extensions_info(self, req, path):
-        resp = Response()
-
-        if utils.is_xml_response(req):
-            resp_file = "%s.xml" % path
-            mime_type = "application/xml"
-        else:
-            resp_file = "%s.json" % path
-            mime_type = "application/json"
-
-        return template.static_file(resp, req, resp_file,
-                root=utils.get_app_root(), mimetype=mime_type)
+    def get_extensions_info(self, req):
+                return utils.send_result(200, req,
+                    self.extension_reader.get_extensions())
