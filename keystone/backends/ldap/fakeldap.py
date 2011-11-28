@@ -184,7 +184,7 @@ class FakeLDAP(object):
         if key in self.db:
             LOG.error(
                 "FakeLDAP add item failed: dn '%s' is already in store." % dn)
-            raise ldap.ALREADY_EXISTS
+            raise ldap.ALREADY_EXISTS(dn)
         self.db[key] = dict([(k, v if isinstance(v, list) else [v])
                              for k, v in attrs])
         self.db.sync()

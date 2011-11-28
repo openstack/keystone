@@ -90,11 +90,16 @@ class Server(object):
 
     def __init__(self, threads=1000):
         self.pool = eventlet.GreenPool(threads)
+        self.socket_info = {}
+        self.threads = {}
 
-    def start(self, application, port, host='0.0.0.0', backlog=128):
+    def start(self, application, port, host='0.0.0.0', key=None, backlog=128):
         """Run a WSGI server with the given application."""
         socket = eventlet.listen((host, port), backlog=backlog)
-        self.pool.spawn_n(self._run, application, socket)
+        thread = self.pool.spawn(self._run, application, socket)
+        if key:
+            self.socket_info[key] = socket
+            self.threads[key] = thread
 
     def wait(self):
         """Wait until all servers have completed running."""
@@ -116,7 +121,7 @@ class SslServer(Server):
     """SSL Server class to manage multiple WSGI sockets and applications."""
     def start(self, application, port, host='0.0.0.0', backlog=128,
               certfile=None, keyfile=None, ca_certs=None,
-              cert_required='True'):
+              cert_required='True', key=None):
         """Run a 2-way SSL WSGI server with the given application."""
         socket = eventlet.listen((host, port), backlog=backlog)
         if cert_required == 'True':
@@ -127,7 +132,10 @@ class SslServer(Server):
                                       keyfile=keyfile,
                                       server_side=True, cert_reqs=cert_reqs,
                                       ca_certs=ca_certs)
-        self.pool.spawn_n(self._run, application, sslsocket)
+        thread = self.pool.spawn(self._run, application, sslsocket)
+        if key:
+            self.socket_info[key] = sslsocket
+            self.threads[key] = thread
 
 
 class Middleware(object):

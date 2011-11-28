@@ -31,9 +31,8 @@ class HttpTestCase(unittest.TestCase):
         # Initialize headers dictionary
         headers = {} if not headers else headers
 
-        # Initialize a connection
         cert_file = isSsl()
-        if (cert_file != None):
+        if (cert_file is not None):
             connection = httplib.HTTPSConnection(host, port,
                                             cert_file=cert_file,
                                             timeout=20)
@@ -370,7 +369,7 @@ class ApiTestCase(RestfulTestCase):
                 path='/tenants/%s/users/%s/roles/OS-KSADM/%s' % (tenant_id,
                     user_id, role_id,), **kwargs)
 
-    def delete_user_role(self, user_id, role_id,  tenant_id, **kwargs):
+    def delete_user_role(self, user_id, role_id, tenant_id, **kwargs):
         """DELETE /users/{user_id}/roles/{role_id}"""
         if tenant_id is None:
             return self.admin_request(method='DELETE',

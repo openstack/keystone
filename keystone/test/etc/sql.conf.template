@@ -21,7 +21,7 @@ keystone-service-admin-role = KeystoneServiceAdmin
 hash-password = True
 
 [keystone.backends.sqlalchemy]
-sql_connection = for_testing_only
+sql_connection = sqlite://
 sql_idle_timeout = 30
 backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Tenant', 'User', 'UserRoleAssociation', 'Role', 'Token', 'Service']
 

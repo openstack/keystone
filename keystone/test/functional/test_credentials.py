@@ -13,7 +13,7 @@ class TestGetCredentials(common.FunctionalTestCase):
     def test_get_user_credentials(self):
         password_credentials = self.fetch_user_credentials(
             self.user['id']).json['credentials'][0]['passwordCredentials']
-        self.assertEquals(password_credentials['username'],  self.user['name'])
+        self.assertEquals(password_credentials['username'], self.user['name'])
 
     def test_get_user_credentials_xml(self):
         r = self.fetch_user_credentials(self.user['id'],
@@ -57,7 +57,7 @@ class TestGetPasswordCredentials(common.FunctionalTestCase):
     def test_get_user_credentials(self):
         password_credentials = self.fetch_password_credentials(
             self.user['id']).json['passwordCredentials']
-        self.assertEquals(password_credentials['username'],  self.user['name'])
+        self.assertEquals(password_credentials['username'], self.user['name'])
 
     def test_get_user_credentials_xml(self):
         r = self.fetch_password_credentials(self.user['id'],

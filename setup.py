@@ -17,6 +17,7 @@
 import keystone
 import os
 import subprocess
+import sys
 
 from setuptools import setup, find_packages
 
@@ -42,6 +43,12 @@ try:
 except:
     pass
 
+requirements = ['setuptools', 'httplib2', 'eventlet', 'paste', 'pastedeploy',
+                'webob', 'Routes', 'sqlalchemy', 'sqlalchemy-migrate',
+                'pysqlite', 'lxml', 'passlib']
+if sys.version_info < (2, 6):
+    requirements.append('simplejson')
+
 setup(
     name='keystone',
     version=keystone.canonical_version(),
@@ -59,8 +66,9 @@ setup(
              'bin/keystone-control'],
     zip_safe=False,
     cmdclass=cmdclass,
-    install_requires=['setuptools'],
-    test_suite='nose.collector',
+    install_requires=requirements,
+    tests_require=['nose', 'unittest2', 'webtest', 'mox', 'pylint', 'pep8'],
+    test_suite='keystone.test.runtests',
     entry_points={
         'paste.app_factory': ['main=identity:app_factory'],
         'paste.filter_factory': [

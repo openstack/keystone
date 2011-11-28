@@ -17,6 +17,7 @@
 
 import ast
 import logging
+import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import joinedload, aliased, sessionmaker
@@ -33,7 +34,6 @@ BASE = models.Base
 
 MODEL_PREFIX = 'keystone.backends.sqlalchemy.models.'
 API_PREFIX = 'keystone.backends.sqlalchemy.api.'
-FOR_TESTING_ONLY = 'for_testing_only'
 
 
 def configure_backend(options):
@@ -52,10 +52,10 @@ def configure_backend(options):
         timeout = config.get_option(
             options, 'sql_idle_timeout', type='int', default=3600)
 
-        if options['sql_connection'] == FOR_TESTING_ONLY:
-            _ENGINE = create_engine('sqlite://',
-                connect_args={'check_same_thread': False},
-                poolclass=StaticPool)
+        if options['sql_connection'] == "sqlite://":
+            _ENGINE = create_engine(options['sql_connection'],
+                                    connect_args={'check_same_thread': False},
+                                    poolclass=StaticPool)
         else:
             _ENGINE = create_engine(options['sql_connection'],
                 pool_recycle=timeout)
@@ -67,12 +67,6 @@ def configure_backend(options):
             logger.setLevel(logging.INFO)
 
         register_models(options)
-
-        # this is TERRIBLE coupling, but...
-        # if we're starting up a test database, load sample fixtures
-        if options['sql_connection'] == FOR_TESTING_ONLY:
-            from keystone.test import sampledata
-            sampledata.load_fixture()
 
 
 def get_session(autocommit=True, expire_on_commit=False):
@@ -100,7 +94,7 @@ def register_models(options):
         model = utils.import_module(MODEL_PREFIX + supported_alchemy_model)
         supported_alchemy_tables.append(model.__table__)
         top_models.set_value(supported_alchemy_model, model)
-        if model.__api__ != None:
+        if model.__api__ is not None:
             model_api = utils.import_module(API_PREFIX + model.__api__)
             top_api.set_value(model.__api__, model_api.get())
     creation_tables = []
@@ -111,7 +105,9 @@ def register_models(options):
 
 
 def unregister_models():
-    """Unregister Models, useful clearing out data before testing"""
+    """Unregister Models and reset _ENGINE,
+    useful clearing out data before testing"""
     global _ENGINE
-    assert _ENGINE
-    BASE.metadata.drop_all(_ENGINE)
+    if _ENGINE:
+        BASE.metadata.drop_all(_ENGINE)
+        _ENGINE = None

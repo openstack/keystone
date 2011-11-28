@@ -26,6 +26,7 @@ Sphinx # required to build documentation
 coverage # computes code coverage percentages
 
 # Testing
+nose # for test discovery and console feedback
 unittest2 # backport of unittest lib in python 2.7
 webtest # test wsgi apps without starting an http server
 pylint # static code analysis

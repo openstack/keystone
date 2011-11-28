@@ -1,46 +1,339 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2010 United States Government as represented by the
+# Administrator of the National Aeronautics and Space Administration.
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+# Colorizer Code is borrowed from Twisted:
+# Copyright (c) 2001-2010 Twisted Matrix Laboratories.
+#
+#    Permission is hereby granted, free of charge, to any person obtaining
+#    a copy of this software and associated documentation files (the
+#    "Software"), to deal in the Software without restriction, including
+#    without limitation the rights to use, copy, modify, merge, publish,
+#    distribute, sublicense, and/or sell copies of the Software, and to
+#    permit persons to whom the Software is furnished to do so, subject to
+#    the following conditions:
+#
+#    The above copyright notice and this permission notice shall be
+#    included in all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+#    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+#    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#   Code copied from Nova and other OpenStack projects:
+#       Colorizers
+#       Classes starting with Nova
+#       other setup and initialization code
+#
+""" Module that handles starting the Keystone server and running
+test suites"""
+
 import cgitb
+import gettext
+import heapq
+import logging
+from nose import config as noseconfig
+from nose import core
+from nose import result
+import optparse
 import os
 import sys
 import subprocess
 import tempfile
 import time
-import unittest2 as unittest
+import unittest
 cgitb.enable(format="text")
 
 from functional.common import HttpTestCase
-
+import keystone
+from keystone.common import config, wsgi
+from keystone import backends
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, '..', '..'))
 TEST_CERT = os.path.join(BASE_DIR, 'examples/ssl/certs/middleware-key.pem')
 
 
-def execute(cmd, raise_error=True):
+class _AnsiColorizer(object):
     """
-    Executes a command in a subprocess. Returns a tuple
-    of (exitcode, out, err), where out is the string output
-    from stdout and err is the string output from stderr when
-    executing the command.
+    A colorizer is an object that loosely wraps around a stream, allowing
+    callers to write text to the stream in a particular color.
 
-    :param cmd: Command string to execute
-    :param raise_error: If returncode is not 0 (success), then
-                        raise a RuntimeError? Default: True)
+    Colorizer classes must implement C{supported()} and C{write(text, color)}.
     """
+    _colors = dict(black=30, red=31, green=32, yellow=33,
+                   blue=34, magenta=35, cyan=36, white=37)
 
-    env = os.environ.copy()
-    # Make sure that we use the programs in the
-    # current source directory's bin/ directory.
-    env['PATH'] = os.path.join(BASE_DIR, 'bin') + ':' + env['PATH']
-    process = subprocess.Popen(cmd,
-                               shell=True,
-                               env=env)
-    result = process.communicate()
-    exitcode = process.returncode
-    if process.returncode != 0 and raise_error:
-        msg = "Command %(cmd)s did not succeed. Returned an exit "\
-              "code of %(exitcode)d." % locals()
-        raise RuntimeError(msg)
-    return exitcode, result
+    def __init__(self, stream):
+        self.stream = stream
+
+    def supported(cls, stream=sys.stdout):
+        """
+        A class method that returns True if the current platform supports
+        coloring terminal output using this method. Returns False otherwise.
+        """
+        if not stream.isatty():
+            return False  # auto color only on TTYs
+        try:
+            import curses
+        except ImportError:
+            return False
+        else:
+            try:
+                try:
+                    return curses.tigetnum("colors") > 2
+                except curses.error:
+                    curses.setupterm()
+                    return curses.tigetnum("colors") > 2
+            except:
+                raise
+                # guess false in case of error
+                return False
+    supported = classmethod(supported)
+
+    def write(self, text, color):
+        """
+        Write the given text to the stream in the given color.
+
+        @param text: Text to be written to the stream.
+
+        @param color: A string label for a color. e.g. 'red', 'white'.
+        """
+        color = self._colors[color]
+        self.stream.write('\x1b[%s;1m%s\x1b[0m' % (color, text))
+
+
+class _Win32Colorizer(object):
+    """
+    See _AnsiColorizer docstring.
+    """
+    def __init__(self, stream):
+        from win32console import GetStdHandle, STD_OUT_HANDLE, \
+             FOREGROUND_RED, FOREGROUND_BLUE, FOREGROUND_GREEN, \
+             FOREGROUND_INTENSITY
+        red, green, blue, bold = (FOREGROUND_RED, FOREGROUND_GREEN,
+                                  FOREGROUND_BLUE, FOREGROUND_INTENSITY)
+        self.stream = stream
+        self.screenBuffer = GetStdHandle(STD_OUT_HANDLE)
+        self._colors = {
+            'normal': red | green | blue,
+            'red': red | bold,
+            'green': green | bold,
+            'blue': blue | bold,
+            'yellow': red | green | bold,
+            'magenta': red | blue | bold,
+            'cyan': green | blue | bold,
+            'white': red | green | blue | bold
+            }
+
+    def supported(cls, stream=sys.stdout):
+        try:
+            import win32console
+            screenBuffer = win32console.GetStdHandle(
+                win32console.STD_OUT_HANDLE)
+        except ImportError:
+            return False
+        import pywintypes
+        try:
+            screenBuffer.SetConsoleTextAttribute(
+                win32console.FOREGROUND_RED |
+                win32console.FOREGROUND_GREEN |
+                win32console.FOREGROUND_BLUE)
+        except pywintypes.error:
+            return False
+        else:
+            return True
+    supported = classmethod(supported)
+
+    def write(self, text, color):
+        color = self._colors[color]
+        self.screenBuffer.SetConsoleTextAttribute(color)
+        self.stream.write(text)
+        self.screenBuffer.SetConsoleTextAttribute(self._colors['normal'])
+
+
+class _NullColorizer(object):
+    """
+    See _AnsiColorizer docstring.
+    """
+    def __init__(self, stream):
+        self.stream = stream
+
+    def supported(cls, stream=sys.stdout):
+        return True
+    supported = classmethod(supported)
+
+    def write(self, text, color):
+        self.stream.write(text)
+
+
+def get_elapsed_time_color(elapsed_time):
+    if elapsed_time > 1.0:
+        return 'red'
+    elif elapsed_time > 0.25:
+        return 'yellow'
+    else:
+        return 'green'
+
+
+class NovaTestResult(result.TextTestResult):
+    def __init__(self, *args, **kw):
+        self.show_elapsed = kw.pop('show_elapsed')
+        result.TextTestResult.__init__(self, *args, **kw)
+        self.num_slow_tests = 5
+        self.slow_tests = []  # this is a fixed-sized heap
+        self._last_case = None
+        self.colorizer = None
+        # NOTE(vish): reset stdout for the terminal check
+        stdout = sys.stdout
+        sys.stdout = sys.__stdout__
+        for colorizer in [_Win32Colorizer, _AnsiColorizer, _NullColorizer]:
+            if colorizer.supported():
+                self.colorizer = colorizer(self.stream)
+                break
+        sys.stdout = stdout
+
+        # NOTE(lorinh): Initialize start_time in case a sqlalchemy-migrate
+        # error results in it failing to be initialized later. Otherwise,
+        # _handleElapsedTime will fail, causing the wrong error message to
+        # be outputted.
+        self.start_time = time.time()
+
+    def getDescription(self, test):
+        return str(test)
+
+    def _handleElapsedTime(self, test):
+        self.elapsed_time = time.time() - self.start_time
+        item = (self.elapsed_time, test)
+        # Record only the n-slowest tests using heap
+        if len(self.slow_tests) >= self.num_slow_tests:
+            heapq.heappushpop(self.slow_tests, item)
+        else:
+            heapq.heappush(self.slow_tests, item)
+
+    def _writeElapsedTime(self, test):
+        color = get_elapsed_time_color(self.elapsed_time)
+        self.colorizer.write("  %.2f" % self.elapsed_time, color)
+
+    def _writeResult(self, test, long_result, color, short_result, success):
+        if self.showAll:
+            self.colorizer.write(long_result, color)
+            if self.show_elapsed and success:
+                self._writeElapsedTime(test)
+            self.stream.writeln()
+        elif self.dots:
+            self.stream.write(short_result)
+            self.stream.flush()
+
+    # NOTE(vish): copied from unittest with edit to add color
+    def addSuccess(self, test):
+        unittest.TestResult.addSuccess(self, test)
+        self._handleElapsedTime(test)
+        self._writeResult(test, 'OK', 'green', '.', True)
+
+    # NOTE(vish): copied from unittest with edit to add color
+    def addFailure(self, test, err):
+        unittest.TestResult.addFailure(self, test, err)
+        self._handleElapsedTime(test)
+        self._writeResult(test, 'FAIL', 'red', 'F', False)
+
+    # NOTE(vish): copied from nose with edit to add color
+    def addError(self, test, err):
+        """Overrides normal addError to add support for
+        errorClasses. If the exception is a registered class, the
+        error will be added to the list for that class, not errors.
+        """
+        self._handleElapsedTime(test)
+        stream = getattr(self, 'stream', None)
+        ec, ev, tb = err
+        try:
+            exc_info = self._exc_info_to_string(err, test)
+        except TypeError:
+            # 2.3 compat
+            exc_info = self._exc_info_to_string(err)
+        for cls, (storage, label, isfail) in self.errorClasses.items():
+            if result.isclass(ec) and issubclass(ec, cls):
+                if isfail:
+                    test.passed = False
+                storage.append((test, exc_info))
+                # Might get patched into a streamless result
+                if stream is not None:
+                    if self.showAll:
+                        message = [label]
+                        detail = result._exception_detail(err[1])
+                        if detail:
+                            message.append(detail)
+                        stream.writeln(": ".join(message))
+                    elif self.dots:
+                        stream.write(label[:1])
+                return
+        self.errors.append((test, exc_info))
+        test.passed = False
+        if stream is not None:
+            self._writeResult(test, 'ERROR', 'red', 'E', False)
+
+    def startTest(self, test):
+        unittest.TestResult.startTest(self, test)
+        self.start_time = time.time()
+        current_case = test.test.__class__.__name__
+
+        if self.showAll:
+            if current_case != self._last_case:
+                self.stream.writeln(current_case)
+                self._last_case = current_case
+
+            self.stream.write(
+                '    %s' % str(test.test._testMethodName).ljust(60))
+            self.stream.flush()
+
+
+class NovaTestRunner(core.TextTestRunner):
+    def __init__(self, *args, **kwargs):
+        self.show_elapsed = kwargs.pop('show_elapsed')
+        core.TextTestRunner.__init__(self, *args, **kwargs)
+
+    def _makeResult(self):
+        return NovaTestResult(self.stream,
+                              self.descriptions,
+                              self.verbosity,
+                              self.config,
+                              show_elapsed=self.show_elapsed)
+
+    def _writeSlowTests(self, result_):
+        # Pare out 'fast' tests
+        slow_tests = [item for item in result_.slow_tests
+                      if get_elapsed_time_color(item[0]) != 'green']
+        if slow_tests:
+            slow_total_time = sum(item[0] for item in slow_tests)
+            self.stream.writeln("Slowest %i tests took %.2f secs:"
+                                % (len(slow_tests), slow_total_time))
+            for elapsed_time, test in sorted(slow_tests, reverse=True):
+                time_str = "%.2f" % elapsed_time
+                self.stream.writeln("    %s %s" % (time_str.ljust(10), test))
+
+    def run(self, test):
+        result_ = core.TextTestRunner.run(self, test)
+        if self.show_elapsed:
+            self._writeSlowTests(result_)
+        return result_
 
 
 class KeystoneTest(object):
@@ -62,10 +355,13 @@ class KeystoneTest(object):
     def clear_database(self):
         """Remove any test databases or files generated by previous tests."""
         for fname in self.test_files:
-            fpath = os.path.join(TEST_DIR, fname)
-            if os.path.exists(fpath):
-                print "Removing test file %s" % fname
-                os.unlink(fpath)
+            paths = [os.path.join(os.curdir, fname),
+                      os.path.join(os.getcwd(), fname),
+                      os.path.join(TEST_DIR, fname)]
+            for fpath in paths:
+                if os.path.exists(fpath):
+                    print "Removing test file %s" % fname
+                    os.unlink(fpath)
 
     def construct_temp_conf_file(self):
         """Populates a configuration template, and writes to a file pointer."""
@@ -77,6 +373,8 @@ class KeystoneTest(object):
         self.conf_fp.flush()
 
     def setUp(self):
+        self.server = None
+        self.admin_server = None
         self.clear_database()
         self.construct_temp_conf_file()
 
@@ -86,58 +384,183 @@ class KeystoneTest(object):
 
         # run the keystone server
         print "Starting the keystone server..."
-        params = [os.path.join(BASE_DIR, 'bin/keystone'),
-                      '-c', self.conf_fp.name]
-        if '--debug' in sys.argv:
-            params += ['-d']
-        self.server = subprocess.Popen(params)
 
-        # blatant hack.
-        time.sleep(5)
-        if self.server.poll() is not None:
-            raise RuntimeError('Failed to start server')
+        parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
+        common_group = config.add_common_options(parser)
+        config.add_log_options(parser)
+
+        # Handle a special argument to support starting two endpoints
+        common_group.add_option(
+            '-a', '--admin-port', dest="admin_port", metavar="PORT",
+            help="specifies port for Admin API to listen " \
+                 "on (default is 35357)")
+
+        # Parse arguments and load config
+        (options, args) = config.parse_options(parser)
+        options['config_file'] = self.conf_fp.name
+
+        # Start services
+        try:
+            # Load Service API server
+            conf, app = config.load_paste_app(
+                'keystone-legacy-auth', options, args)
+            admin_conf, admin_app = config.load_paste_app(
+                'admin', options, args)
+
+            port = int(options['bind_port'] or conf['service_port'] or 5000)
+            host = options['bind_host'] or conf['service_host']
+
+            if (self.isSsl == True):
+                server = wsgi.SslServer()
+                server.start(app, port, host,
+                             certfile=conf['certfile'],
+                             keyfile=conf['keyfile'],
+                             ca_certs=conf['ca_certs'],
+                             cert_required=conf['cert_required'])
+                # Load Admin API server
+                port = int(options['admin_port'] or conf['admin_port']
+                           or 35357)
+                host = options['bind_host'] or conf['admin_host']
+
+                admin_server = wsgi.SslServer()
+                admin_server.start(admin_app,
+                                   port, host,
+                                   certfile=conf['certfile'],
+                                   keyfile=conf['keyfile'],
+                                   ca_certs=conf['ca_certs'],
+                                   cert_required=conf['cert_required'])
+
+            else:
+                server = wsgi.Server()
+                server.start(app, port, host, key="Test")
+
+                print "Service API (ssl=%s) listening on %s:%s" % (
+                    conf['service_ssl'], host, port)
+
+                # Load Admin API server
+                port = int(options['admin_port'] or conf['admin_port']
+                           or 35357)
+                host = options['bind_host'] or conf['admin_host']
+
+                admin_server = wsgi.Server()
+                admin_server.start(admin_app, port, host, key="Test")
+
+                print "Admin API (ssl=%s) listening on %s:%s" % (
+                    conf['admin_ssl'], host, port)
+
+        except RuntimeError, e:
+            print e
+            sys.exit("ERROR: %s" % e)
+
+        self.server = server
+        self.admin_server = admin_server
+
+        # Load sample data
+        from keystone.test import sampledata
+        manage_args = ['--config-file', self.conf_fp.name]
+        sampledata.load_fixture(args=manage_args)
 
     def tearDown(self):
         # kill the keystone server
         print "Stopping the keystone server..."
-        self.server.kill()
-        self.clear_database()
+        try:
+            if self.server is not None:
+                if 'Test' in self.server.threads:
+                    self.server.threads['Test'].kill()
+                self.server = None
+            if self.admin_server is not None:
+                if 'Test' in self.admin_server.threads:
+                    self.admin_server.threads['Test'].kill()
+                self.admin_server = None
+            self.conf_fp.close()
+            self.conf_fp = None
+        except Exception as e:
+            print "Error cleaning up %s" % e
+        finally:
+            self.clear_database()
 
     def run(self):
         try:
             self.setUp()
 
             # discover and run tests
-            print "Running tests..."
-            if '--with-progress' in sys.argv:
-                loader = unittest.TestLoader()
-                suite = loader.discover(TEST_DIR, top_level_dir=BASE_DIR)
-                verbosity = 1
-                if '--verbose' in sys.argv:
-                    verbosity = 2
-                result = unittest.TextTestRunner(verbosity=verbosity). \
-                        run(suite)
-                if not result.wasSuccessful():
-                    raise RuntimeError("%s unresolved issues." %
-                        (len(result.errors) + len(result.failures),))
-            elif '--with-coverage' in sys.argv:
-                print "running coverage"
-                options = ''
-                if '--verbose' in sys.argv:
-                    options += ' -v'
+            verbosity = 1
+            if '--verbose' in sys.argv:
+                verbosity = 2
 
-                cmd = 'coverage run %s%s discover -t %s -s %s' % \
-                        ('/usr/bin/unit2', options, BASE_DIR, TEST_DIR)
+            # If any argument looks like a test name but doesn't have
+            # "nova.tests" in front of it, automatically add that so we don't
+            # have to type as much
+            show_elapsed = True
+            argv = []
+            for x in sys.argv:
+                if x.startswith('functional') or x.startswith('unit'):
+                    argv.append('keystone.test.%s' % x)
+                elif x.startswith('--hide-elapsed'):
+                    show_elapsed = False
+                elif x.startswith('--trace-calls'):
+                    pass
+                elif x.startswith('--debug'):
+                    pass
+                else:
+                    argv.append(x)
 
-                execute(cmd)
+            c = noseconfig.Config(stream=sys.stdout,
+                              env=os.environ,
+                              verbosity=3,
+                              workingDir=TEST_DIR,
+                              plugins=core.DefaultPluginManager())
 
-            else:
-                options = ''
-                if '--verbose' in sys.argv:
-                    options += ' -v'
+            runner = NovaTestRunner(stream=c.stream,
+                                    verbosity=c.verbosity,
+                                    config=c,
+                                    show_elapsed=show_elapsed)
 
-                cmd = 'unit2 discover%s -f -t %s -s %s' % \
-                            (options, BASE_DIR, TEST_DIR)
-                execute(cmd)
+            return not core.run(config=c, testRunner=runner,
+                                argv=argv + ['-P'])
+        except Exception as e:
+            print 'Error %s' % e
         finally:
             self.tearDown()
+
+
+def runtests():
+    """This function can be called from 'python setup.py test'."""
+    return SQLTest().run()
+
+
+class SQLTest(KeystoneTest):
+    """Test defined using only SQLAlchemy back-end"""
+    config_name = 'sql.conf.template'
+    test_files = ('keystone.sqltest.db',)
+
+    def clear_database(self):
+        # Disconnect the database before deleting
+        from keystone.backends import sqlalchemy
+        sqlalchemy.unregister_models()
+
+        super(SQLTest, self).clear_database()
+
+
+class SSLTest(SQLTest):
+    config_name = 'ssl.conf.template'
+    isSsl = True
+    test_files = ('keystone.ssltest.db',)
+
+
+class MemcacheTest(SQLTest):
+    """Test defined using only SQLAlchemy and Memcache back-end"""
+    config_name = 'memcache.conf.template'
+    test_files = ('keystone.memcachetest.db',)
+
+
+class LDAPTest(SQLTest):
+    """Test defined using only SQLAlchemy and LDAP back-end"""
+    config_name = 'ldap.conf.template'
+    test_files = ('keystone.ldaptest.db', 'ldap.db', 'ldap.db.db',)
+
+    def clear_database(self):
+        super(LDAPTest, self).clear_database()
+        from keystone.backends.ldap.fakeldap import FakeShelve
+        db = FakeShelve().get_instance()
+        db.clear()

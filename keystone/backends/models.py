@@ -55,3 +55,5 @@ def set_value(variable_name, value):
     elif variable_name == 'Service':
         global Service
         Service = value
+    else:
+        raise IndexError("Unrecognized model type: %s" % variable_name)
