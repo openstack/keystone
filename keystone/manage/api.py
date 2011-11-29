@@ -134,6 +134,7 @@ def list_endpoint_templates():
 
 def add_endpoint(tenant, endpoint_template):
     tenant = db_api.TENANT.get_by_name(name=tenant).id
+    endpoint_template = db_api.ENDPOINT_TEMPLATE.get(id=endpoint_template).id
 
     obj = db_models.Endpoints()
     obj.tenant_id = tenant
