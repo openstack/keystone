@@ -64,7 +64,7 @@ def list_role_assignments(tenant):
     objects = db_api.TENANT.get_role_assignments(tenant)
     if objects is None:
         raise IndexError("Assignments not found")
-    return [[o.user_id, o.role_id] for o in objects]
+    return [[o.user.name, o.role.name] for o in objects]
 
 
 def list_roles(tenant=None):

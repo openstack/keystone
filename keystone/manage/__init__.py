@@ -168,7 +168,8 @@ def process(*args):
         if tenant:
             # print with users
             print 'Role assignments for tenant %s' % tenant
-            print_table(('User', 'Role'), api.list_roles(tenant=tenant))
+            print_table(('User', 'Role'),
+                api.list_roles(tenant=tenant))
         else:
             # print without tenants
             print_table(('id', 'name', 'service_id', 'description'),
