@@ -319,7 +319,8 @@ def load_paste_app(app_name, options, args):
     try:
         # Setup logging early, supplying both the CLI options and the
         # configuration mapping from the config file
-        options['log_file'] = "%s.log" % app_name
+        if not conf.get('log_file'):
+            options['log_file'] = "%s.log" % app_name
         setup_logging(options, conf)
 
         # We only update the conf dict for the verbose and debug

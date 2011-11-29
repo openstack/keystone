@@ -65,45 +65,56 @@ if __name__ == '__main__':
         verbose = options.get('verbose') or conf.get('verbose', False)
         verbose = verbose in [True, "True", "1"]
 
+        # Safely get SSL options
+        service_ssl = conf.get('service_ssl', False)
+        service_ssl = service_ssl in [True, "True", "1"]
+        admin_ssl = conf.get('admin_ssl', False)
+        admin_ssl = admin_ssl in [True, "True", "1"]
+        cert_required = conf.get('cert_required', False)
+        cert_required = cert_required in [True, "True", "1"]
+        certfile = conf.get('certfile')
+        keyfile = conf.get('keyfile')
+        ca_certs = conf.get('ca_certs')
+
         if debug or verbose:
             config_file = config.find_config_file(options, args)
             print "Using config file:", config_file
 
-        port = int(options['bind_port'] or conf['service_port'] or 5000)
-        host = options['bind_host'] or conf['service_host']
+        port = options.get('bind_port', conf.get('service_port', 5000))
+        port = int(port or 5000)
+        host = options.get('bind_host', conf.get('service_host', '0.0.0.0'))
 
         # Load Service API server
-        if conf['service_ssl'] == 'True':
+        if service_ssl:
             server = wsgi.SslServer()
             server.start(app, port, host,
-                         certfile=conf['certfile'], keyfile=conf['keyfile'],
-                         ca_certs=conf['ca_certs'],
-                         cert_required=conf['cert_required'])
+                         certfile=certfile, keyfile=keyfile,
+                         ca_certs=ca_certs,
+                         cert_required=cert_required)
         else:
             server = wsgi.Server()
             server.start(app, port, host)
 
         print "Service API (ssl=%s) listening on %s:%s" % (
-            conf['service_ssl'], host, port)
+            service_ssl, host, port)
 
         # Load Admin API server
-        port = int(options['admin_port'] or conf['admin_port'] or 35357)
-        host = options['bind_host'] or conf['admin_host']
+        port = options.get('admin_port', conf.get('admin_port', 35357))
+        port = int(port or 35357)
+        host = options.get('bind_host', conf.get('admin_host', '0.0.0.0'))
 
-        if conf['admin_ssl'] == 'True':
+        if admin_ssl:
             admin_server = wsgi.SslServer()
-            admin_server.start(admin_app,
-                               port, host,
-                               certfile=conf['certfile'],
-                               keyfile=conf['keyfile'],
-                               ca_certs=conf['ca_certs'],
-                               cert_required=conf['cert_required'])
+            admin_server.start(admin_app, port, host,
+                               certfile=certfile, keyfile=keyfile,
+                               ca_certs=ca_certs,
+                               cert_required=cert_required)
         else:
             admin_server = wsgi.Server()
             admin_server.start(admin_app, port, host)
 
         print "Admin API (ssl=%s) listening on %s:%s" % (
-            conf['admin_ssl'], host, port)
+            admin_ssl, host, port)
 
         # Wait until done
         server.wait()
