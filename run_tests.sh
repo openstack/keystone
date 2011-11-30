@@ -15,6 +15,7 @@ function usage {
   echo "                             Note: you might need to 'sudo' this since it pip installs into the vitual environment"  
   echo "  -p, --pep8               Just run pep8"
   echo "  -l, --pylint             Just run pylint"
+  echo "  -j, --json               Just validate JSON"
   echo "  -c, --coverage           Generate coverage report"
   echo "  -h, --help               Print this usage message"
   echo "  --hide-elapsed           Don't print the elapsed time for each test along with slow test list"
@@ -43,6 +44,7 @@ function process_option {
       -f|--force) force=1;;
       -p|--pep8) just_pep8=1;;
       -l|--pylint) just_pylint=1;;
+      -j|--json) just_json=1;;
       -c|--coverage) coverage=1;;
       -*) addlopts="$addlopts $1";;
       *) addlargs="$addlargs $1"
@@ -61,6 +63,7 @@ wrapper=""
 just_pep8=0
 no_pep8=0
 just_pylint=0
+just_json=0
 coverage=0
 
 for arg in "$@"; do
@@ -144,6 +147,12 @@ function run_pylint {
   echo "Run 'pylint $PYLINT_OPTIONS $PYLINT_INCLUDE' for a full report."
 }
 
+function validate_json {
+  echo "Validating JSON..."
+  python tools/validate_json.py
+}
+
+
 # Delete old coverage data from previous runs
 if [ $coverage -eq 1 ]; then
     ${wrapper} coverage erase
@@ -156,6 +165,11 @@ fi
 
 if [ $just_pylint -eq 1 ]; then
     run_pylint
+    exit
+fi
+
+if [ $just_json -eq 1 ]; then
+    validate_json
     exit
 fi
 
