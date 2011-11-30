@@ -519,14 +519,7 @@ class IdentityService(object):
             ts.append(Tenant(id=dtenant.id, name=dtenant.name,
                 description=dtenant.desc, enabled=dtenant.enabled))
 
-        links = []
-        if prev_page:
-            links.append(atom.Link('prev',
-                "%s?'marker=%s&limit=%s'" % (url, prev_page, limit)))
-        if next_page:
-            links.append(atom.Link('next',
-                "%s?'marker=%s&limit=%s'" % (url, next_page, limit)))
-
+        links = IdentityService.get_links(url, prev_page, next_page, limit)
         return Tenants(ts, links)
 
     @staticmethod
@@ -655,12 +648,7 @@ class IdentityService(object):
         if ts.__len__():
             prev, next = api.USER.users_get_by_tenant_get_page_markers(
                     tenant_id, role_id, marker, limit)
-            if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
-                                      (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
-                                      (url, next, limit)))
+            links = IdentityService.get_links(url, prev, next, limit)
         return Users(ts, links)
 
     @staticmethod
@@ -674,12 +662,7 @@ class IdentityService(object):
         links = []
         if ts.__len__():
             prev, next = api.USER.users_get_page_markers(marker, limit)
-            if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
-                                      (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
-                                      (url, next, limit)))
+            links = IdentityService.get_links(url, prev, next, limit)
         return Users(ts, links)
 
     @staticmethod
@@ -859,13 +842,7 @@ class IdentityService(object):
         for drole in droles:
             ts.append(Role(drole.id, drole.name, drole.desc, drole.service_id))
         prev, next = api.ROLE.get_page_markers(marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
-                                                % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
-                                                % (url, next, limit)))
+        links = IdentityService.get_links(url, prev, next, limit)
         return Roles(ts, links)
 
     @staticmethod
@@ -969,13 +946,7 @@ class IdentityService(object):
                     drole.desc, drole.service_id))
         prev, next = api.ROLE.ref_get_page_markers(
             user_id, tenant_id, marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev',
-                "%s?'marker=%s&limit=%s'" % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next',
-                "%s?'marker=%s&limit=%s'" % (url, next, limit)))
+        links = IdentityService.get_links(url, prev, next, limit)
         return Roles(ts, links)
 
     @staticmethod
@@ -1110,9 +1081,31 @@ class IdentityService(object):
     @staticmethod
     def get_endpoint_templates(admin_token, marker, limit, url):
         validate_service_admin_token(admin_token)
-
-        ts = []
         dendpoint_templates = api.ENDPOINT_TEMPLATE.get_page(marker, limit)
+        ts = IdentityService.transform_endpoint_templates(dendpoint_templates)
+        prev, next = api.ENDPOINT_TEMPLATE.get_page_markers(marker, limit)
+        links = IdentityService.get_links(url, prev, next, limit)
+        return EndpointTemplates(ts, links)
+
+    @staticmethod
+    def get_endpoint_templates_by_service(admin_token,
+        service_id, marker, limit, url):
+        validate_service_admin_token(admin_token)
+        dservice = api.SERVICE.get(service_id)
+        if dservice is None:
+            raise fault.ItemNotFoundFault(
+                "No service with the id %s found." % service_id)
+        dendpoint_templates = api.ENDPOINT_TEMPLATE.\
+            get_by_service_get_page(service_id, marker, limit)
+        ts = IdentityService.transform_endpoint_templates(dendpoint_templates)
+        prev, next = api.ENDPOINT_TEMPLATE.\
+            get_by_service_get_page_markers(service_id, marker, limit)
+        links = IdentityService.get_links(url, prev, next, limit)
+        return EndpointTemplates(ts, links)
+
+    @staticmethod
+    def transform_endpoint_templates(dendpoint_templates):
+        ts = []
         for dendpoint_template in dendpoint_templates:
             dservice = api.SERVICE.get(dendpoint_template.service_id)
             ts.append(EndpointTemplate(
@@ -1129,25 +1122,17 @@ class IdentityService(object):
                 dendpoint_template.version_list,
                 dendpoint_template.version_info
                 ))
-        prev, next = api.ENDPOINT_TEMPLATE.get_page_markers(marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
-                                                % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
-                                                % (url, next, limit)))
-        return EndpointTemplates(ts, links)
+        return ts
 
     @staticmethod
     def get_endpoint_template(admin_token, endpoint_template_id):
         validate_service_admin_token(admin_token)
 
         dendpoint_template = api.ENDPOINT_TEMPLATE.get(endpoint_template_id)
-        dservice = api.SERVICE.get(dendpoint_template.service_id)
         if not dendpoint_template:
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
+        dservice = api.SERVICE.get(dendpoint_template.service_id)
         return EndpointTemplate(
             dendpoint_template.id,
             dendpoint_template.region,
@@ -1205,12 +1190,7 @@ class IdentityService(object):
             prev, next = \
                 api.ENDPOINT_TEMPLATE.endpoint_get_by_tenant_get_page_markers(
                     tenant_id, marker, limit)
-            if prev:
-                links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" %
-                                      (url, prev, limit)))
-            if next:
-                links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" %
-                                      (url, next, limit)))
+            links = IdentityService.get_links(url, prev, next, limit)
         return Endpoints(ts, links)
 
     @staticmethod
@@ -1287,13 +1267,7 @@ class IdentityService(object):
             ts.append(Service(dservice.id, dservice.name, dservice.type,
                 dservice.desc))
         prev, next = api.SERVICE.get_page_markers(marker, limit)
-        links = []
-        if prev:
-            links.append(atom.Link('prev', "%s?'marker=%s&limit=%s'" \
-                                                % (url, prev, limit)))
-        if next:
-            links.append(atom.Link('next', "%s?'marker=%s&limit=%s'" \
-                                                % (url, next, limit)))
+        links = IdentityService.get_links(url, prev, next, limit)
         return Services(ts, links)
 
     @staticmethod
@@ -1422,3 +1396,15 @@ class IdentityService(object):
         api.USER.update(user_id, values)
         duser = api.USER.get(user_id)
         return PasswordCredentials(duser.name, duser.password)
+
+    @staticmethod
+    def get_links(url, prev, next, limit):
+        """Method to form and return pagination links."""
+        links = []
+        if prev:
+            links.append(atom.Link('prev', "%s?marker=%s&limit=%s" \
+                                                % (url, prev, limit)))
+        if next:
+            links.append(atom.Link('next', "%s?marker=%s&limit=%s" \
+                                                % (url, next, limit)))
+        return links

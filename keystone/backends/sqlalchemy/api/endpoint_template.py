@@ -60,6 +60,70 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         return session.query(models.EndpointTemplates).\
             filter_by(service_id=service_id).all()
 
+    def get_by_service_get_page(self, service_id, marker, limit, session=None):
+        if not session:
+            session = get_session()
+
+        if marker:
+            return session.query(models.EndpointTemplates).\
+                    filter("id>:marker").params(\
+                    marker='%s' % marker).filter_by(\
+                    service_id=service_id).order_by(\
+                    models.EndpointTemplates.id.desc()).limit(limit).all()
+        else:
+            return session.query(models.EndpointTemplates).filter_by(\
+                                service_id=service_id).order_by(\
+                                models.EndpointTemplates.id.desc()).\
+                                limit(limit).all()
+
+    def get_by_service_get_page_markers(self, service_id, marker,\
+        limit, session=None):
+        if not session:
+            session = get_session()
+        first = session.query(models.EndpointTemplates).filter_by(\
+                            service_id=service_id).order_by(\
+                            models.EndpointTemplates.id).first()
+        last = session.query(models.EndpointTemplates).filter_by(\
+                            service_id=service_id).order_by(\
+                            models.EndpointTemplates.id.desc()).first()
+        if first is None:
+            return (None, None)
+        if marker is None:
+            marker = first.id
+        next_page = session.query(models.EndpointTemplates).\
+            filter("id > :marker").\
+            filter_by(service_id=service_id).\
+            params(marker='%s' % marker).\
+            order_by(models.EndpointTemplates.id).\
+            limit(limit).\
+            all()
+        prev_page = session.query(models.EndpointTemplates).\
+            filter("id < :marker").\
+            filter_by(service_id=service_id).\
+            params(marker='%s' % marker).\
+            order_by(models.EndpointTemplates.id.desc()).\
+            limit(int(limit)).\
+            all()
+        if len(next_page) == 0:
+            next_page = last
+        else:
+            for t in next_page:
+                next_page = t
+        if len(prev_page) == 0:
+            prev_page = first
+        else:
+            for t in prev_page:
+                prev_page = t
+        if prev_page.id == marker:
+            prev_page = None
+        else:
+            prev_page = prev_page.id
+        if next_page.id == last.id:
+            next_page = None
+        else:
+            next_page = next_page.id
+        return (prev_page, next_page)
+
     def get_page(self, marker, limit, session=None):
         if not session:
             session = get_session()
