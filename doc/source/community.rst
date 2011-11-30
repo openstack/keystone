@@ -66,7 +66,7 @@ to write drafts for specs or documentation, describe a blueprint, or collaborate
 `OpenStack Wiki <http://wiki.openstack.org/>`_
 
 Keystone on Launchpad
--------------------
+---------------------
 
 Launchpad is a code hosting service that hosts the Keystone source code. From
 Launchpad you can report bugs, ask questions, and register blueprints (feature requests). 

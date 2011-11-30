@@ -30,7 +30,7 @@ USAGE
     ``keystone-manage [options] type action [additional args]``
 
 user
-^^^^
+----
 
 * **user add** [username] [password]
 
@@ -45,7 +45,7 @@ user
   disables the user *username*
 
 tenant
-^^^^^^
+------
 
 * **tenant add** [tenant_name]
 
@@ -58,7 +58,7 @@ tenant
 * **tenant disable** [tenant_name]
 
 role
-^^^^
+----
 
 Roles are used to associated users to tenants. Two roles are defined related
 to the Keystone service in it's configuration file :doc:`../keystone.conf`
@@ -77,7 +77,7 @@ to the Keystone service in it's configuration file :doc:`../keystone.conf`
   provided or granted for a specific tenant if tenant_name is provided.
 
 service
-^^^^^^^
+-------
 
 * **service add** [name] [type] [description] [owner_id]
 
@@ -88,7 +88,7 @@ service
   lists all services with id, name, and type
 
 endpointTemplate
-^^^^^^^^^^^^^^^^
+----------------
 
 * **endpointTemplate add** [region] [service_name] [public_url] [admin_url] [internal_url] [enabled] [is_global]
 
@@ -103,14 +103,13 @@ endpointTemplate
                       http://keystone_host:5000/v2.0 \
                       1 1
 
-
 * **endpointTemplate list** ([tenant_name])
 
   lists endpoint templates with service, region, and public_url. Restricted to
-tenant endpoints if tenant_name is provided.
+  tenant endpoints if tenant_name is provided.
 
 token
-^^^^^
+-----
 
 * **token add** [token] [username] [tenant] [expiration]
 
@@ -125,14 +124,14 @@ token
   deletes the identified token
 
 endpoint
-^^^^^^^^
+--------
 
 * **endpoint add** [tenant_name] [endpoint_template]
 
   adds a tenant-specific endpoint
 
 credentials
-^^^^^^^^^^^
+-----------
 
 * **credentials add** [username] [type] [key] [password] ([tenant_name])
 
