@@ -30,8 +30,8 @@ USAGE
 
  ``keystone-admin [options]``
 
-Common Options:
-^^^^^^^^^^^^^^^
+Common Options
+--------------
 
    --version                     show program's version number and exit
    -h, --help                    show this help message and exit
@@ -50,8 +50,9 @@ Common Options:
    -t, --trace-calls             Turns on call tracing for troubleshooting
    -a PORT, --admin-port=PORT    Specifies port for Admin API to listen on
                                  (default is 35357)
-Logging Options:
-^^^^^^^^^^^^^^^^
+
+Logging Options
+---------------
 
 The following configuration options are specific to logging
 functionality for this program.

@@ -27,24 +27,22 @@ Configuring Keystone
 Once Keystone is installed, there are a number of configuration options
 available and potentially some initial data to create and set up.
 
-
 Sample data / Quick Setup
 =========================
 
 Default sampledata is provided for easy setup and testing in bin/sampeldata. To
-set up the sample data run the following command while Keystone is running:
+set up the sample data run the following command while Keystone is running::
 
     $ ./bin/sampledata
 
-The sample data created comes from the file :doc:`keystone.test.sampledata`
+The sample data created comes from the file :doc:`sourcecode/keystone.test.sampledata`
 
 
 Keystone Configuration File
 ===========================
 
 Most configuration is done via configuration files. The default files are
-in /etc/keystone.conf
-
+in ``/etc/keystone.conf``
 
 When starting up a Keystone server, you can specify the configuration file to
 use (see :doc:`controllingservers`).
@@ -65,8 +63,3 @@ In addition to this documentation page, you can check the
 ``etc/keystone.conf`` sample configuration
 files distributed with keystone for example configuration files for each server
 application with detailed comments on what each options does.
-
-
-
-
-
