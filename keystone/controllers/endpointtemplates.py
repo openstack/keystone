@@ -2,7 +2,7 @@ from keystone import utils
 from keystone.common import wsgi
 import keystone.config as config
 from keystone.logic.types.endpoint import EndpointTemplate
-from . import get_url, get_marker_limit_and_url
+from . import get_marker_limit_and_url
 
 
 class EndpointTemplatesController(wsgi.Controller):
@@ -14,8 +14,14 @@ class EndpointTemplatesController(wsgi.Controller):
     @utils.wrap_error
     def get_endpoint_templates(self, req):
         marker, limit, url = get_marker_limit_and_url(req)
-        endpoint_templates = config.SERVICE.get_endpoint_templates(
-            utils.get_auth_token(req), marker, limit, url)
+        service_id = req.GET["serviceId"] if "serviceId" in req.GET else None
+        if service_id:
+            endpoint_templates = config.SERVICE.\
+                get_endpoint_templates_by_service(
+                utils.get_auth_token(req), service_id, marker, limit, url)
+        else:
+            endpoint_templates = config.SERVICE.get_endpoint_templates(
+                utils.get_auth_token(req), marker, limit, url)
         return utils.send_result(200, req, endpoint_templates)
 
     @utils.wrap_error

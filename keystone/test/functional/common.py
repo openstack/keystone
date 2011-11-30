@@ -412,6 +412,13 @@ class ApiTestCase(RestfulTestCase):
             path='/OS-KSCATALOG/endpointTemplates',
             **kwargs)
 
+    def get_endpoint_templates_by_service(self, service_id, **kwargs):
+        """GET /OS-KSCATALOG/endpointTemplates"""
+        return self.admin_request(method='GET', path=(
+            '/OS-KSCATALOG/endpointTemplates?serviceId=%s')
+            % (service_id),
+            **kwargs)
+
     def post_endpoint_template(self, **kwargs):
         """POST /OS-KSCATALOG/endpointTemplates"""
         return self.admin_request(method='POST',
@@ -910,8 +917,11 @@ class FunctionalTestCase(ApiTestCase):
         """TODO: Should this be an 'endpoint_id' or 'endpoint_template_id'??"""
         return self.delete_tenant_endpoint(tenant_id, endpoint_id, **kwargs)
 
-    def list_endpoint_templates(self, **kwargs):
-        return self.get_endpoint_templates(**kwargs)
+    def list_endpoint_templates(self, service_id=None, **kwargs):
+        if service_id is None:
+            return self.get_endpoint_templates(**kwargs)
+        else:
+            return self.get_endpoint_templates_by_service(service_id, **kwargs)
 
     def create_endpoint_template(self, region=None, name=None, type=None,
             public_url=None, admin_url=None, internal_url=None, enabled=True,

@@ -220,6 +220,12 @@ class BaseEndpointTemplateAPI(object):
     def get_page_markers(self, marker, limit):
         raise NotImplementedError
 
+    def get_by_service_get_page(self, service_id, marker, limit):
+        raise NotImplementedError
+
+    def get_by_service_get_page_markers(self, service_id, marker, limit):
+        raise NotImplementedError
+
     def endpoint_get_by_tenant_get_page(self, tenant_id, marker, limit):
         raise NotImplementedError
 

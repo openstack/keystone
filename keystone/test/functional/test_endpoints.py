@@ -198,6 +198,86 @@ class GetEndpointTemplatesTest(EndpointTemplatesTest):
             'Accept': 'application/xml'})
 
 
+class GetEndpointTemplatesByServiceTest(EndpointTemplatesTest):
+    def test_get_endpoint_templates(self):
+        r = self.list_endpoint_templates(
+            service_id=self.service['id'], assert_status=200)
+        self.assertIsNotNone(r.json['OS-KSCATALOG:endpointTemplates'])
+        self.assertEquals(len(r.json['OS-KSCATALOG:endpointTemplates']), 1)
+        self.assertEquals(r.json['OS-KSCATALOG:endpointTemplates'][0]['name'],
+            self.service['name'])
+        self.assertEquals(r.json['OS-KSCATALOG:endpointTemplates'][0]['type'],
+            self.service['type'])
+
+    def test_get_endpoint_templates_using_service_admin_token(self):
+        self.admin_token = self.service_admin_token
+        r = self.list_endpoint_templates(service_id=self.service['id'],
+            assert_status=200)
+        self.assertIsNotNone(r.json['OS-KSCATALOG:endpointTemplates'])
+        self.assertEquals(len(r.json['OS-KSCATALOG:endpointTemplates']), 1)
+        self.assertEquals(r.json['OS-KSCATALOG:endpointTemplates'][0]['name'],
+            self.service['name'])
+        self.assertEquals(
+            r.json['OS-KSCATALOG:endpointTemplates'][0]['type'],
+            self.service['type'])
+
+    def test_get_endpoint_templates_using_expired_auth_token(self):
+        self.admin_token = self.expired_admin_token
+        self.list_endpoint_templates(
+            service_id=self.service['id'], assert_status=403)
+
+    def test_get_endpoint_templates_using_disabled_auth_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.list_endpoint_templates(
+            service_id=self.service['id'], assert_status=403)
+
+    def test_get_endpoint_templates_using_missing_auth_token(self):
+        self.admin_token = ''
+        self.list_endpoint_templates(service_id=self.service['id'],
+            assert_status=401)
+
+    def test_get_endpoint_templates_using_invalid_auth_token(self):
+        self.admin_token = common.unique_str()
+        self.list_endpoint_templates(service_id=self.service['id'],
+            assert_status=401)
+
+    def test_get_endpoint_templates_xml(self):
+        r = self.get_endpoint_templates_by_service(
+            service_id=self.service['id'],
+            assert_status=200, headers={'Accept': 'application/xml'})
+        self.assertEqual(r.xml.tag,
+            "{%s}endpointTemplates" % self.xmlns_kscatalog)
+        endpoint_template = r.xml.find(
+            '{%s}endpointTemplate' % self.xmlns_kscatalog)
+        self.assertIsNotNone(endpoint_template)
+        self.assertEqual(endpoint_template.get('name'), self.service['name'])
+        self.assertEqual(endpoint_template.get('type'), self.service['type'])
+
+    def test_get_endpoint_templates_xml_expired_auth_token(self):
+        self.admin_token = self.expired_admin_token
+        self.get_endpoint_templates_by_service(
+            service_id=self.service['id'], assert_status=403, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_endpoint_templates_xml_disabled_auth_token(self):
+        self.admin_token = self.disabled_admin_token
+        self.get_endpoint_templates_by_service(
+            service_id=self.service['id'], assert_status=403, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_endpoint_templates_xml_missing_auth_token(self):
+        self.admin_token = ''
+        self.get_endpoint_templates_by_service(
+            service_id=self.service['id'], assert_status=401, headers={
+            'Accept': 'application/xml'})
+
+    def test_get_endpoint_templates_xml_invalid_auth_token(self):
+        self.admin_token = common.unique_str()
+        self.get_endpoint_templates_by_service(
+            service_id=self.service['id'], assert_status=401, headers={
+            'Accept': 'application/xml'})
+
+
 class GetEndpointTemplateTest(EndpointTemplatesTest):
     def test_get_endpoint(self):
         r = self.fetch_endpoint_template(self.endpoint_template['id'])
@@ -234,6 +314,10 @@ class GetEndpointTemplateTest(EndpointTemplatesTest):
 
         self.assertEqual(r.xml.tag,
             "{%s}endpointTemplate" % self.xmlns_kscatalog)
+
+    def test_non_existent_get_endpoint(self):
+        self.fetch_endpoint_template('99999999',
+            assert_status=404)
 
 
 class UpdateEndpointTemplateTest(EndpointTemplatesTest):
