@@ -62,7 +62,7 @@ class HttpTestCase(unittest.TestCase):
         """Asserts that a status code lies inside the 2xx range
 
         :param response: :py:class:`httplib.HTTPResponse` to be
-        verified to have a status code between 200 and 299.
+          verified to have a status code between 200 and 299.
 
         example::
 
@@ -97,10 +97,11 @@ class RestfulTestCase(HttpTestCase):
         Dynamically encodes json or xml as request body if one is provided.
 
         .. WARNING::
-           * Existing Content-Type header will be overwritten.
-           * If both as_json and as_xml are provided, as_xml is ignored.
-           * If either as_json or as_xml AND a body is provided, the body
-             is ignored.
+
+            * Existing Content-Type header will be overwritten.
+            * If both as_json and as_xml are provided, as_xml is ignored.
+            * If either as_json or as_xml AND a body is provided, the body
+              is ignored.
 
         Dynamically returns 'as_json' or 'as_xml' attribute based on the
         detected response type, and fails the current test case if
