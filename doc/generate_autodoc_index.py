@@ -14,13 +14,23 @@ RSTDIR=os.path.join(base_dir, "source", "sourcecode")
 SOURCEDIR=os.path.join(base_dir, "..")
 
 # Exclude these modules from the autodoc results
-EXCLUDE_MODULES = ['keystone.backends.sqlalchemy.migrate_repo.manage']
+EXCLUDE_MODULES = ['keystone.backends.sqlalchemy.migrate_repo']
+
+def in_exclude_list(module_name):
+    """Compares a module to the list of excluded modules
+
+    Returns true if the provided module resides in or matches
+    an excluded module, false otherwise.
+    """
+    for excluded_module in EXCLUDE_MODULES:
+        if module_name.startswith(excluded_module):
+            return True
+    return False
 
 def find_autodoc_modules(module_name, sourcedir):
     """returns a list of modules in the SOURCE directory"""
     modlist = []
     os.chdir(os.path.join(sourcedir, module_name))
-    print "SEARCHING %s" % os.path.join(sourcedir, module_name)
     for root, dirs, files in os.walk("."):
         for filename in files:
             if filename.endswith(".py"):
@@ -34,8 +44,7 @@ def find_autodoc_modules(module_name, sourcedir):
                 if not (base == "__init__"):
                     elements.append(base)
                 result = (".".join(elements))
-                if result not in EXCLUDE_MODULES:
-                    print result
+                if not in_exclude_list(result):
                     modlist.append(result)
     return modlist
 
@@ -51,7 +60,6 @@ INDEXOUT.write("\n")
 
 for module in find_autodoc_modules('keystone', SOURCEDIR):
     generated_file = "%s/%s.rst" % (RSTDIR, module)
-    print "Generating %s" % generated_file
 
     INDEXOUT.write("   %s\n" % module)
     FILEOUT = open(generated_file, "w")
