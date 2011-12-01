@@ -121,21 +121,21 @@ Here is an example response from Keystone when you authenticate::
 
 Note the following about this response:
 
-1. There are two endpoints given to the Nova compute service. The only
-difference between them is the version (1.0 vs. 1.1). This allows for code
-written to look for the version 1.0 endpoint to still work even after the 1.1
-version is released.
+#. There are two endpoints given to the Nova compute service. The only
+   difference between them is the version (1.0 vs. 1.1). This allows for code
+   written to look for the version 1.0 endpoint to still work even after the 1.1
+   version is released.
 
-2. There are two endpoints for the Swift object-store service. The difference
-between them is they are in different regions (North and South).
+#. There are two endpoints for the Swift object-store service. The difference
+   between them is they are in different regions (North and South).
 
-3. Note the DNS service is global; it does not have a Region. Also, since DNS
-is not a core OpenStack service, the endpoint type is "dnsextension:dns"
-showing it is coming from an extension to the Keystone service.
+#. Note the DNS service is global; it does not have a Region. Also, since DNS
+   is not a core OpenStack service, the endpoint type is "dnsextension:dns"
+   showing it is coming from an extension to the Keystone service.
 
-4. The Region, Tenant, and versionId are listed under the endpoint. You do not
-(and should not) have to parse those out of the URL. In fact, they may not be
-embedded in the URL if the service developer so chooses.
+#. The Region, Tenant, and versionId are listed under the endpoint. You do not
+   (and should not) have to parse those out of the URL. In fact, they may not be
+   embedded in the URL if the service developer so chooses.
 
 
 What do the fields in an Endpoint mean?
@@ -143,7 +143,6 @@ What do the fields in an Endpoint mean?
 
 The schema definition for an endpoint is in endpoints.xsd under
 keystone/content/common/xsd in the Keystone code repo. The fields are:
-
 
 id
     A unique ID for the endpoint.
