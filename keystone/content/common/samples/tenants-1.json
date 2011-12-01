@@ -1,14 +1,16 @@
 {
-    "tenants":[{
-            "id":"1234",
-            "name":"ACME corp",
-            "description":"A description ...",
-            "enabled":true
-        }
-    ],
-    "tenants_links":[{
-            "rel":"next",
-            "href":"http://identity.api.openstack.org/v2.0/tenants?limit=1&marker=1234"
-        }
-    ]
+  "tenants": [
+    {
+      "id": "1234",
+      "name": "ACME corp",
+      "description": "A description ...",
+      "enabled": true
+    }
+  ],
+  "tenants_links": [
+    {
+      "rel": "next",
+      "href": "http://identity.api.openstack.org/v2.0/tenants?limit=1&marker=1234"
+    }
+  ]
 }

@@ -1,64 +1,71 @@
 {
-    "choices":[{
-            "id":"v1.0",
-            "status":"DEPRECATED",
-            "links":[{
-                    "rel":"self",
-                    "href":"http://identity.api.openstack.org/v1.0"
-                }
-            ],
-            "media-types":{
-                "values":[{
-                        "base":"application/xml",
-                        "type":"application/vnd.openstack.identity+xml;version=1.0"
-                    },
-                    {
-                        "base":"application/json",
-                        "type":"application/vnd.openstack.identity+json;version=1.0"
-                    }
-                ]
-            }
-        },
+  "choices": [
+    {
+      "id": "v1.0",
+      "status": "DEPRECATED",
+      "links": [
         {
-            "id":"v1.1",
-            "status":"CURRENT",
-            "links":[{
-                    "rel":"self",
-                    "href":"http://identity.api.openstack.org/v1.1"
-                }
-            ],
-            "media-types":{
-                "values":[{
-                        "base":"application/xml",
-                        "type":"application/vnd.openstack.identity+xml;version=1.1"
-                    },
-                    {
-                        "base":"application/json",
-                        "type":"application/vnd.openstack.identity+json;version=1.1"
-                    }
-                ]
-            }
-        },
-        {
-            "id":"v2.0",
-            "status":"BETA",
-            "links":[{
-                    "rel":"self",
-                    "href":"http://identity.api.openstack.org/v2.0"
-                }
-            ],
-            "media-types":{
-                "values":[{
-                        "base":"application/xml",
-                        "type":"application/vnd.openstack.identity+xml;version=2.0"
-                    },
-                    {
-                        "base":"application/json",
-                        "type":"application/vnd.openstack.identity+json;version=2.0"
-                    }
-                ]
-            }
+          "rel": "self",
+          "href": "http://identity.api.openstack.org/v1.0"
         }
-    ],
-    "choices_links":""
+      ],
+      "media-types": {
+        "values": [
+          {
+            "base": "application/xml",
+            "type": "application/vnd.openstack.identity+xml;version=1.0"
+          },
+          {
+            "base": "application/json",
+            "type": "application/vnd.openstack.identity+json;version=1.0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "v1.1",
+      "status": "CURRENT",
+      "links": [
+        {
+          "rel": "self",
+          "href": "http://identity.api.openstack.org/v1.1"
+        }
+      ],
+      "media-types": {
+        "values": [
+          {
+            "base": "application/xml",
+            "type": "application/vnd.openstack.identity+xml;version=1.1"
+          },
+          {
+            "base": "application/json",
+            "type": "application/vnd.openstack.identity+json;version=1.1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "v2.0",
+      "status": "BETA",
+      "links": [
+        {
+          "rel": "self",
+          "href": "http://identity.api.openstack.org/v2.0"
+        }
+      ],
+      "media-types": {
+        "values": [
+          {
+            "base": "application/xml",
+            "type": "application/vnd.openstack.identity+xml;version=2.0"
+          },
+          {
+            "base": "application/json",
+            "type": "application/vnd.openstack.identity+json;version=2.0"
+          }
+        ]
+      }
+    }
+  ],
+  "choices_links": ""
 }

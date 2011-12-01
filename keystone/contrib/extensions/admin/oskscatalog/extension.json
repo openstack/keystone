@@ -1,20 +1,21 @@
 {
-  "extension":{
+  "extension": {
     "name": "Openstack Keystone Catalog",
     "namespace": "http://docs.openstack.org/identity/api/ext/OS-KSCATALOG/v1.0",
     "alias": "OS-KSCATALOG",
     "updated": "2011-07-13T13:25:27-06:00",
     "description": "Openstack extensions to Keystone v2.0 API enabling Admin Operations to support Catalog.",
-    "links": [{
+    "links": [
+      {
         "rel": "describedby",
         "type": "application/pdf",
         "href": "https://github.com/openstack/keystone/raw/master/keystone/content/admin/OS-KSCATALOG-admin-devguide.pdf"
-    },
-    {
+      },
+      {
         "rel": "describedby",
         "type": "application/vnd.sun.wadl+xml",
         "href": "https://github.com/openstack/keystone/raw/master/keystone/content/admin/OS-KSCATALOG-admin.wadl"
-    }
-	]
-   }
+      }
+    ]
+  }
 }
