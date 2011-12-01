@@ -10,7 +10,8 @@
         "rel": "describedby",
         "type": "application/pdf",
         "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-meta-20111201.pdf"
-      }, {
+      },
+      {
         "rel": "describedby",
         "type": "application/vnd.sun.wadl+xml",
         "href": "http://docs.rackspacecloud.com/identity/api/ext/identity-cbs.wadl"

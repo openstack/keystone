@@ -1,8 +1,8 @@
 {
-    "auth": {
-        "tenantName": "customer-x",
-        "token": {
-            "id": "abcdefghijk"
-        }
+  "auth": {
+    "tenantName": "customer-x",
+    "token": {
+      "id": "abcdefghijk"
     }
+  }
 }

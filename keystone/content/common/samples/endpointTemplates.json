@@ -1,59 +1,59 @@
 {
-    "OS-KSCATALOG:endpointsTemplates": [
-            {
-                "id": 1,
-                "region": "North",
-                "global": true,
-                "type": "compute",
-                "publicURL": "https://compute.north.public.com/v1",
-                "internalURL": "https://compute.north.internal.com/v1",
-                "versionId": "1",
-                "versionInfo": "https://compute.north.public.com/v1/",
-                "versionList": "https://compute.north.public.com/",
-                "enabled": true
-            },
-            {
-                "id": 2,
-                "region": "South",
-                "type": "compute",
-                "publicURL": "https://compute.south.public.com/v1",
-                "internalURL": "https://compute.south.internal.com/v1",
-                "versionId": "1",
-                "versionInfo": "https://compute.south.public.com/v1/",
-                "versionList": "https://compute.south.public.com/",
-                "enabled": false
-            },
-            {
-                "id": 3,
-                "region": "North",
-                "global": true,
-                "type": "object-store",
-                "publicURL": "https://object-store.north.public.com/v1.0",
-                "versionId": "1.0",
-                "versionInfo": "https://object-store.north.public.com/v1.0/",
-                "versionList": "https://object-store.north.public.com/",
-                "enabled": true
-            },
-            {
-                "id": 4,
-                "region": "South",
-                "type": "object-store",
-                "publicURL": "https://object-store.south.public.com/v2",
-                "versionId": "2",
-                "versionInfo": "https://object-store.south.public.com/v2/",
-                "versionList": "https://object-store.south.public.com/",
-                "enabled": true
-            },
-            {
-                "id": 5,
-                "global": true,
-                "type": "OS-DNS:DNS",
-                "publicURL": "https://dns.public.com/v3.2",
-                "versionId": "1.0",
-                "versionInfo": "https://dns.public.com/v1.0/",
-                "versionList": "https://dns.public.com/",
-                "enabled": true
-            }
-        ],
-    "OS-KSCATALOG:endpointsTemplates_links": []
+  "OS-KSCATALOG:endpointsTemplates": [
+    {
+      "id": 1,
+      "region": "North",
+      "global": true,
+      "type": "compute",
+      "publicURL": "https://compute.north.public.com/v1",
+      "internalURL": "https://compute.north.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.north.public.com/v1/",
+      "versionList": "https://compute.north.public.com/",
+      "enabled": true
+    },
+    {
+      "id": 2,
+      "region": "South",
+      "type": "compute",
+      "publicURL": "https://compute.south.public.com/v1",
+      "internalURL": "https://compute.south.internal.com/v1",
+      "versionId": "1",
+      "versionInfo": "https://compute.south.public.com/v1/",
+      "versionList": "https://compute.south.public.com/",
+      "enabled": false
+    },
+    {
+      "id": 3,
+      "region": "North",
+      "global": true,
+      "type": "object-store",
+      "publicURL": "https://object-store.north.public.com/v1.0",
+      "versionId": "1.0",
+      "versionInfo": "https://object-store.north.public.com/v1.0/",
+      "versionList": "https://object-store.north.public.com/",
+      "enabled": true
+    },
+    {
+      "id": 4,
+      "region": "South",
+      "type": "object-store",
+      "publicURL": "https://object-store.south.public.com/v2",
+      "versionId": "2",
+      "versionInfo": "https://object-store.south.public.com/v2/",
+      "versionList": "https://object-store.south.public.com/",
+      "enabled": true
+    },
+    {
+      "id": 5,
+      "global": true,
+      "type": "OS-DNS:DNS",
+      "publicURL": "https://dns.public.com/v3.2",
+      "versionId": "1.0",
+      "versionInfo": "https://dns.public.com/v1.0/",
+      "versionList": "https://dns.public.com/",
+      "enabled": true
+    }
+  ],
+  "OS-KSCATALOG:endpointsTemplates_links": []
 }

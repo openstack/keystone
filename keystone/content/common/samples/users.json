@@ -1,16 +1,17 @@
 {
-    "users":[{
-            "id":"u1000",
-            "username":"jqsmith",
-            "email":"john.smith@example.org",
-            "enabled":true
-        },
-        {
-            "id":"u1001",
-            "username":"jqsmith",
-            "email":"john.smith@example.org",
-            "enabled":true
-        }
-    ],
-    "users_links":[]
+  "users": [
+    {
+      "id": "u1000",
+      "username": "jqsmith",
+      "email": "john.smith@example.org",
+      "enabled": true
+    },
+    {
+      "id": "u1001",
+      "username": "jqsmith",
+      "email": "john.smith@example.org",
+      "enabled": true
+    }
+  ],
+  "users_links": []
 }

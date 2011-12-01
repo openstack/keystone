@@ -1,14 +1,16 @@
 {
-    "tenants":[{
-            "id":"9999",
-            "name":"Bigz",
-            "description":"A description ...",
-            "enabled":true
-        }
-    ],
-    "tenants_links":[{
-            "rel":"previous",
-            "href":"http://identity.api.openstack.org/v2.0/tenants?limit=1&marker=1234"
-        }
-    ]
+  "tenants": [
+    {
+      "id": "9999",
+      "name": "Bigz",
+      "description": "A description ...",
+      "enabled": true
+    }
+  ],
+  "tenants_links": [
+    {
+      "rel": "previous",
+      "href": "http://identity.api.openstack.org/v2.0/tenants?limit=1&marker=1234"
+    }
+  ]
 }

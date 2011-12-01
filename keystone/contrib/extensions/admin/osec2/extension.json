@@ -1,21 +1,21 @@
 {
-  "extension":{
-        "name": "OpenStack EC2 authentication Extension",
-        "namespace": "http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0",
-        "alias": "OS-KSEC2",
-        "updated": "2011-08-25T09:50:00-00:00",
-        "description": "Adds the capability to support EC2 style authentication.",
-        "links": [
-          {
-            "rel": "describedby",
-            "type": "application/pdf",
-            "href": "https://github.com/openstack/keystone/raw/master/keystone/content/admin/OS-KSEC2-admin-devguide.pdf"
-          },
-          {
-            "rel": "describedby",
-            "type": "application/vnd.sun.wadl+xml",
-            "href": "https://raw.github.com/openstack/keystone/master/keystone/content/admin/OS-KSEC2-admin.wadl"
-          }
-        ]
-	}
+  "extension": {
+    "name": "OpenStack EC2 authentication Extension",
+    "namespace": "http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0",
+    "alias": "OS-KSEC2",
+    "updated": "2011-08-25T09:50:00-00:00",
+    "description": "Adds the capability to support EC2 style authentication.",
+    "links": [
+      {
+        "rel": "describedby",
+        "type": "application/pdf",
+        "href": "https://github.com/openstack/keystone/raw/master/keystone/content/admin/OS-KSEC2-admin-devguide.pdf"
+      },
+      {
+        "rel": "describedby",
+        "type": "application/vnd.sun.wadl+xml",
+        "href": "https://raw.github.com/openstack/keystone/master/keystone/content/admin/OS-KSEC2-admin.wadl"
+      }
+    ]
+  }
 }
