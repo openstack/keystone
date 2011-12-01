@@ -45,7 +45,7 @@ except:
 
 requirements = ['setuptools', 'httplib2', 'eventlet', 'paste', 'pastedeploy',
                 'webob', 'Routes', 'sqlalchemy', 'sqlalchemy-migrate',
-                'pysqlite', 'lxml', 'passlib']
+                'lxml', 'passlib']
 if sys.version_info < (2, 6):
     requirements.append('simplejson')
 
