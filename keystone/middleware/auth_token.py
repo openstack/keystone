@@ -105,7 +105,8 @@ from urlparse import urlparse
 from webob.exc import HTTPUnauthorized
 from webob.exc import Request, Response
 import keystone.tools.tracer  # @UnusedImport # module runs on import
-
+from time import time, mktime
+from datetime import datetime
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 
@@ -170,6 +171,8 @@ class AuthProtocol(object):
         # server
         self.cert_file = conf.get('certfile', None)
         self.key_file = conf.get('keyfile', None)
+        # Caching
+        self.cache = conf.get('cache', None)
 
     def __init__(self, app, conf):
         """ Common initialization code """
@@ -204,8 +207,8 @@ class AuthProtocol(object):
                 del proxy_headers[header]
 
         #Look for authentication claims
-        claims = self._get_claims(env)
-        if not claims:
+        token = self._get_claims(env)
+        if not token:
             #No claim(s) provided
             if self.delay_auth_decision:
                 #Configured to allow downstream service to make final decision.
@@ -216,9 +219,12 @@ class AuthProtocol(object):
                 #Respond to client as appropriate for this auth protocol
                 return self._reject_request(env, start_response)
         else:
+            # Use cache if available
+            cached_claims = self._cache_get(env, token)
+
             # this request is presenting claims. Let's validate them
             try:
-                claims = self._verify_claims(claims)
+                claims = cached_claims or self._verify_claims(token)
             except ValidationFailed:
                 # Keystone rejected claim
                 if self.delay_auth_decision:
@@ -234,6 +240,10 @@ class AuthProtocol(object):
 
                 # Store authentication data
                 if claims:
+                    # Cache it if there is a cache available
+                    if (self.cache and not cached_claims):
+                        self._cache_put(env, token, claims)
+
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
                         claims['user'], env, proxy_headers)
 
@@ -265,6 +275,48 @@ class AuthProtocol(object):
 
         #Send request downstream
         return self._forward_request(env, start_response, proxy_headers)
+
+    def _convert_date(self, date):
+        """ Convert datetime to unix timestamp for caching """
+        return mktime(datetime.strptime(
+                date[:date.rfind(':')].replace('-', ''), "%Y%m%dT%H:%M",
+                ).timetuple())
+
+    def _protect_claims(self, token, claims):
+        """ encrypt or mac claims if necessary """
+        return claims
+
+    def _unprotect_claims(self, token, pclaims):
+        """ decrypt or demac claims if necessary """
+        return pclaims
+
+    def _cache_put(self, env, token, claims):
+        """ Put a claim into the cache """
+        memCache = self._cache(env)
+        if (memCache and claims):
+            key = 'tokens/%s' % (token)
+            expires = self._convert_date(claims['expires'])
+            claims = self._protect_claims(token, claims)
+            memCache.set(key, (expires, claims), timeout=expires - time())
+
+    def _cache_get(self, env, token):
+        """ Return a claim from cache, also validate expiration """
+        memCache = self._cache(env)
+        if (memCache):
+            key = 'tokens/%s' % (token)
+            cached_claims = memCache.get(key)
+            if (cached_claims):
+                expires, claims = cached_claims
+                if expires > time():
+                    claims = self._unprotect_claims(token, claims)
+                    return claims
+        return None
+
+    def _cache(self, env):
+        """ Return a cache to use for token caching, or none """
+        if (self.cache != None):
+            return env.get(self.cache, None)
+        return None
 
     def _get_claims(self, env):
         """Get claims from request"""
@@ -342,7 +394,8 @@ class AuthProtocol(object):
                 'id': tenant_id,
                 'name': tenant_name
             },
-            'roles': roles}
+            'roles': roles,
+            'expires': token_info['access']['token']['expires']}
 
         return verified_claims
 

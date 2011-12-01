@@ -282,6 +282,7 @@ rather than it's built in 'tempauth'.
         service_host = 127.0.0.1
         service_port = 8100
         service_pass = dTpw
+        cache = swift.cache
 
         [filter:cache]
         use = egg:swift#memcache
@@ -289,6 +290,12 @@ rather than it's built in 'tempauth'.
 
         [filter:catch_errors]
         use = egg:swift#catch_errors
+
+   Note that the optional "cache" property in the keystone filter allows any
+   service (not just Swift) to register its memcache client in the WSGI
+   environment.  If such a cache exists, Keystone middleware will utilize it 
+   to store validated token information, which could result in better overall
+   performance.
 
 4. Restart swift
 
