@@ -19,7 +19,10 @@
 """
 RACKSPACE API KEY EXTENSION
 
-Soon to be deprecated middleware.
+Deprecated middleware. We still have it here to not break compatiblity with
+configuration files that add it to the pipeline.
+
+TODO(ZNS): Remove this in Essex+1
 """
 import logging
 
@@ -38,9 +41,11 @@ class FrontEndFilter(object):
         self.app = app
 
     def __call__(self, env, start_response):
-        LOG.warn('This middleware is soon to be deprecated." +\
-            "Please remove related entries from conf files.')
-        #Kept for backward compatibility.Does nothing as of now.
+        LOG.warn("%s middleware is deprecated and will be removed in "
+                 "Essex+1 (Fall fo 2012). Remove it from your "
+                 "configuration files." % EXTENSION_ALIAS)
+        #Kept for backward compatibility with existing configuration files.
+        #Does nothing now.
         return self.app(env, start_response)
 
 

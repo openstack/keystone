@@ -29,7 +29,7 @@ import json
 from lxml import etree
 from webob.exc import Request, Response
 
-EXTENSION_ALIAS = "RAX-KEY"
+EXTENSION_ALIAS = "OS-EC2"
 
 
 class FrontEndFilter(object):
