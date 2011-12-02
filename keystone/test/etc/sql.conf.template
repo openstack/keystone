@@ -7,9 +7,9 @@ log_dir = %(test_dir)s
 backends = keystone.backends.sqlalchemy
 extensions= osksadm,oskscatalog
 service-header-mappings = {
-	'nova' : 'X-Server-Management-Url',
-	'swift' : 'X-Storage-Url',
-	'cdn' : 'X-CDN-Management-Url'}
+    'nova' : 'X-Server-Management-Url',
+    'swift' : 'X-Storage-Url',
+    'cdn' : 'X-CDN-Management-Url'}
 service_host = 0.0.0.0
 service_port = 5000
 service_ssl = False
@@ -27,14 +27,14 @@ backend_entities = ['Endpoints', 'Credentials',  'EndpointTemplates', 'Tenant', 
 
 [pipeline:admin]
 pipeline =
-	urlrewritefilter
-	admin_api
+        urlrewritefilter
+        admin_api
 
 [pipeline:keystone-legacy-auth]
 pipeline =
-	urlrewritefilter
-	legacy_auth
-	service_api
+        urlrewritefilter
+        legacy_auth
+        service_api
 
 [app:service_api]
 paste.app_factory = keystone.server:service_app_factory

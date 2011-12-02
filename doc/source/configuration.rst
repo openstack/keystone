@@ -63,3 +63,38 @@ In addition to this documentation page, you can check the
 ``etc/keystone.conf`` sample configuration
 files distributed with keystone for example configuration files for each server
 application with detailed comments on what each options does.
+
+Sample Configuration Files
+--------------------------
+
+Keystone ships with sample configuration files in keystone/etc. These files are:
+
+1. keystone.conf
+
+    A standard configuration file for running keystone in stand-alone mode.
+    It has a set of default extensions loaded to support administering Keystone
+    over REST. It uses a local SQLite database.
+
+2. memcache.conf
+
+    A configuration that uses memcached for storing tokens (but still SQLite for all
+    other entities). This requires memcached running.
+
+3. ssl.conf
+
+    A configuration that runs Keystone with SSL (so all URLs are accessed over HTTPS).
+
+To run any of these configurations, use the `-c` option::
+
+    ./keystone -c ../etc/ssl.conf
+
+
+
+Usefule Links
+-------------
+
+For a sample configuration file with explanations of the settings, see :doc:`keystone.conf`
+
+For configuring an LDAP backend, see http://mirantis.blogspot.com/2011/08/ldap-identity-store-for-openstack.html
+
+For configuration settings of middleware components, see :doc:`middleware`
