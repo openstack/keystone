@@ -13,6 +13,7 @@ sqlalchemy # core backend
 sqlalchemy-migrate # database migrations
 lxml # xml library providing ElementTree API
 passlib # password hashing
+argparse # cli support
 
 # Optional backend: LDAP
 python-ldap # authenticate against an existing LDAP server
