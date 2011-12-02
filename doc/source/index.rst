@@ -57,13 +57,12 @@ Administration
 .. toctree::
     :maxdepth: 1
 
+    backends
     migration
-    configuration
     controllingservers
     configuringservices
     endpoints
     ssl
-
 
 API Use Case Examples
 =====================
