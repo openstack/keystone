@@ -80,8 +80,7 @@ if __name__ == '__main__':
             config_file = config.find_config_file(options, args)
             print "Using config file:", config_file
 
-        port = options.get('bind_port', conf.get('service_port', 5000))
-        port = int(port or 5000)
+        port = int(options.get('bind_port') or conf.get('service_port', 5000))
         host = options.get('bind_host', conf.get('service_host', '0.0.0.0'))
 
         # Load Service API server
@@ -99,8 +98,7 @@ if __name__ == '__main__':
             service_ssl, host, port)
 
         # Load Admin API server
-        port = options.get('admin_port', conf.get('admin_port', 35357))
-        port = int(port or 35357)
+        port = int(options.get('admin_port') or conf.get('admin_port', 35357))
         host = options.get('bind_host', conf.get('admin_host', '0.0.0.0'))
 
         if admin_ssl:
