@@ -29,7 +29,7 @@ This WSGI component:
 * Collects and forwards identity information based on a valid token
   such as user name, tenant, etc
 
-Refer to: http://wiki.openstack.org/openstack-authn
+Refer to: http://keystone.openstack.org/middleware_architecture.html
 
 HEADERS
 -------
@@ -45,7 +45,7 @@ HTTP_X_AUTH_TOKEN
 
 HTTP_X_STORAGE_TOKEN
     The client token being passed in (legacy Rackspace use) to support
-    cloud files
+    swift/cloud files
 
 Used for communication between components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -96,24 +96,46 @@ HTTP_X_ROLES
 
 """
 
+from datetime import datetime
 import eventlet
 from eventlet import wsgi
 import json
+# import memcache also executed in __init__ if memcache caching is configured
 import os
 from paste.deploy import loadapp
+import time
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized
 from webob.exc import Request, Response
 import keystone.tools.tracer  # @UnusedImport # module runs on import
-from time import time, mktime
-from datetime import datetime
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 
 PROTOCOL_NAME = "Token Authentication"
+# The time format of the 'expires' property of a token
+EXPIRE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+MAX_CACHE_TIME = 86400
+
+
+def get_datetime(time_string):
+    """ Gets datetime object with microsecond accuracy from input string.
+    Handle strings which don't include microseconds
+
+    :param: time_string: datetime in %Y-%m-%dT%H:%M:%S.%f format (.%f optional)
+    """
+    result = time_string.split(".", 1)
+    datetime_string = result[0]
+    microseconds = result[1] if len(result) > 1 else "0"
+    d1 = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S")
+    ms = int(microseconds.ljust(6, '0')[:6])
+    return d1.replace(microsecond=ms)
 
 
 class ValidationFailed(Exception):
+    pass
+
+
+class TokenExpired(Exception):
     pass
 
 
@@ -121,7 +143,11 @@ class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
 
     def _init_protocol_common(self, app, conf):
-        """ Common initialization code"""
+        """ Common initialization code
+
+        When we eventually superclass this, this will be the superclass
+        initialization code that applies to all protocols
+        """
         print "Starting the %s component" % PROTOCOL_NAME
 
         self.conf = conf
@@ -173,6 +199,10 @@ class AuthProtocol(object):
         self.key_file = conf.get('keyfile', None)
         # Caching
         self.cache = conf.get('cache', None)
+        self.memcache_hosts = conf.get('memcache_hosts', None)
+        if self.memcache_hosts:
+            if self.cache is None:
+                self.cache = "keystone.cache"
 
     def __init__(self, app, conf):
         """ Common initialization code """
@@ -193,11 +223,21 @@ class AuthProtocol(object):
         self.service_port = None
         self.service_protocol = None
         self.service_url = None
+        self.cache = None
+        self.memcache_hosts = None
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(conf)  # Specific to this protocol
 
     def __call__(self, env, start_response):
         """ Handle incoming request. Authenticate. And send downstream. """
+        # Initialize caching client
+        if self.memcache_hosts:
+            # This will only be used if the configuration calls for memcache
+            import memcache
+
+            if env.get(self.cache, None) is None:
+                memcache_client = memcache.Client([self.memcache_hosts])
+                env[self.cache] = memcache_client
 
         #Prep headers to forward request to local or remote downstream service
         proxy_headers = env.copy()
@@ -219,13 +259,10 @@ class AuthProtocol(object):
                 #Respond to client as appropriate for this auth protocol
                 return self._reject_request(env, start_response)
         else:
-            # Use cache if available
-            cached_claims = self._cache_get(env, token)
-
             # this request is presenting claims. Let's validate them
             try:
-                claims = cached_claims or self._verify_claims(token)
-            except ValidationFailed:
+                claims = self._verify_claims(env, token)
+            except (ValidationFailed, TokenExpired):
                 # Keystone rejected claim
                 if self.delay_auth_decision:
                     # Downstream service will receive call still and decide
@@ -240,12 +277,8 @@ class AuthProtocol(object):
 
                 # Store authentication data
                 if claims:
-                    # Cache it if there is a cache available
-                    if (self.cache and not cached_claims):
-                        self._cache_put(env, token, claims)
-
                     self._decorate_request('X_AUTHORIZATION', "Proxy %s" %
-                        claims['user'], env, proxy_headers)
+                        claims['user']['name'], env, proxy_headers)
 
                     self._decorate_request('X_TENANT_ID',
                         claims['tenant']['id'], env, proxy_headers)
@@ -278,7 +311,7 @@ class AuthProtocol(object):
 
     def _convert_date(self, date):
         """ Convert datetime to unix timestamp for caching """
-        return mktime(datetime.strptime(
+        return time.mktime(datetime.strptime(
                 date[:date.rfind(':')].replace('-', ''), "%Y%m%dT%H:%M",
                 ).timetuple())
 
@@ -290,31 +323,45 @@ class AuthProtocol(object):
         """ decrypt or demac claims if necessary """
         return pclaims
 
-    def _cache_put(self, env, token, claims):
+    def _cache_put(self, env, token, claims, valid):
         """ Put a claim into the cache """
-        memCache = self._cache(env)
-        if (memCache and claims):
+        cache = self._cache(env)
+        if (cache and claims):
             key = 'tokens/%s' % (token)
-            expires = self._convert_date(claims['expires'])
             claims = self._protect_claims(token, claims)
-            memCache.set(key, (expires, claims), timeout=expires - time())
+            if "timeout" in cache.set.func_code.co_varnames:
+                # swift cache
+                expires = self._convert_date(claims['expires'])
+                cache.set(key, (claims, expires, valid),
+                             timeout=expires - time())
+            else:
+                # normal memcache client
+                expires = get_datetime(claims['expires'])
+                delta = expires - datetime.now()
+                timeout = delta.seconds
+                if timeout > MAX_CACHE_TIME or not valid:
+                    # Limit cache to one day (and cache bad tokens for a day)
+                    timeout = MAX_CACHE_TIME
+                cache.set(key, (claims, expires, valid), time=timeout)
 
     def _cache_get(self, env, token):
-        """ Return a claim from cache, also validate expiration """
-        memCache = self._cache(env)
-        if (memCache):
+        """ Return claim and relevant information (expiration and validity)
+        from cache """
+        cache = self._cache(env)
+        if cache:
             key = 'tokens/%s' % (token)
-            cached_claims = memCache.get(key)
-            if (cached_claims):
-                expires, claims = cached_claims
-                if expires > time():
-                    claims = self._unprotect_claims(token, claims)
-                    return claims
+            cached_claims = cache.get(key)
+            if cached_claims:
+                claims, expires, valid = cached_claims
+                if valid:
+                    if expires > datetime.now():
+                        claims = self._unprotect_claims(token, claims)
+                return (claims, expires, valid)
         return None
 
     def _cache(self, env):
         """ Return a cache to use for token caching, or none """
-        if (self.cache != None):
+        if (self.cache is not None):
             return env.get(self.cache, None)
         return None
 
@@ -335,8 +382,17 @@ class AuthProtocol(object):
         return HTTPUnauthorized()(env,
             start_response)
 
-    def _verify_claims(self, claims):
+    def _verify_claims(self, env, claims):
         """Verify claims and extract identity information, if applicable."""
+
+        cached_claims = self._cache_get(env, claims)
+        if cached_claims:
+            claims, expires, valid = cached_claims
+            if not valid:
+                raise ValidationFailed()
+            if expires <= datetime.now():
+                raise TokenExpired()
+            return claims
 
         # Step 1: We need to auth with the keystone service, so get an
         # admin token
@@ -366,6 +422,13 @@ class AuthProtocol(object):
         conn.close()
 
         if not str(resp.status).startswith('20'):
+            # Cache it if there is a cache available
+            if self.cache:
+                self._cache_put(env, claims,
+                                claims={'expires':
+                                datetime.strftime(datetime.now(),
+                                                  EXPIRE_TIME_FORMAT)},
+                                valid=False)
             # Keystone rejected claim
             raise ValidationFailed()
 
@@ -397,6 +460,17 @@ class AuthProtocol(object):
             'roles': roles,
             'expires': token_info['access']['token']['expires']}
 
+        expires = get_datetime(verified_claims['expires'])
+        if expires <= datetime.now():
+            # Cache it if there is a cache available (we also cached bad
+            # claims)
+            if self.cache:
+                self._cache_put(env, claims, verified_claims, valid=False)
+            raise TokenExpired()
+
+        # Cache it if there is a cache available
+        if self.cache:
+            self._cache_put(env, claims, verified_claims, valid=True)
         return verified_claims
 
     def _decorate_request(self, index, value, env, proxy_headers):

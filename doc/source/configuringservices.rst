@@ -232,6 +232,18 @@ Then use::
 
     $ keystone-import `filename`
 
+
+Setting Up Middleware
+=====================
+
+Keystone Auth-Token Middleware
+--------------------------------
+
+The Keystone auth_token middleware is a WSGI component that can be inserted in
+the WSGI pipeline to handle authenticating tokens with Keystone. See :doc:`middleware`
+for details on middleware and configuration parameters.
+
+
 Configuring Nova to use Keystone
 --------------------------------
 
