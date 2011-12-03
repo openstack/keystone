@@ -61,8 +61,16 @@ Administration
     migration
     controllingservers
     configuringservices
-    endpoints
     ssl
+
+Entities
+========
+
+.. toctree::
+    :maxdepth: 1
+
+    endpoints
+    services
 
 API Use Case Examples
 =====================

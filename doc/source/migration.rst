@@ -35,3 +35,8 @@ Upgrade::
 Downgrade (will likely result in data loss!)::
 
     $ python keystone/backends/sqlalchemy/migrate_repo/manage.py downgrade 1 --url=sqlite:///bin/keystone.db --repository=keystone/backends/sqlalchemy/migrate_repo/
+
+Useful Links
+============
+
+Principles to follow when developing migrations `OpenStack Deployability <http://wiki.openstack.org/OpenstackDeployability>`_
