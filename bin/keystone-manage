@@ -11,8 +11,16 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 import keystone.manage
+import keystone.manage2
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 
 
 if __name__ == '__main__':
-    keystone.manage.main()
+    if len(sys.argv) > 1 and sys.argv[1] in keystone.manage.OBJECTS:
+        # the args look like the old 'subject verb' (e.g. 'user add')
+        # (this module is pending deprecation)
+        keystone.manage.main()
+    else:
+        # calls that don't start with a 'subject' go to the new impl
+        # which uses a 'verb_subject' convention (e.g. 'add_user')
+        keystone.manage2.main()
