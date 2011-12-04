@@ -36,41 +36,12 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 import keystone
-from keystone.common import config, wsgi
-
 
 if __name__ == '__main__':
-    # Initialize a parser for our configuration paramaters
-    parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
-    common_group = config.add_common_options(parser)
-    config.add_log_options(parser)
-
-    # Parse arguments and load config
-    (options, args) = config.parse_options(parser)
-
-    # Start services
     try:
         # Load Service API server
-        conf, app = config.load_paste_app('keystone-legacy-auth',
-            options, args)
-
-        debug = options.get('debug') or conf.get('debug', False)
-        debug = debug in [True, "True", "1"]
-        verbose = options.get('verbose') or conf.get('verbose', False)
-        verbose = verbose in [True, "True", "1"]
-        if debug or verbose:
-            config_file = config.find_config_file(options, args)
-            print "Using config file:", config_file
-
-        server = wsgi.Server()
-
-        port = int(options['bind_port'] or conf['service_port'] or 5000)
-        host = options['bind_host'] or conf['service_host']
-
-        server.start(app, port, host)
-
-        print "Service API listening on %s:%s" % (host, port)
-
-        server.wait()
+        admin = keystone.Server(name='Service API',
+                                config_name='keystone-legacy-auth')
+        admin.start(wait=True)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

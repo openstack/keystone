@@ -36,16 +36,18 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 import keystone
-from keystone.common import config, wsgi
+from keystone.common import config
 
 if __name__ == '__main__':
+
     # Initialize a parser for our configuration paramaters
+    # since we have special handling for --admin-port argument
     parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 
     # Handle a special argument to support starting two endpoints
-    common_group.add_option(
+    option = common_group.add_option(
         '-a', '--admin-port', dest="admin_port", metavar="PORT",
         help="specifies port for Admin API to listen on (default is 35357)")
 
@@ -54,67 +56,22 @@ if __name__ == '__main__':
 
     # Start services
     try:
-        # Load Service API server
-        conf, app = config.load_paste_app(
-            'keystone-legacy-auth', options, args)
-        admin_conf, admin_app = config.load_paste_app(
-            'admin', options, args)
-
-        debug = options.get('debug') or conf.get('debug', False)
-        debug = debug in [True, "True", "1"]
-        verbose = options.get('verbose') or conf.get('verbose', False)
-        verbose = verbose in [True, "True", "1"]
-
-        # Safely get SSL options
-        service_ssl = conf.get('service_ssl', False)
-        service_ssl = service_ssl in [True, "True", "1"]
-        admin_ssl = conf.get('admin_ssl', False)
-        admin_ssl = admin_ssl in [True, "True", "1"]
-        cert_required = conf.get('cert_required', False)
-        cert_required = cert_required in [True, "True", "1"]
-        certfile = conf.get('certfile')
-        keyfile = conf.get('keyfile')
-        ca_certs = conf.get('ca_certs')
-
-        if debug or verbose:
-            config_file = config.find_config_file(options, args)
-            print "Using config file:", config_file
-
-        port = int(options.get('bind_port') or conf.get('service_port', 5000))
-        host = options.get('bind_host', conf.get('service_host', '0.0.0.0'))
-
-        # Load Service API server
-        if service_ssl:
-            server = wsgi.SslServer()
-            server.start(app, port, host,
-                         certfile=certfile, keyfile=keyfile,
-                         ca_certs=ca_certs,
-                         cert_required=cert_required)
-        else:
-            server = wsgi.Server()
-            server.start(app, port, host)
-
-        print "Service API (ssl=%s) listening on %s:%s" % (
-            service_ssl, host, port)
-
-        # Load Admin API server
-        port = int(options.get('admin_port') or conf.get('admin_port', 35357))
-        host = options.get('bind_host', conf.get('admin_host', '0.0.0.0'))
-
-        if admin_ssl:
-            admin_server = wsgi.SslServer()
-            admin_server.start(admin_app, port, host,
-                               certfile=certfile, keyfile=keyfile,
-                               ca_certs=ca_certs,
-                               cert_required=cert_required)
-        else:
-            admin_server = wsgi.Server()
-            admin_server.start(admin_app, port, host)
-
-        print "Admin API (ssl=%s) listening on %s:%s" % (
-            admin_ssl, host, port)
-
-        # Wait until done
-        server.wait()
+        # Load Service API Server
+        service = keystone.Server(name="Service API",
+                                  config_name='keystone-legacy-auth',
+                                  options=options, args=args)
+        service.start(wait=False)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
+
+    try:
+        # Load Admin API server
+        port = options.get('admin_port', None)
+        host = options.get('bind_host', None)
+        admin = keystone.Server(name='Admin API', config_name='admin',
+                                  options=options, args=args)
+        admin.start(host=host, port=port, wait=True)
+    except RuntimeError, e:
+        sys.exit("ERROR: %s" % e)
+    finally:
+        service.stop()

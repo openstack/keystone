@@ -65,7 +65,7 @@ cgitb.enable(format="text")
 from functional.common import HttpTestCase
 import keystone
 from keystone.common import config, wsgi
-from keystone import backends
+from keystone import backends, Server
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, os.pardir, os.pardir))
@@ -399,61 +399,28 @@ class KeystoneTest(object):
         (options, args) = config.parse_options(parser)
         options['config_file'] = self.conf_fp.name
 
-        # Start services
         try:
-            # Load Service API server
-            conf, app = config.load_paste_app(
-                'keystone-legacy-auth', options, args)
-            admin_conf, admin_app = config.load_paste_app(
-                'admin', options, args)
-
-            port = int(options['bind_port'] or conf['service_port'] or 5000)
-            host = options['bind_host'] or conf['service_host']
-
-            if (self.isSsl == True):
-                server = wsgi.SslServer()
-                server.start(app, port, host,
-                             certfile=conf['certfile'],
-                             keyfile=conf['keyfile'],
-                             ca_certs=conf['ca_certs'],
-                             cert_required=conf['cert_required'])
-                # Load Admin API server
-                port = int(options['admin_port'] or conf['admin_port']
-                           or 35357)
-                host = options['bind_host'] or conf['admin_host']
-
-                admin_server = wsgi.SslServer()
-                admin_server.start(admin_app,
-                                   port, host,
-                                   certfile=conf['certfile'],
-                                   keyfile=conf['keyfile'],
-                                   ca_certs=conf['ca_certs'],
-                                   cert_required=conf['cert_required'])
-
-            else:
-                server = wsgi.Server()
-                server.start(app, port, host, key="Test")
-
-                print "Service API (ssl=%s) listening on %s:%s" % (
-                    conf['service_ssl'], host, port)
-
-                # Load Admin API server
-                port = int(options['admin_port'] or conf['admin_port']
-                           or 35357)
-                host = options['bind_host'] or conf['admin_host']
-
-                admin_server = wsgi.Server()
-                admin_server.start(admin_app, port, host, key="Test")
-
-                print "Admin API (ssl=%s) listening on %s:%s" % (
-                    conf['admin_ssl'], host, port)
-
+            # Load Service API Server
+            service = keystone.Server(name="Service API",
+                                      config_name='keystone-legacy-auth',
+                                      options=options, args=args)
+            service.start(wait=False)
         except RuntimeError, e:
-            print e
             sys.exit("ERROR: %s" % e)
 
-        self.server = server
-        self.admin_server = admin_server
+        try:
+            # Load Admin API server
+            port = options.get('admin_port', None)
+            host = options.get('bind_host', None)
+            admin = keystone.Server(name='Admin API', config_name='admin',
+                                      options=options, args=args)
+            admin.start(host=host, port=port, wait=False)
+        except RuntimeError, e:
+            service.stop()
+            sys.exit("ERROR: %s" % e)
+
+        self.server = service
+        self.admin_server = admin
 
         # Load sample data
         from keystone.test import sampledata
@@ -465,12 +432,10 @@ class KeystoneTest(object):
         print "Stopping the keystone server..."
         try:
             if self.server is not None:
-                if 'Test' in self.server.threads:
-                    self.server.threads['Test'].kill()
+                self.server.stop()
                 self.server = None
             if self.admin_server is not None:
-                if 'Test' in self.admin_server.threads:
-                    self.admin_server.threads['Test'].kill()
+                self.admin_server.stop()
                 self.admin_server = None
             self.conf_fp.close()
             self.conf_fp = None
