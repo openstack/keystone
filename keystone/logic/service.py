@@ -30,6 +30,7 @@ from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
     EndpointTemplate, EndpointTemplates
 from keystone.logic.types.credential import Credentials, PasswordCredentials
+from keystone.common import wsgi
 from keystone import utils
 
 
