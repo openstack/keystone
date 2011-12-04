@@ -19,7 +19,7 @@ import routes
 
 from keystone.common import wsgi
 import keystone.backends as db
-from keystone.controllers.auth import AuthController
+from keystone.controllers.token import TokenController
 from keystone.controllers.tenant import TenantController
 from keystone.controllers.version import VersionController
 from keystone.controllers.staticfiles import StaticFilesController
@@ -36,7 +36,7 @@ class ServiceApi(wsgi.Router):
         db.configure_backends(options)
 
         # Token Operations
-        auth_controller = AuthController(options)
+        auth_controller = TokenController(options)
         mapper.connect("/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
