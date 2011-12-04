@@ -54,6 +54,13 @@ class Role(object):
                 raise fault.BadRequestFault("Expecting Role")
             role = obj["role"]
 
+            # Check that fields are valid
+            invalid = [key for key in role if key not in\
+                       ['id', 'name', 'description', 'serviceId']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             id = role.get('id')
             name = role.get('name')
             description = role.get('description')

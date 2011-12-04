@@ -68,6 +68,14 @@ class Tenant(object):
             if not "tenant" in obj:
                 raise fault.BadRequestFault("Expecting tenant")
             tenant = obj["tenant"]
+
+            # Check that fields are valid
+            invalid = [key for key in tenant if key not in\
+                       ['id', 'name', 'enabled', 'description']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             id = tenant.get("id", None)
             name = tenant.get("name", None)
             set_enabled = True

@@ -42,6 +42,7 @@ class User(object):
                             "user")
             if root is None:
                 raise fault.BadRequestFault("Expecting User")
+
             name = root.get("name")
             tenant_id = root.get("tenantId")
             email = root.get("email")
@@ -63,6 +64,15 @@ class User(object):
             if not "user" in obj:
                 raise fault.BadRequestFault("Expecting User")
             user = obj["user"]
+
+            # Check that fields are valid
+            invalid = [key for key in user if key not in
+                       ['id', 'name', 'password', 'tenantId', 'email',
+                        'enabled']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             id = user.get('id', None)
             name = user.get('name', None)
 
@@ -172,10 +182,6 @@ class User_Update(object):
             else:
                 raise fault.BadRequestFault("Bad enabled attribute!")
 
-            # TODO: Why is this?!
-            if password == '':
-                password = id
-
             return User(password=password, id=id, name=name,
                 tenant_id=tenant_id, email=email, enabled=set_enabled)
         except etree.LxmlError as e:
@@ -188,6 +194,15 @@ class User_Update(object):
             if not "user" in obj:
                 raise fault.BadRequestFault("Expecting User")
             user = obj["user"]
+
+            # Check that fields are valid
+            invalid = [key for key in user if key not in
+                       ['id', 'name', 'password', 'tenantId', 'email',
+                        'enabled']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             id = user.get('id', None)
             name = user.get('name', None)
             password = user.get('password', None)
@@ -197,10 +212,6 @@ class User_Update(object):
 
             if not isinstance(enabled, bool):
                 raise fault.BadRequestFault("Bad enabled attribute!")
-
-            # TODO: Why is this?!
-            if password == '':
-                password = id
 
             return User(password, id, name, tenant_id, email, enabled)
         except (ValueError, TypeError) as e:

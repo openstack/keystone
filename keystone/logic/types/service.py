@@ -52,8 +52,15 @@ class Service(object):
             obj = json.loads(json_str)
             if not "OS-KSADM:service" in obj:
                 raise fault.BadRequestFault("Expecting service")
-
             service = obj["OS-KSADM:service"]
+
+            # Check that fields are valid
+            invalid = [key for key in service if key not in\
+                       ['id', 'name', 'type', 'description']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             id = service.get('id')
             name = service.get('name')
             type = service.get('type')

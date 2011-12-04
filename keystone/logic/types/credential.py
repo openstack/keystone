@@ -49,6 +49,13 @@ class PasswordCredentials(object):
                 raise fault.BadRequestFault("Expecting passwordCredentials")
             password_credentials = obj["passwordCredentials"]
 
+            # Check that fields are valid
+            invalid = [key for key in password_credentials if key not in\
+                       ['username', 'password']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+
             user_name = password_credentials.get('username')
             password = password_credentials.get('password')
             utils.check_empty_string(password, "Expecting a password.")
