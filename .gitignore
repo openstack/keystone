@@ -6,6 +6,7 @@
 .pydevproject/
 .settings/
 .keystone-venv/
+.venv
 build/
 dist/
 doc/source/sourcecode
