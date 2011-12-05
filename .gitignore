@@ -8,6 +8,7 @@
 keystone.db
 ldap.db
 keystone.token.db
+.venv
 .*.swp
 *.log
 *.pid

@@ -31,10 +31,10 @@ this environment, use the command::
 
     $> python tools/install_venv.py
 
-This will create a local virtual environment in the directory ``.keystone-venv``.
-Once created, you can activate this virtualenv for your current shell using:
+This will create a local virtual environment in the directory ``.venv``.
+Once created, you can activate this virtualenv for your current shell using::
 
-    $> source .keystone-venv/bin/activate
+    $> source .venv/bin/activate
 
 The virtual environment can be disabled using the command::
 

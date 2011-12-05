@@ -28,7 +28,7 @@ import sys
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-VENV = os.path.join(ROOT, '.keystone-venv')
+VENV = os.path.join(ROOT, '.venv')
 PIP_REQUIRES = os.path.join(ROOT, 'tools', 'pip-requires')
 
 
@@ -119,7 +119,7 @@ def print_help():
  To activate the Keystone virtualenv for the extent of your current shell
  session you can run:
 
- $ source .keystone-venv/bin/activate
+ $ source .venv/bin/activate
 
  Or, if you prefer, you can run commands in the virtualenv on a case by case
  basis by running:
