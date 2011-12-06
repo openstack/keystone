@@ -254,14 +254,14 @@ Returns::
                 "publicURL": "http://nova.publicinternets.com/v1.1/
             },
             {
-                "internalURL": "http://127.0.0.1:9292/v1.1/1",
+                "internalURL": "http://127.0.0.1:9292/v1.1/",
                 "name": "glance",
-                "adminURL": "http://nova.admin-nets.local/v1.1/1",
+                "adminURL": "http://nova.admin-nets.local/v1.1/",
                 "region": "RegionOne",
                 "tenantId": 1,
                 "type": "image",
                 "id": 4,
-                "publicURL": "http://glance.publicinternets.com/v1.1/1"
+                "publicURL": "http://glance.publicinternets.com/v1.1/"
             },
             {
                 "internalURL": "http://127.0.0.1:7777/v1.1/1",
