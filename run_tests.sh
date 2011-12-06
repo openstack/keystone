@@ -52,7 +52,7 @@ function process_option {
   fi
 }
 
-venv=.keystone-venv
+venv=.venv
 with_venv=tools/with_venv.sh
 always_venv=0
 never_venv=0
