@@ -33,6 +33,7 @@ import webob
 from keystone import server
 import keystone.backends.sqlalchemy as db
 import keystone.backends.api as db_api
+from keystone import backends
 
 logger = logging.getLogger('test.unit.base')
 
@@ -138,7 +139,8 @@ class ServiceAPITest(unittest.TestCase):
         db.unregister_models()
         logger.debug("Cleared all data from database")
         opts = self.options
-        db.register_models(options=opts['keystone.backends.sqlalchemy'])
+        reload(db)
+        backends.configure_backends(opts)
 
     def fixture_create_credentials(self, **kwargs):
         """

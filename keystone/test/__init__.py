@@ -68,7 +68,7 @@ from keystone.common import config, wsgi
 from keystone import backends
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
-BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, '..', '..'))
+BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, os.pardir, os.pardir))
 TEST_CERT = os.path.join(BASE_DIR, 'examples/ssl/certs/middleware-key.pem')
 
 
