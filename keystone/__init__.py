@@ -17,25 +17,7 @@ import optparse
 import sys
 
 from keystone.common import config, wsgi
-
-
-API_VERSION = "2.0"
-API_VERSION_STATUS = "beta"
-API_VERSION_DATE = "2011-11-19T00:00:00Z"
-
-RELEASE_VERSION = "2012.1"
-RELEASE_VERSION_FINAL = False  # becomes true at Release Candidate time
-
-
-def canonical_version():
-    return RELEASE_VERSION
-
-
-def version():
-    if RELEASE_VERSION_FINAL:
-        return RELEASE_VERSION
-    else:
-        return '%s-dev' % (RELEASE_VERSION)
+from keystone import version
 
 
 # This installs the _(...) function as a built-in so all other modules
@@ -74,7 +56,7 @@ class Server():
         if options is None or args is None:
             # Initialize a parser for our configuration paramaters
             parser = optparse.OptionParser(version='%%prog %s' %
-                                           version)
+                                           version.version())
             common_group = config.add_common_options(parser)
             config.add_log_options(parser)
 

@@ -7,7 +7,7 @@ possible_topdir = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                                 os.pardir,
                                                 os.pardir))
 
-import keystone
+from keystone import version
 from keystone import utils
 from keystone.common import template, wsgi
 
@@ -37,8 +37,8 @@ class VersionController(wsgi.Controller):
         resp.unicode_body = template.template(resp_file,
             HOST=hostname,
             PORT=port,
-            API_VERSION=keystone.API_VERSION,
-            API_VERSION_STATUS=keystone.API_VERSION_STATUS,
-            API_VERSION_DATE=keystone.API_VERSION_DATE)
+            API_VERSION=version.API_VERSION,
+            API_VERSION_STATUS=version.API_VERSION_STATUS,
+            API_VERSION_DATE=version.API_VERSION_DATE)
 
         return resp

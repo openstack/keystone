@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import keystone
+from keystone import version
 import os
 import subprocess
 import sys
@@ -51,7 +51,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='keystone',
-    version=keystone.canonical_version(),
+    version=version.canonical_version(),
     description="Authentication service - proposed for OpenStack",
     license='Apache License (2.0)',
     classifiers=["Programming Language :: Python"],

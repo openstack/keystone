@@ -26,7 +26,7 @@ import sys
 import logging
 import optparse  # deprecated in 2.7, in favor of argparse
 
-import keystone
+from keystone import version
 from keystone.common import config
 from keystone.manage import api
 import keystone.backends as db
@@ -75,7 +75,7 @@ def parse_args(args=None):
 
     # Initialize a parser for our configuration paramaters
     parser = RaisingOptionParser(usage, version='%%prog %s'
-        % keystone.version())
+        % version.version())
     _common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 

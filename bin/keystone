@@ -35,14 +35,14 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
-import keystone
+from keystone import version
 from keystone.common import config
 
 if __name__ == '__main__':
 
     # Initialize a parser for our configuration paramaters
     # since we have special handling for --admin-port argument
-    parser = optparse.OptionParser(version='%%prog %s' % keystone.version)
+    parser = optparse.OptionParser(version='%%prog %s' % version.version())
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 
