@@ -85,13 +85,14 @@ keystone.conf example
     [pipeline:admin]
     pipeline =
         urlrewritefilter
+        d5_compat
         admin_api
 
     [pipeline:keystone-legacy-auth]
     pipeline =
         urlrewritefilter
         legacy_auth
-        RAX-KEY-extension
+        d5_compat
         service_api
 
     [app:service_api]
@@ -105,6 +106,9 @@ keystone.conf example
 
     [filter:legacy_auth]
     paste.filter_factory = keystone.frontends.legacy_token_auth:filter_factory
+
+    [filter:d5_compat]
+    paste.filter_factory = keystone.frontends.d5_compat:filter_factory
 
     [filter:RAX-KEY-extension]
     paste.filter_factory = keystone.contrib.extensions.service.raxkey.frontend:filter_factory

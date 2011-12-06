@@ -642,6 +642,19 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.post_token(as_json=data, **kwargs)
 
+    def authenticate_D5(self, user_name=None, user_password=None,
+                        tenant_id=None, **kwargs):
+        user_name = optional_str(user_name)
+        user_password = optional_str(user_password)
+
+        data = {"passwordCredentials": {
+                "username": user_name,
+                "password": user_password}}
+        if tenant_id:
+            data["passwordCredentials"]["tenantId"] = tenant_id
+
+        return self.post_token(as_json=data, **kwargs)
+
     def authenticate_using_token(self, token, tenant_id=None,
             **kwargs):
 
