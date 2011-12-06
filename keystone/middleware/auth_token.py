@@ -100,7 +100,7 @@ from datetime import datetime
 import eventlet
 from eventlet import wsgi
 import json
-# import memcache also executed in __init__ if memcache caching is configured
+# memcache is imported in __init__ if memcache caching is configured
 import os
 from paste.deploy import loadapp
 import time
@@ -150,8 +150,6 @@ class AuthProtocol(object):
         """
         print "Starting the %s component" % PROTOCOL_NAME
 
-        self.conf = conf
-        self.app = app
         #if app is set, then we are in a WSGI pipeline and requests get passed
         # on to app. If it is not set, this component should forward requests
 
@@ -211,6 +209,8 @@ class AuthProtocol(object):
         # NOTE(salvatore-orlando): the following vars are assigned values
         # either in init_protocol or init_protocol_common. We should not
         # worry about them being initialized to None
+        self.conf = conf
+        self.app = app
         self.admin_password = None
         self.admin_token = None
         self.admin_user = None
@@ -219,9 +219,15 @@ class AuthProtocol(object):
         self.auth_location = None
         self.auth_port = None
         self.auth_protocol = None
+        self.auth_timeout = None
+        self.cert_file = None
+        self.key_file = None
+        self.delay_auth_decision = None
+        self.service_pass = None
         self.service_host = None
         self.service_port = None
         self.service_protocol = None
+        self.service_timeout = None
         self.service_url = None
         self.cache = None
         self.memcache_hosts = None
@@ -309,17 +315,20 @@ class AuthProtocol(object):
         #Send request downstream
         return self._forward_request(env, start_response, proxy_headers)
 
-    def _convert_date(self, date):
+    @staticmethod
+    def _convert_date(date):
         """ Convert datetime to unix timestamp for caching """
         return time.mktime(datetime.strptime(
                 date[:date.rfind(':')].replace('-', ''), "%Y%m%dT%H:%M",
                 ).timetuple())
 
-    def _protect_claims(self, token, claims):
+    @staticmethod
+    def _protect_claims(token, claims):
         """ encrypt or mac claims if necessary """
         return claims
 
-    def _unprotect_claims(self, token, pclaims):
+    @staticmethod
+    def _unprotect_claims(token, pclaims):
         """ decrypt or demac claims if necessary """
         return pclaims
 
@@ -333,7 +342,7 @@ class AuthProtocol(object):
                 # swift cache
                 expires = self._convert_date(claims['expires'])
                 cache.set(key, (claims, expires, valid),
-                             timeout=expires - time())
+                             timeout=expires - time.time())
             else:
                 # normal memcache client
                 expires = get_datetime(claims['expires'])
@@ -365,7 +374,8 @@ class AuthProtocol(object):
             return env.get(self.cache, None)
         return None
 
-    def _get_claims(self, env):
+    @staticmethod
+    def _get_claims(env):
         """Get claims from request"""
         claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         return claims
@@ -377,12 +387,14 @@ class AuthProtocol(object):
                       "Keystone uri='%s'" % self.auth_location)])(env,
                                                         start_response)
 
-    def _reject_claims(self, env, start_response):
+    @staticmethod
+    def _reject_claims(env, start_response):
         """Client sent bad claims"""
         return HTTPUnauthorized()(env,
             start_response)
 
-    def _verify_claims(self, env, claims):
+    @staticmethod
+    def _verify_claims(env, claims):
         """Verify claims and extract identity information, if applicable."""
 
         cached_claims = self._cache_get(env, claims)
@@ -419,7 +431,6 @@ class AuthProtocol(object):
                             timeout=self.auth_timeout)
         resp = conn.getresponse()
         data = resp.read()
-        conn.close()
 
         if not str(resp.status).startswith('20'):
             # Cache it if there is a cache available
@@ -473,7 +484,8 @@ class AuthProtocol(object):
             self._cache_put(env, claims, verified_claims, valid=True)
         return verified_claims
 
-    def _decorate_request(self, index, value, env, proxy_headers):
+    @staticmethod
+    def _decorate_request(index, value, env, proxy_headers):
         """Add headers to request"""
         proxy_headers[index] = value
         env["HTTP_%s" % index] = value
@@ -522,8 +534,8 @@ def filter_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
 
-    def auth_filter(app):
-        return AuthProtocol(app, conf)
+    def auth_filter(filteredapp):
+        return AuthProtocol(filteredapp, conf)
     return auth_filter
 
 
@@ -533,10 +545,10 @@ def app_factory(global_conf, **local_conf):
     return AuthProtocol(None, conf)
 
 if __name__ == "__main__":
-    app = loadapp("config:" + \
+    wsgiapp = loadapp("config:" + \
         os.path.join(os.path.abspath(os.path.dirname(__file__)),
                      os.pardir,
                      os.pardir,
                     "examples/paste/auth_token.ini"),
                     global_conf={"log_name": "auth_token.log"})
-    wsgi.server(eventlet.listen(('', 8090)), app)
+    wsgi.server(eventlet.listen(('', 8090)), wsgiapp)
