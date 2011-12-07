@@ -186,7 +186,7 @@ class TenantAPI(BaseTenantAPI):
             session = get_session()
         endpointTemplates = aliased(models.EndpointTemplates)
         q = session.query(endpointTemplates).\
-            filter(endpointTemplates.is_global == 1)
+            filter(endpointTemplates.is_global == True)
         if tenant_id:
             ep = aliased(models.Endpoints)
             q1 = session.query(endpointTemplates).join((ep,
