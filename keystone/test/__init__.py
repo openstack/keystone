@@ -64,8 +64,9 @@ cgitb.enable(format="text")
 
 from functional.common import HttpTestCase
 import keystone
+import keystone.server
 from keystone.common import config, wsgi
-from keystone import backends, Server
+from keystone import backends
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, os.pardir, os.pardir))
@@ -401,9 +402,9 @@ class KeystoneTest(object):
 
         try:
             # Load Service API Server
-            service = keystone.Server(name="Service API",
-                                      config_name='keystone-legacy-auth',
-                                      options=options, args=args)
+            service = keystone.server.Server(name="Service API",
+                                            config_name='keystone-legacy-auth',
+                                            options=options, args=args)
             service.start(wait=False)
         except RuntimeError, e:
             sys.exit("ERROR: %s" % e)
@@ -412,8 +413,9 @@ class KeystoneTest(object):
             # Load Admin API server
             port = options.get('admin_port', None)
             host = options.get('bind_host', None)
-            admin = keystone.Server(name='Admin API', config_name='admin',
-                                      options=options, args=args)
+            admin = keystone.server.Server(name='Admin API',
+                                           config_name='admin',
+                                           options=options, args=args)
             admin.start(host=host, port=port, wait=False)
         except RuntimeError, e:
             service.stop()

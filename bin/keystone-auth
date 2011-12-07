@@ -35,13 +35,14 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
+import keystone.server
 import keystone
 
 if __name__ == '__main__':
     try:
         # Load Service API server
-        admin = keystone.Server(name='Service API',
-                                config_name='keystone-legacy-auth')
+        admin = keystone.server.Server(name='Service API',
+                                       config_name='keystone-legacy-auth')
         admin.start(wait=True)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)

@@ -37,6 +37,7 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 from keystone import version
 from keystone.common import config
+import keystone.server
 
 if __name__ == '__main__':
 
@@ -57,9 +58,9 @@ if __name__ == '__main__':
     # Start services
     try:
         # Load Service API Server
-        service = keystone.Server(name="Service API",
-                                  config_name='keystone-legacy-auth',
-                                  options=options, args=args)
+        service = keystone.server.Server(name="Service API",
+                                         config_name='keystone-legacy-auth',
+                                         options=options, args=args)
         service.start(wait=False)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
@@ -68,8 +69,8 @@ if __name__ == '__main__':
         # Load Admin API server
         port = options.get('admin_port', None)
         host = options.get('bind_host', None)
-        admin = keystone.Server(name='Admin API', config_name='admin',
-                                  options=options, args=args)
+        admin = keystone.server.Server(name='Admin API', config_name='admin',
+                                       options=options, args=args)
         admin.start(host=host, port=port, wait=True)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
