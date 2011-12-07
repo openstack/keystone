@@ -393,8 +393,7 @@ class AuthProtocol(object):
         return HTTPUnauthorized()(env,
             start_response)
 
-    @staticmethod
-    def _verify_claims(env, claims):
+    def _verify_claims(self, env, claims):
         """Verify claims and extract identity information, if applicable."""
 
         cached_claims = self._cache_get(env, claims)
