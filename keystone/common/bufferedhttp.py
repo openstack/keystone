@@ -30,15 +30,18 @@ from urllib import quote
 import logging
 import time
 
+# pylint: disable=E0611
 from eventlet.green.httplib import CONTINUE, HTTPConnection, HTTPMessage, \
     HTTPResponse, HTTPSConnection, _UNKNOWN
 
 DEFAULT_TIMEOUT = 30
 
 
+# pylint: disable=R0902
 class BufferedHTTPResponse(HTTPResponse):
     """HTTPResponse class that buffers reading of headers"""
 
+    # pylint: disable=C0103
     def __init__(self, sock, debuglevel=0, strict=0,
                  method=None):          # pragma: no cover
         self.sock = sock
@@ -59,6 +62,7 @@ class BufferedHTTPResponse(HTTPResponse):
         self.length = _UNKNOWN          # number of bytes left in response
         self.will_close = _UNKNOWN      # conn will close at end of response
 
+    # pylint: disable=E1101,E0203,W0201
     def expect_response(self):
         self.fp = self.sock.makefile('rb', 0)
         version, status, reason = self._read_status()
@@ -73,20 +77,24 @@ class BufferedHTTPResponse(HTTPResponse):
             self.msg.fp = None
 
 
+# pylint: disable=W0232
 class BufferedHTTPConnection(HTTPConnection):
     """HTTPConnection class that uses BufferedHTTPResponse"""
     response_class = BufferedHTTPResponse
 
+    # pylint: disable=W0201
     def connect(self):
         self._connected_time = time.time()
         return HTTPConnection.connect(self)
 
+    # pylint: disable=W0201
     def putrequest(self, method, url, skip_host=0, skip_accept_encoding=0):
         self._method = method
         self._path = url
         return HTTPConnection.putrequest(self, method, url, skip_host,
                                          skip_accept_encoding)
 
+    # pylint: disable=E1101
     def getexpect(self):
         response = BufferedHTTPResponse(self.sock, strict=self.strict,
                                        method=self._method)
@@ -102,6 +110,7 @@ class BufferedHTTPConnection(HTTPConnection):
         return response
 
 
+# pylint: disable=R0913
 def http_connect(ipaddr, port, device, partition, method, path,
                  headers=None, query_string=None, ssl=False, key_file=None,
                  cert_file=None, timeout=None):
@@ -124,11 +133,13 @@ def http_connect(ipaddr, port, device, partition, method, path,
     :returns: HTTPConnection object
     """
     path = quote('/' + device + '/' + str(partition) + path)
+    # pylint: disable=E1121, E1124
     return http_connect_raw(ipaddr, port, device, partition, method, path,
                             headers, query_string, ssl, key_file, cert_file,
                             timeout=timeout)
 
 
+# pylint: disable=W0201
 def http_connect_raw(ipaddr, port, method, path, headers=None,
                      query_string=None, ssl=False, key_file=None,
                      cert_file=None, timeout=None):
@@ -161,7 +172,9 @@ def http_connect_raw(ipaddr, port, method, path, headers=None,
     conn.path = path
     conn.putrequest(method, path)
     if headers:
+        # pylint: disable=E1103
         for header, value in headers.iteritems():
             conn.putheader(header, value)
+    # pylint: disable=E1103
     conn.endheaders()
     return conn

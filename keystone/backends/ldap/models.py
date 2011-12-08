@@ -4,7 +4,7 @@ __all__ = ['UserRoleAssociation', 'Role', 'Tenant', 'User']
 
 
 def create_model(name, attrs):
-    class C(Mapping):
+    class Cmapper(Mapping):
         __slots__ = attrs
 
         def __init__(self, arg=None, **kwargs):
@@ -34,8 +34,8 @@ def create_model(name, attrs):
 
         def __len__(self):
             return len(attrs)
-    C.__name__ = name
-    return C
+    Cmapper.__name__ = name
+    return Cmapper
 
 
 UserRoleAssociation = create_model(

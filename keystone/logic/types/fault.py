@@ -159,3 +159,7 @@ class ServiceConflictFault(IdentityFault):
     def __init__(self, msg, details=None, code=409):
         super(ServiceConflictFault, self).__init__(msg, details, code)
         self.key = "serviceConflict"
+
+
+class DatabaseMigrationError(IdentityFault):
+    message = _("There was an error migrating the database.")

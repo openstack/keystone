@@ -2,6 +2,7 @@ import datetime
 
 import keystone.backends.api as db_api
 import keystone.backends.models as db_models
+import keystone.models as models
 
 
 def add_user(name, password, tenant=None):
@@ -32,10 +33,10 @@ def list_users():
 
 
 def add_tenant(name):
-    obj = db_models.Tenant()
+    obj = models.Tenant()
     obj.name = name
     obj.enabled = True
-    return db_api.TENANT.create(obj)
+    db_api.TENANT.create(obj)
 
 
 def list_tenants():
@@ -56,8 +57,7 @@ def disable_tenant(name):
 def add_role(name):
     obj = db_models.Role()
     obj.name = name
-    role = db_api.ROLE.create(obj)
-    return role
+    return db_api.ROLE.create(obj)
 
 
 def list_role_assignments(tenant):
@@ -147,7 +147,7 @@ def add_token(token, user, tenant, expires):
     user = db_api.USER.get_by_name(name=user).id
     tenant = db_api.TENANT.get_by_name(name=tenant).id
 
-    obj = db_models.Token()
+    obj = models.Token()
     obj.id = token
     obj.user_id = user
     obj.tenant_id = tenant
@@ -192,7 +192,7 @@ def add_credentials(user, type, key, secrete, tenant=None):
     if tenant:
         tenant = db_api.TENANT.get_by_name(tenant).id
 
-    obj = db_models.Credentials()
+    obj = models.Credentials()
     obj.user_id = user
     obj.type = type
     obj.key = key

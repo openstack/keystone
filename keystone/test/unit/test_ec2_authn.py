@@ -125,6 +125,8 @@ class EC2AuthnMethods(base.ServiceAPITest):
         """
         Test that bad credentials returns a 401
         """
+        # Create dummy tenant (or adding creds will fail)
+        self.fixture_create_tenant(id='bad', name='bad')
         access = "xpd285.access"
         secret = "345fgi.secret"
         kwargs = {
@@ -135,6 +137,9 @@ class EC2AuthnMethods(base.ServiceAPITest):
                   "secret": secret,
                  }
         self.fixture_create_credentials(**kwargs)
+        # Delete the 'bad' tenant, orphaning the creds
+        self.get_request('DELETE', '/tenants/bad')
+
         url = "/ec2tokens"
         req = self.get_request('POST', url)
         params = {

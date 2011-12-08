@@ -97,7 +97,7 @@ class CheckToken(common.FunctionalTestCase):
         self.user = self.create_user_with_known_password(
             tenant_id=self.tenant['id']).json['user']
         self.token = self.authenticate(self.user['name'],
-        self.user['password'], self.tenant['id']).json['access']['token']
+            self.user['password'], self.tenant['id']).json['access']['token']
 
     def test_validate_token_true(self):
         self.check_token_belongs_to(self.token['id'], self.tenant['id'],

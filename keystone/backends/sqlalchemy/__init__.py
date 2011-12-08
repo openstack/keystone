@@ -15,99 +15,107 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# package import
+from sqlalchemy.orm import joinedload, aliased, sessionmaker
+
 import ast
-import logging
-import sys
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import joinedload, aliased, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from keystone.common import config
+from keystone import utils
 from keystone.backends.sqlalchemy import models
-import keystone.utils as utils
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models
-_ENGINE = None
-_MAKER = None
-BASE = models.Base
 
+
+_DRIVER = None
+
+# TODO(dolph): these should be computed dynamically
 MODEL_PREFIX = 'keystone.backends.sqlalchemy.models.'
 API_PREFIX = 'keystone.backends.sqlalchemy.api.'
 
 
-def configure_backend(options):
-    """
-    Establish the database, create an engine if needed, and
-    register the models.
+class Driver():
+    def __init__(self, options):
+        self.session = None
+        self._engine = None
+        connection_str = options['sql_connection']
+        model_list = ast.literal_eval(options["backend_entities"])
 
-    :param options: Mapping of configuration options
-    """
-    global _ENGINE
-    if not _ENGINE:
-        debug = config.get_option(
-            options, 'debug', type='bool', default=False)
-        verbose = config.get_option(
-            options, 'verbose', type='bool', default=False)
-        timeout = config.get_option(
-            options, 'sql_idle_timeout', type='int', default=3600)
+        self._init_engine(connection_str)
+        self._init_models(model_list)
+        self._init_session_maker()
 
-        if options['sql_connection'] == "sqlite://":
-            _ENGINE = create_engine(options['sql_connection'],
-                                    connect_args={'check_same_thread': False},
-                                    poolclass=StaticPool)
+    def _init_engine(self, connection_str):
+        if connection_str == "sqlite://":
+            # in-memory sqlite
+            self._engine = create_engine(
+                connection_str,
+                connect_args={'check_same_thread': False},
+                poolclass=StaticPool)
         else:
-            _ENGINE = create_engine(options['sql_connection'],
-                pool_recycle=timeout)
+            self._engine = create_engine(
+                connection_str,
+                pool_recycle=3600)
 
-        logger = logging.getLogger('sqlalchemy.engine')
-        if debug:
-            logger.setLevel(logging.DEBUG)
-        elif verbose:
-            logger.setLevel(logging.INFO)
+    def _init_models(self, model_list):
+        tables = []
 
-        register_models(options)
+        for model in model_list:
+            module = utils.import_module(MODEL_PREFIX + model)
+            tables.append(module.__table__)
+
+            top_models.set_value(model, module)
+
+            if module.__api__ is not None:
+                api_module = utils.import_module(API_PREFIX + module.__api__)
+                top_api.set_value(module.__api__, api_module.get())
+
+        tables_to_create = []
+        for table in reversed(models.Base.metadata.sorted_tables):
+            if table in tables:
+                tables_to_create.append(table)
+
+        models.Base.metadata.create_all(self._engine, tables=tables_to_create,
+                                        checkfirst=True)
+
+    def _init_session_maker(self):
+        self.session = sessionmaker(
+            bind=self._engine,
+            autocommit=True,
+            expire_on_commit=False)
+
+    def get_session(self):
+        """Creates a pre-configured database session"""
+        return self.session()
+
+    def reset(self):
+        """Unregister models and reset DB engine.
+
+        Useful clearing out data before testing
+
+        TODO(dolph)::
+
+            ... but what does this *do*? Issue DROP TABLE statements?
+            TRUNCATE TABLE? Or is the scope of impact limited to python?
+        """
+        if self._engine is not None:
+            models.Base.metadata.drop_all(self._engine)
+            self._engine = None
 
 
-def get_session(autocommit=True, expire_on_commit=False):
-    """Helper method to grab session"""
-    global _MAKER, _ENGINE
-    if not _MAKER:
-        assert _ENGINE
-        _MAKER = sessionmaker(bind=_ENGINE,
-                              autocommit=autocommit,
-                              expire_on_commit=expire_on_commit)
-    return _MAKER()
+def configure_backend(options):
+    global _DRIVER
+    _DRIVER = Driver(options)
 
 
-def register_models(options):
-    """Register Models and create properties"""
-    global _ENGINE
-    assert _ENGINE
-    # Need to decide.Not This is missing
-    # and prevents foreign key reference checks.
-    # _ENGINE.execute('pragma foreign_keys=on')
-    supported_alchemy_models = ast.literal_eval(
-                    options["backend_entities"])
-    supported_alchemy_tables = []
-    for supported_alchemy_model in supported_alchemy_models:
-        model = utils.import_module(MODEL_PREFIX + supported_alchemy_model)
-        supported_alchemy_tables.append(model.__table__)
-        top_models.set_value(supported_alchemy_model, model)
-        if model.__api__ is not None:
-            model_api = utils.import_module(API_PREFIX + model.__api__)
-            top_api.set_value(model.__api__, model_api.get())
-    creation_tables = []
-    for table in reversed(BASE.metadata.sorted_tables):
-        if table in supported_alchemy_tables:
-            creation_tables.append(table)
-    BASE.metadata.create_all(_ENGINE, tables=creation_tables, checkfirst=True)
+def get_session():
+    global _DRIVER
+    return _DRIVER.get_session()
 
 
 def unregister_models():
-    """Unregister Models and reset _ENGINE,
-    useful clearing out data before testing"""
-    global _ENGINE
-    if _ENGINE:
-        BASE.metadata.drop_all(_ENGINE)
-        _ENGINE = None
+    global _DRIVER
+    if _DRIVER:
+        return _DRIVER.reset()

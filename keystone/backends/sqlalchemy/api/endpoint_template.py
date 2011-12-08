@@ -16,10 +16,28 @@
 #    under the License.
 
 from keystone.backends.sqlalchemy import get_session, models, aliased
-from keystone.backends.api import BaseEndpointTemplateAPI
+from keystone.backends import api
 
 
-class EndpointTemplateAPI(BaseEndpointTemplateAPI):
+# pylint: disable=E1103,W0221
+class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
+    def __init__(self, *args, **kw):
+        super(EndpointTemplateAPI, self).__init__(*args, **kw)
+
+    @staticmethod
+    def transpose(values):
+        """ Transposes field names from domain to sql model"""
+        pass
+
+    @staticmethod
+    def to_model(ref):
+        """ Returns Keystone model object based on SQLAlchemy model"""
+        pass
+
+    @staticmethod
+    def to_model_list(refs):
+        return [EndpointTemplateAPI.to_model(ref) for ref in refs]
+
     def create(self, values):
         endpoint_template = models.EndpointTemplates()
         endpoint_template.update(values)
@@ -45,13 +63,16 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
     def get(self, id, session=None):
         if not session:
             session = get_session()
+
         result = session.query(models.EndpointTemplates).\
             filter_by(id=id).first()
+
         return result
 
     def get_all(self, session=None):
         if not session:
             session = get_session()
+
         return session.query(models.EndpointTemplates).all()
 
     def get_by_service(self, service_id, session=None):
@@ -76,7 +97,8 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
                                 models.EndpointTemplates.id.desc()).\
                                 limit(limit).all()
 
-    def get_by_service_get_page_markers(self, service_id, marker,\
+    # pylint: disable=R0912
+    def get_by_service_get_page_markers(self, service_id, marker, \
         limit, session=None):
         if not session:
             session = get_session()
@@ -138,6 +160,7 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
                                 models.EndpointTemplates.id.desc()).\
                                 limit(limit).all()
 
+    # pylint: disable=R0912
     def get_page_markers(self, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -182,40 +205,55 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         return (prev_page, next_page)
 
     def endpoint_get_by_tenant_get_page(self, tenant_id, marker, limit,
-                                            session=None):
+            session=None):
         if not session:
             session = get_session()
+
+        if isinstance(api.TENANT, models.Tenant):
+            tenant_id = api.TENANT.uid_to_id(tenant_id)
+
         if marker:
-            return session.query(models.Endpoints).\
+            results = session.query(models.Endpoints).\
                 filter(models.Endpoints.tenant_id == tenant_id).\
                 filter("id >= :marker").params(
                 marker='%s' % marker).order_by(
                 models.Endpoints.id).limit(limit).all()
         else:
-            return session.query(models.Endpoints).\
+            results = session.query(models.Endpoints).\
                 filter(models.Endpoints.tenant_id == tenant_id).\
                 order_by(models.Endpoints.id).limit(limit).all()
 
+        if isinstance(api.TENANT, models.Tenant):
+            for result in results:
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
+        return results
+
+    # pylint: disable=R0912
     def endpoint_get_by_tenant_get_page_markers(self, tenant_id, marker, limit,
-                                                    session=None):
+            session=None):
         if not session:
             session = get_session()
+
+        if isinstance(api.TENANT, models.Tenant):
+            tenant_id = api.TENANT.uid_to_id(tenant_id)
+
         tba = aliased(models.Endpoints)
         first = session.query(tba).\
-                        filter(tba.tenant_id == tenant_id).\
-                        order_by(tba.id).first()
+            filter(tba.tenant_id == tenant_id).\
+            order_by(tba.id).first()
         last = session.query(tba).\
-                    filter(tba.tenant_id == tenant_id).\
-                    order_by(tba.id.desc()).first()
+            filter(tba.tenant_id == tenant_id).\
+            order_by(tba.id.desc()).first()
         if first is None:
             return (None, None)
         if marker is None:
             marker = first.id
         next_page = session.query(tba).\
-                    filter(tba.tenant_id == tenant_id).\
-                    filter("id>=:marker").params(
-                    marker='%s' % marker).order_by(
-                    tba.id).limit(int(limit)).all()
+            filter(tba.tenant_id == tenant_id).\
+            filter("id>=:marker").params(
+            marker='%s' % marker).order_by(
+            tba.id).limit(int(limit)).all()
 
         prev_page = session.query(tba).\
                         filter(tba.tenant_id == tenant_id).\
@@ -246,36 +284,61 @@ class EndpointTemplateAPI(BaseEndpointTemplateAPI):
         return (prev_page, next_page)
 
     def endpoint_add(self, values):
+        if isinstance(api.TENANT, models.Tenant):
+            values.tenant_id = api.TENANT.uid_to_id(values.tenant_id)
+
         endpoints = models.Endpoints()
         endpoints.update(values)
         endpoints.save()
+
+        if isinstance(api.TENANT, models.Tenant):
+            endpoints.tenant_id = api.TENANT.id_to_uid(endpoints.tenant_id)
+
         return endpoints
 
     def endpoint_get(self, id, session=None):
         if not session:
             session = get_session()
+
         result = session.query(models.Endpoints).\
-                        filter_by(id=id).first()
+            filter_by(id=id).first()
+
+        if isinstance(api.TENANT, models.Tenant):
+            if result:
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
         return result
 
     def endpoint_get_by_tenant(self, tenant_id, session=None):
         if not session:
             session = get_session()
+
+        if isinstance(api.TENANT, models.Tenant):
+            tenant_id = api.TENANT.uid_to_id(tenant_id)
+
         result = session.query(models.Endpoints).\
                         filter_by(tenant_id=tenant_id).first()
+
+        if isinstance(api.TENANT, models.Tenant):
+            if result:
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
         return result
 
     def endpoint_get_by_endpoint_template(
         self, endpoint_template_id, session=None):
         if not session:
             session = get_session()
+
         result = session.query(models.Endpoints).\
             filter_by(endpoint_template_id=endpoint_template_id).all()
+
         return result
 
     def endpoint_delete(self, id, session=None):
         if not session:
             session = get_session()
+
         with session.begin():
             endpoints = self.endpoint_get(id, session)
             if endpoints:

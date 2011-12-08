@@ -150,7 +150,7 @@ class AuthWithPasswordCredentials(AuthBase):
             obj = json.loads(json_str)
 
             auth = AuthBase._validate_auth(obj, 'tenantId', 'tenantName',
-                                           'passwordCredentials')
+                                           'passwordCredentials', 'token')
             cred = AuthBase._validate_key(auth, 'passwordCredentials',
                                           'username', 'password')
 

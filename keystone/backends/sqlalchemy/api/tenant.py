@@ -15,34 +15,128 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import uuid
+
 from keystone.backends.sqlalchemy import get_session, models, aliased
-from keystone.backends.api import BaseTenantAPI
+from keystone.backends import api
+from keystone.models import Tenant
 
 
-class TenantAPI(BaseTenantAPI):
+# pylint: disable=E1103,W0221
+class TenantAPI(api.BaseTenantAPI):
+    def __init__(self, *args, **kw):
+        super(TenantAPI, self).__init__(*args, **kw)
+
     # pylint: disable=W0221
+    @staticmethod
+    def transpose(values):
+        """ Handles transposing field names from Keystone model to
+        sqlalchemy mode
+
+        Differences:
+            desc <-> description
+            id <-> uid (coming soon)
+        """
+        if 'id' in values:
+            values['uid'] = values['id']
+            del values['id']
+        if 'description' in values:
+            values['desc'] = values['description']
+            del values['description']
+        if 'enabled' in values:
+            if values['enabled'] in [1, 'true', 'True', True]:
+                values['enabled'] = 1
+            else:
+                values['enabled'] = 0
+
+    @staticmethod
+    def to_model(ref):
+        """ Returns Keystone model object based on SQLAlchemy model"""
+        if ref:
+            return Tenant(id=ref.uid, name=ref.name, description=ref.desc,
+                enabled=bool(ref.enabled))
+
+    @staticmethod
+    def to_model_list(refs):
+        return [TenantAPI.to_model(ref) for ref in refs]
+
     def create(self, values):
+        values = values.copy()
+        TenantAPI.transpose(values)
         tenant_ref = models.Tenant()
         tenant_ref.update(values)
+        if tenant_ref.uid is None:
+            tenant_ref.uid = uuid.uuid4().hex
         tenant_ref.save()
-        return tenant_ref
+        return TenantAPI.to_model(tenant_ref)
 
     def get(self, id, session=None):
+        """Returns a tenant by ID.
+
+        .warning::
+
+            Internally, the provided ID is matched against the ``tenants.UID``,
+            not the PK (``tenants.id``) column.
+
+            For PK lookups from within the sqlalchemy backend,
+            use ``_get_by_id()`` instead.
+        """
         session = session or get_session()
+
+        result = session.query(models.Tenant).filter_by(uid=id).first()
+
+        return TenantAPI.to_model(result)
+
+    @staticmethod
+    def _get_by_id(id, session=None):
+        """Returns a tenant by ID (PK).
+
+        .warning::
+
+            The provided ID is matched against the PK (``tenants.ID``).
+
+            This is **only** for use within the sqlalchemy backend.
+        """
+        session = session or get_session()
+
         return session.query(models.Tenant).filter_by(id=id).first()
+
+    @staticmethod
+    def id_to_uid(id, session=None):
+        session = session or get_session()
+        tenant = session.query(models.Tenant).filter_by(id=id).first()
+        return tenant.uid if tenant else None
+
+    @staticmethod
+    def uid_to_id(uid, session=None):
+        session = session or get_session()
+        tenant = session.query(models.Tenant).filter_by(uid=uid).first()
+        return tenant.id if tenant else None
 
     def get_by_name(self, name, session=None):
         session = session or get_session()
-        return session.query(models.Tenant).filter_by(name=name).first()
+
+        result = session.query(models.Tenant).filter_by(name=name).first()
+
+        return TenantAPI.to_model(result)
 
     def get_all(self, session=None):
         if not session:
             session = get_session()
-        return session.query(models.Tenant).all()
+
+        results = session.query(models.Tenant).all()
+
+        return TenantAPI.to_model_list(results)
 
     def tenants_for_user_get_page(self, user, marker, limit, session=None):
         if not session:
             session = get_session()
+
+        if hasattr(api.USER, 'uid_to_id'):
+            user.id = api.USER.uid_to_id(user.id)
+        if hasattr(api.TENANT, 'uid_to_id'):
+            user.tenant_id = api.TENANT.uid_to_id(user.tenant_id)
+
         ura = aliased(models.UserRoleAssociation)
         tenant = aliased(models.Tenant)
         q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
@@ -50,16 +144,25 @@ class TenantAPI(BaseTenantAPI):
         q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
         q3 = q1.union(q2)
         if marker:
-            return q3.filter("tenant.id>:marker").params(\
+            results = q3.filter("tenant.id>:marker").params(\
                     marker='%s' % marker).order_by(\
                     tenant.id.desc()).limit(limit).all()
         else:
-            return q3.order_by(tenant.id.desc()).limit(limit).all()
+            results = q3.order_by(tenant.id.desc()).limit(limit).all()
 
+        return TenantAPI.to_model_list(results)
+
+    # pylint: disable=R0912
     def tenants_for_user_get_page_markers(self, user, marker, limit,
             session=None):
         if not session:
             session = get_session()
+
+        if hasattr(api.USER, 'uid_to_id'):
+            user.id = api.USER.uid_to_id(user.id)
+        if hasattr(api.TENANT, 'uid_to_id'):
+            user.tenant_id = api.TENANT.uid_to_id(user.tenant_id)
+
         ura = aliased(models.UserRoleAssociation)
         tenant = aliased(models.Tenant)
         q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
@@ -111,6 +214,7 @@ class TenantAPI(BaseTenantAPI):
             return session.query(models.Tenant).order_by(\
                                 models.Tenant.id.desc()).limit(limit).all()
 
+    # pylint: disable=R0912
     def get_page_markers(self, marker, limit, session=None):
         if not session:
             session = get_session()
@@ -157,6 +261,10 @@ class TenantAPI(BaseTenantAPI):
     def is_empty(self, id, session=None):
         if not session:
             session = get_session()
+
+        if hasattr(api.TENANT, 'uid_to_id'):
+            id = self.uid_to_id(id)
+
         a_user = session.query(models.UserRoleAssociation).filter_by(\
             tenant_id=id).first()
         if a_user != None:
@@ -169,28 +277,44 @@ class TenantAPI(BaseTenantAPI):
     def update(self, id, values, session=None):
         if not session:
             session = get_session()
+
+        if hasattr(api.TENANT, 'uid_to_id'):
+            id = self.uid_to_id(id)
+
+        data = values.copy()
+        TenantAPI.transpose(data)
+
         with session.begin():
-            tenant_ref = self.get(id, session)
-            tenant_ref.update(values)
+            tenant_ref = self._get_by_id(id, session)
+            tenant_ref.update(data)
             tenant_ref.save(session=session)
+            return self.get(id, session)
 
     def delete(self, id, session=None):
         if not session:
             session = get_session()
+
+        if hasattr(api.TENANT, 'uid_to_id'):
+            id = self.uid_to_id(id)
+
         with session.begin():
-            tenant_ref = self.get(id, session)
+            tenant_ref = self._get_by_id(id, session)
             session.delete(tenant_ref)
 
     def get_all_endpoints(self, tenant_id, session=None):
         if not session:
             session = get_session()
-        endpointTemplates = aliased(models.EndpointTemplates)
-        q = session.query(endpointTemplates).\
-            filter(endpointTemplates.is_global == True)
+
+        if hasattr(api.TENANT, 'uid_to_id'):
+            tenant_id = self.uid_to_id(tenant_id)
+
+        endpoint_templates = aliased(models.EndpointTemplates)
+        q = session.query(endpoint_templates).\
+            filter(endpoint_templates.is_global == True)
         if tenant_id:
             ep = aliased(models.Endpoints)
-            q1 = session.query(endpointTemplates).join((ep,
-                ep.endpoint_template_id == endpointTemplates.id)).\
+            q1 = session.query(endpoint_templates).join((ep,
+                ep.endpoint_template_id == endpoint_templates.id)).\
                 filter(ep.tenant_id == tenant_id)
             q = q.union(q1)
         return q.all()
@@ -198,8 +322,20 @@ class TenantAPI(BaseTenantAPI):
     def get_role_assignments(self, tenant_id, session=None):
         if not session:
             session = get_session()
-        return session.query(models.UserRoleAssociation).\
+
+        if hasattr(api.TENANT, 'uid_to_id'):
+            tenant_id = TenantAPI.uid_to_id(tenant_id)
+
+        results = session.query(models.UserRoleAssociation).\
             filter_by(tenant_id=tenant_id)
+
+        for result in results:
+            if hasattr(api.USER, 'uid_to_id'):
+                result.user_id = api.USER.id_to_uid(result.user_id)
+            if hasattr(api.TENANT, 'uid_to_id'):
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
+        return results
 
 
 def get():

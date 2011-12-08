@@ -487,8 +487,6 @@ class KeystoneTest(object):
 
             return not core.run(config=c, testRunner=runner,
                                 argv=argv + ['-P'])
-        except Exception as e:
-            print 'Error %s' % e
         finally:
             self.tearDown()
 

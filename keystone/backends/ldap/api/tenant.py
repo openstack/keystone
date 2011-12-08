@@ -4,7 +4,7 @@ import uuid
 from keystone.backends.api import BaseTenantAPI
 from keystone.backends.sqlalchemy.api.tenant import TenantAPI as SQLTenantAPI
 
-from .. import models
+from keystone import models
 from .base import  BaseLdapAPI, add_redirects
 
 
@@ -14,7 +14,7 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):
     options_name = 'tenant'
     object_class = 'keystoneTenant'
     model = models.Tenant
-    attribute_mapping = {'desc': 'description', 'enabled': 'keystoneEnabled',
+    attribute_mapping = {'description': 'desc', 'enabled': 'keystoneEnabled',
                          'name': 'keystoneName'}
 
     def get_by_name(self, name, filter=None):

@@ -18,7 +18,6 @@
 import routes
 
 from keystone.common import wsgi
-import keystone.backends as db
 from keystone.controllers.token import TokenController
 from keystone.controllers.roles import RolesController
 from keystone.controllers.staticfiles import StaticFilesController
@@ -35,7 +34,6 @@ class AdminApi(wsgi.Router):
     def __init__(self, options):
         self.options = options
         mapper = routes.Mapper()
-        db.configure_backends(options)
 
         # Token Operations
         auth_controller = TokenController(options)

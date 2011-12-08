@@ -54,6 +54,7 @@ def get_auth_key(req):
 
 def wrap_error(func):
 
+    # pylint: disable=W0703
     @functools.wraps(func)
     def check_error(*args, **kwargs):
         try:

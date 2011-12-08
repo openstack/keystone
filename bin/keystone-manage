@@ -11,6 +11,8 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 import keystone.manage
+import keystone.tools.tracer  # @UnusedImport # module runs on import
+
 
 if __name__ == '__main__':
     keystone.manage.main()

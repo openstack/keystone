@@ -20,12 +20,14 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_mapper
 
+# pylint: disable=C0103
 Base = declarative_base()
 
 
 class KeystoneBase(object):
     """Base class for Keystone Models."""
     __api__ = None
+    # pylint: disable=C0103
     _i = None
 
     def save(self, session=None):
@@ -125,6 +127,7 @@ class Tenant(Base, KeystoneBase):
     __tablename__ = 'tenants'
     __api__ = 'tenant'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    uid = Column(String(255), unique=True, nullable=False)
     name = Column(String(255), unique=True)
     desc = Column(String(255))
     enabled = Column(Integer)
@@ -134,6 +137,7 @@ class User(Base, KeystoneBase):
     __tablename__ = 'users'
     __api__ = 'user'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    uid = Column(String(255), unique=True, nullable=False)
     name = Column(String(255), unique=True)
     password = Column(String(255))
     email = Column(String(255))

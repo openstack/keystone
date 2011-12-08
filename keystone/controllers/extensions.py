@@ -20,5 +20,5 @@ class ExtensionsController(wsgi.Controller):
 
     @utils.wrap_error
     def get_extensions_info(self, req):
-                return utils.send_result(200, req,
-                    self.extension_reader.get_extensions())
+        return utils.send_result(200, req,
+            self.extension_reader.get_extensions())

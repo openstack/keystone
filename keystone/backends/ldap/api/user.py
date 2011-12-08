@@ -6,7 +6,7 @@ import keystone.backends.backendutils as utils
 from keystone.backends.api import BaseUserAPI
 from keystone.backends.sqlalchemy.api.user import UserAPI as SQLUserAPI
 
-from .. import models
+from keystone import models
 from .base import BaseLdapAPI, add_redirects
 
 

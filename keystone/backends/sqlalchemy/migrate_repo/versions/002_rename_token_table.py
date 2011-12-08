@@ -16,9 +16,11 @@ meta = sqlalchemy.MetaData()
 
 def upgrade(migrate_engine):
     meta.bind = migrate_engine
+    # pylint: disable=E1101
     sqlalchemy.Table('token', meta).rename('tokens')
 
 
 def downgrade(migrate_engine):
     meta.bind = migrate_engine
+    # pylint: disable=E1101
     sqlalchemy.Table('tokens', meta).rename('token')

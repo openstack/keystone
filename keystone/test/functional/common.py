@@ -661,10 +661,11 @@ class FunctionalTestCase(ApiTestCase):
         data = {
             "auth": {
                 "token": {
-                "id": token,
-                }}}
+                    "id": token}}}
+
         if tenant_id:
             data["auth"]["tenantId"] = tenant_id
+
         return self.post_token(as_json=data, **kwargs)
 
     def validate_token(self, token_id=None, tenant_id=None, **kwargs):

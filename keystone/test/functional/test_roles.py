@@ -81,7 +81,8 @@ class CreateRolesTest(RolesTest):
         self.assertEqual(role['description'], description)
         self.assertEqual(role['serviceId'], service['id'])
 
-    def test_create_role_mapped_to_a_service_using_incorrect_role_name(self):
+    def test_create__service_role_using_incorrect_role_name(self):
+        """ test_create_role_mapped_to_a_service_using_incorrect_role_name """
         self.create_role(common.unique_str(), service_id=common.unique_str(),
             assert_status=400)
 
@@ -143,7 +144,9 @@ class DeleteRoleTest(RolesTest):
         self.assertEqual(role['id'], role_id)
         self.assertEqual(role['serviceId'], service['id'])
 
-    def test_create_role_mapped_to_a_service_using_incorrect_role_name(self):
+    def test_create__service_role_using_incorrect_role_name(self):
+        """ Formerly:
+            test_create_role_mapped_to_a_service_using_incorrect_role_name"""
         self.create_role(common.unique_str(), service_id=common.unique_str(),
             assert_status=400)
 

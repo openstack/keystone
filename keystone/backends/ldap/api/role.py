@@ -3,7 +3,7 @@ import ldap
 from keystone.backends.api import BaseTenantAPI
 from keystone.common import exception
 
-from .. import models
+from keystone import models
 from .base import  BaseLdapAPI
 
 
@@ -13,7 +13,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
     options_name = 'role'
     object_class = 'keystoneRole'
     model = models.Role
-    attribute_mapping = {'desc': 'description', 'service_id': 'serviceId'}
+    attribute_mapping = {'description': 'desc', 'serviceId': 'service_id'}
 
     @staticmethod
     def _create_ref(role_id, tenant_id, user_id):

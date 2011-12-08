@@ -27,16 +27,19 @@ import logging
 import optparse  # deprecated in 2.7, in favor of argparse
 
 from keystone import version
-from keystone.common import config
-from keystone.manage import api
 import keystone.backends as db
+from keystone.backends.sqlalchemy import migration
+from keystone.common import config
+from keystone.logic.types import fault
+from keystone.manage import api
 
 
 # CLI feature set
 OBJECTS = ['user', 'tenant', 'role', 'service',
-    'endpointTemplates', 'token', 'endpoint', 'credentials']
+    'endpointTemplates', 'token', 'endpoint', 'credentials', 'database']
 ACTIONS = ['add', 'list', 'disable', 'delete', 'grant',
-    'revoke']
+    'revoke',
+    'sync', 'downgrade', 'upgrade', 'version_control', 'version']
 
 
 # Messages
@@ -65,6 +68,7 @@ def parse_args(args=None):
         tokens   : user, tenant, expiration
 
       role list [tenant] will list roles granted on that tenant
+      database [sync | downgrade | upgrade | version_control | version]
 
     options
       -c | --config-file : config file to use
@@ -90,6 +94,21 @@ def parse_args(args=None):
     return args
 
 
+def get_options(args=None):
+    # Initialize a parser for our configuration paramaters
+    parser = RaisingOptionParser()
+    _common_group = config.add_common_options(parser)
+    config.add_log_options(parser)
+
+    # Parse command-line and load config
+    (options, args) = config.parse_options(parser, list(args))
+
+    _config_file, conf = config.load_paste_config('admin', options, args)
+    conf.global_conf.update(conf.local_conf)
+
+    return conf.global_conf
+
+
 def process(*args):
     # Check arguments
     if len(args) == 0:
@@ -106,7 +125,7 @@ def process(*args):
         if action not in ACTIONS:
             raise optparse.OptParseError(SUPPORTED_ACTIONS)
 
-    if action not in ['list']:
+    if action not in ['list', 'sync', 'version_control', 'version']:
         if len(args) == 2:
             raise optparse.OptParseError(ID_NOT_SPECIFIED)
         else:
@@ -270,15 +289,116 @@ def process(*args):
     elif object_type == 'credentials':
         raise optparse.OptParseError(ACTION_NOT_SUPPORTED % ('credentials'))
 
+    elif (object_type, action) == ('database', 'sync'):
+        require_args(args, 1, 'Syncing database requires a version #')
+        options = get_options(args)
+        options = get_options(args)
+        backend_names = options.get('backends', None)
+        if backend_names:
+            if 'keystone.backends.sqlalchemy' in backend_names.split(','):
+                do_db_sync(options['keystone.backends.sqlalchemy'],
+                                 args)
+            else:
+                raise optparse.OptParseError(
+                    'SQL alchemy backend not specified in config')
+
+    elif (object_type, action) == ('database', 'upgrade'):
+        require_args(args, 1, 'Upgrading database requires a version #')
+        options = get_options(args)
+        backend_names = options.get('backends', None)
+        if backend_names:
+            if 'keystone.backends.sqlalchemy' in backend_names.split(','):
+                do_db_upgrade(options['keystone.backends.sqlalchemy'],
+                                 args)
+            else:
+                raise optparse.OptParseError(
+                    'SQL alchemy backend not specified in config')
+
+    elif (object_type, action) == ('database', 'downgrade'):
+        require_args(args, 1, 'Downgrading database requires a version #')
+        options = get_options(args)
+        backend_names = options.get('backends', None)
+        if backend_names:
+            if 'keystone.backends.sqlalchemy' in backend_names.split(','):
+                do_db_downgrade(options['keystone.backends.sqlalchemy'],
+                                 args)
+            else:
+                raise optparse.OptParseError(
+                    'SQL alchemy backend not specified in config')
+
+    elif (object_type, action) == ('database', 'version_control'):
+        options = get_options(args)
+        backend_names = options.get('backends', None)
+        if backend_names:
+            if 'keystone.backends.sqlalchemy' in backend_names.split(','):
+                do_db_version_control(options['keystone.backends.sqlalchemy'])
+            else:
+                raise optparse.OptParseError(
+                    'SQL alchemy backend not specified in config')
+
+    elif (object_type, action) == ('database', 'version'):
+        options = get_options(args)
+        backend_names = options.get('backends', None)
+        if backend_names:
+            if 'keystone.backends.sqlalchemy' in backend_names.split(','):
+                do_db_version(options['keystone.backends.sqlalchemy'])
+            else:
+                raise optparse.OptParseError(
+                    'SQL alchemy backend not specified in config')
+
     else:
         # Command recognized but not handled: should never reach this
         raise NotImplementedError()
 
 
+#
+#   Database Migration commands (from Glance-manage)
+#
+def do_db_version(options):
+    """Print database's current migration level"""
+    print migration.db_version(options)
+
+
+def do_db_upgrade(options, args):
+    """Upgrade the database's migration level"""
+    try:
+        db_version = args[2]
+    except IndexError:
+        db_version = None
+
+    print "Upgrading database to version %s" % db_version
+    migration.upgrade(options, version=db_version)
+
+
+def do_db_downgrade(options, args):
+    """Downgrade the database's migration level"""
+    try:
+        db_version = args[2]
+    except IndexError:
+        raise Exception("downgrade requires a version argument")
+
+    migration.downgrade(options, version=db_version)
+
+
+def do_db_version_control(options):
+    """Place a database under migration control"""
+    migration.version_control(options)
+    print "Database now under version control"
+
+
+def do_db_sync(options, args):
+    """Place a database under migration control and upgrade"""
+    try:
+        db_version = args[2]
+    except IndexError:
+        db_version = None
+    migration.db_sync(options, version=db_version)
+
+
 def main(args=None):
     try:
         process(*parse_args(args))
-    except optparse.OptParseError as exc:
+    except (optparse.OptParseError, fault.DatabaseMigrationError) as exc:
         print >> sys.stderr, exc
         sys.exit(2)
     except Exception as exc:

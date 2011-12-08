@@ -205,8 +205,8 @@ class UnScopedAuthenticationTest(common.FunctionalTestCase):
             assert_status=200)
 
         self.assertIsNotNone(r.json['access']['token'])
-        service_catalog = r.json['access']['serviceCatalog']
-        self.assertIsNotNone(service_catalog)
+        service_catalog = r.json['access'].get('serviceCatalog')
+        self.assertIsNotNone(service_catalog, r.json)
         self.check_urls_for_regular_user(service_catalog)
 
     def test_authenticate_xml(self):
@@ -226,8 +226,8 @@ class UnScopedAuthenticationTest(common.FunctionalTestCase):
         r = self.authenticate(self.user['name'], self.user['password'],
             assert_status=200, request_type='admin')
 
-        self.assertIsNotNone(r.json['access']['token'])
-        self.assertIsNotNone(r.json['access']['serviceCatalog'])
+        self.assertIsNotNone(r.json['access'].get('token'), r.json)
+        self.assertIsNotNone(r.json['access'].get('serviceCatalog'), r.json)
         service_catalog = r.json['access']['serviceCatalog']
         self.check_urls_for_regular_user(service_catalog)
 

@@ -53,10 +53,10 @@ HTTP_X_AUTHORIZATION
 import sys
 import optparse
 
-from keystone import version
+from keystone.common import config, wsgi
 from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
-from keystone.common import config, wsgi
+from keystone import version
 
 
 def service_app_factory(global_conf, **local_conf):
@@ -105,7 +105,7 @@ class Server():
             # Initialize a parser for our configuration paramaters
             parser = optparse.OptionParser(version='%%prog %s' %
                                            version.version())
-            common_group = config.add_common_options(parser)
+            config.add_common_options(parser)
             config.add_log_options(parser)
 
             # Parse arguments and load config
@@ -123,6 +123,8 @@ class Server():
 
         self.name = name
         self.config = config_name or self.name
+        self.key = None
+        self.server = None
 
     def start(self, host=None, port=None, wait=True):
         """Starts the Keystone server

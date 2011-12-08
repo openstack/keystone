@@ -27,10 +27,14 @@ class TestAdminAuthentication(common.FunctionalTestCase):
 class TestAdminAuthenticationNegative(common.FunctionalTestCase):
     """Negative test admin-side user authentication"""
 
-    def test_admin_user_trying_to_scope_to_tenant_with_established_role(self):
+    def test_admin_user_scoping_to_tenant_with_role(self):
         """A Keystone Admin SHOULD be able to retrieve a scoped token...
 
-        But only if the Admin has some Role on the Tenant other than Admin."""
+        But only if the Admin has some Role on the Tenant other than Admin.
+
+        Formerly:
+            test_admin_user_trying_to_scope_to_tenant_with_established_role
+        """
         tenant = self.create_tenant().json['tenant']
         role = self.create_role().json['role']
 

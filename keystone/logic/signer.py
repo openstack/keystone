@@ -56,6 +56,7 @@ LOG = logging.getLogger('keystone.signer')
 class Signer(object):
     """Hacked up code from boto/connection.py"""
 
+    # pylint: disable=E1101
     def __init__(self, secret_key):
         secret_key = secret_key.encode()
         self.hmac = hmac.new(secret_key, digestmod=hashlib.sha1)
@@ -131,6 +132,7 @@ class Signer(object):
 
 
 if __name__ == '__main__':
+    # pylint: disable=E1121
     print Signer('foo').generate({'SignatureMethod': 'HmacSHA256',
                                   'SignatureVersion': '2'},
                                  'get', 'server', '/foo')

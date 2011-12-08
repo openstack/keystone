@@ -15,7 +15,9 @@
 
 import json
 from lxml import etree
+
 from keystone.logic.types import fault
+from keystone import models
 
 
 class Tenant(object):
@@ -33,6 +35,7 @@ class Tenant(object):
             self.enabled = bool(enabled)
         else:
             self.enabled = None
+        print self.enabled
 
     @staticmethod
     def from_xml(xml_str):
@@ -56,7 +59,7 @@ class Tenant(object):
                              "description")
             if desc is None:
                 raise fault.BadRequestFault("Expecting Tenant Description")
-            return Tenant(id=id, name=name, description=desc.text,
+            return models.Tenant(id=id, name=name, description=desc.text,
                 enabled=set_enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
@@ -93,8 +96,8 @@ class Tenant(object):
 
     def to_dom(self):
         dom = etree.Element("tenant",
-                        xmlns="http://docs.openstack.org/identity/api/v2.0",
-                        enabled=str(self.enabled).lower())
+            xmlns="http://docs.openstack.org/identity/api/v2.0",
+            enabled=str(self.enabled).lower())
         if self.id:
             dom.set("id", unicode(self.id))
         if self.name:

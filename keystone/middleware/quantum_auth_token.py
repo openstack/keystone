@@ -80,6 +80,7 @@ PROTOCOL_NAME = "Token Authentication"
 LOG = logging.getLogger('quantum.common.authentication')
 
 
+# pylint: disable=R0902
 class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
 
@@ -149,15 +150,26 @@ class AuthProtocol(object):
         self.auth_uri = None
         self.auth_port = None
         self.auth_protocol = None
+        self.auth_timeout = None
         self.cert_file = None
         self.key_file = None
         self.service_host = None
         self.service_port = None
         self.service_protocol = None
         self.service_url = None
+        self.proxy_headers = None
+        self.start_response = None
+        self.app = None
+        self.conf = None
+        self.env = None
+        self.delay_auth_decision = None
+        self.expanded = None
+        self.claims = None
+
         self._init_protocol_common(app, conf)  # Applies to all protocols
         self._init_protocol(app, conf)  # Specific to this protocol
 
+    # pylint: disable=R0912
     def __call__(self, env, start_response):
         """ Handle incoming request. Authenticate. And send downstream. """
         LOG.debug("entering AuthProtocol.__call__")
@@ -273,7 +285,8 @@ class AuthProtocol(object):
         data = response.read()
         return data
 
-    def _get_claims(self, env):
+    @staticmethod
+    def _get_claims(env):
         """Get claims from request"""
         claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         return claims
@@ -315,6 +328,7 @@ class AuthProtocol(object):
                             key_file=self.key_file, cert_file=self.cert_file,
                             timeout=self.auth_timeout)
         resp = conn.getresponse()
+        # pylint: disable=E1103
         conn.close()
 
         if not str(resp.status).startswith('20'):
@@ -352,6 +366,7 @@ class AuthProtocol(object):
                             timeout=self.auth_timeout)
         resp = conn.getresponse()
         data = resp.read()
+        # pylint: disable=E1103
         conn.close()
 
         if not str(resp.status).startswith('20'):
@@ -410,6 +425,7 @@ class AuthProtocol(object):
         else:
             # We are forwarding to a remote service (no downstream WSGI app)
             req = Request(self.proxy_headers)
+            # pylint: disable=E1101
             parsed = urlparse(req.url)
             conn = http_connect(self.service_host,
                                 self.service_port,

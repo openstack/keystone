@@ -32,6 +32,7 @@ from nova import context
 from nova import flags
 from nova import utils
 from nova import wsgi
+# pylint: disable=W0611
 from nova import exception
 import webob.dec
 import webob.exc
@@ -43,13 +44,16 @@ FLAGS = flags.FLAGS
 class KeystoneAuthShim(wsgi.Middleware):
     """Lazy provisioning nova project/users from keystone tenant/user"""
 
+    # pylint: disable=E1002
     def __init__(self, application, db_driver=None):
         if not db_driver:
             db_driver = FLAGS.db_driver
+        # pylint: disable=C0103
         self.db = utils.import_object(db_driver)
         self.auth = auth.manager.AuthManager()
         super(KeystoneAuthShim, self).__init__(application)
 
+    # pylint: disable=W0702
     @webob.dec.wsgify(RequestClass=wsgi.Request)
     def __call__(self, req):
         # find or create user
@@ -81,6 +85,7 @@ class KeystoneAuthShim(wsgi.Middleware):
             # This is for legacy compatibility
             project_id = req.headers['X_TENANT']
 
+        # pylint: disable=W0612
         if project_id:
             try:
                 project_ref = self.auth.get_project(project_id)
@@ -102,4 +107,5 @@ class KeystoneAuthShim(wsgi.Middleware):
                                      auth_token=auth_token)
 
         req.environ['nova.context'] = ctx
+        # pylint: disable=E1101
         return self.application

@@ -1,11 +1,12 @@
 from keystone.backends import models
 import keystone.backends as backends
+# pylint: disable=E0611
 from passlib.hash import sha512_crypt as sc
 
 
 def __get_hashed_password(password):
     if password != None and len(password) > 0:
-            return __make_password(password)
+        return __make_password(password)
     else:
         return None
 
@@ -44,6 +45,6 @@ def __make_password(raw_password):
 
 
 #Refer http://packages.python.org/passlib/lib/passlib.hash.sha512_crypt.html
-#Using the default properties as of now.Salt gets generated  automatically.
+#Using the default properties as of now.Salt gets generated automatically.
 def __get_hexdigest(raw_password):
     return sc.encrypt(raw_password)

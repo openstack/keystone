@@ -314,11 +314,12 @@ class UpdateTenantTest(TenantTest):
         new_tenant_name = common.unique_str()
         new_description = common.unique_str()
         updated_tenant = self.update_tenant(self.tenant['id'],
-            tenant_name=new_tenant_name,
+            tenant_name=new_tenant_name, tenant_enabled=False,
             tenant_description=new_description, assert_status=200).\
             json['tenant']
         self.assertEqual(updated_tenant['name'], new_tenant_name)
         self.assertEqual(updated_tenant['description'], new_description)
+        self.assertEqual(updated_tenant['enabled'], False)
 
     def test_update_tenant_xml(self):
         new_tenant_name = common.unique_str()
