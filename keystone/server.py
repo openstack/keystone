@@ -53,6 +53,7 @@ HTTP_X_AUTHORIZATION
 import sys
 import optparse
 
+from keystone import version
 from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
 from keystone.common import config, wsgi
