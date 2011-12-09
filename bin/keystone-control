@@ -42,7 +42,7 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 
 gettext.install('keystone', unicode=1)
 
-import keystone
+import keystone.version
 from keystone.common import config
 
 ALL_COMMANDS = ['start', 'stop', 'shutdown', 'restart',
@@ -179,7 +179,7 @@ def do_stop(server, options, args, graceful=False):
 
 if __name__ == '__main__':
     oparser = optparse.OptionParser(usage=USAGE, version='%%prog %s'
-                                    % keystone.version())
+                                    % keystone.version.version())
     oparser.add_option('--pid-file', default=None, metavar="PATH",
                        help="File to use as pid file. Default: "
                        "/var/run/keystone/$server.pid")

@@ -103,12 +103,12 @@ the easiest of which is::
 You should then be able to `import keystone` from your Python shell
 without issue::
 
-    >>> import keystone
+    >>> import keystone.version
     >>>
 
 If you want to check the version of Keystone you are running:
 
-    >>> print keystone.version()
+    >>> print keystone.version.version()
     2012.1-dev
 
 
