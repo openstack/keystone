@@ -325,8 +325,9 @@ class D5ValidateData(object):
 
             # D5 has 'tenantId' under token
             token = auth["token"]
-            tenant = token["tenant"]
-            token["tenantId"] = tenant["id"]
+            if 'tenant' in token:
+                tenant = token["tenant"]
+                token["tenantId"] = tenant["id"]
 
             if "roles" in auth["user"]:
                 auth["user"]["roleRefs"] = []
