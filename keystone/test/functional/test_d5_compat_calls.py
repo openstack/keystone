@@ -41,6 +41,51 @@ class D5_AuthenticationTest(common.FunctionalTestCase):
         self.create_endpoint_for_tenant(self.tenant['id'],
         self.endpoint_templates['id'])
 
+    def test_validate_unscoped_token(self):
+        """Admin should be able to validate a user's token"""
+        # Authenticate as user to get a token
+        self.service_token = self.post_token(as_json={
+            'passwordCredentials': {
+                'username': self.user['name'],
+                'password': self.user['password']}}).\
+            json['auth']['token']['id']
+
+        # In the real world, the service user would then pass his/her token
+        # to some service that depends on keystone, which would then need to
+        # use keystone to validate the provided token.
+
+        # Admin independently validates the user token
+        r = self.get_token(self.service_token)
+        self.assertEqual(r.json['auth']['token']['id'], self.service_token)
+        self.assertTrue(r.json['auth']['token']['expires'])
+        self.assertEqual(r.json['auth']['user']['username'],
+            self.user['name'])
+        self.assertEqual(r.json['auth']['user']['roleRefs'], [])
+
+    def test_validate_scoped_token(self):
+        """Admin should be able to validate a user's scoped token"""
+        # Authenticate as user to get a token
+        self.service_token = self.post_token(as_json={
+            'passwordCredentials': {
+                'tenantId': self.tenant['id'],
+                'username': self.user['name'],
+                'password': self.user['password']}}).\
+            json['auth']['token']['id']
+
+        # In the real world, the service user would then pass his/her token
+        # to some service that depends on keystone, which would then need to
+        # use keystone to validate the provided token.
+
+        # Admin independently validates the user token
+        r = self.get_token(self.service_token)
+        self.assertEqual(r.json['auth']['token']['id'], self.service_token)
+        self.assertEqual(r.json['auth']['token']['tenantId'],
+            self.tenant['id'])
+        self.assertTrue(r.json['auth']['token']['expires'])
+        self.assertEqual(r.json['auth']['user']['username'],
+            self.user['name'])
+        self.assertEqual(r.json['auth']['user']['roleRefs'], [])
+
     def test_authenticate_for_a_tenant(self):
         r = self.authenticate_D5(self.user['name'], self.user['password'],
             self.tenant['id'], assert_status=200)
