@@ -63,4 +63,5 @@ if __name__ == '__main__':
         for test_num, test_cls in enumerate(TESTS):
             print 'Starting test %d of %d with config: %s' % \
                 (test_num + 1, len(TESTS), test_cls.config_name)
-            test_cls().run()
+            if test_cls().run():
+                exit(1)
