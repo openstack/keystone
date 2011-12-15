@@ -31,10 +31,6 @@ import keystone.backends.models as top_models
 
 _DRIVER = None
 
-# TODO(dolph): these should be computed dynamically
-MODEL_PREFIX = 'keystone.backends.sqlalchemy.models.'
-API_PREFIX = 'keystone.backends.sqlalchemy.api.'
-
 
 class Driver():
     def __init__(self, options):
@@ -63,13 +59,15 @@ class Driver():
         tables = []
 
         for model in model_list:
-            module = utils.import_module(MODEL_PREFIX + model)
+            model_path = '.'.join([__package__, 'models', model])
+            module = utils.import_module(model_path)
             tables.append(module.__table__)
 
             top_models.set_value(model, module)
 
             if module.__api__ is not None:
-                api_module = utils.import_module(API_PREFIX + module.__api__)
+                api_path = '.'.join([__package__, 'api', module.__api__])
+                api_module = utils.import_module(api_path)
                 top_api.set_value(module.__api__, api_module.get())
 
         tables_to_create = []
