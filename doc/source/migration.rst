@@ -2,38 +2,118 @@
 Database Migrations
 ===================
 
-Keystone uses SQLAlchemy Migrate (``sqlalchemy-migrate``) to manage migrations.
+Keystone uses SQLAlchemy Migrate (``sqlalchemy-migrate``) to manage
+migrations.
+
+Migrations are tracked using a metadata table (``migrate_version``), which
+allows keystone to compare the state of your database to the state it
+expects, and to move between versions.
 
 .. WARNING::
 
-    Backup your database before applying migrations. Migrations may attempt to modify both your schema and data, and could result in data loss.
+    Backup your database before applying migrations. Migrations may
+    attempt to modify both your schema and data, and could result in data
+    loss.
 
-    Always review the behavior of migrations in a staging environment before applying them in production.
+    Always review the behavior of migrations in a staging environment
+    before applying them in production.
 
 Getting Started
 ===============
 
-Migrations are tracked using a metadata table. Place a new or existing schema under version control to enable migration support (SQLite in this case)::
+Your initial approach to migrations should depend on whether you have an
+empty database or a schema full of data.
 
-    $ python keystone/backends/sqlalchemy/migrate_repo/manage.py version_control --url=sqlite:///bin/keystone.db --repository=keystone/backends/sqlalchemy/migrate_repo/
+Starting with an empty database
+-------------------------------
 
-If you are starting with an existing schema, you **must** set your database to the appropriate schema version number using a
-SQL command. For example, if you're starting from a ``diablo`` or ``diablo/stable`` database, set your current database version to ``1``::
+If you have an empty database for keystone to work with, you can simply
+run::
+
+    $ ./bin/keystone-manage database sync
+
+This command will initialize your metadata table, and run through all the
+schema & data migrations necessary to bring your database in sync with
+keystone. That's it!
+
+Starting with an existing database
+----------------------------------
+
+Place an existing database under version control to enable migration
+support::
+
+    $ ./bin/keystone-manage database version_control
+
+This command simply creates a ``migrate_version`` table, set at version 0,
+which indicates that no migrations have been applied.
+
+If you are starting with an existing schema, you can set your database to
+the current schema version using a SQL command. For example, if you're
+starting from a diablo-compatible database, set your current
+database version to ``1``::
 
     UPDATE migrate_version SET version=1;
+
+Determine your appropriate database ``version`` by referencing the following table:
+
+    +------------+-------------+
+    | Release    | ``version`` |
+    +============+=============+
+    | pre-diablo | (see below) |
+    +------------+-------------+
+    | diablo     | 1           |
+    +------------+-------------+
+    | essex-m1   | 3           |
+    +------------+-------------+
+    | essex-m2   | 4           |
+    +------------+-------------+
+
+From there, you can upgrade normally (see :ref:`upgrading`).
+
+Starting with a pre-diablo database (cactus)
+--------------------------------------------
+
+You'll need to manually migrate your database to a diablo-compatible
+schema, and continue forward from there (if desired) using migrations.
+
+.. _upgrading:
 
 Upgrading & Downgrading
 =======================
 
-Fresh installs of Keystone will need to run database upgrades, which will build a schema and bootstrap it with any necessary data.
+.. note::
 
-Upgrade::
+    Attempting to start keystone with an outdated schema will cause
+    keystone to abort, to avoid corrupting your data.
 
-    $ python keystone/backends/sqlalchemy/migrate_repo/manage.py upgrade --url=sqlite:///bin/keystone.db --repository=keystone/backends/sqlalchemy/migrate_repo/
+Upgrade to the latest version automatically::
 
-Downgrade (will likely result in data loss!)::
+    $ ./bin/keystone-manage database sync
 
-    $ python keystone/backends/sqlalchemy/migrate_repo/manage.py downgrade 1 --url=sqlite:///bin/keystone.db --repository=keystone/backends/sqlalchemy/migrate_repo/
+Check your current schema version::
+
+    $ ./bin/keystone-manage database version
+
+Upgrade to a specific version::
+
+    $ ./bin/keystone-manage database upgrade <version_number>
+
+Downgrade to a specific version (will likely result in data loss!)::
+
+    $ ./bin/keystone-manage database downgrade <version_number>
+
+Opting Out of Migrations
+========================
+
+If you don't want to use migrations (e.g. if you want to manage your
+schema manually), keystone will complain in your logs on startup, but
+won't actually stop you from doing so.
+
+It's recommended that you use migrations to get up and running, but if
+you want to manage migrations manually after that, simply drop the
+``migrate_version`` table::
+
+    DROP TABLE migrate_version;
 
 Useful Links
 ============

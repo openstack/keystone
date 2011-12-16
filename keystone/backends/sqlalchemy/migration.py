@@ -29,7 +29,23 @@ except ImportError:
 from keystone.logic.types import fault
 
 
-logger = logging.getLogger('keystone.backends.sqlalchemy.migration')
+logger = logging.getLogger(__name__)
+
+
+def get_migrate_repo(repo_path):
+    return versioning_api.repository.Repository(repo_path)
+
+
+def get_schema(engine, repo_path):
+    return versioning_api.schema.ControlledSchema(engine, repo_path)
+
+
+def get_repo_version(repo_path):
+    return get_migrate_repo(repo_path).latest
+
+
+def get_db_version(engine, repo_path):
+    return get_schema(engine, repo_path).version
 
 
 def db_version(options):
@@ -41,7 +57,6 @@ def db_version(options):
     """
     repo_path = get_migrate_repo_path()
     sql_connection = options['sql_connection']
-    print repo_path, sql_connection
     try:
         return versioning_api.db_version(sql_connection, repo_path)
     except versioning_exceptions.DatabaseNotControlledError:
