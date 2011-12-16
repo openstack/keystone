@@ -19,8 +19,12 @@ class TestKeystoneManage(unittest.TestCase):
         """
         Test that we can call keystone-manage
         """
-        result = subprocess.check_output([os.path.join(possible_topdir, 'bin',
-                                                'keystone-manage'), '--help'])
+        cmd = [
+            os.path.join(possible_topdir, 'bin', 'keystone-manage'),
+            '--help',
+        ]
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        result = process.communicate()[0]
         self.assertIn('Usage', result)
 
 if __name__ == '__main__':
