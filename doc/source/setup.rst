@@ -48,6 +48,19 @@ different version of the above, please document your configuration here!
 .. _git: http://git-scm.com/
 .. _setuptools: http://pypi.python.org/pypi/setuptools
 
+Getting the latest code
+=======================
+
+You can clone our latest code from our `Github repository`::
+
+    $ git clone https://github.com/openstack/keystone.git
+
+When that is complete, you can::
+
+    $ cd keystone
+
+.. _`Github repository`: https://github.com/openstack/keystone
+
 Installing dependencies
 =======================
 
