@@ -36,7 +36,7 @@ class TestD5Auth(unittest.TestCase):
         self.assertIsNone(creds.tenant_id)
         self.assertIsNone(creds.tenant_name)
 
-    def test_pwd_creds_with_tenant_from_json(self):
+    def test_pwd_creds_with_tenant_name_from_json(self):
         data = json.dumps({"passwordCredentials":
                                 {"tenantName": "blaa", "username": "foo",
                                  "password": "bar"}})
@@ -46,7 +46,7 @@ class TestD5Auth(unittest.TestCase):
         self.assertIsNone(creds.tenant_id)
         self.assertEqual(creds.tenant_name, "blaa")
 
-    def test_pwd_creds_with_tenant_from_json(self):
+    def test_pwd_creds_with_tenant_id_from_json(self):
         data = json.dumps({"passwordCredentials":
                                 {"tenantId": "blaa", "username": "foo",
                                  "password": "bar"}})

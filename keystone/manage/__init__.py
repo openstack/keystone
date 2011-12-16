@@ -140,13 +140,6 @@ def process(*args):
     optional_arg = (lambda args, x:
         len(args) > x and str(args[x]).strip() or None)
 
-    def print_table(header_row, rows):
-        """Prints a lists of lists as table in a human readable format"""
-        print "\t".join(header_row)
-        print '-' * 79
-        rows = [[str(col) for col in row] for row in rows]
-        print "\n".join(["\t".join(row) for row in rows])
-
     # Execute command
     if (object_type, action) == ('user', 'add'):
         require_args(args, 4, 'No password specified for fourth argument')
@@ -155,7 +148,8 @@ def process(*args):
             print "SUCCESS: User %s created." % object_id
 
     elif (object_type, action) == ('user', 'list'):
-        print_table(('id', 'name', 'enabled', 'tenant'), api.list_users())
+        print Table('Users', ['id', 'name', 'enabled', 'tenant'],
+                    api.list_users())
 
     elif (object_type, action) == ('user', 'disable'):
         if api.disable_user(name=object_id):
@@ -169,7 +163,7 @@ def process(*args):
             print "SUCCESS: Tenant %s created." % object_id
 
     elif (object_type, action) == ('tenant', 'list'):
-        print_table(('id', 'name', 'enabled'), api.list_tenants())
+        print Table('Tenants', ['id', 'name', 'enabled'], api.list_tenants())
 
     elif (object_type, action) == ('tenant', 'disable'):
         if api.disable_tenant(name=object_id):
@@ -186,12 +180,12 @@ def process(*args):
         tenant = optional_arg(args, 2)
         if tenant:
             # print with users
-            print 'Role assignments for tenant %s' % tenant
-            print_table(('User', 'Role'),
-                api.list_roles(tenant=tenant))
+            print Table('Role assignments for tenant %s' % tenant,
+                        ['User', 'Role'],
+                       api.list_roles(tenant=tenant))
         else:
             # print without tenants
-            print_table(('id', 'name', 'service_id', 'description'),
+            print Table('Roles', ['id', 'name', 'service_id', 'description'],
                 api.list_roles())
 
     elif (object_type, action) == ('role', 'grant'):
@@ -223,13 +217,13 @@ def process(*args):
     elif (object_type, action) == ('endpointTemplates', 'list'):
         tenant = optional_arg(args, 2)
         if tenant:
-            print 'Endpoints for tenant %s' % tenant
-            print_table(('service', 'region', 'Public URL'),
-                api.list_tenant_endpoints(tenant))
+            print Table('Endpoints for tenant %s' % tenant,
+                        ['id', 'service', 'region', 'Public URL'],
+                        api.list_tenant_endpoints(tenant))
         else:
-            print 'All EndpointTemplates'
-            print_table(('id', 'service', 'type', 'region', 'enabled',
-                         'is_global', 'Public URL', 'Admin URL'),
+            print Table('All EndpointTemplates', ['id', 'service', 'type',
+                        'region', 'enabled', 'is_global', 'Public URL',
+                        'Admin URL'],
                 api.list_endpoint_templates())
 
     elif (object_type, action) == ('endpoint', 'add'):
@@ -250,7 +244,7 @@ def process(*args):
             print "SUCCESS: Token %s created." % (object_id,)
 
     elif (object_type, action) == ('token', 'list'):
-        print_table(('token', 'user', 'expiration', 'tenant'),
+        print Table('Tokens', ('token', 'user', 'expiration', 'tenant'),
             api.list_tokens())
 
     elif (object_type, action) == ('token', 'delete'):
@@ -273,8 +267,9 @@ def process(*args):
             print "SUCCESS: Service %s created successfully." % (object_id,)
 
     elif (object_type, action) == ('service', 'list'):
-        print_table(('id', 'name', 'type', 'owner_id', 'description'),
-            api.list_services())
+        print Table('Services',
+                    ('id', 'name', 'type', 'owner_id', 'description'),
+                    api.list_services())
 
     elif object_type == 'service':
         raise optparse.OptParseError(ACTION_NOT_SUPPORTED % ('services'))
@@ -393,6 +388,62 @@ def do_db_sync(options, args):
     except IndexError:
         db_version = None
     migration.db_sync(options, version=db_version)
+
+
+class Table:
+    """Prints data in table for console output
+
+    Syntax print Table("This is the title",
+            ["Header1","Header2","H3"],
+            [[1,2,3],["Hi","everybody","How are you??"],[None,True,[1,2]]])
+
+    """
+    def __init__(self, title=None, headers=None, rows=None):
+        self.title = title
+        self.headers = headers if headers is not None else []
+        self.rows = rows if rows is not None else []
+        self.nrows = len(self.rows)
+        self.fieldlen = []
+
+        ncols = len(headers)
+
+        for h in range(ncols):
+            max = 0
+            for row in rows:
+                if len(str(row[h])) > max:
+                    max = len(str(row[h]))
+            self.fieldlen.append(max)
+
+        for i in range(len(headers)):
+            if len(str(headers[i])) > self.fieldlen[i]:
+                self.fieldlen[i] = len(str(headers[i]))
+
+        self.width = sum(self.fieldlen) + (ncols - 1) * 3 + 4
+
+    def __str__(self):
+        bar = "-" * self.width
+        if self.title:
+            title = "| " + self.title + " " * \
+                    (self.width - 3 - (len(self.title))) + "|"
+            out = [bar, title, bar]
+        else:
+            out = []
+        header = ""
+        for i in range(len(self.headers)):
+            header += "| %s" % (str(self.headers[i])) + " " * \
+                (self.fieldlen[i] - len(str(self.headers[i]))) + " "
+        header += "|"
+        out.append(header)
+        out.append(bar)
+        for i in self.rows:
+            line = ""
+            for j in range(len(i)):
+                line += "| %s" % (str(i[j])) + " " * \
+                (self.fieldlen[j] - len(str(i[j]))) + " "
+            out.append(line + "|")
+
+        out.append(bar)
+        return "\r\n".join(out)
 
 
 def main(args=None):
