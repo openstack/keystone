@@ -3,6 +3,7 @@ import subprocess
 import sys
 import unittest
 
+# Calculate root path so ewe call files in bin
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(__file__),
                                    os.pardir,
                                    os.pardir,

@@ -20,14 +20,11 @@ import datetime
 import functools
 import httplib
 import logging
-import pprint
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                '..', '..', '..', '..', '..', 'keystone')))
-import unittest2 as unittest
-
 from lxml import etree, objectify
+import pprint
+import os
+import sys
+import unittest2 as unittest
 import webob
 
 from keystone import server

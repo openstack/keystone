@@ -45,15 +45,7 @@ import json
 from lxml import etree
 import os
 import sys
-
 from webob.exc import Request
-
-POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir,
-                                   os.pardir))
-if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
-    sys.path.insert(0, POSSIBLE_TOPDIR)
 
 from keystone.logic.types import fault
 import keystone.utils as utils
