@@ -13,13 +13,12 @@ Keystone uses SQLAlchemy Migrate (``sqlalchemy-migrate``) to manage migrations.
 Getting Started
 ===============
 
-Migrations are tracked using a metadata table. Place an existing database under version control to enable migration support (SQLite in this case)::
+Migrations are tracked using a metadata table. Place a new or existing schema under version control to enable migration support (SQLite in this case)::
 
     $ python keystone/backends/sqlalchemy/migrate_repo/manage.py version_control --url=sqlite:///bin/keystone.db --repository=keystone/backends/sqlalchemy/migrate_repo/
 
-If you are starting with an existing schema, you can set your database to the current schema version number using a
-SQL command. For example, if you're starting from a
-diablo-compatible database, set your current database version to ``1``::
+If you are starting with an existing schema, you **must** set your database to the appropriate schema version number using a
+SQL command. For example, if you're starting from a ``diablo`` or ``diablo/stable`` database, set your current database version to ``1``::
 
     UPDATE migrate_version SET version=1;
 
