@@ -35,8 +35,8 @@ from keystone.logic.types.credential import Credentials, PasswordCredentials
 from keystone import utils
 # New imports as we refactor old backend design and models
 from keystone.models import Tenant, Token
-from keystone.token import Manager as TokenManager
-from keystone.tenant import Manager as TenantManager
+from keystone.managers.token import Manager as TokenManager
+from keystone.managers.tenant import Manager as TenantManager
 
 
 LOG = logging.getLogger('keystone.logic.service')
