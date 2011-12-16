@@ -335,12 +335,12 @@ class AuthProtocol(object):
     def _cache_put(self, env, token, claims, valid):
         """ Put a claim into the cache """
         cache = self._cache(env)
-        if (cache and claims):
+        if cache and claims:
             key = 'tokens/%s' % (token)
-            claims = self._protect_claims(token, claims)
             if "timeout" in cache.set.func_code.co_varnames:
                 # swift cache
                 expires = self._convert_date(claims['expires'])
+                claims = self._protect_claims(token, claims)
                 cache.set(key, (claims, expires, valid),
                              timeout=expires - time.time())
             else:
@@ -351,6 +351,7 @@ class AuthProtocol(object):
                 if timeout > MAX_CACHE_TIME or not valid:
                     # Limit cache to one day (and cache bad tokens for a day)
                     timeout = MAX_CACHE_TIME
+                claims = self._protect_claims(token, claims)
                 cache.set(key, (claims, expires, valid), time=timeout)
 
     def _cache_get(self, env, token):
@@ -363,14 +364,18 @@ class AuthProtocol(object):
             if cached_claims:
                 claims, expires, valid = cached_claims
                 if valid:
-                    if expires > datetime.now():
-                        claims = self._unprotect_claims(token, claims)
+                    if "timeout" in cache.set.func_code.co_varnames:
+                        if expires > time.time():
+                            claims = self._unprotect_claims(token, claims)
+                    else:
+                        if expires > datetime.now():
+                            claims = self._unprotect_claims(token, claims)
                 return (claims, expires, valid)
         return None
 
     def _cache(self, env):
         """ Return a cache to use for token caching, or none """
-        if (self.cache is not None):
+        if self.cache is not None:
             return env.get(self.cache, None)
         return None
 
