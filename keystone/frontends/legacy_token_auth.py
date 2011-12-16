@@ -26,19 +26,11 @@ receives into custom headers defined in properties and returns
 the response.
 """
 
+import ast
+import json
 import os
 import sys
-import json
-import ast
-
 from webob.exc import Request
-
-POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir,
-                                   os.pardir))
-if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
-    sys.path.insert(0, POSSIBLE_TOPDIR)
 
 import keystone.utils as utils
 
