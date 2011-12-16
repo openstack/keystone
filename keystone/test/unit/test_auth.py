@@ -29,7 +29,7 @@ class TestAuth(unittest.TestCase):
         self.assertIsNone(creds.tenant_id)
         self.assertIsNone(creds.tenant_name)
 
-    def test_pwd_creds_with_tenant_from_json(self):
+    def test_pwd_creds_with_tenant_name_from_json(self):
         data = json.dumps({"auth":
                                {"tenantName": "blaa",
                                 "passwordCredentials":
@@ -40,7 +40,7 @@ class TestAuth(unittest.TestCase):
         self.assertIsNone(creds.tenant_id)
         self.assertEqual(creds.tenant_name, "blaa")
 
-    def test_pwd_creds_with_tenant_from_json(self):
+    def test_pwd_creds_with_tenant_id_from_json(self):
         data = json.dumps({"auth":
                                {"tenantId": "blaa",
                                 "passwordCredentials":
@@ -176,7 +176,7 @@ class TestAuth(unittest.TestCase):
                                 auth.AuthWithUnscopedToken.from_json,
                                 data)
 
-    def test_token_invalid_attribute_from_json(self):
+    def test_token_invalid_token_attribute_from_json(self):
         data = json.dumps({"auth": {"token": {"bar": "foo"}}})
         self.assertRaisesRegexp(fault.BadRequestFault,
                                 "Invalid",
