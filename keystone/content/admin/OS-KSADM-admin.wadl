@@ -117,7 +117,7 @@
                     <method href="#addService"/>
                     <method href="#getServiceByName"/>
                     <resource id="serviceId" path="{serviceId}">
-                        <param name="serviceId" style="template" type="xsd:int"/>
+                        <param name="serviceId" style="template" type="xsd:string"/>
                         <method href="#getService"/>
                         <method href="#deleteService"/>
                     </resource>

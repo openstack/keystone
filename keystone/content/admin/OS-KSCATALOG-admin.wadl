@@ -63,7 +63,7 @@
                     <method href="#addEndpointTemplate"/>
                     <resource id="endpointTemplateId" path="{endpointTemplateId}">
                         <param name="X-Auth-Token" style="header" type="xsd:string" required="true"/>
-                        <param name="endpointTemplateId" style="template" type="xsd:int"/>
+                        <param name="endpointTemplateId" style="template" type="xsd:string"/>
                         <method href="#getEndpointTemplate"/>
                         <method href="#updateEndpointTemplate"/>
                         <method href="#deleteEndpointTemplate"/>
