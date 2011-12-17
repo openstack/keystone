@@ -145,7 +145,8 @@ def add_endpoint(tenant, endpoint_template):
 
 def add_token(token, user, tenant, expires):
     user = db_api.USER.get_by_name(name=user).id
-    tenant = db_api.TENANT.get_by_name(name=tenant).id
+    if tenant:
+        tenant = db_api.TENANT.get_by_name(name=tenant).id
 
     obj = models.Token()
     obj.id = token
