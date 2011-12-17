@@ -207,12 +207,15 @@ class TenantAPI(api.BaseTenantAPI):
             session = get_session()
 
         if marker:
-            return session.query(models.Tenant).filter("id>:marker").params(\
+            tenants = session.query(models.Tenant).\
+                    filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
                     models.Tenant.id.desc()).limit(limit).all()
         else:
-            return session.query(models.Tenant).order_by(\
+            tenants = session.query(models.Tenant).order_by(\
                                 models.Tenant.id.desc()).limit(limit).all()
+
+        return self.to_model_list(tenants)
 
     # pylint: disable=R0912
     def get_page_markers(self, marker, limit, session=None):

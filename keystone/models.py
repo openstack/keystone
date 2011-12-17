@@ -413,6 +413,8 @@ class Tenant(Resource):
                                       *args, **kw)
         if isinstance(self.id, int):
             self.id = str(self.id)
+        if isinstance(self.enabled, basestring):
+            self.enabled = self.enabled.lower() == 'true'
 
     @classmethod
     def from_xml(cls, xml_str, hints=None):
