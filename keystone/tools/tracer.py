@@ -85,6 +85,8 @@ if '--trace-calls' in sys.argv:
             return
         if func_filename.startswith("/Library"):
             return
+        if func_filename.startswith("/usr/lib/py"):
+            return
         if 'macosx' in func_filename:
             return
         func_line_no = frame.f_lineno
