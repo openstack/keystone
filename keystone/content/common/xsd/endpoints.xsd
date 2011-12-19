@@ -59,7 +59,7 @@
             <element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>        
-        <attribute name="id" type="xsd:ID" use="required">
+        <attribute name="id" type="xsd:string" use="required">
             <annotation>
                 <xsd:documentation
                         xml:lang="EN"
