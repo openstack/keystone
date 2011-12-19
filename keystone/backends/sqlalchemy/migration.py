@@ -32,6 +32,14 @@ from keystone.logic.types import fault
 logger = logging.getLogger(__name__)
 
 
+def get_migrate_repo_path():
+    """Get the path for the migrate repository."""
+    path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                        'migrate_repo')
+    assert os.path.exists(path)
+    return path
+
+
 def get_migrate_repo(repo_path):
     return versioning_api.repository.Repository(repo_path)
 
@@ -46,6 +54,35 @@ def get_repo_version(repo_path):
 
 def get_db_version(engine, repo_path):
     return get_schema(engine, repo_path).version
+
+
+def db_goto_version(options, version):
+    """
+    Jump to a specific database version without performing migrations.
+
+    :param options: options dict
+    :param version: version to jump to
+    """
+
+    @versioning_api.with_engine
+    def set_db_version(url, repository, old_v, new_v, **opts):
+        engine = opts.pop('engine')
+        schema = get_schema(engine, repo_path)
+        schema.update_repository_table(old_v, new_v)
+        return True
+
+    repo_path = get_migrate_repo_path()
+    sql_connection = options['sql_connection']
+    new_version = int(version)
+    try:
+        old_version = versioning_api.db_version(sql_connection, repo_path)
+        if new_version != old_version:
+            return set_db_version(sql_connection, repo_path, old_version,
+                new_version)
+    except versioning_exceptions.DatabaseNotControlledError:
+        msg = (_("database '%(sql_connection)s' is not under "
+                 "migration control") % locals())
+        raise fault.DatabaseMigrationError(msg)
 
 
 def db_version(options):
@@ -137,11 +174,3 @@ def db_sync(options, version=None):
         pass
 
     upgrade(options, version=version)
-
-
-def get_migrate_repo_path():
-    """Get the path for the migrate repository."""
-    path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                        'migrate_repo')
-    assert os.path.exists(path)
-    return path

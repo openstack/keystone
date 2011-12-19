@@ -44,17 +44,18 @@ support::
 
     $ ./bin/keystone-manage database version_control
 
-This command simply creates a ``migrate_version`` table, set at version 0,
-which indicates that no migrations have been applied.
+This command simply creates a ``migrate_version`` table, set at
+``version_number`` 0, which indicates that no migrations have been applied.
 
-If you are starting with an existing schema, you can set your database to
-the current schema version using a SQL command. For example, if you're
-starting from a diablo-compatible database, set your current
-database version to ``1``::
+If you are starting with an existing schema, you can jump to a specific
+schema version without performing migrations using the ``database goto``
+command. For example, if you're starting from a diablo-compatible
+database, set your current database ``version_number`` to ``1`` using::
 
-    UPDATE migrate_version SET version=1;
+    $ ./bin/keystone-manage database goto <version_number>
 
-Determine your appropriate database ``version`` by referencing the following table:
+Determine your appropriate database ``version_number`` by referencing the
+following table:
 
     +------------+-------------+
     | Release    | ``version`` |
@@ -93,6 +94,10 @@ Upgrade to the latest version automatically::
 Check your current schema version::
 
     $ ./bin/keystone-manage database version
+
+Jump to a specific version without performing migrations::
+
+    $ ./bin/keystone-manage database goto <version_number>
 
 Upgrade to a specific version::
 

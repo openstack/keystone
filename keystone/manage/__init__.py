@@ -40,9 +40,9 @@ logger = logging.getLogger(__name__)
 # CLI feature set
 OBJECTS = ['user', 'tenant', 'role', 'service',
     'endpointTemplates', 'token', 'endpoint', 'credentials', 'database']
-ACTIONS = ['add', 'list', 'disable', 'delete', 'grant',
-    'revoke',
-    'sync', 'downgrade', 'upgrade', 'version_control', 'version']
+ACTIONS = ['add', 'list', 'disable', 'delete', 'grant', 'revoke',
+    'sync', 'downgrade', 'upgrade', 'version_control', 'version',
+    'goto']
 
 
 # Messages
@@ -342,6 +342,18 @@ def process(*args):
                 raise optparse.OptParseError(
                     'SQL alchemy backend not specified in config')
 
+    elif (object_type, action) == ('database', 'goto'):
+        require_args(args, 1, 'Jumping database versions requires a '
+            'version #')
+        backend_names = options.get('backends', None)
+        if backend_names:
+            if 'keystone.backends.sqlalchemy' in backend_names.split(','):
+                do_db_goto_version(options['keystone.backends.sqlalchemy'],
+                    version=args[2])
+            else:
+                raise optparse.OptParseError(
+                    'SQL alchemy backend not specified in config')
+
     else:
         # Command recognized but not handled: should never reach this
         raise NotImplementedError()
@@ -353,6 +365,14 @@ def process(*args):
 def do_db_version(options):
     """Print database's current migration level"""
     print migration.db_version(options)
+
+
+def do_db_goto_version(options, version):
+    """Override the database's current migration level"""
+    if migration.db_goto_version(options, version):
+        msg = ('Jumped to version=%s (without performing intermediate '
+            'migrations)') % version
+        print msg
 
 
 def do_db_upgrade(options, args):
