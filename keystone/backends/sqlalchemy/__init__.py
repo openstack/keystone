@@ -19,14 +19,24 @@
 from sqlalchemy.orm import joinedload, aliased, sessionmaker
 
 import ast
+import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
+try:
+    from migrate.versioning import exceptions as versioning_exceptions
+except ImportError:
+    from migrate import exceptions as versioning_exceptions
+
 from keystone import utils
 from keystone.backends.sqlalchemy import models
+from keystone.backends.sqlalchemy import migration
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models
+
+
+logger = logging.getLogger(__name__)
 
 
 _DRIVER = None
@@ -36,32 +46,57 @@ class Driver():
     def __init__(self, options):
         self.session = None
         self._engine = None
-        connection_str = options['sql_connection']
+        self.connection_str = options['sql_connection']
         model_list = ast.literal_eval(options["backend_entities"])
 
-        self._init_engine(connection_str)
+        self._init_engine(model_list)
         self._init_models(model_list)
         self._init_session_maker()
 
-    def _init_engine(self, connection_str):
-        if connection_str == "sqlite://":
-            # in-memory sqlite
+    def _init_engine(self, model_list):
+        if self.connection_str == "sqlite://":
+            # initialize in-memory sqlite (i.e. for testing)
             self._engine = create_engine(
-                connection_str,
+                self.connection_str,
                 connect_args={'check_same_thread': False},
                 poolclass=StaticPool)
+
+            # TODO(dolph): we should be using version control, but
+            # we don't have a way to pass our in-memory instance to
+            # the versioning api
+            self._init_tables(model_list)
         else:
+            # initialize a "real" database
             self._engine = create_engine(
-                connection_str,
+                self.connection_str,
                 pool_recycle=3600)
+            self._init_version_control()
+
+    def _init_version_control(self):
+        """Verify the state of the database"""
+        repo_path = migration.get_migrate_repo_path()
+
+        try:
+            repo_version = migration.get_repo_version(repo_path)
+            db_version = migration.get_db_version(self._engine, repo_path)
+
+            if repo_version != db_version:
+                msg = ('Database (%s) is not up to date (current=%s, '
+                    'latest=%s); run `keystone-manage database sync` or '
+                    'override your migrate version manually (see docs)' %
+                    (self.connection_str, db_version, repo_version))
+                logging.warning(msg)
+                raise Exception(msg)
+        except versioning_exceptions.DatabaseNotControlledError:
+            msg = ('Database (%s) is not version controlled;'
+                'run `keystone-manage database sync`' %
+                (self.connection_str))
+            logging.warning(msg)
 
     def _init_models(self, model_list):
-        tables = []
-
         for model in model_list:
             model_path = '.'.join([__package__, 'models', model])
             module = utils.import_module(model_path)
-            tables.append(module.__table__)
 
             top_models.set_value(model, module)
 
@@ -69,6 +104,14 @@ class Driver():
                 api_path = '.'.join([__package__, 'api', module.__api__])
                 api_module = utils.import_module(api_path)
                 top_api.set_value(module.__api__, api_module.get())
+
+    def _init_tables(self, model_list):
+        tables = []
+
+        for model in model_list:
+            model_path = '.'.join([__package__, 'models', model])
+            module = utils.import_module(model_path)
+            tables.append(module.__table__)
 
         tables_to_create = []
         for table in reversed(models.Base.metadata.sorted_tables):

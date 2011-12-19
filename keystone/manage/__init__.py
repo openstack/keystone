@@ -34,6 +34,9 @@ from keystone.logic.types import fault
 from keystone.manage import api
 
 
+logger = logging.getLogger(__name__)
+
+
 # CLI feature set
 OBJECTS = ['user', 'tenant', 'role', 'service',
     'endpointTemplates', 'token', 'endpoint', 'credentials', 'database']
@@ -80,7 +83,7 @@ def parse_args(args=None):
     # Initialize a parser for our configuration paramaters
     parser = RaisingOptionParser(usage, version='%%prog %s'
         % version.version())
-    _common_group = config.add_common_options(parser)
+    config.add_common_options(parser)
     config.add_log_options(parser)
 
     # Parse command-line and load config
@@ -89,7 +92,8 @@ def parse_args(args=None):
 
     config.setup_logging(options, conf)
 
-    db.configure_backends(conf.global_conf)
+    if not args or args[0] != 'database':
+        db.configure_backends(conf.global_conf)
 
     return args
 
@@ -97,7 +101,7 @@ def parse_args(args=None):
 def get_options(args=None):
     # Initialize a parser for our configuration paramaters
     parser = RaisingOptionParser()
-    _common_group = config.add_common_options(parser)
+    config.add_common_options(parser)
     config.add_log_options(parser)
 
     # Parse command-line and load config
@@ -139,6 +143,9 @@ def process(*args):
 
     optional_arg = (lambda args, x:
         len(args) > x and str(args[x]).strip() or None)
+
+    if object_type == 'database':
+        options = get_options(args)
 
     # Execute command
     if (object_type, action) == ('user', 'add'):
@@ -286,8 +293,6 @@ def process(*args):
 
     elif (object_type, action) == ('database', 'sync'):
         require_args(args, 1, 'Syncing database requires a version #')
-        options = get_options(args)
-        options = get_options(args)
         backend_names = options.get('backends', None)
         if backend_names:
             if 'keystone.backends.sqlalchemy' in backend_names.split(','):
@@ -299,7 +304,6 @@ def process(*args):
 
     elif (object_type, action) == ('database', 'upgrade'):
         require_args(args, 1, 'Upgrading database requires a version #')
-        options = get_options(args)
         backend_names = options.get('backends', None)
         if backend_names:
             if 'keystone.backends.sqlalchemy' in backend_names.split(','):
@@ -311,7 +315,6 @@ def process(*args):
 
     elif (object_type, action) == ('database', 'downgrade'):
         require_args(args, 1, 'Downgrading database requires a version #')
-        options = get_options(args)
         backend_names = options.get('backends', None)
         if backend_names:
             if 'keystone.backends.sqlalchemy' in backend_names.split(','):
@@ -322,7 +325,6 @@ def process(*args):
                     'SQL alchemy backend not specified in config')
 
     elif (object_type, action) == ('database', 'version_control'):
-        options = get_options(args)
         backend_names = options.get('backends', None)
         if backend_names:
             if 'keystone.backends.sqlalchemy' in backend_names.split(','):
@@ -332,7 +334,6 @@ def process(*args):
                     'SQL alchemy backend not specified in config')
 
     elif (object_type, action) == ('database', 'version'):
-        options = get_options(args)
         backend_names = options.get('backends', None)
         if backend_names:
             if 'keystone.backends.sqlalchemy' in backend_names.split(','):
@@ -457,10 +458,10 @@ def main(args=None):
             info = exc.args[1]
         except IndexError:
             print "ERROR: %s" % (exc,)
-            logging.error(str(exc))
+            logger.error(str(exc))
         else:
             print "ERROR: %s: %s" % (exc.args[0], info)
-            logging.error(exc.args[0], exc_info=info)
+            logger.error(exc.args[0], exc_info=info)
         raise exc
 
 
