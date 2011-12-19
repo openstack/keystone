@@ -90,9 +90,9 @@ DEFAULT_FIXTURE = [
 # Tokens
     ('token', 'add', '887665443383838', 'joeuser', 'customer-x',
         '2012-02-05T00:00'),
-    ('token', 'add', '999888777666', 'admin', 'customer-x',
+    ('token', 'add', '999888777666', 'admin', None,
         '2015-02-05T00:00'),
-    ('token', 'add', '111222333444', 'serviceadmin', 'customer-x',
+    ('token', 'add', '111222333444', 'serviceadmin', None,
         '2015-02-05T00:00'),
     ('token', 'add', '000999', 'admin', 'customer-x', '2010-02-05T00:00'),
     ('token', 'add', '999888777', 'disabled', 'customer-x',
