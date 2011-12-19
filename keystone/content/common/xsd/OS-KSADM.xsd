@@ -62,7 +62,7 @@
 
     <!-- Complex Types -->
     <complexType name="Service">
-        <attribute name="id" type="xsd:ID" use="required"/>
+        <attribute name="id" type="xsd:string" use="required"/>
         <attribute name="name" type="xsd:string" use="required"/>
         <attribute name="type" type="identity:ExtensibleServiceType" use="required"/>
         <attribute name="description" type="xsd:string"  use="optional"/>
@@ -98,9 +98,9 @@
     <complexType name="UserWithOnlyEnabled">
         <complexContent>
             <restriction base="identity:User">
-                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="id" type="xsd:string" use="prohibited"/>
                 <attribute name="email" type="xsd:string" use="prohibited"/>
-                <attribute name="username" type="xsd:ID" use="prohibited"/>
+                <attribute name="username" type="xsd:string" use="prohibited"/>
                 <attribute name="enabled" type="xsd:boolean" use="required"/>
             </restriction>
         </complexContent>

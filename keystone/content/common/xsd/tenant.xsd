@@ -77,7 +77,7 @@
             </element>
             <any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </sequence>
-        <attribute name="id" type="xsd:ID" use="optional">
+        <attribute name="id" type="xsd:string" use="optional">
             <annotation>
                 <xsd:documentation
                     xml:lang="EN"
