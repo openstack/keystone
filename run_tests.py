@@ -45,7 +45,7 @@ if __name__ == '__main__':
         if filter:
             TESTS = [t for t in TESTS if filter in str(t)]
             if not TESTS:
-                print 'No tests by the name %s found' % filter
+                print 'No test configuration by the name %s found' % filter
                 exit()
 
     if len(TESTS) > 1:
