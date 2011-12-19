@@ -28,7 +28,7 @@ class BackendTestCase(unittest.TestCase):
             options['backends'] = 'keystone.backends.sqlalchemy'
             if 'keystone.backends.sqlalchemy' not in options:
                 options['keystone.backends.sqlalchemy'] = {
-                "sql_connection": "sqlite:///",
+                "sql_connection": "sqlite://",
                 "backend_entities": "['UserRoleAssociation', 'Endpoints',\
                                      'Role', 'Tenant', 'User',\
                                      'Credentials', 'EndpointTemplates',\
