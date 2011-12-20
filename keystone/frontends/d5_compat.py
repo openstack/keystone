@@ -239,9 +239,10 @@ class D5toDiabloAuthData(object):
             else:
                 raise fault.IdentityFault("%s not initialized with data" % \
                                           self.__class__.__str__)
-        d5_data = {"auth": {}}
-        for key, value in self.json.iteritems():
-            d5_data["auth"][key] = value
+        d5_data = {"auth": self.json.copy()}
+        d5_data['auth']['serviceCatalog'] = \
+            dict([(s['type'], s['endpoints'])
+                   for s in d5_data['auth']['serviceCatalog']])
 
         return json.dumps(d5_data)
 

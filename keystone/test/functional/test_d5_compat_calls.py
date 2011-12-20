@@ -154,6 +154,14 @@ class D5_AuthenticationTest(common.FunctionalTestCase):
 
         self.post_token(as_xml=data, assert_status=400)
 
+    def check_urls_for_regular_user(self, service_catalog):
+        self.assertIsNotNone(service_catalog)
+        for k in service_catalog.keys():
+            endpoints = service_catalog[k]
+            for endpoint in endpoints:
+                for key in endpoint:
+                    #Checks whether adminURL is not present.
+                    self.assertNotEquals(key, 'adminURL')
 
 if __name__ == '__main__':
     unittest.main()
