@@ -1,10 +1,17 @@
-import unittest2 as unittest
+import datetime
 import httplib
-import uuid
 import json
+import logging
 import os
+import unittest2 as unittest
+import uuid
 from webob import Request, Response
 from xml.etree import ElementTree
+
+from keystone import server
+import keystone.backends.api as db_api
+
+logger = logging.getLogger('test.functional.common')
 
 
 def isSsl():
@@ -44,7 +51,13 @@ class HttpTestCase(unittest.TestCase):
 
         # Retrieve the response so can go ahead and close the connection
         response = connection.getresponse()
+        logger.debug("%s %s returned %s", method, path, response.status)
+
         response.body = response.read()
+        if response.status != httplib.OK:
+            logger.debug("Response Body:")
+            for line in response.body.split("\n"):
+                logger.debug(line)
 
         # Close the connection
         connection.close()
@@ -183,9 +196,222 @@ class RestfulTestCase(HttpTestCase):
 
 class ApiTestCase(RestfulTestCase):
     """Abstracts REST verbs & resources of the service & admin API."""
+    use_server = False
+
+    admin_role_name = 'Admin'
+    service_admin_role_name = 'KeystoneServiceAdmin'
+    member_role_name = 'Member'
+
+    # Same as KeystoneTest settings
+    admin_username = 'admin'
+    admin_password = 'secrete'
 
     service_token = None
     admin_token = None
+
+    service_api = None
+    admin_api = None
+
+    """
+    Dict of configuration options to pass to the API controller
+    """
+    options = {
+        'backends': "keystone.backends.sqlalchemy",
+        'keystone.backends.sqlalchemy': {
+            # in-memory db
+            'sql_connection': 'sqlite://',
+            'verbose': False,
+            'debug': False,
+            'backend_entities':
+                "['UserRoleAssociation', 'Endpoints', 'Role', 'Tenant', "
+                "'Tenant', 'User', 'Credentials', 'EndpointTemplates', "
+                "'Token', 'Service']",
+        },
+        'extensions': 'osksadm,oskscatalog',
+        'keystone-admin-role': 'Admin',
+        'keystone-service-admin-role': 'KeystoneServiceAdmin',
+        'hash-password': 'True',
+    }
+
+    def fixture_create_role(self, **kwargs):
+        """
+        Creates a role fixture.
+
+        :params \*\*kwargs: Attributes of the role to create
+        """
+        values = kwargs.copy()
+        role = db_api.ROLE.create(values)
+        logger.debug("Created role fixture %s (id=%s)", role.name, role.id)
+        return role
+
+    def fixture_create_token(self, **kwargs):
+        """
+        Creates a token fixture.
+
+        :params \*\*kwargs: Attributes of the token to create
+        """
+        values = kwargs.copy()
+        token = db_api.TOKEN.create(values)
+        logger.debug("Created token fixture %s", token.id)
+        return token
+
+    def fixture_create_tenant(self, **kwargs):
+        """
+        Creates a tenant fixture.
+
+        :params \*\*kwargs: Attributes of the tenant to create
+        """
+        values = kwargs.copy()
+        tenant = db_api.TENANT.create(values)
+        logger.debug("Created tenant fixture %s (id=%s)", tenant.name,
+                     tenant.id)
+        return tenant
+
+    def fixture_create_user(self, **kwargs):
+        """
+        Creates a user fixture. If the user's tenant ID is set, and the tenant
+        does not exist in the database, the tenant is created.
+
+        :params \*\*kwargs: Attributes of the user to create
+        """
+        values = kwargs.copy()
+        tenant_name = values.get('tenant_name')
+        if tenant_name:
+            if not db_api.TENANT.get_by_name(tenant_name):
+                tenant = db_api.TENANT.create({'name': tenant_name,
+                                      'enabled': True,
+                                      'desc': tenant_name})
+                values['tenant_id'] = tenant.id
+        user = db_api.USER.create(values)
+        logger.debug("Created user fixture %s (id=%s)", user.name, user.id)
+        return user
+
+    def setUp(self):
+        if self.use_server:
+            return
+
+        self.service_api = server.ServiceApi(self.options)
+        self.admin_api = server.AdminApi(self.options)
+
+        # ADMIN ROLE
+        self.admin_role = self.fixture_create_role(
+            name=self.admin_role_name)
+
+        # ADMIN
+        password = unique_str()
+        self.admin_user = self.fixture_create_user(
+            name="admin-user-%s" % uuid.uuid4().hex, enabled=True,
+            password=password)
+        self.admin_user['password'] = password
+        self.admin_password = password
+        self.admin_username = self.admin_user['name']
+
+        obj = {}
+        obj['role_id'] = self.admin_role['id']
+        obj['user_id'] = self.admin_user['id']
+        obj['tenant_id'] = None
+        result = db_api.USER.user_role_add(obj)
+        logger.debug("Created grant fixture %s", result.id)
+
+        # SERVICE ADMIN ROLE
+        self.service_admin_role = self.fixture_create_role(
+            name=self.service_admin_role_name)
+
+        # MEMBER ROLE
+        self.member_role = self.fixture_create_role(
+            name='Member')
+
+    def tearDown(self):
+        pass
+
+    def request(self, host='127.0.0.1', port=80, method='GET', path='/',
+            headers=None, body=None, assert_status=None, server=None):
+        """Overrides HttpTestCase and uses local calls"""
+        if self.use_server:
+            # Call a real server (bypass the override)
+            return super(ApiTestCase, self).request(host=host, port=port,
+                                    method=method, path=path, headers=headers,
+                                    body=body, assert_status=assert_status)
+        req = Request.blank(path)
+        req.method = method
+        req.headers = headers
+        if isinstance(body, unicode):
+            req.body = body.encode('utf-8')
+        else:
+            req.body = body
+
+        res = req.get_response(server)
+        logger.debug("%s %s returned %s", req.method, req.path_qs,
+                     res.status)
+        if res.status_int != httplib.OK:
+            logger.debug("Response Body:")
+            for line in res.body.split("\n"):
+                logger.debug(line)
+
+        # Automatically assert HTTP status code
+        if assert_status:
+            self.assertEqual(res.status_int, assert_status,
+                'Status code %s is not %s, as expected)\n\n%s' %
+                (res.status_int, assert_status, res.body))
+        else:
+            self.assertTrue(299 >= res.status_int >= 200,
+                'Status code %d is outside of the expected range (2xx)\n\n%s' %
+                (res.status_int, res.body))
+
+        # Contains the response headers, body, etc
+        return res
+
+    def _decode_response_body(self, response):
+        """Override to support webob.Response.
+        """
+        if self.use_server:
+            # Call a real server (bypass the override)
+            return super(ApiTestCase, self)._decode_response_body(response)
+
+        if response.body != None and response.body.strip():
+            if 'application/json' in response.content_type:
+                response.json = self._decode_json(response.body)
+            elif 'application/xml' in response.content_type:
+                response.xml = self._decode_xml(response.body)
+        return response
+
+    def assertResponseSuccessful(self, response):
+        """Asserts that a status code lies inside the 2xx range
+
+        :param response: :py:class:`webob.Response` to be
+          verified to have a status code between 200 and 299.
+
+        example::
+
+            >>> self.assertResponseSuccessful(response, 203)
+        """
+        if self.use_server:
+            # Call a real server (bypass the override)
+            return super(ApiTestCase, self).assertResponseSuccessful(response)
+
+        self.assertTrue(response.status_int >= 200 and
+                        response.status_int <= 299,
+            'Status code %d is outside of the expected range (2xx)\n\n%s' %
+            (response.status_int, response.body))
+
+    def assertResponseStatus(self, response, assert_status):
+        """Asserts a specific status code on the response
+
+        :param response: :py:class:`webob.Response`
+        :param assert_status: The specific ``status`` result expected
+
+        example::
+
+            >>> self.assertResponseStatus(response, 203)
+        """
+        if self.use_server:
+            # Call a real server (bypass the override)
+            return super(ApiTestCase, self).assertResponseStatus(response,
+                                                                 assert_status)
+
+        self.assertEqual(response.status_int, assert_status,
+            'Status code %s is not %s, as expected)\n\n%s' %
+            (response.status_int, assert_status, response.body))
 
     def service_request(self, version='2.0', path='', port=5000, headers=None,
             **kwargs):
@@ -194,7 +420,8 @@ class ApiTestCase(RestfulTestCase):
         # Initialize headers dictionary
         headers = {} if not headers else headers
 
-        path = ApiTestCase._version_path(version, path)
+        if self.use_server:
+            path = ApiTestCase._version_path(version, path)
 
         if self.service_token:
             headers['X-Auth-Token'] = self.service_token
@@ -202,7 +429,7 @@ class ApiTestCase(RestfulTestCase):
             headers['X-Auth-Token'] = self.admin_token
 
         return self.restful_request(port=port, path=path, headers=headers,
-            **kwargs)
+            server=self.service_api, **kwargs)
 
     def admin_request(self, version='2.0', path='', port=35357, headers=None,
             **kwargs):
@@ -211,13 +438,14 @@ class ApiTestCase(RestfulTestCase):
         # Initialize headers dictionary
         headers = {} if not headers else headers
 
-        path = ApiTestCase._version_path(version, path)
+        if self.use_server:
+            path = ApiTestCase._version_path(version, path)
 
         if self.admin_token:
             headers['X-Auth-Token'] = self.admin_token
 
         return self.restful_request(port=port, path=path, headers=headers,
-            **kwargs)
+            server=self.admin_api, **kwargs)
 
     @staticmethod
     def _version_path(version, path):
@@ -359,13 +587,13 @@ class ApiTestCase(RestfulTestCase):
 
     def put_user_role(self, user_id, role_id, tenant_id, **kwargs):
         if tenant_id is None:
-            """PUT /users/{user_id}/roles/OS-KSADM/{role_id}"""
+            # PUT /users/{user_id}/roles/OS-KSADM/{role_id}
             return self.admin_request(method='PUT',
                 path='/users/%s/roles/OS-KSADM/%s' %
                 (user_id, role_id), **kwargs)
         else:
-            """PUT /tenants/{tenant_id}/users/{user_id}/
-            roles/OS-KSADM/{role_id}"""
+            # PUT /tenants/{tenant_id}/users/{user_id}/
+            # roles/OS-KSADM/{role_id}
             return self.admin_request(method='PUT',
                 path='/tenants/%s/users/%s/roles/OS-KSADM/%s' % (tenant_id,
                     user_id, role_id,), **kwargs)
@@ -574,7 +802,7 @@ class ApiTestCase(RestfulTestCase):
             path='/users/%s/OS-KSADM/credentials/%s' %\
             (user_id, credentials_type), **kwargs)
 
-    def delete_user_credentials_by_type(self, user_id,\
+    def delete_user_credentials_by_type(self, user_id,
         credentials_type, **kwargs):
         """DELETE /users/{user_id}/OS-KSADM/credentials/{credentials_type}"""
         return self.admin_request(method='DELETE',
@@ -602,16 +830,24 @@ optional_url = lambda x: x if x is not None else unique_url()
 
 class FunctionalTestCase(ApiTestCase):
     """Abstracts functional CRUD of the identity API"""
-    service_token = None
+    admin_user_id = None
 
     admin_token = None
-    admin_user_id = None
-    admin_username = 'admin'
-    admin_password = 'secrete'
+    service_token = None
+    expired_admin_token = None
+    disabled_admin_token = None
+    service_admin_token = None
 
-    expired_admin_token = '000999'
-    disabled_admin_token = '999888777'
-    service_admin_token = '111222333444'
+    user = None
+    user_token = None
+    service_user = None
+
+    tenant = None
+    tenant_user = None  # user with default tenant
+    tenant_user_token = None
+
+    disabled_tenant = None
+    disabled_user = None
 
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'
     xmlns_ksadm = 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0'
@@ -620,12 +856,108 @@ class FunctionalTestCase(ApiTestCase):
 
     def setUp(self):
         """Prepare keystone for system tests"""
+        super(FunctionalTestCase, self).setUp()
+
         # Authenticate as admin user to establish admin_token
         access = self.authenticate(self.admin_username, self.admin_password).\
             json['access']
 
         self.admin_token = access['token']['id']
         self.admin_user_id = access['user']['id']
+
+    def fixture_create_service_admin(self):
+        if self.service_user:
+            return
+        # SERVICE ADMIN
+        password = unique_str()
+        self.service_user = self.fixture_create_user(
+            name="service-user-%s" % uuid.uuid4().hex, enabled=True,
+            password=password)
+        self.service_user['password'] = password
+
+        self.service_admin_role = self.fetch_role_by_name(
+                        self.service_admin_role_name,
+                        assert_status=200).json['role']
+        self.grant_global_role_to_user(self.service_user['id'],
+                                self.service_admin_role['id'],
+                                assert_status=201)
+
+        self.service_user_token = self.authenticate(self.service_user['name'],
+                                   self.service_user['password']).\
+            json['access']['token']
+        self.service_admin_token = self.service_user_token['id']
+
+    def fixture_create_normal_tenant(self):
+        if self.tenant:
+            return
+        # TENANT
+        self.tenant = self.fixture_create_tenant(
+            name="tenant-%s" % uuid.uuid4().hex, enabled=True)
+
+    def fixture_create_disabled_tenant(self):
+        if self.disabled_tenant:
+            return
+        # DISABLED TENANT
+        self.disabled_tenant = self.fixture_create_tenant(
+            name="disabled-tenant-%s" % uuid.uuid4().hex, enabled=False)
+
+    def fixture_create_normal_user(self):
+        if self.user:
+            return
+        # USER
+        password = unique_str()
+        self.user = self.fixture_create_user(
+            name="user-%s" % uuid.uuid4().hex, enabled=True,
+            password=password)
+        self.user['password'] = password
+
+        self.user_token = self.authenticate(self.user['name'],
+                                   self.user['password']).\
+            json['access']['token']
+
+    def fixture_create_tenant_user(self):
+        if self.tenant_user:
+            return
+        self.fixture_create_tenant()
+        # USER with DEFAULT TENANT
+        password = unique_str()
+        self.tenant_user = self.fixture_create_user(
+            name="user_in_tenant-%s" % uuid.uuid4().hex, enabled=True,
+            tenant_id=self.tenant.id, password=password)
+        self.tenant_user['password'] = password
+
+        self.tenant_user_token = self.authenticate(self.tenant_user['name'],
+                                   self.tenant_user['password'],
+                                   self.tenant.id).\
+            json['access']['token']
+
+    def fixture_create_disabled_user_and_token(self):
+        if self.disabled_user:
+            return
+        self.fixture_create_normal_tenant()
+        # DISABLED USER
+        self.disabled_user = self.fixture_create_user(
+            name="disabled_user-%s" % uuid.uuid4().hex, enabled=False)
+
+        # TOKEN for DISABLED user
+        token = self.fixture_create_token(
+                    id="disabled-user-tenant-token-%s" % uuid.uuid4().hex,
+                    user_id=self.disabled_user.id,
+                    tenant_id=self.tenant.id,
+                    expires=datetime.datetime.now() + datetime.timedelta(1))
+        self.disabled_admin_token = token.id
+
+    def fixture_create_expired_token(self):
+        if self.expired_admin_token:
+            return
+        self.fixture_create_normal_tenant()
+        # EXPIRED token (for enabled user)
+        token = self.fixture_create_token(
+                    id="expired-admin-token-%s" % uuid.uuid4().hex,
+                    user_id=self.admin_user_id,
+                    tenant_id=self.tenant.id,
+                    expires=datetime.datetime.now() - datetime.timedelta(1))
+        self.expired_admin_token = token.id
 
     def authenticate(self, user_name=None, user_password=None, tenant_id=None,
             **kwargs):
@@ -1152,6 +1484,7 @@ class MiddlewareTestCase(FunctionalTestCase):
     """
     Base class to run tests for Keystone WSGI middleware.
     """
+    use_server = True
 
     def setUp(self, middleware, settings=None):
         super(MiddlewareTestCase, self).setUp()
@@ -1161,7 +1494,7 @@ class MiddlewareTestCase(FunctionalTestCase):
                 'auth_port': '35357',
                 'auth_protocol': 'http',
                 'auth_uri': 'http://localhost:35357/',
-                'admin_token': '999888777666',
+                'admin_token': self.admin_token,
                 'auth_admin_user': self.admin_username,
                 'auth_admin_password': self.admin_password}
         cert_file = isSsl()
@@ -1178,11 +1511,21 @@ class MiddlewareTestCase(FunctionalTestCase):
             self.test_middleware = \
                 middleware.filter_factory(settings)(HeaderApp())
 
+        name = unique_str()
+        r = self.create_tenant(tenant_name=name, assert_status=201)
+        self.tenant = r.json.get('tenant')
+
+        user_name = unique_str()
         password = unique_str()
-        self.tenant = self.create_tenant().json['tenant']
-        self.user = self.create_user(user_password=password,
-            tenant_id=self.tenant['id']).json['user']
-        self.user['password'] = password
+        r = self.create_user(user_name=user_name,
+                                     user_password=password,
+                                     tenant_id=self.tenant['id'])
+        self.tenant_user = r.json.get('user')
+        self.tenant_user['password'] = password
+
+        access = self.authenticate(user_name, password).\
+            json['access']
+        self.tenant_user_token = access['token']
 
         self.services = {}
         self.endpoint_templates = {}
@@ -1194,10 +1537,6 @@ class MiddlewareTestCase(FunctionalTestCase):
                 json['OS-KSCATALOG:endpointTemplate']
             self.create_endpoint_for_tenant(self.tenant['id'],
                 self.endpoint_templates[x]['id'])
-
-        r = self.authenticate(self.user['name'], self.user['password'],
-            self.tenant['id'], assert_status=200)
-        self.user_token = r.json['access']['token']['id']
 
     def test_401_without_token(self):
         resp = Request.blank('/').get_response(self.test_middleware)
@@ -1219,7 +1558,7 @@ class MiddlewareTestCase(FunctionalTestCase):
 
     def test_200_good_token(self):
         resp = Request.blank('/',
-            headers={'X-Auth-Token': self.user_token}) \
+            headers={'X-Auth-Token': self.tenant_user_token['id']}) \
             .get_response(self.test_middleware)
 
         self.assertEquals(resp.status_int, 200)
@@ -1229,10 +1568,10 @@ class MiddlewareTestCase(FunctionalTestCase):
         header = "HTTP_X_IDENTITY_STATUS: Confirmed"
         self.assertTrue(header in headers, "Missing %s" % header)
 
-        header = "HTTP_X_USER_ID: %s" % self.user['id']
+        header = "HTTP_X_USER_ID: %s" % self.tenant_user['id']
         self.assertTrue(header in headers, "Missing %s" % header)
 
-        header = "HTTP_X_USER_NAME: %s" % self.user['name']
+        header = "HTTP_X_USER_NAME: %s" % self.tenant_user['name']
         self.assertTrue(header in headers, "Missing %s" % header)
 
         header = "HTTP_X_TENANT_ID: %s" % self.tenant['id']
@@ -1245,5 +1584,5 @@ class MiddlewareTestCase(FunctionalTestCase):
         header = "HTTP_X_TENANT: %s" % self.tenant['id']
         self.assertTrue(header in headers, "Missing %s" % header)
 
-        header = "HTTP_X_USER: %s" % self.user['id']
+        header = "HTTP_X_USER: %s" % self.tenant_user['id']
         self.assertTrue(header in headers, "Missing %s" % header)

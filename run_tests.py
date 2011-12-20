@@ -20,6 +20,8 @@ from keystone import test
 
 
 TESTS = [
+    test.UnitTests,
+    test.ClientTests,
     test.SQLTest,
     test.LDAPTest,
     # Waiting on instructions on how to start memcached in jenkins:
@@ -48,6 +50,7 @@ if __name__ == '__main__':
                 print 'No test configuration by the name %s found' % filter
                 exit()
 
+    #Run test suites
     if len(TESTS) > 1:
         # We have a problem with resetting SQLAlchemy, so we need to fire
         # off a separate process for each test now
@@ -61,7 +64,6 @@ if __name__ == '__main__':
 
     else:
         for test_num, test_cls in enumerate(TESTS):
-            print 'Starting test %d of %d with config: %s' % \
-                (test_num + 1, len(TESTS), test_cls.config_name)
+            print 'Runing test suite: %s' % test_cls.__name__
             if test_cls().run():
                 exit(1)

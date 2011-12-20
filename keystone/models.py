@@ -106,7 +106,7 @@ class Resource(dict):
             if name in self:
                 return self[name]
             return None
-        elif name == 'desc':
+        elif name == 'desc':  # TODO(zns): deprecate this
             # We need to maintain this compatibility with this nasty attribute
             # until we're done refactoring
             return self.description
@@ -134,7 +134,7 @@ class Resource(dict):
             if super(Resource, self).__contains__(name):
                 return super(Resource, self).__getitem__(name)
             return None
-        elif name == 'desc':
+        elif name == 'desc':  # TODO(zns): deprecate thise
             # We need to maintain this compatibility with this nasty attribute
             # until we're done refactoring
             return self.description
@@ -217,7 +217,8 @@ class Resource(dict):
                 if isinstance(value, dict):
                     Resource.write_dict_to_xml(value, element)
                 else:
-                    element.text = str(value)
+                    if value:
+                        element.text = str(value)
             else:
                 if value is not None:
                     if isinstance(value, dict):

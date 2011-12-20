@@ -22,8 +22,8 @@ from keystone.test.functional import common
 class ValidateToken(common.FunctionalTestCase):
     def setUp(self, *args, **kwargs):
         super(ValidateToken, self).setUp(*args, **kwargs)
+        self.fixture_create_normal_tenant()
 
-        self.tenant = self.create_tenant().json['tenant']
         self.user = self.create_user_with_known_password(
             tenant_id=self.tenant['id']).json['user']
         self.role = self.create_role().json['role']
@@ -46,6 +46,7 @@ class ValidateToken(common.FunctionalTestCase):
             self.user['name'])
 
     def test_validate_token_true_using_service_token(self):
+        self.fixture_create_service_admin()
         self.admin_token = self.service_admin_token
         r = self.get_token_belongsto(self.token['id'], self.tenant['id'],
             assert_status=200)
@@ -93,25 +94,29 @@ class ValidateToken(common.FunctionalTestCase):
 class CheckToken(common.FunctionalTestCase):
     def setUp(self, *args, **kwargs):
         super(CheckToken, self).setUp(*args, **kwargs)
-        self.tenant = self.create_tenant().json['tenant']
-        self.user = self.create_user_with_known_password(
-            tenant_id=self.tenant['id']).json['user']
-        self.token = self.authenticate(self.user['name'],
-            self.user['password'], self.tenant['id']).json['access']['token']
+        self.fixture_create_normal_tenant()
+        self.fixture_create_tenant_user()
+
+        self.token = self.authenticate(self.tenant_user['name'],
+            self.tenant_user['password'],
+            self.tenant['id']).json['access']['token']
 
     def test_validate_token_true(self):
         self.check_token_belongs_to(self.token['id'], self.tenant['id'],
             assert_status=200)
 
     def test_validate_token_true_using_service_token(self):
+        self.fixture_create_service_admin()
         self.admin_token = self.service_admin_token
         self.check_token_belongs_to(self.token['id'], self.tenant['id'],
             assert_status=200)
 
     def test_validate_token_expired(self):
+        self.fixture_create_expired_token()
         self.check_token(self.expired_admin_token, assert_status=404)
 
     def test_validate_token_expired_xml(self):
+        self.fixture_create_expired_token()
         self.check_token(self.expired_admin_token, assert_status=404, headers={
             'Accept': 'application/xml'})
 

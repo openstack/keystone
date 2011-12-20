@@ -55,10 +55,12 @@ class CreateUserTest(UserTest):
         self.create_user(user_name='', assert_status=400)
 
     def test_create_user_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.create_user(assert_status=403)
 
     def test_create_user_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.create_user(assert_status=403)
 
@@ -91,18 +93,22 @@ class GetUserTest(UserTest):
         self.fetch_user_by_name(self.user['name'])
 
     def test_get_user_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.fetch_user(self.user['id'], assert_status=403)
 
     def test_query_user_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.fetch_user_by_name(self.user['name'], assert_status=403)
 
     def test_get_user_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_user(self.user['id'], assert_status=403)
 
     def test_query_user_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_user_by_name(self.user['name'], assert_status=403)
 
@@ -142,6 +148,7 @@ class DeleteUserTest(UserTest):
         self.remove_user(self.user['id'], assert_status=204)
 
     def test_user_delete_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.remove_user(self.user['id'], assert_status=403)
 
@@ -165,10 +172,12 @@ class GetAllUsersTest(UserTest):
         self.list_users(assert_status=200)
 
     def test_list_users_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.list_users(assert_status=403)
 
     def test_list_users_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.list_users(assert_status=403)
 
@@ -219,10 +228,14 @@ class UpdateUserTest(UserTest):
             "Content-Type": "application/json"})
 
     def test_update_user_expired_token(self):
+        self.fixture_create_expired_token()
+        self.fixture_create_normal_user()
+
         self.admin_token = self.expired_admin_token
         self.update_user(self.user['id'], assert_status=403)
 
     def test_update_user_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.update_user(self.user['id'], user_email=common.unique_email(),
             assert_status=403)
@@ -254,7 +267,7 @@ class TestUpdateConflict(UserTest):
 class SetPasswordTest(UserTest):
     def setUp(self, *args, **kwargs):
         super(SetPasswordTest, self).setUp(*args, **kwargs)
-        self.user = self.create_user().json['user']
+        self.fixture_create_normal_user()
 
     def test_update_user_password(self):
         new_password = common.unique_str()
@@ -275,10 +288,12 @@ class SetPasswordTest(UserTest):
                 "Content-Type": "application/json"})
 
     def test_user_password_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.update_user_password(self.user['id'], assert_status=403)
 
     def test_user_password_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.update_user_password(self.user['id'], assert_status=403)
 
@@ -294,7 +309,7 @@ class SetPasswordTest(UserTest):
 class SetEnabledTest(UserTest):
     def setUp(self, *args, **kwargs):
         super(SetEnabledTest, self).setUp(*args, **kwargs)
-        self.user = self.create_user().json['user']
+        self.fixture_create_normal_user()
 
     def test_user_enabled_bad_request(self):
         data = '{"user_bad": { "enabled": true}}'
@@ -303,10 +318,12 @@ class SetEnabledTest(UserTest):
                 "Content-Type": "application/json"})
 
     def test_user_enabled_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.disable_user(self.user['id'], assert_status=403)
 
     def test_user_enabled_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.disable_user(self.user['id'], assert_status=403)
 
@@ -314,8 +331,8 @@ class SetEnabledTest(UserTest):
 class TenantUpdateTest(UserTest):
     def setUp(self, *args, **kwargs):
         super(TenantUpdateTest, self).setUp(*args, **kwargs)
-        self.tenant = self.create_tenant().json['tenant']
-        self.user = self.create_user().json['user']
+        self.fixture_create_normal_user()
+        self.fixture_create_normal_tenant()
 
     def test_update_user_tenant(self):
         r = self.update_user_tenant(self.user['id'], self.tenant['id'])
@@ -342,11 +359,13 @@ class TenantUpdateTest(UserTest):
             assert_status=401)
 
     def test_update_user_tenant_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.update_user_tenant(self.user['id'], self.tenant['id'],
             assert_status=403)
 
     def test_update_user_tenant_using_exp_admin_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.update_user_tenant(self.user['id'], self.tenant['id'],
             assert_status=403)
@@ -355,16 +374,18 @@ class TenantUpdateTest(UserTest):
 class AddUserTest(UserTest):
     def setUp(self, *args, **kwargs):
         super(AddUserTest, self).setUp(*args, **kwargs)
-        self.tenant = self.create_tenant().json['tenant']
+        self.fixture_create_normal_tenant()
 
     def test_add_user_tenant(self):
         self.create_user(tenant_id=self.tenant['id'], assert_status=201)
 
     def test_add_user_tenant_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.create_user(assert_status=403)
 
     def test_add_user_tenant_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.create_user(assert_status=403)
 

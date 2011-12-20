@@ -15,12 +15,20 @@
 # limitations under the License.
 
 import unittest2 as unittest
+import uuid
+
 from keystone.test.functional import common
 
 
 class ServicesTest(common.FunctionalTestCase):
     def setUp(self, *args, **kwargs):
         super(ServicesTest, self).setUp(*args, **kwargs)
+
+        service = self.create_service(
+            service_name="service-%s" % uuid.uuid4().hex,
+            service_type='identity',
+            service_description='Sample service',
+            assert_status=201).json['OS-KSADM:service']
 
     def tearDown(self, *args, **kwargs):
         super(ServicesTest, self).tearDown(*args, **kwargs)
@@ -42,6 +50,7 @@ class GetServicesTest(ServicesTest):
         self.assertTrue(len(services))
 
     def test_get_services_using_service_admin_token(self):
+        self.fixture_create_service_admin()
         self.admin_token = self.service_admin_token
         services = self.list_services(assert_status=200).\
             json['OS-KSADM:services']
@@ -49,6 +58,7 @@ class GetServicesTest(ServicesTest):
         self.assertTrue(len(services))
 
     def test_get_services_using_service_admin_token_xml(self):
+        self.fixture_create_service_admin()
         self.admin_token = self.service_admin_token
         r = self.get_services(assert_status=200, headers={
             'Accept': 'application/xml'})
@@ -58,6 +68,7 @@ class GetServicesTest(ServicesTest):
         self.assertTrue(len(services))
 
     def test_get_services_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.list_services(assert_status=403)
 
@@ -66,6 +77,7 @@ class GetServicesTest(ServicesTest):
         self.list_services(assert_status=401)
 
     def test_get_services_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.list_services(assert_status=403)
 
@@ -96,6 +108,7 @@ class GetServiceTest(ServicesTest):
         self.assertIsNotNone(service.get('description'))
 
     def test_get_service_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_service(service_id=self.service['id'], assert_status=403)
 
@@ -104,6 +117,7 @@ class GetServiceTest(ServicesTest):
         self.fetch_service(service_id=self.service['id'], assert_status=401)
 
     def test_get_service_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.fetch_service(service_id=self.service['id'], assert_status=403)
 
@@ -135,6 +149,7 @@ class GetServiceByNameTest(ServicesTest):
         self.assertIsNotNone(service.get('description'))
 
     def test_get_service_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_service_by_name(
             service_name=self.service['name'], assert_status=403)
@@ -145,6 +160,7 @@ class GetServiceByNameTest(ServicesTest):
             service_name=self.service['name'], assert_status=401)
 
     def test_get_service_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.fetch_service_by_name(
             service_name=self.service['name'], assert_status=403)
@@ -190,10 +206,12 @@ class CreateServiceTest(ServicesTest):
         self.create_service(service_name=service_name, assert_status=409)
 
     def test_service_create_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.create_service(assert_status=403)
 
     def test_service_create_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.create_service(assert_status=403)
 
@@ -254,10 +272,12 @@ class DeleteServiceTest(ServicesTest):
         self.remove_service(self.service['id'], assert_status=204)
 
     def test_service_delete_json_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.remove_service(self.service['id'], assert_status=403)
 
     def test_service_delete_json_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.remove_service(self.service['id'], assert_status=403)
 

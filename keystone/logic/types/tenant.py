@@ -58,8 +58,10 @@ class Tenant(object):
             desc = root.find("{http://docs.openstack.org/identity/api/v2.0}"
                              "description")
             if desc is None:
-                raise fault.BadRequestFault("Expecting Tenant Description")
-            return models.Tenant(id=id, name=name, description=desc.text,
+                description = None
+            else:
+                description = desc.text
+            return models.Tenant(id=id, name=name, description=description,
                 enabled=set_enabled)
         except etree.LxmlError as e:
             raise fault.BadRequestFault("Cannot parse Tenant", str(e))
@@ -86,9 +88,7 @@ class Tenant(object):
                 set_enabled = tenant["enabled"]
                 if not isinstance(set_enabled, bool):
                     raise fault.BadRequestFault("Bad enabled attribute!")
-            if not "description" in tenant:
-                raise fault.BadRequestFault("Expecting Tenant Description")
-            description = tenant["description"]
+            description = tenant.get("description")
             return Tenant(id=id, name=name, description=description,
                 enabled=set_enabled)
         except (ValueError, TypeError) as e:
@@ -103,7 +103,8 @@ class Tenant(object):
         if self.name:
             dom.set("name", unicode(self.name))
         desc = etree.Element("description")
-        desc.text = unicode(self.description)
+        if self.description:
+            desc.text = unicode(self.description)
         dom.append(desc)
         return dom
 
@@ -112,8 +113,9 @@ class Tenant(object):
 
     def to_dict(self):
         tenant = {
-            "description": unicode(self.description),
             "enabled": self.enabled}
+        if self.description:
+            tenant['description'] = unicode(self.description)
         if self.id:
             tenant["id"] = unicode(self.id)
         if self.name:

@@ -7,8 +7,7 @@ class TestGetCredentials(common.FunctionalTestCase):
 
     def setUp(self):
         super(TestGetCredentials, self).setUp()
-        password = common.unique_str()
-        self.user = self.create_user(user_password=password).json['user']
+        self.fixture_create_normal_user()
 
     def test_get_user_credentials(self):
         password_credentials = self.fetch_user_credentials(
@@ -26,14 +25,17 @@ class TestGetCredentials(common.FunctionalTestCase):
             password_credentials.get('username'), self.user['name'])
 
     def test_get_user_credentials_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.fetch_user_credentials(self.user['id'], assert_status=403)
 
     def test_get_user_credentials_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_user_credentials(self.user['id'], assert_status=403)
 
     def test_get_user_credentials_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_user_credentials(self.user['name'], assert_status=403)
 
@@ -51,8 +53,7 @@ class TestGetPasswordCredentials(common.FunctionalTestCase):
 
     def setUp(self):
         super(TestGetPasswordCredentials, self).setUp()
-        password = common.unique_str()
-        self.user = self.create_user(user_password=password).json['user']
+        self.fixture_create_normal_user()
 
     def test_get_user_credentials(self):
         password_credentials = self.fetch_password_credentials(
@@ -68,14 +69,17 @@ class TestGetPasswordCredentials(common.FunctionalTestCase):
             password_credentials.get('username'), self.user['name'])
 
     def test_get_user_credentials_using_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.fetch_password_credentials(self.user['id'], assert_status=403)
 
     def test_get_user_credentials_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_password_credentials(self.user['id'], assert_status=403)
 
     def test_get_user_credentials_using_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.fetch_password_credentials(self.user['name'], assert_status=403)
 
@@ -93,9 +97,7 @@ class TestCreatePasswordCredentials(common.FunctionalTestCase):
 
     def setUp(self):
         super(TestCreatePasswordCredentials, self).setUp()
-        password = common.unique_str()
-        self.user = self.create_user(
-            user_password=password).json['user']
+        self.fixture_create_normal_user()
         self.delete_user_credentials_by_type(
             self.user['id'], 'passwordCredentials')
 
@@ -130,6 +132,7 @@ class TestCreatePasswordCredentials(common.FunctionalTestCase):
             assert_status=400)
 
     def test_create_password_credentials_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.create_password_credentials(self.user['id'], self.user['name'],
             assert_status=403)
@@ -150,8 +153,7 @@ class TestUpdatePasswordCredentials(common.FunctionalTestCase):
 
     def setUp(self):
         super(TestUpdatePasswordCredentials, self).setUp()
-        password = common.unique_str()
-        self.user = self.create_user(user_password=password).json['user']
+        self.fixture_create_normal_user()
 
     def test_update_password_credentials(self):
         self.update_password_credentials(self.user['id'], self.user['name'],
@@ -166,6 +168,7 @@ class TestUpdatePasswordCredentials(common.FunctionalTestCase):
             as_xml=data, assert_status=200)
 
     def test_update_password_credentials_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.update_password_credentials(self.user['id'], self.user['name'],
             assert_status=403)
@@ -186,14 +189,14 @@ class TestDeletePasswordCredentials(common.FunctionalTestCase):
 
     def setUp(self):
         super(TestDeletePasswordCredentials, self).setUp()
-        password = common.unique_str()
-        self.user = self.create_user(user_password=password).json['user']
+        self.fixture_create_normal_user()
 
     def test_delete_password_credentials(self):
         self.delete_password_credentials(self.user['id'],
             assert_status=204)
 
     def test_delete_password_credentials_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.delete_password_credentials(self.user['id'],
             assert_status=403)
@@ -213,8 +216,7 @@ class TestAuthentication(common.FunctionalTestCase):
     """Test authentication after a password update."""
     def setUp(self):
         super(TestAuthentication, self).setUp()
-        password = common.unique_str()
-        self.user = self.create_user(user_password=password).json['user']
+        self.fixture_create_normal_user()
 
     def test_authentication_after_password_change(self):
         self.authenticate(self.user['name'], self.user['password'],

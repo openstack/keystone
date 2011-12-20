@@ -3,6 +3,8 @@ from keystone.test.functional import common
 
 
 class TestExtensions(common.FunctionalTestCase):
+    use_server = True
+
     def test_extensions_json(self):
         r = self.service_request(path='/extensions.json')
         self.assertTrue('json' in r.getheader('Content-Type'))
@@ -16,6 +18,8 @@ class TestExtensions(common.FunctionalTestCase):
 
 
 class TestAdminExtensions(common.ApiTestCase):
+    use_server = True
+
     def test_extensions_json(self):
         r = self.admin_request(path='/extensions.json')
         self.assertTrue('json' in r.getheader('Content-Type'))

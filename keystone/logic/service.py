@@ -552,7 +552,7 @@ class IdentityService(object):
         dtenant = api.TENANT.get_by_name(tenant_name)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-        return Tenant(dtenant.id, dtenant.name, dtenant.desc, dtenant.enabled)
+        return dtenant
 
     @staticmethod
     def update_tenant(admin_token, tenant_id, tenant):

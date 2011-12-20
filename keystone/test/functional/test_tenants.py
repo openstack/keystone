@@ -41,7 +41,7 @@ class TenantTest(common.FunctionalTestCase):
         self._assertValidTenant(xml)
 
         description = xml.find('{%s}description' % self.xmlns)
-        self.assertIsNotNone(description.text)
+        self.assertIsNotNone(description)
         self.assertIn(xml.get('enabled'), ['true', 'false'])
         return xml
 
@@ -131,10 +131,12 @@ class CreateTenantTest(TenantTest):
             assert_status=409)
 
     def test_create_tenant_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.create_tenant(assert_status=403)
 
     def test_create_tenant_expired_token_xml(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         data = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -159,10 +161,12 @@ class CreateTenantTest(TenantTest):
         self.post_tenant(as_xml=data, assert_status=401)
 
     def test_create_tenant_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.create_tenant(assert_status=403)
 
     def test_create_tenant_disabled_token_xml(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         data = '<?xml version="1.0" encoding="UTF-8"?> \
             <tenant xmlns="http://docs.openstack.org/identity/api/v2.0" \
@@ -265,10 +269,12 @@ class GetTenantsTest(TenantTest):
         self.assertIn(tenant['id'], [t.get('id') for t in tenants])
 
     def test_get_tenants_exp_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.list_tenants(assert_status=403)
 
     def test_get_tenants_exp_token_xml(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.get_tenants(assert_status=403, headers={
             'Accept': 'application/xml'})
@@ -277,16 +283,14 @@ class GetTenantsTest(TenantTest):
 class GetTenantTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(GetTenantTest, self).setUp(*args, **kwargs)
-
-        r = self.create_tenant()
-        self.tenant = self.assertValidJsonTenantResponse(r)
+        self.fixture_create_normal_tenant()
 
     def test_get_tenant(self):
         r = self.fetch_tenant(self.tenant['id'], assert_status=200)
         tenant = self.assertValidJsonTenantResponse(r)
         self.assertEquals(self.tenant['id'], tenant['id'])
         self.assertEquals(self.tenant['name'], tenant['name'])
-        self.assertEquals(self.tenant['description'], tenant['description'])
+        self.assertFalse('description' in tenant)
         self.assertEquals(self.tenant['enabled'], tenant['enabled'])
 
     def test_get_tenant_xml(self):
@@ -312,9 +316,9 @@ class GetTenantTest(TenantTest):
 class GetTenantUsersTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(GetTenantUsersTest, self).setUp(*args, **kwargs)
-        r = self.create_tenant()
-        self.tenant = self.assertValidJsonTenantResponse(r)
-        self.user = self.create_user_with_known_password().json['user']
+        self.fixture_create_normal_tenant()
+        self.fixture_create_normal_user()
+
         role = self.create_role().json['role']
         self.grant_role_to_user(self.user['id'], role['id'], self.tenant['id'])
 
@@ -333,10 +337,12 @@ class GetTenantUsersTest(TenantTest):
             self.assertEqual(user.get('name'), self.user['name'])
 
     def test_list_tenant_users_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.list_tenant_users(self.tenant['id'], assert_status=403)
 
     def test_list_tenant_users_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.list_tenant_users(self.tenant['id'], assert_status=403)
 
@@ -352,9 +358,9 @@ class GetTenantUsersTest(TenantTest):
 class GetTenantUsersByRoleTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(GetTenantUsersByRoleTest, self).setUp(*args, **kwargs)
-        r = self.create_tenant()
-        self.tenant = self.assertValidJsonTenantResponse(r)
-        self.user = self.create_user_with_known_password().json['user']
+        self.fixture_create_normal_tenant()
+        self.fixture_create_normal_user()
+
         self.role = self.create_role().json['role']
         self.grant_role_to_user(self.user['id'],
             self.role['id'], self.tenant['id'])
@@ -374,11 +380,13 @@ class GetTenantUsersByRoleTest(TenantTest):
             self.assertEqual(user.get('name'), self.user['name'])
 
     def test_list_tenant_users_expired_token(self):
+        self.fixture_create_expired_token()
         self.admin_token = self.expired_admin_token
         self.list_tenant_users(self.tenant['id'],
             self.role['id'], assert_status=403)
 
     def test_list_tenant_users_disabled_token(self):
+        self.fixture_create_disabled_user_and_token()
         self.admin_token = self.disabled_admin_token
         self.list_tenant_users(self.tenant['id'],
             self.role['id'], assert_status=403)
@@ -397,16 +405,25 @@ class GetTenantUsersByRoleTest(TenantTest):
 class GetTenantByNameTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(GetTenantByNameTest, self).setUp(*args, **kwargs)
-        r = self.create_tenant()
-        self.tenant = self.assertValidJsonTenantResponse(r)
+        self.fixture_create_normal_tenant()
 
     def test_get_tenant(self):
         r = self.fetch_tenant_by_name(self.tenant['name'], assert_status=200)
         tenant = self.assertValidJsonTenantResponse(r)
         self.assertEquals(self.tenant['id'], tenant['id'])
         self.assertEquals(self.tenant['name'], tenant['name'])
-        self.assertEquals(self.tenant['description'], tenant['description'])
         self.assertEquals(self.tenant['enabled'], tenant['enabled'])
+
+    def test_get_tenant_data(self):
+        tenant = self.fixture_create_tenant(name=common.unique_str(),
+                                            description=common.unique_str(),
+                                            enabled=True)
+        r = self.fetch_tenant_by_name(tenant['name'], assert_status=200)
+        returned = self.assertValidJsonTenantResponse(r)
+        self.assertEquals(returned['id'], tenant['id'])
+        self.assertEquals(returned['name'], tenant['name'])
+        self.assertEquals(returned['description'], tenant['description'])
+        self.assertEquals(returned['enabled'], tenant['enabled'])
 
     def test_get_tenant_xml(self):
         r = self.fetch_tenant_by_name(
@@ -434,8 +451,7 @@ class GetTenantByNameTest(TenantTest):
 class UpdateTenantTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(UpdateTenantTest, self).setUp(*args, **kwargs)
-        r = self.create_tenant()
-        self.tenant = self.assertValidJsonTenantResponse(r)
+        self.fixture_create_normal_tenant()
 
     def test_update_tenant(self):
         new_tenant_name = common.unique_str()
@@ -498,8 +514,7 @@ class UpdateTenantTest(TenantTest):
 class DeleteTenantTest(TenantTest):
     def setUp(self, *args, **kwargs):
         super(DeleteTenantTest, self).setUp(*args, **kwargs)
-
-        self.tenant = self.create_tenant().json['tenant']
+        self.fixture_create_normal_tenant()
 
     def test_delete_tenant(self):
         self.remove_tenant(self.tenant['id'], assert_status=204)

@@ -4,6 +4,7 @@ from keystone.test.functional import common
 
 class TestUrlHandling(common.FunctionalTestCase):
     """Tests API's global URL handling behaviors"""
+    use_server = True
 
     def test_optional_trailing_slash(self):
         """Same response returned regardless of a trailing slash in the url."""
@@ -14,6 +15,7 @@ class TestUrlHandling(common.FunctionalTestCase):
 
 class TestContentTypes(common.FunctionalTestCase):
     """Tests API's Content-Type handling"""
+    use_server = True
 
     def test_default_content_type(self):
         """Service returns JSON without being asked to"""
