@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <choices
-			xmlns="http://docs.openstack.org/common/api/v2.0"
+			xmlns="http://docs.openstack.org/common/api/v1.0"
 			xmlns:atom="http://www.w3.org/2005/Atom">
 	<version id="v1.0" status="DEPRECATED">
 		<media-types>
