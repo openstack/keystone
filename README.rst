@@ -179,3 +179,4 @@ Still To Do
  * Keystone import.
  * (./) Admin-only interface
  * Don't check git checkouts as often, to speed up tests
+ * common config - http://wiki.openstack.org/CommonConfigModule

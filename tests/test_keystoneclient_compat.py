@@ -3,12 +3,27 @@ from keystonelight import test
 from keystonelight import utils
 
 
-KEYSTONECLIENT_REPO = 'git://github.com/4P/python-keystoneclient.git'
+KEYSTONECLIENT_REPO = 'git://github.com/openstack/python-keystoneclient.git'
 
 
 class CompatTestCase(test.TestCase):
     def setUp(self):
         super(CompatTestCase, self).setUp()
+
+    def _url(self):
+        port = self.server.socket_info['socket'][1]
+        self.options['public_port'] = port
+        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
+        return "http://localhost:%s/v2.0/" % port
+
+    def _client(self, **kwargs):
+        from keystoneclient.v2_0 import client as ks_client
+
+        port = self.server.socket_info['socket'][1]
+        self.options['public_port'] = port
+        kc = ks_client.Client(**kwargs)
+        kc.authenticate()
+        return kc
 
 
 class MasterCompatTestCase(CompatTestCase):
@@ -59,30 +74,18 @@ class MasterCompatTestCase(CompatTestCase):
     #     client.authenticate()
 
     def test_authenticate_tenant_name_and_tenants(self):
-        from keystoneclient.v2_0 import client as ks_client
-
-        port = self.server.socket_info['socket'][1]
-        self.options['public_port'] = port
-        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-        client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
-                                  username='FOO',
-                                  password='foo',
-                                  tenant_name='BAR')
-        client.authenticate()
+        client = self._client(auth_url=self._url(),
+                              username='FOO',
+                              password='foo',
+                              tenant_name='BAR')
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_tenant_id_and_tenants(self):
-        from keystoneclient.v2_0 import client as ks_client
-
-        port = self.server.socket_info['socket'][1]
-        self.options['public_port'] = port
-        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-        client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
-                                  username='FOO',
-                                  password='foo',
-                                  tenant_id='bar')
-        client.authenticate()
+        client = self._client(auth_url=self._url(),
+                              username='FOO',
+                              password='foo',
+                              tenant_id='bar')
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
@@ -91,14 +94,9 @@ class MasterCompatTestCase(CompatTestCase):
     # FIXME(ja): add a test that admin endpoint is only sent to admin user
     # FIXME(ja): add a test that admin endpoint returns unauthorized if not admin
     def test_tenant_create(self):
-        from keystoneclient.v2_0 import client as ks_client
-        port = self.server.socket_info['socket'][1]
-        self.options['public_port'] = port
-        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-        client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
-                                  username='FOO',
-                                  password='foo',
-                                  tenant_id='bar')
-        client.authenticate()
+        client = self._client(auth_url=self._url(),
+                              username='FOO',
+                              password='foo',
+                              tenant_name='BAR')
         client.tenants.create("hello", description="My new tenant!", enabled=True)
         # FIXME(ja): assert tenant was created
