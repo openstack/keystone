@@ -9,7 +9,7 @@ from keystonelight import test
 from keystonelight import utils
 
 
-KEYSTONECLIENT_REPO = 'git://github.com/rackspace/python-novaclient.git'
+NOVACLIENT_REPO = 'git://github.com/openstack/python-novaclient.git'
 
 
 class CompatTestCase(test.TestCase):
@@ -21,7 +21,7 @@ class NovaClientCompatMasterTestCase(CompatTestCase):
   def setUp(self):
     super(NovaClientCompatMasterTestCase, self).setUp()
 
-    revdir = test.checkout_vendor(KEYSTONECLIENT_REPO, 'master')
+    revdir = test.checkout_vendor(NOVACLIENT_REPO, 'master')
     self.add_path(revdir)
     from novaclient.keystone import client as ks_client
     from novaclient import client as base_client
