@@ -60,6 +60,12 @@ class NormalizingFilterTest(unittest.TestCase):
         self.assertEqual('/someresource', env['PATH_INFO'])
         self.assertEqual('application/xml', env['HTTP_ACCEPT'])
 
+    def test_atom_extension(self):
+        env = {'PATH_INFO': '/v2.0/someresource.atom'}
+        self.filter(env, _start_response)
+        self.assertEqual('/someresource', env['PATH_INFO'])
+        self.assertEqual('application/atom+xml', env['HTTP_ACCEPT'])
+
     def test_json_extension(self):
         env = {'PATH_INFO': '/v2.0/someresource.json'}
         self.filter(env, _start_response)
