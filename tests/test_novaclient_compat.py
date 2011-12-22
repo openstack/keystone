@@ -71,7 +71,7 @@ class NovaClientCompatMasterTestCase(CompatTestCase):
     #               keystoneclient
     conn = base_client.HTTPClient(auth_url="http://localhost:%s/v2.0/" % port,
                                   user='FOO',
-                                  apikey='foo',
+                                  password='foo',
                                   projectid='BAR',
                                   region_name='RegionOne')
     client = ks_client.Client(conn)
