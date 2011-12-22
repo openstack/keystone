@@ -1,5 +1,6 @@
 import logging
 
+
 class TrivialTrue(object):
   def __init__(self, options):
     self.options = options
