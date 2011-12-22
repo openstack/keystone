@@ -22,4 +22,3 @@ class SimpleMatch(object):
       check = credentials.get(key)
       if check == match:
         return True
-
