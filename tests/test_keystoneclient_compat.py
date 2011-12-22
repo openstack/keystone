@@ -61,6 +61,7 @@ class MasterCompatTestCase(CompatTestCase):
         self.extras_bar_foo = self.identity_backend.create_extras(
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=[],
+                 is_admin='1',
                  roles_links=[]))
 
     # def test_authenticate(self):

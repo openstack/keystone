@@ -2,6 +2,7 @@
 
 # this is the web service frontend that emulates keystone
 import logging
+import uuid
 
 import routes
 
@@ -34,6 +35,10 @@ class KeystoneRouter(wsgi.Router):
                        controller=self.keystone_controller,
                        action='tenants_for_token',
                        conditions=dict(method=['GET']))
+        mapper.connect('/tenants',
+                       controller=self.keystone_controller,
+                       action='create_tenant',
+                       conditions=dict(method=['POST']))
         super(KeystoneRouter, self).__init__(mapper)
 
 
@@ -156,12 +161,14 @@ class KeystoneController(service.BaseApplication):
         """
         # TODO(termie): this stuff should probably be moved to middleware
         if not context['is_admin']:
-            user_token_ref = self.token_api.get_token(context['token_id'])
+            user_token_ref = self.token_api.get_token(
+                    context=context, token_id=context['token_id'])
             creds = user_token_ref['extras'].copy()
             creds['user_id'] = user_token_ref['user'].get('id')
             creds['tenant_id'] = user_token_ref['tenant'].get('id')
             # Accept either is_admin or the admin role
-            assert self.policy_api.can_haz(('is_admin:1', 'roles:admin'),
+            assert self.policy_api.can_haz(context,
+                                           ('is_admin:1', 'roles:admin'),
                                            creds)
 
         token_ref = self.token_api.get_token(context=context,
@@ -190,6 +197,28 @@ class KeystoneController(service.BaseApplication):
                     context=context,
                     tenant_id=tenant_id))
         return self._format_tenants_for_token(tenant_refs)
+
+    def create_tenant(self, context, **kw):
+        # TODO(termie): this stuff should probably be moved to middleware
+        if not context['is_admin']:
+            user_token_ref = self.token_api.get_token(
+                    context=context, token_id=context['token_id'])
+            creds = user_token_ref['extras'].copy()
+            creds['user_id'] = user_token_ref['user'].get('id')
+            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            # Accept either is_admin or the admin role
+            assert self.policy_api.can_haz(context,
+                                           ('is_admin:1', 'roles:admin'),
+                                           creds)
+        tenant_ref = kw.get('tenant')
+        tenant_id = (tenant_ref.get('id')
+                     and tenant_ref.get('id')
+                     or uuid.uuid4().hex)
+        tenant_ref['id'] = tenant_id
+
+        tenant = self.identity_api.create_tenant(
+                context, tenant_id=tenant_id, data=tenant_ref)
+        return {'tenant': tenant}
 
     def _format_token(self, token_ref):
         user_ref = token_ref['user']

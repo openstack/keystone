@@ -1,4 +1,4 @@
-
+import logging
 
 class TrivialTrue(object):
   def __init__(self, options):
@@ -21,3 +21,4 @@ class SimpleMatch(object):
       check = credentials.get(key)
       if check == match:
         return True
+
