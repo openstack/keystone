@@ -31,7 +31,7 @@ olcAttributeTypes: (
 olcAttributeTypes: (
     1.3.6.1.3.1.666.667.3.5
     NAME 'keystoneName'
-    SUP distinguishedName
+    SUP name
     SINGLE-VALUE
     )
 olcObjectClasses: (

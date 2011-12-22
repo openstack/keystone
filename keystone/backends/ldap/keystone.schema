@@ -35,7 +35,7 @@ attributetype (
 attributetype: (
     keystoneAttrs:5
     NAME 'keystoneName'
-    SUP distinguishedName
+    SUP name
     SINGLE-VALUE
     )
 objectClass (
