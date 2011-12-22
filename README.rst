@@ -1,11 +1,8 @@
-Keystone Light
-==============
+Keystone
+========
 
-*Always Smooth*
-
-Keystone Light is a re-interpretation of the Keystone project that provides
-Identity, Token and Catalog services for use specifically by projects in the
-OpenStack family.
+Keystone is an OpenStack project that provides Identity, Token and Catalog
+services for use specifically by projects in the OpenStack family.
 
 Much of the design is precipitated from the expectation that the auth backends
 for most deployments will actually be shims in front of existing user systems.
@@ -15,9 +12,9 @@ for most deployments will actually be shims in front of existing user systems.
 Data Model
 ----------
 
-Keystone Light was designed from the ground up to be amenable to multiple
-styles of backends and as such many of the methods and data types will happily
-accept more data than they know what to do with and pass them on to a backend.
+Keystone was designed from the ground up to be amenable to multiple styles of
+backends and as such many of the methods and data types will happily accept 
+more data than they know what to do with and pass them on to a backend.
 
 There are a few main data types:
 
