@@ -1,4 +1,5 @@
 import re
+import socket
 import string
 from lxml import etree
 
@@ -46,3 +47,14 @@ class XMLTools():
             return False
 
         return True
+
+
+def get_unused_port():
+    """
+    Returns an unused port on localhost.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('localhost', 0))
+    addr, port = s.getsockname()
+    s.close()
+    return port

@@ -50,6 +50,7 @@ HTTP_X_AUTHORIZATION
     the client identity being passed in
 
 """
+import logging
 import sys
 import optparse
 
@@ -57,6 +58,8 @@ from keystone.common import config, wsgi
 from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
 from keystone import version
+
+logger = logging.getLogger('keystone.server')
 
 
 def service_app_factory(global_conf, **local_conf):
@@ -125,6 +128,9 @@ class Server():
         self.config = config_name or self.name
         self.key = None
         self.server = None
+        self.port = None
+        self.host = None
+        self.protocol = None
 
     def start(self, host=None, port=None, wait=True):
         """Starts the Keystone server
@@ -179,19 +185,21 @@ class Server():
                          ca_certs=ca_certs,
                          cert_required=cert_required,
                          key=self.key)
+            self.protocol = 'https'
         else:
             self.server = wsgi.Server()
             self.server.start(app, port, host,
                               key="%s-%s:%s" % (self.config, host, port))
+            self.protocol = 'http'
+
+        self.port = port
+        self.host = host
 
         print "%s listening on %s://%s:%s" % (
             self.name, ['http', 'https'][service_ssl], host, port)
 
         # Wait until done
         if wait:
-            # For Debugging LDAP
-            #from keystone.test import sampledata
-            #sampledata.load_fixture()
             self.server.wait()
 
     def stop(self):

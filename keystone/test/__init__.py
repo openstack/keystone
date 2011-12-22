@@ -48,6 +48,7 @@ test suites"""
 
 import cgitb
 import heapq
+import logging
 from nose import config as noseconfig
 from nose import core
 from nose import result
@@ -63,10 +64,14 @@ import keystone
 import keystone.server
 import keystone.version
 from keystone.common import config
+from keystone.test import utils
+from keystone.test import client as client_tests
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, os.pardir, os.pardir))
 TEST_CERT = os.path.join(BASE_DIR, 'examples/ssl/certs/middleware-key.pem')
+
+logger = logging.getLogger('test')
 
 
 class _AnsiColorizer(object):
@@ -346,7 +351,7 @@ class KeystoneTest(object):
     end of test execution from the temporary space used to run these
     tests).
     """
-    CONF_PARAMS = {'test_dir': TEST_DIR, 'base_dir': BASE_DIR}
+    config_params = {'test_dir': TEST_DIR, 'base_dir': BASE_DIR}
     isSsl = False
     config_name = None
     test_files = None
@@ -371,7 +376,9 @@ class KeystoneTest(object):
         """Populates a configuration template, and writes to a file pointer."""
         template_fpath = os.path.join(TEST_DIR, 'etc', self.config_name)
         conf_contents = open(template_fpath).read()
-        conf_contents = conf_contents % self.CONF_PARAMS
+        self.config_params['service_port'] = utils.get_unused_port()
+        self.config_params['admin_port'] = utils.get_unused_port()
+        conf_contents = conf_contents % self.config_params
         self.conf_fp = tempfile.NamedTemporaryFile()
         self.conf_fp.write(conf_contents)
         self.conf_fp.flush()
@@ -380,6 +387,7 @@ class KeystoneTest(object):
         pass
 
     def startServer(self):
+        """ Starts a Keystone server on random ports for testing """
         self.server = None
         self.admin_server = None
 
@@ -391,7 +399,7 @@ class KeystoneTest(object):
             os.environ['cert_file'] = TEST_CERT
 
         # run the keystone server
-        print "Starting the keystone server..."
+        logger.info("Starting the keystone server...")
 
         parser = optparse.OptionParser(version='%%prog %s' %
                                        keystone.version.version())
@@ -414,17 +422,33 @@ class KeystoneTest(object):
                                             config_name='keystone-legacy-auth',
                                             options=options, args=args)
             service.start(wait=False)
+
+            # Client tests will use these globals to find out where
+            # the server is
+            client_tests.TEST_TARGET_SERVER_SERVICE_PROTOCOL = service.protocol
+            client_tests.TEST_TARGET_SERVER_SERVICE_ADDRESS = service.host
+            client_tests.TEST_TARGET_SERVER_SERVICE_PORT = service.port
+
         except RuntimeError, e:
             sys.exit("ERROR: %s" % e)
 
         try:
             # Load Admin API server
-            port = options.get('admin_port', None)
-            host = options.get('bind_host', None)
+            port = options.get('admin_port',
+                               client_tests.TEST_TARGET_SERVER_ADMIN_PORT)
+            host = options.get('bind_host',
+                               client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS)
             admin = keystone.server.Server(name='Admin API',
                                            config_name='admin',
                                            options=options, args=args)
             admin.start(host=host, port=port, wait=False)
+
+            # Client tests will use these globals to find out where
+            # the server is
+            client_tests.TEST_TARGET_SERVER_ADMIN_PROTOCOL = admin.protocol
+            client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS = admin.host
+            client_tests.TEST_TARGET_SERVER_ADMIN_PORT = admin.port
+
         except RuntimeError, e:
             service.stop()
             sys.exit("ERROR: %s" % e)

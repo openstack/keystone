@@ -10,10 +10,10 @@ service-header-mappings = {
     'swift' : 'X-Storage-Url',
     'cdn' : 'X-CDN-Management-Url'}
 service_host = 0.0.0.0
-service_port = 5000
+service_port = %(service_port)s
 service_ssl = True
 admin_host = 0.0.0.0
-admin_port = 35357
+admin_port = %(admin_port)s
 admin_ssl = True
 keystone-admin-role = Admin
 keystone-service-admin-role = KeystoneServiceAdmin
