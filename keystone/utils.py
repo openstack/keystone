@@ -33,6 +33,11 @@ def is_json_response(req):
     return "Accept" in req.headers and "application/json" in req.accept
 
 
+def is_atom_response(req):
+    """Returns True when the request wants an ATOM response, False otherwise"""
+    return "Accept" in req.headers and "application/atom+xml" in req.accept
+
+
 def get_app_root():
     return os.path.abspath(os.path.dirname(__file__))
 

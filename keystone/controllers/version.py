@@ -25,6 +25,10 @@ class VersionController(wsgi.Controller):
             resp_file = os.path.join(possible_topdir,
                 "keystone/content/%s.xml.tpl" % file)
             resp.content_type = "application/xml"
+        elif utils.is_atom_response(req):
+            resp_file = os.path.join(possible_topdir,
+                "keystone/content/%s.atom.tpl" % file)
+            resp.content_type = "application/atom+xml"
         else:
             resp_file = os.path.join(possible_topdir,
                 "keystone/content/%s.json.tpl" % file)

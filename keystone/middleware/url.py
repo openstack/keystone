@@ -38,7 +38,8 @@ PATH_PREFIXES = {
 # Maps supported URL extensions to RESPONSE_ENCODING
 PATH_SUFFIXES = {
     '.json': 'json',
-    '.xml': 'xml'}
+    '.xml': 'xml',
+    '.atom': 'atom+xml'}
 
 # Maps supported Accept headers to RESPONSE_ENCODING and API_VERSION
 ACCEPT_HEADERS = {
@@ -49,7 +50,8 @@ ACCEPT_HEADERS = {
     'application/vnd.openstack.identity-v1.0+json': ('json', '1.0'),
     'application/vnd.openstack.identity-v1.0+xml': ('xml', '1.0'),
     'application/json': ('json', None),
-    'application/xml': ('xml', None)}
+    'application/xml': ('xml', None),
+    'application/atom+xml': ('atom+xml', None)}
 
 DEFAULT_RESPONSE_ENCODING = 'json'
 DEFAULT_API_VERSION = '2.0'
