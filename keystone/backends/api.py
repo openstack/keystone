@@ -208,6 +208,12 @@ class BaseRoleAPI(object):
     def ref_get_by_user(self, user_id, role_id, tenant_id):
         raise NotImplementedError
 
+    def get_by_service_get_page(self, service_id, marker, limit):
+        raise NotImplementedError
+
+    def get_by_service_get_page_markers(self, service_id, marker, limit):
+        raise NotImplementedError
+
 
 class BaseEndpointTemplateAPI(object):
     def __init__(self, *args, **kw):

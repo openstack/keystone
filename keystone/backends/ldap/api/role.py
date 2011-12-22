@@ -91,7 +91,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
             role_id=role_id, user_id=user_id, tenant_id=tenant_id)
 
     def get_by_service(self, service_id):
-        roles = self.get_all('(serviceId=%s)' % \
+        roles = self.get_all('(service_id=%s)' % \
                     (ldap.filter.escape_filter_chars(service_id),))
         try:
             res = []
@@ -212,6 +212,14 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         else:
             for tenant in self.api.tenant.get_all():
                 all_roles += self.ref_get_all_tenant_roles(user_id, tenant.id)
+        return self._get_page_markers(marker, limit, all_roles)
+
+    def get_by_service_get_page(self, service_id, marker, limit):
+        all_roles = self.get_by_service(service_id)
+        return self._get_page(marker, limit, all_roles)
+
+    def get_by_service_get_page_markers(self, service_id, marker, limit):
+        all_roles = self.get_by_service(service_id)
         return self._get_page_markers(marker, limit, all_roles)
 
     def ref_get_by_role(self, id):

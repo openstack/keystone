@@ -29,11 +29,24 @@ class RolesController(wsgi.Controller):
     def get_roles(self, req):
         role_name = req.GET["name"] if "name" in req.GET else None
         if role_name:
-            tenant = self.identity_service.get_role_by_name(
-                utils.get_auth_token(req), role_name)
-            return utils.send_result(200, req, tenant)
+            return self.__get_roles_by_name(req, role_name)
         else:
-            marker, limit, url = get_marker_limit_and_url(req)
+            return self.__get_all_roles(req)
+
+    def __get_roles_by_name(self, req, role_name):
+        tenant = self.identity_service.get_role_by_name(
+            utils.get_auth_token(req), role_name)
+        return utils.send_result(200, req, tenant)
+
+    def __get_all_roles(self, req):
+        service_id = req.GET["serviceId"] if "serviceId" in req.GET else None
+        marker, limit, url = get_marker_limit_and_url(req)
+        if service_id:
+            roles = self.identity_service.get_roles_by_service(
+                utils.get_auth_token(req), marker, limit, url,
+                service_id)
+            return utils.send_result(200, req, roles)
+        else:
             roles = self.identity_service.get_roles(
                 utils.get_auth_token(req), marker, limit, url)
             return utils.send_result(200, req, roles)

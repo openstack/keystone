@@ -844,19 +844,28 @@ class IdentityService(object):
 
     def get_roles(self, admin_token, marker, limit, url):
         validate_service_admin_token(admin_token)
-
-        ts = []
         droles = api.ROLE.get_page(marker, limit)
-        for drole in droles:
-            ts.append(Role(drole.id, drole.name, drole.desc, drole.service_id))
         prev, next = api.ROLE.get_page_markers(marker, limit)
         links = self.get_links(url, prev, next, limit)
+        ts = self.transform_roles(droles)
         return Roles(ts, links)
+
+    def get_roles_by_service(self, admin_token, marker, limit, url, serviceId):
+        validate_service_admin_token(admin_token)
+        droles = api.ROLE.get_by_service_get_page(serviceId, marker, limit)
+        prev, next = api.ROLE.get_by_service_get_page_markers(
+            serviceId, marker, limit)
+        links = self.get_links(url, prev, next, limit)
+        ts = self.transform_roles(droles)
+        return Roles(ts, links)
+
+    def transform_roles(self, droles):
+        return [Role(drole.id, drole.name, drole.desc, drole.service_id)
+                for drole in droles]
 
     @staticmethod
     def get_role(admin_token, role_id):
         validate_service_admin_token(admin_token)
-
         drole = api.ROLE.get(role_id)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
@@ -869,7 +878,8 @@ class IdentityService(object):
         drole = api.ROLE.get_by_name(role_name)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
-        return Role(drole.id, drole.name, drole.desc, drole.service_id)
+        return Role(drole.id, drole.name,
+            drole.desc, drole.service_id)
 
     @staticmethod
     def delete_role(admin_token, role_id):
