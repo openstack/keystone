@@ -65,7 +65,7 @@ class MasterCompatTestCase(CompatTestCase):
   #                            project_id='bar')
   #  client.authenticate()
 
-  def test_authenticate_and_tenants(self):
+  def test_authenticate_tenant_name_and_tenants(self):
     from keystoneclient.v2_0 import client as ks_client
 
     port = self.server.socket_info['socket'][1]
@@ -74,7 +74,21 @@ class MasterCompatTestCase(CompatTestCase):
     client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
                               username='FOO',
                               password='foo',
-                              project_id='bar')
+                              tenant_name='BAR')
+    client.authenticate()
+    tenants = client.tenants.list()
+    self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+  def test_authenticate_tenant_id_and_tenants(self):
+    from keystoneclient.v2_0 import client as ks_client
+
+    port = self.server.socket_info['socket'][1]
+    self.options['public_port'] = port
+    # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
+    client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
+                              username='FOO',
+                              password='foo',
+                              tenant_id='bar')
     client.authenticate()
     tenants = client.tenants.list()
     self.assertEquals(tenants[0].id, self.tenant_bar['id'])
