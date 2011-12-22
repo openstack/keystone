@@ -85,3 +85,20 @@ class MasterCompatTestCase(CompatTestCase):
         client.authenticate()
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    # FIXME(ja): this test should require the "keystone:admin" roled
+    #            (probably the role set via --keystone_admin_role flag)
+    # FIXME(ja): add a test that admin endpoint is only sent to admin user
+    # FIXME(ja): add a test that admin endpoint returns unauthorized if not admin
+    def test_tenant_create(self):
+        from keystoneclient.v2_0 import client as ks_client
+        port = self.server.socket_info['socket'][1]
+        self.options['public_port'] = port
+        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
+        client = ks_client.Client(auth_url="http://localhost:%s/v2.0/" % port,
+                                  username='FOO',
+                                  password='foo',
+                                  tenant_id='bar')
+        client.authenticate()
+        client.tenants.create("hello", description="My new tenant!", enabled=True)
+        # FIXME(ja): assert tenant was created
