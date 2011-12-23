@@ -27,7 +27,11 @@ overwrites the Accept header in the request, if present.
 
 """
 
+import logging
 import webob.acceptparse
+from webob import Request
+
+logger = logging.getLogger('keystone.middleware.url')
 
 # Maps supported URL prefixes to API_VERSION
 PATH_PREFIXES = {
@@ -43,18 +47,23 @@ PATH_SUFFIXES = {
 
 # Maps supported Accept headers to RESPONSE_ENCODING and API_VERSION
 ACCEPT_HEADERS = {
+    'application/vnd.openstack.identity+json;version=2.0': ('json', '2.0'),
+    'application/vnd.openstack.identity+xml;version=2.0': ('xml', '2.0'),
     'application/vnd.openstack.identity-v2.0+json': ('json', '2.0'),
     'application/vnd.openstack.identity-v2.0+xml': ('xml', '2.0'),
+    'application/vnd.openstack.identity+json;version=1.1': ('json', '1.1'),
+    'application/vnd.openstack.identity+xml;version=1.1': ('xml', '1.1'),
     'application/vnd.openstack.identity-v1.1+json': ('json', '1.1'),
     'application/vnd.openstack.identity-v1.1+xml': ('xml', '1.1'),
     'application/vnd.openstack.identity-v1.0+json': ('json', '1.0'),
     'application/vnd.openstack.identity-v1.0+xml': ('xml', '1.0'),
+    'application/vnd.openstack.identity+json;version=1.0': ('json', '1.0'),
+    'application/vnd.openstack.identity+xml;version=1.0': ('xml', '1.0'),
     'application/json': ('json', None),
     'application/xml': ('xml', None),
     'application/atom+xml': ('atom+xml', None)}
 
 DEFAULT_RESPONSE_ENCODING = 'json'
-DEFAULT_API_VERSION = '2.0'
 
 
 class NormalizingFilter(object):
@@ -74,12 +83,21 @@ class NormalizingFilter(object):
         env['PATH_INFO'] = normalize_trailing_slash(env['PATH_INFO'])
 
         # Fall back on defaults, if necessary
-        env['KEYSTONE_API_VERSION'] = env.get(
-            'KEYSTONE_API_VERSION') or DEFAULT_API_VERSION
         env['KEYSTONE_RESPONSE_ENCODING'] = env.get(
             'KEYSTONE_RESPONSE_ENCODING') or DEFAULT_RESPONSE_ENCODING
         env['HTTP_ACCEPT'] = 'application/' + (env.get(
             'KEYSTONE_RESPONSE_ENCODING') or DEFAULT_RESPONSE_ENCODING)
+
+        if 'KEYSTONE_API_VERSION' not in env:
+            # Version was not specified in path or headers
+            # return multiple choice unless the version controller can handle
+            # this request
+            if env['PATH_INFO'] not in ['/', '']:
+                from keystone.controllers.version import VersionController
+                controller = VersionController(options=None)
+                response = controller.get_multiple_choice(req=Request(env),
+                                file='multiple_choice')
+                return response(env, start_response)
 
         return self.app(env, start_response)
 
@@ -88,26 +106,37 @@ def normalize_accept_header(env):
     """Matches the preferred Accept encoding to supported encodings.
 
     Sets KEYSTONE_RESPONSE_ENCODING and KEYSTONE_API_VERSION, if appropriate.
+
+    Note:: webob.acceptparse ignores ';version=' values
     """
     accept_value = env.get('HTTP_ACCEPT')
 
     if accept_value:
-        try:
-            accept = webob.acceptparse.Accept(accept_value)
-        except TypeError:
-            # Support `webob` v1.1 and older.
-            accept = webob.acceptparse.Accept('Accept', accept_value)
+        if accept_value in ACCEPT_HEADERS.keys():
+            #  Check for direct match first
+            best_accept = accept_value
+        else:
+            try:
+                accept = webob.acceptparse.Accept(accept_value)
+            except TypeError:
+                # Support `webob` v1.1 and older.
+                accept = webob.acceptparse.Accept('Accept', accept_value)
 
-        best_accept = accept.best_match(ACCEPT_HEADERS.keys())
+            best_accept = accept.best_match(ACCEPT_HEADERS.keys())
 
         if best_accept:
             response_encoding, api_version = ACCEPT_HEADERS[best_accept]
+            logger.debug('%s header matched with %s (API=%s, TYPE=%s)',
+                         accept_value, best_accept, api_version,
+                         response_encoding)
 
             if response_encoding:
                 env['KEYSTONE_RESPONSE_ENCODING'] = response_encoding
 
             if api_version:
                 env['KEYSTONE_API_VERSION'] = api_version
+        else:
+            logger.debug('%s header could not be matched', accept_value)
 
     return env
 
