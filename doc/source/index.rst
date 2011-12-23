@@ -41,6 +41,7 @@ Getting Started
 .. toctree::
     :maxdepth: 1
 
+    releases
     setup
     testing
     migration
