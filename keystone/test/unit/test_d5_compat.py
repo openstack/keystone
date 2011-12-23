@@ -154,6 +154,21 @@ class TestD5Auth(unittest.TestCase):
         self.assertEquals(D5_data['auth'], D5['auth'],
                       "D5 compat response must contain D5 format")
 
+    def test_no_catalog_in_response(self):
+        minimal_response = {
+            "access": {
+                "token": {
+                    "expires": "2011-12-07T21:31:49.215675",
+                    "id": "92c8962a-7e9b-40d1-83eb-a2f3b6eb45c3"
+                },
+                "user": {
+                    "id": "3",
+                    "name": "admin",
+                }
+            }
+        }
+        d5 = d5_compat.D5toDiabloAuthData(init_json=minimal_response)
+        self.assertTrue(d5.to_json())
 
 if __name__ == '__main__':
     unittest.main()

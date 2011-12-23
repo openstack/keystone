@@ -216,6 +216,8 @@ def get_auth_data(dtoken):
         tenant = auth.Tenant(id=dtenant.id, name=dtenant.name)
 
         endpoints = api.TENANT.get_all_endpoints(dtoken.tenant_id)
+    else:
+        endpoints = api.TENANT.get_all_endpoints(None)
 
     token = auth.Token(dtoken.expires, dtoken.id, tenant)
 
@@ -372,8 +374,7 @@ class IdentityService(object):
         if not user:
             raise fault.UnauthorizedFault("Unauthorized")
 
-        return self._authenticate(
-            validate, user.id, auth_request.tenant_id)
+        return self._authenticate(validate, user.id, auth_request.tenant_id)
 
     def authenticate_with_unscoped_token(self, auth_request):
         # Check auth_with_unscoped_token
@@ -396,8 +397,7 @@ class IdentityService(object):
         def validate(duser):
             # The user is already authenticated
             return True
-        return self._authenticate(validate, user.id,
-                                             auth_request.tenant_id)
+        return self._authenticate(validate, user.id, auth_request.tenant_id)
 
     def authenticate_ec2(self, credentials):
         # Check credentials
