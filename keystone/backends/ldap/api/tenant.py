@@ -26,8 +26,10 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):  # pylint: disable=W0223
             return None
 
     def create(self, values):
-        values['id'] = str(uuid.uuid4())
-        return super(TenantAPI, self).create(values)
+        data = values.copy()
+        if 'id' not in data or data['id'] is None:
+            data['id'] = str(uuid.uuid4())
+        return super(TenantAPI, self).create(data)
 
     def get_user_tenants(self, user_id, include_roles=True):
         """Returns list of tenants a user has access to

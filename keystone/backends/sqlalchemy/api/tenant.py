@@ -61,10 +61,10 @@ class TenantAPI(api.BaseTenantAPI):
         return [TenantAPI.to_model(ref) for ref in refs]
 
     def create(self, values):
-        values = values.copy()
-        TenantAPI.transpose(values)
+        data = values.copy()
+        TenantAPI.transpose(data)
         tenant_ref = models.Tenant()
-        tenant_ref.update(values)
+        tenant_ref.update(data)
         if tenant_ref.uid is None:
             tenant_ref.uid = uuid.uuid4().hex
         tenant_ref.save()
@@ -282,13 +282,15 @@ class TenantAPI(api.BaseTenantAPI):
             session = get_session()
 
         if hasattr(api.TENANT, 'uid_to_id'):
-            id = self.uid_to_id(id)
+            pkid = self.uid_to_id(id)
+        else:
+            pkid = id
 
         data = values.copy()
         TenantAPI.transpose(data)
 
         with session.begin():
-            tenant_ref = self._get_by_id(id, session)
+            tenant_ref = self._get_by_id(pkid, session)
             tenant_ref.update(data)
             tenant_ref.save(session=session)
             return self.get(id, session)

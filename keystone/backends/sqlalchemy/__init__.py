@@ -54,6 +54,8 @@ class Driver():
         self._init_session_maker()
 
     def _init_engine(self, model_list):
+        logger.info("Initializing sqlalchemy backend: %s" % \
+                    self.connection_str)
         if self.connection_str == "sqlite://":
             # initialize in-memory sqlite (i.e. for testing)
             self._engine = create_engine(
@@ -71,6 +73,7 @@ class Driver():
                 self.connection_str,
                 pool_recycle=3600)
             self._init_version_control()
+            self._init_tables(model_list)
 
     def _init_version_control(self):
         """Verify the state of the database"""
@@ -118,6 +121,8 @@ class Driver():
             if table in tables:
                 tables_to_create.append(table)
 
+        logger.debug('Creating tables: %s' % \
+                ','.join([table.name for table in tables_to_create]))
         models.Base.metadata.create_all(self._engine, tables=tables_to_create,
                                         checkfirst=True)
 
