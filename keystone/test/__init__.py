@@ -581,7 +581,7 @@ class UnitTests(KeystoneTest):
         if not scoped_to_unit:
             argv.append('keystone.test.unit')
 
-        super(UnitTests, self).run(args=argv)
+        return super(UnitTests, self).run(args=argv)
 
 
 class ClientTests(KeystoneTest):
@@ -620,7 +620,7 @@ class ClientTests(KeystoneTest):
 
         self.startServer()
 
-        super(ClientTests, self).run(args=argv)
+        return super(ClientTests, self).run(args=argv)
 
 
 class SQLTest(KeystoneTest):

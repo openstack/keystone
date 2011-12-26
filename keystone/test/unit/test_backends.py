@@ -185,7 +185,8 @@ class SQLiteBackendTestCase(BackendTestCase):
             "hash-password": "False",
             'keystone.backends.sqlalchemy': {
                 "sql_connection": "sqlite:///%s" % self.database_name,
-                "backend_entities": "['Tenant']",
+                "backend_entities": "['Service', 'Tenant',\
+                        'EndpointTemplates', 'Endpoints']",
                 "sql_idle_timeout": "30"
                 }
             }
