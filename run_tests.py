@@ -64,6 +64,6 @@ if __name__ == '__main__':
 
     else:
         for test_num, test_cls in enumerate(TESTS):
-            print 'Runing test suite: %s' % test_cls.__name__
+            print 'Running test suite: %s' % test_cls.__name__
             if test_cls().run():
                 exit(1)
