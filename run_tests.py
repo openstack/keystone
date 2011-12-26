@@ -28,6 +28,7 @@ TESTS = [
     # But tests pass
     # MemcacheTest,
     test.SSLTest,
+    test.ClientWithoutHPIDMTest,
 ]
 
 

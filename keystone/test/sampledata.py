@@ -6,8 +6,15 @@ DEFAULT_FIXTURE = [
     ('tenant', 'add', 'ANOTHER:TENANT'),
     ('tenant', 'add', 'project-y'),
     ('tenant', 'disable', 'project-y'),
+    ('tenant', 'add', 'coffee-tea'),
+# Add some services for the service roles
+    ('service', 'add', 'coffee',
+        'coffee service', 'coffee service'),
+    ('service', 'add', 'tea',
+        'tea house', 'tea house'),
 # Users
     ('user', 'add', 'joeuser', 'secrete', 'customer-x'),
+    ('user', 'add', 'pete', 'secrete', 'coffee-tea'),
     ('user', 'add', 'joeadmin', 'secrete', 'customer-x'),
     ('user', 'add', 'admin', 'secrete'),
     ('user', 'add', 'serviceadmin', 'secrete', 'customer-x'),
@@ -24,6 +31,11 @@ DEFAULT_FIXTURE = [
     ('role', 'grant', 'Admin', 'nodefaulttenant', 'customer-x'),
     ('role', 'add', 'Member'),
     ('role', 'grant', 'Member', 'joeuser', 'customer-x'),
+    ('role', 'add', 'barista', 'coffee'),
+    ('role', 'add', 'barista', 'tea'),
+    ('role', 'grant', 'barista', 'pete'),
+    ('role', 'add', 'barista-global'),
+    ('role', 'grant', 'barista-global', 'pete'),
 # Add Services
     #1 Service Name:exampleservice Type:example type
     ('service', 'add', 'exampleservice',

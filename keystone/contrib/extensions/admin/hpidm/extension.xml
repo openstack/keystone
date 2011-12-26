@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <extension
+        xmlns="http://docs.openstack.org/common/api/v1.0"
+        xmlns:atom="http://www.w3.org/2005/Atom"
+        name="HP Token Validation Extension"
+        namespace="http://docs.openstack.org/identity/api/ext/HP-IDM/v1.0"
+        alias="HP-IDM"
+        updated="2011-12-25T17:00:00-00:00">
+
+        <description>
+              Validate token with the optional serviceId parameter so that only the roles associated with the given service IDs are returned. See https://bugs.launchpad.net/keystone/+bug/890411 for more details.
+        </description>
+
+        <atom:link rel="describedby"
+            type="application/pdf"
+            href="https://github.com/openstack/keystone/raw/master/keystone/content/admin/HP-IDM-admin-devguide.pdf"/>
+        <atom:link rel="describedby"
+            type="application/vnd.sun.wadl+xml"
+            href="https://github.com/openstack/keystone/raw/master/keystone/content/admin/HP-IDM-admin.wadl"/>
+    </extension>
+

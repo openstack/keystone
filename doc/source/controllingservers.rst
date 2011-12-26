@@ -124,7 +124,7 @@ Here is an example showing how you can manually start the ``keystone-auth`` serv
     keystone-legacy-auth: INFO     certfile             /etc/keystone/ssl/certs/keystone.pem
     keystone-legacy-auth: INFO     debug                True
     keystone-legacy-auth: INFO     default_store        sqlite
-    keystone-legacy-auth: INFO     extensions           osksadm,oskscatalog
+    keystone-legacy-auth: INFO     extensions           osksadm,oskscatalog,hpidm
     keystone-legacy-auth: INFO     hash-password        True
     keystone-legacy-auth: INFO     keyfile              /etc/keystone/ssl/private/keystonekey.pem
     keystone-legacy-auth: INFO     keystone-admin-role  Admin
@@ -156,7 +156,7 @@ Here is an example showing how you can manually start the ``keystone-auth`` serv
     admin       : INFO     certfile             /etc/keystone/ssl/certs/keystone.pem
     admin       : INFO     debug                True
     admin       : INFO     default_store        sqlite
-    admin       : INFO     extensions           osksadm,oskscatalog
+    admin       : INFO     extensions           osksadm,oskscatalog,hpidm
     admin       : INFO     hash-password        True
     admin       : INFO     keyfile              /etc/keystone/ssl/private/keystonekey.pem
     admin       : INFO     keystone-admin-role  Admin

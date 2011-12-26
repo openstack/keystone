@@ -13,6 +13,7 @@ function usage {
   echo "                               SSLTest:      runs client tests with SSL configured"
   echo "                               LDAPTest:     runs functional tests with LDAP backend"
   echo "                               MemcacheTest: runs functional tests with memcached storing tokens"
+  echo "                               ClientWithoutHPIDMTest: runs client tests with HP-IDM extension disabled"
   echo "                               Note: by default, run tests will run all suites"
   echo "  -V, --virtual-env        Always use virtualenv.  Install automatically if not present"
   echo "  -N, --no-virtual-env     Don't use virtualenv.  Run tests in local environment"

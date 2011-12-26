@@ -104,6 +104,7 @@ import json
 import os
 from paste.deploy import loadapp
 import time
+import urllib
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized
 from webob.exc import Request, Response
@@ -159,6 +160,11 @@ class AuthProtocol(object):
         self.service_protocol = conf.get('service_protocol', 'https')
         self.service_host = conf.get('service_host')
         service_port = conf.get('service_port')
+        service_ids = conf.get('service_ids')
+        self.serviceId_qs = ''
+        if service_ids:
+            self.serviceId_qs = '?HP-IDM-serviceId=%s' % \
+                                (urllib.quote(service_ids))
         if service_port:
             self.service_port = int(service_port)
         self.service_url = '%s://%s:%s' % (self.service_protocol,
@@ -429,7 +435,8 @@ class AuthProtocol(object):
                     # "X-Auth-Token": admin_token}
                     # we're using a test token from the ini file for now
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
-                            '/v2.0/tokens/%s' % claims, headers=headers,
+                            '/v2.0/tokens/%s%s' % (claims, self.serviceId_qs),
+                            headers=headers,
                             ssl=(self.auth_protocol == 'https'),
                             key_file=self.key_file, cert_file=self.cert_file,
                             timeout=self.auth_timeout)

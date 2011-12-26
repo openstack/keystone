@@ -23,6 +23,7 @@ DEFAULT_BACKENDS = 'keystone.backends.sqlalchemy'
 
 #Configs applicable to all backends.
 SHOULD_HASH_PASSWORD = None
+GLOBAL_SERVICE_ID = None  # to facilitate global roles for validate tokens
 
 
 def configure_backends(options):
@@ -38,3 +39,6 @@ def configure_backends(options):
     if "hash-password" in options\
         and ast.literal_eval(options["hash-password"]) == True:
         SHOULD_HASH_PASSWORD = options["hash-password"]
+
+    global GLOBAL_SERVICE_ID
+    GLOBAL_SERVICE_ID = options.get("global_service_id", "global")

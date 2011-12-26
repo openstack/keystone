@@ -10,6 +10,29 @@ from keystone.logic.types.extension import Extensions
 EXTENSIONS_PATH = 'contrib/extensions'
 
 
+def get_supported_extensions(options):
+    """
+    Returns list of supported extensions.
+    options - global configuration options
+    """
+
+    return [extension.strip() for extension in
+                options.get(CONFIG_EXTENSION_PROPERTY,
+                DEFAULT_EXTENSIONS).split(',')]
+
+
+def is_extension_supported(options, extension_name):
+    """
+    Return True if the extension is enabled, False otherwise.
+    options - global configuration options
+    extension_name - extension name
+    extension_name is case-sensitive.
+    """
+    if (extension_name is not None) and (options is not None):
+        return extension_name in get_supported_extensions(options)
+    return False
+
+
 class ExtensionsReader(object):
     """Reader to read static extensions content"""
 
@@ -75,8 +98,7 @@ class ExtensionsReader(object):
     def __get_supported_extensions(self):
         """ Returns list of supported extensions."""
         if self.supported_extensions is None:
-            self.supported_extensions = self.options.get(
-                CONFIG_EXTENSION_PROPERTY, DEFAULT_EXTENSIONS).split(',')
+            self.supported_extensions = get_supported_extensions(self.options)
         return self.supported_extensions
 
     def __get_extension_json(self, extension_name):

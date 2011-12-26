@@ -353,6 +353,7 @@ class KeystoneTest(object):
     """
     config_params = {'test_dir': TEST_DIR, 'base_dir': BASE_DIR}
     isSsl = False
+    hpidmDisabled = False
     config_name = None
     test_files = None
     server = None
@@ -397,6 +398,10 @@ class KeystoneTest(object):
         # Set client certificate for test client
         if (self.isSsl == True):
             os.environ['cert_file'] = TEST_CERT
+
+        # indicating HP-IDM is disabled
+        if self.hpidmDisabled:
+            os.environ['HP-IDM_Disabled'] = 'True'
 
         # run the keystone server
         logger.info("Starting the keystone server...")
@@ -659,3 +664,10 @@ class LDAPTest(SQLTest):
         from keystone.backends.ldap.fakeldap import FakeShelve
         db = FakeShelve().get_instance()
         db.clear()
+
+
+class ClientWithoutHPIDMTest(ClientTests):
+    """Test with HP-IDM disabled to make sure it is backward compatible"""
+    config_name = 'sql_no_hpidm.conf.template'
+    hpidmDisabled = True
+    test_files = ('keystone.nohpidm.db',)
