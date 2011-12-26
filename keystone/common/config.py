@@ -21,6 +21,7 @@ Routines for configuring OpenStack Service
 """
 
 import logging.config
+from logging import FileHandler
 import optparse
 import os
 from paste import deploy
@@ -169,10 +170,17 @@ def setup_logging(options, conf):
     logfile = options.get('log_file') or conf.get('log_file', DEFAULT_LOG_FILE)
     logdir = options.get('log_dir') or conf.get('log_dir', DEFAULT_LOG_DIR)
 
-    logfile = os.path.join(logdir, logfile)
-    logfile = logging.FileHandler(logfile)
-    logfile.setFormatter(formatter)
-    root_logger.addHandler(logfile)
+    # Add FileHandler if it doesn't exist
+    logfile = os.path.abspath(os.path.join(logdir, logfile))
+    handlers = [handler for handler in root_logger.handlers
+                if isinstance(handler, FileHandler)
+                and handler.baseFilename == logfile]
+
+    if not handlers:
+        logfile = logging.FileHandler(logfile)
+        logfile.setFormatter(formatter)
+        root_logger.addHandler(logfile)
+
     # Mirror to console if verbose or debug
     if debug or verbose:
         add_console_handler(root_logger, logging.INFO)
