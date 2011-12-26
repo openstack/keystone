@@ -13,6 +13,7 @@
 	<serviceCatalog>
 		<service type="compute" name="Cloud Servers">
 			<endpoint
+        id="1"
         tenantId="t1000"
 				region="North"
 				publicURL="https://compute.north.host.com/v1/t1000"
@@ -24,6 +25,7 @@
 				/>
 			</endpoint>
 			<endpoint
+        id="2"
         tenantId="t1000"
 				region="North"
 				publicURL="https://compute.north.host.com/v1.1/t1000"
@@ -36,6 +38,7 @@
 		</service>
 		<service type="object-store" name="Cloud Files">
 			<endpoint
+        id="3"
         tenantId="t1000"
 				region="North"
 				publicURL="https://storage.north.host.com/v1/t1000"
@@ -46,6 +49,7 @@
 				list="https://storage.north.host.com/" />
 			</endpoint>
 			<endpoint
+        id="4"
         tenantId="t1000"
 				region="South"
 				publicURL="https://storage.south.host.com/v1/t1000"
@@ -58,6 +62,7 @@
 		</service>
 		<service type="dnsextension:dns" name="DNS-as-a-Service">
 			<endpoint
+        id="5"
         tenantId="t1000"
 				publicURL="https://dns.host.com/v2.0/t1000">
 				<version

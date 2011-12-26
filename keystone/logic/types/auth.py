@@ -369,6 +369,7 @@ class AuthData(object):
                                 endpoint.set(url_kind + "URL", base_url_item)
                                 include_this_endpoint = True
                     if include_this_endpoint:
+                        endpoint.set("id", str(base_url.id))
                         service.append(endpoint)
                 if service.find("endpoint") is not None:
                     service_catalog.append(service)
@@ -423,6 +424,7 @@ class AuthData(object):
                                 endpoint[url_kind + "URL"] = base_url_item
                                 include_this_endpoint = True
                     if include_this_endpoint:
+                        endpoint['id'] = str(base_url.id)
                         endpoints.append(endpoint)
                         dservice = db_api.SERVICE.get(key)
                         if not dservice:
