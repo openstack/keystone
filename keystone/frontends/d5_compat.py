@@ -43,8 +43,6 @@ Notes:
 import copy
 import json
 from lxml import etree
-import os
-import sys
 from webob.exc import Request
 
 from keystone.logic.types import fault
@@ -240,9 +238,10 @@ class D5toDiabloAuthData(object):
                 raise fault.IdentityFault("%s not initialized with data" % \
                                           self.__class__.__str__)
         d5_data = {"auth": self.json.copy()}
-        d5_data['auth']['serviceCatalog'] = \
-            dict([(s['type'], s['endpoints'])
-                   for s in d5_data['auth']['serviceCatalog']])
+        if 'auth' in d5_data and 'serviceCatalog' in d5_data['auth']:
+            d5_data['auth']['serviceCatalog'] = \
+                dict([(s['type'], s['endpoints'])
+                       for s in d5_data['auth']['serviceCatalog']])
 
         return json.dumps(d5_data)
 

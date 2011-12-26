@@ -4,6 +4,7 @@ import uuid
 
 from keystone import backends
 import keystone.backends.api as api
+import keystone.backends.models as legacy_backend_models
 from keystone import models
 from keystone import utils
 
@@ -98,6 +99,47 @@ class BackendTestCase(unittest.TestCase):
         updated_tenant = api.TENANT.get(id)
 
         self.assertEqual(new_tenant, updated_tenant)
+
+    def test_endpointtemplate_create(self):
+        service = models.Service(name="glance", type="image-service")
+        service = api.SERVICE.create(service)
+
+        global_ept = models.EndpointTemplate(
+            region="north",
+            name="global",
+            type=service.type,
+            is_global=True,
+            public_URL="http://global.public")
+        global_ept = api.ENDPOINT_TEMPLATE.create(global_ept)
+        self.assertIsNotNone(global_ept.id)
+
+        ept = models.EndpointTemplate(
+            region="north",
+            name="floating",
+            type=service.type,
+            is_global=False,
+            public_URL="http://floating.public/%tenant_id%/")
+        ept = api.ENDPOINT_TEMPLATE.create(ept)
+        self.assertIsNotNone(ept.id)
+
+    def test_endpoint_list(self):
+        self.test_endpointtemplate_create()
+        self.test_basic_tenant_create()
+        tenant = api.TENANT.get_by_name("Tee One")
+
+        templates = api.ENDPOINT_TEMPLATE.get_all()
+        for template in templates:
+            if not template.is_global:
+                endpoint = legacy_backend_models.Endpoints()
+                endpoint.tenant_id = tenant.id
+                endpoint.endpoint_template_id = template.id
+                api.ENDPOINT_TEMPLATE.endpoint_add(endpoint)
+
+        global_endpoints = api.TENANT.get_all_endpoints(None)
+        self.assertGreater(len(global_endpoints), 0)
+
+        tenant_endpoints = api.TENANT.get_all_endpoints(tenant.id)
+        self.assertGreater(len(tenant_endpoints), 0)
 
 
 class LDAPBackendTestCase(BackendTestCase):

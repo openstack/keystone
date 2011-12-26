@@ -12,6 +12,7 @@ DEFAULT_FIXTURE = [
     ('user', 'add', 'admin', 'secrete'),
     ('user', 'add', 'serviceadmin', 'secrete', 'customer-x'),
     ('user', 'add', 'disabled', 'secrete', 'customer-x'),
+    ('user', 'add', 'nodefaulttenant', 'secrete'),
     ('user', 'disable', 'disabled'),
 # Roles
     ('role', 'add', 'Admin'),
@@ -20,6 +21,7 @@ DEFAULT_FIXTURE = [
     ('role', 'grant', 'KeystoneServiceAdmin', 'serviceadmin'),
     ('role', 'grant', 'Admin', 'joeadmin', 'customer-x'),
     ('role', 'grant', 'Admin', 'joeadmin', 'ANOTHER:TENANT'),
+    ('role', 'grant', 'Admin', 'nodefaulttenant', 'customer-x'),
     ('role', 'add', 'Member'),
     ('role', 'grant', 'Member', 'joeuser', 'customer-x'),
 # Add Services
