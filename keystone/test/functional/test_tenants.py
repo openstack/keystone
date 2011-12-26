@@ -45,13 +45,13 @@ class TenantTest(common.FunctionalTestCase):
         self.assertIn(xml.get('enabled'), ['true', 'false'])
         return xml
 
-    def assertValidJsonTenantResponse(self, r):
-        tenant = r.json.get('tenant')
+    def assertValidJsonTenantResponse(self, response):
+        tenant = response.json.get('tenant')
         self._assertValidJsonTenant(tenant)
         return tenant
 
-    def assertValidXmlTenantResponse(self, r):
-        return self._assertValidXmlTenant(r.xml)
+    def assertValidXmlTenantResponse(self, response):
+        return self._assertValidXmlTenant(response.xml)
 
     def _assertValidTenantList(self, tenants):
         pass
@@ -71,11 +71,11 @@ class TenantTest(common.FunctionalTestCase):
             self._assertValidJsonTenant(tenant)
         return tenants
 
-    def assertValidXmlTenantListResponse(self, r):
-        return self._assertValidXmlTenantList(r.xml)
+    def assertValidXmlTenantListResponse(self, response):
+        return self._assertValidXmlTenantList(response.xml)
 
-    def assertValidJsonTenantListResponse(self, r):
-        tenants = r.json.get('tenants')
+    def assertValidJsonTenantListResponse(self, response):
+        tenants = response.json.get('tenants')
         self.assertIsNotNone(tenants)
         return self._assertValidJsonTenantList(tenants)
 
@@ -90,9 +90,9 @@ class CreateTenantTest(TenantTest):
     def test_create_tenant(self):
         name = common.unique_str()
         description = common.unique_str()
-        r = self.create_tenant(tenant_name=name,
+        response = self.create_tenant(tenant_name=name,
             tenant_description=description, assert_status=201)
-        tenant = self.assertValidJsonTenantResponse(r)
+        tenant = self.assertValidJsonTenantResponse(response)
         self.assertEqual(name, tenant.get('name'))
         self.assertEqual(description, tenant.get('description'))
 
@@ -107,9 +107,9 @@ class CreateTenantTest(TenantTest):
             'enabled="true" name="%s"> '
             '<description>%s</description> '
             '</tenant>') % (name, description)
-        r = self.post_tenant(as_xml=data, assert_status=201, headers={
+        response = self.post_tenant(as_xml=data, assert_status=201, headers={
             'Accept': 'application/xml'})
-        tenant = self.assertValidXmlTenantResponse(r)
+        tenant = self.assertValidXmlTenantResponse(response)
         self.assertEqual(name, tenant.get('name'))
         self.assertEqual(description,
             tenant.find('{%s}description' % self.xmlns).text)
@@ -202,17 +202,17 @@ class CreateTenantTest(TenantTest):
 
 class GetTenantsTest(TenantTest):
     def test_get_tenants_using_admin_token(self):
-        r = self.list_tenants(assert_status=200)
-        self.assertValidJsonTenantListResponse(r)
+        response = self.list_tenants(assert_status=200)
+        self.assertValidJsonTenantListResponse(response)
 
     def test_get_tenants_using_admin_token_xml(self):
-        r = self.get_tenants(assert_status=200, headers={
+        response = self.get_tenants(assert_status=200, headers={
             'Accept': 'application/xml'})
-        self.assertValidXmlTenantListResponse(r)
+        self.assertValidXmlTenantListResponse(response)
 
     def test_get_tenants_using_admin_token_xml_on_service_api(self):
-        r = self.create_tenant()
-        tenant = self.assertValidJsonTenantResponse(r)
+        response = self.create_tenant()
+        tenant = self.assertValidJsonTenantResponse(response)
         role = self.create_role().json['role']
         user = self.create_user_with_known_password(tenant_id=tenant['id']).\
             json['user']
@@ -231,41 +231,41 @@ class GetTenantsTest(TenantTest):
             user['password']).json['access']['token']['id']
 
         # make a service call with our admin token
-        r = self.get_tenants(assert_status=200, headers={
+        response = self.get_tenants(assert_status=200, headers={
             'Accept': 'application/xml'}, request_type='service')
-        tenants = self.assertValidXmlTenantListResponse(r)
+        tenants = self.assertValidXmlTenantListResponse(response)
         self.assertEquals(len(tenants), 1)
         self.assertIn(tenant['id'], [t.get('id') for t in tenants])
 
     def test_get_tenants_using_user_token(self):
-        r = self.create_tenant()
-        tenant = self.assertValidJsonTenantResponse(r)
+        response = self.create_tenant()
+        tenant = self.assertValidJsonTenantResponse(response)
         user = self.create_user_with_known_password(tenant_id=tenant['id']).\
             json['user']
         token = self.authenticate(user['name'], user['password'],
             tenant['id']).json['access']['token']
         tmp = self.service_token
         self.service_token = token['id']
-        r = self.service_request(method='GET', path='/tenants',
+        response = self.service_request(method='GET', path='/tenants',
             assert_status=200)
         self.service_token = tmp
-        tenants = self.assertValidJsonTenantListResponse(r)
+        tenants = self.assertValidJsonTenantListResponse(response)
         self.assertTrue(len(tenants) == 1)
         self.assertIn(tenant['id'], [t['id'] for t in tenants])
 
     def test_get_tenants_using_user_token_xml(self):
-        r = self.create_tenant()
-        tenant = self.assertValidJsonTenantResponse(r)
+        response = self.create_tenant()
+        tenant = self.assertValidJsonTenantResponse(response)
         user = self.create_user_with_known_password(tenant_id=tenant['id']).\
             json['user']
         token = self.authenticate(user['name'], user['password'],
             tenant['id']).json['access']['token']
         tmp = self.service_token
         self.service_token = token['id']
-        r = self.service_request(method='GET', path='/tenants',
+        response = self.service_request(method='GET', path='/tenants',
             assert_status=200, headers={'Accept': 'application/xml'})
         self.service_token = tmp
-        tenants = self.assertValidXmlTenantListResponse(r)
+        tenants = self.assertValidXmlTenantListResponse(response)
         self.assertIn(tenant['id'], [t.get('id') for t in tenants])
 
     def test_get_tenants_exp_token(self):
@@ -279,6 +279,70 @@ class GetTenantsTest(TenantTest):
         self.get_tenants(assert_status=403, headers={
             'Accept': 'application/xml'})
 
+    def test_get_tenants_blank(self):
+        # Create user with no default tenant set
+        self.nodefaultuser = self.create_user_with_known_password()\
+                                            .json['user']
+        response = self.authenticate(self.nodefaultuser['name'],
+                              self.nodefaultuser['password'],
+                              tenant_id=None, assert_status=200)
+        token_id = response.json['access']['token']['id']
+        response = self.get_tenants(request_type='service', use_token=token_id)
+        self.assertTrue(len(response.json['tenants']) == 0,
+                        "No tenants should be returned")
+
+    def test_get_tenants_default_and_role(self):
+        """ Validates that the GET /tenants call returns tenants that are
+        assigned to the user by role AND by default tenant setting """
+        self.fixture_create_normal_tenant()
+        self.fixture_create_tenant_user()
+        other_tenant = self.create_tenant().json['tenant']
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.tenant_user['id'], role['id'],
+                                other_tenant['id'])
+
+        response = self.authenticate(self.tenant_user['name'],
+                              self.tenant_user['password'],
+                              tenant_id=None, assert_status=200)
+        token_id = response.json['access']['token']['id']
+        response = self.get_tenants(request_type='service', use_token=token_id)
+        tenants = response.json['tenants']
+        second_tenant = [tenant for tenant in tenants
+                          if tenant['id'] == other_tenant['id']]
+        self.assertTrue(len(second_tenant) > 0,
+                        "Tenants with roles assigned should be returned")
+
+        default_tenant = [tenant for tenant in tenants
+                          if tenant['id'] == self.tenant['id']]
+        self.assertTrue(len(default_tenant) > 0,
+                        "Default tenant should be returned")
+
+    def test_get_tenants_does_not_return_default(self):
+        self.fixture_create_normal_tenant()
+        self.fixture_create_tenant_user()
+        other_tenant = self.create_tenant().json['tenant']
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.tenant_user['id'], role['id'],
+                                other_tenant['id'])
+
+        # Authenticate scoped to the non-default tenant
+        response = self.authenticate(self.tenant_user['name'],
+                              self.tenant_user['password'],
+                              tenant_id=other_tenant['id'],
+                              assert_status=200)
+        token_id = response.json['access']['token']['id']
+        response = self.get_tenants(request_type='service', use_token=token_id)
+        tenants = response.json['tenants']
+        second_tenant = [tenant for tenant in tenants
+                          if tenant['id'] == other_tenant['id']]
+        self.assertTrue(len(second_tenant) > 0,
+                        "Tenants with roles assigned should be returned")
+
+        default_tenant = [tenant for tenant in tenants
+                          if tenant['id'] == self.tenant['id']]
+        self.assertTrue(len(default_tenant) == 0,
+                        "Default tenant should not be returned")
+
 
 class GetTenantTest(TenantTest):
     def setUp(self, *args, **kwargs):
@@ -286,17 +350,17 @@ class GetTenantTest(TenantTest):
         self.fixture_create_normal_tenant()
 
     def test_get_tenant(self):
-        r = self.fetch_tenant(self.tenant['id'], assert_status=200)
-        tenant = self.assertValidJsonTenantResponse(r)
+        response = self.fetch_tenant(self.tenant['id'], assert_status=200)
+        tenant = self.assertValidJsonTenantResponse(response)
         self.assertEquals(self.tenant['id'], tenant['id'])
         self.assertEquals(self.tenant['name'], tenant['name'])
         self.assertFalse('description' in tenant)
         self.assertEquals(self.tenant['enabled'], tenant['enabled'])
 
     def test_get_tenant_xml(self):
-        r = self.fetch_tenant(self.tenant['id'], assert_status=200, headers={
-            "Accept": "application/xml"})
-        tenant = self.assertValidXmlTenantResponse(r)
+        response = self.fetch_tenant(self.tenant['id'], assert_status=200,
+                                     headers={"Accept": "application/xml"})
+        tenant = self.assertValidXmlTenantResponse(response)
         self.assertEquals(self.tenant['id'], tenant.get('id'))
         self.assertEquals(self.tenant['name'], tenant.get('name'))
         self.assertEquals(str(self.tenant['enabled']).lower(),
@@ -328,11 +392,11 @@ class GetTenantUsersTest(TenantTest):
         self.assertEquals(user['name'], self.user['name'])
 
     def test_list_tenant_users_xml(self):
-        r = self.list_tenant_users(self.tenant['id'],
+        response = self.list_tenant_users(self.tenant['id'],
             assert_status=200, headers={
             "Accept": "application/xml"})
-        self.assertEquals(r.xml.tag, '{%s}users' % self.xmlns)
-        users = r.xml.findall('{%s}user' % self.xmlns)
+        self.assertEquals(response.xml.tag, '{%s}users' % self.xmlns)
+        users = response.xml.findall('{%s}user' % self.xmlns)
         for user in users:
             self.assertEqual(user.get('name'), self.user['name'])
 
@@ -371,11 +435,11 @@ class GetTenantUsersByRoleTest(TenantTest):
         self.assertEquals(user['name'], self.user['name'])
 
     def test_list_tenant_users_xml(self):
-        r = self.list_tenant_users(self.tenant['id'],
+        response = self.list_tenant_users(self.tenant['id'],
             self.role['id'], assert_status=200, headers={
             "Accept": "application/xml"})
-        self.assertEquals(r.xml.tag, '{%s}users' % self.xmlns)
-        users = r.xml.findall('{%s}user' % self.xmlns)
+        self.assertEquals(response.xml.tag, '{%s}users' % self.xmlns)
+        users = response.xml.findall('{%s}user' % self.xmlns)
         for user in users:
             self.assertEqual(user.get('name'), self.user['name'])
 
@@ -408,8 +472,9 @@ class GetTenantByNameTest(TenantTest):
         self.fixture_create_normal_tenant()
 
     def test_get_tenant(self):
-        r = self.fetch_tenant_by_name(self.tenant['name'], assert_status=200)
-        tenant = self.assertValidJsonTenantResponse(r)
+        response = self.fetch_tenant_by_name(self.tenant['name'],
+                                             assert_status=200)
+        tenant = self.assertValidJsonTenantResponse(response)
         self.assertEquals(self.tenant['id'], tenant['id'])
         self.assertEquals(self.tenant['name'], tenant['name'])
         self.assertEquals(self.tenant['enabled'], tenant['enabled'])
@@ -418,18 +483,18 @@ class GetTenantByNameTest(TenantTest):
         tenant = self.fixture_create_tenant(name=common.unique_str(),
                                             description=common.unique_str(),
                                             enabled=True)
-        r = self.fetch_tenant_by_name(tenant['name'], assert_status=200)
-        returned = self.assertValidJsonTenantResponse(r)
+        response = self.fetch_tenant_by_name(tenant['name'], assert_status=200)
+        returned = self.assertValidJsonTenantResponse(response)
         self.assertEquals(returned['id'], tenant['id'])
         self.assertEquals(returned['name'], tenant['name'])
         self.assertEquals(returned['description'], tenant['description'])
         self.assertEquals(returned['enabled'], tenant['enabled'])
 
     def test_get_tenant_xml(self):
-        r = self.fetch_tenant_by_name(
+        response = self.fetch_tenant_by_name(
             self.tenant['name'], assert_status=200, headers={
             "Accept": "application/xml"})
-        tenant = self.assertValidXmlTenantResponse(r)
+        tenant = self.assertValidXmlTenantResponse(response)
 
         self.assertEquals(self.tenant['id'], tenant.get('id'))
         self.assertEquals(self.tenant['name'], tenant.get('name'))
@@ -456,10 +521,10 @@ class UpdateTenantTest(TenantTest):
     def test_update_tenant(self):
         new_tenant_name = common.unique_str()
         new_description = common.unique_str()
-        r = self.update_tenant(self.tenant['id'],
+        response = self.update_tenant(self.tenant['id'],
             tenant_name=new_tenant_name, tenant_enabled=False,
             tenant_description=new_description, assert_status=200)
-        updated_tenant = self.assertValidJsonTenantResponse(r)
+        updated_tenant = self.assertValidJsonTenantResponse(response)
         self.assertEqual(updated_tenant['name'], new_tenant_name)
         self.assertEqual(updated_tenant['description'], new_description)
         self.assertEqual(updated_tenant['enabled'], False)
@@ -473,9 +538,9 @@ class UpdateTenantTest(TenantTest):
              'enabled="false"> '
              '<description>%s</description> '
              '</tenant>') % (new_tenant_name, new_description,)
-        r = self.post_tenant_for_update(
+        response = self.post_tenant_for_update(
             self.tenant['id'], as_xml=data, assert_status=200)
-        updated = self.assertValidXmlTenantResponse(r)
+        updated = self.assertValidXmlTenantResponse(response)
 
         self.assertEqual(updated.get('id'), self.tenant['id'])
         self.assertEqual(updated.get('name'), new_tenant_name)

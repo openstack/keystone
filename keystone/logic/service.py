@@ -515,12 +515,23 @@ class IdentityService(object):
         if is_service_operation:
             # Check regular token validity.
             (_token, user) = validate_token(admin_token, False)
+            scope = _token.tenant_id
+            default_tenant = user.tenant_id
 
-            # Return tenants specific to user
-            dtenants = api.TENANT.tenants_for_user_get_page(
-                user, marker, limit)
-            prev_page, next_page = api.TENANT.\
-                tenants_for_user_get_page_markers(user, marker, limit)
+            if scope is None or \
+                ((scope and default_tenant) and (scope == default_tenant)):
+                # Return all tenants specific to user if token has no scope
+                # or if token is scoped to a default tenant
+                dtenants = api.TENANT.tenants_for_user_get_page(
+                    user, marker, limit)
+                prev_page, next_page = api.TENANT.\
+                    tenants_for_user_get_page_markers(user, marker, limit)
+            else:
+                # Return scoped tenant only
+                dtenants = [api.TENANT.get(scope or default_tenant)]
+                prev_page = 2
+                next_page = None
+                limit = 10
         else:
             #Check Admin Token
             (_token, user) = validate_admin_token(admin_token)

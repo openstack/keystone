@@ -434,7 +434,9 @@ class ApiTestCase(RestfulTestCase):
             if protocol is None:
                 protocol = client_tests.TEST_TARGET_SERVER_SERVICE_PROTOCOL
 
-        if self.service_token:
+        if 'use_token' in kwargs:
+            headers['X-Auth-Token'] = kwargs.pop('use_token')
+        elif self.service_token:
             headers['X-Auth-Token'] = self.service_token
         elif self.admin_token:
             headers['X-Auth-Token'] = self.admin_token
@@ -458,7 +460,9 @@ class ApiTestCase(RestfulTestCase):
             if protocol is None:
                 protocol = client_tests.TEST_TARGET_SERVER_ADMIN_PROTOCOL
 
-        if self.admin_token:
+        if 'use_token' in kwargs:
+            headers['X-Auth-Token'] = kwargs.pop('use_token')
+        elif self.admin_token:
             headers['X-Auth-Token'] = self.admin_token
 
         return self.restful_request(host=host, protocol=protocol, port=port,
