@@ -4,6 +4,7 @@ import os
 import unittest
 import subprocess
 import sys
+import time
 
 from paste import deploy
 
@@ -27,13 +28,23 @@ def checkout_vendor(repo, rev):
     name = name[:-4]
 
   revdir = os.path.join(VENDOR, '%s-%s' % (name, rev.replace('/', '_')))
+  modcheck = os.path.join(VENDOR, '.%s-%s' % (name, rev.replace('/', '_')))
   try:
+    if os.path.exists(modcheck):
+      mtime = os.stat(modcheck).st_mtime
+      if int(time.time()) - mtime < 1000:
+        return revdir
+
     if not os.path.exists(revdir):
       utils.git('clone', repo, revdir)
 
     cd(revdir)
     utils.git('pull')
     utils.git('checkout', '-q', rev)
+
+    # write out a modified time
+    with open(modcheck, 'w') as fd:
+      fd.write('1')
   except subprocess.CalledProcessError as e:
     logging.warning('Failed to checkout %s', repo)
     pass

@@ -59,8 +59,11 @@ class KvsIdentity(object):
   def get_extras(self, user_id, tenant_id):
     return self.db.get('extras-%s-%s' % (tenant_id, user_id))
 
+  def get_role(self, role_id):
+    role_ref = self.db.get('role-%s' % role_id)
+    return role_ref
+
   def create_user(self, id, user):
-    print user
     self.db.set('user-%s' % id, user)
     self.db.set('user_name-%s' % user['name'], user)
     return user
@@ -108,6 +111,18 @@ class KvsIdentity(object):
 
   def delete_extras(self, user_id, tenant_id):
     self.db.delete('extras-%s-%s' % (tenant_id, user_id))
+    return None
+
+  def create_role(self, id, role):
+    self.db.set('role-%s' % id, role)
+    return role
+
+  def update_role(self, id, role):
+    self.db.set('role-%s' % id, role)
+    return role
+
+  def delete_role(self, id):
+    self.db.delete('role-%s' % id)
     return None
 
 

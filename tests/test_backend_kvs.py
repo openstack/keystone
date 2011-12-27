@@ -97,6 +97,11 @@ class KvsIdentity(test.TestCase):
         tenant_id=self.tenant_bar['id'])
     self.assertDictEquals(extras_ref, self.extras_foobar)
 
+  def test_get_role(self):
+    role_ref = self.identity_api.get_role(
+        role_id=self.role_keystone_admin['id'])
+    self.assertDictEquals(role_ref, self.role_keystone_admin)
+
 
 class KvsToken(test.TestCase):
   def setUp(self):

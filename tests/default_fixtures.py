@@ -10,7 +10,6 @@ EXTRAS = [
     {'user': 'foo', 'tenant': 'bar', 'extra': 'extra'},
     ]
 
-#ROLES = [
-#    {'id': 'keystone_admin', 'name': 'Keystone Admin'},
-#    ]
-ROLES = []
+ROLES = [
+    {'id': 'keystone_admin', 'name': 'Keystone Admin'},
+    ]
