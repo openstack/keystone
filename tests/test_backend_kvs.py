@@ -4,27 +4,14 @@ from keystonelight import models
 from keystonelight import test
 from keystonelight.backends import kvs
 
+import default_fixtures
 
 class KvsIdentity(test.TestCase):
   def setUp(self):
     super(KvsIdentity, self).setUp()
     options = self.appconfig('default')
     self.identity_api = kvs.KvsIdentity(options=options, db={})
-    self._load_fixtures()
-
-  def _load_fixtures(self):
-    self.tenant_bar = self.identity_api.create_tenant(
-        'bar',
-        models.Tenant(id='bar', name='BAR'))
-    self.user_foo = self.identity_api.create_user(
-        'foo',
-        models.User(id='foo',
-                    name='FOO',
-                    password='foo2',
-                    tenants=[self.tenant_bar['id']]))
-    self.extras_foobar = self.identity_api.create_extras(
-        'foo', 'bar',
-        {'extra': 'extra'})
+    self.load_fixtures(default_fixtures)
 
   def test_authenticate_bad_user(self):
     self.assertRaises(AssertionError,

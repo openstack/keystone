@@ -8,6 +8,7 @@ import sys
 from paste import deploy
 
 from keystonelight import logging
+from keystonelight import models
 from keystonelight import utils
 from keystonelight import wsgi
 
@@ -83,6 +84,36 @@ class TestCase(unittest.TestCase):
       if path in sys.path:
         sys.path.remove(path)
     super(TestCase, self).tearDown()
+
+  def load_fixtures(self, fixtures):
+    """Really quite basic and naive fixture loading based on a python module.
+
+    Expects that the various APIs into the various services are already
+    defined on `self`.
+
+    """
+    # TODO(termie): doing something from json, probably based on Django's
+    #               loaddata will be much preferred.
+    for tenant in fixtures.TENANTS:
+      rv = self.identity_api.create_tenant(
+          tenant['id'], models.Tenant(**tenant))
+      setattr(self, 'tenant_%s' % tenant['id'], rv)
+
+    for user in fixtures.USERS:
+      rv = self.identity_api.create_user(user['id'], models.User(**user))
+      setattr(self, 'user_%s' % user['id'], rv)
+
+    for role in fixtures.ROLES:
+      rv = self.identity_api.create_role(role['id'], models.Role(**role))
+      setattr(self, 'role_%s' % role['id'], rv)
+
+    for extras in fixtures.EXTRAS:
+      extras_ref = extras.copy()
+      del extras_ref['user']
+      del extras_ref['tenant']
+      rv = self.identity_api.create_extras(
+          extras['user'], extras['tenant'], models.Extras(**extras_ref))
+      setattr(self, 'extras_%s%s' % (extras['user'], extras['tenant']), rv)
 
   def loadapp(self, config):
     if not config.startswith('config:'):
