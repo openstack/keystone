@@ -636,9 +636,16 @@ class ApiTestCase(RestfulTestCase):
             path='/OS-KSADM/roles', **kwargs)
 
     def get_roles(self, **kwargs):
-        """GET /roles"""
+        """GET /OS-KSADM/roles"""
         return self.admin_request(method='GET',
             path='/OS-KSADM/roles', **kwargs)
+
+    def get_roles_by_service(self, service_id, **kwargs):
+        """GET /OS-KSADM/roles"""
+        return self.admin_request(method='GET', path=(
+            '/OS-KSADM/roles?serviceId=%s')
+            % (service_id),
+            **kwargs)
 
     def get_role(self, role_id, **kwargs):
         """GET /roles/{role_id}"""
@@ -1225,8 +1232,11 @@ class FunctionalTestCase(ApiTestCase):
 
         return self.post_role(as_json=data, **kwargs)
 
-    def list_roles(self, **kwargs):
-        return self.get_roles(**kwargs)
+    def list_roles(self, service_id=None, **kwargs):
+        if service_id is None:
+            return self.get_roles(**kwargs)
+        else:
+            return self.get_roles_by_service(service_id, **kwargs)
 
     def fetch_role(self, role_id=None, **kwargs):
         role_id = optional_str(role_id)

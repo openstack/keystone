@@ -155,6 +155,45 @@ class DeleteRoleTest(RolesTest):
             assert_status=400)
 
 
+class GetRolesByServiceTest(common.FunctionalTestCase):
+    def setUp(self, *args, **kwargs):
+        super(GetRolesByServiceTest, self).setUp(*args, **kwargs)
+        service = self.create_service().json['OS-KSADM:service']
+        role_name = service['name'] + ':' + common.unique_str()
+        role = self.create_role(role_name=role_name,
+            service_id=service['id']).json['role']
+        self.service_id = service['id']
+
+    def tearDown(self, *args, **kwargs):
+        super(GetRolesByServiceTest, self).tearDown(*args, **kwargs)
+
+    def test_get_roles(self):
+        r = self.list_roles(assert_status=200, service_id=self.service_id)
+        self.assertTrue(len(r.json['roles']))
+
+    def test_get_roles_xml(self):
+        r = self.get_roles_by_service(assert_status=200, headers={
+            'Accept': 'application/xml'}, service_id=self.service_id,)
+        self.assertEquals(r.xml.tag, '{%s}roles' % self.xmlns)
+        roles = r.xml.findall('{%s}role' % self.xmlns)
+
+        for role in roles:
+            self.assertIsNotNone(role.get('id'))
+
+    def test_get_roles_exp_token(self):
+        self.fixture_create_expired_token()
+        self.admin_token = self.expired_admin_token
+        self.get_roles_by_service(
+            service_id=self.service_id, assert_status=403)
+
+    def test_get_roles_exp_token_xml(self):
+        self.fixture_create_expired_token()
+        self.admin_token = self.expired_admin_token
+        self.get_roles_by_service(
+            service_id=self.service_id, assert_status=403, headers={
+            'Accept': 'application/xml'})
+
+
 class GetRolesTest(RolesTest):
     def test_get_roles(self):
         r = self.list_roles(assert_status=200)
