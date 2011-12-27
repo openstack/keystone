@@ -12,3 +12,6 @@ nose
 # for python-keystoneclient
 httplib2
 pep8
+
+# for python-novaclient
+prettytable
