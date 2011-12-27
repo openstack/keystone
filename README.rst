@@ -1,11 +1,57 @@
 Keystone
 ========
 
-Keystone is an OpenStack project that provides Identity, Token and Catalog
-services for use specifically by projects in the OpenStack family.
+Keystone is an OpenStack project that provides Identity, Token, Catalog and
+Policy services for use specifically by projects in the OpenStack family.
 
 Much of the design is precipitated from the expectation that the auth backends
 for most deployments will actually be shims in front of existing user systems.
+
+
+------------
+The Services
+------------
+
+Keystone is organized as a group of services exposed on one or many endpoints.
+Many of these services are used in a combined fashion by the frontend, for
+example an authenticate call will validate user/tenant credentials with the
+Identity service and, upon success, create and return a token with the Token
+service.
+
+
+Identity
+--------
+
+The Identity service provides auth credential validation and data about Users,
+Tenants and Roles, as well as any associated metadata.
+
+In the basic case all this data is managed by the service, allowing the service
+to manage all the CRUD associated with the data.
+
+In other cases, this data is pulled, by varying degrees, from an authoritative
+backend service. An example of this would be when backending on LDAP. See
+`LDAP Backend` below for more details.
+
+
+Token
+-----
+
+The Token service validates and manages Tokens used for authenticating requests
+once a user/tenant's credentials have already been verified.
+
+
+Catalog
+-------
+
+The Catalog service provides an endpoint registry used for endpoint discovery.
+
+
+Policy
+------
+
+The Policy service provides a rule-based authorization engine and the
+associated rule management interface.
+
 
 
 ----------
@@ -13,15 +59,17 @@ Data Model
 ----------
 
 Keystone was designed from the ground up to be amenable to multiple styles of
-backends and as such many of the methods and data types will happily accept 
+backends and as such many of the methods and data types will happily accept
 more data than they know what to do with and pass them on to a backend.
 
 There are a few main data types:
 
  * **User**: has account credentials, is associated with one or more tenants
  * **Tenant**: unit of ownership in openstack, contains one or more users
+ * **Role**: a first-class piece of metadata associated with many user-tenant pairs.
  * **Token**: identifying credential associated with a user or user and tenant
- * **Extras**: bucket of key-values associated with a user-tenant pair, typically used to define roles.
+ * **Extras**: bucket of key-value metadata associated with a user-tenant pair.
+ * **Rule**: describes a set of requirements for performing an action.
 
 While the general data model allows a many-to-many relationship between Users
 and Tenants and a many-to-one relationship between Extras and User-Tenant pairs,
