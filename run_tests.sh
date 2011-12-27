@@ -59,7 +59,7 @@ done
 
 # If enabled, tell nose to collect coverage data
 if [ $coverage -eq 1 ]; then
-    noseopts="$noseopts --with-coverage --cover-package=nova"
+    noseopts="$noseopts --with-coverage --cover-package=keystone"
 fi
 
 function run_tests {
