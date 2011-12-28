@@ -96,8 +96,22 @@ class TestCase(unittest.TestCase):
         sys.path.remove(path)
     super(TestCase, self).tearDown()
 
+  #TODO(termie): probably make this take an argument and use that for `options`
+  def load_backends(self):
+    """Hacky shortcut to load the backends for data manipulation.
+
+    Expects self.options to have already been set.
+
+    """
+    self.identity_api = utils.import_object(
+        self.options['identity_driver'], options=self.options)
+    self.token_api = utils.import_object(
+        self.options['token_driver'], options=self.options)
+    self.catalog_api = utils.import_object(
+        self.options['catalog_driver'], options=self.options)
+
   def load_fixtures(self, fixtures):
-    """Really quite basic and naive fixture loading based on a python module.
+    """Hacky basic and naive fixture loading based on a python module.
 
     Expects that the various APIs into the various services are already
     defined on `self`.

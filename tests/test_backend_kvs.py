@@ -9,8 +9,8 @@ import default_fixtures
 class KvsIdentity(test.TestCase):
   def setUp(self):
     super(KvsIdentity, self).setUp()
-    options = self.appconfig('default')
-    self.identity_api = kvs.KvsIdentity(options=options, db={})
+    self.options = self.appconfig('default')
+    self.identity_api = kvs.KvsIdentity(options=self.options, db={})
     self.load_fixtures(default_fixtures)
 
   def test_authenticate_bad_user(self):

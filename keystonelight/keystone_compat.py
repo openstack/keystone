@@ -150,7 +150,14 @@ class KeystoneController(service.BaseApplication):
                     tenant_id=tenant_ref['id'],
                     extras=extras_ref)
 
-        return self._format_authenticate(token_ref, catalog_ref)
+        # TODO(termie): optimize this call at some point and put it into the
+        #               the return for extras
+        # fill out the roles in the extras
+        roles_ref = []
+        for role_id in extras_ref.get('roles', []):
+            roles_ref.append(self.identity_api.get_role(context, role_id))
+
+        return self._format_authenticate(token_ref, roles_ref, catalog_ref)
 
     #admin-only
     def validate_token(self, context, token_id, belongs_to=None):
@@ -220,11 +227,9 @@ class KeystoneController(service.BaseApplication):
                 context, tenant_id=tenant_id, data=tenant_ref)
         return {'tenant': tenant}
 
-    def _format_token(self, token_ref):
+    def _format_token(self, token_ref, roles_ref):
         user_ref = token_ref['user']
         extras_ref = token_ref['extras']
-        roles = extras_ref.get('roles', [])
-        roles_ref = [{'id': 1, 'name': x} for x in roles]
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': token_ref['expires']
                                   },
@@ -242,8 +247,8 @@ class KeystoneController(service.BaseApplication):
             o['access']['token']['tenant'] = token_ref['tenant']
         return o
 
-    def _format_authenticate(self, token_ref, catalog_ref):
-        o = self._format_token(token_ref)
+    def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
+        o = self._format_token(token_ref, roles_ref)
         o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
         return o
 
