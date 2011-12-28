@@ -209,7 +209,7 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'uid_to_id'):
             tenant_id = api.TENANT.uid_to_id(tenant_id)
 
         if marker:
@@ -223,7 +223,7 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
                 filter(models.Endpoints.tenant_id == tenant_id).\
                 order_by(models.Endpoints.id).limit(limit).all()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'id_to_uid'):
             for result in results:
                 result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
 
@@ -235,7 +235,7 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'uid_to_id'):
             tenant_id = api.TENANT.uid_to_id(tenant_id)
 
         tba = aliased(models.Endpoints)
@@ -284,14 +284,14 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         return (prev_page, next_page)
 
     def endpoint_add(self, values):
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'uid_to_id'):
             values.tenant_id = api.TENANT.uid_to_id(values.tenant_id)
 
         endpoints = models.Endpoints()
         endpoints.update(values)
         endpoints.save()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'id_to_uid'):
             endpoints.tenant_id = api.TENANT.id_to_uid(endpoints.tenant_id)
 
         return endpoints
@@ -303,7 +303,7 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         result = session.query(models.Endpoints).\
             filter_by(id=id).first()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'id_to_uid'):
             if result:
                 result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
 
@@ -313,13 +313,13 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'uid_to_id'):
             tenant_id = api.TENANT.uid_to_id(tenant_id)
 
         result = session.query(models.Endpoints).\
                         filter_by(tenant_id=tenant_id).first()
 
-        if isinstance(api.TENANT, models.Tenant):
+        if hasattr(api.TENANT, 'id_to_uid'):
             if result:
                 result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
 
