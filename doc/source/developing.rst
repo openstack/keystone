@@ -94,14 +94,14 @@ To enable this, just modify the pipelines in ``etc/keystone.conf``, from::
 
     [pipeline:admin]
     pipeline =
-        urlrewritefilter
+        urlnormalizer
         admin_api
 
     [pipeline:keystone-legacy-auth]
     pipeline =
-        urlrewritefilter
+        urlnormalizer
         legacy_auth
-        RAX-KEY-extension
+        d5_compat
         service_api
 
 ... to::
@@ -109,15 +109,16 @@ To enable this, just modify the pipelines in ``etc/keystone.conf``, from::
     [pipeline:admin]
     pipeline =
         debug
-        urlrewritefilter
+        urlnormalizer
+        d5_compat
         admin_api
 
     [pipeline:keystone-legacy-auth]
     pipeline =
         debug
-        urlrewritefilter
+        urlnormalizer
         legacy_auth
-        RAX-KEY-extension
+        d5_compat
         service_api
 
 Two simple and easy debugging tools are using the ``-d`` when you start keystone::

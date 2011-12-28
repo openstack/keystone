@@ -16,7 +16,7 @@
 
 
 import unittest2 as unittest
-from keystone.middleware.url import NormalizingFilter
+from keystone.frontends.normalizer import NormalizingFilter
 
 
 class MockWsgiApp(object):
