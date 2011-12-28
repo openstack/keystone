@@ -7,35 +7,17 @@ from keystonelight import test
 from keystonelight import utils
 from keystonelight.backends import kvs
 
+import default_fixtures
+
 
 class IdentityApi(test.TestCase):
   def setUp(self):
     super(IdentityApi, self).setUp()
     self.options = self.appconfig('default')
-    app = self.loadapp('default')
-    self.app = app
+    self.app = self.loadapp('default')
 
-    self.identity_backend = utils.import_object(
-        self.options['identity_driver'], options=self.options)
-    self.token_backend = utils.import_object(
-        self.options['token_driver'], options=self.options)
-    self.catalog_backend = utils.import_object(
-        self.options['catalog_driver'], options=self.options)
-    self._load_fixtures()
-
-  def _load_fixtures(self):
-    self.tenant_bar = self.identity_backend.create_tenant(
-        'bar',
-        models.Tenant(id='bar', name='BAR'))
-    self.user_foo = self.identity_backend.create_user(
-        'foo',
-        models.User(id='foo',
-                    name='FOO',
-                    password='foo2',
-                    tenants=[self.tenant_bar['id']]))
-    self.extras_foobar = self.identity_backend.create_extras(
-        'foo', 'bar',
-        {'extra': 'extra'})
+    self.load_backends()
+    self.load_fixtures(default_fixtures)
 
   def _login(self):
     c = client.TestClient(self.app)

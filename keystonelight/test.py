@@ -134,6 +134,8 @@ class TestCase(unittest.TestCase):
 
     for extras in fixtures.EXTRAS:
       extras_ref = extras.copy()
+      # TODO(termie): these will probably end up in the model anyway, so this
+      #               may be futile
       del extras_ref['user']
       del extras_ref['tenant']
       rv = self.identity_api.create_extras(
