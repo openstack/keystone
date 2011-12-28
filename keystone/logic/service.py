@@ -41,6 +41,12 @@ from keystone.managers.tenant import Manager as TenantManager
 
 LOG = logging.getLogger('keystone.logic.service')
 
+#Reference to Admin Role.
+ADMIN_ROLE_ID = None
+ADMIN_ROLE_NAME = None
+SERVICE_ADMIN_ROLE_ID = None
+SERVICE_ADMIN_ROLE_NAME = None
+
 
 def has_admin_role(token_id):
     """ Checks if the token belongs to a user who has Keystone admin
@@ -54,7 +60,7 @@ def has_admin_role(token_id):
     """
     (token, user) = validate_token(token_id)
     init_admin_role_identifiers()
-    if has_role({"api": api}, user, backends.ADMIN_ROLE_ID):
+    if has_role({"api": api}, user, ADMIN_ROLE_ID):
         return (token, user)
     else:
         return False
@@ -73,7 +79,7 @@ def has_service_admin_role(token_id):
     (token, user) = validate_token(token_id)
     init_admin_role_identifiers()
     if has_role({"api": api}, user,
-                backends.SERVICE_ADMIN_ROLE_ID):
+                SERVICE_ADMIN_ROLE_ID):
         return (token, user)
     else:
         return has_admin_role(token_id)
@@ -118,16 +124,18 @@ def validate_service_admin_token(token_id):
 
 
 def init_admin_role_identifiers():
-    if backends.SERVICE_ADMIN_ROLE_ID is None:
-        role = api.ROLE.get_by_name(backends.SERVICE_ADMIN_ROLE_NAME)
+    global SERVICE_ADMIN_ROLE_ID
+    if SERVICE_ADMIN_ROLE_ID is None:
+        role = api.ROLE.get_by_name(SERVICE_ADMIN_ROLE_NAME)
         if role:
-            backends.SERVICE_ADMIN_ROLE_ID = role.id
+            SERVICE_ADMIN_ROLE_ID = role.id
         else:
             LOG.warn('No service admin role is defined.')
-    if backends.ADMIN_ROLE_ID is None:
-        role = api.ROLE.get_by_name(backends.ADMIN_ROLE_NAME)
+    global ADMIN_ROLE_ID
+    if ADMIN_ROLE_ID is None:
+        role = api.ROLE.get_by_name(ADMIN_ROLE_NAME)
         if role:
-            backends.ADMIN_ROLE_ID = role.id
+            ADMIN_ROLE_ID = role.id
         else:
             LOG.warn('No service admin role is defined.')
 
@@ -351,6 +359,12 @@ class IdentityService(object):
         backends.configure_backends(options)
         self.token_manager = TokenManager(options)
         self.tenant_manager = TenantManager(options)
+
+        global ADMIN_ROLE_NAME
+        ADMIN_ROLE_NAME = options["keystone-admin-role"]
+
+        global SERVICE_ADMIN_ROLE_NAME
+        SERVICE_ADMIN_ROLE_NAME = options["keystone-service-admin-role"]
 
     #
     #  Token Operations

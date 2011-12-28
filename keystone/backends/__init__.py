@@ -17,19 +17,11 @@
 
 # pylint: disable=W0603
 import ast
-import logging
 from keystone import utils
-from keystone.backends import models
-from keystone.backends import api
 
 DEFAULT_BACKENDS = 'keystone.backends.sqlalchemy'
 
 #Configs applicable to all backends.
-#Reference to Admin Role.
-ADMIN_ROLE_ID = None
-ADMIN_ROLE_NAME = None
-SERVICE_ADMIN_ROLE_ID = None
-SERVICE_ADMIN_ROLE_NAME = None
 SHOULD_HASH_PASSWORD = None
 
 
@@ -42,12 +34,6 @@ def configure_backends(options):
             backend_module.configure_backend(options[backend])
 
     #Initialize common configs general to all backends.
-    global ADMIN_ROLE_NAME
-    ADMIN_ROLE_NAME = options["keystone-admin-role"]
-
-    global SERVICE_ADMIN_ROLE_NAME
-    SERVICE_ADMIN_ROLE_NAME = options["keystone-service-admin-role"]
-
     global SHOULD_HASH_PASSWORD
     if "hash-password" in options\
         and ast.literal_eval(options["hash-password"]) == True:
