@@ -23,12 +23,8 @@ class TestModelsToken(unittest.TestCase):
         self.assertEquals(token.id, 1)
         self.assertEquals(token.name, "the token")
         self.assertTrue(token.enabled)
-        try:
-            x = token.some_bad_property
-        except AttributeError:
-            pass
-        except:
-            self.assert_(False, "Invalid attribute on token should fail")
+        self.assertRaises(AttributeError, getattr, token,
+                          'some_bad_property')
 
     def test_token_properties(self):
         token = Token(id=1, name="the token", blank=None)
@@ -42,7 +38,7 @@ class TestModelsToken(unittest.TestCase):
         d1 = json.loads(json_str)
         d2 = json.loads('{"token": {"name": "the token", \
                           "id": 1, "dynamic": "test"}}')
-        self.assertEquals(d1, d2)
+        self.assertDictEqual(d1, d2)
 
     def test_token_xml_serialization(self):
         token = Token(id=1, name="the token", blank=None)
@@ -63,7 +59,7 @@ class TestModelsToken(unittest.TestCase):
 
     def test_token_inspection(self):
         token = Token(id=1, name="the token", blank=None)
-        self.assertIsNone(token.inspect())
+        self.assertFalse(token.inspect())
 
     def test_token_validation(self):
         token = Token(id=1, name="the token", blank=None)

@@ -78,6 +78,10 @@ class KeystoneBase(object):
         local.update(joined)
         return local.iteritems()
 
+    def copy(self):
+        """Make the model object behave like a dict."""
+        return dict(self).copy()
+
 
 # Define associations first
 class UserRoleAssociation(Base, KeystoneBase):

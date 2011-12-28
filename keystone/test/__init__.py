@@ -383,6 +383,7 @@ class KeystoneTest(object):
         self.conf_fp = tempfile.NamedTemporaryFile()
         self.conf_fp.write(conf_contents)
         self.conf_fp.flush()
+        client_tests.TEST_CONFIG_FILE_NAME = self.conf_fp.name
 
     def setUp(self):
         pass

@@ -25,13 +25,8 @@ class TestModelsEndpointTemplate(unittest.TestCase):
         self.assertEquals(endpointtemplate.name, "the endpointtemplate")
         self.assertTrue(endpointtemplate.enabled)
         self.assertEquals(endpointtemplate.admin_url, None)
-        try:
-            x = endpointtemplate.some_bad_property
-        except AttributeError:
-            pass
-        except:
-            self.assert_(False, "Invalid attribute on endpointtemplate \
-                         should fail")
+        self.assertRaises(AttributeError, getattr, endpointtemplate,
+                          'some_bad_property')
 
     def test_endpointtemplate_properties(self):
         endpointtemplate = EndpointTemplate(id=1, name="the endpointtemplate",
@@ -47,7 +42,7 @@ class TestModelsEndpointTemplate(unittest.TestCase):
         d1 = json.loads(json_str)
         d2 = json.loads('{"endpointtemplate": {"name": "the endpointtemplate",\
                           "id": 1, "dynamic": "test"}}')
-        self.assertEquals(d1, d2)
+        self.assertDictEqual(d1, d2)
 
     def test_endpointtemplate_xml_serialization(self):
         endpointtemplate = EndpointTemplate(id=1, name="the endpointtemplate",
@@ -73,7 +68,7 @@ class TestModelsEndpointTemplate(unittest.TestCase):
     def test_endpointtemplate_inspection(self):
         endpointtemplate = EndpointTemplate(id=1, name="the endpointtemplate",
                                             blank=None)
-        self.assertIsNone(endpointtemplate.inspect())
+        self.assertFalse(endpointtemplate.inspect())
 
     def test_endpointtemplate_validation(self):
         endpointtemplate = EndpointTemplate(id=1, name="the endpointtemplate",

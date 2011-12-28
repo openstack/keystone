@@ -12,7 +12,7 @@ from keystone import server
 import keystone.backends.api as db_api
 from keystone.test import client as client_tests
 
-logger = logging.getLogger('test.functional.common')
+logger = logging.getLogger(__name__)
 
 
 def isSsl():

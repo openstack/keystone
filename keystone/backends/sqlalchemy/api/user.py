@@ -76,12 +76,13 @@ class UserAPI(api.BaseUserAPI):
         return UserAPI.to_model_list(results)
 
     def create(self, values):
+        data = values.copy()
+        UserAPI.transpose(data)
+        utils.set_hashed_password(data)
+        if 'uid' not in data or data['uid'] is None:
+            data['uid'] = uuid.uuid4().hex
         user_ref = models.User()
-        UserAPI.transpose(values)
-        utils.set_hashed_password(values)
-        user_ref.update(values)
-        if user_ref.uid is None:
-            user_ref.uid = uuid.uuid4().hex
+        user_ref.update(data)
         user_ref.save()
         return UserAPI.to_model(user_ref)
 
@@ -252,25 +253,6 @@ class UserAPI(api.BaseUserAPI):
         else:
             return None
 
-    def delete_tenant_user(self, id, tenant_id, session=None):
-        if not session:
-            session = get_session()
-
-        uid = id
-        tenant_uid = tenant_id
-
-        if hasattr(api.USER, 'uid_to_id'):
-            id = api.USER.uid_to_id(uid)
-        if hasattr(api.TENANT, 'uid_to_id'):
-            tenant_id = api.TENANT.uid_to_id(tenant_id)
-
-        with session.begin():
-            users_tenant_ref = self.users_get_by_tenant(uid, tenant_uid,
-                session)
-            if users_tenant_ref is not None:
-                for user_tenant_ref in users_tenant_ref:
-                    session.delete(user_tenant_ref)
-
     def users_get_by_tenant(self, user_id, tenant_id, session=None):
         if not session:
             session = get_session()
@@ -301,14 +283,6 @@ class UserAPI(api.BaseUserAPI):
                 user_role_ref.tenant_id)
 
         return user_role_ref
-
-    def user_get_update(self, id, session=None):
-        if not session:
-            session = get_session()
-
-        result = session.query(models.User).filter_by(uid=id).first()
-
-        return UserAPI.to_model(result)
 
     def users_get_page(self, marker, limit, session=None):
         if not session:
@@ -470,7 +444,8 @@ class UserAPI(api.BaseUserAPI):
             next_page = next_page.id
         return (prev_page, next_page)
 
-    def check_password(self, user, password):
+    def check_password(self, user_id, password):
+        user = self.get(user_id)
         return utils.check_password(password, user.password)
     # pylint: enable=W0221
 

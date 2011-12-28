@@ -64,6 +64,9 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         super(UserAPI, self).update(id, values, old_obj)
 
     def delete(self, id):
+        user = self.get(id)
+        if user.tenant_id:
+            self.api.tenant.remove_user(user.tenant_id, id)
         super(UserAPI, self).delete(id)
         for ref in self.api.role.ref_get_all_global_roles(id):
             self.api.role.ref_delete(ref.id)
@@ -81,28 +84,21 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
     def user_roles_by_tenant(self, user_id, tenant_id):
         return self.api.role.ref_get_all_tenant_roles(user_id, tenant_id)
 
-    def get_by_tenant(self, id, tenant_id):
-        user_dn = self._id_to_dn(id)
-        user = self.get(id)
+    def get_by_tenant(self, user_id, tenant_id):
+        user_dn = self._id_to_dn(user_id)
+        user = self.get(user_id)
         tenant = self.api.tenant._ldap_get(tenant_id,
                                            '(member=%s)' % (user_dn,))
         if tenant is not None:
             return user
         else:
-            if self.api.role.ref_get_all_tenant_roles(id, tenant_id):
+            if self.api.role.ref_get_all_tenant_roles(user_id, tenant_id):
                 return user
         return None
-
-    def delete_tenant_user(self, id, tenant_id):
-        self.api.tenant.remove_user(tenant_id, id)
-        self.delete(id)
 
     def user_role_add(self, values):
         return self.api.role.add_user(values.role_id, values.user_id,
                                       values.tenant_id)
-
-    def user_get_update(self, id):
-        return self.get(id)
 
     def users_get_page(self, marker, limit):
         return self.get_page(marker, limit)
@@ -119,7 +115,8 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         return self._get_page_markers(marker, limit,
                 self.api.tenant.get_users(tenant_id, role_id))
 
-    def check_password(self, user, password):
+    def check_password(self, user_id, password):
+        user = self.get(user_id)
         return utils.check_password(password, user.password)
 
     add_redirects(locals(), SQLUserAPI, ['get_by_group', 'tenant_group',

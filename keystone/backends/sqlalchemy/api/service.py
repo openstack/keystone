@@ -17,6 +17,7 @@
 
 from keystone.backends.sqlalchemy import get_session, models
 from keystone.backends import api
+from keystone.models import Service
 
 
 # pylint: disable=E1103,W0221
@@ -24,30 +25,40 @@ class ServiceAPI(api.BaseServiceAPI):
     def __init__(self, *args, **kw):
         super(ServiceAPI, self).__init__(*args, **kw)
 
+    @staticmethod
+    def to_model(ref):
+        """ Returns Keystone model object based on SQLAlchemy model"""
+        if ref:
+            return Service(id=str(ref.id), name=ref.name, description=ref.desc,
+                type=ref.type, owner_id=ref.owner_id)
+
     # pylint: disable=W0221
     def create(self, values):
         service_ref = models.Service()
         service_ref.update(values)
         service_ref.save()
-        return service_ref
+        return ServiceAPI.to_model(service_ref)
 
     def get(self, id, session=None):
         if not session:
             session = get_session()
-        return session.query(models.Service).filter_by(id=id).first()
+        return ServiceAPI.to_model(session.query(models.Service).
+                                   filter_by(id=id).first())
 
     def get_by_name(self, name, session=None):
         if not session:
             session = get_session()
-        return session.query(models.Service).filter_by(name=name).first()
+        return ServiceAPI.to_model(session.query(models.Service).
+                                   filter_by(name=name).first())
 
     def get_by_name_and_type(self, name, type, session=None):
         if not session:
             session = get_session()
-        return session.query(models.Service).\
+        result = session.query(models.Service).\
         filter_by(name=name).\
         filter_by(type=type).\
         first()
+        return ServiceAPI.to_model(result)
 
     def get_all(self, session=None):
         if not session:
@@ -108,7 +119,8 @@ class ServiceAPI(api.BaseServiceAPI):
         if not session:
             session = get_session()
         with session.begin():
-            service_ref = self.get(id, session)
+            service_ref = session.query(models.Service).\
+                                   filter_by(id=id).first()
             session.delete(service_ref)
 
 

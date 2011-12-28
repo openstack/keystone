@@ -1,6 +1,6 @@
 from keystone import utils
 from keystone.common import wsgi
-from keystone.logic.types.service import Service
+from keystone.models import Service
 from keystone.logic import service
 from . import get_marker_limit_and_url
 

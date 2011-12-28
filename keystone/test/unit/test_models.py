@@ -1,5 +1,4 @@
 import json
-from lxml import etree
 import unittest2 as unittest
 
 from keystone.models import Resource
@@ -22,12 +21,8 @@ class TestModels(unittest.TestCase):
         resource = Resource(id=1, name="the resource", blank=None)
         self.assertEquals(resource.id, 1)
         self.assertEquals(resource.name, "the resource")
-        try:
-            x = resource.some_bad_property
-        except AttributeError:
-            pass
-        except:
-            self.assert_(False, "Invalid attribute on resource should fail")
+        self.assertRaises(AttributeError, getattr, resource,
+                          'some_bad_property')
 
     def test_resource_keys(self):
         resource = Resource(id=1, name="the resource", blank=None)
@@ -53,13 +48,35 @@ class TestModels(unittest.TestCase):
         json_str = resource.to_json()
         d1 = json.loads(json_str)
         d2 = json.loads('{"resource": {"name": "the resource", "id": 1}}')
-        self.assertEquals(d1, d2)
+        self.assertDictEqual(d1, d2)
+
+    def test_resource_json_serialization_mapping(self):
+        resource = Resource(id=1, name="the resource", ref_id=12)
+        json_str = resource.to_json(hints={"maps": {"refId": "ref_id", }})
+        d1 = json.loads(json_str)
+        d2 = {"resource": {"name": "the resource", "id": 1, "refId": 12}}
+        self.assertDictEqual(d1, d2)
+
+    def test_resource_json_serialization_types(self):
+        resource = Resource(id=1, name="the resource", bool=True, int=5)
+        json_str = resource.to_json(hints={"types":
+            [("bool", bool), ("int", int)]})
+        d1 = json.loads(json_str)
+        d2 = {"resource": {"name": "the resource", "id": 1, "bool": True,
+                           "int": 5}}
+        self.assertDictEqual(d1, d2)
 
     def test_resource_xml_serialization(self):
         resource = Resource(id=1, name="the resource", blank=None)
         xml_str = resource.to_xml()
         self.assertTrue(testutils.XMLTools.xmlEqual(xml_str,
                         '<resource id="1" name="the resource"/>'))
+
+    def test_resource_xml_serialization_mapping(self):
+        resource = Resource(id=1, name="the resource", ref_id=12)
+        xml_str = resource.to_xml(hints={"maps": {"refId": "ref_id", }})
+        self.assertTrue(testutils.XMLTools.xmlEqual(xml_str,
+                        '<resource id="1" name="the resource" refId="12"/>'))
 
     def test_resource_xml_deserialization(self):
         resource = Resource.from_xml('<Resource blank="" id="1" \
@@ -83,7 +100,7 @@ class TestModels(unittest.TestCase):
 
     def test_resource_inspection(self):
         resource = Resource(id=1, name="the resource", blank=None)
-        self.assertIsNone(resource.inspect())
+        self.assertFalse(resource.inspect())
 
     def test_resource_validation(self):
         resource = Resource(id=1, name="the resource", blank=None)

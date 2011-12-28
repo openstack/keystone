@@ -22,12 +22,8 @@ class TestModelsUser(unittest.TestCase):
         user = User(id=1, name="the user", blank=None)
         self.assertEquals(user.id, 1)
         self.assertEquals(user.name, "the user")
-        try:
-            x = user.some_bad_property
-        except AttributeError:
-            pass
-        except:
-            self.assert_(False, "Invalid attribute on user should fail")
+        self.assertRaises(AttributeError, getattr, user,
+                          'some_bad_property')
 
     def test_user_properties(self):
         user = User(id=1, name="the user", blank=None)
@@ -41,7 +37,7 @@ class TestModelsUser(unittest.TestCase):
         d1 = json.loads(json_str)
         d2 = json.loads('{"user": {"name": "the user", \
                           "id": 1, "dynamic": "test"}}')
-        self.assertEquals(d1, d2)
+        self.assertDictEqual(d1, d2)
 
     def test_user_xml_serialization(self):
         user = User(id=1, name="the user", blank=None)
@@ -62,7 +58,7 @@ class TestModelsUser(unittest.TestCase):
 
     def test_user_inspection(self):
         user = User(id=1, name="the user", blank=None)
-        self.assertIsNone(user.inspect())
+        self.assertFalse(user.inspect())
 
     def test_user_validation(self):
         user = User(id=1, name="the user", blank=None)

@@ -22,13 +22,13 @@ from keystone import test
 TESTS = [
     test.UnitTests,
     test.ClientTests,
+    test.SSLTest,
+    test.ClientWithoutHPIDMTest,
     test.SQLTest,
     test.LDAPTest,
     # Waiting on instructions on how to start memcached in jenkins:
     # But tests pass
     # MemcacheTest,
-    test.SSLTest,
-    test.ClientWithoutHPIDMTest,
 ]
 
 

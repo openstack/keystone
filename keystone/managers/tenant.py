@@ -23,10 +23,32 @@ TODO: move functionality into here. Ex:
         return self.driver.get(tenant_id)
 """
 
+import logging
+
 import keystone.backends.api as api
+
+logger = logging.getLogger(__name__)
 
 
 class Manager(object):
     def __init__(self, options):
         self.options = options
         self.driver = api.TENANT
+
+    def create(self, tenant):
+        return self.driver.create(tenant)
+
+    def get(self, tenant_id):
+        """ Returns tenant by ID """
+        return self.driver.get(tenant_id)
+
+    def get_by_name(self, name):
+        """ Returns tenant by name """
+        return self.driver.get_by_name(name=name)
+
+    def update(self, tenant):
+        """ Update tenant """
+        return self.driver.update(tenant['id'], tenant)
+
+    def delete(self, tenant_id):
+        self.driver.delete(tenant_id)
