@@ -93,6 +93,12 @@ def _match(key, value, attrs):
     # This is a wild card search. Implemented as all or nothing for now.
     if value == "*":
         return True
+    if key == 'serviceId':
+        # for serviceId, the backend is returning a list of numbers
+        # make sure we convert them to strings first before comparing
+        # them
+        str_sids = map(lambda x: str(x), attrs[key])
+        return str(value) in str_sids
     if key != "objectclass":
         return value in attrs[key]
     # it is an objectclass check, so check subclasses

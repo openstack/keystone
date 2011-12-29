@@ -253,7 +253,7 @@ def get_auth_data(dtoken):
     return auth.AuthData(token, user, endpoints, url_types=url_types)
 
 
-def get_validate_data(dtoken, duser):
+def get_validate_data(dtoken, duser, service_ids=None):
     """return ValidateData object for a token/user pair"""
     tenant = None
     if dtoken.tenant_id:
@@ -262,19 +262,14 @@ def get_validate_data(dtoken, duser):
 
     token = auth.Token(dtoken.expires, dtoken.id, tenant)
 
-    ts = []
-    if dtoken.tenant_id:
-        drole_refs = api.ROLE.ref_get_all_tenant_roles(duser.id,
-            dtoken.tenant_id)
-        for drole_ref in drole_refs:
-            drole = api.ROLE.get(drole_ref.role_id)
-            ts.append(Role(drole_ref.role_id, drole.name,
-                None, drole_ref.tenant_id))
-    drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
-    for drole_ref in drole_refs:
-        drole = api.ROLE.get(drole_ref.role_id)
-        ts.append(Role(drole_ref.role_id, drole.name,
-            None, drole_ref.tenant_id))
+    ts = get_tenant_roles_for_user_and_services(duser.id,
+                                                dtoken.tenant_id,
+                                                service_ids)
+    if (not dtoken.tenant_id or not service_ids or
+            (backends.GLOBAL_SERVICE_ID in service_ids)):
+        # return the global roles for unscoped tokens or
+        # its ID is in the service IDs
+        ts = ts + get_global_roles_for_user(duser.id)
 
     # Also get the user's tenant's name
     tenant_name = None
@@ -342,6 +337,90 @@ def validate_token(token_id, belongs_to=None, is_check_token=None):
         raise fault.UnauthorizedFault("Unauthorized on this tenant")
 
     return (token, user)
+
+
+def parse_service_ids(service_ids):
+    """
+    Method to parse the service IDs string.
+    service_ids -- comma-separated service IDs
+    parse and return a list of service IDs.
+    """
+    if service_ids:
+        return service_ids.rstrip().split(',')
+    return []
+
+
+def validate_service_ids(service_ids):
+    """
+    Method to validate the service IDs.
+    service_ids -- list of service IDs
+    If not service IDs or encounter an invalid service ID,
+    fault.UnauthorizedFault will be raised.
+    """
+    if not service_ids:
+        raise fault.UnauthorizedFault("Missing service IDs")
+
+    services = [api.SERVICE.get(service_id) for service_id in service_ids
+            if not service_id == backends.GLOBAL_SERVICE_ID]
+    if not all(services):
+        raise fault.UnauthorizedFault("Invalid service ID: %s" % (service_id))
+
+
+def get_roles_names_by_service_ids(service_ids):
+    """
+    Method to find all the roles for the given service IDs.
+    service_ids -- list of service IDs
+    """
+    roles = []
+    for service_id in service_ids:
+        if service_id != backends.GLOBAL_SERVICE_ID:
+            sroles = api.ROLE.get_by_service(service_id=service_id)
+            if sroles:
+                roles = roles + sroles
+    return [role.name for role in roles]
+
+
+def get_global_roles_for_user(user_id):
+    """
+    Method to return all the global roles for the given user.
+    user_id -- user ID
+    """
+    ts = []
+    drole_refs = api.ROLE.ref_get_all_global_roles(user_id)
+    for drole_ref in drole_refs:
+        drole = api.ROLE.get(drole_ref.role_id)
+        ts.append(Role(drole_ref.role_id, drole.name,
+                  None, drole_ref.tenant_id))
+    return ts
+
+
+def get_tenant_roles_for_user_and_services(user_id, tenant_id,
+                                           service_ids):
+    """
+    Method to return all the tenant roles for the given user,
+    filtered by service ID.
+    user_id -- user ID
+    tenant_id -- tenant ID
+    service_ids -- service IDs
+    If service_ids are specified, will return the roles filtered by
+    service IDs.
+    """
+    ts = []
+    if tenant_id and user_id:
+        drole_refs = api.ROLE.ref_get_all_tenant_roles(user_id,
+            tenant_id)
+        for drole_ref in drole_refs:
+            drole = api.ROLE.get(drole_ref.role_id)
+            ts.append(Role(drole_ref.role_id, drole.name,
+                None, drole_ref.tenant_id))
+
+    if service_ids:
+        # if service IDs are specified, filter roles by service IDs
+        sroles_names = get_roles_names_by_service_ids(service_ids)
+        return [role for role in ts
+                if role.name in sroles_names]
+    else:
+        return ts
 
 
 class IdentityService(object):
@@ -474,10 +553,20 @@ class IdentityService(object):
         return get_auth_data(dtoken)
 
     @staticmethod
-    def validate_token(admin_token, token_id, belongs_to=None):
+    def validate_token(admin_token, token_id, belongs_to=None,
+                       service_ids=None):
         validate_service_admin_token(admin_token)
         (token, user) = validate_token(token_id, belongs_to, True)
-        return get_validate_data(token, user)
+        if service_ids and (token.tenant_id or belongs_to):
+            # scope token, validate the service IDs if present
+            service_ids = parse_service_ids(service_ids)
+            validate_service_ids(service_ids)
+        auth_data = get_validate_data(token, user, service_ids)
+        if service_ids and (token.tenant_id or belongs_to):
+            # we have service Ids and scope token, make sure we have some roles
+            if not auth_data.user.role_refs.values:
+                raise fault.UnauthorizedFault("No roles found for scope token")
+        return auth_data
 
     @staticmethod
     def revoke_token(admin_token, token_id):

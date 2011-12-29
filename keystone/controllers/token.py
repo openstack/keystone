@@ -26,6 +26,7 @@ calls from the request routers.
 
 from keystone import utils
 from keystone.common import wsgi
+from keystone.logic import extension_reader
 from keystone.logic.types import auth
 from keystone.logic.types import fault
 from keystone.logic import service
@@ -68,8 +69,12 @@ class TokenController(wsgi.Controller):
     def _validate_token(self, req, token_id):
         """Validates the token, and that it belongs to the specified tenant"""
         belongs_to = req.GET.get('belongsTo')
+        service_ids = None
+        if extension_reader.is_extension_supported(self.options, 'hpidm'):
+            # service IDs are only relevant if hpidm extension is enabled
+            service_ids = req.GET.get('HP-IDM-serviceId')
         return self.identity_service.validate_token(
-            utils.get_auth_token(req), token_id, belongs_to)
+            utils.get_auth_token(req), token_id, belongs_to, service_ids)
 
     @utils.wrap_error
     def validate_token(self, req, token_id):

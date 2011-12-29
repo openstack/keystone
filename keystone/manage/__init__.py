@@ -180,7 +180,7 @@ def process(*args):
         raise optparse.OptParseError(ACTION_NOT_SUPPORTED % ('tenants'))
 
     elif (object_type, action) == ('role', 'add'):
-        if api.add_role(name=object_id):
+        if api.add_role(name=object_id, service_name=optional_arg(args, 3)):
             print "SUCCESS: Role %s created successfully." % object_id
 
     elif (object_type, action) == ('role', 'list'):
