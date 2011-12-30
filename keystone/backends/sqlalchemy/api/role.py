@@ -127,7 +127,8 @@ class RoleAPI(api.BaseRoleAPI):
             next_page = next_page.id
         return (prev_page, next_page)
 
-    def ref_get_page(self, marker, limit, user_id, tenant_id, session=None):
+    def rolegrant_get_page(self, marker, limit, user_id, tenant_id,
+                                                                session=None):
         if not session:
             session = get_session()
 
@@ -158,7 +159,7 @@ class RoleAPI(api.BaseRoleAPI):
 
         return results
 
-    def ref_get_all_global_roles(self, user_id, session=None):
+    def list_global_roles_for_user(self, user_id, session=None):
         if not session:
             session = get_session()
 
@@ -176,7 +177,7 @@ class RoleAPI(api.BaseRoleAPI):
 
         return results
 
-    def ref_get_all_tenant_roles(self, user_id, tenant_id, session=None):
+    def list_tenant_roles_for_user(self, user_id, tenant_id, session=None):
         if not session:
             session = get_session()
 
@@ -196,7 +197,7 @@ class RoleAPI(api.BaseRoleAPI):
 
         return results
 
-    def ref_get(self, id, session=None):
+    def rolegrant_get(self, id, session=None):
         if not session:
             session = get_session()
 
@@ -211,13 +212,13 @@ class RoleAPI(api.BaseRoleAPI):
 
         return result
 
-    def ref_delete(self, id, session=None):
+    def rolegrant_delete(self, id, session=None):
         if not session:
             session = get_session()
 
         with session.begin():
-            role_ref = self.ref_get(id, session)
-            session.delete(role_ref)
+            rolegrant = self.rolegrant_get(id, session)
+            session.delete(rolegrant)
 
     # pylint: disable=R0912
     def get_page_markers(self, marker, limit, session=None):
@@ -256,7 +257,7 @@ class RoleAPI(api.BaseRoleAPI):
         return (prev_page, next_page)
 
     # pylint: disable=R0912
-    def ref_get_page_markers(self, user_id, tenant_id, marker,
+    def rolegrant_get_page_markers(self, user_id, tenant_id, marker,
             limit, session=None):
         if not session:
             session = get_session()
@@ -311,7 +312,8 @@ class RoleAPI(api.BaseRoleAPI):
             next_page = next_page.id
         return (prev_page, next_page)
 
-    def ref_get_by_role(self, role_id, session=None):
+    def rolegrant_list_by_role(self, role_id, session=None):
+        """ Get a list of all (global and tenant) grants for this role """
         if not session:
             session = get_session()
 
@@ -326,7 +328,7 @@ class RoleAPI(api.BaseRoleAPI):
 
         return results
 
-    def ref_get_by_user(self, user_id, role_id, tenant_id, session=None):
+    def rolegrant_get_by_ids(self, user_id, role_id, tenant_id, session=None):
         if not session:
             session = get_session()
 

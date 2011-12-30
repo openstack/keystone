@@ -284,14 +284,14 @@ class User(object):
     username = None
     tenant_id = None
     tenant_name = None
-    role_refs = None
+    rolegrants = None
 
-    def __init__(self, id, username, tenant_id, tenant_name, role_refs=None):
+    def __init__(self, id, username, tenant_id, tenant_name, rolegrants=None):
         self.id = id
         self.username = username
         self.tenant_id = tenant_id
         self.tenant_name = tenant_name
-        self.role_refs = role_refs
+        self.rolegrants = rolegrants
 
 
 class AuthData(object):
@@ -337,8 +337,8 @@ class AuthData(object):
             name=unicode(self.user.username))
         dom.append(user)
 
-        if self.user.role_refs is not None:
-            user.append(self.user.role_refs.to_dom())
+        if self.user.rolegrants is not None:
+            user.append(self.user.rolegrants.to_dom())
 
         if self.base_urls is not None or len(self.base_urls) > 0:
             service_catalog = etree.Element("serviceCatalog")
@@ -396,8 +396,8 @@ class AuthData(object):
             'id': unicode(self.user.id),
             'name': unicode(self.user.username)}
 
-        if self.user.role_refs is not None:
-            auth['user']["roles"] = self.user.role_refs.to_json_values()
+        if self.user.rolegrants is not None:
+            auth['user']["roles"] = self.user.rolegrants.to_json_values()
 
         if self.base_urls is not None and len(self.base_urls) > 0:
             service_catalog = []
@@ -474,8 +474,8 @@ class ValidateData(object):
             if self.user.tenant_name is not None:
                 user.set('tenantName', unicode(self.user.tenant_name))
 
-        if self.user.role_refs is not None:
-            user.append(self.user.role_refs.to_dom())
+        if self.user.rolegrants is not None:
+            user.append(self.user.rolegrants.to_dom())
 
         dom.append(token)
         dom.append(user)
@@ -502,8 +502,8 @@ class ValidateData(object):
             if self.user.tenant_name is not None:
                 user['tenantName'] = unicode(self.user.tenant_name)
 
-        if self.user.role_refs is not None:
-            user["roles"] = self.user.role_refs.to_json_values()
+        if self.user.rolegrants is not None:
+            user["roles"] = self.user.rolegrants.to_json_values()
 
         return json.dumps({
             "access": {

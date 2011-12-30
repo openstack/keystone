@@ -38,6 +38,8 @@ from keystone.models import Service, Services
 from keystone.managers.token import Manager as TokenManager
 from keystone.managers.tenant import Manager as TenantManager
 from keystone.managers.user import Manager as UserManager
+from keystone.managers.role import Manager as RoleManager
+from keystone.managers.grant import Manager as GrantManager
 
 #Reference to Admin Role.
 ADMIN_ROLE_ID = None
@@ -65,6 +67,8 @@ class IdentityService(object):
         self.token_manager = TokenManager(options)
         self.tenant_manager = TenantManager(options)
         self.user_manager = UserManager(options)
+        self.role_manager = RoleManager(options)
+        self.grant_manager = GrantManager(options)
 
         global ADMIN_ROLE_NAME
         ADMIN_ROLE_NAME = options["keystone-admin-role"]
@@ -193,7 +197,7 @@ class IdentityService(object):
         auth_data = self.get_validate_data(token, user, service_ids)
         if service_ids and (token.tenant_id or belongs_to):
             # we have service Ids and scope token, make sure we have some roles
-            if not auth_data.user.role_refs.values:
+            if not auth_data.user.rolegrants.values:
                 raise fault.UnauthorizedFault("No roles found for scope token")
         return auth_data
 
@@ -241,7 +245,8 @@ class IdentityService(object):
         roles = []
         for service_id in service_ids:
             if service_id != GLOBAL_SERVICE_ID:
-                sroles = api.ROLE.get_by_service(service_id=service_id)
+                sroles = self.role_manager.get_by_service(
+                                                    service_id=service_id)
                 if sroles:
                     roles = roles + sroles
         return [role.name for role in roles]
@@ -252,11 +257,11 @@ class IdentityService(object):
         user_id -- user ID
         """
         ts = []
-        drole_refs = api.ROLE.ref_get_all_global_roles(user_id)
-        for drole_ref in drole_refs:
-            drole = api.ROLE.get(drole_ref.role_id)
-            ts.append(Role(drole_ref.role_id, drole.name,
-                      None, drole_ref.tenant_id))
+        drolegrants = self.grant_manager.list_global_roles_for_user(user_id)
+        for drolegrant in drolegrants:
+            drole = self.role_manager.get(drolegrant.role_id)
+            ts.append(Role(drolegrant.role_id, drole.name,
+                      None, drolegrant.tenant_id))
         return ts
 
     def get_tenant_roles_for_user_and_services(self, user_id, tenant_id,
@@ -272,12 +277,12 @@ class IdentityService(object):
         """
         ts = []
         if tenant_id and user_id:
-            drole_refs = api.ROLE.ref_get_all_tenant_roles(user_id,
-                tenant_id)
-            for drole_ref in drole_refs:
-                drole = api.ROLE.get(drole_ref.role_id)
-                ts.append(Role(drole_ref.role_id, drole.name,
-                    None, drole_ref.tenant_id))
+            drolegrants = self.grant_manager.list_tenant_roles_for_user(
+                                                            user_id, tenant_id)
+            for drolegrant in drolegrants:
+                drole = self.role_manager.get(drolegrant.role_id)
+                ts.append(Role(drolegrant.role_id, drole.name,
+                    None, drolegrant.tenant_id))
 
         if service_ids:
             # if service IDs are specified, filter roles by service IDs
@@ -426,34 +431,32 @@ class IdentityService(object):
         raise fault.UnauthorizedFault(
             "You are not authorized to make this call")
 
-    @staticmethod
-    def init_admin_role_identifiers():
+    def init_admin_role_identifiers(self):
         global ADMIN_ROLE_ID, SERVICE_ADMIN_ROLE_ID
         if SERVICE_ADMIN_ROLE_ID is None:
-            role = api.ROLE.get_by_name(SERVICE_ADMIN_ROLE_NAME)
+            role = self.role_manager.get_by_name(SERVICE_ADMIN_ROLE_NAME)
             if role:
                 SERVICE_ADMIN_ROLE_ID = role.id
             else:
                 LOG.warn('No service admin role is defined.')
         if ADMIN_ROLE_ID is None:
-            role = api.ROLE.get_by_name(ADMIN_ROLE_NAME)
+            role = self.role_manager.get_by_name(ADMIN_ROLE_NAME)
             if role:
                 ADMIN_ROLE_ID = role.id
             else:
                 LOG.warn('No service admin role is defined.')
 
-    @staticmethod
-    def has_role(env, user, role):
+    def has_role(self, env, user, role):
         """Checks if a user has a specific role.
 
         env:    provides the context
         user:   the user to be checked
         role:   the role to check that the user has
         """
-        dbapi = env['api']
-        for role_ref in dbapi.ROLE.ref_get_all_global_roles(user.id):
-            if ((role_ref.role_id == role)
-                    and role_ref.tenant_id is None):
+        for rolegrant in\
+                self.grant_manager.list_global_roles_for_user(user.id):
+            if ((rolegrant.role_id == role)
+                    and rolegrant.tenant_id is None):
                 return True
         return False
 
@@ -515,17 +518,18 @@ class IdentityService(object):
 
         ts = []
         if dtoken.tenant_id:
-            drole_refs = api.ROLE.ref_get_all_tenant_roles(duser.id,
-                dtoken.tenant_id)
-            for drole_ref in drole_refs:
-                drole = api.ROLE.get(drole_ref.role_id)
-                ts.append(Role(drole_ref.role_id, drole.name,
-                    drole.desc, None, drole_ref.tenant_id))
-        drole_refs = api.ROLE.ref_get_all_global_roles(duser.id)
-        for drole_ref in drole_refs:
-            drole = api.ROLE.get(drole_ref.role_id)
-            ts.append(Role(drole_ref.role_id, drole.name,
-                drole.desc, None, drole_ref.tenant_id))
+            drolegrants = self.grant_manager.list_tenant_roles_for_user(
+                                                    duser.id, dtoken.tenant_id)
+            for drolegrant in drolegrants:
+                drole = self.role_manager.get(drolegrant.role_id)
+                ts.append(Role(drolegrant.role_id, drole.name,
+                    drole.desc, None, drolegrant.tenant_id))
+        drolegrants = self.grant_manager.list_global_roles_for_user(
+                                                                    duser.id)
+        for drolegrant in drolegrants:
+            drole = self.role_manager.get(drolegrant.role_id)
+            ts.append(Role(drolegrant.role_id, drole.name,
+                drole.desc, None, drolegrant.tenant_id))
         user = auth.User(duser.id, duser.name, None, None, Roles(ts, []))
         if self.has_service_admin_role(token.id):
             # Privileged users see the adminURL as well
@@ -741,7 +745,7 @@ class IdentityService(object):
         if not dtenant.enabled:
             raise fault.TenantDisabledFault("Your account has been disabled")
         if role_id:
-            if not api.ROLE.get(role_id):
+            if not self.role_manager.get(role_id):
                 raise fault.ItemNotFoundFault("The role not found")
         ts = []
         dtenantusers = self.user_manager.users_get_by_tenant_get_page(
@@ -887,7 +891,7 @@ class IdentityService(object):
 
         utils.check_empty_string(role.name, "Expecting a Role name")
 
-        if api.ROLE.get(role.name) is not None:
+        if self.role_manager.get(role.name) is not None:
             raise fault.RoleConflictFault(
                 "A role with that name '" + role.name + "' already exists")
 
@@ -924,22 +928,23 @@ class IdentityService(object):
         drole.name = role.name
         drole.desc = role.description
         drole.service_id = role.service_id
-        drole = api.ROLE.create(drole)
+        drole = self.role_manager.create(drole)
         role.id = drole.id
         return role
 
     def get_roles(self, admin_token, marker, limit, url):
         self.validate_service_admin_token(admin_token)
-        droles = api.ROLE.get_page(marker, limit)
-        prev, next = api.ROLE.get_page_markers(marker, limit)
+        droles = self.role_manager.get_page(marker, limit)
+        prev, next = self.role_manager.get_page_markers(marker, limit)
         links = self.get_links(url, prev, next, limit)
         ts = self.transform_roles(droles)
         return Roles(ts, links)
 
     def get_roles_by_service(self, admin_token, marker, limit, url, serviceId):
         self.validate_service_admin_token(admin_token)
-        droles = api.ROLE.get_by_service_get_page(serviceId, marker, limit)
-        prev, next = api.ROLE.get_by_service_get_page_markers(
+        droles = self.role_manager.get_by_service_get_page(serviceId, marker,
+                                                                        limit)
+        prev, next = self.role_manager.get_by_service_get_page_markers(
             serviceId, marker, limit)
         links = self.get_links(url, prev, next, limit)
         ts = self.transform_roles(droles)
@@ -951,7 +956,7 @@ class IdentityService(object):
 
     def get_role(self, admin_token, role_id):
         self.validate_service_admin_token(admin_token)
-        drole = api.ROLE.get(role_id)
+        drole = self.role_manager.get(role_id)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
         return Role(drole.id, drole.name, drole.desc, drole.service_id)
@@ -959,7 +964,7 @@ class IdentityService(object):
     def get_role_by_name(self, admin_token, role_name):
         self.validate_service_admin_token(admin_token)
 
-        drole = api.ROLE.get_by_name(role_name)
+        drole = self.role_manager.get_by_name(role_name)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
         return Role(drole.id, drole.name,
@@ -968,7 +973,7 @@ class IdentityService(object):
     def delete_role(self, admin_token, role_id):
         user = self.validate_service_admin_token(admin_token)[1]
 
-        drole = api.ROLE.get(role_id)
+        drole = self.role_manager.get(role_id)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
 
@@ -982,11 +987,11 @@ class IdentityService(object):
                             "You do not have ownership of the '%s' service"
                             % service.name)
 
-        role_refs = api.ROLE.ref_get_by_role(role_id)
-        if role_refs is not None:
-            for role_ref in role_refs:
-                api.ROLE.ref_delete(role_ref.id)
-        api.ROLE.delete(role_id)
+        rolegrants = self.grant_manager.rolegrant_list_by_role(role_id)
+        if rolegrants is not None:
+            for rolegrant in rolegrants:
+                self.grant_manager.rolegrant_delete(rolegrant.id)
+        self.role_manager.delete(role_id)
 
     def add_role_to_user(self, admin_token, user_id, role_id, tenant_id=None):
         self.validate_service_admin_token(admin_token)
@@ -994,7 +999,7 @@ class IdentityService(object):
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
-        drole = api.ROLE.get(role_id)
+        drole = self.role_manager.get(role_id)
         if drole is None:
             raise fault.ItemNotFoundFault("The role not found")
         if tenant_id is not None:
@@ -1002,27 +1007,29 @@ class IdentityService(object):
             if dtenant is None:
                 raise fault.ItemNotFoundFault("The tenant not found")
 
-        drole_ref = api.ROLE.ref_get_by_user(user_id, role_id, tenant_id)
-        if drole_ref is not None:
+        drolegrant = self.grant_manager.rolegrant_get_by_ids(user_id, role_id,
+                                                                    tenant_id)
+        if drolegrant is not None:
             raise fault.RoleConflictFault(
                 "This role is already mapped to the user.")
 
-        drole_ref = models.UserRoleAssociation()
-        drole_ref.user_id = duser.id
-        drole_ref.role_id = drole.id
+        drolegrant = models.UserRoleAssociation()
+        drolegrant.user_id = duser.id
+        drolegrant.role_id = drole.id
         if tenant_id is not None:
-            drole_ref.tenant_id = dtenant.id
-        self.user_manager.user_role_add(drole_ref)
+            drolegrant.tenant_id = dtenant.id
+        self.user_manager.user_role_add(drolegrant)
 
     def remove_role_from_user(self, admin_token, user_id, role_id,
                               tenant_id=None):
         self.validate_service_admin_token(admin_token)
         print user_id, role_id, tenant_id
-        drole_ref = api.ROLE.ref_get_by_user(user_id, role_id, tenant_id)
-        if drole_ref is None:
+        drolegrant = self.grant_manager.rolegrant_get_by_ids(user_id, role_id,
+                                                                    tenant_id)
+        if drolegrant is None:
             raise fault.ItemNotFoundFault(
                 "This role is not mapped to the user.")
-        api.ROLE.ref_delete(drole_ref.id)
+        self.grant_manager.rolegrant_delete(drolegrant.id)
 
     # pylint: disable=R0913, R0914
     def get_user_roles(self, admin_token, marker,
@@ -1038,12 +1045,13 @@ class IdentityService(object):
             if not dtenant:
                 raise fault.ItemNotFoundFault("The tenant could not be found.")
         ts = []
-        drole_refs = api.ROLE.ref_get_page(marker, limit, user_id, tenant_id)
-        for drole_ref in drole_refs:
-            drole = api.ROLE.get(drole_ref.role_id)
+        drolegrants = self.grant_manager.rolegrant_get_page(marker, limit,
+                                                           user_id, tenant_id)
+        for drolegrant in drolegrants:
+            drole = self.role_manager.get(drolegrant.role_id)
             ts.append(Role(drole.id, drole.name,
                     drole.desc, drole.service_id))
-        prev, next = api.ROLE.ref_get_page_markers(
+        prev, next = self.grant_manager.rolegrant_get_page_markers(
             user_id, tenant_id, marker, limit)
         links = self.get_links(url, prev, next, limit)
         return Roles(ts, links)
@@ -1392,14 +1400,14 @@ class IdentityService(object):
                         api.ENDPOINT_TEMPLATE.endpoint_delete(endpoint.id)
                 api.ENDPOINT_TEMPLATE.delete(endpoint_template.id)
         #Delete Related Role and RoleRefs
-        roles = api.ROLE.get_by_service(service_id)
+        roles = self.role_manager.get_by_service(service_id)
         if roles is not None:
             for role in roles:
-                role_refs = api.ROLE.ref_get_by_role(role.id)
-                if role_refs is not None:
-                    for role_ref in role_refs:
-                        api.ROLE.ref_delete(role_ref.id)
-                api.ROLE.delete(role.id)
+                rolegrants = self.grant_manager.rolegrant_list_by_role(role.id)
+                if rolegrants is not None:
+                    for rolegrant in rolegrants:
+                        self.grant_manager.rolegrant_delete(rolegrant.id)
+                self.role_manager.delete(role.id)
         api.SERVICE.delete(service_id)
 
     def get_credentials(self, admin_token, user_id, marker, limit, url):

@@ -272,17 +272,17 @@ class UserAPI(api.BaseUserAPI):
         if hasattr(api.TENANT, 'uid_to_id'):
             values['tenant_id'] = api.TENANT.uid_to_id(values['tenant_id'])
 
-        user_role_ref = models.UserRoleAssociation()
-        user_role_ref.update(values)
-        user_role_ref.save()
+        user_rolegrant = models.UserRoleAssociation()
+        user_rolegrant.update(values)
+        user_rolegrant.save()
 
         if hasattr(api.USER, 'uid_to_id'):
-            user_role_ref.user_id = api.USER.uid_to_id(user_role_ref.user_id)
+            user_rolegrant.user_id = api.USER.uid_to_id(user_rolegrant.user_id)
         if hasattr(api.TENANT, 'uid_to_id'):
-            user_role_ref.tenant_id = api.TENANT.uid_to_id(
-                user_role_ref.tenant_id)
+            user_rolegrant.tenant_id = api.TENANT.uid_to_id(
+                user_rolegrant.tenant_id)
 
-        return user_role_ref
+        return user_rolegrant
 
     def users_get_page(self, marker, limit, session=None):
         if not session:
