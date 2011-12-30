@@ -75,11 +75,16 @@ class IdentityService(object):
         global GLOBAL_SERVICE_ID
         GLOBAL_SERVICE_ID = options.get("global_service_id", "global")
 
+        LOG.debug("init with ADMIN_ROLE_NAME=%s, SERVICE_ADMIN_ROLE_NAME=%s, "
+                  "GLOBAL_SERVICE_ID=%s" % (ADMIN_ROLE_NAME,
+                                            SERVICE_ADMIN_ROLE_NAME,
+                                            GLOBAL_SERVICE_ID))
+
     #
     #  Token Operations
     #
     def authenticate(self, auth_request):
-        # Check auth_with_password_credentials
+        LOG.debug("Authenticating with passwordCredentials")
         if not isinstance(auth_request, auth.AuthWithPasswordCredentials):
             raise fault.BadRequestFault(
                 "Expecting auth_with_password_credentials!")
@@ -96,12 +101,13 @@ class IdentityService(object):
 
         user = self.user_manager.get_by_name(auth_request.username)
         if not user:
+            LOG.debug("Did not find user with name=%s" % auth_request.username)
             raise fault.UnauthorizedFault("Unauthorized")
 
         return self._authenticate(validate, user.id, auth_request.tenant_id)
 
     def authenticate_with_unscoped_token(self, auth_request):
-        # Check auth_with_unscoped_token
+        LOG.debug("Authenticating with token (unscoped)")
         if not isinstance(auth_request, auth.AuthWithUnscopedToken):
             raise fault.BadRequestFault("Expecting auth_with_unscoped_token!")
 
@@ -124,7 +130,7 @@ class IdentityService(object):
         return self._authenticate(validate, user.id, auth_request.tenant_id)
 
     def authenticate_ec2(self, credentials):
-        # Check credentials
+        LOG.debug("Authenticating with EC2 credentials")
         if not isinstance(credentials, auth.Ec2Credentials):
             raise fault.BadRequestFault("Expecting Ec2 Credentials!")
 
@@ -151,19 +157,25 @@ class IdentityService(object):
                                              creds.tenant_id)
 
     def _authenticate(self, validate, user_id, tenant_id=None):
+        LOG.debug("Authenticating user %s (tenant: %s)" % (user_id, tenant_id))
         if tenant_id:
             duser = self.user_manager.get_by_tenant(user_id, tenant_id)
             if duser is None:
+                LOG.debug("User %s is not authorized on tenant %s" % (
+                    user_id, tenant_id))
                 raise fault.UnauthorizedFault("Unauthorized on this tenant")
         else:
             duser = self.user_manager.get(user_id)
             if duser is None:
+                LOG.debug("User with id %s not found" % user_id)
                 raise fault.UnauthorizedFault("Unauthorized")
 
         if not duser.enabled:
+            LOG.debug("User %s is not enabled" % user_id)
             raise fault.UserDisabledFault("Your account has been disabled")
 
         if not validate(duser):
+            LOG.debug("validate() returned false")
             raise fault.UnauthorizedFault("Unauthorized")
 
         # use user's default tenant_id if one is not specified
@@ -173,6 +185,8 @@ class IdentityService(object):
         dtoken = self.token_manager.find(duser.id, tenant_id)
 
         if not dtoken or dtoken.expires < datetime.now():
+            LOG.debug("Token was not found or expired. Creating a new token "
+                      "for the user")
             # Create new token
             dtoken = Token()
             dtoken.id = str(uuid.uuid4())
@@ -416,13 +430,17 @@ class IdentityService(object):
         # Does the user have the Service Admin role
         result = self.has_service_admin_role(token_id)
         if result:
+            LOG.debug("token is associated with service admin role")
             return result
         # Does the user have the Admin role (which includes Service Admin
         # rights)
         result = self.has_admin_role(token_id)
         if result:
+            LOG.debug("token is associated with admin role, so responding"
+                      "positively from validate_service_admin_token")
             return result
 
+        LOG.debug("token is not associated with admin  or service admin role")
         raise fault.UnauthorizedFault(
             "You are not authorized to make this call")
 
@@ -434,13 +452,15 @@ class IdentityService(object):
             if role:
                 SERVICE_ADMIN_ROLE_ID = role.id
             else:
-                LOG.warn('No service admin role is defined.')
+                LOG.warn('No service admin role found (searching for name=%s.'
+                         % SERVICE_ADMIN_ROLE_NAME)
         if ADMIN_ROLE_ID is None:
             role = api.ROLE.get_by_name(ADMIN_ROLE_NAME)
             if role:
                 ADMIN_ROLE_ID = role.id
             else:
-                LOG.warn('No service admin role is defined.')
+                LOG.warn('No admin role found (searching for name=%s.'
+                         % ADMIN_ROLE_NAME)
 
     @staticmethod
     def has_role(env, user, role):

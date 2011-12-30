@@ -22,7 +22,6 @@
 Keystone Identity Server - Admin  API
 """
 
-import optparse
 import os
 import sys
 
@@ -36,7 +35,7 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 import keystone.server
-import keystone
+
 
 if __name__ == '__main__':
     try:

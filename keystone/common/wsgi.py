@@ -33,6 +33,8 @@ import routes.middleware
 from webob import Response
 import webob.dec
 
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
+
 
 def find_console_handler(logger):
     """Returns a stream handler, if any"""
@@ -57,8 +59,11 @@ def add_console_handler(logger, level=logging.INFO):
         # tell the handler to use this format
         console.setFormatter(formatter)
         # add the handler to the root logger
+        logger.debug("Adding console handler at level %s" % level)
         logger.addHandler(console)
     elif console.level != level:
+        logger.debug("Setting console handler level to %s from %s" % (level,
+                                                                console.level))
         console.setLevel(level)
     return console
 
@@ -69,8 +74,6 @@ class WritableLogger(object):
     def __init__(self, logger, level=logging.INFO):
         self.logger = logger
         self.level = level
-        # TODO(Ziad): figure out why root logger is not set to same level as
-        # caller. Maybe something to do with paste?
         if level == logging.DEBUG:
             add_console_handler(logger, level)
 
@@ -80,6 +83,7 @@ class WritableLogger(object):
 
 def run_server(application, port):
     """Run a WSGI server with the given application."""
+    logger.debug("Running WSGI server on 0.0.0.0:%s" % port)
     sock = eventlet.listen(('0.0.0.0', port))
     eventlet.wsgi.server(sock, application)
 
@@ -95,6 +99,7 @@ class Server(object):
 
     def start(self, application, port, host='0.0.0.0', key=None, backlog=128):
         """Run a WSGI server with the given application."""
+        logger.debug("start server '%s' on %s:%s" % (key, host, port))
         socket = eventlet.listen((host, port), backlog=backlog)
         thread = self.pool.spawn(self._run, application, socket)
         if key:
@@ -110,11 +115,11 @@ class Server(object):
 
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
-        logger = logging.getLogger('eventlet.wsgi.server')
-        # TODO(Ziad): figure out why root logger is not set to same level as
-        # caller. Maybe something to do with paste?
+        logger.debug("_run called")
+        eventlet_logger = logging.getLogger('eventlet.wsgi.server')
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                             log=WritableLogger(logger, logging.root.level))
+                             log=WritableLogger(eventlet_logger,
+                             logging.root.level))
 
 
 class SslServer(Server):
@@ -123,6 +128,7 @@ class SslServer(Server):
               certfile=None, keyfile=None, ca_certs=None,
               cert_required='True', key=None):
         """Run a 2-way SSL WSGI server with the given application."""
+        logger.debug("start SSL server '%s' on %s:%s" % (key, host, port))
         socket = eventlet.listen((host, port), backlog=backlog)
         if cert_required == 'True':
             cert_reqs = ssl.CERT_REQUIRED
@@ -334,6 +340,7 @@ class Serializer(object):
         # FIXME(sirp): for now, supporting json only
         #mimetype = 'application/xml'
         mimetype = 'application/json'
+        logger.debug("serializing: mimetype=%s" % mimetype)
         # TODO(gundlach): determine mimetype from request
         return self._methods.get(mimetype, repr)(data)
 

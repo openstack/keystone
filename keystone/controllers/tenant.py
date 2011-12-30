@@ -1,8 +1,34 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+#
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+"""
+Tenant Controller
+
+"""
+import logging
+
 from keystone import utils
 from keystone.common import wsgi
 from keystone.logic import service
 from keystone.models import Tenant
 from . import get_marker_limit_and_url
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class TenantController(wsgi.Controller):
@@ -13,6 +39,8 @@ class TenantController(wsgi.Controller):
         self.identity_service = service.IdentityService(options)
 
         self.is_service_operation = is_service_operation
+        logger.debug("Initializing: 'Service API' mode=%s" %
+                     self.is_service_operation)
 
     @utils.wrap_error
     def create_tenant(self, req):

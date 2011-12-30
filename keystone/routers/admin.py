@@ -15,6 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import logging
 import routes
 
 from keystone.common import wsgi
@@ -27,12 +28,15 @@ from keystone.controllers.version import VersionController
 from keystone.controllers.extensions import ExtensionsController
 import keystone.contrib.extensions.admin as extension
 
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
+
 
 class AdminApi(wsgi.Router):
     """WSGI entry point for admin Keystone API requests."""
 
     def __init__(self, options):
         self.options = options
+        logger.debug("Init with options=%s" % options)
         mapper = routes.Mapper()
 
         # Token Operations

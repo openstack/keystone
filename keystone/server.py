@@ -59,7 +59,7 @@ from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
 from keystone import version
 
-logger = logging.getLogger('keystone.server')
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 def service_app_factory(global_conf, **local_conf):
@@ -98,31 +98,28 @@ class Server():
             config.load_paste_app
         :param args: override for sys.argv (otherwise sys.argv is used)
         """
-        self.options = options
-        if args:
-            self.args = args
-        else:
-            self.args = sys.argv
+        logger.debug("Init server '%s' with config=%s" % (name, config_name))
 
         if options is None or args is None:
-            # Initialize a parser for our configuration paramaters
-            parser = optparse.OptionParser(version='%%prog %s' %
-                                           version.version())
+            # Initialize a parser for our configuration paramaters if needed
+            parser = optparse.OptionParser()
             config.add_common_options(parser)
             config.add_log_options(parser)
 
             # Parse arguments and load config
-            (poptions, pargs) = config.parse_options(parser)
+            (poptions, pargs) = config.parse_options(parser, args)
 
         if options is None:
             self.options = poptions
         else:
             self.options = options
+        logger.debug("Server is using options=%s" % self.options)
 
         if args is None:
             self.args = pargs
         else:
             self.args = args
+        logger.debug("Server is using args=%s" % self.args)
 
         self.name = name
         self.config = config_name or self.name
@@ -140,7 +137,7 @@ class Server():
         :param wait: whether to wait (block) for the server to terminate or
             return to the caller without waiting
         """
-        # Load Service API server
+        logger.debug("Starting API server")
         conf, app = config.load_paste_app(
             self.config, self.options, self.args)
 
@@ -151,7 +148,8 @@ class Server():
 
         if debug or verbose:
             config_file = config.find_config_file(self.options, self.args)
-            print "Starting '%s' with config: %s" % (self.config, config_file)
+            logger.info("Starting '%s' with config: %s" % (self.config,
+                                                     config_file))
 
         if port is None:
             if self.config == 'admin':
@@ -195,8 +193,11 @@ class Server():
         self.port = port
         self.host = host
 
-        print "%s listening on %s://%s:%s" % (
-            self.name, ['http', 'https'][service_ssl], host, port)
+        logger.info("%s listening on %s://%s:%s" % (
+            self.name, ['http', 'https'][service_ssl], host, port))
+        if not (debug or verbose):
+            print "%s listening on %s://%s:%s" % (
+                self.name, ['http', 'https'][service_ssl], host, port)
 
         # Wait until done
         if wait:
@@ -209,5 +210,6 @@ class Server():
         """
         if self.server is not None:
             if self.key in self.server.threads:
+                logger.debug("Killing %s" % self.key)
                 self.server.threads[self.key].kill()
             self.server = None

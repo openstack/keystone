@@ -23,6 +23,7 @@ This module contains the TokenController class which receives token-related
 calls from the request routers.
 
 """
+import logging
 
 from keystone import utils
 from keystone.common import wsgi
@@ -31,6 +32,8 @@ from keystone.logic.types import auth
 from keystone.logic.types import fault
 from keystone.logic import service
 from . import get_marker_limit_and_url
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class TokenController(wsgi.Controller):
