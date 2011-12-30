@@ -289,6 +289,7 @@ class ApiTestCase(RestfulTestCase):
         return user
 
     def setUp(self):
+        super(ApiTestCase, self).setUp()
         if self.use_server:
             return
 
@@ -324,7 +325,11 @@ class ApiTestCase(RestfulTestCase):
             name='Member')
 
     def tearDown(self):
-        pass
+        super(ApiTestCase, self).tearDown()
+        # Explicitly release these to limit memory use.
+        self.service_api = self.admin_api = self.admin_role = None
+        self.admin_user = self.admin_password = self.admin_username = None
+        self.service_admin_role = self.member_role = None
 
     def request(self, host='127.0.0.1', protocol='http', port=80, method='GET',
                 path='/', headers=None, body=None, assert_status=None,
