@@ -101,6 +101,7 @@ import eventlet
 from eventlet import wsgi
 import json
 # memcache is imported in __init__ if memcache caching is configured
+import logging
 import os
 from paste.deploy import loadapp
 import time
@@ -108,9 +109,11 @@ import urllib
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized
 from webob.exc import Request, Response
+
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
+LOG = logging.getLogger(__name__)
 
 PROTOCOL_NAME = "Token Authentication"
 # The time format of the 'expires' property of a token
@@ -149,6 +152,7 @@ class AuthProtocol(object):
         When we eventually superclass this, this will be the superclass
         initialization code that applies to all protocols
         """
+        LOG.info("Starting the %s component", PROTOCOL_NAME)
         print "Starting the %s component" % PROTOCOL_NAME
 
         #if app is set, then we are in a WSGI pipeline and requests get passed
@@ -193,6 +197,7 @@ class AuthProtocol(object):
                                         "%s://%s:%s" % (self.auth_protocol,
                                         self.auth_host,
                                         self.auth_port))
+        LOG.debug("Authentication Service:%s", self.auth_location)
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
@@ -242,6 +247,7 @@ class AuthProtocol(object):
 
     def __call__(self, env, start_response):
         """ Handle incoming request. Authenticate. And send downstream. """
+        LOG.debug("entering AuthProtocol.__call__")
         # Initialize caching client
         if self.memcache_hosts:
             # This will only be used if the configuration calls for memcache
@@ -261,10 +267,12 @@ class AuthProtocol(object):
         #Look for authentication claims
         token = self._get_claims(env)
         if not token:
-            #No claim(s) provided
+            LOG.debug("No claims provided")
             if self.delay_auth_decision:
                 #Configured to allow downstream service to make final decision.
                 #So mark status as Invalid and forward the request downstream
+                LOG.debug("delay_auth_decision is %s, so sending request "
+                        "down the pipeline" % self.delay_auth_decision)
                 self._decorate_request("X_IDENTITY_STATUS",
                     "Invalid", env, proxy_headers)
             else:
@@ -388,11 +396,13 @@ class AuthProtocol(object):
     @staticmethod
     def _get_claims(env):
         """Get claims from request"""
+        LOG.debug("Looking for authentication claims in _get_claims")
         claims = env.get('HTTP_X_AUTH_TOKEN', env.get('HTTP_X_STORAGE_TOKEN'))
         return claims
 
     def _reject_request(self, env, start_response):
         """Redirect client to auth server"""
+        LOG.debug("Rejecting request - authoentication required")
         return HTTPUnauthorized("Authentication required",
                     [("WWW-Authenticate",
                       "Keystone uri='%s'" % self.auth_location)])(env,
@@ -401,6 +411,7 @@ class AuthProtocol(object):
     @staticmethod
     def _reject_claims(env, start_response):
         """Client sent bad claims"""
+        LOG.debug("Rejecting request - bad claim or token")
         return HTTPUnauthorized()(env,
             start_response)
 
@@ -409,10 +420,13 @@ class AuthProtocol(object):
 
         cached_claims = self._cache_get(env, claims)
         if cached_claims:
+            LOG.debug("Found cached claims")
             claims, expires, valid = cached_claims
             if not valid:
+                LOG.debug("Claims not valid (according to cache)")
                 raise ValidationFailed()
             if expires <= datetime.now():
+                LOG.debug("Claims (token) expired (according to cache)")
                 raise TokenExpired()
             return claims
 
@@ -434,6 +448,8 @@ class AuthProtocol(object):
                     #Khaled's version uses creds to get a token
                     # "X-Auth-Token": admin_token}
                     # we're using a test token from the ini file for now
+        LOG.debug("Connecting to %s://%s:%s to check claims" % (
+                self.auth_protocol, self.auth_host, self.auth_port))
         conn = http_connect(self.auth_host, self.auth_port, 'GET',
                             '/v2.0/tokens/%s%s' % (claims, self.serviceId_qs),
                             headers=headers,
@@ -443,15 +459,18 @@ class AuthProtocol(object):
         resp = conn.getresponse()
         data = resp.read()
 
+        LOG.debug("Response received: %s" % resp.status)
         if not str(resp.status).startswith('20'):
             # Cache it if there is a cache available
             if self.cache:
+                LOG.debug("Caching that results were invalid")
                 self._cache_put(env, claims,
                                 claims={'expires':
                                 datetime.strftime(datetime.now(),
                                                   EXPIRE_TIME_FORMAT)},
                                 valid=False)
             # Keystone rejected claim
+            LOG.debug("Failing the validation")
             raise ValidationFailed()
 
         token_info = json.loads(data)
@@ -469,6 +488,8 @@ class AuthProtocol(object):
             # diablo only
             tenant_id = token_info['access']['user'].get('tenantId')
             tenant_name = token_info['access']['user'].get('tenantName')
+        LOG.debug("Tenant identified: id=%s, name=%s" % (tenant_id,
+                                                                tenant_name))
 
         verified_claims = {
             'user': {
@@ -481,23 +502,31 @@ class AuthProtocol(object):
             },
             'roles': roles,
             'expires': token_info['access']['token']['expires']}
+        LOG.debug("User identified: id=%s, name=%s" % (
+                token_info['access']['user']['id'],
+                token_info['access']['user']['name']))
 
         expires = get_datetime(verified_claims['expires'])
         if expires <= datetime.now():
+            LOG.debug("Claims (token) expired: %s" % str(expires))
             # Cache it if there is a cache available (we also cached bad
             # claims)
             if self.cache:
+                LOG.debug("Caching expired claim (token)")
                 self._cache_put(env, claims, verified_claims, valid=False)
             raise TokenExpired()
 
         # Cache it if there is a cache available
         if self.cache:
+            LOG.debug("Caching validated claim")
             self._cache_put(env, claims, verified_claims, valid=True)
+        LOG.debug("Returning successful validation")
         return verified_claims
 
     @staticmethod
     def _decorate_request(index, value, env, proxy_headers):
         """Add headers to request"""
+        LOG.debug("Decorating request with HTTP_%s=%s" % (index, value))
         proxy_headers[index] = value
         env["HTTP_%s" % index] = value
 
@@ -508,10 +537,12 @@ class AuthProtocol(object):
         #now decide how to pass on the call
         if self.app:
             # Pass to downstream WSGI component
+            LOG.debug("Sending request to next app in WSGI pipeline")
             return self.app(env, start_response)
             #.custom_start_response)
         else:
             # We are forwarding to a remote service (no downstream WSGI app)
+            LOG.debug("Sending request to %s" % self.service_url)
             req = Request(proxy_headers)
             parsed = urlparse(req.url)
 
@@ -524,6 +555,7 @@ class AuthProtocol(object):
                                 timeout=self.service_timeout)
             resp = conn.getresponse()
             data = resp.read()
+            LOG.debug("Response was %s" % resp.status)
 
             #TODO(ziad): use a more sophisticated proxy
             # we are rewriting the headers now
