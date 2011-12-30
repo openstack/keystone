@@ -99,6 +99,10 @@ class KeystoneServiceRouter(wsgi.Router):
                        action='authenticate_ec2',
                        conditions=dict(methods=['POST']))
 
+<<<<<<< HEAD
+=======
+        # Tenant Operations
+>>>>>>> All tests but create_tenant pass
         tenant_controller = KeystoneTenantController(self.options)
         mapper.connect('/tenants',
                        controller=tenant_controller,
@@ -349,7 +353,7 @@ class KeystoneTenantController(service.BaseApplication):
         self.policy_api = policy.Manager(options)
         self.token_api = token.Manager(options)
 
-    def get_tenants_for_token(self, context):
+    def get_tenants_for_token(self, context, **kw):
         """Get valid tenants for token based on token used to authenticate.
 
         Pulls the token from the context, validates it and gets the valid
