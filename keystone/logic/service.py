@@ -40,6 +40,7 @@ from keystone.managers.tenant import Manager as TenantManager
 from keystone.managers.user import Manager as UserManager
 from keystone.managers.role import Manager as RoleManager
 from keystone.managers.grant import Manager as GrantManager
+from keystone.managers.service import Manager as ServiceManager
 
 #Reference to Admin Role.
 ADMIN_ROLE_ID = None
@@ -69,6 +70,7 @@ class IdentityService(object):
         self.user_manager = UserManager(options)
         self.role_manager = RoleManager(options)
         self.grant_manager = GrantManager(options)
+        self.service_manager = ServiceManager(options)
 
         global ADMIN_ROLE_NAME
         ADMIN_ROLE_NAME = options["keystone-admin-role"]
@@ -245,8 +247,8 @@ class IdentityService(object):
         if not service_ids:
             raise fault.UnauthorizedFault("Missing service IDs")
 
-        services = [api.SERVICE.get(service_id) for service_id in service_ids
-                if not service_id == GLOBAL_SERVICE_ID]
+        services = [self.service_manager.get(service_id) for service_id in
+                    service_ids if not service_id == GLOBAL_SERVICE_ID]
         if not all(services):
             raise fault.UnauthorizedFault(
                 "Invalid service ID: %s" % (service_ids))
@@ -917,7 +919,7 @@ class IdentityService(object):
             split = role.name.split(":")
             if isinstance(split, list) and len(split) > 1:
                 service_name = split[0]
-                service = api.SERVICE.get_by_name(service_name)
+                service = self.service_manager.get_by_name(service_name)
                 if service is None:
                     raise fault.BadRequestFault(
                         "A service with the name %s doesn't exist." \
@@ -926,7 +928,7 @@ class IdentityService(object):
 
         # Check ownership of the service (or overriding admin rights)
         if role.service_id:
-            service = api.SERVICE.get(role.service_id)
+            service = self.service_manager.get(role.service_id)
             if service is None:
                 raise fault.BadRequestFault(
                     "A service with that id doesn't exist.")
@@ -995,7 +997,7 @@ class IdentityService(object):
 
         # Check ownership of the service (or overriding admin rights)
         if drole.service_id:
-            service = api.SERVICE.get(drole.service_id)
+            service = self.service_manager.get(drole.service_id)
             if service:
                 if not self.is_owner({"api": api}, user, service):
                     if not self.as_admin_role(admin_token):
@@ -1083,7 +1085,7 @@ class IdentityService(object):
         utils.check_empty_string(endpoint_template.type,
                 "Expecting Endpoint Template type.")
 
-        dservice = api.SERVICE.get_by_name_and_type(
+        dservice = self.service_manager.get_by_name_and_type(
             endpoint_template.name,
             endpoint_template.type)
         if dservice is None:
@@ -1129,7 +1131,7 @@ class IdentityService(object):
         utils.check_empty_string(endpoint_template.type,
             "Expecting Endpoint Template type.")
 
-        dservice = api.SERVICE.get(dendpoint_template.service_id)
+        dservice = self.service_manager.get(dendpoint_template.service_id)
         if not dservice:
             raise fault.BadRequestFault(
                     "A service with that name and type doesn't exist.")
@@ -1175,7 +1177,7 @@ class IdentityService(object):
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
 
-        dservice = api.SERVICE.get(dendpoint_template.service_id)
+        dservice = self.service_manager.get(dendpoint_template.service_id)
         if dservice:
             # Check ownership of the service (or overriding admin rights)
             if not self.is_owner({"api": api}, user, dservice):
@@ -1209,7 +1211,7 @@ class IdentityService(object):
     def get_endpoint_templates_by_service(self, admin_token,
         service_id, marker, limit, url):
         self.validate_service_admin_token(admin_token)
-        dservice = api.SERVICE.get(service_id)
+        dservice = self.service_manager.get(service_id)
         if dservice is None:
             raise fault.ItemNotFoundFault(
                 "No service with the id %s found." % service_id)
@@ -1221,11 +1223,10 @@ class IdentityService(object):
         links = self.get_links(url, prev, next, limit)
         return EndpointTemplates(ts, links)
 
-    @staticmethod
-    def transform_endpoint_templates(dendpoint_templates):
+    def transform_endpoint_templates(self, dendpoint_templates):
         ts = []
         for dendpoint_template in dendpoint_templates:
-            dservice = api.SERVICE.get(dendpoint_template.service_id)
+            dservice = self.service_manager.get(dendpoint_template.service_id)
             ts.append(EndpointTemplate(
                 dendpoint_template.id,
                 dendpoint_template.region,
@@ -1249,7 +1250,7 @@ class IdentityService(object):
         if not dendpoint_template:
             raise fault.ItemNotFoundFault(
                 "The endpoint template could not be found")
-        dservice = api.SERVICE.get(dendpoint_template.service_id)
+        dservice = self.service_manager.get(dendpoint_template.service_id)
         return EndpointTemplate(
             dendpoint_template.id,
             dendpoint_template.region,
@@ -1286,7 +1287,7 @@ class IdentityService(object):
         for dtenant_endpoint in dtenant_endpoints:
             dendpoint_template = api.ENDPOINT_TEMPLATE.get(
                 dtenant_endpoint.endpoint_template_id)
-            dservice = api.SERVICE.get(dendpoint_template.service_id)
+            dservice = self.service_manager.get(dendpoint_template.service_id)
             ts.append(Endpoint(
                             dtenant_endpoint.id,
                             dtenant_endpoint.tenant_id,
@@ -1323,7 +1324,7 @@ class IdentityService(object):
         dendpoint.tenant_id = tenant_id
         dendpoint.endpoint_template_id = endpoint_template.id
         dendpoint = api.ENDPOINT_TEMPLATE.endpoint_add(dendpoint)
-        dservice = api.SERVICE.get(dendpoint_template.service_id)
+        dservice = self.service_manager.get(dendpoint_template.service_id)
         dendpoint = Endpoint(
                             dendpoint.id,
                             dendpoint.tenant_id,
@@ -1353,7 +1354,7 @@ class IdentityService(object):
         if not isinstance(service, Service):
             raise fault.BadRequestFault("Expecting a Service")
 
-        if api.SERVICE.get_by_name(service.name) is not None:
+        if self.service_manager.get_by_name(service.name) is not None:
             raise fault.ServiceConflictFault(
                 "A service with that name already exists")
 
@@ -1364,7 +1365,7 @@ class IdentityService(object):
         dservice.type = service.type
         dservice.desc = service.description
         dservice.owner_id = user.id
-        dservice = api.SERVICE.create(dservice)
+        dservice = self.service_manager.create(dservice)
         service.id = dservice.id
 
         return service
@@ -1373,18 +1374,18 @@ class IdentityService(object):
         self.validate_service_admin_token(admin_token)
 
         ts = []
-        dservices = api.SERVICE.get_page(marker, limit)
+        dservices = self.service_manager.get_page(marker, limit)
         for dservice in dservices:
             ts.append(Service(dservice.id, dservice.name, dservice.type,
                 dservice.desc))
-        prev, next = api.SERVICE.get_page_markers(marker, limit)
+        prev, next = self.service_manager.get_page_markers(marker, limit)
         links = self.get_links(url, prev, next, limit)
         return Services(ts, links)
 
     def get_service(self, admin_token, service_id):
         self.validate_service_admin_token(admin_token)
 
-        dservice = api.SERVICE.get(service_id)
+        dservice = self.service_manager.get(service_id)
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
         return Service(dservice.id, dservice.name, dservice.type,
@@ -1392,7 +1393,7 @@ class IdentityService(object):
 
     def get_service_by_name(self, admin_token, service_name):
         self.validate_service_admin_token(admin_token)
-        dservice = api.SERVICE.get_by_name(service_name)
+        dservice = self.service_manager.get_by_name(service_name)
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
         return Service(dservice.id, dservice.name, dservice.type,
@@ -1400,7 +1401,7 @@ class IdentityService(object):
 
     def delete_service(self, admin_token, service_id):
         self.validate_service_admin_token(admin_token)
-        dservice = api.SERVICE.get(service_id)
+        dservice = self.service_manager.get(service_id)
 
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
@@ -1424,7 +1425,7 @@ class IdentityService(object):
                     for rolegrant in rolegrants:
                         self.grant_manager.rolegrant_delete(rolegrant.id)
                 self.role_manager.delete(role.id)
-        api.SERVICE.delete(service_id)
+        self.service_manager.delete(service_id)
 
     def get_credentials(self, admin_token, user_id, marker, limit, url):
         self.validate_admin_token(admin_token)
