@@ -77,8 +77,8 @@ from webob.exc import HTTPUnauthorized, Request, Response
 
 from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
-PROTOCOL_NAME = "Token Authentication"
-LOG = logging.getLogger('quantum.common.authentication')
+PROTOCOL_NAME = "Quantum Token Authentication"
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 # pylint: disable=R0902
@@ -87,7 +87,7 @@ class AuthProtocol(object):
 
     def _init_protocol_common(self, app, conf):
         """ Common initialization code"""
-        LOG.info("Starting the %s component", PROTOCOL_NAME)
+        logger.info("Starting the %s component", PROTOCOL_NAME)
 
         self.conf = conf
         self.app = app
@@ -124,7 +124,7 @@ class AuthProtocol(object):
                                              self.auth_host,
                                              self.auth_port)
         self.auth_uri = conf.get('auth_uri', self.auth_location)
-        LOG.debug("Authentication Service:%s", self.auth_location)
+        logger.debug("Authentication Service:%s", self.auth_location)
         # Credentials used to verify this component with the Auth service
         # since validating tokens is a privileged call
         self.admin_user = conf.get('auth_admin_user')
@@ -179,8 +179,8 @@ class AuthProtocol(object):
     # pylint: disable=R0912
     def __call__(self, env, start_response):
         """ Handle incoming request. Authenticate. And send downstream. """
-        LOG.debug("entering AuthProtocol.__call__")
-        LOG.debug("start response:%s", start_response)
+        logger.debug("entering AuthProtocol.__call__")
+        logger.debug("start response:%s", start_response)
         self.start_response = start_response
         self.env = env
 
@@ -192,11 +192,11 @@ class AuthProtocol(object):
                 del self.proxy_headers[header]
 
         #Look for authentication claims
-        LOG.debug("Looking for authentication claims")
+        logger.debug("Looking for authentication claims")
         self.claims = self._get_claims(env)
         if not self.claims:
             #No claim(s) provided
-            LOG.debug("No claims provided")
+            logger.debug("No claims provided")
             if self.delay_auth_decision:
                 #Configured to allow downstream service to make final decision.
                 #So mark status as Invalid and forward the request downstream
@@ -206,7 +206,7 @@ class AuthProtocol(object):
                 return self._reject_request()
         else:
             # this request is presenting claims. Let's validate them
-            LOG.debug("Claims found. Validating.")
+            logger.debug("Claims found. Validating.")
             valid = self._validate_claims(self.claims)
             if not valid:
                 # Keystone rejected claim
@@ -221,7 +221,7 @@ class AuthProtocol(object):
 
             #Collect information about valid claims
             if valid:
-                LOG.debug("Validation successful")
+                logger.debug("Validation successful")
                 claims = self._expound_claims()
 
                 # Store authentication data
@@ -257,7 +257,7 @@ class AuthProtocol(object):
 
                     # NOTE(todd): unused
                     self.expanded = True
-            LOG.debug("About to forward request")
+            logger.debug("About to forward request")
             #Send request downstream
             return self._forward_request()
 
@@ -347,7 +347,7 @@ class AuthProtocol(object):
             # what should be returned
             if self.admin_user and self.admin_password and \
                not retry and str(resp.status) == '404':
-                LOG.warn("Unable to validate token." +
+                logger.warn("Unable to validate token." +
                          "Admin token possibly expired.")
                 self.admin_token = None
                 return self._validate_claims(claims, True)
@@ -356,7 +356,7 @@ class AuthProtocol(object):
             #TODO(Ziad): there is an optimization we can do here. We have just
             #received data from Keystone that we can use instead of making
             #another call in _expound_claims
-            LOG.info("Claims successfully validated")
+            logger.info("Claims successfully validated")
             return True
 
     def _expound_claims(self):

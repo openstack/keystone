@@ -30,8 +30,11 @@ middleware.
 Example: examples/paste/glance-api.conf,
     examples/paste/glance-registry.conf
 """
+import logging
 
 from glance.common import context
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class KeystoneContextMiddleware(context.ContextMiddleware):
@@ -44,6 +47,8 @@ class KeystoneContextMiddleware(context.ContextMiddleware):
         """
         # Only accept the authentication information if the identity
         # has been confirmed--presumably by upstream
+        logger.debug('X_IDENTITY_STATUS=%s' %
+                     req.headers.get('X_IDENTITY_STATUS'))
         if req.headers.get('X_IDENTITY_STATUS', 'Invalid') != 'Confirmed':
             # Use the default empty context
             req.context = self.make_context(read_only=True)

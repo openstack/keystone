@@ -28,15 +28,14 @@ import logging
 from keystone.frontends.normalizer import filter_factory\
         as new_filter_factory
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 def filter_factory(global_conf, **local_conf):
     """Returns a WSGI filter app for use with paste.deploy.
 
     In this case, we return the class that has been moved"""
-    logger.warning("'%s' has been moved to \
-'keystone.frontends.normalizer'. \
-Update your configuration file to reflect the change" % \
-__name__)
+    logger.warning("'%s' has been moved to 'keystone.frontends.normalizer'. "
+                   "Update your configuration file to reflect the change" %
+                   __name__)
     return new_filter_factory(global_conf, **local_conf)

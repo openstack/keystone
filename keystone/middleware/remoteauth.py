@@ -69,8 +69,11 @@ HTTP_X_AUTHORIZATION
 
 
 """
-
+import logging
 from webob.exc import HTTPUseProxy, HTTPUnauthorized
+
+PROTOCOL_NAME = "Remote Proxy Authentication"
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class RemoteAuth(object):
@@ -81,6 +84,7 @@ class RemoteAuth(object):
     # from a separate server.
 
     def __init__(self, app, conf):
+        logger.info("Starting the %s component", PROTOCOL_NAME)
         # app is the next app in WSGI chain - eventually the OpenStack service
         self.app = app
         self.conf = conf
@@ -89,13 +93,14 @@ class RemoteAuth(object):
         # secret that will tell us a request is coming from a trusted auth
         # component
         self.remote_auth_pass = conf.get('remote_auth_pass')
-        print 'Starting Remote Auth middleware'
 
     def __call__(self, env, start_response):
         # Validate the request is trusted
         # Authenticate the Auth component itself.
         headers = [('www-authenticate', 'Basic realm="API Auth"')]
         if 'HTTP_AUTHORIZATION' not in env:
+            logger.debug("Unauthenticated: redirecting to %s" %
+                         self.proxy_location)
             # Redirect to proxy (auth component) and show that basic auth is
             # required
             return HTTPUseProxy(location=self.proxy_location,
@@ -103,6 +108,7 @@ class RemoteAuth(object):
         else:
             auth_type, encoded_creds = env['HTTP_AUTHORIZATION'].split(None, 1)
             if encoded_creds != self.remote_auth_pass:
+                logger.warn('Bad proxy credentials received')
                 return HTTPUnauthorized(headers=headers)(env, start_response)
 
         # Make sure that the user has been authenticated by the Auth Service

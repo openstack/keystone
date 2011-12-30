@@ -20,9 +20,9 @@ Starting point for routing EC2 requests.
 
 """
 
-from urlparse import urlparse
-
+import logging
 from eventlet.green import httplib
+from urlparse import urlparse
 import webob.dec
 import webob.exc
 
@@ -30,6 +30,7 @@ from nova import flags
 from nova import utils
 from nova import wsgi
 
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('keystone_ec2_url',
@@ -46,7 +47,8 @@ class EC2Token(wsgi.Middleware):
         try:
             signature = req.params['Signature']
             access = req.params['AWSAccessKeyId']
-        except KeyError:
+        except KeyError, e:
+            logger.exception(e)
             raise webob.exc.HTTPBadRequest()
 
         # Make a copy of args for authentication and signature verification.
@@ -84,7 +86,8 @@ class EC2Token(wsgi.Middleware):
         result = utils.loads(response)
         try:
             token_id = result['access']['token']['id']
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError), e:
+            logger.exception(e)
             raise webob.exc.HTTPBadRequest()
 
         # Authenticated!

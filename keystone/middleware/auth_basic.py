@@ -31,16 +31,20 @@ This is an Auth component as per: http://wiki.openstack.org/openstack-authn
 
 """
 
-import os
-import urlparse
 import eventlet
 from eventlet import wsgi
+import os
+import logging
 from paste.deploy import loadapp
-from keystone.common.bufferedhttp import http_connect_raw as http_connect
+import urlparse
 from webob.exc import Request, Response
 from webob.exc import HTTPUnauthorized
 
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
+
 PROTOCOL_NAME = "Basic Authentication"
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 def _decorate_request_headers(header, value, proxy_headers, env):
@@ -52,7 +56,7 @@ class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
 
     def __init__(self, app, conf):
-        print "Starting the %s component" % PROTOCOL_NAME
+        logger.info("Starting the %s component", PROTOCOL_NAME)
 
         self.conf = conf
         self.app = app

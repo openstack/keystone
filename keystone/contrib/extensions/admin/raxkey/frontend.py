@@ -24,12 +24,17 @@ This WSGI component
 - processes the necessary components
 """
 
-import os
 import json
+import logging
 from lxml import etree
+import os
 from webob.exc import Request, Response
 
+from keystone import utils
+
 EXTENSION_ALIAS = "RAX-KSKEY-admin"
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class FrontEndFilter(object):
@@ -37,7 +42,8 @@ class FrontEndFilter(object):
 
     def __init__(self, app, conf):
         """ Common initialization code """
-        print "Starting the %s extension" % EXTENSION_ALIAS
+        logger.info(_("Starting the %s extension" %
+                                 EXTENSION_ALIAS))
         self.conf = conf
         self.app = app
 

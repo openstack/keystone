@@ -42,7 +42,13 @@ Notes:
 
 import copy
 import json
-from lxml import etree
+import logging
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
+try:
+    from lxml import etree
+except ImportError as exc:
+    logging.exception(exc)
+    raise exc
 from webob.exc import Request
 
 from keystone.logic.types import fault
@@ -64,11 +70,13 @@ class D5AuthBase(object):
 
         for key in root:
             if not key in valid_keys:
+                logger.debug("Invalid attribute: " % key)
                 raise fault.BadRequestFault('Invalid attribute(s): %s' % key)
 
         if root.get('tenantId') and root.get('tenantName'):
-            raise fault.BadRequestFault(
-                'Expecting either Tenant ID or Tenant Name, but not both')
+            msg = _('Expecting either Tenant ID or Tenant Name, but not both')
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg)
 
         return root
 
@@ -81,12 +89,15 @@ class D5AuthBase(object):
 
         for skey in ret:
             if not skey in required_keys and not skey in optional_keys:
-                raise fault.BadRequestFault('Invalid attribute(s): %s' % skey)
+                msg = _('Invalid attribute(s): %s' % skey)
+                logger.debug(msg)
+                raise fault.BadRequestFault(msg)
 
         for required_key in required_keys:
             if not ret.get(required_key):
-                raise fault.BadRequestFault('Expecting %s:%s' %
-                                            (key, required_key))
+                msg = _('Expecting %s:%s' % (key, required_key))
+                logger.debug(msg)
+                raise fault.BadRequestFault(msg)
         return ret
 
 
@@ -115,14 +126,17 @@ class D5AuthWithPasswordCredentials(D5AuthBase):
             utils.check_empty_string(password, "Expecting a password")
 
             if tenant_id and tenant_name:
-                raise fault.BadRequestFault(
-                    "Expecting either Tenant ID or Tenant Name, but not both")
+                msg = _("Expecting either Tenant ID or Tenant Name, but not "
+                        "both")
+                logger.debug(msg)
+                raise fault.BadRequestFault(msg)
 
             return D5AuthWithPasswordCredentials(username, password,
                                                   tenant_id, tenant_name)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse passwordCredentials",
-                                        str(e))
+            msg = _("Cannot parse passwordCredentials")
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg, str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -138,8 +152,9 @@ class D5AuthWithPasswordCredentials(D5AuthBase):
                                                cred.get('tenantId'),
                                                cred.get('tenantName'))
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse passwordCredentials",
-                                        str(e))
+            msg = _("Cannot parse passwordCredentials")
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg, str(e))
 
     def to_json(self):
         """ Format the response in Diablo/Stable contract format """
@@ -184,8 +199,10 @@ class D5toDiabloAuthData(object):
 
     def __init__(self, init_json=None, init_xml=None):
         if init_json:
+            logger.debug("init D5toDiabloAuthData with json")
             self.json = init_json
         if init_xml is not None:
+            logger.debug("init D5toDiabloAuthData with xml")
             self.xml = init_xml
 
     @staticmethod
@@ -198,11 +215,13 @@ class D5toDiabloAuthData(object):
                 dom.find("{http://docs.openstack.org/identity/api/v2.0}"
                 "access")
             if root is None:
+                logger.debug("Expecting access")
                 raise fault.BadRequestFault("Expecting access")
             return D5toDiabloAuthData(init_xml=root)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse Diablo response",
-                                        str(e))
+            msg = _("Cannot parse Diablo response")
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg, str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -212,17 +231,22 @@ class D5toDiabloAuthData(object):
             auth = obj["access"]
             return D5toDiabloAuthData(init_json=auth)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse auth response",
-                                        str(e))
+            msg = _("Cannot parse auth response")
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg, str(e))
 
     def to_xml(self):
         """ Convert to D5 syntax from Diablo"""
         if self.xml is None:
             if self.json is None:
+                logger.debug("Cannot deserialize response since no json or xml"
+                             "data seems to have been passed in")
                 raise NotImplementedError
             else:
-                raise fault.IdentityFault("%s not initialized with data" % \
+                msg = _("%s initialized with json, but xml requested" %
                                           self.__class__.__str__)
+                logger.debug(msg)
+                raise fault.IdentityFault(msg)
         dom = etree.Element("auth",
             xmlns="http://docs.openstack.org/identity/api/v2.0")
         for element in self.xml:
@@ -233,10 +257,14 @@ class D5toDiabloAuthData(object):
         """ Convert to D5 syntax from Diablo"""
         if self.json is None:
             if self.xml is None:
+                logger.debug("Cannot deserialize response since no json or xml"
+                             "data seems to have been passed in")
                 raise NotImplementedError
             else:
-                raise fault.IdentityFault("%s not initialized with data" % \
+                msg = _("%s initialized with xml, but json requested" %
                                           self.__class__.__str__)
+                logger.debug(msg)
+                raise fault.IdentityFault(msg)
         d5_data = {"auth": self.json.copy()}
         if 'auth' in d5_data and 'serviceCatalog' in d5_data['auth']:
             d5_data['auth']['serviceCatalog'] = \
@@ -267,11 +295,13 @@ class D5ValidateData(object):
                 dom.find("{http://docs.openstack.org/identity/api/v2.0}"
                 "access")
             if root is None:
+                logger.debug("Expecting 'access' element")
                 raise fault.BadRequestFault("Expecting access")
             return D5ValidateData(init_xml=root)
         except etree.LxmlError as e:
-            raise fault.BadRequestFault("Cannot parse Diablo response",
-                                        str(e))
+            msg = _("Cannot parse Diablo response")
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg, str(e))
 
     @staticmethod
     def from_json(json_str):
@@ -280,8 +310,9 @@ class D5ValidateData(object):
             obj = json.loads(json_str)
             return D5ValidateData(init_json=obj)
         except (ValueError, TypeError) as e:
-            raise fault.BadRequestFault("Cannot parse auth response",
-                                        str(e))
+            msg = _("Cannot parse Diablo response")
+            logger.debug(msg)
+            raise fault.BadRequestFault(msg, str(e))
 
     def to_xml(self):
         """ Returns only Diablo syntax (can only have one root in XML)
@@ -290,20 +321,28 @@ class D5ValidateData(object):
         at the expense of breaking the Diablo contract."""
         if self.xml is None:
             if self.json is None:
+                logger.debug("Cannot deserialize response since no json or xml"
+                             "data seems to have been passed in")
                 raise NotImplementedError
             else:
-                raise fault.IdentityFault("%s not initialized with data" % \
+                msg = _("%s initialized with json, but xml requested" %
                                           self.__class__.__str__)
+                logger.debug(msg)
+                raise fault.IdentityFault(msg)
         return etree.tostring(self.xml)
 
     def to_json(self):
         """ Returns both Diablo and D5 syntax ("access" and "auth")"""
         if self.json is None:
             if self.xml is None:
+                logger.debug("Cannot deserialize response since no json or xml"
+                             "data seems to have been passed in")
                 raise NotImplementedError
             else:
-                raise fault.IdentityFault("%s not initialized with data" % \
+                msg = _("%s initialized with xml, but json requested" %
                                           self.__class__.__str__)
+                logger.debug(msg)
+                raise fault.IdentityFault(msg)
         d5_data = self.json.copy()
         auth = {}
         for key, value in self.json["access"].iteritems():
@@ -342,12 +381,14 @@ class D5AuthProtocol(object):
 
     def __init__(self, app, conf):
         """ Common initialization code """
-        print "Starting the %s component" % PROTOCOL_NAME
+        msg = _("Starting the %s component" % PROTOCOL_NAME)
+        logger.info(msg)
         self.conf = conf
         self.app = app
 
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
+        logger.debug("Entering D5AuthProtocol.__call__")
         request = Request(env)
         if 'KEYSTONE_API_VERSION' in env and \
                                     env['KEYSTONE_API_VERSION'] == '2.0':
@@ -364,6 +405,7 @@ class D5AuthProtocol(object):
                         else:
                             request.body = auth_with_credentials.to_json()
                         is_d5_request = True
+                        logger.warn("Detected a D5-formatted call")
                     except:
                         pass
 
@@ -372,6 +414,7 @@ class D5AuthProtocol(object):
                         #Handle failures.
                         if not str(response.status).startswith('20'):
                             return response(env, start_response)
+                        logger.warn("Responding in D5-format")
                         auth_data = utils.get_normalized_request_content(
                             D5toDiabloAuthData, response)
                         resp = utils.send_result(response.status_int, request,
@@ -390,6 +433,7 @@ class D5AuthProtocol(object):
                         #Handle failures.
                         if not str(response.status).startswith('20'):
                             return response(env, start_response)
+                        logger.warn("Adding D5-format to call validate call")
                         validate_data = utils.get_normalized_request_content(
                             D5ValidateData, response)
                         resp = utils.send_result(response.status_int, request,

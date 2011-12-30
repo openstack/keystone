@@ -16,14 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import urlparse
-import eventlet
-from eventlet import wsgi
-from keystone.common.bufferedhttp import http_connect_raw as http_connect
-from webob.exc import Request, Response
-from paste.deploy import loadapp
-
 """
 OPENID AUTH MIDDLEWARE - STUB
 
@@ -36,6 +28,17 @@ This WSGI component should perform multiple jobs:
 This is an Auth component as per: http://wiki.openstack.org/openstack-authn
 """
 
+import logging
+import eventlet
+from eventlet import wsgi
+import os
+from paste.deploy import loadapp
+import urlparse
+from webob.exc import Request, Response
+
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 PROTOCOL_NAME = "OpenID Authentication"
 
@@ -44,7 +47,7 @@ class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls"""
 
     def __init__(self, app, conf):
-        print "Starting the %s component" % PROTOCOL_NAME
+        logger.info("Starting the %s component", PROTOCOL_NAME)
 
         self.conf = conf
         self.app = app

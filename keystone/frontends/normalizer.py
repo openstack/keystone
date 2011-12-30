@@ -31,7 +31,7 @@ import logging
 import webob.acceptparse
 from webob import Request
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 # Maps supported URL prefixes to API_VERSION
 PATH_PREFIXES = {
@@ -64,12 +64,15 @@ ACCEPT_HEADERS = {
     'application/atom+xml': ('atom+xml', None)}
 
 DEFAULT_RESPONSE_ENCODING = 'json'
+PROTOCOL_NAME = "URL Normalizer"
 
 
 class NormalizingFilter(object):
     """Middleware filter to handle URL and Accept header normalization"""
 
     def __init__(self, app, conf):
+        msg = "Starting the %s component" % PROTOCOL_NAME
+        logger.info(msg)
         # app is the next app in WSGI chain - eventually the OpenStack service
         self.app = app
         self.conf = conf
@@ -93,6 +96,8 @@ class NormalizingFilter(object):
             # return multiple choice unless the version controller can handle
             # this request
             if env['PATH_INFO'] not in ['/', '']:
+                logger.debug("Call without a version - returning 300. Path=%s"
+                             % env.get('PATH_INFO', ''))
                 from keystone.controllers.version import VersionController
                 controller = VersionController(options=None)
                 response = controller.get_multiple_choice(req=Request(env),
@@ -113,13 +118,14 @@ def normalize_accept_header(env):
 
     if accept_value:
         if accept_value in ACCEPT_HEADERS.keys():
-            #  Check for direct match first
+            logger.debug("Found direct match for mimetype %s" % accept_value)
             best_accept = accept_value
         else:
             try:
                 accept = webob.acceptparse.Accept(accept_value)
             except TypeError:
-                # Support `webob` v1.1 and older.
+                logger.warn("Falling back to `webob` v1.1 and older support. "
+                            "Check your version of webob")
                 accept = webob.acceptparse.Accept('Accept', accept_value)
 
             best_accept = accept.best_match(ACCEPT_HEADERS.keys())

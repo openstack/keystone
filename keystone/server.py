@@ -57,6 +57,7 @@ import optparse
 from keystone.common import config, wsgi
 from keystone.routers.service import ServiceApi
 from keystone.routers.admin import AdminApi
+from keystone import utils
 from keystone import version
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
@@ -148,8 +149,8 @@ class Server():
 
         if debug or verbose:
             config_file = config.find_config_file(self.options, self.args)
-            logger.info("Starting '%s' with config: %s" % (self.config,
-                                                     config_file))
+            logger.info("Starting '%s' with config: %s" %
+                                   (self.config, config_file))
 
         if port is None:
             if self.config == 'admin':
@@ -195,9 +196,6 @@ class Server():
 
         logger.info("%s listening on %s://%s:%s" % (
             self.name, ['http', 'https'][service_ssl], host, port))
-        if not (debug or verbose):
-            print "%s listening on %s://%s:%s" % (
-                self.name, ['http', 'https'][service_ssl], host, port)
 
         # Wait until done
         if wait:

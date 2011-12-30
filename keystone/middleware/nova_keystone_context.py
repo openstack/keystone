@@ -18,6 +18,7 @@ Nova Auth Middleware.
 
 """
 
+import logging
 import webob.dec
 import webob.exc
 
@@ -25,7 +26,9 @@ from nova import context
 from nova import flags
 from nova import wsgi
 
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
+PROTOCOL_NAME = "Nova Lazy Provisioning Shim"
 FLAGS = flags.FLAGS
 flags.DECLARE('use_forwarded_for', 'nova.api.auth')
 
@@ -38,6 +41,7 @@ class NovaKeystoneContext(wsgi.Middleware):
         try:
             user_id = req.headers['X_USER']
         except KeyError:
+            logger.debug("X_USER not found in request")
             return webob.exc.HTTPUnauthorized()
         # get the roles
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]

@@ -35,7 +35,6 @@ class Tenant(object):
             self.enabled = bool(enabled)
         else:
             self.enabled = None
-        print self.enabled
 
     @staticmethod
     def from_xml(xml_str):

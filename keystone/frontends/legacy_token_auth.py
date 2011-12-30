@@ -28,13 +28,14 @@ the response.
 
 import ast
 import json
-import os
-import sys
+import logging
 from webob.exc import Request
 
 import keystone.utils as utils
 
 PROTOCOL_NAME = "Legacy Authentication"
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class AuthProtocol(object):
@@ -42,7 +43,8 @@ class AuthProtocol(object):
 
     def __init__(self, app, conf):
         """ Common initialization code """
-        print "Starting the %s component" % PROTOCOL_NAME
+        msg = _("Starting the %s component" % PROTOCOL_NAME)
+        logger.info(msg)
         self.conf = conf
         self.app = app
 
@@ -51,8 +53,11 @@ class AuthProtocol(object):
     # to authenticate
     def __call__(self, env, start_response):
         """ Handle incoming request. Transform. And send downstream. """
+        logger.debug("Entering AuthProtocol.__call__")
         request = Request(env)
         if env.get('KEYSTONE_API_VERSION') in ['1.0', '1.1']:
+            logger.debug("This is a v%s call, so taking over" %
+                         env.get('KEYSTONE_API_VERSION'))
             params = {"auth": {"passwordCredentials":
                 {"username": utils.get_auth_user(request),
                     "password": utils.get_auth_key(request)}}}
@@ -62,16 +67,19 @@ class AuthProtocol(object):
             new_request.headers['Content-type'] = 'application/json'
             new_request.accept = 'application/json'
             new_request.body = json.dumps(params)
+            logger.debug("Sending v2.0-formatted request downstream")
             response = new_request.get_response(self.app)
+            logger.debug("Got back %s" % response.status)
             #Handle failures.
             if not str(response.status).startswith('20'):
                 return response(env, start_response)
             headers = self.__transform_headers(
                 json.loads(response.body))
+            logger.debug("Transformed the response. Responding to v1.x client")
             resp = utils.send_legacy_result(204, headers)
             return resp(env, start_response)
         else:
-            # Other calls pass to downstream WSGI component
+            logger.debug("Not a v1.0/v1.1 call, so passing downstream")
             return self.app(env, start_response)
 
     def __transform_headers(self, content):
@@ -99,7 +107,10 @@ class AuthProtocol(object):
                         else:
                             #For Services that are not mapped,
                             #use X- prefix followed by service name.
-                            headers['X-' + service_name.upper()] = service_urls
+                            header = 'X-%s' % service_name.upper()
+                            logger.debug("Adding header to response: %s=%s" %
+                                         (header, service_urls))
+                            headers[header] = service_urls
         return headers
 
 

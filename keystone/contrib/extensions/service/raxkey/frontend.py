@@ -21,14 +21,14 @@ RACKSPACE API KEY EXTENSION
 
 Deprecated middleware. We still have it here to not break compatiblity with
 configuration files that add it to the pipeline.
-
-TODO(ZNS): Remove this in Essex+1
 """
 import logging
 
+from keystone import utils
+
 EXTENSION_ALIAS = "RAX-KEY"
 
-LOG = logging.getLogger('keystone.contrib.extensions')
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class FrontEndFilter(object):
@@ -36,12 +36,14 @@ class FrontEndFilter(object):
 
     def __init__(self, app, conf):
         """ Common initialization code """
-        print "Starting the %s extension" % EXTENSION_ALIAS
+        logger.warn(_("WARNING: Starting the %s extension which "
+                                 "is deprecated" %
+                                 EXTENSION_ALIAS))
         self.conf = conf
         self.app = app
 
     def __call__(self, env, start_response):
-        LOG.warn("%s middleware is deprecated and will be removed in "
+        logger.warn("%s middleware is deprecated and will be removed in "
                  "Essex+1 (Fall fo 2012). Remove it from your "
                  "configuration files." % EXTENSION_ALIAS)
         #Kept for backward compatibility with existing configuration files.
