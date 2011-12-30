@@ -69,10 +69,11 @@ def filter_factory(global_conf, **local_conf):
     """
     Factory method for paste.deploy
     """
+    context_opts = context.cfg.ConfigOpts()
     conf = global_conf.copy()
     conf.update(local_conf)
 
     def filter(app):
-        return KeystoneContextMiddleware(app, conf)
+        return KeystoneContextMiddleware(app, context_opts, **conf)
 
     return filter
