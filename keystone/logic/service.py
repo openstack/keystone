@@ -529,9 +529,9 @@ class IdentityService(object):
         if dtoken.tenant_id:
             dtenant = self.tenant_manager.get(dtoken.tenant_id)
             tenant = auth.Tenant(id=dtenant.id, name=dtenant.name)
-            endpoints = api.TENANT.get_all_endpoints(dtoken.tenant_id)
+            endpoints = self.tenant_manager.get_all_endpoints(dtoken.tenant_id)
         else:
-            endpoints = api.TENANT.get_all_endpoints(None)
+            endpoints = self.tenant_manager.get_all_endpoints(None)
 
         token = auth.Token(dtoken.expires, dtoken.id, tenant)
         duser = self.user_manager.get(dtoken.user_id)
@@ -544,8 +544,7 @@ class IdentityService(object):
                 drole = self.role_manager.get(drolegrant.role_id)
                 ts.append(Role(drolegrant.role_id, drole.name,
                     drole.desc, None, drolegrant.tenant_id))
-        drolegrants = self.grant_manager.list_global_roles_for_user(
-                                                                    duser.id)
+        drolegrants = self.grant_manager.list_global_roles_for_user(duser.id)
         for drolegrant in drolegrants:
             drole = self.role_manager.get(drolegrant.role_id)
             ts.append(Role(drolegrant.role_id, drole.name,
@@ -629,14 +628,14 @@ class IdentityService(object):
             scope = _token.tenant_id
             default_tenant = user.tenant_id
 
-            if scope is None or \
-                ((scope and default_tenant) and (scope == default_tenant)):
+            if (scope is None or
+                ((scope and default_tenant) and (scope == default_tenant))):
                 # Return all tenants specific to user if token has no scope
                 # or if token is scoped to a default tenant
-                dtenants = api.TENANT.tenants_for_user_get_page(
-                    user, marker, limit)
-                prev_page, next_page = api.TENANT.\
-                    tenants_for_user_get_page_markers(user, marker, limit)
+                dtenants = self.tenant_manager.list_for_user_get_page(
+                    user.id, marker, limit)
+                prev_page, next_page = self.tenant_manager.\
+                    list_for_user_get_page_markers(user.id, marker, limit)
             else:
                 # Return scoped tenant only
                 dtenants = [self.tenant_manager.get(scope or default_tenant)]
@@ -647,8 +646,9 @@ class IdentityService(object):
             #Check Admin Token
             (_token, user) = self.validate_admin_token(admin_token)
             # Return all tenants
-            dtenants = api.TENANT.get_page(marker, limit)
-            prev_page, next_page = api.TENANT.get_page_markers(marker, limit)
+            dtenants = self.tenant_manager.get_page(marker, limit)
+            prev_page, next_page = self.tenant_manager.get_page_markers(marker,
+                                                                        limit)
 
         for dtenant in dtenants:
             t = Tenant(id=dtenant.id, name=dtenant.name,
@@ -702,10 +702,6 @@ class IdentityService(object):
         dtenant = self.tenant_manager.get(tenant_id)
         if dtenant is None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
-
-        if not api.TENANT.is_empty(tenant_id):
-            raise fault.ForbiddenFault("You may not delete a tenant that "
-                                       "contains get_users")
 
         self.tenant_manager.delete(dtenant.id)
         return None

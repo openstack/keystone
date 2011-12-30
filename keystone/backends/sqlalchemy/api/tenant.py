@@ -128,21 +128,29 @@ class TenantAPI(api.BaseTenantAPI):
 
         return TenantAPI.to_model_list(results)
 
-    def tenants_for_user_get_page(self, user, marker, limit, session=None):
+    def list_for_user_get_page(self, user_id, marker, limit, session=None):
         if not session:
             session = get_session()
 
+        user = api.USER.get(user_id)
         if hasattr(api.USER, 'uid_to_id'):
-            user.id = api.USER.uid_to_id(user.id)
-        if hasattr(api.TENANT, 'uid_to_id'):
-            user.tenant_id = api.TENANT.uid_to_id(user.tenant_id)
+            backend_user_id = api.USER.uid_to_id(user_id)
+        else:
+            backend_user_id = user_id
 
         ura = aliased(models.UserRoleAssociation)
         tenant = aliased(models.Tenant)
         q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
-            filter(ura.user_id == user.id)
-        q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
-        q3 = q1.union(q2)
+            filter(ura.user_id == backend_user_id)
+        if 'tenant_id' in user:
+            if hasattr(api.TENANT, 'uid_to_id'):
+                backend_tenant_id = api.TENANT.uid_to_id(user.tenant_id)
+            else:
+                backend_tenant_id = user.tenant_id
+            q2 = session.query(tenant).filter(tenant.id == backend_tenant_id)
+            q3 = q1.union(q2)
+        else:
+            q3 = q1
         if marker:
             results = q3.filter("tenant.id>:marker").params(\
                     marker='%s' % marker).order_by(\
@@ -153,27 +161,33 @@ class TenantAPI(api.BaseTenantAPI):
         return TenantAPI.to_model_list(results)
 
     # pylint: disable=R0912
-    def tenants_for_user_get_page_markers(self, user, marker, limit,
+    def list_for_user_get_page_markers(self, user_id, marker, limit,
             session=None):
         if not session:
             session = get_session()
 
+        user = api.USER.get(user_id)
         if hasattr(api.USER, 'uid_to_id'):
-            user.id = api.USER.uid_to_id(user.id)
-        if hasattr(api.TENANT, 'uid_to_id'):
-            user.tenant_id = api.TENANT.uid_to_id(user.tenant_id)
+            backend_user_id = api.USER.uid_to_id(user_id)
+        else:
+            backend_user_id = user_id
 
         ura = aliased(models.UserRoleAssociation)
         tenant = aliased(models.Tenant)
         q1 = session.query(tenant).join((ura, ura.tenant_id == tenant.id)).\
-            filter(ura.user_id == user.id)
-        q2 = session.query(tenant).filter(tenant.id == user.tenant_id)
-        q3 = q1.union(q2)
+            filter(ura.user_id == backend_user_id)
+        if 'tenant_id' in user:
+            if hasattr(api.TENANT, 'uid_to_id'):
+                backend_tenant_id = api.TENANT.uid_to_id(user.tenant_id)
+            else:
+                backend_tenant_id = user.tenant_id
+            q2 = session.query(tenant).filter(tenant.id == backend_tenant_id)
+            q3 = q1.union(q2)
+        else:
+            q3 = q1
 
-        first = q3.order_by(\
-                            tenant.id).first()
-        last = q3.order_by(\
-                            tenant.id.desc()).first()
+        first = q3.order_by(tenant.id).first()
+        last = q3.order_by(tenant.id.desc()).first()
         if first is None:
             return (None, None)
         if marker is None:
@@ -298,6 +312,10 @@ class TenantAPI(api.BaseTenantAPI):
     def delete(self, id, session=None):
         if not session:
             session = get_session()
+
+        if not self.is_empty(id):
+            raise fault.ForbiddenFault("You may not delete a tenant that "
+                                       "contains users")
 
         if hasattr(api.TENANT, 'uid_to_id'):
             id = self.uid_to_id(id)

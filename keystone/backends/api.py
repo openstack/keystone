@@ -188,19 +188,16 @@ class BaseTenantAPI(object):
     def get_all(self):
         raise NotImplementedError
 
-    def tenants_for_user_get_page(self, user, marker, limit):
+    def list_for_user_get_page(self, user, marker, limit):
         raise NotImplementedError
 
-    def tenants_for_user_get_page_markers(self, user, marker, limit):
+    def list_for_user_get_page_markers(self, user, marker, limit):
         raise NotImplementedError
 
     def get_page(self, marker, limit):
         raise NotImplementedError
 
     def get_page_markers(self, marker, limit):
-        raise NotImplementedError
-
-    def is_empty(self, id):
         raise NotImplementedError
 
     def update(self, id, values):

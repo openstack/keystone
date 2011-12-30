@@ -46,9 +46,27 @@ class Manager(object):
         """ Returns tenant by name """
         return self.driver.get_by_name(name=name)
 
+    def get_page(self, marker, limit):
+        """ Get one page of tenants """
+        return self.driver.get_page(marker, limit)
+
+    def get_page_markers(self, marker, limit):
+        """ Calculate pagination markers for tenant list """
+        return self.driver.get_page_markers(marker, limit)
+
+    def list_for_user_get_page(self, user_id, marker, limit):
+        return self.driver.list_for_user_get_page(user_id, marker, limit)
+
+    def list_for_user_get_page_markers(self, user_id, marker, limit):
+        return self.driver.list_for_user_get_page_markers(user_id, marker,
+                                                          limit)
+
     def update(self, tenant):
         """ Update tenant """
         return self.driver.update(tenant['id'], tenant)
 
     def delete(self, tenant_id):
         self.driver.delete(tenant_id)
+
+    def get_all_endpoints(self, tenant_id):
+        return self.driver.get_all_endpoints(tenant_id)

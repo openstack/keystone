@@ -52,10 +52,10 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):  # pylint: disable=W0223
                     memberships.append(self.get(role.tenant_id))
         return memberships
 
-    def tenants_for_user_get_page(self, user, marker, limit):
+    def list_for_user_get_page(self, user, marker, limit):
         return self._get_page(marker, limit, self.get_user_tenants(user.id))
 
-    def tenants_for_user_get_page_markers(self, user, marker, limit):
+    def list_for_user_get_page_markers(self, user, marker, limit):
         return self._get_page_markers(marker, limit,
                         self.get_user_tenants(user.id))
 
@@ -101,3 +101,9 @@ class TenantAPI(BaseLdapAPI, BaseTenantAPI):  # pylint: disable=W0223
         return res
 
     add_redirects(locals(), SQLTenantAPI, ['get_all_endpoints'])
+
+    def delete(self, id):
+        if not self.is_empty(id):
+            raise fault.ForbiddenFault("You may not delete a tenant that "
+                                       "contains users")
+        super(TenantAPI, self).delete(id)
