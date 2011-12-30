@@ -68,10 +68,10 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         if user.tenant_id:
             self.api.tenant.remove_user(user.tenant_id, id)
         super(UserAPI, self).delete(id)
-        for ref in self.api.role.ref_get_all_global_roles(id):
-            self.api.role.ref_delete(ref.id)
-        for ref in self.api.role.ref_get_all_tenant_roles(id):
-            self.api.role.ref_delete(ref.id)
+        for ref in self.api.role.list_global_roles_for_user(id):
+            self.api.role.rolegrant_delete(ref.id)
+        for ref in self.api.role.list_tenant_roles_for_user(id):
+            self.api.role.rolegrant_delete(ref.id)
 
     def get_by_email(self, email):
         users = self.get_all('(mail=%s)' % \
@@ -82,7 +82,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
             return None
 
     def user_roles_by_tenant(self, user_id, tenant_id):
-        return self.api.role.ref_get_all_tenant_roles(user_id, tenant_id)
+        return self.api.role.list_tenant_roles_for_user(user_id, tenant_id)
 
     def get_by_tenant(self, user_id, tenant_id):
         user_dn = self._id_to_dn(user_id)
@@ -92,7 +92,7 @@ class UserAPI(BaseLdapAPI, BaseUserAPI):
         if tenant is not None:
             return user
         else:
-            if self.api.role.ref_get_all_tenant_roles(user_id, tenant_id):
+            if self.api.role.list_tenant_roles_for_user(user_id, tenant_id):
                 return user
         return None
 

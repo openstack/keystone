@@ -383,10 +383,9 @@ class AuthProtocol(object):
         #TODO(Ziad): make this more robust
         #first_group = token_info['auth']['user']['groups']['group'][0]
         roles = []
-        role_refs = token_info["access"]["user"]["roles"]
-        if role_refs != None:
-            for role_ref in role_refs:
-                roles.append(role_ref["id"])
+        rolegrants = token_info["access"]["user"]["roles"]
+        if rolegrants is not None:
+            roles = [rolegrant["id"] for rolegrant in rolegrants]
 
         token_info = json.loads(data)
 

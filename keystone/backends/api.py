@@ -220,6 +220,9 @@ class BaseRoleAPI(object):
     def __init__(self, *args, **kw):
         pass
 
+    #
+    # Role Methods
+    #
     def create(self, values):
         raise NotImplementedError
 
@@ -235,43 +238,62 @@ class BaseRoleAPI(object):
     def get_by_service(self, service_id):
         raise NotImplementedError
 
+    def get_by_service_get_page(self, service_id, marker, limit):
+        """ Get one page of roles by service"""
+        raise NotImplementedError
+
+    def get_by_service_get_page_markers(self, service_id, marker, limit):
+        """ Calculate pagination markers for roles by service """
+        raise NotImplementedError
+
     def get_all(self):
         raise NotImplementedError
 
     def get_page(self, marker, limit):
         raise NotImplementedError
 
-    def ref_get_page(self, marker, limit, user_id, tenant_id):
-        raise NotImplementedError
-
-    def ref_get_all_global_roles(self, user_id):
-        raise NotImplementedError
-
-    def ref_get_all_tenant_roles(self, user_id, tenant_id):
-        raise NotImplementedError
-
-    def ref_get(self, id):
-        raise NotImplementedError
-
-    def ref_get_by_role(self, id):
-        raise NotImplementedError
-
-    def ref_delete(self, id):
-        raise NotImplementedError
-
     def get_page_markers(self, marker, limit):
         raise NotImplementedError
 
-    def ref_get_page_markers(self, user_id, tenant_id, marker, limit):
+    #
+    # Role-Grant Methods
+    #
+    def rolegrant_get(self, id):
+        """ Get a UserRoleAssociation (role grant) by id """
         raise NotImplementedError
 
-    def ref_get_by_user(self, user_id, role_id, tenant_id):
+    def rolegrant_delete(self, id):
+        """ Delete a UserRoleAssociation (role grant) by id """
         raise NotImplementedError
 
-    def get_by_service_get_page(self, service_id, marker, limit):
+    def rolegrant_list_by_role(self, id):
+        """ Get a list of all (global and tenant) grants for this role """
         raise NotImplementedError
 
-    def get_by_service_get_page_markers(self, service_id, marker, limit):
+    def rolegrant_get_by_ids(self, user_id, role_id, tenant_id):
+        raise NotImplementedError
+
+    def list_global_roles_for_user(self, user_id):
+        """ Get a list of all global roles granted to this user.
+
+        :param user_id: string - id of user
+
+        """
+        raise NotImplementedError
+
+    def list_tenant_roles_for_user(self, user_id, tenant_id):
+        """ Get a list of all tenant roles granted to this user.
+
+        :param user_id: string - id of user
+        :param tenant_id: string - id of tenant
+
+        """
+        raise NotImplementedError
+
+    def rolegrant_get_page(self, marker, limit, user_id, tenant_id):
+        raise NotImplementedError
+
+    def rolegrant_get_page_markers(self, user_id, tenant_id, marker, limit):
         raise NotImplementedError
 
 

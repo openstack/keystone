@@ -51,8 +51,9 @@ class TestModels(unittest.TestCase):
         self.assertDictEqual(d1, d2)
 
     def test_resource_json_serialization_mapping(self):
-        resource = Resource(id=1, name="the resource", ref_id=12)
-        json_str = resource.to_json(hints={"maps": {"refId": "ref_id", }})
+        resource = Resource(id=1, name="the resource", rolegrant_id=12)
+        json_str = resource.to_json(hints={"maps": {"refId": "rolegrant_id",
+                                                    }})
         d1 = json.loads(json_str)
         d2 = {"resource": {"name": "the resource", "id": 1, "refId": 12}}
         self.assertDictEqual(d1, d2)
@@ -73,8 +74,8 @@ class TestModels(unittest.TestCase):
                         '<resource id="1" name="the resource"/>'))
 
     def test_resource_xml_serialization_mapping(self):
-        resource = Resource(id=1, name="the resource", ref_id=12)
-        xml_str = resource.to_xml(hints={"maps": {"refId": "ref_id", }})
+        resource = Resource(id=1, name="the resource", rolegrant_id=12)
+        xml_str = resource.to_xml(hints={"maps": {"refId": "rolegrant_id", }})
         self.assertTrue(testutils.XMLTools.xmlEqual(xml_str,
                         '<resource id="1" name="the resource" refId="12"/>'))
 
