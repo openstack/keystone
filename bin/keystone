@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import greenlet
 import logging
 import os
 import sys
@@ -20,6 +21,22 @@ from paste import deploy
 from keystonelight import wsgi
 
 
+def create_server(name, port):
+    app = deploy.loadapp('config:%s' % conf, name=name)
+    return wsgi.Server(app, port)
+
+
+def serve(*servers):
+    for server in servers:
+        server.start()
+
+    for server in servers:
+        try:
+            server.wait()
+        except greenlet.GreenletExit:
+            pass
+
+
 if __name__ == '__main__':
     default_conf = os.path.join(possible_topdir,
                                 'etc',
@@ -27,9 +44,11 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
     conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
-    app = deploy.loadapp('config:%s' % conf)
     options = deploy.appconfig('config:%s' % conf)
-    server = wsgi.Server()
-    server.start(app, int(options['public_port']))
-    server.start(app, int(options['admin_port']))
-    server.wait()
+
+    servers = []
+    servers.append(create_server('keystone_admin',
+                                 int(options['admin_port'])))
+    servers.append(create_server('keystonelight',
+                                 int(options['public_port'])))
+    serve(*servers)

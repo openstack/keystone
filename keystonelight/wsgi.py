@@ -20,7 +20,6 @@
 """Utility methods for working with WSGI servers."""
 
 import logging
-import os
 import sys
 
 import eventlet
@@ -31,8 +30,6 @@ import routes.middleware
 import webob
 import webob.dec
 import webob.exc
-
-from paste import deploy
 
 
 class WritableLogger(object):
@@ -49,17 +46,20 @@ class WritableLogger(object):
 class Server(object):
     """Server class to manage multiple WSGI sockets and applications."""
 
-    def __init__(self, threads=1000):
+    def __init__(self, application, port, threads=1000):
+        self.application = application
+        self.port = port
         self.pool = eventlet.GreenPool(threads)
         self.socket_info = {}
 
-    def start(self, application, port, host='0.0.0.0', key=None, backlog=128):
+    def start(self, host='0.0.0.0', key=None, backlog=128):
         """Run a WSGI server with the given application."""
-        self.application = application
-        arg0 = sys.argv[0]
-        logging.debug('Starting %(arg0)s on %(host)s:%(port)s' % locals())
-        socket = eventlet.listen((host, port), backlog=backlog)
-        self.pool.spawn_n(self._run, application, socket)
+        logging.debug('Starting %(arg0)s on %(host)s:%(port)s' % \
+                      {'arg0': sys.argv[0],
+                       'host': host,
+                       'port': self.port})
+        socket = eventlet.listen((host, self.port), backlog=backlog)
+        self.pool.spawn_n(self._run, self.application, socket)
         if key:
             self.socket_info[key] = socket.getsockname()
 

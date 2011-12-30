@@ -1,6 +1,6 @@
-from keystonelight import models
+import logging
+
 from keystonelight import test
-from keystonelight import utils
 
 import default_fixtures
 
@@ -12,19 +12,25 @@ class CompatTestCase(test.TestCase):
     def setUp(self):
         super(CompatTestCase, self).setUp()
 
-    def _url(self):
-        port = self.server.socket_info['socket'][1]
-        self.options['public_port'] = port
-        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-        return "http://localhost:%s/v2.0/" % port
+    def _public_url(self):
+        public_port = self.public_server.socket_info['socket'][1]
+        self.options['public_port'] = public_port
+        return "http://localhost:%s/v2.0" % public_port
+
+    def _admin_url(self):
+        admin_port = self.admin_server.socket_info['socket'][1]
+        self.options['admin_port'] = admin_port
+        return "http://localhost:%s/v2.0" % admin_port
 
     def _client(self, **kwargs):
         from keystoneclient.v2_0 import client as ks_client
 
-        port = self.server.socket_info['socket'][1]
-        self.options['public_port'] = port
-        kc = ks_client.Client(**kwargs)
+        kc = ks_client.Client(endpoint=self._admin_url(),
+                              auth_url=self._public_url(),
+                              **kwargs)
         kc.authenticate()
+        # have to manually overwrite the management url after authentication
+        kc.management_url = self._admin_url()
         return kc
 
 
@@ -37,12 +43,19 @@ class MasterCompatTestCase(CompatTestCase):
         from keystoneclient.v2_0 import client as ks_client
         reload(ks_client)
 
-        self.app = self.loadapp('keystoneclient_compat_master')
         self.options = self.appconfig('keystoneclient_compat_master')
+        self.public_app = self.loadapp('keystoneclient_compat_master',
+                                        name='main')
+        self.admin_app = self.loadapp('keystoneclient_compat_master',
+                                      name='admin')
+
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        self.server = self.serveapp('keystoneclient_compat_master')
+        self.public_server = self.serveapp('keystoneclient_compat_master',
+                                           name='main')
+        self.admin_server = self.serveapp('keystoneclient_compat_master',
+                                          name='admin')
 
         # TODO(termie): is_admin is being deprecated once the policy stuff
         #               is all working
@@ -63,16 +76,14 @@ class MasterCompatTestCase(CompatTestCase):
     #     client.authenticate()
 
     def test_authenticate_tenant_name_and_tenants(self):
-        client = self._client(auth_url=self._url(),
-                              username='FOO',
+        client = self._client(username='FOO',
                               password='foo2',
                               tenant_name='BAR')
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_tenant_id_and_tenants(self):
-        client = self._client(auth_url=self._url(),
-                              username='FOO',
+        client = self._client(username='FOO',
                               password='foo2',
                               tenant_id='bar')
         tenants = client.tenants.list()
@@ -84,8 +95,7 @@ class MasterCompatTestCase(CompatTestCase):
     # FIXME(ja): add a test that admin endpoint returns unauthorized if not
     #            admin
     def test_tenant_create(self):
-        client = self._client(auth_url=self._url(),
-                              username='FOO',
+        client = self._client(username='FOO',
                               password='foo2',
                               tenant_name='BAR')
         client.tenants.create(
