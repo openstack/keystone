@@ -1,14 +1,40 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+#
+# Copyright (c) 2010-2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+"""
+Version Controller
+
+"""
+import logging
 import os
 from webob import Response
+
+from keystone import utils
+from keystone import version
+from keystone.common import template
+from keystone.common import wsgi
 
 # Calculate root path (to get to static files)
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                                 os.pardir,
                                                 os.pardir))
 
-from keystone import version
-from keystone import utils
-from keystone.common import template, wsgi
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class VersionController(wsgi.Controller):
@@ -62,6 +88,7 @@ class VersionController(wsgi.Controller):
         """
         if path is None:
             path = ''
+        logger.debug("300 Multiple Choices response: %s" % path)
         resp = Response(status="300 Multiple Choices")
         resp.charset = 'UTF-8'
         if utils.is_xml_response(req):

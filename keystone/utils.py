@@ -15,12 +15,15 @@
 # limitations under the License.
 
 
+import functools
+import logging
 import os
 import sys
-import logging
-import functools
 from webob import Response
+
 import keystone.logic.types.fault as fault
+
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 def is_xml_response(req):
@@ -85,6 +88,7 @@ def get_normalized_request_content(model, req):
     elif req.content_type == "application/json":
         return model.from_json(req.body)
     else:
+        logging.debug("Unsupported content-type passed: %s" % req.content_type)
         raise fault.IdentityFault("I don't understand the content type",
                                   code=415)
 
@@ -156,6 +160,7 @@ def import_module(module_name, class_name=None):
             __import__(module_name)
             return sys.modules[module_name]
         except ImportError as exc:
+            logging.exception(exc)
             module_name, _separator, class_name = module_name.rpartition('.')
             if not exc.args[0].startswith('No module named %s' % class_name):
                 raise
@@ -163,6 +168,7 @@ def import_module(module_name, class_name=None):
         __import__(module_name)
         return getattr(sys.modules[module_name], class_name)
     except (ImportError, ValueError, AttributeError), exception:
+        logging.exception(exception)
         raise ImportError(_('Class %s.%s cannot be found (%s)') %
             (module_name, class_name, exception))
 
