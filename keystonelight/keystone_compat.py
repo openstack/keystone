@@ -97,14 +97,13 @@ class KeystoneServiceRouter(wsgi.Router):
         mapper.connect('/ec2tokens',
                        controller=auth_controller,
                        action='authenticate_ec2',
-                       conditions=dict(method=['POST']))
+                       conditions=dict(methods=['POST']))
 
-        # Tenant Operations
         tenant_controller = KeystoneTenantController(self.options)
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_tenants_for_token',
-                       conditions=dict(method=['GET']))
+                       conditions=dict(methods=['GET']))
 
         # Miscellaneous
         version_controller = KeystoneVersionController(self.options)
@@ -350,7 +349,7 @@ class KeystoneTenantController(service.BaseApplication):
         self.policy_api = policy.Manager(options)
         self.token_api = token.Manager(options)
 
-    def get_tenants_for_token(self, context, **kw):
+    def get_tenants_for_token(self, context):
         """Get valid tenants for token based on token used to authenticate.
 
         Pulls the token from the context, validates it and gets the valid
