@@ -1,5 +1,3 @@
-import logging
-
 from keystonelight import test
 
 import default_fixtures
@@ -65,39 +63,159 @@ class MasterCompatTestCase(CompatTestCase):
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=['keystone_admin'], is_admin='1'))
 
-    # def test_authenticate(self):
-    #     from keystoneclient.v2_0 import client as ks_client
-    #
-    #     port = self.server.socket_info['socket'][1]
-    #     client = ks_client.Client(auth_url="http://localhost:%s/v2.0" % port,
-    #                               username='foo',
-    #                               password='foo',
-    #                               project_id='bar')
-    #     client.authenticate()
+    def foo_client(self):
+        return self._client(username='FOO',
+                            password='foo2',
+                            tenant_name='BAR')
 
-    def test_authenticate_tenant_name_and_tenants(self):
+    def test_authenticate(self):
         client = self._client(username='FOO',
                               password='foo2',
-                              tenant_name='BAR')
+                              tenant_id='bar')
+        authenticated = client.authenticate()
+        self.assertTrue(authenticated)
+
+    def test_authenticate_tenant_name_and_tenants(self):
+        client = self.foo_client()
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_tenant_id_and_tenants(self):
-        client = self._client(username='FOO',
-                              password='foo2',
-                              tenant_id='bar')
+        client = self.foo_client()
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    def test_endpoints(self):
+        raise NotImplementedError()
+        #endpoints = client.tokens.endpoints(token)
 
     # FIXME(ja): this test should require the "keystone:admin" roled
     #            (probably the role set via --keystone_admin_role flag)
     # FIXME(ja): add a test that admin endpoint is only sent to admin user
     # FIXME(ja): add a test that admin endpoint returns unauthorized if not
     #            admin
-    def test_tenant_create(self):
-        client = self._client(username='FOO',
-                              password='foo2',
-                              tenant_name='BAR')
-        client.tenants.create(
-            "hello", description="My new tenant!", enabled=True)
-        # FIXME(ja): assert tenant was created
+    def test_tenant_create_update_and_delete(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        test_tenant = 'new_tenant'
+        client = self.foo_client()
+        tenant = client.tenants.create(test_tenant,
+                                       description="My new tenant!",
+                                       enabled=True)
+        self.assertEquals(tenant.name, test_tenant)
+
+        tenant = client.tenants.get(tenant.id)
+        self.assertEquals(tenant.name, test_tenant)
+
+        # TODO(devcamcar): update gives 404. why?
+        tenant = client.tenants.update(tenant.id,
+                                       tenant_name='new_tenant2',
+                                       enabled=False,
+                                       description='new description')
+        self.assertEquals(tenant.name, 'new_tenant2')
+        self.assertFalse(tenant.enabled)
+        self.assertEquals(tenant.description, 'new description')
+
+        # TODO(devcamcar): delete gives 404. why?
+        client.tenants.delete(test_tenant)
+        self.assertRaises(client_exceptions.NotFound, client.tenants.get,
+                          tenant.id)
+
+    def test_tenant_list(self):
+        client = self.foo_client()
+        tenants = client.tenants.list()
+        self.assertEquals(len(tenants), 1)
+
+    def test_tenant_add_user(self):
+        raise NotImplementedError()
+        #client.roles.add_user_to_tenant(tenant_id, user_id, role_id)
+
+    def test_tenant_remove_user(self):
+        raise NotImplementedError()
+        #client.roles.remove_user_from_tenant(tenant_id, user_id, role_id)
+
+    def test_user_create_update_delete(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        test_user = 'new_user'
+        client = self.foo_client()
+        user = client.users.create(test_user, 'password', 'user1@test.com')
+        self.assertEquals(user.name, test_user)
+
+        user = client.users.get(user.id)
+        self.assertEquals(user.name, test_user)
+
+        user = client.users.update_email(user, 'user2@test.com')
+        self.assertEquals(user.email, 'user2@test.com')
+
+        user = client.users.update_enabled(user, False)
+        self.assertFalse(user.enabled)
+
+        # TODO(devcamcar): How to assert this succeeded?
+        user = client.users.update_password(user, 'password2')
+
+        # TODO(devcamcar): How to assert this succeeded?
+        user = client.users.update_tenant(user, 'bar')
+
+        client.users.delete(user.id)
+        self.assertRaises(client_exceptions.NotFound, client.users.get,
+                          user.id)
+
+    def test_user_list(self):
+        client = self.foo_client()
+        users = client.users.list()
+        self.assertTrue(len(users) > 0)
+
+    def test_role_get(self):
+        client = self.foo_client()
+        role = client.roles.get('keystone_admin')
+        self.assertEquals(role.name, 'keystone_admin')
+
+    def test_role_create_and_delete(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        test_role = 'new_role'
+        client = self.foo_client()
+        role = client.roles.create(test_role)
+        self.assertEquals(role.name, test_role)
+
+        role = client.roles.get(test_role)
+        self.assertEquals(role.name, test_role)
+
+        client.roles.delete(test_role)
+
+        self.assertRaises(client_exceptions.NotFound, client.roles.get,
+                          test_role)
+
+    def test_role_list(self):
+        client = self.foo_client()
+        roles = client.roles.list()
+        # TODO(devcamcar): This assert should be more specific.
+        self.assertTrue(len(roles) > 0)
+
+    def test_roles_get_by_user(self):
+        client = self.foo_client()
+        roles = client.roles.get_user_role_refs('FOO')
+        self.assertTrue(len(roles) > 0)
+
+    def test_service_create_and_delete(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        test_service = 'new_service'
+        client = self.foo_client()
+        service = client.services.create(test_service, 'test', 'test')
+        self.assertEquals(service.name, test_service)
+
+        service = client.services.get(service.id)
+        self.assertEquals(service.name, test_service)
+
+        client.services.delete(service.id)
+        self.assertRaises(client_exceptions.NotFound, client.services.get,
+                          service.id)
+
+    def test_service_list(self):
+        client = self.foo_client()
+        services = client.services.list()
+        # TODO(devcamcar): This assert should be more specific.
+        self.assertTrue(len(services) > 0)
+
