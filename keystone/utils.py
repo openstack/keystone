@@ -157,7 +157,8 @@ def import_module(module_name, class_name=None):
     be the last part of the module_name string.'''
     if class_name is None:
         try:
-            __import__(module_name)
+            if module_name not in sys.modules:
+                __import__(module_name)
             return sys.modules[module_name]
         except ImportError as exc:
             logging.exception(exc)
@@ -165,7 +166,8 @@ def import_module(module_name, class_name=None):
             if not exc.args[0].startswith('No module named %s' % class_name):
                 raise
     try:
-        __import__(module_name)
+        if module_name not in sys.modules:
+            __import__(module_name)
         return getattr(sys.modules[module_name], class_name)
     except (ImportError, ValueError, AttributeError), exception:
         logging.exception(exception)

@@ -1041,7 +1041,6 @@ class IdentityService(object):
     def remove_role_from_user(self, admin_token, user_id, role_id,
                               tenant_id=None):
         self.validate_service_admin_token(admin_token)
-        print user_id, role_id, tenant_id
         drolegrant = self.grant_manager.rolegrant_get_by_ids(user_id, role_id,
                                                                     tenant_id)
         if drolegrant is None:

@@ -42,6 +42,8 @@ class TokenController(wsgi.Controller):
     def __init__(self, options):
         self.options = options
         self.identity_service = service.IdentityService(options)
+        logger.debug("Token controller init with HP-IDM extension: %s" % \
+                extension_reader.is_extension_supported(self.options, 'hpidm'))
 
     @utils.wrap_error
     def authenticate(self, req):

@@ -114,7 +114,6 @@ class TestMigrations(unittest.TestCase):
                           migration_api.db_version,
                           options)
         # Place the database under version control
-        print options
         print migration_api.version_control(options)
 
         cur_version = migration_api.db_version(options)

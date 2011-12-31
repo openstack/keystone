@@ -20,6 +20,7 @@ from sqlalchemy.orm import joinedload, aliased, sessionmaker
 
 import ast
 import logging
+import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
@@ -35,9 +36,7 @@ from keystone.backends.sqlalchemy import migration
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models
 
-
 logger = logging.getLogger(__name__)
-
 
 _DRIVER = None
 
@@ -98,23 +97,22 @@ class Driver():
 
     def _init_models(self, model_list):
         for model in model_list:
-            model_path = '.'.join([__package__, 'models', model])
-            module = utils.import_module(model_path)
+            model_class = getattr(models, model)
+            top_models.set_value(model, model_class)
 
-            top_models.set_value(model, module)
-
-            if module.__api__ is not None:
-                api_path = '.'.join([__package__, 'api', module.__api__])
-                api_module = utils.import_module(api_path)
-                top_api.set_value(module.__api__, api_module.get())
+            if model_class.__api__ is not None:
+                api_path = '.'.join([__package__, 'api', model_class.__api__])
+                api_module = sys.modules.get(api_path)
+                if api_module is None:
+                    api_module = utils.import_module(api_path)
+                top_api.set_value(model_class.__api__, api_module.get())
 
     def _init_tables(self, model_list):
         tables = []
 
         for model in model_list:
-            model_path = '.'.join([__package__, 'models', model])
-            module = utils.import_module(model_path)
-            tables.append(module.__table__)
+            model_class = getattr(models, model)
+            tables.append(model_class.__table__)
 
         tables_to_create = []
         for table in reversed(models.Base.metadata.sorted_tables):

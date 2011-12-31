@@ -433,11 +433,13 @@ class ApiTestCase(RestfulTestCase):
         if self.use_server:
             path = ApiTestCase._version_path(version, path)
             if port is None:
-                port = client_tests.TEST_TARGET_SERVER_SERVICE_PORT
+                port = client_tests.TEST_TARGET_SERVER_SERVICE_PORT or 5000
             if host is None:
-                host = client_tests.TEST_TARGET_SERVER_SERVICE_ADDRESS
+                host = (client_tests.TEST_TARGET_SERVER_SERVICE_ADDRESS
+                            or '127.0.0.1')
             if protocol is None:
-                protocol = client_tests.TEST_TARGET_SERVER_SERVICE_PROTOCOL
+                protocol = (client_tests.TEST_TARGET_SERVER_SERVICE_PROTOCOL
+                            or 'http')
 
         if 'use_token' in kwargs:
             headers['X-Auth-Token'] = kwargs.pop('use_token')
@@ -459,11 +461,13 @@ class ApiTestCase(RestfulTestCase):
         if self.use_server:
             path = ApiTestCase._version_path(version, path)
             if port is None:
-                port = client_tests.TEST_TARGET_SERVER_ADMIN_PORT
+                port = client_tests.TEST_TARGET_SERVER_ADMIN_PORT or 35357
             if host is None:
-                host = client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS
+                host = (client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS
+                                or '127.0.0.1')
             if protocol is None:
-                protocol = client_tests.TEST_TARGET_SERVER_ADMIN_PROTOCOL
+                protocol = (client_tests.TEST_TARGET_SERVER_ADMIN_PROTOCOL
+                                or 'http')
 
         if 'use_token' in kwargs:
             headers['X-Auth-Token'] = kwargs.pop('use_token')
@@ -1589,6 +1593,9 @@ class MiddlewareTestCase(FunctionalTestCase):
     @unittest.skipIf(isSsl() or 'HP-IDM_Disabled' in os.environ,
                      "Skipping SSL or HP-IDM tests")
     def test_with_service_id(self):
+        if isSsl() or ('HP-IDM_Disabled' in os.environ):
+            # TODO(zns): why is this not skipping with the decorator?!
+            raise unittest.SkipTest("Skipping SSL or HP-IDM tests")
         # create a service role so the scope token validation will succeed
         role_resp = self.create_role(service_name=self.services[0]['name'])
         role = role_resp.json['role']

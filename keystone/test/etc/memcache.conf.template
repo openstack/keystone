@@ -2,7 +2,7 @@
 verbose = False
 debug = False
 default_store = sqlite
-log_file = %(test_dir)s/keystone.memcache.log
+log_file = %(test_dir)s/keystone.log
 log_dir = %(test_dir)s
 backends = keystone.backends.sqlalchemy,keystone.backends.memcache
 extensions= osksadm, oskscatalog, hpidm

@@ -12,19 +12,22 @@ To run a single test module:
     python run_tests.py functional.test_extensions
 
 """
+import logging
+import os
 import sys
 import subprocess
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
 from keystone import test
 
+logger = logging.getLogger(__name__)
 
 TESTS = [
     test.UnitTests,
     test.ClientTests,
+    test.SQLTest,
     test.SSLTest,
     test.ClientWithoutHPIDMTest,
-    test.SQLTest,
     test.LDAPTest,
     # Waiting on instructions on how to start memcached in jenkins:
     # But tests pass
@@ -32,39 +35,75 @@ TESTS = [
 ]
 
 
-if __name__ == '__main__':
-    if '-O' in sys.argv:
-        filter = None
-        for i in range(len(sys.argv)):
-            if sys.argv[i] == '-O':
-                if len(sys.argv) > i + 1:
-                    filter = sys.argv[i + 1]
-                    # Remove -O settings from sys.argv
-                    argv = sys.argv[0:i]
-                    if len(sys.argv) > i:
-                        argv += sys.argv[i + 2:]
-                    sys.argv = argv[:]
-                    break
-        if filter:
-            TESTS = [t for t in TESTS if filter in str(t)]
-            if not TESTS:
-                print 'No test configuration by the name %s found' % filter
-                exit()
+def parse_suite_filter():
+    """ Parses out -O or --only argument and returns the value after it as the
+    filter. Removes it from sys.argv in the process. """
 
+    filter = None
+    if '-O' in sys.argv or '--only' in sys.argv:
+        for i in range(len(sys.argv)):
+            if sys.argv[i] in ['-O', '--only']:
+                if len(sys.argv) > i + 1:
+                    # Remove -O/--only settings from sys.argv
+                    sys.argv.pop(i)
+                    filter = sys.argv.pop(i)
+                    break
+    return filter
+
+
+if __name__ == '__main__':
+    filter = parse_suite_filter()
+    if filter:
+        TESTS = [t for t in TESTS if filter in str(t)]
+        if not TESTS:
+            print 'No test configuration by the name %s found' % filter
+            exit()
     #Run test suites
     if len(TESTS) > 1:
-        # We have a problem with resetting SQLAlchemy, so we need to fire
-        # off a separate process for each test now
         for test_num, test_cls in enumerate(TESTS):
-            params = ["python", __file__, '-O',
-                      str(test_cls.__name__)] + sys.argv[1:]
-            p = subprocess.Popen(params)
-            result = p.wait()
-            if result:
-                sys.exit(result)
+            # We've had problems with resetting SQLAlchemy, so we can fire off
+            # a separate process for each test suite to guarantee the
+            # backend is clean. This is enabled with this constant.
+            run_separate_processes = False
+            if run_separate_processes:
+                params = ["python", __file__, '-O',
+                          str(test_cls.__name__)] + sys.argv[1:]
+                p = subprocess.Popen(params)
+                result = p.wait()
+                if result:
+                    sys.exit(result)
+            else:
+                try:
+                    result = test_cls().run()
+                    if result:
+                        logger.error("Run returned %s for test %s. Exiting" %
+                                     (result, test_cls.__name__))
+                        sys.exit(result)
+                except Exception, e:
+                    print "Error:", e
+                    logger.exception(e)
+                    sys.exit(2)
+            # Collect coverage from each run. They'll be combined later in .sh
+            if '--with-coverage' in sys.argv:
+                coverage_file = '.coverage.%s' % test_num
+                try:
+                    if os.path.exists(coverage_file):
+                        os.unlink(coverage_file)
+                    os.rename('.coverage', coverage_file)
+                except Exception, e:
+                    logger.exception(e)
+                    print "Failed to move .coverage file to %s: %s" % \
+                        (coverage_file, e)
 
     else:
         for test_num, test_cls in enumerate(TESTS):
-            print 'Running test suite: %s' % test_cls.__name__
-            if test_cls().run():
-                exit(1)
+            try:
+                result = test_cls().run()
+                if result:
+                    logger.error("Run returned %s for test %s. Exiting" %
+                                 result, test_cls.__name__)
+                    sys.exit(result)
+            except Exception, e:
+                print "Error:", e
+                logger.exception(e)
+                sys.exit(2)

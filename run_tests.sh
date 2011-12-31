@@ -6,7 +6,7 @@ function usage {
   echo "Usage: $0 [OPTION]..."
   echo "Run Keystone's test suite(s)"
   echo ""
-  echo "  -O test_name             Only run the specified test suite. Valid values are:"
+  echo "  -O, --only test_suite    Only run the specified test suite. Valid values are:"
   echo "                               UnitTests:    runs unit tests"
   echo "                               ClientTests:  runs tests that start and hit an HTTP[S] server"
   echo "                               SQLTest:      runs functional tests with SQLAlchemy backend"
@@ -47,7 +47,7 @@ function process_option {
       -h|--help) usage;;
       -V|--virtual-env) always_venv=1; never_venv=0;;
       -N|--no-virtual-env) always_venv=0; never_venv=1;;
-      -O) only_run_flag=1;;
+      -O|--only) only_run_flag=1;;
       -f|--force) force=1;;
       -p|--pep8) just_pep8=1;;
       -l|--pylint) just_pylint=1;;
@@ -183,8 +183,10 @@ fi
 
 run_tests
 
+# Since we run multiple test suites, we need to execute 'coverage combine'
 if [ $coverage -eq 1 ]; then
     echo "Generating coverage report in covhtml/"
+    ${wrapper} coverage combine
     ${wrapper} coverage html -d covhtml -i
 fi
 
