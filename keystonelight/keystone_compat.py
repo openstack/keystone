@@ -99,10 +99,7 @@ class KeystoneServiceRouter(wsgi.Router):
                        action='authenticate_ec2',
                        conditions=dict(methods=['POST']))
 
-<<<<<<< HEAD
-=======
         # Tenant Operations
->>>>>>> All tests but create_tenant pass
         tenant_controller = KeystoneTenantController(self.options)
         mapper.connect('/tenants',
                        controller=tenant_controller,
@@ -279,7 +276,6 @@ class KeystoneTokenController(service.BaseApplication):
     def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
         o = self._format_token(token_ref, roles_ref)
         o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
-        return o
 
     def _format_token(self, token_ref, roles_ref):
         user_ref = token_ref['user']
