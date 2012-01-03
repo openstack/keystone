@@ -14,12 +14,13 @@ function usage {
   echo "                               LDAPTest:     runs functional tests with LDAP backend"
   echo "                               MemcacheTest: runs functional tests with memcached storing tokens"
   echo "                               ClientWithoutHPIDMTest: runs client tests with HP-IDM extension disabled"
-  echo "                               Note: by default, run tests will run all suites"
+  echo "                               Note: by default, run_tests will run all suites"
   echo "  -V, --virtual-env        Always use virtualenv.  Install automatically if not present"
   echo "  -N, --no-virtual-env     Don't use virtualenv.  Run tests in local environment"
   echo "  -x, --stop               Stop running tests after the first error or failure."
   echo "  -f, --force              Force a clean re-build of the virtual environment. Useful when dependencies have been added."
   echo "                             Note: you might need to 'sudo' this since it pip installs into the vitual environment"  
+  echo "  -P, --skip-pep8          Just run tests; skip pep8 check"
   echo "  -p, --pep8               Just run pep8"
   echo "  -l, --pylint             Just run pylint"
   echo "  -j, --json               Just validate JSON"
@@ -32,6 +33,9 @@ function usage {
   echo "Note: with no options specified, the script will try to run the tests in a virtual environment,"
   echo "      If no virtualenv is found, the script will ask if you would like to create one.  If you "
   echo "      prefer to run tests NOT in a virtual environment, simply pass the -N option."
+  echo ""
+  echo "Note: with no options specified, the script will run the pep8 check after completing the tests."
+  echo "      If you prefer not to run pep8, simply pass the -P option."
   exit
 }
 
@@ -49,6 +53,7 @@ function process_option {
       -N|--no-virtual-env) always_venv=0; never_venv=1;;
       -O|--only) only_run_flag=1;;
       -f|--force) force=1;;
+      -P|--skip-pep8) skip_pep8=1;;
       -p|--pep8) just_pep8=1;;
       -l|--pylint) just_pylint=1;;
       -j|--json) just_json=1;;
@@ -68,7 +73,7 @@ addlargs=
 addlopts=
 wrapper=""
 just_pep8=0
-no_pep8=0
+skip_pep8=0
 just_pylint=0
 just_json=0
 coverage=0
@@ -182,6 +187,10 @@ fi
 
 
 run_tests
+if [ $skip_pep8 -eq 0 ]; then
+    # Run the pep8 check
+    run_pep8
+fi
 
 # Since we run multiple test suites, we need to execute 'coverage combine'
 if [ $coverage -eq 1 ]; then
