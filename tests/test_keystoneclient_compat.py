@@ -69,13 +69,6 @@ class MasterCompatTestCase(CompatTestCase):
                             tenant_name='BAR')
 
     def test_authenticate_tenant_name_and_tenants(self):
-        client = self._client(username='FOO',
-                              password='foo2',
-                              tenant_id='bar')
-        authenticated = client.authenticate()
-        self.assertTrue(authenticated)
-
-    def test_authenticate_tenant_name_and_tenants(self):
         client = self.foo_client()
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])

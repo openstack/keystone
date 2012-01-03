@@ -1,7 +1,9 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # this is the web service frontend that emulates keystone
+import logging
 import uuid
+
 import routes
 
 from keystonelight import catalog
@@ -233,7 +235,7 @@ class KeystoneTokenController(service.BaseApplication):
         roles_ref = []
         for role_id in extras_ref.get('roles', []):
             roles_ref.append(self.identity_api.get_role(context, role_id))
-
+        logging.debug('TOKEN_REF %s', token_ref)
         return self._format_authenticate(token_ref, roles_ref, catalog_ref)
 
     def authenticate_ec2(self, context):
@@ -276,6 +278,7 @@ class KeystoneTokenController(service.BaseApplication):
     def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
         o = self._format_token(token_ref, roles_ref)
         o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
+        return o
 
     def _format_token(self, token_ref, roles_ref):
         user_ref = token_ref['user']

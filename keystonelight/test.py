@@ -177,11 +177,11 @@ class TestCase(unittest.TestCase):
            or hasattr(last, 'application')
            or hasattr(last, 'options')):
 
-      logging.debug('UPDATE %s: O %s A %s AS %s',
-                    last.__class__,
-                    getattr(last, 'options', None),
-                    getattr(last, 'application', None),
-                    getattr(last, 'applications', None))
+      #logging.debug('UPDATE %s: O %s A %s AS %s',
+      #              last.__class__,
+      #              getattr(last, 'options', None),
+      #              getattr(last, 'application', None),
+      #              getattr(last, 'applications', None))
       if hasattr(last, 'options'):
         last.options[key] = value
 
