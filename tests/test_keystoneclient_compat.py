@@ -13,22 +13,12 @@ class CompatTestCase(test.TestCase):
     def _public_url(self):
         public_port = self.public_server.socket_info['socket'][1]
         self.options['public_port'] = public_port
-<<<<<<< HEAD
         return "http://localhost:%s/v2.0" % public_port
-=======
-        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-        return "http://localhost:%s/v2.0/" % public_port
->>>>>>> Made tests use both service and admin endpoints
 
     def _admin_url(self):
         admin_port = self.admin_server.socket_info['socket'][1]
         self.options['admin_port'] = admin_port
-<<<<<<< HEAD
         return "http://localhost:%s/v2.0" % admin_port
-=======
-        # NOTE(termie): novaclient wants a "/" at the end, keystoneclient does not
-        return "http://localhost:%s/v2.0/" % admin_port
->>>>>>> Made tests use both service and admin endpoints
 
     def _client(self, **kwargs):
         from keystoneclient.v2_0 import client as ks_client
