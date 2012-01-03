@@ -31,9 +31,17 @@ class Manager(object):
     def create(self, token):
         return self.driver.create(token)
 
+    # pylint: disable=E1103
+    def update(self, id, token):
+        return self.driver.update(id, token)
+
     def get(self, token_id):
         """ Returns token by ID """
         return self.driver.get(token_id)
+
+    def get_all(self):
+        """ Returns all tokens """
+        return self.driver.get_all()
 
     def find(self, user_id, tenant_id=None):
         """ Finds token by user ID and, optionally, tenant ID

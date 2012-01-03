@@ -48,10 +48,10 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
         with session.begin():
-            endpoint_template_ref = self.get(id, session)
-            endpoint_template_ref.update(values)
-            endpoint_template_ref.save(session=session)
-            return endpoint_template_ref
+            ref = self.get(id, session)
+            ref.update(values)
+            ref.save(session=session)
+            return ref
 
     def delete(self, id, session=None):
         if not session:
@@ -64,10 +64,8 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
         if not session:
             session = get_session()
 
-        result = session.query(models.EndpointTemplates).\
+        return session.query(models.EndpointTemplates).\
             filter_by(id=id).first()
-
-        return result
 
     def get_all(self, session=None):
         if not session:
@@ -308,6 +306,38 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
                 result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
 
         return result
+
+    @staticmethod
+    def endpoint_get_by_ids(endpoint_template_id, tenant_id,
+            session=None):
+        if not session:
+            session = get_session()
+
+        if hasattr(api.TENANT, 'uid_to_id'):
+            tenant_id = api.TENANT.uid_to_id(tenant_id)
+
+        result = session.query(models.Endpoints).\
+            filter_by(endpoint_template_id=endpoint_template_id).\
+            filter_by(tenant_id=tenant_id).first()
+
+        if hasattr(api.TENANT, 'id_to_uid'):
+            if result:
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
+        return result
+
+    @staticmethod
+    def endpoint_get_all(session=None):
+        if not session:
+            session = get_session()
+
+        results = session.query(models.Endpoints).all()
+
+        for result in results:
+            if hasattr(api.TENANT, 'id_to_uid'):
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
+        return results
 
     def endpoint_get_by_tenant(self, tenant_id, session=None):
         if not session:

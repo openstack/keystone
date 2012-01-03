@@ -37,33 +37,38 @@ class StaticFilesController(wsgi.Controller):
     def __init__(self, options):
         self.options = options
 
+    @staticmethod
     @utils.wrap_error
-    def get_pdf_contract(self, req, pdf, root="content/"):
+    def get_pdf_contract(req, pdf, root="content/"):
         resp = Response()
         filepath = root + pdf
         return template.static_file(resp, req, filepath,
             root=utils.get_app_root(), mimetype="application/pdf")
 
+    @staticmethod
     @utils.wrap_error
-    def get_wadl_contract(self, req, wadl, root):
+    def get_wadl_contract(req, wadl, root):
         resp = Response()
         return template.static_file(resp, req, root + wadl,
             root=utils.get_app_root(), mimetype="application/vnd.sun.wadl+xml")
 
+    @staticmethod
     @utils.wrap_error
-    def get_xsd_contract(self, req, xsd, root="content/"):
+    def get_xsd_contract(req, xsd, root="content/"):
         resp = Response()
         return template.static_file(resp, req, root + "xsd/" + xsd,
             root=utils.get_app_root(), mimetype="application/xml")
 
+    @staticmethod
     @utils.wrap_error
-    def get_xsd_atom_contract(self, req, xsd, root="content/"):
+    def get_xsd_atom_contract(req, xsd, root="content/"):
         resp = Response()
         return template.static_file(resp, req, root + "xsd/atom/" + xsd,
             root=utils.get_app_root(), mimetype="application/xml")
 
+    @staticmethod
     @utils.wrap_error
-    def get_static_file(self, req, path, file, mimetype=None, root="content/"):
+    def get_static_file(req, path, file, mimetype=None, root="content/"):
         resp = Response()
 
         if mimetype is None:

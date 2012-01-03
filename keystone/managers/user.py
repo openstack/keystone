@@ -44,6 +44,10 @@ class Manager(object):
         """ Returns user by email """
         return self.driver.get_by_email(email=email)
 
+    def get_all(self):
+        """ Returns all users """
+        return self.driver.get_all()
+
     def users_get_page(self, marker, limit):
         """ Get one page of users list """
         return self.driver.users_get_page(marker, limit)

@@ -80,13 +80,38 @@ class CredentialsAPI(api.BaseCredentialsAPI):
 
         return CredentialsAPI.to_model(credentials_ref)
 
-    def get(self, id, session=None):
+    @staticmethod
+    def update(id, values, session=None):
         if not session:
             session = get_session()
 
-        result = session.query(models.Credentials).filter_by(id=id).first()
+        CredentialsAPI.transpose(values)
+
+        with session.begin():
+            ref = session.query(models.Credentials).filter_by(id=id).first()
+            ref.update(values)
+            ref.save(session=session)
+
+    def get(self, id, session=None):
+        result = self._get(id, session)
 
         return CredentialsAPI.to_model(result)
+
+    @staticmethod
+    def _get(id, session=None):
+        if not session:
+            session = get_session()
+
+        return session.query(models.Credentials).filter_by(id=id).first()
+
+    @staticmethod
+    def get_all(session=None):
+        if not session:
+            session = get_session()
+
+        results = session.query(models.Credentials).all()
+
+        return CredentialsAPI.to_model_list(results)
 
     def get_by_access(self, access, session=None):
         if not session:
@@ -102,7 +127,7 @@ class CredentialsAPI(api.BaseCredentialsAPI):
             session = get_session()
 
         with session.begin():
-            group_ref = self.get(id, session)
+            group_ref = self._get(id, session)
             session.delete(group_ref)
 
 

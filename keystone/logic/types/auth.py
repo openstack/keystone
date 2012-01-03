@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=C0103
+
 import json
 from lxml import etree
 from keystone.logic.types import fault

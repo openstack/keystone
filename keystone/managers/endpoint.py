@@ -20,7 +20,7 @@ import logging
 
 import keystone.backends.api as api
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
@@ -54,3 +54,13 @@ class Manager(object):
     def get(self, endpoint_id):
         """ Returns Endpoint by ID """
         return self.driver.endpoint_get(endpoint_id)
+
+    # pylint: disable=E1103
+    def get_by_ids(self, endpoint_template_id, tenant_id):
+        """ Returns Endpoint by ID """
+        return self.driver.endpoint_get_by_ids(endpoint_template_id, tenant_id)
+
+    # pylint: disable=E1103
+    def get_all(self):
+        """ Returns all Endpoint Templates """
+        return self.driver.endpoint_get_all()

@@ -1,6 +1,5 @@
 import re
 import socket
-import string
 from lxml import etree
 
 

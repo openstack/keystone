@@ -1,5 +1,4 @@
 import json
-from lxml import etree
 import unittest2 as unittest
 
 from keystone.models import EndpointTemplate

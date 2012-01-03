@@ -480,6 +480,7 @@ class Service(Resource):
         super(Service, self).__init__(id=id, name=name, type=type,
                                       description=description,
                                       owner_id=owner_id, *args, **kw)
+        # pylint: disable=E0203
         if isinstance(self.id, int):
             self.id = str(self.id)
 
@@ -643,33 +644,25 @@ class User(Resource):
 class EndpointTemplate(Resource):
     """ EndpointTemplate model """
     # pylint: disable=R0913
-    def __init__(self, id=None, region=None, name=None, type=None,
-                 public_url=None, admin_url=None,
-                 internal_url=None, enabled=None, is_global=None,
-                 version_id=None, version_list=None, version_info=None,
-                 *args, **kw):
-        super(EndpointTemplate, self).__init__(id=id, region=region, name=name,
-                 type=type, public_url=public_url, admin_url=admin_url,
-                 internal_url=internal_url, enabled=enabled,
-                 is_global=is_global, version_id=version_id,
-                 version_list=version_list, version_info=version_info,
-                                      *args, **kw)
+    def __init__(self, id=None, region=None, service_id=None, public_url=None,
+            admin_url=None, internal_url=None, enabled=None, is_global=None,
+            version_id=None, version_list=None, version_info=None, *args,
+            **kw):
+        super(EndpointTemplate, self).__init__(id=id, region=region,
+                service_id=service_id, public_url=public_url,
+                admin_url=admin_url, internal_url=internal_url,
+                enabled=enabled, is_global=is_global, version_id=version_id,
+                version_list=version_list, version_info=version_info, *args,
+                **kw)
 
 
 class Endpoint(Resource):
     """ Endpoint model """
     # pylint: disable=R0913
-    def __init__(self, id=None, tenant_id=None, region=None, name=None,
-                 type=None, public_url=None, admin_url=None,
-                 internal_url=None, version_id=None, version_list=None,
-                 version_info=None,
-                 *args, **kw):
+    def __init__(self, id=None, endpoint_template_id=None, tenant_id=None,
+            *args, **kw):
         super(Endpoint, self).__init__(id=id, tenant_id=tenant_id,
-                 region=region, name=name, type=type, public_url=public_url,
-                 admin_url=admin_url, internal_url=internal_url,
-                 version_id=version_id, version_list=version_list,
-                 version_info=version_info,
-                                      *args, **kw)
+                endpoint_template_id=endpoint_template_id, *args, **kw)
 
 
 class Role(Resource):
@@ -692,8 +685,10 @@ class Role(Resource):
                                    service_id=service_id,
                                    tenant_id=tenant_id,
                                     *args, **kw)
+        # pylint: disable=E0203
         if isinstance(self.id, int):
             self.id = str(self.id)
+        # pylint: disable=E0203
         if isinstance(self.service_id, int):
             self.service_id = str(self.service_id)
 
@@ -784,10 +779,12 @@ class UserRoleAssociation(Resource):
 
     def __init__(self, user_id=None, role_id=None, tenant_id=None,
                  *args, **kw):
+        # pylint: disable=E0203
         super(UserRoleAssociation, self).__init__(user_id=user_id,
                                     role_id=role_id, tenant_id=tenant_id,
                                     *args, **kw)
         if isinstance(self.user_id, int):
+            # pylint: disable=E0203
             self.user_id = str(self.user_id)
         if isinstance(self.tenant_id, int):
             self.tenant_id = str(self.tenant_id)

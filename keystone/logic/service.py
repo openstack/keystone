@@ -97,6 +97,7 @@ class IdentityService(object):
         self.endpoint_manager = EndpointManager(options)
         self.credential_manager = CredentialManager(options)
 
+        # pylint: disable=W0603
         global ADMIN_ROLE_NAME
         ADMIN_ROLE_NAME = options["keystone-admin-role"]
 
@@ -227,6 +228,7 @@ class IdentityService(object):
             dtoken = self.token_manager.create(dtoken)
         return self.get_auth_data(dtoken)
 
+    # pylint: disable=W0613
     @service_admin_token_validator
     def validate_token(self, admin_token, token_id, belongs_to=None,
                        service_ids=None):
@@ -973,16 +975,18 @@ class IdentityService(object):
         return Roles(ts, links)
 
     @service_admin_token_validator
-    def get_roles_by_service(self, admin_token, marker, limit, url, serviceId):
-        droles = self.role_manager.get_by_service_get_page(serviceId, marker,
+    def get_roles_by_service(self, admin_token, marker, limit, url,
+                             service_id):
+        droles = self.role_manager.get_by_service_get_page(service_id, marker,
                                                                         limit)
         prev, next = self.role_manager.get_by_service_get_page_markers(
-            serviceId, marker, limit)
+            service_id, marker, limit)
         links = self.get_links(url, prev, next, limit)
         ts = self.transform_roles(droles)
         return Roles(ts, links)
 
-    def transform_roles(self, droles):
+    @staticmethod
+    def transform_roles(droles):
         return [Role(drole.id, drole.name, drole.desc, drole.service_id)
                 for drole in droles]
 
@@ -1013,7 +1017,7 @@ class IdentityService(object):
             service = self.service_manager.get(drole.service_id)
             if service:
                 if not self.is_owner(None, user, service):
-                    if not self.as_admin_role(admin_token):
+                    if not self.has_admin_role(admin_token):
                         raise fault.UnauthorizedFault(
                             "You do not have ownership of the '%s' service"
                             % service.name)

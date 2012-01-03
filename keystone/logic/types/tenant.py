@@ -28,7 +28,7 @@ class Tenant(object):
     enabled = None
 
     def __init__(self, id=None, name=None, description=None, enabled=None):
-        self.id = id
+        self.id = id  # pylint: disable=C0103
         self.name = name
         self.description = description
         if enabled is not None:

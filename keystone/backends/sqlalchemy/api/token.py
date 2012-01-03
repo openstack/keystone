@@ -72,19 +72,37 @@ class TokenAPI(api.BaseTokenAPI):
         return TokenAPI.to_model(token_ref)
 
     def get(self, id, session=None):
+        result = self._get(id, session)
+
+        return TokenAPI.to_model(result)
+
+    @staticmethod
+    def _get(id, session=None):
         if not session:
             session = get_session()
 
         result = session.query(models.Token).filter_by(id=id).first()
 
-        return TokenAPI.to_model(result)
+        return result
+
+    @staticmethod
+    def update(id, values, session=None):
+        if not session:
+            session = get_session()
+
+        TokenAPI.transpose(values)
+
+        with session.begin():
+            ref = session.query(models.Token).filter_by(id=id).first()
+            ref.update(values)
+            ref.save(session=session)
 
     def delete(self, id, session=None):
         if not session:
             session = get_session()
 
         with session.begin():
-            token_ref = self.get(id, session)
+            token_ref = self._get(id, session)
             session.delete(token_ref)
 
     def get_for_user(self, user_id, session=None):

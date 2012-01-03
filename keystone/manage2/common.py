@@ -1,3 +1,20 @@
+import optparse
+
+from keystone import backends
+from keystone import version
+from keystone.common import config
+from keystone.managers.credential import Manager as CredentialManager
+from keystone.managers.endpoint import Manager as EndpointManager
+from keystone.managers.endpoint_template import Manager as \
+        EndpointTemplateManager
+from keystone.managers.grant import Manager as GrantManager
+from keystone.managers.role import Manager as RoleManager
+from keystone.managers.service import Manager as ServiceManager
+from keystone.managers.tenant import Manager as TenantManager
+from keystone.managers.token import Manager as TokenManager
+from keystone.managers.user import Manager as UserManager
+
+
 def arg(name, **kwargs):
     """Decorate the command class with an argparse argument"""
     def _decorator(cls):
@@ -9,25 +26,34 @@ def arg(name, **kwargs):
     return _decorator
 
 
-class BaseCommand(object):
-    """Provides a common pattern for keystone-manage commands"""
-    # initialize to an empty dict, in case a command is not decorated
-    _args = {}
+def get_options():
+    # Initialize a parser for our configuration paramaters
+    parser = optparse.OptionParser("usage", version='%%prog %s'
+        % version.version())
+    config.add_common_options(parser)
+    config.add_log_options(parser)
 
-    @staticmethod
-    def append_parser(parser):
-        """Appends this command's arguments to an argparser
+    # Parse command-line and load config
+    (options, args) = config.parse_options(parser, [])
+    _config_file, conf = config.load_paste_config('admin', options, args)
 
-        :param parser: argparse.ArgumentParser
-        """
-        args = BaseCommand._args
-        for name in args.keys():
-            parser.add_argument(name, **args[name])
+    config.setup_logging(options, conf)
 
-    @staticmethod
-    def run(args):
-        """Handles argparse args and prints command results to stdout
+    return conf.global_conf
 
-        :param args: argparse Namespace
-        """
-        raise NotImplemented()
+
+def init_managers(options):
+    """Initializes backend storage and return managers"""
+    backends.configure_backends(options)
+
+    managers = {}
+    managers['credential_manager'] = CredentialManager(options)
+    managers['token_manager'] = TokenManager(options)
+    managers['tenant_manager'] = TenantManager(options)
+    managers['endpoint_manager'] = EndpointManager(options)
+    managers['endpoint_template_manager'] = EndpointTemplateManager(options)
+    managers['user_manager'] = UserManager(options)
+    managers['role_manager'] = RoleManager(options)
+    managers['grant_manager'] = GrantManager(options)
+    managers['service_manager'] = ServiceManager(options)
+    return managers

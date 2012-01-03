@@ -1,5 +1,4 @@
 import json
-from lxml import etree
 import unittest2 as unittest
 
 from keystone.models import Endpoint
@@ -24,7 +23,6 @@ class TestModelsEndpoint(unittest.TestCase):
         self.assertEquals(endpoint.id, 1)
         self.assertEquals(endpoint.name, "the endpoint")
         self.assertTrue(endpoint.enabled)
-        self.assertEquals(endpoint.admin_url, None)
         self.assertRaises(AttributeError, getattr, endpoint,
                           'some_bad_property')
 

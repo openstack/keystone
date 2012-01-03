@@ -22,8 +22,6 @@ import httplib
 import logging
 from lxml import etree, objectify
 import pprint
-import os
-import sys
 import unittest2 as unittest
 import webob
 
@@ -70,7 +68,6 @@ class ServiceAPITest(unittest.TestCase):
         # Attributes of the user the test creates for each test case that
         # will authenticate against the API. The `auth_user` attribute
         # will contain the created user with the following attributes.
-        reg_role = self.role_fixtures[0]
         self.user_attrs = {
                 'auth_user':
                     {'name': 'auth_user',

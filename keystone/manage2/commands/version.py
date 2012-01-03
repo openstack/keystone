@@ -1,8 +1,8 @@
-"""Prints keystone's version information"""
-
-
+from keystone.backends.sqlalchemy import migration
 from keystone import version
+from keystone.manage2 import base
 from keystone.manage2 import common
+from keystone.logic.types import fault
 
 
 @common.arg('--api', action='store_true',
@@ -11,29 +11,42 @@ from keystone.manage2 import common
 @common.arg('--implementation', action='store_true',
     default=False,
     help='only print the implementation version')
-class Command(common.BaseCommand):
+@common.arg('--database', action='store_true',
+    default=False,
+    help='only print the database version')
+class Command(base.BaseSqlalchemyCommand):
     """Returns keystone version data.
 
-    Includes the latest API version, implementation version, or both,
-    if neither is specified.
+    Provides the latest API version, implementation version, database version,
+    or all of the above, if none is specified.
     """
 
-    def get_api_version(self):
+    @staticmethod
+    def get_api_version():
         """Returns a complete API version string"""
         return ' '.join([version.API_VERSION, version.API_VERSION_STATUS])
 
-    def get_implementation_version(self):
+    @staticmethod
+    def get_implementation_version():
         """Returns a complete implementation version string"""
         return version.version()
 
-    @staticmethod
-    def run(args):
-        """Process argparse args, and print results to stdout"""
-        cmd = Command()
+    def get_database_version(self):
+        """Returns database's current migration level"""
+        return migration.db_version(self.options)
 
-        show_all = not (args.api or args.implementation)
+    def run(self, args):
+        """Process argparse args, and print results to stdout"""
+        show_all = not (args.api or args.implementation or args.database)
 
         if args.api or show_all:
-            print 'API v%s' % cmd.get_api_version()
+            print 'API v%s' % Command.get_api_version()
         if args.implementation or show_all:
-            print 'Implementation v%s' % cmd.get_implementation_version()
+            print 'Implementation v%s' % Command.get_implementation_version()
+        if args.database or show_all:
+            try:
+                version_str = 'v%s' % (self.get_database_version())
+            except fault.DatabaseMigrationError:
+                version_str = 'not under version control'
+
+            print 'Database %s' % (version_str)

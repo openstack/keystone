@@ -7,6 +7,7 @@ from keystone import models
 from .base import  BaseLdapAPI
 
 
+# pylint: disable=W0212, W0223
 class RoleAPI(BaseLdapAPI, BaseTenantAPI):
     DEFAULT_TREE_DN = 'ou=Groups,dc=example,dc=com'
     DEFAULT_STRUCTURAL_CLASSES = ['groupOfNames']
@@ -55,6 +56,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
 
         return super(RoleAPI, self).create(values)
 
+    # pylint: disable=W0221
     def get_by_name(self, name, filter=None):
         return self.get(name, filter)
 
@@ -74,10 +76,6 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
                 raise exception.NotFound("Role %s not found" % (role_id,))
-            if tenant_id is not None:
-                tenant_dn = self.api.tenant._id_to_dn(tenant_id)
-            else:
-                tenant_dn = None
             attrs = [
                 ('objectClass', ['keystoneTenantRole', 'groupOfNames']),
                 ('member', [user_dn]),

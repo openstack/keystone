@@ -20,7 +20,7 @@ import logging
 
 import keystone.backends.api as api
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
@@ -28,9 +28,13 @@ class Manager(object):
         self.options = options
         self.driver = api.ENDPOINT_TEMPLATE
 
-    def create(self, endpoint_template):
+    def create(self, obj):
         """ Create a new Endpoint Template """
-        return self.driver.create(endpoint_template)
+        return self.driver.create(obj)
+
+    def get_all(self):
+        """ Returns all endpoint templates """
+        return self.driver.get_all()
 
     def get(self, endpoint_template_id):
         """ Returns Endpoint Template by ID """
@@ -55,7 +59,7 @@ class Manager(object):
     def get_by_service_get_page_markers(self, service_id, marker, limit):
         """ Calculate pagination markers for endpoint templates by service """
         return self.driver.get_by_service_get_page_markers(service_id, marker,
-                                                                        limit)
+                limit)
 
     def update(self, endpoint_template):
         """ Update Endpoint Template """

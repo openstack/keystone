@@ -28,5 +28,20 @@ class Manager(object):
         self.options = options
         self.driver = api.CREDENTIALS
 
+    def create(self, token):
+        return self.driver.create(token)
+
+    def update(self, id, credential):
+        return self.driver.update(id, credential)
+
+    def get(self, credential_id):
+        return self.driver.get(credential_id)
+
+    def get_all(self):
+        return self.driver.get_all()
+
     def get_by_access(self, access):
         return self.driver.get_by_access(access)
+
+    def delete(self, credential_id):
+        return self.driver.delete(credential_id)

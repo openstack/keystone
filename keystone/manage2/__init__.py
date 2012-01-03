@@ -2,11 +2,12 @@
 
 
 import argparse
-import pkgutil
 import os
+import pkgutil
 import sys
 
 from keystone.manage2 import commands
+from keystone.manage2 import common
 
 
 # builds a complete path to the commands package
@@ -19,7 +20,7 @@ MODULES = [tupl for tupl in pkgutil.iter_modules([PACKAGE_PATH])]
 def load_module(module_name):
     """Imports a module given the module name"""
     try:
-        module_loader, name, is_package = [md for md in MODULES
+        module_loader, name, _is_package = [md for md in MODULES
                 if md[1] == module_name][0]
     except IndexError:
         raise ValueError("No module found named '%s'" % module_name)
@@ -44,15 +45,10 @@ def main():
     if command and command in module_names:
         # load, configure and run command
         module = load_module(command)
-        parser = argparse.ArgumentParser(prog=command,
-            description=module.Command.__doc__)
+        cmd = module.Command(options=common.get_options())
+        args = cmd.parser.parse_args()
 
-        # let the command append arguments to the parser
-        module.Command.append_parser(parser)
-        args = parser.parse_args()
-
-        # command
-        exit(module.Command.run(args))
+        exit(cmd.run(args))
     else:
         # show help
         parser = argparse.ArgumentParser(description=__doc__)

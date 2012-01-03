@@ -20,7 +20,7 @@ import logging
 
 import keystone.backends.api as api
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
@@ -39,6 +39,10 @@ class Manager(object):
     def get_by_name(self, name):
         """ Returns role by name """
         return self.driver.get_by_name(name=name)
+
+    def get_all(self):
+        """ Returns all roles """
+        return self.driver.get_all()
 
     def get_page(self, marker, limit):
         """ Get one page of roles list """
@@ -59,8 +63,9 @@ class Manager(object):
     def get_by_service_get_page_markers(self, service_id, marker, limit):
         """ Calculate pagination markers for roles by service """
         return self.driver.get_by_service_get_page_markers(service_id, marker,
-                                                                        limit)
+                limit)
 
+    # pylint: disable=E1103
     def update(self, role):
         """ Update role """
         return self.driver.update(role['id'], role)

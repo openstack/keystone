@@ -20,7 +20,7 @@ import logging
 
 import keystone.backends.api as api
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
@@ -40,6 +40,10 @@ class Manager(object):
         """ Returns service by name """
         return self.driver.get_by_name(name=name)
 
+    def get_all(self):
+        """ Returns all services """
+        return self.driver.get_all()
+
     def get_page(self, marker, limit):
         """ Get one page of services list """
         return self.driver.get_page(marker, limit)
@@ -52,6 +56,7 @@ class Manager(object):
         """ Returns service by name and type """
         return self.driver.get_by_name_and_type(name, service_type)
 
+    # pylint: disable=E1103
     def update(self, service):
         """ Update service """
         return self.driver.update(service['id'], service)
