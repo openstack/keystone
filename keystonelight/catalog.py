@@ -2,8 +2,6 @@
 
 # the catalog interfaces
 
-import uuid
-
 from keystonelight import utils
 
 

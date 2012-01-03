@@ -142,24 +142,25 @@ class TestCase(unittest.TestCase):
           extras['user'], extras['tenant'], models.Extras(**extras_ref))
       setattr(self, 'extras_%s%s' % (extras['user'], extras['tenant']), rv)
 
-  def loadapp(self, config):
+  def loadapp(self, config, name='main'):
     if not config.startswith('config:'):
       config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
-    return deploy.loadapp(config)
+    return deploy.loadapp(config, name=name)
 
   def appconfig(self, config):
     if not config.startswith('config:'):
       config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
     return deploy.appconfig(config)
 
-  def serveapp(self, config):
-    app = self.loadapp(config)
-    server = wsgi.Server()
-    server.start(app, 0, key='socket')
+  def serveapp(self, config, name=None):
+    app = self.loadapp(config, name=name)
+    server = wsgi.Server(app, 0)
+    server.start(key='socket')
 
     # Service catalog tests need to know the port we ran on.
     port = server.socket_info['socket'][1]
     self._update_server_options(server, 'public_port', port)
+    self._update_server_options(server, 'admin_port', port)
     return server
 
   def _update_server_options(self, server, key, value):

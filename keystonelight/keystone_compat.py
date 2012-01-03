@@ -1,9 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # this is the web service frontend that emulates keystone
-import logging
 import uuid
-
 import routes
 
 from keystonelight import catalog
@@ -14,44 +12,123 @@ from keystonelight import token
 from keystonelight import wsgi
 
 
-class KeystoneRouter(wsgi.Router):
+class KeystoneAdminRouter(wsgi.Router):
     def __init__(self, options):
         self.options = options
-        self.keystone_controller = KeystoneController(options)
 
         mapper = routes.Mapper()
-        mapper.connect('/',
-                       controller=self.keystone_controller,
-                       action='noop')
+
+        # Token Operations
+        auth_controller = KeystoneTokenController(self.options)
         mapper.connect('/tokens',
-                       controller=self.keystone_controller,
+                       controller=auth_controller,
                        action='authenticate',
                        conditions=dict(method=['POST']))
         mapper.connect('/tokens/{token_id}',
-                       controller=self.keystone_controller,
+                       controller=auth_controller,
                        action='validate_token',
                        conditions=dict(method=['GET']))
+        mapper.connect('/tokens/{token_id}/endpoints',
+                       controller=auth_controller,
+                       action='endpoints',
+                       conditions=dict(method=['GET']))
+
+        # Tenant Operations
+        tenant_controller = KeystoneTenantController(self.options)
         mapper.connect('/tenants',
-                       controller=self.keystone_controller,
-                       action='tenants_for_token',
+                       controller=tenant_controller,
+                       action='get_tenants_for_token',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/tenants/{tenant_id}',
+                       controller=tenant_controller,
+                       action='get_tenant',
                        conditions=dict(method=['GET']))
         mapper.connect('/tenants',
-                       controller=self.keystone_controller,
+                       controller=tenant_controller,
                        action='create_tenant',
                        conditions=dict(method=['POST']))
-        super(KeystoneRouter, self).__init__(mapper)
+
+        # User Operations
+        user_controller = KeystoneUserController(self.options)
+        mapper.connect('/users/{user_id}',
+                       controller=user_controller,
+                       action='get_user',
+                       conditions=dict(method=['GET']))
+
+        # Role Operations
+        roles_controller = KeystoneRoleController(self.options)
+        mapper.connect('/tenants/{tenant_id}/users/{user_id}/roles',
+                       controller=roles_controller,
+                       action='get_user_roles',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/users/{user_id}/roles',
+                       controller=user_controller,
+                       action='get_user_roles',
+                       conditions=dict(method=['GET']))
+
+        # Miscellaneous Operations
+        version_controller = KeystoneVersionController(self.options)
+        mapper.connect('/',
+                       controller=version_controller,
+                       action='get_version_info', module='admin/version',
+                       conditions=dict(method=['GET']))
+
+        extensions_controller = KeystoneExtensionsController(self.options)
+        mapper.connect('/extensions',
+                       controller=extensions_controller,
+                       action='get_extensions_info',
+                       conditions=dict(method=['GET']))
+
+        super(KeystoneAdminRouter, self).__init__(mapper)
 
 
-class KeystoneController(service.BaseApplication):
+class KeystoneServiceRouter(wsgi.Router):
+    def __init__(self, options):
+        self.options = options
+
+        mapper = routes.Mapper()
+
+        # Token Operations
+        auth_controller = KeystoneTokenController(self.options)
+        mapper.connect('/tokens',
+                       controller=auth_controller,
+                       action='authenticate',
+                       conditions=dict(method=['POST']))
+        mapper.connect('/ec2tokens',
+                       controller=auth_controller,
+                       action='authenticate_ec2',
+                       conditions=dict(method=['POST']))
+
+        # Tenant Operations
+        tenant_controller = KeystoneTenantController(self.options)
+        mapper.connect('/tenants',
+                       controller=tenant_controller,
+                       action='get_tenants_for_token',
+                       conditions=dict(method=['GET']))
+
+        # Miscellaneous
+        version_controller = KeystoneVersionController(self.options)
+        mapper.connect('/',
+                       controller=version_controller,
+                       action='get_version_info',
+                       module='service/version',
+                       conditions=dict(method=['GET']))
+
+        extensions_controller = KeystoneExtensionsController(self.options)
+        mapper.connect('/extensions',
+                       controller=extensions_controller,
+                       action='get_extensions_info',
+                       conditions=dict(method=['GET']))
+
+        super(KeystoneServiceRouter, self).__init__(mapper)
+
+
+class KeystoneTokenController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
         self.catalog_api = catalog.Manager(options)
         self.identity_api = identity.Manager(options)
         self.token_api = token.Manager(options)
-        self.policy_api = policy.Manager(options)
-
-    def noop(self, context):
-        return {}
 
     def authenticate(self, context, auth=None):
         """Authenticate credentials and return a token.
@@ -159,7 +236,10 @@ class KeystoneController(service.BaseApplication):
 
         return self._format_authenticate(token_ref, roles_ref, catalog_ref)
 
-    #admin-only
+    def authenticate_ec2(self, context):
+        raise NotImplemented()
+
+    # admin only
     def validate_token(self, context, token_id, belongs_to=None):
         """Check that a token is valid.
 
@@ -184,48 +264,19 @@ class KeystoneController(service.BaseApplication):
             assert token_ref['tenant']['id'] == belongs_to
         return self._format_token(token_ref)
 
-    def tenants_for_token(self, context):
-        """Get valid tenants for token based on token used to authenticate.
-
-        Pulls the token from the context, validates it and gets the valid
-        tenants for the user in the token.
-
-        Doesn't care about token scopedness.
-
-        """
+    def endpoints(self, context, token_id):
+        """Return service catalog endpoints."""
         token_ref = self.token_api.get_token(context=context,
-                                             token_id=context['token_id'])
-        assert token_ref is not None
+                                             token_id=token_id)
+        catalog_ref = self.catalog_api.get_catalog(context,
+                                                   token_ref['user_id'],
+                                                   token_ref['tenant_id'])
+        return self._format_catalog(catalog_ref)
 
-        user_ref = token_ref['user']
-        tenant_refs = []
-        for tenant_id in user_ref['tenants']:
-            tenant_refs.append(self.identity_api.get_tenant(
-                    context=context,
-                    tenant_id=tenant_id))
-        return self._format_tenants_for_token(tenant_refs)
-
-    def create_tenant(self, context, **kw):
-        # TODO(termie): this stuff should probably be moved to middleware
-        if not context['is_admin']:
-            user_token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
-            creds = user_token_ref['extras'].copy()
-            creds['user_id'] = user_token_ref['user'].get('id')
-            creds['tenant_id'] = user_token_ref['tenant'].get('id')
-            # Accept either is_admin or the admin role
-            assert self.policy_api.can_haz(context,
-                                           ('is_admin:1', 'roles:admin'),
-                                           creds)
-        tenant_ref = kw.get('tenant')
-        tenant_id = (tenant_ref.get('id')
-                     and tenant_ref.get('id')
-                     or uuid.uuid4().hex)
-        tenant_ref['id'] = tenant_id
-
-        tenant = self.identity_api.create_tenant(
-                context, tenant_id=tenant_id, data=tenant_ref)
-        return {'tenant': tenant}
+    def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
+        o = self._format_token(token_ref, roles_ref)
+        o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
+        return o
 
     def _format_token(self, token_ref, roles_ref):
         user_ref = token_ref['user']
@@ -245,11 +296,6 @@ class KeystoneController(service.BaseApplication):
         if 'tenant' in token_ref and token_ref['tenant']:
             token_ref['tenant']['enabled'] = True
             o['access']['token']['tenant'] = token_ref['tenant']
-        return o
-
-    def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
-        o = self._format_token(token_ref, roles_ref)
-        o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
         return o
 
     def _format_catalog(self, catalog_ref):
@@ -296,6 +342,73 @@ class KeystoneController(service.BaseApplication):
 
         return services.values()
 
+
+class KeystoneTenantController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+        self.identity_api = identity.Manager(options)
+        self.policy_api = policy.Manager(options)
+        self.token_api = token.Manager(options)
+
+    def get_tenants_for_token(self, context, **kw):
+        """Get valid tenants for token based on token used to authenticate.
+
+        Pulls the token from the context, validates it and gets the valid
+        tenants for the user in the token.
+
+        Doesn't care about token scopedness.
+
+        """
+        token_ref = self.token_api.get_token(context=context,
+                                             token_id=context['token_id'])
+        assert token_ref is not None
+
+        user_ref = token_ref['user']
+        tenant_refs = []
+        for tenant_id in user_ref['tenants']:
+            tenant_refs.append(self.identity_api.get_tenant(
+                    context=context,
+                    tenant_id=tenant_id))
+        return self._format_tenants_for_token(tenant_refs)
+
+    def get_tenant(self, context, tenant_id):
+        # TODO(termie): this stuff should probably be moved to middleware
+        if not context['is_admin']:
+            user_token_ref = self.token_api.get_token(
+                    context=context, token_id=context['token_id'])
+            creds = user_token_ref['extras'].copy()
+            creds['user_id'] = user_token_ref['user'].get('id')
+            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            # Accept either is_admin or the admin role
+            assert self.policy_api.can_haz(context,
+                                           ('is_admin:1', 'roles:admin'),
+                                           creds)
+
+        tenant = self.identity_api.get_tenant(context, tenant_id)
+        return {'tenant': tenant}
+
+    def create_tenant(self, context, **kw):
+        # TODO(termie): this stuff should probably be moved to middleware
+        if not context['is_admin']:
+            user_token_ref = self.token_api.get_token(
+                    context=context, token_id=context['token_id'])
+            creds = user_token_ref['extras'].copy()
+            creds['user_id'] = user_token_ref['user'].get('id')
+            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            # Accept either is_admin or the admin role
+            assert self.policy_api.can_haz(context,
+                                           ('is_admin:1', 'roles:admin'),
+                                           creds)
+        tenant_ref = kw.get('tenant')
+        tenant_id = (tenant_ref.get('id')
+                     and tenant_ref.get('id')
+                     or uuid.uuid4().hex)
+        tenant_ref['id'] = tenant_id
+
+        tenant = self.identity_api.create_tenant(
+                context, tenant_id=tenant_id, data=tenant_ref)
+        return {'tenant': tenant}
+
     def _format_tenants_for_token(self, tenant_refs):
         for x in tenant_refs:
             x['enabled'] = True
@@ -304,7 +417,52 @@ class KeystoneController(service.BaseApplication):
         return o
 
 
-def app_factory(global_conf, **local_conf):
+class KeystoneUserController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+
+    def get_user(self, context, user_id):
+        raise NotImplemented()
+
+    def get_version_info(self, context, module='version'):
+        # TODO(devcamcar): Pull appropriate module version and output.
+        raise NotImplemented()
+
+    def get_extensions_info(self, context):
+        raise NotImplemented()
+
+
+class KeystoneRoleController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+
+    def get_user_roles(self, context, user_id, tenant_id=None):
+        raise NotImplemented()
+
+
+class KeystoneVersionController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+
+    def get_version_info(self, context, module='version'):
+        raise NotImplemented()
+
+
+class KeystoneExtensionsController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+
+    def get_extensions_info(self, context):
+        raise NotImplemented()
+
+
+def service_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
-    return KeystoneRouter(conf)
+    return KeystoneServiceRouter(conf)
+
+
+def admin_app_factory(global_conf, **local_conf):
+    conf = global_conf.copy()
+    conf.update(local_conf)
+    return KeystoneAdminRouter(conf)

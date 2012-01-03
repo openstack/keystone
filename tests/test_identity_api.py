@@ -1,11 +1,8 @@
 import json
-import uuid
 
 from keystonelight import client
 from keystonelight import models
 from keystonelight import test
-from keystonelight import utils
-from keystonelight.backends import kvs
 
 import default_fixtures
 
