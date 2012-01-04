@@ -5,6 +5,7 @@ import logging
 import uuid
 
 import routes
+from webob import exc
 
 from keystonelight import catalog
 from keystonelight import identity
@@ -132,8 +133,8 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
         mapper = routes.Mapper()
         tenant_controller = KeystoneTenantController(self.options)
         user_controller = KeystoneUserController(self.options)
-        roles_controller = KeystoneRoleController(self.options)
-        services_controller = KeystoneServiceController(self.options)
+        role_controller = KeystoneRoleController(self.options)
+        service_controller = KeystoneServiceController(self.options)
 
         # Tenant Operations
         mapper.connect("/tenants", controller=tenant_controller,
@@ -141,10 +142,12 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
                     conditions=dict(method=["POST"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
-                    action="update_tenant", conditions=dict(method=["POST"]))
+                    action="update_tenant",
+                    conditions=dict(method=["PUT"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
-                    action="delete_tenant", conditions=dict(method=["DELETE"]))
+                    action="delete_tenant",
+                    conditions=dict(method=["DELETE"]))
         mapper.connect("/tenants/{tenant_id}/users",
                     controller=user_controller,
                     action="get_tenant_users",
@@ -162,7 +165,7 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
         mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="update_user",
-                    conditions=dict(method=["POST"]))
+                    conditions=dict(method=["PUT"]))
         mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="delete_user",
@@ -187,50 +190,50 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
 
         # User Roles
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
-            controller=roles_controller, action="add_role_to_user",
+            controller=role_controller, action="add_role_to_user",
             conditions=dict(method=["PUT"]))
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
-            controller=roles_controller, action="delete_role_from_user",
+            controller=role_controller, action="delete_role_from_user",
             conditions=dict(method=["DELETE"]))
 
         # User-Tenant Roles
         mapper.connect(
             "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
-            controller=roles_controller, action="add_role_to_user",
+            controller=role_controller, action="add_role_to_user",
             conditions=dict(method=["PUT"]))
         mapper.connect(
             "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
-            controller=roles_controller, action="delete_role_from_user",
+            controller=role_controller, action="delete_role_from_user",
             conditions=dict(method=["DELETE"]))
 
         # Service Operations
         mapper.connect("/OS-KSADM/services",
-                    controller=services_controller,
+                    controller=service_controller,
                     action="get_services",
                     conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/services",
-                    controller=services_controller,
+                    controller=service_controller,
                     action="create_service",
                     conditions=dict(method=["POST"]))
         mapper.connect("/OS-KSADM/services/{service_id}",
-                    controller=services_controller,
+                    controller=service_controller,
                     action="delete_service",
                     conditions=dict(method=["DELETE"]))
         mapper.connect("/OS-KSADM/services/{service_id}",
-                    controller=services_controller,
+                    controller=service_controller,
                     action="get_service",
                     conditions=dict(method=["GET"]))
 
         # Role Operations
-        mapper.connect("/OS-KSADM/roles", controller=roles_controller,
+        mapper.connect("/OS-KSADM/roles", controller=role_controller,
                     action="create_role", conditions=dict(method=["POST"]))
-        mapper.connect("/OS-KSADM/roles", controller=roles_controller,
+        mapper.connect("/OS-KSADM/roles", controller=role_controller,
                     action="get_roles", conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/roles/{role_id}",
-            controller=roles_controller, action="get_role",
+            controller=role_controller, action="get_role",
                 conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/roles/{role_id}",
-            controller=roles_controller, action="delete_role",
+            controller=role_controller, action="delete_role",
             conditions=dict(method=["DELETE"]))
 
         super(KeystoneAdminCrudExtension, self).__init__(
@@ -501,20 +504,13 @@ class KeystoneTenantController(service.BaseApplication):
                                            creds)
 
         tenant = self.identity_api.get_tenant(context, tenant_id)
+        if not tenant:
+            return exc.HTTPNotFound()
         return {'tenant': tenant}
 
+    # CRUD Extension
     def create_tenant(self, context, **kw):
-        # TODO(termie): this stuff should probably be moved to middleware
-        if not context['is_admin']:
-            user_token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
-            creds = user_token_ref['extras'].copy()
-            creds['user_id'] = user_token_ref['user'].get('id')
-            creds['tenant_id'] = user_token_ref['tenant'].get('id')
-            # Accept either is_admin or the admin role
-            assert self.policy_api.can_haz(context,
-                                           ('is_admin:1', 'roles:admin'),
-                                           creds)
+        self.assert_admin(context)
         tenant_ref = kw.get('tenant')
         tenant_id = (tenant_ref.get('id')
                      and tenant_ref.get('id')
@@ -524,6 +520,20 @@ class KeystoneTenantController(service.BaseApplication):
         tenant = self.identity_api.create_tenant(
                 context, tenant_id=tenant_id, data=tenant_ref)
         return {'tenant': tenant}
+
+    def update_tenant(self, context, tenant_id, tenant):
+        self.assert_admin(context)
+        tenant_ref = self.identity_api.update_tenant(
+                context, tenant_id=tenant_id, data=tenant)
+        return {'tenant': tenant_ref}
+
+    def delete_tenant(self, context, tenant_id, **kw):
+        self.assert_admin(context)
+        self.identity_api.delete_tenant(context, tenant_id=tenant_id)
+
+    def get_tenant_users(self, context, **kw):
+        self.assert_admin(context)
+        pass
 
     def _format_tenants_for_token(self, tenant_refs):
         for x in tenant_refs:

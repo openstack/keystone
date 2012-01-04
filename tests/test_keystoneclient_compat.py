@@ -109,8 +109,7 @@ class MasterCompatTestCase(CompatTestCase):
         self.assertFalse(tenant.enabled)
         self.assertEquals(tenant.description, 'new description')
 
-        # TODO(devcamcar): delete gives 404. why?
-        client.tenants.delete(test_tenant)
+        client.tenants.delete(tenant.id)
         self.assertRaises(client_exceptions.NotFound, client.tenants.get,
                           tenant.id)
 

@@ -72,8 +72,22 @@ class BaseApplication(wsgi.Application):
 
     if result is None or type(result) is str or type(result) is unicode:
       return result
+    elif isinstance(result, webob.exc.WSGIHTTPException):
+      return result
 
     return json.dumps(result)
+
+  def assert_admin(self, context):
+    if not context['is_admin']:
+      user_token_ref = self.token_api.get_token(
+          context=context, token_id=context['token_id'])
+      creds = user_token_ref['extras'].copy()
+      creds['user_id'] = user_token_ref['user'].get('id')
+      creds['tenant_id'] = user_token_ref['tenant'].get('id')
+      # Accept either is_admin or the admin role
+      assert self.policy_api.can_haz(context,
+                                     ('is_admin:1', 'roles:admin'),
+                                      creds)
 
 
 class TokenController(BaseApplication):
