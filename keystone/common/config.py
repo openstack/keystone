@@ -85,7 +85,7 @@ for a config file.""")
                      dest="bind_port",
                      help="specifies port to listen on")
     group.add_option('--host', '--bind-host',
-                     default="0.0.0.0", dest="bind_host",
+                     default=None, dest="bind_host",
                      help="specifies host address to listen on "\
                             "(default is all or 0.0.0.0)")
     # This one is handled by keystone/tools/tracer.py (if loaded)

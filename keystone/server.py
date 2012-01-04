@@ -160,7 +160,7 @@ class Server():
                 port = int(self.options.get('bind_port') or
                            conf.get('service_port', 5000))
         if host is None:
-            host = self.options.get('bind_host',
+            host = (self.options.get('bind_host') or
                                     conf.get('service_host', '0.0.0.0'))
 
         self.key = "%s-%s:%s" % (self.name, host, port)
