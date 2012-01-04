@@ -118,13 +118,32 @@ class MasterCompatTestCase(CompatTestCase):
         tenants = client.tenants.list()
         self.assertEquals(len(tenants), 1)
 
-    def test_tenant_add_user(self):
-        raise NotImplementedError()
-        #client.roles.add_user_to_tenant(tenant_id, user_id, role_id)
+    def test_tenant_add_and_remove_user(self):
+        client = self.foo_client()
+        client.roles.add_user_to_tenant(self.tenant_baz['id'],
+                                        self.user_foo['id'],
+                                        self.role_useless['id'])
+        tenant_refs = client.tenants.list()
+        self.assert_(self.tenant_baz['id'] in
+                     [x.id for x in tenant_refs])
 
-    def test_tenant_remove_user(self):
-        raise NotImplementedError()
-        #client.roles.remove_user_from_tenant(tenant_id, user_id, role_id)
+        # get the "role_refs" so we get the proper id, this is how the clients
+        # do it
+        roleref_refs = client.roles.get_user_role_refs(self.user_foo['id'])
+        for roleref_ref in roleref_refs:
+          if (roleref_ref.roleId == self.role_useless['id'] and
+              roleref_ref.tenantId == self.tenant_baz['id']):
+            # use python's scope fall through to leave roleref_ref set
+            break
+
+
+        client.roles.remove_user_from_tenant(self.tenant_baz['id'],
+                                             self.user_foo['id'],
+                                             roleref_ref.id)
+
+        tenant_refs = client.tenants.list()
+        self.assert_(self.tenant_baz['id'] not in
+                     [x.id for x in tenant_refs])
 
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions

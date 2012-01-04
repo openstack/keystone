@@ -37,6 +37,27 @@ class Manager(object):
   def get_role(self, context, role_id):
     return self.driver.get_role(role_id)
 
+  # These should probably be the high-level API calls
+  def add_user_to_tenant(self, context, user_id, tenant_id):
+    self.driver.add_user_to_tenant(user_id, tenant_id)
+
+  def remove_user_from_tenant(self, context, user_id, tenant_id):
+    self.driver.remove_user_from_tenant(user_id, tenant_id)
+
+  def get_tenants_for_user(self, context, user_id):
+    return self.driver.get_tenants_for_user(user_id)
+
+  def get_roles_for_user_and_tenant(self, context, user_id, tenant_id):
+    return self.driver.get_roles_for_user_and_tenant(user_id, tenant_id)
+
+  def add_role_to_user_and_tenant(self, context, user_id, tenant_id, role_id):
+    return self.driver.add_role_to_user_and_tenant(user_id, tenant_id, role_id)
+
+  def remove_role_from_user_and_tenant(self, context, user_id,
+                                      tenant_id, role_id):
+    return self.driver.remove_role_from_user_and_tenant(
+        user_id, tenant_id, role_id)
+
   # CRUD operations
   def create_user(self, context, user_id, data):
     return self.driver.create_user(user_id, data)

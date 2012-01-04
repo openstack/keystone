@@ -63,6 +63,52 @@ class KvsIdentity(object):
     role_ref = self.db.get('role-%s' % role_id)
     return role_ref
 
+  # These should probably be part of the high-level API
+  def add_user_to_tenant(self, tenant_id, user_id):
+    user_ref = self.get_user(user_id)
+    tenants = set(user_ref.get('tenants', []))
+    tenants.add(tenant_id)
+    user_ref['tenants'] = list(tenants)
+    self.update_user(user_id, user_ref)
+
+  def remove_user_from_tenant(self, tenant_id, user_id):
+    user_ref = self.get_user(user_id)
+    tenants = set(user_ref.get('tenants', []))
+    tenants.remove(tenant_id)
+    user_ref['tenants'] = list(tenants)
+    self.update_user(user_id, user_ref)
+
+  def get_tenants_for_user(self, user_id):
+    user_ref = self.get_user(user_id)
+    return user_ref.get('tenants', [])
+
+  def get_roles_for_user_and_tenant(self, user_id, tenant_id):
+    extras_ref = self.get_extras(user_id, tenant_id)
+    if not extras_ref:
+      extras_ref = {}
+    return extras_ref.get('roles', [])
+
+  def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
+    extras_ref = self.get_extras(user_id, tenant_id)
+    if not extras_ref:
+      extras_ref = {}
+    roles = set(extras_ref.get('roles', []))
+    roles.add(role_id)
+    extras_ref['roles'] = list(roles)
+    self.update_extras(user_id, tenant_id, extras_ref)
+
+  def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
+    extras_ref = self.get_extras(user_id, tenant_id)
+    if not extras_ref:
+      extras_ref = {}
+    roles = set(extras_ref.get('roles', []))
+    roles.remove(role_id)
+    extras_ref['roles'] = list(roles)
+    self.update_extras(user_id, tenant_id, extras_ref)
+
+
+
+  # CRUD
   def create_user(self, id, user):
     self.db.set('user-%s' % id, user)
     self.db.set('user_name-%s' % user['name'], user)
@@ -100,6 +146,7 @@ class KvsIdentity(object):
     self.db.delete('tenant_name-%s' % old_tenant['name'])
     self.db.delete('tenant-%s' % id)
     return None
+
 
   def create_extras(self, user_id, tenant_id, extras):
     self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)

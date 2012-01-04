@@ -1,5 +1,6 @@
 TENANTS = [
     {'id': 'bar', 'name': 'BAR'},
+    {'id': 'baz', 'name': 'BAZ'},
     ]
 
 USERS = [
@@ -12,4 +13,5 @@ EXTRAS = [
 
 ROLES = [
     {'id': 'keystone_admin', 'name': 'Keystone Admin'},
+    {'id': 'useless', 'name': 'Useless'},
     ]

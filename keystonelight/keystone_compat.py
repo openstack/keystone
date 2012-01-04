@@ -2,6 +2,8 @@
 
 # this is the web service frontend that emulates keystone
 import logging
+import urllib
+import urlparse
 import uuid
 
 import routes
@@ -194,6 +196,17 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
             conditions=dict(method=["PUT"]))
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
             controller=role_controller, action="delete_role_from_user",
+            conditions=dict(method=["DELETE"]))
+
+        # COMPAT(diablo): User Roles
+        mapper.connect("/users/{user_id}/roleRefs",
+            controller=role_controller, action="get_role_refs",
+            conditions=dict(method=["GET"]))
+        mapper.connect("/users/{user_id}/roleRefs",
+            controller=role_controller, action="create_role_ref",
+            conditions=dict(method=["POST"]))
+        mapper.connect("/users/{user_id}/roleRefs/{role_ref_id}",
+            controller=role_controller, action="delete_role_ref",
             conditions=dict(method=["DELETE"]))
 
         # User-Tenant Roles
@@ -533,7 +546,7 @@ class KeystoneTenantController(service.BaseApplication):
 
     def get_tenant_users(self, context, **kw):
         self.assert_admin(context)
-        pass
+        raise NotImplementedError()
 
     def _format_tenants_for_token(self, tenant_refs):
         for x in tenant_refs:
@@ -562,10 +575,80 @@ class KeystoneUserController(service.BaseApplication):
 class KeystoneRoleController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
+        self.identity_api = identity.Manager(options)
+        self.token_api = token.Manager(options)
+        self.policy_api = policy.Manager(options)
         super(KeystoneRoleController, self).__init__()
 
     def get_user_roles(self, context, user_id, tenant_id=None):
         raise NotImplemented()
+
+    # COMPAT(diablo): CRUD extension
+    def get_role_refs(self, context, user_id):
+        """Ultimate hack to get around having to make role_refs first-class.
+
+        This will basically iterate over the various roles the user has in
+        all tenants the user is a member of and create fake role_refs where
+        the id encodes the user-tenant-role information so we can look
+        up the appropriate data when we need to delete them.
+
+        """
+        self.assert_admin(context)
+        user_ref = self.identity_api.get_user(context, user_id)
+        tenant_ids = self.identity_api.get_tenants_for_user(context, user_id)
+        o = []
+        for tenant_id in tenant_ids:
+            role_ids = self.identity_api.get_roles_for_user_and_tenant(
+                    context, user_id, tenant_id)
+            for role_id in role_ids:
+                ref = {'roleId': role_id,
+                       'tenantId': tenant_id,
+                       'userId': user_id}
+                ref['id'] = urllib.urlencode(ref)
+                o.append(ref)
+        return {'roles': o}
+
+    def create_role_ref(self, context, user_id, role):
+        """This is actually used for adding a user to a tenant.
+
+        In the legacy data model adding a user to a tenant required setting
+        a role.
+
+        """
+        self.assert_admin(context)
+        # TODO(termie): for now we're ignoring the actual role
+        tenant_id = role.get('tenantId')
+        role_id = role.get('roleId')
+        self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+        self.identity_api.add_role_to_user_and_tenant(
+                context, user_id, tenant_id, role_id)
+        role_ref = self.identity_api.get_role(context, role_id)
+        return {'role': role_ref}
+
+    def delete_role_ref(self, context, user_id, role_ref_id):
+        """This is actually used for deleting a user from a tenant.
+
+        In the legacy data model removing a user from a tenant required
+        deleting a role.
+
+        To emulate this, we encode the tenant and role in the role_ref_id,
+        and if this happens to be the last role for the user-tenant pair,
+        we remove the user from the tenant.
+
+        """
+        self.assert_admin(context)
+        # TODO(termie): for now we're ignoring the actual role
+        role_ref_ref = urlparse.parse_qs(role_ref_id)
+        tenant_id = role_ref_ref.get('tenantId')[0]
+        role_id = role_ref_ref.get('roleId')[0]
+        self.identity_api.remove_role_from_user_and_tenant(
+                context, user_id, tenant_id, role_id)
+        roles = self.identity_api.get_roles_for_user_and_tenant(
+                context, user_id, tenant_id)
+        if not roles:
+            self.identity_api.remove_user_from_tenant(
+                    context, tenant_id, user_id)
+
 
 
 class KeystoneServiceController(service.BaseApplication):
