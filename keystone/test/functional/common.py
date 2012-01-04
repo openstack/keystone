@@ -846,23 +846,35 @@ class ApiTestCase(RestfulTestCase):
             path='/users/%s/OS-KSADM/credentials/%s' %\
             (user_id, credentials_type,), **kwargs)
 
-# Generates and return a unique string
-unique_str = lambda: str(uuid.uuid4())
 
-# Generates and return a unique email
-unique_email = lambda: str(unique_str() + '@openstack.org')
+def unique_str():
+    """Generates and return a unique string"""
+    return str(uuid.uuid4())
 
-# Generates and return a unique email
-unique_url = lambda: str('http://' + unique_str())
 
-# Automatically populates optional string fields
-optional_str = lambda x: x if x is not None else unique_str()
+def unique_email():
+    """Generates and return a unique email"""
+    return "%s@openstack.org" % unique_str()
 
-# Automatically populates optional email fields
-optional_email = lambda x: x if x is not None else unique_email()
 
-# Automatically populates optional url fields
-optional_url = lambda x: x if x is not None else unique_url()
+def unique_url():
+    """Generates and return a unique email"""
+    return "http://%s" % unique_str()
+
+
+def optional_str(val):
+    """Automatically populates optional string fields"""
+    return val if val is not None else unique_str()
+
+
+def optional_email(val):
+    """Automatically populates optional email fields"""
+    return val if val is not None else unique_email()
+
+
+def optional_url(val):
+    """Automatically populates optional url fields"""
+    return val if val is not None else unique_url()
 
 
 class FunctionalTestCase(ApiTestCase):
