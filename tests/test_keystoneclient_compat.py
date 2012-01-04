@@ -78,9 +78,11 @@ class MasterCompatTestCase(CompatTestCase):
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
+    # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
-        raise NotImplementedError()
-        #endpoints = client.tokens.endpoints(token)
+        client = self.foo_client()
+        token = client.auth_token
+        endpoints = client.tokens.endpoints(token)
 
     # FIXME(ja): this test should require the "keystone:admin" roled
     #            (probably the role set via --keystone_admin_role flag)

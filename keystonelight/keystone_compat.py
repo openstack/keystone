@@ -400,9 +400,9 @@ class KeystoneTokenController(service.BaseApplication):
         token_ref = self.token_api.get_token(context=context,
                                              token_id=token_id)
         catalog_ref = self.catalog_api.get_catalog(context,
-                                                   token_ref['user_id'],
-                                                   token_ref['tenant_id'])
-        return self._format_catalog(catalog_ref)
+                                                   token_ref['user']['id'],
+                                                   token_ref['tenant']['id'])
+        return {'token': {'serviceCatalog': self._format_catalog(catalog_ref)}}
 
     def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
         o = self._format_token(token_ref, roles_ref)
