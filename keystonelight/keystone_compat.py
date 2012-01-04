@@ -125,6 +125,19 @@ class KeystoneServiceRouter(wsgi.Router):
         super(KeystoneServiceRouter, self).__init__(mapper)
 
 
+class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
+    def __init__(self, application, options):
+        self.options = options
+        mapper = routes.Mapper()
+        tenant_controller = KeystoneTenantController(self.options)
+        mapper.connect('/tenants',
+                       controller=tenant_controller,
+                       action='create_tenant',
+                       conditions=dict(method=['POST']))
+        super(KeystoneAdminCrudExtension, self).__init__(
+                application, options, mapper)
+
+
 class KeystoneTokenController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
