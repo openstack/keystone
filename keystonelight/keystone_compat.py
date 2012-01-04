@@ -164,6 +164,7 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
                     controller=user_controller,
                     action="create_user",
                     conditions=dict(method=["POST"]))
+        # NOTE(termie): not in diablo
         mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="update_user",
@@ -173,22 +174,35 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
                     action="delete_user",
                     conditions=dict(method=["DELETE"]))
 
-        # NOTE(termie): not used and not necessary
-        #mapper.connect("/users/{user_id}/OS-KSADM/password",
-        #            controller=user_controller,
-        #            action="set_user_password",
-        #            conditions=dict(method=["PUT"]))
-        #mapper.connect("/users/{user_id}/OS-KSADM/tenant",
-        #            controller=user_controller,
-        #            action="update_user_tenant",
-        #            conditions=dict(method=["PUT"]))
-        #
-        # NOTE(termie): what does the next comment mean?
-        # Test this, test failed
-        #mapper.connect("/users/{user_id}/OS-KSADM/enabled",
-        #            controller=user_controller,
-        #            action="set_user_enabled",
-        #            conditions=dict(method=["PUT"]))
+        # COMPAT(diablo): the copy with no OS-KSADM is from diablo
+        mapper.connect("/users/{user_id}/password",
+                    controller=user_controller,
+                    action="set_user_password",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/users/{user_id}/OS-KSADM/password",
+                    controller=user_controller,
+                    action="set_user_password",
+                    conditions=dict(method=["PUT"]))
+
+        # COMPAT(diablo): the copy with no OS-KSADM is from diablo
+        mapper.connect("/users/{user_id}/tenant",
+                    controller=user_controller,
+                    action="update_user_tenant",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/users/{user_id}/OS-KSADM/tenant",
+                    controller=user_controller,
+                    action="update_user_tenant",
+                    conditions=dict(method=["PUT"]))
+
+        # COMPAT(diablo): the copy with no OS-KSADM is from diablo
+        mapper.connect("/users/{user_id}/enabled",
+                    controller=user_controller,
+                    action="set_user_enabled",
+                    conditions=dict(method=["PUT"]))
+        mapper.connect("/users/{user_id}/OS-KSADM/enabled",
+                    controller=user_controller,
+                    action="set_user_enabled",
+                    conditions=dict(method=["PUT"]))
 
         # User Roles
         mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
@@ -259,6 +273,7 @@ class KeystoneTokenController(service.BaseApplication):
         self.catalog_api = catalog.Manager(options)
         self.identity_api = identity.Manager(options)
         self.token_api = token.Manager(options)
+        self.policy_api = policy.Manager(options)
         super(KeystoneTokenController, self).__init__()
 
     def authenticate(self, context, auth=None):
@@ -559,17 +574,61 @@ class KeystoneTenantController(service.BaseApplication):
 class KeystoneUserController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
+        self.catalog_api = catalog.Manager(options)
+        self.identity_api = identity.Manager(options)
+        self.token_api = token.Manager(options)
+        self.policy_api = policy.Manager(options)
         super(KeystoneUserController, self).__init__()
 
     def get_user(self, context, user_id):
-        raise NotImplemented()
+        self.assert_admin(context)
+        user_ref = self.identity_api.get_user(context, user_id)
+        if not user_ref:
+            raise exc.HTTPNotFound()
+        return {'user': user_ref}
 
-    def get_version_info(self, context, module='version'):
-        # TODO(devcamcar): Pull appropriate module version and output.
-        raise NotImplemented()
+    # CRUD extension
+    def create_user(self, context, user):
+        self.assert_admin(context)
+        tenant_id = user.get('tenantId')
+        tenants = []
+        if tenant_id:
+            tenants.append(tenant_id)
+        user_id = uuid.uuid4().hex
+        user_ref = user.copy()
+        #user_ref.pop('tenantId', None)
+        user_ref['id'] = user_id
+        user_ref['tenants'] = tenants
+        new_user_ref = self.identity_api.create_user(
+                context, user_id, user_ref)
+        return {'user': new_user_ref}
 
-    def get_extensions_info(self, context):
-        raise NotImplemented()
+    # NOTE(termie): this is really more of a patch than a put
+    def update_user(self, context, user_id, user):
+        self.assert_admin(context)
+        user_ref = self.identity_api.get_user(context, user_id)
+        del user['id']
+        user_ref.update(user)
+        self.identity_api.update_user(context, user_id, user_ref)
+        return {'user': user_ref}
+
+    def delete_user(self, context, user_id):
+        self.assert_admin(context)
+        self.identity_api.delete_user(context, user_id)
+
+    def set_user_enabled(self, context, user_id, user):
+        return self.update_user(context, user_id, user)
+
+    def set_user_password(self, context, user_id, user):
+        return self.update_user(context, user_id, user)
+
+    def update_user_tenant(self, context, user_id, user):
+        """Update the default tenant."""
+        # ensure that we're a member of that tenant
+        tenant_id = user.get('tenantId')
+        self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+        return self.update_user(context, user_id, user)
+
 
 
 class KeystoneRoleController(service.BaseApplication):
@@ -648,7 +707,6 @@ class KeystoneRoleController(service.BaseApplication):
         if not roles:
             self.identity_api.remove_user_from_tenant(
                     context, tenant_id, user_id)
-
 
 
 class KeystoneServiceController(service.BaseApplication):

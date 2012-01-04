@@ -161,7 +161,9 @@ class MasterCompatTestCase(CompatTestCase):
         user = client.users.update_email(user, 'user2@test.com')
         self.assertEquals(user.email, 'user2@test.com')
 
-        user = client.users.update_enabled(user, False)
+        # NOTE(termie): update_enabled doesn't return anything, probably a bug
+        client.users.update_enabled(user, False)
+        user = client.users.get(user.id)
         self.assertFalse(user.enabled)
 
         # TODO(devcamcar): How to assert this succeeded?
