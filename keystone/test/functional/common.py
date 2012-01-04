@@ -178,7 +178,7 @@ class RestfulTestCase(HttpTestCase):
         additional attribute ``xml`` that will have the an ElementTree
         result.
         """
-        if response.body != None and response.body.strip():
+        if response.body is not None and response.body.strip():
             if 'application/json' in response.getheader('Content-Type', ''):
                 response.json = self._decode_json(response.body)
             elif 'application/xml' in response.getheader('Content-Type', ''):
@@ -378,7 +378,7 @@ class ApiTestCase(RestfulTestCase):
             # Call a real server (bypass the override)
             return super(ApiTestCase, self)._decode_response_body(response)
 
-        if response.body != None and response.body.strip():
+        if response.body is not None and response.body.strip():
             if 'application/json' in response.content_type:
                 response.json = self._decode_json(response.body)
             elif 'application/xml' in response.content_type:

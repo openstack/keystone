@@ -247,7 +247,7 @@ class AuthProtocol(object):
                     if 'group' in claims:
                         self._decorate_request('X_GROUP', claims['group'])
                     if 'roles' in claims and len(claims['roles']) > 0:
-                        if claims['roles'] != None:
+                        if claims['roles'] is not None:
                             roles = ''
                             for role in claims['roles']:
                                 if len(roles) > 0:

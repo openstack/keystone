@@ -280,7 +280,7 @@ def get_non_paste_configs(conf_file):
     complete_conf = load_config_files(conf_file)
     #Add Non Paste global sections.Need to find a better way.
     global_conf = {}
-    if complete_conf != None:
+    if complete_conf is not None:
         for section in complete_conf.sections():
             if not (section.startswith('filter:') or \
                     section.startswith('app:') or \

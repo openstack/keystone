@@ -298,7 +298,7 @@ class Controller(object):
         del arg_dict['action']
         arg_dict['req'] = req
         result = method(**arg_dict)
-        if type(result) is dict:
+        if isinstance(result, dict):
             return self._serialize(result, req)
         else:
             return result
@@ -364,7 +364,7 @@ class Serializer(object):
     def _to_xml_node(self, doc, metadata, nodename, data):
         """Recursive method to convert data members to XML nodes."""
         result = doc.createElement(nodename)
-        if type(data) is list:
+        if isinstance(data, list):
             singular = metadata.get('plurals', {}).get(nodename, None)
             if singular is None:
                 if nodename.endswith('s'):
@@ -374,7 +374,7 @@ class Serializer(object):
             for item in data:
                 node = self._to_xml_node(doc, metadata, singular, item)
                 result.appendChild(node)
-        elif type(data) is dict:
+        elif isinstance(data, dict):
             attrs = metadata.get('attributes', {}).get(nodename, {})
             for k, v in data.items():
                 if k in attrs:

@@ -60,7 +60,7 @@ class TestVersionController(unittest.TestCase):
         versions = data['versions']
         self.assertIn("values", versions)
         values = versions['values']
-        self.assertIsInstance(values, type([]))
+        self.assertIsInstance(values, list)
         for version in values:
             for item in version:
                 self.assertIn(item, ["id", "status", "updated", "links",
