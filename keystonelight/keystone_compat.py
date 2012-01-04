@@ -45,10 +45,6 @@ class KeystoneAdminRouter(wsgi.Router):
                        controller=tenant_controller,
                        action='get_tenant',
                        conditions=dict(method=['GET']))
-        mapper.connect('/tenants',
-                       controller=tenant_controller,
-                       action='create_tenant',
-                       conditions=dict(method=['POST']))
 
         # User Operations
         user_controller = KeystoneUserController(self.options)
@@ -87,7 +83,6 @@ class KeystoneAdminRouter(wsgi.Router):
 class KeystoneServiceRouter(wsgi.Router):
     def __init__(self, options):
         self.options = options
-
         mapper = routes.Mapper()
 
         # Token Operations
@@ -126,14 +121,118 @@ class KeystoneServiceRouter(wsgi.Router):
 
 
 class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
+    """Previously known as the OS-KSADM extension.
+
+    Provides a bunch of CRUD operations for internal data types.
+
+    """
+
     def __init__(self, application, options):
         self.options = options
         mapper = routes.Mapper()
         tenant_controller = KeystoneTenantController(self.options)
-        mapper.connect('/tenants',
-                       controller=tenant_controller,
-                       action='create_tenant',
-                       conditions=dict(method=['POST']))
+        user_controller = KeystoneUserController(self.options)
+        roles_controller = KeystoneRoleController(self.options)
+        services_controller = KeystoneServiceController(self.options)
+
+        # Tenant Operations
+        mapper.connect("/tenants", controller=tenant_controller,
+                    action="create_tenant",
+                    conditions=dict(method=["POST"]))
+        mapper.connect("/tenants/{tenant_id}",
+                    controller=tenant_controller,
+                    action="update_tenant", conditions=dict(method=["POST"]))
+        mapper.connect("/tenants/{tenant_id}",
+                    controller=tenant_controller,
+                    action="delete_tenant", conditions=dict(method=["DELETE"]))
+        mapper.connect("/tenants/{tenant_id}/users",
+                    controller=user_controller,
+                    action="get_tenant_users",
+                    conditions=dict(method=["GET"]))
+
+        # User Operations
+        mapper.connect("/users",
+                    controller=user_controller,
+                    action="get_users",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/users",
+                    controller=user_controller,
+                    action="create_user",
+                    conditions=dict(method=["POST"]))
+        mapper.connect("/users/{user_id}",
+                    controller=user_controller,
+                    action="update_user",
+                    conditions=dict(method=["POST"]))
+        mapper.connect("/users/{user_id}",
+                    controller=user_controller,
+                    action="delete_user",
+                    conditions=dict(method=["DELETE"]))
+
+        # NOTE(termie): not used and not necessary
+        #mapper.connect("/users/{user_id}/OS-KSADM/password",
+        #            controller=user_controller,
+        #            action="set_user_password",
+        #            conditions=dict(method=["PUT"]))
+        #mapper.connect("/users/{user_id}/OS-KSADM/tenant",
+        #            controller=user_controller,
+        #            action="update_user_tenant",
+        #            conditions=dict(method=["PUT"]))
+        #
+        # NOTE(termie): what does the next comment mean?
+        # Test this, test failed
+        #mapper.connect("/users/{user_id}/OS-KSADM/enabled",
+        #            controller=user_controller,
+        #            action="set_user_enabled",
+        #            conditions=dict(method=["PUT"]))
+
+        # User Roles
+        mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
+            controller=roles_controller, action="add_role_to_user",
+            conditions=dict(method=["PUT"]))
+        mapper.connect("/users/{user_id}/roles/OS-KSADM/{role_id}",
+            controller=roles_controller, action="delete_role_from_user",
+            conditions=dict(method=["DELETE"]))
+
+        # User-Tenant Roles
+        mapper.connect(
+            "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
+            controller=roles_controller, action="add_role_to_user",
+            conditions=dict(method=["PUT"]))
+        mapper.connect(
+            "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
+            controller=roles_controller, action="delete_role_from_user",
+            conditions=dict(method=["DELETE"]))
+
+        # Service Operations
+        mapper.connect("/OS-KSADM/services",
+                    controller=services_controller,
+                    action="get_services",
+                    conditions=dict(method=["GET"]))
+        mapper.connect("/OS-KSADM/services",
+                    controller=services_controller,
+                    action="create_service",
+                    conditions=dict(method=["POST"]))
+        mapper.connect("/OS-KSADM/services/{service_id}",
+                    controller=services_controller,
+                    action="delete_service",
+                    conditions=dict(method=["DELETE"]))
+        mapper.connect("/OS-KSADM/services/{service_id}",
+                    controller=services_controller,
+                    action="get_service",
+                    conditions=dict(method=["GET"]))
+
+        # Role Operations
+        mapper.connect("/OS-KSADM/roles", controller=roles_controller,
+                    action="create_role", conditions=dict(method=["POST"]))
+        mapper.connect("/OS-KSADM/roles", controller=roles_controller,
+                    action="get_roles", conditions=dict(method=["GET"]))
+        mapper.connect("/OS-KSADM/roles/{role_id}",
+            controller=roles_controller, action="get_role",
+                conditions=dict(method=["GET"]))
+        mapper.connect("/OS-KSADM/roles/{role_id}",
+            controller=roles_controller, action="delete_role",
+            conditions=dict(method=["DELETE"]))
+
         super(KeystoneAdminCrudExtension, self).__init__(
                 application, options, mapper)
 
@@ -144,6 +243,7 @@ class KeystoneTokenController(service.BaseApplication):
         self.catalog_api = catalog.Manager(options)
         self.identity_api = identity.Manager(options)
         self.token_api = token.Manager(options)
+        super(KeystoneTokenController, self).__init__()
 
     def authenticate(self, context, auth=None):
         """Authenticate credentials and return a token.
@@ -364,6 +464,7 @@ class KeystoneTenantController(service.BaseApplication):
         self.identity_api = identity.Manager(options)
         self.policy_api = policy.Manager(options)
         self.token_api = token.Manager(options)
+        super(KeystoneTenantController, self).__init__()
 
     def get_tenants_for_token(self, context, **kw):
         """Get valid tenants for token based on token used to authenticate.
@@ -435,6 +536,7 @@ class KeystoneTenantController(service.BaseApplication):
 class KeystoneUserController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
+        super(KeystoneUserController, self).__init__()
 
     def get_user(self, context, user_id):
         raise NotImplemented()
@@ -450,6 +552,16 @@ class KeystoneUserController(service.BaseApplication):
 class KeystoneRoleController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
+        super(KeystoneRoleController, self).__init__()
+
+    def get_user_roles(self, context, user_id, tenant_id=None):
+        raise NotImplemented()
+
+
+class KeystoneServiceController(service.BaseApplication):
+    def __init__(self, options):
+        self.options = options
+        super(KeystoneServiceController, self).__init__()
 
     def get_user_roles(self, context, user_id, tenant_id=None):
         raise NotImplemented()
@@ -458,6 +570,7 @@ class KeystoneRoleController(service.BaseApplication):
 class KeystoneVersionController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
+        super(KeystoneVersionController, self).__init__()
 
     def get_version_info(self, context, module='version'):
         raise NotImplemented()
@@ -466,6 +579,7 @@ class KeystoneVersionController(service.BaseApplication):
 class KeystoneExtensionsController(service.BaseApplication):
     def __init__(self, options):
         self.options = options
+        super(KeystoneExtensionsController, self).__init__()
 
     def get_extensions_info(self, context):
         raise NotImplemented()
