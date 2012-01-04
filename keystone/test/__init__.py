@@ -400,7 +400,7 @@ class KeystoneTest(object):
         self.construct_temp_conf_file()
 
         # Set client certificate for test client
-        if (self.isSsl == True):
+        if self.isSsl:
             logger.debug("SSL testing will use cert_file %s" % TEST_CERT)
             os.environ['cert_file'] = TEST_CERT
         else:

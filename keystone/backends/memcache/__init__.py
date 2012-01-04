@@ -76,6 +76,6 @@ def register_models(options):
     for supported_memcache_model in supported_memcache_models:
         model = utils.import_module(MODEL_PREFIX + supported_memcache_model)
         top_models.set_value(supported_memcache_model, model)
-        if model.__api__ != None:
+        if model.__api__ is not None:
             model_api = utils.import_module(API_PREFIX + model.__api__)
             top_api.set_value(model.__api__, model_api.get())

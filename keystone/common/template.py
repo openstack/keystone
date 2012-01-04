@@ -321,9 +321,8 @@ def static_file(resp, req, filename, root, guessmime=True, mimetype=None,
     else:
         resp.content_type = mimetype or 'text/plain'
 
-    if download == True:
-        download = os.path.basename(filename)
     if download:
+        download = os.path.basename(filename)
         resp.content_disposition = 'attachment; filename="%s"' % download
 
     stats = os.stat(filename)

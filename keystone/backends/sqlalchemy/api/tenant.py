@@ -284,10 +284,10 @@ class TenantAPI(api.BaseTenantAPI):
 
         a_user = session.query(models.UserRoleAssociation).filter_by(\
             tenant_id=id).first()
-        if a_user != None:
+        if a_user is not None:
             return False
         a_user = session.query(models.User).filter_by(tenant_id=id).first()
-        if a_user != None:
+        if a_user is not None:
             return False
         return True
 

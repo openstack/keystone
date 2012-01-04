@@ -60,7 +60,7 @@ def validate_json(path):
     try:
         contents = read_file(path)
 
-        if contents == False:
+        if contents is False:
             logging.warning('Insufficient permissions to open: %s' % path)
             return False
     except:

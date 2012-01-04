@@ -316,7 +316,7 @@ class AuthData(object):
         else:
             self.url_types = url_types
         self.d = {}
-        if self.base_urls != None:
+        if self.base_urls is not None:
             self.__convert_baseurls_to_dict()
 
     def to_xml(self):

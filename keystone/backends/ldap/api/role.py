@@ -74,7 +74,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
                 raise exception.NotFound("Role %s not found" % (role_id,))
-            if tenant_id != None:
+            if tenant_id is not None:
                 tenant_dn = self.api.tenant._id_to_dn(tenant_id)
             else:
                 tenant_dn = None
@@ -242,7 +242,7 @@ class RoleAPI(BaseLdapAPI, BaseTenantAPI):
                     continue
                 user_id = self.api.user._dn_to_id(user_dn)
                 tenant_id = None
-                if tenant_dns != None:
+                if tenant_dns is not None:
                     for tenant_dn in tenant_dns:
                         tenant_id = self.api.tenant._dn_to_id(tenant_dn)
                 role_id = self._dn_to_id(role_dn)
