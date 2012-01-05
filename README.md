@@ -141,8 +141,8 @@ Initial support for using keystone as nova's identity component has been started
     bzr clone lp:nova
     git clone git://github.com/openstack/keystone.git
 
-    # link keystone into the nova root dir
-    ln -s keystone/keystone nova/keystone
+    # install keystone on the host which runs nova
+    run "python setup install" to install keystone.
 
     # run nova-api based on the paste config in keystone
     nova/bin/nova-api --api_paste_config=keystone/examples/paste/nova-api-paste.ini
