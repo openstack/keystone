@@ -123,17 +123,17 @@ to customers without the apporpriate privileges.
 An example of setting up the endpoint for Nova::
 
     $ keystone-manage endpointTemplates add RegionOne nova \
-    http://nova-api.mydomain:8774/v1.1/ \
-    http://nova-api.mydomain:8774/v1.1/ \
-    http://nova-api.mydomain:8774/v1.1/ \
+    http://nova-api.mydomain:8774/v1.1/%tenant_id% \
+    http://nova-api.mydomain:8774/v1.1/%tenant_id% \
+    http://nova-api.mydomain:8774/v1.1/%tenant_id% \
     1 1
 
 Glance::
 
     $ keystone-manage endpointTemplates add RegionOne glance \
-    http://glance.mydomain:9292/v1.1/ \
-    http://glance.mydomain:9292/v1.1/ \
-    http://glance.mydomain:9292/v1.1/ \
+    http://glance.mydomain:9292/v1 \
+    http://glance.mydomain:9292/v1 \
+    http://glance.mydomain:9292/v1 \
     1 1
 
 Swift::
