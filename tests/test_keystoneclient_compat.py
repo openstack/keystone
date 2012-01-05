@@ -184,7 +184,7 @@ class MasterCompatTestCase(CompatTestCase):
     def test_role_get(self):
         client = self.foo_client()
         role = client.roles.get('keystone_admin')
-        self.assertEquals(role.name, 'keystone_admin')
+        self.assertEquals(role.id, 'keystone_admin')
 
     def test_role_create_and_delete(self):
         from keystoneclient import exceptions as client_exceptions
@@ -194,10 +194,10 @@ class MasterCompatTestCase(CompatTestCase):
         role = client.roles.create(test_role)
         self.assertEquals(role.name, test_role)
 
-        role = client.roles.get(test_role)
+        role = client.roles.get(role)
         self.assertEquals(role.name, test_role)
 
-        client.roles.delete(test_role)
+        client.roles.delete(role)
 
         self.assertRaises(client_exceptions.NotFound, client.roles.get,
                           test_role)
@@ -210,7 +210,7 @@ class MasterCompatTestCase(CompatTestCase):
 
     def test_roles_get_by_user(self):
         client = self.foo_client()
-        roles = client.roles.get_user_role_refs('FOO')
+        roles = client.roles.get_user_role_refs('foo')
         self.assertTrue(len(roles) > 0)
 
     def test_service_create_and_delete(self):

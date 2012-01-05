@@ -235,33 +235,39 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
 
         # Service Operations
         mapper.connect("/OS-KSADM/services",
-                    controller=service_controller,
-                    action="get_services",
-                    conditions=dict(method=["GET"]))
+                       controller=service_controller,
+                       action="get_services",
+                       conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/services",
-                    controller=service_controller,
-                    action="create_service",
-                    conditions=dict(method=["POST"]))
+                       controller=service_controller,
+                       action="create_service",
+                       conditions=dict(method=["POST"]))
         mapper.connect("/OS-KSADM/services/{service_id}",
-                    controller=service_controller,
-                    action="delete_service",
-                    conditions=dict(method=["DELETE"]))
+                       controller=service_controller,
+                       action="delete_service",
+                       conditions=dict(method=["DELETE"]))
         mapper.connect("/OS-KSADM/services/{service_id}",
-                    controller=service_controller,
-                    action="get_service",
-                    conditions=dict(method=["GET"]))
+                       controller=service_controller,
+                       action="get_service",
+                       conditions=dict(method=["GET"]))
 
         # Role Operations
-        mapper.connect("/OS-KSADM/roles", controller=role_controller,
-                    action="create_role", conditions=dict(method=["POST"]))
-        mapper.connect("/OS-KSADM/roles", controller=role_controller,
-                    action="get_roles", conditions=dict(method=["GET"]))
+        mapper.connect("/OS-KSADM/roles",
+                       controller=role_controller,
+                       action="create_role",
+                       conditions=dict(method=["POST"]))
+        mapper.connect("/OS-KSADM/roles",
+                       controller=role_controller,
+                       action="get_roles",
+                       conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/roles/{role_id}",
-            controller=role_controller, action="get_role",
-                conditions=dict(method=["GET"]))
+                       controller=role_controller,
+                       action="get_role",
+                       conditions=dict(method=["GET"]))
         mapper.connect("/OS-KSADM/roles/{role_id}",
-            controller=role_controller, action="delete_role",
-            conditions=dict(method=["DELETE"]))
+                       controller=role_controller,
+                       action="delete_role",
+                       conditions=dict(method=["DELETE"]))
 
         super(KeystoneAdminCrudExtension, self).__init__(
                 application, options, mapper)
@@ -647,6 +653,31 @@ class KeystoneRoleController(service.BaseApplication):
 
     def get_user_roles(self, context, user_id, tenant_id=None):
         raise NotImplemented()
+
+    # CRUD extension
+    def get_role(self, context, role_id):
+        self.assert_admin(context)
+        role_ref = self.identity_api.get_role(context, role_id)
+        if not role_ref:
+            raise exc.HTTPNotFound()
+        return {'role': role_ref}
+
+    def create_role(self, context, role):
+        role_id = uuid.uuid4().hex
+        role['id'] = role_id
+        role_ref = self.identity_api.create_role(context, role_id, role)
+        return {'role': role_ref}
+
+    def delete_role(self, context, role_id):
+        self.assert_admin(context)
+        role_ref = self.identity_api.delete_role(context, role_id)
+
+    def get_roles(self, context):
+        self.assert_admin(context)
+        roles = self.identity_api.list_roles(context)
+        # TODO(termie): probably inefficient at some point
+        return {'roles': [self.identity_api.get_role(context, x)
+                          for x in roles]}
 
     # COMPAT(diablo): CRUD extension
     def get_role_refs(self, context, user_id):

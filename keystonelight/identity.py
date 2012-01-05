@@ -42,6 +42,9 @@ class Manager(object):
   def list_users(self, context):
     return self.driver.list_users()
 
+  def list_roles(self, context):
+    return self.driver.list_roles()
+
   # These should probably be the high-level API calls
   def add_user_to_tenant(self, context, user_id, tenant_id):
     self.driver.add_user_to_tenant(user_id, tenant_id)
