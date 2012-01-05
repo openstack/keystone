@@ -16,8 +16,9 @@
 # pylint: disable=C0302
 
 from datetime import datetime, timedelta
-import uuid
+import functools
 import logging
+import uuid
 
 from keystone.logic.types import auth, atom
 from keystone.logic.signer import Signer
@@ -53,6 +54,24 @@ SERVICE_ADMIN_ROLE_NAME = None
 GLOBAL_SERVICE_ID = None  # to facilitate global roles for validate tokens
 
 LOG = logging.getLogger(__name__)
+
+
+def admin_token_validator(fnc):
+    """Decorator that applies the validate_admin_token() method."""
+    @functools.wraps(fnc)
+    def _wrapper(self, token_id, *args, **kwargs):
+        self.validate_admin_token(token_id)
+        return fnc(self, token_id, *args, **kwargs)
+    return _wrapper
+
+
+def service_admin_token_validator(fnc):
+    """Decorator that applies the validate_service_admin_token() method."""
+    @functools.wraps(fnc)
+    def _wrapper(self, token_id, *args, **kwargs):
+        self.validate_service_admin_token(token_id)
+        return fnc(self, token_id, *args, **kwargs)
+    return _wrapper
 
 
 class IdentityService(object):
@@ -208,9 +227,9 @@ class IdentityService(object):
             dtoken = self.token_manager.create(dtoken)
         return self.get_auth_data(dtoken)
 
+    @service_admin_token_validator
     def validate_token(self, admin_token, token_id, belongs_to=None,
                        service_ids=None):
-        self.validate_service_admin_token(admin_token)
         (token, user) = self._validate_token(token_id, belongs_to, True)
         if service_ids and (token.tenant_id or belongs_to):
             # scope token, validate the service IDs if present
@@ -223,9 +242,8 @@ class IdentityService(object):
                 raise fault.UnauthorizedFault("No roles found for scope token")
         return auth_data
 
+    @admin_token_validator
     def revoke_token(self, admin_token, token_id):
-        self.validate_admin_token(admin_token)
-
         dtoken = self.token_manager.get(token_id)
         if not dtoken:
             raise fault.ItemNotFoundFault("Token not found")
@@ -314,9 +332,9 @@ class IdentityService(object):
         else:
             return ts
 
+    @service_admin_token_validator
     def get_endpoints_for_token(self, admin_token,
             token_id, marker, limit, url,):
-        self.validate_service_admin_token(admin_token)
         dtoken = self.token_manager.get(token_id)
         if not dtoken:
             raise fault.ItemNotFoundFault("Token not found")
@@ -608,9 +626,8 @@ class IdentityService(object):
     #
     #   Tenant Operations
     #
+    @admin_token_validator
     def create_tenant(self, admin_token, tenant):
-        self.validate_admin_token(admin_token)
-
         if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
@@ -666,25 +683,22 @@ class IdentityService(object):
         links = self.get_links(url, prev_page, next_page, limit)
         return Tenants(ts, links)
 
+    @admin_token_validator
     def get_tenant(self, admin_token, tenant_id):
-        self.validate_admin_token(admin_token)
-
         dtenant = self.tenant_manager.get(tenant_id)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
         return Tenant(dtenant.id, dtenant.name, dtenant.desc, dtenant.enabled)
 
+    @admin_token_validator
     def get_tenant_by_name(self, admin_token, tenant_name):
-        self.validate_admin_token(admin_token)
-
         dtenant = self.tenant_manager.get_by_name(tenant_name)
         if not dtenant:
             raise fault.ItemNotFoundFault("The tenant could not be found")
         return dtenant
 
+    @admin_token_validator
     def update_tenant(self, admin_token, tenant_id, tenant):
-        self.validate_admin_token(admin_token)
-
         if not isinstance(tenant, Tenant):
             raise fault.BadRequestFault("Expecting a Tenant")
 
@@ -704,9 +718,8 @@ class IdentityService(object):
         dtenant = self.tenant_manager.get(tenant_id)
         return dtenant
 
+    @admin_token_validator
     def delete_tenant(self, admin_token, tenant_id):
-        self.validate_admin_token(admin_token)
-
         dtenant = self.tenant_manager.get(tenant_id)
         if dtenant is None:
             raise fault.ItemNotFoundFault("The tenant could not be found")
@@ -717,9 +730,8 @@ class IdentityService(object):
     #
     #   User Operations
     #
+    @admin_token_validator
     def create_user(self, admin_token, user):
-        self.validate_admin_token(admin_token)
-
         self.validate_and_fetch_user_tenant(user.tenant_id)
 
         if not isinstance(user, User):
@@ -757,10 +769,9 @@ class IdentityService(object):
             return dtenant
 
     # pylint: disable=R0913
+    @admin_token_validator
     def get_tenant_users(self, admin_token, tenant_id,
             role_id, marker, limit, url):
-        self.validate_admin_token(admin_token)
-
         if tenant_id is None:
             raise fault.BadRequestFault("Expecting a Tenant Id")
         dtenant = self.tenant_manager.get(tenant_id)
@@ -789,8 +800,8 @@ class IdentityService(object):
             links = self.get_links(url, prev, next, limit)
         return Users(ts, links)
 
+    @admin_token_validator
     def get_users(self, admin_token, marker, limit, url):
-        self.validate_admin_token(admin_token)
         ts = []
         dusers = self.user_manager.users_get_page(marker, limit)
         for duser in dusers:
@@ -803,27 +814,25 @@ class IdentityService(object):
             links = self.get_links(url, prev, next, limit)
         return Users(ts, links)
 
+    @admin_token_validator
     def get_user(self, admin_token, user_id):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
         return User_Update(id=duser.id, tenant_id=duser.tenant_id,
                 email=duser.email, enabled=duser.enabled, name=duser.name)
 
+    @admin_token_validator
     def get_user_by_name(self, admin_token, user_name):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get_by_name(user_name)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
         return User_Update(id=duser.id, tenant_id=duser.tenant_id,
                 email=duser.email, enabled=duser.enabled, name=duser.name)
 
+    @admin_token_validator
     def update_user(self, admin_token, user_id, user):
-        self.validate_admin_token(admin_token)
-
         duser = self.user_manager.get(user_id)
-
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
 
@@ -848,9 +857,8 @@ class IdentityService(object):
         return User(duser.password, duser.id, duser.name, duser.tenant_id,
             duser.email, duser.enabled)
 
+    @admin_token_validator
     def set_user_password(self, admin_token, user_id, user):
-        self.validate_admin_token(admin_token)
-
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -868,8 +876,8 @@ class IdentityService(object):
 
         return User_Update(password=user.password)
 
+    @admin_token_validator
     def enable_disable_user(self, admin_token, user_id, user):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -884,9 +892,8 @@ class IdentityService(object):
 
         return User_Update(enabled=user.enabled)
 
+    @admin_token_validator
     def set_user_tenant(self, admin_token, user_id, user):
-        self.validate_admin_token(admin_token)
-
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -898,8 +905,8 @@ class IdentityService(object):
         self.user_manager.update(values)
         return User_Update(tenant_id=user.tenant_id)
 
+    @admin_token_validator
     def delete_user(self, admin_token, user_id):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -956,16 +963,16 @@ class IdentityService(object):
         role.id = drole.id
         return role
 
+    @service_admin_token_validator
     def get_roles(self, admin_token, marker, limit, url):
-        self.validate_service_admin_token(admin_token)
         droles = self.role_manager.get_page(marker, limit)
         prev, next = self.role_manager.get_page_markers(marker, limit)
         links = self.get_links(url, prev, next, limit)
         ts = self.transform_roles(droles)
         return Roles(ts, links)
 
+    @service_admin_token_validator
     def get_roles_by_service(self, admin_token, marker, limit, url, serviceId):
-        self.validate_service_admin_token(admin_token)
         droles = self.role_manager.get_by_service_get_page(serviceId, marker,
                                                                         limit)
         prev, next = self.role_manager.get_by_service_get_page_markers(
@@ -978,16 +985,15 @@ class IdentityService(object):
         return [Role(drole.id, drole.name, drole.desc, drole.service_id)
                 for drole in droles]
 
+    @service_admin_token_validator
     def get_role(self, admin_token, role_id):
-        self.validate_service_admin_token(admin_token)
         drole = self.role_manager.get(role_id)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
         return Role(drole.id, drole.name, drole.desc, drole.service_id)
 
+    @service_admin_token_validator
     def get_role_by_name(self, admin_token, role_name):
-        self.validate_service_admin_token(admin_token)
-
         drole = self.role_manager.get_by_name(role_name)
         if not drole:
             raise fault.ItemNotFoundFault("The role could not be found")
@@ -1017,8 +1023,8 @@ class IdentityService(object):
                 self.grant_manager.rolegrant_delete(rolegrant.id)
         self.role_manager.delete(role_id)
 
+    @service_admin_token_validator
     def add_role_to_user(self, admin_token, user_id, role_id, tenant_id=None):
-        self.validate_service_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -1044,9 +1050,9 @@ class IdentityService(object):
             drolegrant.tenant_id = dtenant.id
         self.user_manager.user_role_add(drolegrant)
 
+    @service_admin_token_validator
     def remove_role_from_user(self, admin_token, user_id, role_id,
                               tenant_id=None):
-        self.validate_service_admin_token(admin_token)
         drolegrant = self.grant_manager.rolegrant_get_by_ids(user_id, role_id,
                                                                     tenant_id)
         if drolegrant is None:
@@ -1055,9 +1061,9 @@ class IdentityService(object):
         self.grant_manager.rolegrant_delete(drolegrant.id)
 
     # pylint: disable=R0913, R0914
+    @service_admin_token_validator
     def get_user_roles(self, admin_token, marker,
-        limit, url, user_id, tenant_id):
-        self.validate_service_admin_token(admin_token)
+            limit, url, user_id, tenant_id):
         duser = self.user_manager.get(user_id)
 
         if not duser:
@@ -1208,8 +1214,8 @@ class IdentityService(object):
                 self.endpoint_manager.delete(endpoint.id)
         self.endpoint_template_manager.delete(endpoint_template_id)
 
+    @service_admin_token_validator
     def get_endpoint_templates(self, admin_token, marker, limit, url):
-        self.validate_service_admin_token(admin_token)
         dendpoint_templates = self.endpoint_template_manager.get_page(marker,
                                                                       limit)
         ts = self.transform_endpoint_templates(dendpoint_templates)
@@ -1218,9 +1224,9 @@ class IdentityService(object):
         links = self.get_links(url, prev, next, limit)
         return EndpointTemplates(ts, links)
 
+    @service_admin_token_validator
     def get_endpoint_templates_by_service(self, admin_token,
-        service_id, marker, limit, url):
-        self.validate_service_admin_token(admin_token)
+            service_id, marker, limit, url):
         dservice = self.service_manager.get(service_id)
         if dservice is None:
             raise fault.ItemNotFoundFault(
@@ -1253,9 +1259,8 @@ class IdentityService(object):
                 ))
         return ts
 
+    @service_admin_token_validator
     def get_endpoint_template(self, admin_token, endpoint_template_id):
-        self.validate_service_admin_token(admin_token)
-
         dendpoint_template = self.endpoint_template_manager.get(
                 endpoint_template_id)
         if not dendpoint_template:
@@ -1277,10 +1282,10 @@ class IdentityService(object):
             dendpoint_template.version_info
             )
 
+    @service_admin_token_validator
     def get_tenant_endpoints(self, admin_token, marker, limit, url, tenant_id):
-        self.validate_service_admin_token(admin_token)
         return self.fetch_tenant_endpoints(marker, limit,
-                                                      url, tenant_id)
+                url, tenant_id)
 
     def fetch_tenant_endpoints(self, marker, limit, url, tenant_id):
         if tenant_id is None:
@@ -1319,9 +1324,9 @@ class IdentityService(object):
             links = self.get_links(url, prev, next, limit)
         return Endpoints(ts, links)
 
+    @service_admin_token_validator
     def create_endpoint_for_tenant(self, admin_token, tenant_id,
                                    endpoint_template):
-        self.validate_service_admin_token(admin_token)
         utils.check_empty_string(tenant_id, "Expecting a Tenant Id.")
         if self.tenant_manager.get(tenant_id) is None:
             raise fault.ItemNotFoundFault("The tenant not found")
@@ -1351,17 +1356,16 @@ class IdentityService(object):
                             )
         return dendpoint
 
+    @service_admin_token_validator
     def delete_endpoint(self, admin_token, endpoint_id):
-        self.validate_service_admin_token(admin_token)
         if self.endpoint_manager.get(endpoint_id) is None:
             raise fault.ItemNotFoundFault("The Endpoint is not found.")
         self.endpoint_manager.delete(endpoint_id)
         return None
 
     #Service Operations
+    @service_admin_token_validator
     def create_service(self, admin_token, service):
-        self.validate_service_admin_token(admin_token)
-
         if not isinstance(service, Service):
             raise fault.BadRequestFault("Expecting a Service")
 
@@ -1381,9 +1385,8 @@ class IdentityService(object):
 
         return service
 
+    @service_admin_token_validator
     def get_services(self, admin_token, marker, limit, url):
-        self.validate_service_admin_token(admin_token)
-
         ts = []
         dservices = self.service_manager.get_page(marker, limit)
         for dservice in dservices:
@@ -1393,25 +1396,24 @@ class IdentityService(object):
         links = self.get_links(url, prev, next, limit)
         return Services(ts, links)
 
+    @service_admin_token_validator
     def get_service(self, admin_token, service_id):
-        self.validate_service_admin_token(admin_token)
-
         dservice = self.service_manager.get(service_id)
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
         return Service(dservice.id, dservice.name, dservice.type,
             dservice.desc)
 
+    @service_admin_token_validator
     def get_service_by_name(self, admin_token, service_name):
-        self.validate_service_admin_token(admin_token)
         dservice = self.service_manager.get_by_name(service_name)
         if not dservice:
             raise fault.ItemNotFoundFault("The service could not be found")
         return Service(dservice.id, dservice.name, dservice.type,
             dservice.desc)
 
+    @service_admin_token_validator
     def delete_service(self, admin_token, service_id):
-        self.validate_service_admin_token(admin_token)
         dservice = self.service_manager.get(service_id)
 
         if not dservice:
@@ -1439,8 +1441,8 @@ class IdentityService(object):
                 self.role_manager.delete(role.id)
         self.service_manager.delete(service_id)
 
+    @admin_token_validator
     def get_credentials(self, admin_token, user_id, marker, limit, url):
-        self.validate_admin_token(admin_token)
         ts = []
         duser = self.user_manager.get(user_id)
         if not duser:
@@ -1449,8 +1451,8 @@ class IdentityService(object):
         links = []
         return Credentials(ts, links)
 
+    @admin_token_validator
     def get_password_credentials(self, admin_token, user_id):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -1459,17 +1461,17 @@ class IdentityService(object):
                 "Password credentials could not be found")
         return PasswordCredentials(duser.name, None)
 
+    @admin_token_validator
     def delete_password_credentials(self, admin_token, user_id):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
         values = {'id': user_id, 'password': None}
         self.user_manager.update(values)
 
+    @admin_token_validator
     def update_password_credentials(self, admin_token, user_id,
                                     password_credentials):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
@@ -1488,9 +1490,9 @@ class IdentityService(object):
         duser = self.user_manager.get(user_id)
         return PasswordCredentials(duser.name, duser.password)
 
+    @admin_token_validator
     def create_password_credentials(self, admin_token, user_id,
                                     password_credentials):
-        self.validate_admin_token(admin_token)
         duser = self.user_manager.get(user_id)
         if not duser:
             raise fault.ItemNotFoundFault("The user could not be found")
