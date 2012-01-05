@@ -587,6 +587,13 @@ class KeystoneUserController(service.BaseApplication):
             raise exc.HTTPNotFound()
         return {'user': user_ref}
 
+    def get_users(self, context):
+        # NOTE(termie): i can't imagine that this really wants all the data
+        #               about every single user in the system...
+        self.assert_admin(context)
+        user_list = self.identity_api.list_users(context)
+        return {'users': [{'id': x} for x in user_list]}
+
     # CRUD extension
     def create_user(self, context, user):
         self.assert_admin(context)
@@ -628,7 +635,6 @@ class KeystoneUserController(service.BaseApplication):
         tenant_id = user.get('tenantId')
         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         return self.update_user(context, user_id, user)
-
 
 
 class KeystoneRoleController(service.BaseApplication):

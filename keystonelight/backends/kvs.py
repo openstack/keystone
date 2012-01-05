@@ -63,6 +63,9 @@ class KvsIdentity(object):
     role_ref = self.db.get('role-%s' % role_id)
     return role_ref
 
+  def list_users(self):
+    return self.db.get('user_list', [])
+
   # These should probably be part of the high-level API
   def add_user_to_tenant(self, tenant_id, user_id):
     user_ref = self.get_user(user_id)
@@ -112,6 +115,9 @@ class KvsIdentity(object):
   def create_user(self, id, user):
     self.db.set('user-%s' % id, user)
     self.db.set('user_name-%s' % user['name'], user)
+    user_list = set(self.db.get('user_list', []))
+    user_list.add(id)
+    self.db.set('user_list', list(user_list))
     return user
 
   def update_user(self, id, user):
@@ -126,6 +132,9 @@ class KvsIdentity(object):
     old_user = self.db.get('user-%s' % id)
     self.db.delete('user_name-%s' % old_user['name'])
     self.db.delete('user-%s' % id)
+    user_list = set(self.db.get('user_list', []))
+    user_list.remove(id)
+    self.db.set('user_list', list(user_list))
     return None
 
   def create_tenant(self, id, tenant):

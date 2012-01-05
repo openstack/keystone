@@ -37,6 +37,11 @@ class Manager(object):
   def get_role(self, context, role_id):
     return self.driver.get_role(role_id)
 
+  # NOTE(termie): i think it will probably be a bad move in the end to try to
+  #               list all users
+  def list_users(self, context):
+    return self.driver.list_users()
+
   # These should probably be the high-level API calls
   def add_user_to_tenant(self, context, user_id, tenant_id):
     self.driver.add_user_to_tenant(user_id, tenant_id)
