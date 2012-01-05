@@ -1,18 +1,23 @@
+import os
 import uuid
 
 from keystonelight import models
 from keystonelight import test
-from keystonelight.backends import kvs
+from keystonelight.backends import sql
+from keystonelight.backends.sql import migration
 
+import test_backend_kvs
 import default_fixtures
 
 
-class KvsIdentity(test.TestCase):
+class SqlIdentity(test_backend_kvs.KvsIdentity):
   def setUp(self):
-    super(KvsIdentity, self).setUp()
+    super(SqlIdentity, self).setUp()
     self.options = self.appconfig('default')
-    #self.identity_api = kvs.KvsIdentity(options=self.options, db={})
-    #self.load_fixtures(default_fixtures)
+    os.unlink('bla.db')
+    migration.db_sync(self.options, 1)
+    self.identity_api = sql.SqlIdentity(options=self.options)
+    self.load_fixtures(default_fixtures)
 
   def test_authenticate_bad_user(self):
     self.assertRaises(AssertionError,
@@ -104,11 +109,11 @@ class KvsIdentity(test.TestCase):
     self.assertDictEquals(role_ref, self.role_keystone_admin)
 
 
-class KvsToken(test.TestCase):
+class SqlToken(test_backend_kvs.KvsToken):
   def setUp(self):
-    super(KvsToken, self).setUp()
-    options = self.appconfig('default')
-    self.token_api = kvs.KvsToken(options=options, db={})
+    super(SqlToken, self).setUp()
+    self.token_api = sql.SqlToken(options=options)
+    self.load_fixtures(default_fixtures)
 
   def test_token_crud(self):
     token_id = uuid.uuid4().hex
@@ -125,11 +130,10 @@ class KvsToken(test.TestCase):
     self.assert_(deleted_data_ref is None)
 
 
-class KvsCatalog(test.TestCase):
+class SqlCatalog(test_backend_kvs.KvsCatalog):
   def setUp(self):
-    super(KvsCatalog, self).setUp()
-    options = self.appconfig('default')
-    self.catalog_api = kvs.KvsCatalog(options=options, db={})
+    super(SqlCatalog, self).setUp()
+    self.catalog_api = sql.SqlCatalog(options=options)
     self._load_fixtures()
 
   def _load_fixtures(self):

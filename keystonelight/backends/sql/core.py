@@ -27,6 +27,9 @@ class JsonBlob(sql_types.TypeDecorator):
 
 
 class DictBase(object):
+  def to_dict(self):
+    return dict(self.iteritems())
+
   def __setitem__(self, key, value):
     setattr(self, key, value)
 
@@ -37,7 +40,7 @@ class DictBase(object):
     return getattr(self, key, default)
 
   def __iter__(self):
-    self._i = iter(object_mapper(self).columns)
+    self._i = iter(sqlalchemy.orm.object_mapper(self).columns)
     return self
 
   def next(self):
@@ -186,7 +189,7 @@ class SqlIdentity(SqlBase):
   def get_tenant(self, tenant_id):
     session = self.get_session()
     tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
-    return models.Tenant(**tenant_ref)
+    return tenant_ref
 
   def get_tenant_by_name(self, tenant_name):
     tenant_ref = self.db.get('tenant_name-%s' % tenant_name)
@@ -195,7 +198,7 @@ class SqlIdentity(SqlBase):
   def get_user(self, user_id):
     session = self.get_session()
     user_ref = session.query(User).filter_by(id=user_id).first()
-    return models.User(**user_ref)
+    return user_ref
 
   def get_user_by_name(self, user_name):
     user_ref = self.db.get('user_name-%s' % user_name)
@@ -261,6 +264,7 @@ class SqlIdentity(SqlBase):
   def create_user(self, id, user):
     session = self.get_session()
     session.add(User(**user))
+    session.flush()
     #self.db.set('user-%s' % id, user)
     #self.db.set('user_name-%s' % user['name'], user)
     #user_list = set(self.db.get('user_list', []))
