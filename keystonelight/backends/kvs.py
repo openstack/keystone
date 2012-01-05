@@ -112,8 +112,6 @@ class KvsIdentity(object):
     extras_ref['roles'] = list(roles)
     self.update_extras(user_id, tenant_id, extras_ref)
 
-
-
   # CRUD
   def create_user(self, id, user):
     self.db.set('user-%s' % id, user)
@@ -158,7 +156,6 @@ class KvsIdentity(object):
     self.db.delete('tenant_name-%s' % old_tenant['name'])
     self.db.delete('tenant-%s' % id)
     return None
-
 
   def create_extras(self, user_id, tenant_id, extras):
     self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
@@ -222,6 +219,30 @@ class KvsCatalog(object):
   # Public interface
   def get_catalog(self, user_id, tenant_id, extras=None):
     return self.db.get('catalog-%s-%s' % (tenant_id, user_id))
+
+  def get_service(self, service_id):
+    return self.db.get('service-%s' % service_id)
+
+  def list_services(self):
+    return self.db.get('service_list', [])
+
+  def create_service(self, id, service):
+    self.db.set('service-%s' % id, service)
+    service_list = set(self.db.get('service_list', []))
+    service_list.add(id)
+    self.db.set('service_list', list(service_list))
+    return service
+
+  def update_service(self, id, service):
+    self.db.set('service-%s' % id, service)
+    return service
+
+  def delete_service(self, id):
+    self.db.delete('service-%s' % id)
+    service_list = set(self.db.get('service_list', []))
+    service_list.remove(id)
+    self.db.set('service_list', list(service_list))
+    return None
 
   # Private interface
   def _create_catalog(self, user_id, tenant_id, data):

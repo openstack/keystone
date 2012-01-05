@@ -1,7 +1,8 @@
 from keystonelight import logging
+from keystonelight.backends import kvs
 
 
-class TemplatedCatalog(object):
+class TemplatedCatalog(kvs.KvsCatalog):
   """A backend that generates endpoints for the Catalog based on templates.
 
   It is usually configured via config entries that look like:
@@ -37,6 +38,8 @@ class TemplatedCatalog(object):
       self.templates = templates
     else:
       self._load_templates(options)
+
+    super(TemplatedCatalog, self).__init__(options)
 
   def _load_templates(self, options):
     o = {}

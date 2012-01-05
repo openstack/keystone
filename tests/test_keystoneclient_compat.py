@@ -230,6 +230,8 @@ class MasterCompatTestCase(CompatTestCase):
 
     def test_service_list(self):
         client = self.foo_client()
+        test_service = 'new_service'
+        service = client.services.create(test_service, 'test', 'test')
         services = client.services.list()
         # TODO(devcamcar): This assert should be more specific.
         self.assertTrue(len(services) > 0)

@@ -67,7 +67,8 @@ class BaseApplication(wsgi.Application):
     method = getattr(self, action)
 
     # NOTE(vish): make sure we have no unicode keys for py2.6.
-    params = dict([(str(k), v) for (k, v) in params.iteritems()])
+    params = dict([(self._normalize_arg(k), v)
+                   for (k, v) in params.iteritems()])
     result = method(context, **params)
 
     if result is None or type(result) is str or type(result) is unicode:
@@ -76,6 +77,9 @@ class BaseApplication(wsgi.Application):
       return result
 
     return json.dumps(result)
+
+  def _normalize_arg(self, arg):
+    return str(arg).replace(':', '_').replace('-', '_')
 
   def assert_admin(self, context):
     if not context['is_admin']:
