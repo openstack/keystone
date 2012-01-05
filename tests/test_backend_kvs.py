@@ -6,6 +6,7 @@ from keystonelight.backends import kvs
 
 import default_fixtures
 
+
 class KvsIdentity(test.TestCase):
   def setUp(self):
     super(KvsIdentity, self).setUp()

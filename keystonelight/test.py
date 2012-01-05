@@ -125,7 +125,11 @@ class TestCase(unittest.TestCase):
       setattr(self, 'tenant_%s' % tenant['id'], rv)
 
     for user in fixtures.USERS:
-      rv = self.identity_api.create_user(user['id'], models.User(**user))
+      user_copy = user.copy()
+      tenants = user_copy.pop('tenants')
+      rv = self.identity_api.create_user(user['id'], models.User(**user_copy))
+      for tenant_id in tenants:
+        self.identity_api.add_user_to_tenant(tenant_id, user['id'])
       setattr(self, 'user_%s' % user['id'], rv)
 
     for role in fixtures.ROLES:

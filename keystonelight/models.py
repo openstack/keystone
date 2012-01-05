@@ -6,10 +6,8 @@ class Token(dict):
 
 
 class User(dict):
-  def __init__(self, id=None, tenants=None, *args, **kw):
-    if tenants is None:
-      tenants = []
-    super(User, self).__init__(id=id, tenants=tenants, *args, **kw)
+  def __init__(self, id=None, *args, **kw):
+    super(User, self).__init__(id=id, *args, **kw)
 
 
 class Tenant(dict):
