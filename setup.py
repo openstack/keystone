@@ -43,12 +43,6 @@ try:
 except:
     pass
 
-requirements = ['setuptools', 'httplib2', 'eventlet', 'paste', 'pastedeploy',
-                'webob', 'Routes', 'sqlalchemy', 'sqlalchemy-migrate',
-                'lxml', 'passlib']
-if sys.version_info < (2, 6):
-    requirements.append('simplejson')
-
 setup(
     name='keystone',
     version=version.canonical_version(),
@@ -66,7 +60,6 @@ setup(
              'bin/keystone-control'],
     zip_safe=False,
     cmdclass=cmdclass,
-    install_requires=requirements,
     tests_require=['nose', 'unittest2', 'webtest', 'mox', 'pylint', 'pep8'],
     test_suite='keystone.test.runtests',
     entry_points={
