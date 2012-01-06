@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 result = test_cls().run()
                 if result:
                     logger.error("Run returned %s for test %s. Exiting" %
-                                 result, test_cls.__name__)
+                                 (result, test_cls.__name__))
                     sys.exit(result)
             except Exception, e:
                 print "Error:", e

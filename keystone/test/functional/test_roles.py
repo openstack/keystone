@@ -223,7 +223,6 @@ class GetRolesTest(RolesTest):
 class GetRoleTest(RolesTest):
     def setUp(self, *args, **kwargs):
         super(GetRoleTest, self).setUp(*args, **kwargs)
-
         self.role = self.create_role().json['role']
 
     def test_get_role(self):

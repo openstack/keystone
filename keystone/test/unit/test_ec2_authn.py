@@ -76,6 +76,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
                     u'id': unicode(self.auth_user['id']),
                     u'name': self.auth_user['name'],
                     u'roles': [{u'description': u'regular role',
+                        u'id': u'0',
                         u'name': u'regular_role'}]}}}
 
         self.assert_dict_equal(expected, json.loads(self.res.body))

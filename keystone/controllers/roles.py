@@ -24,7 +24,7 @@ import logging
 
 from keystone import utils
 from keystone.common import wsgi
-from keystone.logic.types.role import Role
+from keystone.models import Role
 from keystone.logic import service
 from . import get_marker_limit_and_url
 

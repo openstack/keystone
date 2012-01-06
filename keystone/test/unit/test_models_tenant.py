@@ -86,8 +86,7 @@ class TestModelsTenant(unittest.TestCase):
         xml_str = tenant.to_xml(hints={"maps": {"refId": "rolegrant_id", }})
         self.assertTrue(testutils.XMLTools.xmlEqual(xml_str,
             '<tenant xmlns="http://docs.openstack.org/identity/api/v2.0"\
-                    id="1" name="the resource" refId="12">\
-                    <description/></tenant>'))
+                    id="1" name="the resource" refId="12"></tenant>'))
 
     def test_tenant_json_deserialization(self):
         tenant = Tenant.from_json('{"tenant": {"name": "the tenant",\
@@ -153,14 +152,14 @@ class TestModelsTenant(unittest.TestCase):
             'Description initialized to empty string should be empty string')
         xml = tenant.to_dom()
         desc = xml.find("description")
-        self.assertEquals(desc.text, None,
-                          "Blank Description should show as empty tag in xml")
+        self.assertEquals(desc.text, '',
+                          "Blank Description should show as blank tag in xml")
 
         tenant = Tenant(id=10, name="the tenant", description=None)
         xml = tenant.to_xml(hints={"tags": ["description"]})
         xml = tenant.to_dom()
         desc = xml.find("description")
-        self.assertEquals(desc.text, None,
+        self.assertEquals(desc, None,
                           "'None' Description should show as empty tag in xml")
 
 

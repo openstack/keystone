@@ -51,18 +51,18 @@ class ServiceAPITest(unittest.TestCase):
              'desc': 'tenant1'}]
         # Attributes of the Service used for the roles.
         self.service_attrs = {
-            'id': 0,
+            'id': "0",
             'name': 'test_service',
             'type': 'test',
             'desc': 'test service',
-            'owner_id': 0}
+            'owner_id': "0"}
         # Set of Role fixtures to create for each test
         self.role_fixtures = [
-            {'id': 0,
+            {'id': "0",
              'name': 'regular_role',
              'desc': 'regular role',
              'service_id': self.service_attrs['id']},
-            {'id': 1,
+            {'id': "1",
              'name': 'Admin',
              'desc': 'Admin role',
              'service_id': self.service_attrs['id']},

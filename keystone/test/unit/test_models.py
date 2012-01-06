@@ -1,12 +1,19 @@
 import json
 import unittest2 as unittest
 
-from keystone.models import Resource
+from keystone.models import AttrDict, Resource
 from keystone.test import utils as testutils
 
 
 class TestModels(unittest.TestCase):
     '''Unit tests for keystone/models.py.'''
+
+    def test_attrdict_class(self):
+        ad = AttrDict()
+        ad.id = 1
+        self.assertEqual(ad.id, 1)
+        ad._sa_instance_state = AttrDict()
+        self.assertIsInstance(ad._sa_instance_state, AttrDict)
 
     def test_resource(self):
         resource = Resource()
@@ -16,6 +23,18 @@ class TestModels(unittest.TestCase):
                           "class keystone.models.Resource but instead "
                           "was '%s'" % str(resource.__class__))
         self.assertIsInstance(resource, dict, "")
+        resource._sa_instance_state = AttrDict()
+        self.assertIsInstance(resource._sa_instance_state, AttrDict)
+
+    def test_resource_respresentation(self):
+        resource = Resource(id=1, name="John")
+        self.assertIn(resource.__repr__(), [
+                    "<Resource(id=1, name='John')>",
+                    "<Resource(name='John', id=1)>"])
+        self.assertIn(resource.__str__(), [
+                    "{'resource': {'name': 'John', 'id': 1}}",
+                    "{'resource': {'id': 1, 'name': 'John'}}"])
+        self.assertEqual(resource['resource']['id'], 1)
 
     def test_resource_static_properties(self):
         resource = Resource(id=1, name="the resource", blank=None)

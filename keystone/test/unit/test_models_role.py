@@ -1,8 +1,7 @@
 import json
-from lxml import etree
 import unittest2 as unittest
 
-from keystone.models import Role
+from keystone.models import Role, UserRoleAssociation
 from keystone.test import utils as testutils
 
 
@@ -53,16 +52,21 @@ class TestModelsRole(unittest.TestCase):
     def test_role_xml_serialization(self):
         role = Role(id=1, name="the role", blank=None)
         xml_str = role.to_xml()
-        self.assertTrue(testutils.XMLTools.xmlEqual(xml_str,
-                        '<role id="1" name="the role"/>'))
+        expected = ('<role xmlns="http://docs.openstack.org/identity/api/v2.0"'
+                    ' id="1" name="the role"/>')
+        self.assertTrue(testutils.XMLTools.xmlEqual(xml_str, expected),
+                        msg='%s != %s' % (xml_str, expected))
 
     def test_role_xml_serialization_mapping(self):
         role = Role(id=1, name="the role",
                     service_id="s1",
                     tenant_id="t1")
         xml_str = role.to_xml()
-        self.assertTrue(testutils.XMLTools.xmlEqual(xml_str,
-            '<role id="1" name="the role" serviceId="s1" tenantId="t1"/>'))
+        expected = ('<role xmlns="http://docs.openstack.org/identity/api/v2.0"'
+                    ' id="1" name="the role" serviceId="s1" tenantId="t1"/>')
+        self.assertTrue(testutils.XMLTools.xmlEqual(xml_str, expected),
+                msg='%s != %s' % (xml_str,
+                    expected))
         self.assertEquals(role.service_id, "s1")
 
     def test_role_json_deserialization(self):
@@ -70,6 +74,16 @@ class TestModelsRole(unittest.TestCase):
                             hints={"contract_attributes": ['id', 'name']})
         self.assertIsInstance(role, Role)
         self.assertEquals(role.id, "1")
+        self.assertEquals(role.name, "the role")
+
+        role = Role.from_json('{"role":{"name": "r1", "serviceId": "s1"}}')
+        self.assertEquals(role.service_id, "s1")
+
+    def test_role_json_deserialization_types(self):
+        role = Role.from_json('{"name": "the role", "id": 1}')
+        self.assertIsInstance(role, Role)
+        self.assertEquals(role.id, "1",
+                          "'id' should always be returned as a string")
         self.assertEquals(role.name, "the role")
 
     def test_role_xml_deserialization(self):
@@ -83,6 +97,19 @@ class TestModelsRole(unittest.TestCase):
     def test_role_validation(self):
         role = Role(id=1, name="the role", blank=None)
         self.assertTrue(role.validate())
+
+    #
+    # UserRoleAssociation
+    #
+    def test_userroleassociation_json_serialization_mapped(self):
+        ura = UserRoleAssociation(id=1, role_id=1, user_id="u1",
+                    tenant_id="t1")
+        json_str = ura.to_json()
+        d1 = json.loads(json_str)
+        d2 = {"role": {"id": 1, "roleId": 1, "userId": "u1",
+                       "tenantId": "t1"}}
+        self.assertDictEqual(d1, d2)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -39,9 +39,9 @@ class TenantTest(common.FunctionalTestCase):
     def _assertValidXmlTenant(self, xml):
         self.assertEquals(xml.tag, '{%s}tenant' % self.xmlns)
         self._assertValidTenant(xml)
-
-        description = xml.find('{%s}description' % self.xmlns)
-        self.assertIsNotNone(description)
+        # TODO(zns): this is still a valid assertion in some cases
+        # description = xml.find('{%s}description' % self.xmlns)
+        # self.assertIsNotNone(description)
         self.assertIn(xml.get('enabled'), ['true', 'false'])
         return xml
 
@@ -366,9 +366,6 @@ class GetTenantTest(TenantTest):
         self.assertEquals(str(self.tenant['enabled']).lower(),
             tenant.get('enabled'))
 
-        description = tenant.find('{%s}description' % self.xmlns)
-        self.assertEquals(self.tenant['description'], description.text)
-
     def test_get_tenant_not_found(self):
         self.fetch_tenant(assert_status=404)
 
@@ -500,9 +497,6 @@ class GetTenantByNameTest(TenantTest):
         self.assertEquals(self.tenant['name'], tenant.get('name'))
         self.assertEquals(str(self.tenant['enabled']).lower(),
             tenant.get('enabled'))
-
-        description = tenant.find('{%s}description' % self.xmlns)
-        self.assertEquals(self.tenant['description'], description.text)
 
     def test_get_tenant_not_found(self):
         self.fetch_tenant_by_name(assert_status=404)

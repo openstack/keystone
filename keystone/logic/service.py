@@ -26,7 +26,6 @@ import keystone.backends as backends
 import keystone.backends.models as models
 from keystone.logic.types import fault
 from keystone.logic.types.tenant import Tenants
-from keystone.logic.types.role import Roles, Role
 from keystone.logic.types.user import User, User_Update, Users
 from keystone.logic.types.endpoint import Endpoint, Endpoints, \
     EndpointTemplate, EndpointTemplates
@@ -34,6 +33,7 @@ from keystone.logic.types.credential import Credentials, PasswordCredentials
 from keystone import utils
 # New imports as we refactor old backend design and models
 from keystone.models import Tenant, Token
+from keystone.models import Role, Roles
 from keystone.models import Service, Services
 from keystone.managers.token import Manager as TokenManager
 from keystone.managers.tenant import Manager as TenantManager
@@ -504,6 +504,8 @@ class IdentityService(object):
             if ((rolegrant.role_id == role)
                     and rolegrant.tenant_id is None):
                 return True
+        LOG.debug("User %s failed check - did not have role %s" %
+                    (user.id, role))
         return False
 
     # pylint: disable=W0613
@@ -569,12 +571,12 @@ class IdentityService(object):
             for drolegrant in drolegrants:
                 drole = self.role_manager.get(drolegrant.role_id)
                 ts.append(Role(drolegrant.role_id, drole.name,
-                    drole.desc, None, drolegrant.tenant_id))
+                    description=drole.desc, tenant_id=drolegrant.tenant_id))
         drolegrants = self.grant_manager.list_global_roles_for_user(duser.id)
         for drolegrant in drolegrants:
             drole = self.role_manager.get(drolegrant.role_id)
             ts.append(Role(drolegrant.role_id, drole.name,
-                drole.desc, None, drolegrant.tenant_id))
+                description=drole.desc, tenant_id=drolegrant.tenant_id))
         user = auth.User(duser.id, duser.name, None, None, Roles(ts, []))
         if self.has_service_admin_role(token.id):
             # Privileged users see the adminURL as well
@@ -924,7 +926,7 @@ class IdentityService(object):
 
         if self.role_manager.get(role.name) is not None:
             raise fault.RoleConflictFault(
-                "A role with that name '" + role.name + "' already exists")
+                "A role with that name '%s' already exists" % role.name)
 
         #Check if the role name includes an embedded service: in it
         #if so, verify the service exists
@@ -935,7 +937,7 @@ class IdentityService(object):
                 service = self.service_manager.get_by_name(service_name)
                 if service is None:
                     raise fault.BadRequestFault(
-                        "A service with the name %s doesn't exist." \
+                        "A service with the name %s doesn't exist."
                         % service_name)
                 role.service_id = service.id
 
@@ -947,8 +949,7 @@ class IdentityService(object):
                     "A service with that id doesn't exist.")
             if not role.name.startswith(service.name + ":"):
                 raise fault.BadRequestFault(
-                    "Role should begin with service name '" +
-                        service.name + ":'")
+                    "Role should begin with service name '%s:'" % service.name)
             if not self.is_owner(None, user, service):
                 if not self.has_admin_role(admin_token):
                     raise fault.UnauthorizedFault(
