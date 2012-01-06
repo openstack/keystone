@@ -157,7 +157,12 @@ class TestServiceAuthentication(common.FunctionalTestCase):
                 'tenantId': self.tenant['id']}}).json['access']
 
         self.assertEqual(scoped['token']['tenant']['id'], self.tenant['id'])
-        self.assertEqual(scoped['token']['tenant']['name'],\
+        self.assertEqual(scoped['token']['tenant']['name'],
+                         self.tenant['name'])
+        self.assertIn('tenants', scoped['token'])
+        self.assertEqual(scoped['token']['tenants'][0]['id'],
+                         self.tenant['id'])
+        self.assertEqual(scoped['token']['tenants'][0]['name'],
                          self.tenant['name'])
         self.assertEqual(
             scoped['user']['roles'][0]['id'], role['id'])
