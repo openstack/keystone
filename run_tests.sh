@@ -90,7 +90,7 @@ function run_pep8 {
   # Just run PEP8 in current environment
   ${wrapper} pep8 --repeat --show-pep8 --show-source \
     --ignore=E202,E111 \
-    --exclude=vcsversion.py ${srcfiles}
+    --exclude=vcsversion.py ${srcfiles} | tee pep8.txt
 }
 
 NOSETESTS="python run_tests.py $noseopts $noseargs"
