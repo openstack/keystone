@@ -16,10 +16,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from routes.route import Route
+
 from keystone.contrib.extensions.admin.extension import BaseExtensionHandler
-from keystone.controllers.token import TokenController
+from keystone.contrib.extensions.admin.osksvalidate import handler
 
 
 class ExtensionHandler(BaseExtensionHandler):
     def map_extension_methods(self, mapper, options):
-        pass
+        extension_controller = handler.SecureValidationController(options)
+
+        # Token Operations
+        mapper.connect("/OS-KSVALIDATE/token/validate",
+                       controller=extension_controller,
+                       action="handle_validate_request",
+                       conditions=dict(method=["GET"]))
+
+        mapper.connect("/OS-KSVALIDATE/token/endpoints",
+                       controller=extension_controller,
+                       action="handle_endpoints_request",
+                       conditions=dict(method=["GET"]))
+        # TODO(zns): make this handle all routes by using the mapper

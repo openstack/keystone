@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--*******************************************************-->
+<!--         Import Common XML Entities                    -->
+<!--                                                       -->
+<!--     You can resolve the entites with xmllint          -->
+<!--                                                       -->
+<!--        xmllint -noent OS-KSVALIDATE-admin.wadl             -->
+<!--*******************************************************-->
+<!DOCTYPE application [
+<!ENTITY % common  SYSTEM "https://raw.github.com/openstack/keystone/master/keystone/content/common/common.ent">
+    %common;
+]>
+
+<application xmlns="http://wadl.dev.java.net/2009/02"
+	xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+	xmlns:OS-KSVALIDATE="http://docs.openstack.org/identity/api/ext/OS-KSVALIDATE/v1.0"
+	xmlns:capi="http://docs.openstack.org/common/api/v1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+	xsi:schemaLocation="http://docs.openstack.org/identity/api/v2.0 ../common/xsd/api.xsd
+        http://docs.openstack.org/common/api/v1.0 ../common/xsd/api-common.xsd
+        http://wadl.dev.java.net/2009/02 http://www.w3.org/Submission/wadl/wadl.xsd
+	">
+
+    <grammars>
+        <include href="https://raw.github.com/openstack/keystone/master/keystone/content/common/xsd/api.xsd"/>
+        <include href="https://raw.github.com/openstack/keystone/master/keystone/content/common/xsd/api-common.xsd"/>
+    </grammars>
+
+    <!--*******************************************************-->
+    <!--             All Resources                             -->
+    <!--*******************************************************-->
+
+    <!-- We should use SSL in production -->
+    <resources base="http://localhost:35357">
+        <resource id="version" path="v2.0">
+					<resource id="extension" path="OS-KSVALIDATE">
+            <resource id="token" path="token">
+							<resource id="validate" path="validate">
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+										<doc>You need a valid admin token for access.</doc>
+								</param>
+								<param name="X-Subject-Token" style="header" type="xsd:string" required="true">
+										<doc>You need to supply a token to validate.</doc>
+								</param>
+								<param name="belongsTo" style="query" type="xsd:string" required="false"/>
+								<param name="HP-IDM-serviceId" style="query" type="xsd:string" required="false"/>
+								<method href="#validateToken"/>
+								<method href="#checkToken"/>
+							</resource>
+
+							<resource id="endpointsForToken" path="endpoints">
+								<param name="X-Auth-Token" style="header" type="xsd:string" required="true">
+										<doc>You need a valid admin token for access.</doc>
+								</param>
+								<param name="X-Subject-Token" style="header" type="xsd:string" required="true">
+										<doc>You need to supply a token to validate.</doc>
+								</param>
+								<param name="HP-IDM-serviceId" style="query" type="xsd:string" required="false"/>
+								<method href="#listEndpointsForToken"/>
+							</resource>
+						</resource>
+					</resource>
+        </resource>
+    </resources>
+
+    <!--*******************************************************-->
+    <!--               All Methods                             -->
+    <!--*******************************************************-->
+
+
+    <!-- Token Operations -->
+    <method name="GET" id="validateToken">
+        <doc xml:lang="EN" title="Validate Token">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
+                Check that a token is valid and that it belongs to a supplied tenant
+                and services and return the permissions relevant to a particular client.
+            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                Behaviour is similar to <code>/tokens/{tokenId}</code>.  In
+								other words, a user should expect an
+                itemNotFound (<code>404</code>) fault for an
+                invalid token.
+            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                'X-Subject-Token' is encrypted, but can still be used for
+                caching. This extension will basically decrypt this header and
+								internally call Keystone's normal validation, passing along all
+								headers and query parameters. It should therefore support
+								all exsting calls on <code>/tokens/{tokenId}</code>, including
+								extensions such as HP-IDM.
+            </p>
+        </doc>
+        <request>
+            <param name="belongsTo" style="query" required="false" type="xsd:string">
+                <doc xml:lang="EN">
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        Validates a token has the supplied tenant in scope.
+                    </p>
+                </doc>
+            </param>
+            <param name="OS-KSVALIDATE-serviceId" style="query" required="false" type="xsd:string">
+                <doc xml:lang="EN">
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        If provided, filter the roles to be returned by the given service IDs.
+                    </p>
+                </doc>
+            </param>
+        </request>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:access">
+	      <doc>
+		<xsdxt:code href="../samples/validatetoken.xml"/>
+	      </doc>
+	    </representation>
+            <representation mediaType="application/json">
+	      <doc>
+		<xsdxt:code href="../samples/validatetoken.json"/>
+	      </doc>
+	    </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+    <method name="HEAD" id="checkToken">
+        <doc xml:lang="EN" title="Check Token">
+            <p xmlns="http://www.w3.org/1999/xhtml" class="shortdesc">
+                Check that a token is valid and that it belongs to a particular
+								tenant and services (For performance).
+            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                Behaviour is similar to <code>/tokens/{tokenId}</code>.  In
+								other words, a user should expect an
+                itemNotFound (<code>404</code>) fault for an
+                invalid token.
+            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                'X-Subject-Token' is encrypted, but can still be used for
+                caching. This extension will basically decrypt this header and
+								internally call Keystone's normal validation, passing along all
+								headers and query parameters. It should therefore support
+								all exsting calls on <code>/tokens/{tokenId}</code>, including
+								extensions such as HP-IDM.
+            </p>
+            <p xmlns="http://www.w3.org/1999/xhtml">
+                No response body is returned for this method.
+            </p>
+        </doc>
+        <request>
+            <param name="belongsTo" style="query" required="false" type="xsd:string">
+                <doc xml:lang="EN">
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        Validates a token has the supplied tenant in scope. (for performance).
+                    </p>
+                </doc>
+            </param>
+            <param name="OS-KSVALIDATE-serviceId" style="query" required="false" type="xsd:string">
+                <doc xml:lang="EN">
+                    <p xmlns="http://www.w3.org/1999/xhtml">
+                        Check the roles against the given service IDs.
+                    </p>
+                </doc>
+            </param>
+        </request>
+        <response status="200 203"/>
+        &commonFaults;
+        &getFaults;
+    </method>
+    <method name="GET" id="listEndpointsForToken">
+        <doc xml:lang="EN" title="List Endoints for a Token">
+            <p xmlns="http://www.w3.org/1999/xhtml">
+            	Returns a list of endpoints associated with a specific token.
+            </p>
+        </doc>
+        <response status="200 203">
+            <representation mediaType="application/xml" element="identity:endpoints">
+	      <doc>
+                <xsdxt:code href="../common/samples/endpoints.xml"/>
+	      </doc>
+	    </representation>
+            <representation mediaType="application/json">
+	      <doc>
+                <xsdxt:code href="../common/samples/endpoints.json"/>
+	      </doc>
+	    </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+    </method>
+
+</application>

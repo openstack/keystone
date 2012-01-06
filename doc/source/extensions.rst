@@ -85,6 +85,16 @@ HP-IDM
     The included extensions are in the process of being rewritten. Currently
     only osksadm and oskscatalog work with this new extensions design.
 
+OS-KSVALIDATE
+
+    This extensions supports admin calls to /tokens without having to specify
+    the token ID in the URL. Instead, the ID is supplied in a header called
+    X-Subject-Token. This is provided as an alternative to address any security
+    concerns that arise when token IDs are passed as part of the URL which is
+    often (and by default) logged to insecure media.
+
+    This is an Admin API extension only.
+
 Enabling & Disabling Extensions
 -------------------------------
 

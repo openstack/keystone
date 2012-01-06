@@ -78,7 +78,7 @@ class TokenController(wsgi.Controller):
         """Undecorated EC2 handler"""
         creds = utils.get_normalized_request_content(auth.Ec2Credentials, req)
         return utils.send_result(200, req,
-            self.identity_service.authenticate_ec2(creds))
+                self.identity_service.authenticate_ec2(creds))
 
     def _validate_token(self, req, token_id):
         """Validates the token, and that it belongs to the specified tenant"""
@@ -88,29 +88,41 @@ class TokenController(wsgi.Controller):
             # service IDs are only relevant if hpidm extension is enabled
             service_ids = req.GET.get('HP-IDM-serviceId')
         return self.identity_service.validate_token(
-            utils.get_auth_token(req), token_id, belongs_to, service_ids)
+                utils.get_auth_token(req), token_id, belongs_to, service_ids)
 
     @utils.wrap_error
     def validate_token(self, req, token_id):
-        result = self._validate_token(req, token_id)
-        return utils.send_result(200, req, result)
+        if self.options.get('disable_tokens_in_url'):
+            fault.ServiceUnavailableFault()
+        else:
+            result = self._validate_token(req, token_id)
+            return utils.send_result(200, req, result)
 
     @utils.wrap_error
     def check_token(self, req, token_id):
         """Validates the token, but only returns a status code (HEAD)"""
-        self._validate_token(req, token_id)
-        return utils.send_result(200, req)
+        if self.options.get('disable_tokens_in_url'):
+            fault.ServiceUnavailableFault()
+        else:
+            self._validate_token(req, token_id)
+            return utils.send_result(200, req)
 
     @utils.wrap_error
     def delete_token(self, req, token_id):
-        return utils.send_result(204, req,
-            self.identity_service.revoke_token(utils.get_auth_token(req),
-                token_id))
+        if self.options.get('disable_tokens_in_url'):
+            fault.ServiceUnavailableFault()
+        else:
+            return utils.send_result(204, req,
+                    self.identity_service.revoke_token(
+                            utils.get_auth_token(req), token_id))
 
     @utils.wrap_error
     def endpoints(self, req, token_id):
-        marker, limit, url = get_marker_limit_and_url(req)
-        return utils.send_result(200, req,
-            self.identity_service.get_endpoints_for_token(
-                utils.get_auth_token(req),
-                token_id, marker, limit, url))
+        if self.options.get('disable_tokens_in_url'):
+            fault.ServiceUnavailableFault()
+        else:
+            marker, limit, url = get_marker_limit_and_url(req)
+            return utils.send_result(200, req,
+                    self.identity_service.get_endpoints_for_token(
+                            utils.get_auth_token(req),
+                            token_id, marker, limit, url))

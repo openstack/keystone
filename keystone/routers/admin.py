@@ -39,6 +39,9 @@ class AdminApi(wsgi.Router):
         logger.debug("Init with options=%s" % options)
         mapper = routes.Mapper()
 
+        # Load extensions first so they can override core if they need to
+        extension.get_extension_configurer().configure(mapper, options)
+
         # Token Operations
         auth_controller = TokenController(options)
         mapper.connect("/tokens", controller=auth_controller,
@@ -50,7 +53,7 @@ class AdminApi(wsgi.Router):
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="check_token",
                         conditions=dict(method=["HEAD"]))
-        # Do we need this.API doesn't have delete token.
+        # Do we need this. API doesn't have delete token.
         mapper.connect("/tokens/{token_id}", controller=auth_controller,
                         action="delete_token",
                         conditions=dict(method=["DELETE"]))
@@ -141,5 +144,4 @@ class AdminApi(wsgi.Router):
                     action="get_static_file",
                     root="content/common/", path="samples/",
                     conditions=dict(method=["GET"]))
-        extension.get_extension_configurer().configure(mapper, options)
         super(AdminApi, self).__init__(mapper)

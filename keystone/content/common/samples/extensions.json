@@ -1,5 +1,6 @@
 {
-  "extensions": [
+  "extensions": {
+    "values": [
     {
       "name": "Reset Password Extension",
       "namespace": "http://docs.rackspacecloud.com/identity/api/ext/rpe/v2.0",
@@ -38,6 +39,6 @@
         }
       ]
     }
-  ],
+  ]},
   "extensions_links": []
 }

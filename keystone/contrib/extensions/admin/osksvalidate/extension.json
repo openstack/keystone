@@ -1,0 +1,21 @@
+{
+  "extension": {
+    "name": "Openstack Keystone Admin",
+    "namespace": "http://docs.openstack.org/identity/api/ext/OS-KSVALIDATE/v1.0",
+    "alias": "OS-KSVALIDATE",
+    "updated": "2012-01-12T12:17:00-06:00",
+    "description": "Openstack extensions to Keystone v2.0 API for Secure Token Validation.",
+    "links": [
+      {
+        "rel": "describedby",
+        "type": "application/pdf",
+        "href": "https://github.com/openstack/keystone/raw/master/keystone/content/admin/OS-KSVALIDATE-admin-devguide.pdf"
+      },
+      {
+        "rel": "describedby",
+        "type": "application/vnd.sun.wadl+xml",
+        "href": "https://github.com/openstack/keystone/raw/master/keystone/content/admin/OS-KSVALIDATE-admin.wadl"
+      }
+    ]
+  }
+}

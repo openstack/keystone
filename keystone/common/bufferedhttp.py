@@ -36,7 +36,7 @@ from eventlet.green.httplib import CONTINUE, HTTPConnection, HTTPMessage, \
 
 DEFAULT_TIMEOUT = 30
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 # pylint: disable=R0902
