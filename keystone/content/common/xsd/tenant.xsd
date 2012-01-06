@@ -64,7 +64,7 @@
 
     <complexType name="Tenant">
         <sequence>
-            <element name="description" type="xsd:string" use="optional">
+            <element name="description" type="xsd:string" minOccurs="0">
                 <annotation>
                     <xsd:documentation
                         xml:lang="EN"

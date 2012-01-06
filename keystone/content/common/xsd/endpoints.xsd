@@ -14,7 +14,8 @@
         xmlns:atom="http://www.w3.org/2005/Atom"
         targetNamespace="http://docs.openstack.org/identity/api/v2.0"
     >
-    <include schemaLocation="api.xsd"/>
+    <include schemaLocation="services.xsd"/>
+    <include schemaLocation="token.xsd"/>
     <!-- Import ATOM specific schema definitions -->
     <import vc:minVersion="1.1" namespace="http://www.w3.org/2005/Atom"
             schemaLocation="atom/atom.xsd" />
