@@ -30,7 +30,7 @@ class TestKeystoneManage(unittest.TestCase):
         ]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         result = process.communicate()[0]
-        self.assertIn('Usage', result)
+        self.assertIn('usage', result)
 
     def test_keystone_manage_calls(self):
         """
