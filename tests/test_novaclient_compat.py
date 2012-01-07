@@ -32,11 +32,11 @@ class NovaClientCompatMasterTestCase(CompatTestCase):
     reload(ks_client)
     reload(base_client)
 
-    CONF(config_files=['keystoneclient_compat_master.conf'])
-    self.app = self.loadapp('keystoneclient_compat_master')
+    CONF(config_files=['default.conf'])
+    self.app = self.loadapp('default')
     self.load_backends()
     self.load_fixtures(default_fixtures)
-    self.server = self.serveapp('keystoneclient_compat_master')
+    self.server = self.serveapp('default')
 
   def test_authenticate_and_tenants(self):
     from novaclient.keystone import client as ks_client

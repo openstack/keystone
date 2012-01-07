@@ -1,3 +1,4 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 from keystonelight import config
 from keystonelight import test
 
@@ -42,19 +43,15 @@ class MasterCompatTestCase(CompatTestCase):
         from keystoneclient.v2_0 import client as ks_client
         reload(ks_client)
 
-        CONF(config_files=['keystoneclient_compat_master.conf'])
-        self.public_app = self.loadapp('keystoneclient_compat_master',
-                                        name='main')
-        self.admin_app = self.loadapp('keystoneclient_compat_master',
-                                      name='admin')
+        self._config()
+        self.public_app = self.loadapp('default', name='main')
+        self.admin_app = self.loadapp('default', name='admin')
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        self.public_server = self.serveapp('keystoneclient_compat_master',
-                                           name='main')
-        self.admin_server = self.serveapp('keystoneclient_compat_master',
-                                          name='admin')
+        self.public_server = self.serveapp('default', name='main')
+        self.admin_server = self.serveapp('default', name='admin')
 
         # TODO(termie): is_admin is being deprecated once the policy stuff
         #               is all working
@@ -63,6 +60,10 @@ class MasterCompatTestCase(CompatTestCase):
         self.extras_foobar = self.identity_api.update_extras(
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=['keystone_admin'], is_admin='1'))
+
+    def _config(self):
+        CONF(config_files=['default.conf'])
+
 
     def foo_client(self):
         return self._client(username='FOO',
