@@ -34,9 +34,9 @@ class CompatTestCase(test.TestCase):
         return kc
 
 
-class MasterCompatTestCase(CompatTestCase):
+class KcMasterTestCase(CompatTestCase):
     def setUp(self):
-        super(MasterCompatTestCase, self).setUp()
+        super(KcMasterTestCase, self).setUp()
 
         revdir = test.checkout_vendor(KEYSTONECLIENT_REPO, 'master')
         self.add_path(revdir)
@@ -63,7 +63,6 @@ class MasterCompatTestCase(CompatTestCase):
 
     def _config(self):
         CONF(config_files=['default.conf'])
-
 
     def foo_client(self):
         return self._client(username='FOO',

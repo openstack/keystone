@@ -5,7 +5,7 @@ from keystonelight import config
 from keystonelight import models
 from keystonelight import test
 from keystonelight.backends import sql
-from keystonelight.backends.sql import migration
+from keystonelight.backends.sql import util as sql_util
 
 import test_backend
 import default_fixtures
@@ -22,8 +22,8 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
       os.unlink('bla.db')
     except Exception:
       pass
-    CONF(config_files=['default.conf'])
-    migration.db_sync(1)
+    CONF(config_files=['default.conf', 'backend_sql.conf'])
+    sql_util.setup_test_database()
     self.identity_api = sql.SqlIdentity()
     self.load_fixtures(default_fixtures)
 
