@@ -15,7 +15,7 @@ from keystonelight import models
 
 Base = declarative.declarative_base()
 
-
+# Special Fields
 class JsonBlob(sql_types.TypeDecorator):
   impl = sql.Text
 
@@ -45,7 +45,7 @@ class DictBase(object):
 
   def next(self):
     n = self._i.next().name
-    return n, getattr(self, n)
+    return n
 
   def update(self, values):
     """Make the model object behave like a dict."""
@@ -64,7 +64,7 @@ class DictBase(object):
     local.update(joined)
     return local.iteritems()
 
-
+# Tables
 class User(Base, DictBase):
   __tablename__ = 'user'
   id = sql.Column(sql.String(64), primary_key=True)
@@ -86,12 +86,12 @@ class Role(Base, DictBase):
 
 class Extras(Base, DictBase):
   __tablename__ = 'extras'
-  __table_args__ = (
-      sql.Index('idx_extras_usertenant', 'user', 'tenant'),
-      )
+  #__table_args__ = (
+  #    sql.Index('idx_extras_usertenant', 'user', 'tenant'),
+  #    )
 
-  user = sql.Column(sql.String(64), primary_key=True)
-  tenant = sql.Column(sql.String(64), primary_key=True)
+  user_id = sql.Column(sql.String(64), primary_key=True)
+  tenant_id = sql.Column(sql.String(64), primary_key=True)
   data = sql.Column(JsonBlob())
 
 
@@ -101,6 +101,17 @@ class Token(Base, DictBase):
   user = sql.Column(sql.String(64))
   tenant = sql.Column(sql.String(64))
   data = sql.Column(JsonBlob())
+
+
+class UserTenantMembership(Base, DictBase):
+  """Tenant membership join table."""
+  __tablename__ = 'user_tenant_membership'
+  user_id = sql.Column(sql.String(64),
+                       sql.ForeignKey('user.id'),
+                       primary_key=True)
+  tenant_id = sql.Column(sql.String(64),
+                         sql.ForeignKey('tenant.id'),
+                         primary_key=True)
 
 
 
@@ -135,23 +146,23 @@ class SqlBase(object):
 
     if "sqlite" in connection_dict.drivername:
       engine_args["poolclass"] = sqlalchemy.pool.NullPool
-    elif MySQLdb and "mysql" in connection_dict.drivername:
-      LOG.info(_("Using mysql/eventlet db_pool."))
-      # MySQLdb won't accept 'None' in the password field
-      password = connection_dict.password or ''
-      pool_args = {
-          "db": connection_dict.database,
-          "passwd": password,
-          "host": connection_dict.host,
-          "user": connection_dict.username,
-          "min_size": self.options.get('sql_min_pool_size'),
-          "max_size": self.options.get('sql_max_pool_size'),
-          "max_idle": self.options.get('sql_idle_timeout'),
-          }
-      creator = eventlet.db_pool.ConnectionPool(MySQLdb, **pool_args)
-      engine_args["pool_size"] = self.options.get('sql_max_pool_size')
-      engine_args["pool_timeout"] = self.options('sql_pool_timeout')
-      engine_args["creator"] = creator.create
+    #elif MySQLdb and "mysql" in connection_dict.drivername:
+    #  LOG.info(_("Using mysql/eventlet db_pool."))
+    #  # MySQLdb won't accept 'None' in the password field
+    #  password = connection_dict.password or ''
+    #  pool_args = {
+    #      "db": connection_dict.database,
+    #      "passwd": password,
+    #      "host": connection_dict.host,
+    #      "user": connection_dict.username,
+    #      "min_size": self.options.get('sql_min_pool_size'),
+    #      "max_size": self.options.get('sql_max_pool_size'),
+    #      "max_idle": self.options.get('sql_idle_timeout'),
+    #      }
+    #  creator = eventlet.db_pool.ConnectionPool(MySQLdb, **pool_args)
+    #  engine_args["pool_size"] = self.options.get('sql_max_pool_size')
+    #  engine_args["pool_timeout"] = self.options('sql_pool_timeout')
+    #  engine_args["creator"] = creator.create
 
     return sql.create_engine(self.options.get('sql_connection'),
                              **engine_args)
@@ -192,7 +203,8 @@ class SqlIdentity(SqlBase):
     return tenant_ref
 
   def get_tenant_by_name(self, tenant_name):
-    tenant_ref = self.db.get('tenant_name-%s' % tenant_name)
+    session = self.get_session()
+    tenant_ref = session.query(Tenant).filter_by(name=tenant_name).first()
     return tenant_ref
 
   def get_user(self, user_id):
@@ -201,29 +213,38 @@ class SqlIdentity(SqlBase):
     return user_ref
 
   def get_user_by_name(self, user_name):
-    user_ref = self.db.get('user_name-%s' % user_name)
+    session = self.get_session()
+    user_ref = session.query(User).filter_by(name=user_name).first()
     return user_ref
 
   def get_extras(self, user_id, tenant_id):
-    return self.db.get('extras-%s-%s' % (tenant_id, user_id))
+    session = self.get_session()
+    extras_ref = session.query(Extras)\
+               .filter_by(user_id=user_id)\
+               .filter_by(tenant_id=tenant_id)\
+               .first()
+    return getattr(extras_ref, 'data', None)
 
   def get_role(self, role_id):
-    role_ref = self.db.get('role-%s' % role_id)
+    session = self.get_session()
+    role_ref = session.query(Role).filter_by(id=role_id).first()
     return role_ref
 
   def list_users(self):
-    return self.db.get('user_list', [])
+    session = self.get_session()
+    user_refs = session.query(User)
+    return list(user_refs)
 
   def list_roles(self):
-    return self.db.get('role_list', [])
+    session = self.get_session()
+    role_refs = session.query(Role)
+    return list(role_refs)
 
   # These should probably be part of the high-level API
   def add_user_to_tenant(self, tenant_id, user_id):
-    user_ref = self.get_user(user_id)
-    tenants = set(user_ref.get('tenants', []))
-    tenants.add(tenant_id)
-    user_ref['tenants'] = list(tenants)
-    self.update_user(user_id, user_ref)
+    session = self.get_session()
+    with session.begin():
+      session.add(UserTenantMembership(user_id=user_id, tenant_id=tenant_id))
 
   def remove_user_from_tenant(self, tenant_id, user_id):
     user_ref = self.get_user(user_id)
@@ -233,8 +254,12 @@ class SqlIdentity(SqlBase):
     self.update_user(user_id, user_ref)
 
   def get_tenants_for_user(self, user_id):
-    user_ref = self.get_user(user_id)
-    return user_ref.get('tenants', [])
+    session = self.get_session()
+    membership_refs = session.query(UserTenantMembership)\
+                      .filter_by(user_id=user_id)\
+                      .all()
+
+    return [x.tenant_id for x in membership_refs]
 
   def get_roles_for_user_and_tenant(self, user_id, tenant_id):
     extras_ref = self.get_extras(user_id, tenant_id)
@@ -263,13 +288,8 @@ class SqlIdentity(SqlBase):
   # CRUD
   def create_user(self, id, user):
     session = self.get_session()
-    session.add(User(**user))
-    session.flush()
-    #self.db.set('user-%s' % id, user)
-    #self.db.set('user_name-%s' % user['name'], user)
-    #user_list = set(self.db.get('user_list', []))
-    #user_list.add(id)
-    #self.db.set('user_list', list(user_list))
+    with session.begin():
+      session.add(User(**user))
     return user
 
   def update_user(self, id, user):
@@ -291,11 +311,9 @@ class SqlIdentity(SqlBase):
 
   def create_tenant(self, id, tenant):
     session = self.get_session()
-    session.add(Tenant(**tenant))
-    #session.commit()
-    #self.db.set('tenant-%s' % id, tenant)
-    #self.db.set('tenant_name-%s' % tenant['name'], tenant)
-    return models.Tenant(**tenant)
+    with session.begin():
+      session.add(Tenant(**tenant))
+    return tenant
 
   def update_tenant(self, id, tenant):
     # get the old name and delete it too
@@ -312,7 +330,9 @@ class SqlIdentity(SqlBase):
     return None
 
   def create_extras(self, user_id, tenant_id, extras):
-    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
+    session = self.get_session()
+    with session.begin():
+      session.add(Extras(user_id=user_id, tenant_id=tenant_id, data=extras))
     return extras
 
   def update_extras(self, user_id, tenant_id, extras):
@@ -324,10 +344,9 @@ class SqlIdentity(SqlBase):
     return None
 
   def create_role(self, id, role):
-    self.db.set('role-%s' % id, role)
-    role_list = set(self.db.get('role_list', []))
-    role_list.add(id)
-    self.db.set('role_list', list(role_list))
+    session = self.get_session()
+    with session.begin():
+      session.add(Role(**role))
     return role
 
   def update_role(self, id, role):
@@ -342,10 +361,9 @@ class SqlIdentity(SqlBase):
     return None
 
 
-
-
 class SqlToken(SqlBase):
   pass
+
 
 class SqlCatalog(SqlBase):
   pass

@@ -8,7 +8,7 @@ USERS = [
     ]
 
 EXTRAS = [
-    {'user': 'foo', 'tenant': 'bar', 'extra': 'extra'},
+    {'user_id': 'foo', 'tenant_id': 'bar', 'extra': 'extra'},
     ]
 
 ROLES = [

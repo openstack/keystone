@@ -21,5 +21,8 @@ class Role(dict):
 
 
 class Extras(dict):
-  def __init__(self, user=None, tenant=None, *args, **kw):
-    super(Extras, self).__init__(user=user, tenant=tenant, *args, **kw)
+  def __init__(self, user_id=None, tenant_id=None, *args, **kw):
+    super(Extras, self).__init__(user_id=user_id,
+                                 tenant_id=tenant_id,
+                                 *args,
+                                 **kw)

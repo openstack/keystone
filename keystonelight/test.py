@@ -140,11 +140,12 @@ class TestCase(unittest.TestCase):
       extras_ref = extras.copy()
       # TODO(termie): these will probably end up in the model anyway, so this
       #               may be futile
-      del extras_ref['user']
-      del extras_ref['tenant']
+      del extras_ref['user_id']
+      del extras_ref['tenant_id']
       rv = self.identity_api.create_extras(
-          extras['user'], extras['tenant'], models.Extras(**extras_ref))
-      setattr(self, 'extras_%s%s' % (extras['user'], extras['tenant']), rv)
+          extras['user_id'], extras['tenant_id'], models.Extras(**extras_ref))
+      setattr(self,
+              'extras_%s%s' % (extras['user_id'], extras['tenant_id']), rv)
 
   def loadapp(self, config, name='main'):
     if not config.startswith('config:'):
