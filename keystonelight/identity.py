@@ -2,15 +2,16 @@
 # backends will make use of them to return something that conforms to their
 # apis
 
-
+from keystonelight import config
 from keystonelight import utils
 
 
+CONF = config.CONF
+
+
 class Manager(object):
-  def __init__(self, options):
-    self.driver = utils.import_object(options['identity_driver'],
-                                      options=options)
-    self.options = options
+  def __init__(self):
+    self.driver = utils.import_object(CONF.identity.driver)
 
   def authenticate(self, context, **kwargs):
     """Passthru authentication to the identity driver.

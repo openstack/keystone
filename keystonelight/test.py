@@ -8,6 +8,7 @@ import time
 
 from paste import deploy
 
+from keystonelight import config
 from keystonelight import logging
 from keystonelight import models
 from keystonelight import utils
@@ -17,7 +18,7 @@ from keystonelight import wsgi
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
 TESTSDIR = os.path.join(ROOTDIR, 'tests')
-
+CONF = config.CONF
 
 cd = os.chdir
 
@@ -94,21 +95,14 @@ class TestCase(unittest.TestCase):
     for path in self._paths:
       if path in sys.path:
         sys.path.remove(path)
+    CONF.reset()
     super(TestCase, self).tearDown()
 
-  #TODO(termie): probably make this take an argument and use that for `options`
   def load_backends(self):
-    """Hacky shortcut to load the backends for data manipulation.
-
-    Expects self.options to have already been set.
-
-    """
-    self.identity_api = utils.import_object(
-        self.options['identity_driver'], options=self.options)
-    self.token_api = utils.import_object(
-        self.options['token_driver'], options=self.options)
-    self.catalog_api = utils.import_object(
-        self.options['catalog_driver'], options=self.options)
+    """Hacky shortcut to load the backends for data manipulation."""
+    self.identity_api = utils.import_object(CONF.identity.driver)
+    self.token_api = utils.import_object(CONF.token.driver)
+    self.catalog_api = utils.import_object(CONF.catalog.driver)
 
   def load_fixtures(self, fixtures):
     """Hacky basic and naive fixture loading based on a python module.
@@ -164,43 +158,9 @@ class TestCase(unittest.TestCase):
 
     # Service catalog tests need to know the port we ran on.
     port = server.socket_info['socket'][1]
-    self._update_server_options(server, 'public_port', port)
-    self._update_server_options(server, 'admin_port', port)
+    CONF.public_port = port
+    CONF.admin_port = port
     return server
-
-  def _update_server_options(self, server, key, value):
-    """Hack to allow us to make changes to the options used by backends.
-
-    A possible better solution would be to have a global config registry.
-
-    """
-    last = server
-
-    applications = []
-
-    while (hasattr(last, 'applications')
-           or hasattr(last, 'application')
-           or hasattr(last, 'options')):
-
-      #logging.debug('UPDATE %s: O %s A %s AS %s',
-      #              last.__class__,
-      #              getattr(last, 'options', None),
-      #              getattr(last, 'application', None),
-      #              getattr(last, 'applications', None))
-      if hasattr(last, 'options'):
-        last.options[key] = value
-
-      # NOTE(termie): paste.urlmap.URLMap stores applications in this format
-      if hasattr(last, 'applications'):
-        for app in last.applications:
-          applications.append(app[1])
-
-      if hasattr(last, 'application'):
-        last = last.application
-      elif len(applications):
-        last = applications.pop()
-      else:
-        break
 
   def client(self, app, *args, **kw):
     return TestClient(app, *args, **kw)

@@ -5,10 +5,14 @@ import sys
 
 from nose import exc
 
+from keystonelight import config
 from keystonelight import logging
 from keystonelight import models
 from keystonelight import test
 from keystonelight import utils
+
+
+CONF = config.CONF
 
 
 IDENTITY_API_REPO = 'git://github.com/openstack/identity-api.git'
@@ -46,16 +50,16 @@ class CompatTestCase(test.TestCase):
         os.path.join(self.sampledir, 'auth.json')))
 
     # validate_token call
-    self.tenant_345 = self.identity_backend.create_tenant(
+    self.tenant_345 = self.identity_api.create_tenant(
         '345',
         models.Tenant(id='345', name='My Project'))
-    self.user_123 = self.identity_backend.create_user(
+    self.user_123 = self.identity_api.create_user(
         '123',
         models.User(id='123',
                     name='jqsmith',
                     tenants=[self.tenant_345['id']],
                     password='password'))
-    self.extras_123 = self.identity_backend.create_extras(
+    self.extras_123 = self.identity_api.create_extras(
         self.user_123['id'], self.tenant_345['id'],
         dict(roles=[{'id': '234',
                      'name': 'compute:admin'},
@@ -63,7 +67,7 @@ class CompatTestCase(test.TestCase):
                      'name': 'object-store:admin',
                      'tenantId': '1'}],
              roles_links=[]))
-    self.token_123 = self.token_backend.create_token(
+    self.token_123 = self.token_api.create_token(
         'ab48a9efdfedb23ty3494',
         models.Token(id='ab48a9efdfedb23ty3494',
                      expires='2010-11-01T03:32:15-05:00',
@@ -79,32 +83,32 @@ class CompatTestCase(test.TestCase):
     #catalog = json.load(open(
     #    os.path.join(os.path.dirname(__file__),
     #                 'keystone_compat_diablo_sample_catalog.json')))
-    #self.catalog_backend.create_catalog(self.user_123['id'],
+    #self.catalog_api.create_catalog(self.user_123['id'],
     #                                     self.tenant_345['id'],
     #                                     catalog)
 
     # tenants_for_token call
-    self.user_foo = self.identity_backend.create_user(
+    self.user_foo = self.identity_api.create_user(
         'foo',
         models.User(id='foo', name='FOO', tenants=['1234', '3456']))
-    self.tenant_1234 = self.identity_backend.create_tenant(
+    self.tenant_1234 = self.identity_api.create_tenant(
         '1234',
         models.Tenant(id='1234',
                       name='ACME Corp',
                       description='A description ...',
                       enabled=True))
-    self.tenant_3456 = self.identity_backend.create_tenant(
+    self.tenant_3456 = self.identity_api.create_tenant(
         '3456',
         models.Tenant(id='3456',
                       name='Iron Works',
                       description='A description ...',
                       enabled=True))
 
-    self.token_foo_unscoped = self.token_backend.create_token(
+    self.token_foo_unscoped = self.token_api.create_token(
         'foo_unscoped',
         models.Token(id='foo_unscoped',
                      user=self.user_foo))
-    self.token_foo_scoped = self.token_backend.create_token(
+    self.token_foo_scoped = self.token_api.create_token(
         'foo_scoped',
         models.Token(id='foo_scoped',
                      user=self.user_foo,
@@ -113,18 +117,13 @@ class CompatTestCase(test.TestCase):
 
 class DiabloCompatTestCase(CompatTestCase):
   def setUp(self):
+    CONF(config_files=['keystone_compat_diablo.conf'])
+
     revdir = test.checkout_vendor(KEYSTONE_REPO, 'stable/diablo')
     self.sampledir = os.path.join(revdir, KEYSTONE_SAMPLE_DIR)
     self.app = self.loadapp('keystone_compat_diablo')
-    self.options = self.appconfig('keystone_compat_diablo')
 
-    self.identity_backend = utils.import_object(
-        self.options['identity_driver'], options=self.options)
-    self.token_backend = utils.import_object(
-        self.options['token_driver'], options=self.options)
-    self.catalog_backend = utils.import_object(
-        self.options['catalog_driver'], options=self.options)
-
+    self.load_backends()
     super(DiabloCompatTestCase, self).setUp()
 
   def test_authenticate_scoped(self):

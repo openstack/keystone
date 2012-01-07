@@ -18,13 +18,11 @@ from keystonelight import wsgi
 
 
 class KeystoneAdminRouter(wsgi.Router):
-    def __init__(self, options):
-        self.options = options
-
+    def __init__(self):
         mapper = routes.Mapper()
 
         # Token Operations
-        auth_controller = KeystoneTokenController(self.options)
+        auth_controller = KeystoneTokenController()
         mapper.connect('/tokens',
                        controller=auth_controller,
                        action='authenticate',
@@ -39,7 +37,7 @@ class KeystoneAdminRouter(wsgi.Router):
                        conditions=dict(method=['GET']))
 
         # Tenant Operations
-        tenant_controller = KeystoneTenantController(self.options)
+        tenant_controller = KeystoneTenantController()
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_tenants_for_token',
@@ -50,14 +48,14 @@ class KeystoneAdminRouter(wsgi.Router):
                        conditions=dict(method=['GET']))
 
         # User Operations
-        user_controller = KeystoneUserController(self.options)
+        user_controller = KeystoneUserController()
         mapper.connect('/users/{user_id}',
                        controller=user_controller,
                        action='get_user',
                        conditions=dict(method=['GET']))
 
         # Role Operations
-        roles_controller = KeystoneRoleController(self.options)
+        roles_controller = KeystoneRoleController()
         mapper.connect('/tenants/{tenant_id}/users/{user_id}/roles',
                        controller=roles_controller,
                        action='get_user_roles',
@@ -68,13 +66,13 @@ class KeystoneAdminRouter(wsgi.Router):
                        conditions=dict(method=['GET']))
 
         # Miscellaneous Operations
-        version_controller = KeystoneVersionController(self.options)
+        version_controller = KeystoneVersionController()
         mapper.connect('/',
                        controller=version_controller,
                        action='get_version_info', module='admin/version',
                        conditions=dict(method=['GET']))
 
-        extensions_controller = KeystoneExtensionsController(self.options)
+        extensions_controller = KeystoneExtensionsController()
         mapper.connect('/extensions',
                        controller=extensions_controller,
                        action='get_extensions_info',
@@ -84,12 +82,11 @@ class KeystoneAdminRouter(wsgi.Router):
 
 
 class KeystoneServiceRouter(wsgi.Router):
-    def __init__(self, options):
-        self.options = options
+    def __init__(self):
         mapper = routes.Mapper()
 
         # Token Operations
-        auth_controller = KeystoneTokenController(self.options)
+        auth_controller = KeystoneTokenController()
         mapper.connect('/tokens',
                        controller=auth_controller,
                        action='authenticate',
@@ -100,21 +97,21 @@ class KeystoneServiceRouter(wsgi.Router):
                        conditions=dict(methods=['POST']))
 
         # Tenant Operations
-        tenant_controller = KeystoneTenantController(self.options)
+        tenant_controller = KeystoneTenantController()
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_tenants_for_token',
                        conditions=dict(methods=['GET']))
 
         # Miscellaneous
-        version_controller = KeystoneVersionController(self.options)
+        version_controller = KeystoneVersionController()
         mapper.connect('/',
                        controller=version_controller,
                        action='get_version_info',
                        module='service/version',
                        conditions=dict(method=['GET']))
 
-        extensions_controller = KeystoneExtensionsController(self.options)
+        extensions_controller = KeystoneExtensionsController()
         mapper.connect('/extensions',
                        controller=extensions_controller,
                        action='get_extensions_info',
@@ -130,13 +127,12 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
 
     """
 
-    def __init__(self, application, options):
-        self.options = options
+    def __init__(self, application):
         mapper = routes.Mapper()
-        tenant_controller = KeystoneTenantController(self.options)
-        user_controller = KeystoneUserController(self.options)
-        role_controller = KeystoneRoleController(self.options)
-        service_controller = KeystoneServiceController(self.options)
+        tenant_controller = KeystoneTenantController()
+        user_controller = KeystoneUserController()
+        role_controller = KeystoneRoleController()
+        service_controller = KeystoneServiceController()
 
         # Tenant Operations
         mapper.connect("/tenants", controller=tenant_controller,
@@ -270,16 +266,15 @@ class KeystoneAdminCrudExtension(wsgi.ExtensionRouter):
                        conditions=dict(method=["DELETE"]))
 
         super(KeystoneAdminCrudExtension, self).__init__(
-                application, options, mapper)
+                application, mapper)
 
 
 class KeystoneTokenController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
-        self.catalog_api = catalog.Manager(options)
-        self.identity_api = identity.Manager(options)
-        self.token_api = token.Manager(options)
-        self.policy_api = policy.Manager(options)
+    def __init__(self):
+        self.catalog_api = catalog.Manager()
+        self.identity_api = identity.Manager()
+        self.token_api = token.Manager()
+        self.policy_api = policy.Manager()
         super(KeystoneTokenController, self).__init__()
 
     def authenticate(self, context, auth=None):
@@ -496,11 +491,10 @@ class KeystoneTokenController(service.BaseApplication):
 
 
 class KeystoneTenantController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
-        self.identity_api = identity.Manager(options)
-        self.policy_api = policy.Manager(options)
-        self.token_api = token.Manager(options)
+    def __init__(self):
+        self.identity_api = identity.Manager()
+        self.policy_api = policy.Manager()
+        self.token_api = token.Manager()
         super(KeystoneTenantController, self).__init__()
 
     def get_tenants_for_token(self, context, **kw):
@@ -578,12 +572,11 @@ class KeystoneTenantController(service.BaseApplication):
 
 
 class KeystoneUserController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
-        self.catalog_api = catalog.Manager(options)
-        self.identity_api = identity.Manager(options)
-        self.token_api = token.Manager(options)
-        self.policy_api = policy.Manager(options)
+    def __init__(self):
+        self.catalog_api = catalog.Manager()
+        self.identity_api = identity.Manager()
+        self.policy_api = policy.Manager()
+        self.token_api = token.Manager()
         super(KeystoneUserController, self).__init__()
 
     def get_user(self, context, user_id):
@@ -644,12 +637,11 @@ class KeystoneUserController(service.BaseApplication):
 
 
 class KeystoneRoleController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
-        self.catalog_api = catalog.Manager(options)
-        self.identity_api = identity.Manager(options)
-        self.token_api = token.Manager(options)
-        self.policy_api = policy.Manager(options)
+    def __init__(self):
+        self.catalog_api = catalog.Manager()
+        self.identity_api = identity.Manager()
+        self.token_api = token.Manager()
+        self.policy_api = policy.Manager()
         super(KeystoneRoleController, self).__init__()
 
     def get_user_roles(self, context, user_id, tenant_id=None):
@@ -748,12 +740,11 @@ class KeystoneRoleController(service.BaseApplication):
 
 
 class KeystoneServiceController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
-        self.catalog_api = catalog.Manager(options)
-        self.identity_api = identity.Manager(options)
-        self.token_api = token.Manager(options)
-        self.policy_api = policy.Manager(options)
+    def __init__(self):
+        self.catalog_api = catalog.Manager()
+        self.identity_api = identity.Manager()
+        self.token_api = token.Manager()
+        self.policy_api = policy.Manager()
         super(KeystoneServiceController, self).__init__()
 
     # CRUD extensions
@@ -783,8 +774,7 @@ class KeystoneServiceController(service.BaseApplication):
 
 
 class KeystoneVersionController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
+    def __init__(self):
         super(KeystoneVersionController, self).__init__()
 
     def get_version_info(self, context, module='version'):
@@ -792,8 +782,7 @@ class KeystoneVersionController(service.BaseApplication):
 
 
 class KeystoneExtensionsController(service.BaseApplication):
-    def __init__(self, options):
-        self.options = options
+    def __init__(self):
         super(KeystoneExtensionsController, self).__init__()
 
     def get_extensions_info(self, context):
@@ -803,10 +792,10 @@ class KeystoneExtensionsController(service.BaseApplication):
 def service_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
-    return KeystoneServiceRouter(conf)
+    return KeystoneServiceRouter()
 
 
 def admin_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
-    return KeystoneAdminRouter(conf)
+    return KeystoneAdminRouter()

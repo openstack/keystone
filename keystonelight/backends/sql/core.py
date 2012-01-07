@@ -10,7 +10,11 @@ import sqlalchemy.orm
 import sqlalchemy.pool
 import sqlalchemy.engine.url
 
+from keystonelight import config
 from keystonelight import models
+
+
+CONF = config.CONF
 
 
 Base = declarative.declarative_base()
@@ -121,9 +125,6 @@ class SqlBase(object):
   _MAKER = None
   _ENGINE = None
 
-  def __init__(self, options):
-    self.options = options
-
   def get_session(self, autocommit=True, expire_on_commit=False):
     """Return a SQLAlchemy session."""
     if self._MAKER is None or self._ENGINE is None:
@@ -138,36 +139,17 @@ class SqlBase(object):
 
   def get_engine(self):
     """Return a SQLAlchemy engine."""
-    connection_dict = sqlalchemy.engine.url.make_url(
-        self.options.get('sql_connection'))
+    connection_dict = sqlalchemy.engine.url.make_url(CONF.sql.connection)
 
     engine_args = {
-        "pool_recycle": self.options.get('sql_idle_timeout'),
+        "pool_recycle": CONF.sql.idle_timeout,
         "echo": False,
         }
 
     if "sqlite" in connection_dict.drivername:
       engine_args["poolclass"] = sqlalchemy.pool.NullPool
-    #elif MySQLdb and "mysql" in connection_dict.drivername:
-    #  LOG.info(_("Using mysql/eventlet db_pool."))
-    #  # MySQLdb won't accept 'None' in the password field
-    #  password = connection_dict.password or ''
-    #  pool_args = {
-    #      "db": connection_dict.database,
-    #      "passwd": password,
-    #      "host": connection_dict.host,
-    #      "user": connection_dict.username,
-    #      "min_size": self.options.get('sql_min_pool_size'),
-    #      "max_size": self.options.get('sql_max_pool_size'),
-    #      "max_idle": self.options.get('sql_idle_timeout'),
-    #      }
-    #  creator = eventlet.db_pool.ConnectionPool(MySQLdb, **pool_args)
-    #  engine_args["pool_size"] = self.options.get('sql_max_pool_size')
-    #  engine_args["pool_timeout"] = self.options('sql_pool_timeout')
-    #  engine_args["creator"] = creator.create
 
-    return sql.create_engine(self.options.get('sql_connection'),
-                             **engine_args)
+    return sql.create_engine(CONF.sql.connection, **engine_args)
 
   def get_maker(self, engine, autocommit=True, expire_on_commit=False):
     """Return a SQLAlchemy sessionmaker using the given engine."""

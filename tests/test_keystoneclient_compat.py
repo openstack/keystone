@@ -1,8 +1,9 @@
+from keystonelight import config
 from keystonelight import test
 
 import default_fixtures
 
-
+CONF = config.CONF
 KEYSTONECLIENT_REPO = 'git://github.com/openstack/python-keystoneclient.git'
 
 
@@ -12,12 +13,12 @@ class CompatTestCase(test.TestCase):
 
     def _public_url(self):
         public_port = self.public_server.socket_info['socket'][1]
-        self.options['public_port'] = public_port
+        CONF.public_port = public_port
         return "http://localhost:%s/v2.0" % public_port
 
     def _admin_url(self):
         admin_port = self.admin_server.socket_info['socket'][1]
-        self.options['admin_port'] = admin_port
+        CONF.admin_port = admin_port
         return "http://localhost:%s/v2.0" % admin_port
 
     def _client(self, **kwargs):
@@ -41,7 +42,7 @@ class MasterCompatTestCase(CompatTestCase):
         from keystoneclient.v2_0 import client as ks_client
         reload(ks_client)
 
-        self.options = self.appconfig('keystoneclient_compat_master')
+        CONF(config_files=['keystoneclient_compat_master.conf'])
         self.public_app = self.loadapp('keystoneclient_compat_master',
                                         name='main')
         self.admin_app = self.loadapp('keystoneclient_compat_master',

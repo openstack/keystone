@@ -1,6 +1,7 @@
 import os
 import uuid
 
+from keystonelight import config
 from keystonelight import models
 from keystonelight import test
 from keystonelight.backends import sql
@@ -10,20 +11,27 @@ import test_backend
 import default_fixtures
 
 
+CONF = config.CONF
+
+
+
 class SqlIdentity(test.TestCase, test_backend.IdentityTests):
   def setUp(self):
     super(SqlIdentity, self).setUp()
-    self.options = self.appconfig('default')
-    os.unlink('bla.db')
-    migration.db_sync(self.options, 1)
-    self.identity_api = sql.SqlIdentity(options=self.options)
+    try:
+      os.unlink('bla.db')
+    except Exception:
+      pass
+    CONF(config_files=['default.conf'])
+    migration.db_sync(1)
+    self.identity_api = sql.SqlIdentity()
     self.load_fixtures(default_fixtures)
 
 
 #class SqlToken(test_backend_kvs.KvsToken):
 #  def setUp(self):
 #    super(SqlToken, self).setUp()
-#    self.token_api = sql.SqlToken(options=options)
+#    self.token_api = sql.SqlToken()
 #    self.load_fixtures(default_fixtures)
 
 #  def test_token_crud(self):
@@ -44,7 +52,7 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
 #class SqlCatalog(test_backend_kvs.KvsCatalog):
 #  def setUp(self):
 #    super(SqlCatalog, self).setUp()
-#    self.catalog_api = sql.SqlCatalog(options=options)
+#    self.catalog_api = sql.SqlCatalog()
 #    self._load_fixtures()
 
 #  def _load_fixtures(self):

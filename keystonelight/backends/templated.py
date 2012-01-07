@@ -1,5 +1,10 @@
+from keystonelight import config
 from keystonelight import logging
 from keystonelight.backends import kvs
+
+
+CONF = config.CONF
+config.register_str('template_file', group='catalog')
 
 
 class TemplatedCatalog(kvs.KvsCatalog):
@@ -16,7 +21,7 @@ class TemplatedCatalog(kvs.KvsCatalog):
 
     http://localhost:$(public_port)s/
 
-  When expanding the template it will pass in a dict made up of the options
+  When expanding the template it will pass in a dict made up of the conf
   instance plus a few additional key-values, notably tenant_id and user_id.
 
   It does not care what the keys and values are but it is worth noting that
@@ -31,19 +36,21 @@ class TemplatedCatalog(kvs.KvsCatalog):
 
   """
 
-  def __init__(self, options, templates=None):
-    self.options = options
-
+  def __init__(self, templates=None):
     if templates:
       self.templates = templates
     else:
-      self._load_templates(options)
+      self._load_templates(CONF.catalog.template_file)
 
-    super(TemplatedCatalog, self).__init__(options)
+    super(TemplatedCatalog, self).__init__()
 
-  def _load_templates(self, options):
+  def _load_templates(self, template_file):
     o = {}
-    for k, v in options.iteritems():
+    for line in open(template_file):
+      if ' = ' not in line:
+        continue
+
+      k, v = line.split(' = ')
       if not k.startswith('catalog.'):
         continue
 
@@ -64,7 +71,7 @@ class TemplatedCatalog(kvs.KvsCatalog):
     self.templates = o
 
   def get_catalog(self, user_id, tenant_id, extras=None):
-    d = self.options.copy()
+    d = dict(CONF.iteritems())
     d.update({'tenant_id': tenant_id,
               'user_id': user_id})
 

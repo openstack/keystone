@@ -4,15 +4,17 @@
 
 import uuid
 
+from keystonelight import config
 from keystonelight import logging
 from keystonelight import utils
 
 
+CONF = config.CONF
+
+
 class Manager(object):
-    def __init__(self, options):
-        self.options = options
-        self.driver = utils.import_object(options['token_driver'],
-                                          options=options)
+    def __init__(self):
+        self.driver = utils.import_object(CONF.token.driver)
 
     def create_token(self, context, data):
         token = uuid.uuid4().hex

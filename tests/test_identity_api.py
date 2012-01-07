@@ -1,16 +1,20 @@
 import json
 
 from keystonelight import client
+from keystonelight import config
 from keystonelight import models
 from keystonelight import test
 
 import default_fixtures
 
 
+CONF = config.CONF
+
+
 class IdentityApi(test.TestCase):
   def setUp(self):
     super(IdentityApi, self).setUp()
-    self.options = self.appconfig('default')
+    CONF(config_files=['default.conf'])
     self.app = self.loadapp('default')
 
     self.load_backends()
@@ -54,7 +58,7 @@ class IdentityApi(test.TestCase):
     self.assertDictEquals(self.tenant_bar, data[0])
 
   def test_crud_user(self):
-    token_id = self.options['admin_token']
+    token_id = CONF.admin_token
     c = client.TestClient(self.app, token=token_id)
     user_ref = models.User(name='FOO')
     resp = c.create_user(**user_ref)
@@ -84,7 +88,7 @@ class IdentityApi(test.TestCase):
     #self.assertEquals(delget_resp.status, '404 Not Found')
 
   def test_crud_tenant(self):
-    token_id = self.options['admin_token']
+    token_id = CONF.admin_token
     c = client.TestClient(self.app, token=token_id)
     tenant_ref = models.Tenant(name='BAZ')
     resp = c.create_tenant(**tenant_ref)
@@ -128,7 +132,7 @@ class IdentityApi(test.TestCase):
     #self.assertEquals(delget_resp.status, '404 Not Found')
 
   def test_crud_extras(self):
-    token_id = self.options['admin_token']
+    token_id = CONF.admin_token
     user_id = 'foo'
     tenant_id = 'bar'
     c = client.TestClient(self.app, token=token_id)

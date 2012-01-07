@@ -107,7 +107,7 @@ class Application(object):
         but using the kwarg passing it shouldn't be necessary.
 
         """
-        return cls(**local_config)
+        return cls()
 
     def __call__(self, environ, start_response):
         r"""Subclasses will probably want to implement __call__ like this:
@@ -182,12 +182,11 @@ class Middleware(Application):
         def _factory(app):
             conf = global_config.copy()
             conf.update(local_config)
-            return cls(app, conf)
+            return cls(app)
         return _factory
 
-    def __init__(self, application, options):
+    def __init__(self, application):
         self.application = application
-        self.options = options
 
     def process_request(self, req):
         """Called on each request.
@@ -315,8 +314,7 @@ class ExtensionRouter(Router):
 
     Expects to be subclassed.
     """
-    def __init__(self, application, options, mapper):
-        self.options = options
+    def __init__(self, application, mapper):
         self.application = application
 
         mapper.connect('{path_info:.*}', controller=self.application)
@@ -348,5 +346,5 @@ class ExtensionRouter(Router):
         def _factory(app):
             conf = global_config.copy()
             conf.update(local_config)
-            return cls(app, conf)
+            return cls(app)
         return _factory

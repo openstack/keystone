@@ -11,16 +11,14 @@ import default_fixtures
 class KvsIdentity(test.TestCase, test_backend.IdentityTests):
   def setUp(self):
     super(KvsIdentity, self).setUp()
-    self.options = self.appconfig('default')
-    self.identity_api = kvs.KvsIdentity(options=self.options, db={})
+    self.identity_api = kvs.KvsIdentity(db={})
     self.load_fixtures(default_fixtures)
 
 
 class KvsToken(test.TestCase):
   def setUp(self):
     super(KvsToken, self).setUp()
-    options = self.appconfig('default')
-    self.token_api = kvs.KvsToken(options=options, db={})
+    self.token_api = kvs.KvsToken(db={})
 
   def test_token_crud(self):
     token_id = uuid.uuid4().hex
@@ -40,8 +38,7 @@ class KvsToken(test.TestCase):
 class KvsCatalog(test.TestCase):
   def setUp(self):
     super(KvsCatalog, self).setUp()
-    options = self.appconfig('default')
-    self.catalog_api = kvs.KvsCatalog(options=options, db={})
+    self.catalog_api = kvs.KvsCatalog(db={})
     self._load_fixtures()
 
   def _load_fixtures(self):

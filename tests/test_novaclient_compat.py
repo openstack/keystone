@@ -3,6 +3,7 @@ import json
 import os
 import sys
 
+from keystonelight import config
 from keystonelight import logging
 from keystonelight import models
 from keystonelight import test
@@ -11,6 +12,7 @@ from keystonelight import utils
 import default_fixtures
 
 
+CONF = config.CONF
 NOVACLIENT_REPO = 'git://github.com/openstack/python-novaclient.git'
 
 
@@ -30,8 +32,8 @@ class NovaClientCompatMasterTestCase(CompatTestCase):
     reload(ks_client)
     reload(base_client)
 
+    CONF(config_files=['keystoneclient_compat_master.conf'])
     self.app = self.loadapp('keystoneclient_compat_master')
-    self.options = self.appconfig('keystoneclient_compat_master')
     self.load_backends()
     self.load_fixtures(default_fixtures)
     self.server = self.serveapp('keystoneclient_compat_master')
@@ -41,7 +43,7 @@ class NovaClientCompatMasterTestCase(CompatTestCase):
     from novaclient import client as base_client
 
     port = self.server.socket_info['socket'][1]
-    self.options['public_port'] = port
+    CONF.public_port = port
 
     # NOTE(termie): novaclient wants a "/" TypeErrorat the end, keystoneclient does not
     # NOTE(termie): projectid is apparently sent as tenantName, so... that's

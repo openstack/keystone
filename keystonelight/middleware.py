@@ -1,6 +1,10 @@
 import json
 
+from keystonelight import config
 from keystonelight import wsgi
+
+
+CONF = config.CONF
 
 
 # Header used to transmit the auth token
@@ -34,7 +38,7 @@ class AdminTokenAuthMiddleware(wsgi.Middleware):
   def process_request(self, request):
     token = request.headers.get(AUTH_TOKEN_HEADER)
     context = request.environ.get(CONTEXT_ENV, {})
-    context['is_admin'] = (token == self.options['admin_token'])
+    context['is_admin'] = (token == CONF.admin_token)
     request.environ[CONTEXT_ENV] = context
 
 

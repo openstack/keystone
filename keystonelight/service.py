@@ -97,9 +97,8 @@ class BaseApplication(wsgi.Application):
 class TokenController(BaseApplication):
   """Validate and pass through calls to TokenManager."""
 
-  def __init__(self, options):
-    self.token_api = token.Manager(options=options)
-    self.options = options
+  def __init__(self):
+    self.token_api = token.Manager()
 
   def validate_token(self, context, token_id):
     token_info = self.token_api.validate_token(context, token_id)
@@ -115,10 +114,9 @@ class IdentityController(BaseApplication):
   a specific driver.
   """
 
-  def __init__(self, options):
-    self.identity_api = identity.Manager(options=options)
-    self.token_api = token.Manager(options=options)
-    self.options = options
+  def __init__(self):
+    self.identity_api = identity.Manager()
+    self.token_api = token.Manager()
 
   def noop(self, context, *args, **kw):
     return ''
@@ -207,10 +205,9 @@ class IdentityController(BaseApplication):
 
 
 class Router(wsgi.Router):
-  def __init__(self, options):
-    self.options = options
-    self.identity_controller = IdentityController(options)
-    self.token_controller = TokenController(options)
+  def __init__(self):
+    self.identity_controller = IdentityController()
+    self.token_controller = TokenController()
 
     mapper = self._build_map(URLMAP)
     mapper.connect('/', controller=self.identity_controller, action='noop')
@@ -238,6 +235,6 @@ class Router(wsgi.Router):
 
 
 def app_factory(global_conf, **local_conf):
-  conf = global_conf.copy()
-  conf.update(local_conf)
-  return Router(conf)
+  #conf = global_conf.copy()
+  #conf.update(local_conf)
+  return Router()

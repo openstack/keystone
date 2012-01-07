@@ -10,7 +10,7 @@ INMEMDB = DictKvs()
 
 
 class KvsIdentity(object):
-  def __init__(self, options, db=None):
+  def __init__(self, db=None):
     if db is None:
       db = INMEMDB
     elif type(db) is type({}):
@@ -189,7 +189,7 @@ class KvsIdentity(object):
 
 
 class KvsToken(object):
-  def __init__(self, options, db=None):
+  def __init__(self, db=None):
     if db is None:
       db = INMEMDB
     elif type(db) is type({}):
@@ -209,7 +209,7 @@ class KvsToken(object):
 
 
 class KvsCatalog(object):
-  def __init__(self, options, db=None):
+  def __init__(self, db=None):
     if db is None:
       db = INMEMDB
     elif type(db) is type({}):
@@ -251,7 +251,7 @@ class KvsCatalog(object):
 
 
 class KvsPolicy(object):
-  def __init__(self, options, db=None):
+  def __init__(self, db=None):
     if db is None:
       db = INMEMDB
     elif type(db) is type({}):
