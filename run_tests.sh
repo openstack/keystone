@@ -24,7 +24,7 @@ function usage {
   echo "  -p, --pep8               Just run pep8"
   echo "  -l, --pylint             Just run pylint"
   echo "  -j, --json               Just validate JSON"
-  echo "  -c, --coverage           Generate coverage report"
+  echo "  -c, --with-coverage      Generate coverage report"
   echo "  -h, --help               Print this usage message"
   echo "  --hide-elapsed           Don't print the elapsed time for each test along with slow test list"
   echo "  --verbose                Print additional logging"
@@ -57,7 +57,7 @@ function process_option {
       -p|--pep8) just_pep8=1;;
       -l|--pylint) just_pylint=1;;
       -j|--json) just_json=1;;
-      -c|--coverage) coverage=1;;
+      -c|--with-coverage) coverage=1;;
       -*) addlopts="$addlopts $1";;
       *) addlargs="$addlargs $1"
     esac
@@ -197,5 +197,6 @@ if [ $coverage -eq 1 ]; then
     echo "Generating coverage report in covhtml/"
     ${wrapper} coverage combine
     ${wrapper} coverage html -d covhtml -i
+    ${wrapper} coverage report --omit='/usr*,keystone/test*,.,setup.py,*egg*,/Library*,*.xml,*.tpl'
 fi
 

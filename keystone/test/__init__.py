@@ -418,7 +418,16 @@ class KeystoneTest(object):
         # run the keystone server
         logger.info("Starting the keystone server...")
 
-        parser = optparse.OptionParser(version='%%prog %s' %
+        class SilentOptParser(optparse.OptionParser):
+            """ Class used to prevent OptionParser from exiting when it detects
+            options coming in for nose/testing """
+            def exit():
+                pass
+
+            def error(self, msg):
+                pass
+
+        parser = SilentOptParser(version='%%prog %s' %
                                        keystone.version.version())
         common_group = config.add_common_options(parser)
         config.add_log_options(parser)

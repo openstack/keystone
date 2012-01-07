@@ -57,9 +57,10 @@ if __name__ == '__main__':
         TESTS = [t for t in TESTS if filter in str(t)]
         if not TESTS:
             print 'No test configuration by the name %s found' % filter
-            exit()
+            sys.exit(2)
     #Run test suites
     if len(TESTS) > 1:
+        directory = os.getcwd()
         for test_num, test_cls in enumerate(TESTS):
             # We've had problems with resetting SQLAlchemy, so we can fire off
             # a separate process for each test suite to guarantee the
@@ -82,19 +83,25 @@ if __name__ == '__main__':
                 except Exception, e:
                     print "Error:", e
                     logger.exception(e)
-                    sys.exit(2)
+                    sys.exit(1)
             # Collect coverage from each run. They'll be combined later in .sh
             if '--with-coverage' in sys.argv:
-                coverage_file = '.coverage.%s' % test_num
+                coverage_file = os.path.join(directory, ".coverage")
+                target_file = "%s.%s" % (coverage_file, test_cls.__name__)
                 try:
+                    if os.path.exists(target_file):
+                        logger.info("deleting %s" % target_file)
+                        os.unlink(target_file)
                     if os.path.exists(coverage_file):
-                        os.unlink(coverage_file)
-                    os.rename('.coverage', coverage_file)
+                        logger.info("Saving %s to %s" % (coverage_file,
+                                                         target_file))
+                        os.rename(coverage_file, target_file)
                 except Exception, e:
                     logger.exception(e)
-                    print "Failed to move .coverage file to %s: %s" % \
-                        (coverage_file, e)
-
+                    print ("Failed to move coverage file while running test"
+                           ": %s. Error reported was: %s" %
+                           (test_cls.__name__, e))
+                    sys.exit(1)
     else:
         for test_num, test_cls in enumerate(TESTS):
             try:
@@ -106,4 +113,4 @@ if __name__ == '__main__':
             except Exception, e:
                 print "Error:", e
                 logger.exception(e)
-                sys.exit(2)
+                sys.exit(1)
