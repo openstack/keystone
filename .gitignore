@@ -3,3 +3,7 @@
 vendor
 .ksl-venv
 run_tests.log
+.coverage
+covhtml
+pep8.txt
+nosetests.xml

@@ -8,6 +8,7 @@ routes
 
 # keystonelight testing dependencies
 nose
+nosexcover
 
 # for python-keystoneclient
 httplib2
