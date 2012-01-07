@@ -3,6 +3,7 @@ from migrate import *
 
 from keystonelight.backends import sql
 
+
 def upgrade(migrate_engine):
     # Upgrade operations go here. Don't create your own engine; bind
     # migrate_engine to your metadata

@@ -15,6 +15,7 @@ from keystonelight import models
 
 Base = declarative.declarative_base()
 
+
 # Special Fields
 class JsonBlob(sql_types.TypeDecorator):
   impl = sql.Text
@@ -63,6 +64,7 @@ class DictBase(object):
                    if not k[0] == '_'])
     local.update(joined)
     return local.iteritems()
+
 
 # Tables
 class User(Base, DictBase):
@@ -114,7 +116,7 @@ class UserTenantMembership(Base, DictBase):
                          primary_key=True)
 
 
-
+# Backends
 class SqlBase(object):
   _MAKER = None
   _ENGINE = None
@@ -189,7 +191,7 @@ class SqlIdentity(SqlBase):
       raise AssertionError('Invalid user / password')
 
     tenants = self.get_tenants_for_user(user_id)
-    if tenant_id and tenant_id not in user_ref['tenants']:
+    if tenant_id and tenant_id not in tenants:
       raise AssertionError('Invalid tenant')
 
     tenant_ref = self.get_tenant(tenant_id)
