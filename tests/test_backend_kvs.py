@@ -4,11 +4,11 @@ from keystonelight import models
 from keystonelight import test
 from keystonelight.backends import kvs
 
-import test_backends
+import test_backend
 import default_fixtures
 
 
-class KvsIdentity(test.TestCase, test_backends.IdentityTests):
+class KvsIdentity(test.TestCase, test_backend.IdentityTests):
   def setUp(self):
     super(KvsIdentity, self).setUp()
     self.options = self.appconfig('default')

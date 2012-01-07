@@ -6,11 +6,11 @@ from keystonelight import test
 from keystonelight.backends import sql
 from keystonelight.backends.sql import migration
 
-import test_backends
+import test_backend
 import default_fixtures
 
 
-class SqlIdentity(test.TestCase, test_backends.IdentityTests):
+class SqlIdentity(test.TestCase, test_backend.IdentityTests):
   def setUp(self):
     super(SqlIdentity, self).setUp()
     self.options = self.appconfig('default')

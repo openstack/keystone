@@ -187,6 +187,8 @@ class SqlIdentity(SqlBase):
     extras_ref = None
     if not user_ref or user_ref.get('password') != password:
       raise AssertionError('Invalid user / password')
+
+    tenants = self.get_tenants_for_user(user_id)
     if tenant_id and tenant_id not in user_ref['tenants']:
       raise AssertionError('Invalid tenant')
 
