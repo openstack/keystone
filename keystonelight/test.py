@@ -8,9 +8,12 @@ import time
 
 from paste import deploy
 
+from keystonelight import catalog
 from keystonelight import config
+from keystonelight import identity
 from keystonelight import logging
 from keystonelight import models
+from keystonelight import token
 from keystonelight import utils
 from keystonelight import wsgi
 
@@ -114,20 +117,19 @@ class TestCase(unittest.TestCase):
     # TODO(termie): doing something from json, probably based on Django's
     #               loaddata will be much preferred.
     for tenant in fixtures.TENANTS:
-      rv = self.identity_api.create_tenant(
-          tenant['id'], models.Tenant(**tenant))
+      rv = self.identity_api.create_tenant(tenant['id'], tenant)
       setattr(self, 'tenant_%s' % tenant['id'], rv)
 
     for user in fixtures.USERS:
       user_copy = user.copy()
       tenants = user_copy.pop('tenants')
-      rv = self.identity_api.create_user(user['id'], models.User(**user_copy))
+      rv = self.identity_api.create_user(user['id'], user_copy)
       for tenant_id in tenants:
         self.identity_api.add_user_to_tenant(tenant_id, user['id'])
       setattr(self, 'user_%s' % user['id'], rv)
 
     for role in fixtures.ROLES:
-      rv = self.identity_api.create_role(role['id'], models.Role(**role))
+      rv = self.identity_api.create_role(role['id'], role)
       setattr(self, 'role_%s' % role['id'], rv)
 
     for extras in fixtures.EXTRAS:
@@ -137,7 +139,7 @@ class TestCase(unittest.TestCase):
       del extras_ref['user_id']
       del extras_ref['tenant_id']
       rv = self.identity_api.create_extras(
-          extras['user_id'], extras['tenant_id'], models.Extras(**extras_ref))
+          extras['user_id'], extras['tenant_id'], extras_ref)
       setattr(self,
               'extras_%s%s' % (extras['user_id'], extras['tenant_id']), rv)
 

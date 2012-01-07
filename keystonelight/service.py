@@ -47,6 +47,13 @@ URLMAP = HIGH_LEVEL_CALLS.copy()
 URLMAP.update(LOW_LEVEL_CALLS)
 
 
+class SmarterEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if not isinstance(obj, dict) and hasattr(obj, 'iteritems'):
+      return dict(obj.iteritems())
+    return super(SmarterEncoder, self).default(obj)
+
+
 class BaseApplication(wsgi.Application):
   @webob.dec.wsgify
   def __call__(self, req):
@@ -76,10 +83,17 @@ class BaseApplication(wsgi.Application):
     elif isinstance(result, webob.exc.WSGIHTTPException):
       return result
 
-    return json.dumps(result)
+    return self._serialize(result)
+
+  def _serialize(self, result):
+    return json.dumps(result, cls=SmarterEncoder)
 
   def _normalize_arg(self, arg):
     return str(arg).replace(':', '_').replace('-', '_')
+
+  def _normalize_dict(self, d):
+    return dict([(self._normalize_arg(k), v)
+                 for (k, v) in d.iteritems()])
 
   def assert_admin(self, context):
     if not context['is_admin']:
@@ -88,6 +102,7 @@ class BaseApplication(wsgi.Application):
       creds = user_token_ref['extras'].copy()
       creds['user_id'] = user_token_ref['user'].get('id')
       creds['tenant_id'] = user_token_ref['tenant'].get('id')
+      print creds
       # Accept either is_admin or the admin role
       assert self.policy_api.can_haz(context,
                                      ('is_admin:1', 'roles:admin'),

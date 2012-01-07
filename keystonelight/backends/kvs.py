@@ -64,10 +64,12 @@ class KvsIdentity(object):
     return role_ref
 
   def list_users(self):
-    return self.db.get('user_list', [])
+    user_ids = self.db.get('user_list', [])
+    return [self.get_user(x) for x in user_ids]
 
   def list_roles(self):
-    return self.db.get('role_list', [])
+    role_ids = self.db.get('role_list', [])
+    return [self.get_role(x) for x in role_ids]
 
   # These should probably be part of the high-level API
   def add_user_to_tenant(self, tenant_id, user_id):

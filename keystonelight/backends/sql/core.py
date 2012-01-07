@@ -63,11 +63,12 @@ class DictBase(object):
     Includes attributes from joins.
 
     """
-    local = dict(self)
-    joined = dict([(k, v) for k, v in self.__dict__.iteritems()
-                   if not k[0] == '_'])
-    local.update(joined)
-    return local.iteritems()
+    return dict([(k, getattr(self, k)) for k in self])
+    #local = dict(self)
+    #joined = dict([(k, v) for k, v in self.__dict__.iteritems()
+    #               if not k[0] == '_'])
+    #local.update(joined)
+    #return local.iteritems()
 
 
 # Tables
@@ -75,13 +76,51 @@ class User(Base, DictBase):
   __tablename__ = 'user'
   id = sql.Column(sql.String(64), primary_key=True)
   name = sql.Column(sql.String(64), unique=True)
-  password = sql.Column(sql.String(64))
+  #password = sql.Column(sql.String(64))
+  extra = sql.Column(JsonBlob())
+
+  @classmethod
+  def from_dict(cls, user_dict):
+    # shove any non-indexed properties into extra
+    extra = {}
+    for k, v in user_dict.copy().iteritems():
+      # TODO(termie): infer this somehow
+      if k not in ['id', 'name']:
+        extra[k] = user_dict.pop(k)
+
+    user_dict['extra'] = extra
+    return cls(**user_dict)
+
+  def to_dict(self):
+    extra_copy = self.extra.copy()
+    extra_copy['id'] = self.id
+    extra_copy['name'] = self.name
+    return extra_copy
 
 
 class Tenant(Base, DictBase):
   __tablename__ = 'tenant'
   id = sql.Column(sql.String(64), primary_key=True)
   name = sql.Column(sql.String(64), unique=True)
+  extra = sql.Column(JsonBlob())
+
+  @classmethod
+  def from_dict(cls, tenant_dict):
+    # shove any non-indexed properties into extra
+    extra = {}
+    for k, v in tenant_dict.copy().iteritems():
+      # TODO(termie): infer this somehow
+      if k not in ['id', 'name']:
+        extra[k] = tenant_dict.pop(k)
+
+    tenant_dict['extra'] = extra
+    return cls(**tenant_dict)
+
+  def to_dict(self):
+    extra_copy = self.extra.copy()
+    extra_copy['id'] = self.id
+    extra_copy['name'] = self.name
+    return extra_copy
 
 
 class Role(Base, DictBase):
@@ -143,7 +182,7 @@ class SqlBase(object):
 
     engine_args = {
         "pool_recycle": CONF.sql.idle_timeout,
-        "echo": False,
+        "echo": True,
         }
 
     if "sqlite" in connection_dict.drivername:
@@ -177,6 +216,7 @@ class SqlIdentity(SqlBase):
       raise AssertionError('Invalid tenant')
 
     tenant_ref = self.get_tenant(tenant_id)
+    print 'ETESTSET', tenant_ref
     if tenant_ref:
       extras_ref = self.get_extras(user_id, tenant_id)
     else:
@@ -186,29 +226,37 @@ class SqlIdentity(SqlBase):
   def get_tenant(self, tenant_id):
     session = self.get_session()
     tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
-    return tenant_ref
+    if not tenant_ref:
+      return
+    return tenant_ref.to_dict()
 
   def get_tenant_by_name(self, tenant_name):
     session = self.get_session()
     tenant_ref = session.query(Tenant).filter_by(name=tenant_name).first()
-    return tenant_ref
+    if not tenant_ref:
+      return
+    return tenant_ref.to_dict()
 
   def get_user(self, user_id):
     session = self.get_session()
     user_ref = session.query(User).filter_by(id=user_id).first()
-    return user_ref
+    if not user_ref:
+      return
+    return user_ref.to_dict()
 
   def get_user_by_name(self, user_name):
     session = self.get_session()
     user_ref = session.query(User).filter_by(name=user_name).first()
-    return user_ref
+    if not user_ref:
+      return
+    return user_ref.to_dict()
 
   def get_extras(self, user_id, tenant_id):
     session = self.get_session()
     extras_ref = session.query(Extras)\
-               .filter_by(user_id=user_id)\
-               .filter_by(tenant_id=tenant_id)\
-               .first()
+                        .filter_by(user_id=user_id)\
+                        .filter_by(tenant_id=tenant_id)\
+                        .first()
     return getattr(extras_ref, 'data', None)
 
   def get_role(self, role_id):
@@ -219,7 +267,7 @@ class SqlIdentity(SqlBase):
   def list_users(self):
     session = self.get_session()
     user_refs = session.query(User)
-    return list(user_refs)
+    return [x.to_dict() for x in user_refs]
 
   def list_roles(self):
     session = self.get_session()
@@ -233,11 +281,13 @@ class SqlIdentity(SqlBase):
       session.add(UserTenantMembership(user_id=user_id, tenant_id=tenant_id))
 
   def remove_user_from_tenant(self, tenant_id, user_id):
-    user_ref = self.get_user(user_id)
-    tenants = set(user_ref.get('tenants', []))
-    tenants.remove(tenant_id)
-    user_ref['tenants'] = list(tenants)
-    self.update_user(user_id, user_ref)
+    session = self.get_session()
+    membership_ref = session.query(UserTenantMembership)\
+                            .filter_by(user_id=user_id)\
+                            .filter_by(tenant_id=tenant_id)\
+                            .first()
+    with session.begin():
+      session.delete(membership_ref)
 
   def get_tenants_for_user(self, user_id):
     session = self.get_session()
@@ -255,65 +305,84 @@ class SqlIdentity(SqlBase):
 
   def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
     extras_ref = self.get_extras(user_id, tenant_id)
+    is_new = False
     if not extras_ref:
+      is_new = True
       extras_ref = {}
     roles = set(extras_ref.get('roles', []))
     roles.add(role_id)
     extras_ref['roles'] = list(roles)
-    self.update_extras(user_id, tenant_id, extras_ref)
+    if not is_new:
+      self.update_extras(user_id, tenant_id, extras_ref)
+    else:
+      self.create_extras(user_id, tenant_id, extras_ref)
 
   def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
     extras_ref = self.get_extras(user_id, tenant_id)
+    is_new = False
     if not extras_ref:
+      is_new = True
       extras_ref = {}
     roles = set(extras_ref.get('roles', []))
     roles.remove(role_id)
     extras_ref['roles'] = list(roles)
-    self.update_extras(user_id, tenant_id, extras_ref)
+    if not is_new:
+      self.update_extras(user_id, tenant_id, extras_ref)
+    else:
+      self.create_extras(user_id, tenant_id, extras_ref)
 
   # CRUD
   def create_user(self, id, user):
     session = self.get_session()
     with session.begin():
-      session.add(User(**user))
-    return user
+      user_ref = User.from_dict(user)
+      session.add(user_ref)
+    return user_ref.to_dict()
 
   def update_user(self, id, user):
-    # get the old name and delete it too
-    old_user = self.db.get('user-%s' % id)
-    self.db.delete('user_name-%s' % old_user['name'])
-    self.db.set('user-%s' % id, user)
-    self.db.set('user_name-%s' % user['name'], user)
-    return user
+    session = self.get_session()
+    with session.begin():
+      user_ref = session.query(User).filter_by(id=id).first()
+      old_user_dict = user_ref.to_dict()
+      for k in user:
+        old_user_dict[k] = user[k]
+      new_user = User.from_dict(old_user_dict)
+
+      user_ref.name = new_user.name
+      user_ref.extra = new_user.extra
+    return user_ref
 
   def delete_user(self, id):
-    old_user = self.db.get('user-%s' % id)
-    self.db.delete('user_name-%s' % old_user['name'])
-    self.db.delete('user-%s' % id)
-    user_list = set(self.db.get('user_list', []))
-    user_list.remove(id)
-    self.db.set('user_list', list(user_list))
-    return None
+    session = self.get_session()
+    user_ref = session.query(User).filter_by(id=id).first()
+    with session.begin():
+      session.delete(user_ref)
 
   def create_tenant(self, id, tenant):
     session = self.get_session()
     with session.begin():
-      session.add(Tenant(**tenant))
-    return tenant
+      tenant_ref = Tenant.from_dict(tenant)
+      session.add(tenant_ref)
+    return tenant_ref.to_dict()
 
   def update_tenant(self, id, tenant):
-    # get the old name and delete it too
-    old_tenant = self.db.get('tenant-%s' % id)
-    self.db.delete('tenant_name-%s' % old_tenant['name'])
-    self.db.set('tenant-%s' % id, tenant)
-    self.db.set('tenant_name-%s' % tenant['name'], tenant)
-    return tenant
+    session = self.get_session()
+    with session.begin():
+      tenant_ref = session.query(Tenant).filter_by(id=id).first()
+      old_tenant_dict = tenant_ref.to_dict()
+      for k in tenant:
+        old_tenant_dict[k] = tenant[k]
+      new_tenant = Tenant.from_dict(old_tenant_dict)
+
+      tenant_ref.name = new_tenant.name
+      tenant_ref.extra = new_tenant.extra
+    return tenant_ref
 
   def delete_tenant(self, id):
-    old_tenant = self.db.get('tenant-%s' % id)
-    self.db.delete('tenant_name-%s' % old_tenant['name'])
-    self.db.delete('tenant-%s' % id)
-    return None
+    session = self.get_session()
+    tenant_ref = session.query(Tenant).filter_by(id=id).first()
+    with session.begin():
+      session.delete(tenant_ref)
 
   def create_extras(self, user_id, tenant_id, extras):
     session = self.get_session()
@@ -322,8 +391,17 @@ class SqlIdentity(SqlBase):
     return extras
 
   def update_extras(self, user_id, tenant_id, extras):
-    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
-    return extras
+    session = self.get_session()
+    with session.begin():
+      extras_ref = session.query(Extras)\
+                          .filter_by(user_id=user_id)\
+                          .filter_by(tenant_id=tenant_id)\
+                          .first()
+      data = extras_ref.data.copy()
+      for k in extras:
+        data[k] = extras[k]
+      extras_ref.data = data
+    return extras_ref
 
   def delete_extras(self, user_id, tenant_id):
     self.db.delete('extras-%s-%s' % (tenant_id, user_id))
@@ -336,15 +414,18 @@ class SqlIdentity(SqlBase):
     return role
 
   def update_role(self, id, role):
-    self.db.set('role-%s' % id, role)
-    return role
+    session = self.get_session()
+    with session.begin():
+      role_ref = session.query(Role).filter_by(id=id).first()
+      for k in role:
+        role_ref[k] = role[k]
+    return role_ref
 
   def delete_role(self, id):
-    self.db.delete('role-%s' % id)
-    role_list = set(self.db.get('role_list', []))
-    role_list.remove(id)
-    self.db.set('role_list', list(role_list))
-    return None
+    session = self.get_session()
+    role_ref = session.query(Role).filter_by(id=id).first()
+    with session.begin():
+      session.delete(role_ref)
 
 
 class SqlToken(SqlBase):

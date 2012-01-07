@@ -511,8 +511,10 @@ class KeystoneTenantController(service.BaseApplication):
         assert token_ref is not None
 
         user_ref = token_ref['user']
+        tenant_ids = self.identity_api.get_tenants_for_user(
+                context, user_ref['id'])
         tenant_refs = []
-        for tenant_id in user_ref['tenants']:
+        for tenant_id in tenant_ids:
             tenant_refs.append(self.identity_api.get_tenant(
                     context=context,
                     tenant_id=tenant_id))
@@ -537,9 +539,9 @@ class KeystoneTenantController(service.BaseApplication):
         return {'tenant': tenant}
 
     # CRUD Extension
-    def create_tenant(self, context, **kw):
+    def create_tenant(self, context, tenant):
+        tenant_ref = self._normalize_dict(tenant)
         self.assert_admin(context)
-        tenant_ref = kw.get('tenant')
         tenant_id = (tenant_ref.get('id')
                      and tenant_ref.get('id')
                      or uuid.uuid4().hex)
@@ -590,23 +592,21 @@ class KeystoneUserController(service.BaseApplication):
         # NOTE(termie): i can't imagine that this really wants all the data
         #               about every single user in the system...
         self.assert_admin(context)
-        user_list = self.identity_api.list_users(context)
-        return {'users': [{'id': x} for x in user_list]}
+        user_refs = self.identity_api.list_users(context)
+        return {'users': user_refs}
 
     # CRUD extension
     def create_user(self, context, user):
+        user = self._normalize_dict(user)
         self.assert_admin(context)
-        tenant_id = user.get('tenantId')
-        tenants = []
-        if tenant_id:
-            tenants.append(tenant_id)
+        tenant_id = user.get('tenantId', None)
         user_id = uuid.uuid4().hex
         user_ref = user.copy()
-        #user_ref.pop('tenantId', None)
         user_ref['id'] = user_id
-        user_ref['tenants'] = tenants
         new_user_ref = self.identity_api.create_user(
                 context, user_id, user_ref)
+        if tenant_id:
+            self.identity_api.add_user_to_tenant(tenant_id, user_id)
         return {'user': new_user_ref}
 
     # NOTE(termie): this is really more of a patch than a put
@@ -656,6 +656,8 @@ class KeystoneRoleController(service.BaseApplication):
         return {'role': role_ref}
 
     def create_role(self, context, role):
+        role = self._normalize_dict(role)
+        self.assert_admin(context)
         role_id = uuid.uuid4().hex
         role['id'] = role_id
         role_ref = self.identity_api.create_role(context, role_id, role)
@@ -669,8 +671,7 @@ class KeystoneRoleController(service.BaseApplication):
         self.assert_admin(context)
         roles = self.identity_api.list_roles(context)
         # TODO(termie): probably inefficient at some point
-        return {'roles': [self.identity_api.get_role(context, x)
-                          for x in roles]}
+        return {'roles': roles}
 
     # COMPAT(diablo): CRUD extension
     def get_role_refs(self, context, user_id):
