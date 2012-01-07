@@ -14,6 +14,7 @@ sqlalchemy-migrate # database migrations
 lxml # xml library providing ElementTree API
 passlib # password hashing
 argparse # cli support
+prettytable # cli table printing
 
 # Optional backend: LDAP
 python-ldap # authenticate against an existing LDAP server
