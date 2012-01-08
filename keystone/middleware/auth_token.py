@@ -401,7 +401,7 @@ class AuthProtocol(object):
 
     def _reject_request(self, env, start_response):
         """Redirect client to auth server"""
-        logger.debug("Rejecting request - authoentication required")
+        logger.debug("Rejecting request - authentication required")
         return HTTPUnauthorized("Authentication required",
                     [("WWW-Authenticate",
                       "Keystone uri='%s'" % self.auth_location)])(env,
