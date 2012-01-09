@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='keystone',
-      version='1.0',
+      version='2012.1',
       description="Authentication service for OpenStack",
       author='OpenStack, LLC.',
       author_email='openstack@lists.launchpad.net',
