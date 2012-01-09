@@ -16,11 +16,21 @@ import keystone.tools.tracer  # @UnusedImport # module runs on import
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] in keystone.manage.OBJECTS:
-        # the args look like the old 'subject verb' (e.g. 'user add')
-        # (this module is pending deprecation)
-        keystone.manage.main()
-    else:
-        # calls that don't start with a 'subject' go to the new impl
-        # which uses a 'verb_subject' convention (e.g. 'add_user')
-        keystone.manage2.main()
+    args = sys.argv[1:]
+    while True:
+        if len(args) > 1 and args[0] in keystone.manage.OBJECTS:
+            # the args look like the old 'subject verb' (e.g. 'user add')
+            # (this module is pending deprecation)
+            keystone.manage.main()
+            break
+        elif len(args) > 2 and args[0] == '-c':
+            # Remove -c <config file> and try again
+            del args[0:2]
+        elif len(args) > 1 and args[0] == '-d':
+            # Remove -d and try again
+            del args[0]
+        else:
+            # calls that don't start with a 'subject' go to the new impl
+            # which uses a 'verb_subject' convention (e.g. 'add_user')
+            keystone.manage2.main()
+            break
