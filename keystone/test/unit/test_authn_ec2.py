@@ -23,7 +23,7 @@ from keystone.test.unit.decorators import jsonify
 from keystone.logic import signer
 from keystone.logic.types import auth
 
-LOGGER = logging.getLogger('test.unit.test_ec2_authn')
+LOGGER = logging.getLogger(__name__)
 
 
 class EC2AuthnMethods(base.ServiceAPITest):

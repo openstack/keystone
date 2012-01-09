@@ -387,9 +387,11 @@ class AuthData(object):
         token["id"] = self.token.id
         token["expires"] = self.token.expires.isoformat()
         if self.token.tenant:
-            token['tenant'] = {
+            tenant = {
                 'id': unicode(self.token.tenant.id),
                 'name': unicode(self.token.tenant.name)}
+            token['tenant'] = tenant     # v2.0/Diablo contract
+            token['tenants'] = [tenant]  # missed use case in v2.0
         auth = {}
         auth["token"] = token
         auth['user'] = {
@@ -487,9 +489,11 @@ class ValidateData(object):
             "expires": self.token.expires.isoformat()}
 
         if self.token.tenant:
-            token['tenant'] = {
+            tenant = {
                 'id': unicode(self.token.tenant.id),
                 'name': unicode(self.token.tenant.name)}
+            token['tenant'] = tenant     # v2.0/Diablo contract
+            token['tenants'] = [tenant]  # missed use case in v2.0
 
         user = {
             "id": unicode(self.user.id),
