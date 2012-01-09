@@ -59,7 +59,7 @@ class CompatTestCase(test.TestCase):
                     name='jqsmith',
                     tenants=[self.tenant_345['id']],
                     password='password'))
-    self.extras_123 = self.identity_api.create_extras(
+    self.metadata_123 = self.identity_api.create_metadata(
         self.user_123['id'], self.tenant_345['id'],
         dict(roles=[{'id': '234',
                      'name': 'compute:admin'},
@@ -73,7 +73,7 @@ class CompatTestCase(test.TestCase):
                      expires='2010-11-01T03:32:15-05:00',
                      user=self.user_123,
                      tenant=self.tenant_345,
-                     extras=self.extras_123))
+                     metadata=self.metadata_123))
 
     # auth call
     # NOTE(termie): the service catalog in the sample doesn't really have

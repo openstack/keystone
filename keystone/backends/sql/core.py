@@ -129,10 +129,10 @@ class Role(Base, DictBase):
   name = sql.Column(sql.String(64))
 
 
-class Extras(Base, DictBase):
-  __tablename__ = 'extras'
+class Metadata(Base, DictBase):
+  __tablename__ = 'metadata'
   #__table_args__ = (
-  #    sql.Index('idx_extras_usertenant', 'user', 'tenant'),
+  #    sql.Index('idx_metadata_usertenant', 'user', 'tenant'),
   #    )
 
   user_id = sql.Column(sql.String(64), primary_key=True)
@@ -207,7 +207,7 @@ class SqlIdentity(SqlBase):
     """
     user_ref = self.get_user(user_id)
     tenant_ref = None
-    extras_ref = None
+    metadata_ref = None
     if not user_ref or user_ref.get('password') != password:
       raise AssertionError('Invalid user / password')
 
@@ -218,10 +218,10 @@ class SqlIdentity(SqlBase):
     tenant_ref = self.get_tenant(tenant_id)
     print 'ETESTSET', tenant_ref
     if tenant_ref:
-      extras_ref = self.get_extras(user_id, tenant_id)
+      metadata_ref = self.get_metadata(user_id, tenant_id)
     else:
-      extras_ref = {}
-    return (user_ref, tenant_ref, extras_ref)
+      metadata_ref = {}
+    return (user_ref, tenant_ref, metadata_ref)
 
   def get_tenant(self, tenant_id):
     session = self.get_session()
@@ -251,13 +251,13 @@ class SqlIdentity(SqlBase):
       return
     return user_ref.to_dict()
 
-  def get_extras(self, user_id, tenant_id):
+  def get_metadata(self, user_id, tenant_id):
     session = self.get_session()
-    extras_ref = session.query(Extras)\
+    metadata_ref = session.query(Metadata)\
                         .filter_by(user_id=user_id)\
                         .filter_by(tenant_id=tenant_id)\
                         .first()
-    return getattr(extras_ref, 'data', None)
+    return getattr(metadata_ref, 'data', None)
 
   def get_role(self, role_id):
     session = self.get_session()
@@ -298,38 +298,38 @@ class SqlIdentity(SqlBase):
     return [x.tenant_id for x in membership_refs]
 
   def get_roles_for_user_and_tenant(self, user_id, tenant_id):
-    extras_ref = self.get_extras(user_id, tenant_id)
-    if not extras_ref:
-      extras_ref = {}
-    return extras_ref.get('roles', [])
+    metadata_ref = self.get_metadata(user_id, tenant_id)
+    if not metadata_ref:
+      metadata_ref = {}
+    return metadata_ref.get('roles', [])
 
   def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
-    extras_ref = self.get_extras(user_id, tenant_id)
+    metadata_ref = self.get_metadata(user_id, tenant_id)
     is_new = False
-    if not extras_ref:
+    if not metadata_ref:
       is_new = True
-      extras_ref = {}
-    roles = set(extras_ref.get('roles', []))
+      metadata_ref = {}
+    roles = set(metadata_ref.get('roles', []))
     roles.add(role_id)
-    extras_ref['roles'] = list(roles)
+    metadata_ref['roles'] = list(roles)
     if not is_new:
-      self.update_extras(user_id, tenant_id, extras_ref)
+      self.update_metadata(user_id, tenant_id, metadata_ref)
     else:
-      self.create_extras(user_id, tenant_id, extras_ref)
+      self.create_metadata(user_id, tenant_id, metadata_ref)
 
   def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
-    extras_ref = self.get_extras(user_id, tenant_id)
+    metadata_ref = self.get_metadata(user_id, tenant_id)
     is_new = False
-    if not extras_ref:
+    if not metadata_ref:
       is_new = True
-      extras_ref = {}
-    roles = set(extras_ref.get('roles', []))
+      metadata_ref = {}
+    roles = set(metadata_ref.get('roles', []))
     roles.remove(role_id)
-    extras_ref['roles'] = list(roles)
+    metadata_ref['roles'] = list(roles)
     if not is_new:
-      self.update_extras(user_id, tenant_id, extras_ref)
+      self.update_metadata(user_id, tenant_id, metadata_ref)
     else:
-      self.create_extras(user_id, tenant_id, extras_ref)
+      self.create_metadata(user_id, tenant_id, metadata_ref)
 
   # CRUD
   def create_user(self, id, user):
@@ -384,27 +384,29 @@ class SqlIdentity(SqlBase):
     with session.begin():
       session.delete(tenant_ref)
 
-  def create_extras(self, user_id, tenant_id, extras):
+  def create_metadata(self, user_id, tenant_id, metadata):
     session = self.get_session()
     with session.begin():
-      session.add(Extras(user_id=user_id, tenant_id=tenant_id, data=extras))
-    return extras
+      session.add(Metadata(user_id=user_id,
+                           tenant_id=tenant_id,
+                           data=metadata))
+    return metadata
 
-  def update_extras(self, user_id, tenant_id, extras):
+  def update_metadata(self, user_id, tenant_id, metadata):
     session = self.get_session()
     with session.begin():
-      extras_ref = session.query(Extras)\
+      metadata_ref = session.query(Metadata)\
                           .filter_by(user_id=user_id)\
                           .filter_by(tenant_id=tenant_id)\
                           .first()
-      data = extras_ref.data.copy()
-      for k in extras:
-        data[k] = extras[k]
-      extras_ref.data = data
-    return extras_ref
+      data = metadata_ref.data.copy()
+      for k in metadata:
+        data[k] = metadata[k]
+      metadata_ref.data = data
+    return metadata_ref
 
-  def delete_extras(self, user_id, tenant_id):
-    self.db.delete('extras-%s-%s' % (tenant_id, user_id))
+  def delete_metadata(self, user_id, tenant_id):
+    self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
     return None
 
   def create_role(self, id, role):

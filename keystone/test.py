@@ -34,7 +34,7 @@ def checkout_vendor(repo, rev):
   try:
     if os.path.exists(modcheck):
       mtime = os.stat(modcheck).st_mtime
-      if int(time.time()) - mtime < 1000:
+      if int(time.time()) - mtime < 10000:
         return revdir
 
     if not os.path.exists(revdir):
@@ -130,16 +130,17 @@ class TestCase(unittest.TestCase):
       rv = self.identity_api.create_role(role['id'], role)
       setattr(self, 'role_%s' % role['id'], rv)
 
-    for extras in fixtures.EXTRAS:
-      extras_ref = extras.copy()
+    for metadata in fixtures.METADATA:
+      metadata_ref = metadata.copy()
       # TODO(termie): these will probably end up in the model anyway, so this
       #               may be futile
-      del extras_ref['user_id']
-      del extras_ref['tenant_id']
-      rv = self.identity_api.create_extras(
-          extras['user_id'], extras['tenant_id'], extras_ref)
+      del metadata_ref['user_id']
+      del metadata_ref['tenant_id']
+      rv = self.identity_api.create_metadata(
+          metadata['user_id'], metadata['tenant_id'], metadata_ref)
       setattr(self,
-              'extras_%s%s' % (extras['user_id'], extras['tenant_id']), rv)
+              'metadata_%s%s' % (metadata['user_id'],
+                                 metadata['tenant_id']), rv)
 
   def loadapp(self, config, name='main'):
     if not config.startswith('config:'):

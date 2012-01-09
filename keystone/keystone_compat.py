@@ -319,22 +319,22 @@ class KeystoneTokenController(service.BaseApplication):
             else:
                 tenant_id = auth.get('tenantId', None)
 
-            (user_ref, tenant_ref, extras_ref) = \
+            (user_ref, tenant_ref, metadata_ref) = \
                     self.identity_api.authenticate(context=context,
                                                    user_id=user_id,
                                                    password=password,
                                                    tenant_id=tenant_id)
-            token_ref = self.token_api.create_token(context,
-                                                    dict(expires='',
-                                                         user=user_ref,
-                                                         tenant=tenant_ref,
-                                                         extras=extras_ref))
+            token_ref = self.token_api.create_token(
+                    context, dict(expires='',
+                                  user=user_ref,
+                                  tenant=tenant_ref,
+                                  metadata=metadata_ref))
             if tenant_ref:
                 catalog_ref = self.catalog_api.get_catalog(
                         context=context,
                         user_id=user_ref['id'],
                         tenant_id=tenant_ref['id'],
-                        extras=extras_ref)
+                        metadata=metadata_ref)
             else:
                 catalog_ref = {}
 
@@ -359,26 +359,26 @@ class KeystoneTokenController(service.BaseApplication):
 
             tenant_ref = self.identity_api.get_tenant(context=context,
                                                       tenant_id=tenant_id)
-            extras_ref = self.identity_api.get_extras(
+            metadata_ref = self.identity_api.get_metadata(
                     context=context,
                     user_id=user_ref['id'],
                     tenant_id=tenant_ref['id'])
-            token_ref = self.token_api.create_token(context,
-                                                    dict(expires='',
-                                                         user=user_ref,
-                                                         tenant=tenant_ref,
-                                                         extras=extras_ref))
+            token_ref = self.token_api.create_token(
+                    context, dict(expires='',
+                                  user=user_ref,
+                                  tenant=tenant_ref,
+                                  metadata=metadata_ref))
             catalog_ref = self.catalog_api.get_catalog(
                     context=context,
                     user_id=user_ref['id'],
                     tenant_id=tenant_ref['id'],
-                    extras=extras_ref)
+                    metadata=metadata_ref)
 
         # TODO(termie): optimize this call at some point and put it into the
-        #               the return for extras
-        # fill out the roles in the extras
+        #               the return for metadata
+        # fill out the roles in the metadata
         roles_ref = []
-        for role_id in extras_ref.get('roles', []):
+        for role_id in metadata_ref.get('roles', []):
             roles_ref.append(self.identity_api.get_role(context, role_id))
         logging.debug('TOKEN_REF %s', token_ref)
         return self._format_authenticate(token_ref, roles_ref, catalog_ref)
@@ -397,7 +397,7 @@ class KeystoneTokenController(service.BaseApplication):
         if not context['is_admin']:
             user_token_ref = self.token_api.get_token(
                     context=context, token_id=context['token_id'])
-            creds = user_token_ref['extras'].copy()
+            creds = user_token_ref['metadata'].copy()
             creds['user_id'] = user_token_ref['user'].get('id')
             creds['tenant_id'] = user_token_ref['tenant'].get('id')
             # Accept either is_admin or the admin role
@@ -427,7 +427,7 @@ class KeystoneTokenController(service.BaseApplication):
 
     def _format_token(self, token_ref, roles_ref):
         user_ref = token_ref['user']
-        extras_ref = token_ref['extras']
+        metadata_ref = token_ref['metadata']
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': token_ref['expires']
                                   },
@@ -435,7 +435,7 @@ class KeystoneTokenController(service.BaseApplication):
                                  'name': user_ref['name'],
                                  'username': user_ref['name'],
                                  'roles': roles_ref,
-                                 'roles_links': extras_ref.get('roles_links',
+                                 'roles_links': metadata_ref.get('roles_links',
                                                                [])
                                  }
                         }
@@ -525,7 +525,7 @@ class KeystoneTenantController(service.BaseApplication):
         if not context['is_admin']:
             user_token_ref = self.token_api.get_token(
                     context=context, token_id=context['token_id'])
-            creds = user_token_ref['extras'].copy()
+            creds = user_token_ref['metadata'].copy()
             creds['user_id'] = user_token_ref['user'].get('id')
             creds['tenant_id'] = user_token_ref['tenant'].get('id')
             # Accept either is_admin or the admin role

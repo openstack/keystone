@@ -13,9 +13,9 @@ class Manager(object):
     def __init__(self):
         self.driver = utils.import_object(CONF.catalog.driver)
 
-    def get_catalog(self, context, user_id, tenant_id, extras=None):
+    def get_catalog(self, context, user_id, tenant_id, metadata=None):
         """Return info for a catalog if it is valid."""
-        return self.driver.get_catalog(user_id, tenant_id, extras=extras)
+        return self.driver.get_catalog(user_id, tenant_id, metadata=metadata)
 
     def get_service(self, context, service_id):
         return self.driver.get_service(service_id)

@@ -13,16 +13,16 @@ class PamIdentity(object):
 
     def authenticate(self, username, password, **kwargs):
         if pam.authenticate(username, password):
-            extras = {}
+            metadata = {}
             if username == 'root':
-                extras['is_admin'] == True
+                metadata['is_admin'] == True
 
             tenant = {'id': username,
                       'name': username}
             user = {'id': username,
                     'name': username}
 
-            return (tenant, user, extras)
+            return (tenant, user, metadata)
 
     def get_tenants(self, username):
         return [{'id': username,

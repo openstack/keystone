@@ -17,7 +17,7 @@ HIGH_LEVEL_CALLS = {
     'get_user': ('GET', '/user/%(user_id)s'),
     'get_tenant': ('GET', '/tenant/%(tenant_id)s'),
     'get_tenant_by_name': ('GET', '/tenant_name/%(tenant_name)s'),
-    'get_extras': ('GET', '/extras/%(tenant_id)s-%(user_id)s'),
+    'get_metadata': ('GET', '/metadata/%(tenant_id)s-%(user_id)s'),
     'get_token': ('GET', '/token/%(token_id)s'),
     }
 
@@ -34,11 +34,11 @@ LOW_LEVEL_CALLS = {
     'create_tenant': ('POST', '/tenant'),
     'update_tenant': ('PUT', '/tenant/%(tenant_id)s'),
     'delete_tenant': ('DELETE', '/tenant/%(tenant_id)s'),
-    # extras
+    # metadata
     # NOTE(termie): these separators are probably going to bite us eventually
-    'create_extras': ('POST', '/extras'),
-    'update_extras': ('PUT', '/extras/%(tenant_id)s-%(user_id)s'),
-    'delete_extras': ('DELETE', '/extras/%(tenant_id)s-%(user_id)s'),
+    'create_metadata': ('POST', '/metadata'),
+    'update_metadata': ('PUT', '/metadata/%(tenant_id)s-%(user_id)s'),
+    'delete_metadata': ('DELETE', '/metadata/%(tenant_id)s-%(user_id)s'),
     }
 
 
@@ -98,7 +98,7 @@ class BaseApplication(wsgi.Application):
     if not context['is_admin']:
       user_token_ref = self.token_api.get_token(
           context=context, token_id=context['token_id'])
-      creds = user_token_ref['extras'].copy()
+      creds = user_token_ref['metadata'].copy()
       creds['user_id'] = user_token_ref['user'].get('id')
       creds['tenant_id'] = user_token_ref['tenant'].get('id')
       print creds
@@ -136,13 +136,13 @@ class IdentityController(BaseApplication):
     return ''
 
   def authenticate(self, context, **kwargs):
-    user_ref, tenant_ref, extras_ref = self.identity_api.authenticate(
+    user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
         context, **kwargs)
     # TODO(termie): strip password from return values
     token_ref = self.token_api.create_token(context,
                                             dict(tenant=tenant_ref,
                                                  user=user_ref,
-                                                 extras=extras_ref))
+                                                 metadata=metadata_ref))
     logging.debug('TOKEN: %s', token_ref)
     return token_ref
 
@@ -197,24 +197,24 @@ class IdentityController(BaseApplication):
   def delete_tenant(self, context, tenant_id):
     return self.identity_api.delete_tenant(context, tenant_id=tenant_id)
 
-  def get_extras(self, context, user_id, tenant_id):
-    return self.identity_api.get_extras(
+  def get_metadata(self, context, user_id, tenant_id):
+    return self.identity_api.get_metadata(
         context, user_id=user_id, tenant_id=tenant_id)
 
-  def create_extras(self, context, **kw):
+  def create_metadata(self, context, **kw):
     user_id = kw.pop('user_id')
     tenant_id = kw.pop('tenant_id')
-    return self.identity_api.create_extras(
+    return self.identity_api.create_metadata(
         context, user_id=user_id, tenant_id=tenant_id, data=kw)
 
-  def update_extras(self, context, user_id, tenant_id, **kw):
+  def update_metadata(self, context, user_id, tenant_id, **kw):
     kw.pop('user_id', None)
     kw.pop('tenant_id', None)
-    return self.identity_api.update_extras(
+    return self.identity_api.update_metadata(
         context, user_id=user_id, tenant_id=tenant_id, data=kw)
 
-  def delete_extras(self, context, user_id, tenant_id):
-    return self.identity_api.delete_extras(
+  def delete_metadata(self, context, user_id, tenant_id):
+    return self.identity_api.delete_metadata(
         context, user_id=user_id, tenant_id=tenant_id)
 
 

@@ -70,7 +70,7 @@ class TemplatedCatalog(kvs.KvsCatalog):
 
     self.templates = o
 
-  def get_catalog(self, user_id, tenant_id, extras=None):
+  def get_catalog(self, user_id, tenant_id, metadata=None):
     d = dict(CONF.iteritems())
     d.update({'tenant_id': tenant_id,
               'user_id': user_id})

@@ -27,7 +27,7 @@ class KvsIdentity(object):
     """
     user_ref = self.get_user(user_id)
     tenant_ref = None
-    extras_ref = None
+    metadata_ref = None
     if not user_ref or user_ref.get('password') != password:
       raise AssertionError('Invalid user / password')
     if tenant_id and tenant_id not in user_ref['tenants']:
@@ -35,10 +35,10 @@ class KvsIdentity(object):
 
     tenant_ref = self.get_tenant(tenant_id)
     if tenant_ref:
-      extras_ref = self.get_extras(user_id, tenant_id)
+      metadata_ref = self.get_metadata(user_id, tenant_id)
     else:
-      extras_ref = {}
-    return (user_ref, tenant_ref, extras_ref)
+      metadata_ref = {}
+    return (user_ref, tenant_ref, metadata_ref)
 
   def get_tenant(self, tenant_id):
     tenant_ref = self.db.get('tenant-%s' % tenant_id)
@@ -56,8 +56,8 @@ class KvsIdentity(object):
     user_ref = self.db.get('user_name-%s' % user_name)
     return user_ref
 
-  def get_extras(self, user_id, tenant_id):
-    return self.db.get('extras-%s-%s' % (tenant_id, user_id))
+  def get_metadata(self, user_id, tenant_id):
+    return self.db.get('metadata-%s-%s' % (tenant_id, user_id))
 
   def get_role(self, role_id):
     role_ref = self.db.get('role-%s' % role_id)
@@ -91,28 +91,28 @@ class KvsIdentity(object):
     return user_ref.get('tenants', [])
 
   def get_roles_for_user_and_tenant(self, user_id, tenant_id):
-    extras_ref = self.get_extras(user_id, tenant_id)
-    if not extras_ref:
-      extras_ref = {}
-    return extras_ref.get('roles', [])
+    metadata_ref = self.get_metadata(user_id, tenant_id)
+    if not metadata_ref:
+      metadata_ref = {}
+    return metadata_ref.get('roles', [])
 
   def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
-    extras_ref = self.get_extras(user_id, tenant_id)
-    if not extras_ref:
-      extras_ref = {}
-    roles = set(extras_ref.get('roles', []))
+    metadata_ref = self.get_metadata(user_id, tenant_id)
+    if not metadata_ref:
+      metadata_ref = {}
+    roles = set(metadata_ref.get('roles', []))
     roles.add(role_id)
-    extras_ref['roles'] = list(roles)
-    self.update_extras(user_id, tenant_id, extras_ref)
+    metadata_ref['roles'] = list(roles)
+    self.update_metadata(user_id, tenant_id, metadata_ref)
 
   def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
-    extras_ref = self.get_extras(user_id, tenant_id)
-    if not extras_ref:
-      extras_ref = {}
-    roles = set(extras_ref.get('roles', []))
+    metadata_ref = self.get_metadata(user_id, tenant_id)
+    if not metadata_ref:
+      metadata_ref = {}
+    roles = set(metadata_ref.get('roles', []))
     roles.remove(role_id)
-    extras_ref['roles'] = list(roles)
-    self.update_extras(user_id, tenant_id, extras_ref)
+    metadata_ref['roles'] = list(roles)
+    self.update_metadata(user_id, tenant_id, metadata_ref)
 
   # CRUD
   def create_user(self, id, user):
@@ -159,16 +159,16 @@ class KvsIdentity(object):
     self.db.delete('tenant-%s' % id)
     return None
 
-  def create_extras(self, user_id, tenant_id, extras):
-    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
-    return extras
+  def create_metadata(self, user_id, tenant_id, metadata):
+    self.db.set('metadata-%s-%s' % (tenant_id, user_id), metadata)
+    return metadata
 
-  def update_extras(self, user_id, tenant_id, extras):
-    self.db.set('extras-%s-%s' % (tenant_id, user_id), extras)
-    return extras
+  def update_metadata(self, user_id, tenant_id, metadata):
+    self.db.set('metadata-%s-%s' % (tenant_id, user_id), metadata)
+    return metadata
 
-  def delete_extras(self, user_id, tenant_id):
-    self.db.delete('extras-%s-%s' % (tenant_id, user_id))
+  def delete_metadata(self, user_id, tenant_id):
+    self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
     return None
 
   def create_role(self, id, role):
@@ -219,7 +219,7 @@ class KvsCatalog(object):
     self.db = db
 
   # Public interface
-  def get_catalog(self, user_id, tenant_id, extras=None):
+  def get_catalog(self, user_id, tenant_id, metadata=None):
     return self.db.get('catalog-%s-%s' % (tenant_id, user_id))
 
   def get_service(self, service_id):

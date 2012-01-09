@@ -32,8 +32,8 @@ class Manager(object):
   def get_tenant_by_name(self, context, tenant_name):
     return self.driver.get_tenant_by_name(tenant_name)
 
-  def get_extras(self, context, user_id, tenant_id):
-    return self.driver.get_extras(user_id, tenant_id)
+  def get_metadata(self, context, user_id, tenant_id):
+    return self.driver.get_metadata(user_id, tenant_id)
 
   def get_role(self, context, role_id):
     return self.driver.get_role(role_id)
@@ -86,14 +86,14 @@ class Manager(object):
   def delete_tenant(self, context, tenant_id):
     return self.driver.delete_tenant(tenant_id)
 
-  def create_extras(self, context, user_id, tenant_id, data):
-    return self.driver.create_extras(user_id, tenant_id, data)
+  def create_metadata(self, context, user_id, tenant_id, data):
+    return self.driver.create_metadata(user_id, tenant_id, data)
 
-  def update_extras(self, context, user_id, tenant_id, data):
-    return self.driver.update_extras(user_id, tenant_id, data)
+  def update_metadata(self, context, user_id, tenant_id, data):
+    return self.driver.update_metadata(user_id, tenant_id, data)
 
-  def delete_extras(self, context, user_id, tenant_id):
-    return self.driver.delete_extras(user_id, tenant_id)
+  def delete_metadata(self, context, user_id, tenant_id):
+    return self.driver.delete_metadata(user_id, tenant_id)
 
   def create_role(self, context, role_id, data):
     return self.driver.create_role(role_id, data)

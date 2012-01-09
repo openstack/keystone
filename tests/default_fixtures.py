@@ -7,7 +7,7 @@ USERS = [
     {'id': 'foo', 'name': 'FOO', 'password': 'foo2', 'tenants': ['bar',]},
     ]
 
-EXTRAS = [
+METADATA = [
     {'user_id': 'foo', 'tenant_id': 'bar', 'extra': 'extra'},
     ]
 

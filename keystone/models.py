@@ -20,9 +20,9 @@ class Role(dict):
     super(Role, self).__init__(id=id, *args, **kw)
 
 
-class Extras(dict):
+class Metadata(dict):
   def __init__(self, user_id=None, tenant_id=None, *args, **kw):
-    super(Extras, self).__init__(user_id=user_id,
-                                 tenant_id=tenant_id,
-                                 *args,
-                                 **kw)
+    super(Metadata, self).__init__(user_id=user_id,
+                                   tenant_id=tenant_id,
+                                   *args,
+                                   **kw)

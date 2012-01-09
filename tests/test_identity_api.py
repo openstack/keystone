@@ -38,7 +38,7 @@ class IdentityApi(test.TestCase):
     data = json.loads(resp.body)
     self.assertEquals(self.user_foo['id'], data['user']['id'])
     self.assertEquals(self.tenant_bar['id'], data['tenant']['id'])
-    self.assertDictEquals(self.extras_foobar, data['extras'])
+    self.assertDictEquals(self.metadata_foobar, data['metadata'])
 
   def test_authenticate_no_tenant(self):
     c = client.TestClient(self.app)
@@ -48,7 +48,7 @@ class IdentityApi(test.TestCase):
     data = json.loads(resp.body)
     self.assertEquals(self.user_foo['id'], data['user']['id'])
     self.assertEquals(None, data['tenant'])
-    self.assertEquals({}, data['extras'])
+    self.assertEquals({}, data['metadata'])
 
   def test_get_tenants(self):
     token = self._login()
@@ -131,32 +131,32 @@ class IdentityApi(test.TestCase):
     # TODO(termie): we should probably return not founds instead of None
     #self.assertEquals(delget_resp.status, '404 Not Found')
 
-  def test_crud_extras(self):
+  def test_crud_metadata(self):
     token_id = CONF.admin_token
     user_id = 'foo'
     tenant_id = 'bar'
     c = client.TestClient(self.app, token=token_id)
-    extras_ref = dict(baz='qaz')
-    resp = c.create_extras(user_id=user_id, tenant_id=tenant_id, **extras_ref)
+    metadata_ref = dict(baz='qaz')
+    resp = c.create_metadata(user_id=user_id, tenant_id=tenant_id, **metadata_ref)
     data = json.loads(resp.body)
     self.assertEquals(data['baz'], 'qaz')
 
-    get_resp = c.get_extras(user_id=user_id, tenant_id=tenant_id)
+    get_resp = c.get_metadata(user_id=user_id, tenant_id=tenant_id)
     get_data = json.loads(get_resp.body)
 
     self.assertDictEquals(data, get_data)
 
-    update_resp = c.update_extras(user_id=user_id,
+    update_resp = c.update_metadata(user_id=user_id,
                                   tenant_id=tenant_id,
                                   baz='WAZ')
     update_data = json.loads(update_resp.body)
 
     self.assertEquals('WAZ', update_data['baz'])
 
-    del_resp = c.delete_extras(user_id=user_id, tenant_id=tenant_id)
+    del_resp = c.delete_metadata(user_id=user_id, tenant_id=tenant_id)
     self.assertEquals(del_resp.body, '')
 
-    delget_resp = c.get_extras(user_id=user_id, tenant_id=tenant_id)
+    delget_resp = c.get_metadata(user_id=user_id, tenant_id=tenant_id)
     self.assertEquals(delget_resp.body, '')
     # TODO(termie): we should probably return not founds instead of None
     #self.assertEquals(delget_resp.status, '404 Not Found')
