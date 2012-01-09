@@ -18,7 +18,11 @@ if os.path.exists(os.path.join(possible_topdir,
 
 from paste import deploy
 
+from keystone import config
 from keystone import wsgi
+
+
+CONF = config.CONF
 
 
 def create_server(name, port):
@@ -40,7 +44,8 @@ def serve(*servers):
 if __name__ == '__main__':
     default_conf = os.path.join(possible_topdir,
                                 'etc',
-                                'default.conf')
+                                'keystone.conf')
+    CONF(config_files=[default_conf])
     logging.getLogger().setLevel(logging.DEBUG)
 
     conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
