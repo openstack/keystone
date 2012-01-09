@@ -5,7 +5,7 @@ import sys
 import cli.app
 import cli.log
 
-from keystonelight import client
+from keystone import client
 
 
 DEFAULT_PARAMS = (

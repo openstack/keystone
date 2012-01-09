@@ -22,7 +22,7 @@ import sys
 import sqlalchemy
 from migrate.versioning import api as versioning_api
 
-from keystonelight import config
+from keystone import config
 
 
 CONF = config.CONF

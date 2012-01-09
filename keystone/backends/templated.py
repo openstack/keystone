@@ -1,6 +1,6 @@
-from keystonelight import config
-from keystonelight import logging
-from keystonelight.backends import kvs
+from keystone import config
+from keystone import logging
+from keystone.backends import kvs
 
 
 CONF = config.CONF

@@ -1,5 +1,3 @@
-import ConfigParser
-import logging
 import os
 import unittest
 import subprocess
@@ -8,14 +6,14 @@ import time
 
 from paste import deploy
 
-from keystonelight import catalog
-from keystonelight import config
-from keystonelight import identity
-from keystonelight import logging
-from keystonelight import models
-from keystonelight import token
-from keystonelight import utils
-from keystonelight import wsgi
+from keystone import catalog
+from keystone import config
+from keystone import identity
+from keystone import logging
+from keystone import models
+from keystone import token
+from keystone import utils
+from keystone import wsgi
 
 
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))

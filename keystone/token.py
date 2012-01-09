@@ -4,9 +4,9 @@
 
 import uuid
 
-from keystonelight import config
-from keystonelight import logging
-from keystonelight import utils
+from keystone import config
+from keystone import logging
+from keystone import utils
 
 
 CONF = config.CONF

@@ -3,11 +3,11 @@ import json
 import os
 import sys
 
-from keystonelight import config
-from keystonelight import logging
-from keystonelight import models
-from keystonelight import test
-from keystonelight import utils
+from keystone import config
+from keystone import logging
+from keystone import models
+from keystone import test
+from keystone import utils
 
 import default_fixtures
 

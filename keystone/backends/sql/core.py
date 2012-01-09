@@ -10,8 +10,8 @@ import sqlalchemy.orm
 import sqlalchemy.pool
 import sqlalchemy.engine.url
 
-from keystonelight import config
-from keystonelight import models
+from keystone import config
+from keystone import models
 
 
 CONF = config.CONF

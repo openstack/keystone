@@ -9,12 +9,12 @@ import uuid
 import routes
 from webob import exc
 
-from keystonelight import catalog
-from keystonelight import identity
-from keystonelight import policy
-from keystonelight import service
-from keystonelight import token
-from keystonelight import wsgi
+from keystone import catalog
+from keystone import identity
+from keystone import policy
+from keystone import service
+from keystone import token
+from keystone import wsgi
 
 
 class KeystoneAdminRouter(wsgi.Router):

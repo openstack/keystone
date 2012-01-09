@@ -6,8 +6,8 @@ import json
 import httplib2
 import webob
 
-from keystonelight import service
-from keystonelight import wsgi
+from keystone import service
+from keystone import wsgi
 
 
 URLMAP = service.URLMAP

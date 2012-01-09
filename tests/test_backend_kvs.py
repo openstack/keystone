@@ -1,8 +1,8 @@
 import uuid
 
-from keystonelight import models
-from keystonelight import test
-from keystonelight.backends import kvs
+from keystone import models
+from keystone import test
+from keystone.backends import kvs
 
 import test_backend
 import default_fixtures

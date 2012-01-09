@@ -1,11 +1,11 @@
 import os
 import uuid
 
-from keystonelight import config
-from keystonelight import models
-from keystonelight import test
-from keystonelight.backends import sql
-from keystonelight.backends.sql import util as sql_util
+from keystone import config
+from keystone import models
+from keystone import test
+from keystone.backends import sql
+from keystone.backends.sql import util as sql_util
 
 import test_backend
 import default_fixtures

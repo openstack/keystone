@@ -20,7 +20,7 @@
 import subprocess
 import sys
 
-from keystonelight import logging
+from keystone import logging
 
 
 def import_class(import_str):
