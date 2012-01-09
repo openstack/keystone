@@ -27,7 +27,7 @@ def register_str(*args, **kw):
   return CONF.register_opt(cfg.StrOpt(*args, **kw), group=group)
 
 
-CONF = Config()
+CONF = Config(project='keystone')
 
 
 register_str('admin_token', default='ADMIN')
