@@ -17,6 +17,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import subprocess
 import sys
 
@@ -42,6 +43,14 @@ def import_object(import_str, *args, **kw):
     except ImportError:
         cls = import_class(import_str)
         return cls(*args, **kw)
+
+
+class SmarterEncoder(json.JSONEncoder):
+    """Help for JSON encoding dict-like objects."""
+    def default(self, obj):
+        if not isinstance(obj, dict) and hasattr(obj, 'iteritems'):
+            return dict(obj.iteritems())
+        return super(SmarterEncoder, self).default(obj)
 
 
 # From python 2.7
