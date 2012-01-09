@@ -44,14 +44,14 @@ class KcMasterTestCase(CompatTestCase):
         reload(ks_client)
 
         self._config()
-        self.public_app = self.loadapp('default', name='main')
-        self.admin_app = self.loadapp('default', name='admin')
+        self.public_app = self.loadapp('keystone', name='main')
+        self.admin_app = self.loadapp('keystone', name='admin')
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        self.public_server = self.serveapp('default', name='main')
-        self.admin_server = self.serveapp('default', name='admin')
+        self.public_server = self.serveapp('keystone', name='main')
+        self.admin_server = self.serveapp('keystone', name='admin')
 
         # TODO(termie): is_admin is being deprecated once the policy stuff
         #               is all working
@@ -62,7 +62,8 @@ class KcMasterTestCase(CompatTestCase):
             dict(roles=['keystone_admin'], is_admin='1'))
 
     def _config(self):
-        CONF(config_files=['default.conf'])
+        CONF(config_files=[test.etcdir('keystone.conf'),
+                           test.testsdir('test_overrides.conf')])
 
     def foo_client(self):
         return self._client(username='FOO',

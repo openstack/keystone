@@ -22,7 +22,9 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
       os.unlink('bla.db')
     except Exception:
       pass
-    CONF(config_files=['default.conf', 'backend_sql.conf'])
+    CONF(config_files=[test.etcdir('keystone.conf'),
+                       test.testsdir('test_overrides.conf'),
+                       test.testsdir('backend_sql.conf')])
     sql_util.setup_test_database()
     self.identity_api = sql.SqlIdentity()
     self.load_fixtures(default_fixtures)

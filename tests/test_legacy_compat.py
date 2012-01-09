@@ -117,11 +117,12 @@ class CompatTestCase(test.TestCase):
 
 class DiabloCompatTestCase(CompatTestCase):
   def setUp(self):
-    CONF(config_files=['default.conf'])
+    CONF(config_files=[test.etcdir('keystone.conf'),
+                       test.testsdir('test_overrides.conf')])
 
     revdir = test.checkout_vendor(KEYSTONE_REPO, 'stable/diablo')
     self.sampledir = os.path.join(revdir, KEYSTONE_SAMPLE_DIR)
-    self.app = self.loadapp('default')
+    self.app = self.loadapp('keystone')
 
     self.load_backends()
     super(DiabloCompatTestCase, self).setUp()

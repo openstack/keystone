@@ -12,5 +12,7 @@ CONF = config.CONF
 
 class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
     def _config(self):
-        CONF(config_files=['default.conf', 'backend_sql.conf'])
+        CONF(config_files=[test.etcdir('keystone.conf'),
+                           test.testsdir('test_overrides.conf'),
+                           test.testsdir('backend_sql.conf')])
         sql_util.setup_test_database()

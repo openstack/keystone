@@ -19,9 +19,23 @@ from keystone import wsgi
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
 TESTSDIR = os.path.join(ROOTDIR, 'tests')
+ETCDIR = os.path.join(ROOTDIR, 'etc')
 CONF = config.CONF
 
+
 cd = os.chdir
+
+
+def rootdir(*p):
+  return os.path.join(ROOTDIR, *p)
+
+
+def etcdir(*p):
+  return os.path.join(ETCDIR, *p)
+
+
+def testsdir(*p):
+  return os.path.join(TESTSDIR, *p)
 
 
 def checkout_vendor(repo, rev):
@@ -142,15 +156,20 @@ class TestCase(unittest.TestCase):
               'metadata_%s%s' % (metadata['user_id'],
                                  metadata['tenant_id']), rv)
 
-  def loadapp(self, config, name='main'):
+  def _paste_config(self, config):
     if not config.startswith('config:'):
-      config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
-    return deploy.loadapp(config, name=name)
+      test_path = os.path.join(TESTSDIR, config)
+      etc_path = os.path.join(ROOTDIR, 'etc', config)
+      for path in [test_path, etc_path]:
+        if os.path.exists('%s.conf' % path):
+          return 'config:%s.conf' % path
+    return config
+
+  def loadapp(self, config, name='main'):
+    return deploy.loadapp(self._paste_config(config), name=name)
 
   def appconfig(self, config):
-    if not config.startswith('config:'):
-      config = 'config:%s.conf' % os.path.join(TESTSDIR, config)
-    return deploy.appconfig(config)
+    return deploy.appconfig(self._paste_config(config))
 
   def serveapp(self, config, name=None):
     app = self.loadapp(config, name=name)
