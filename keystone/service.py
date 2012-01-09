@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# this is the web service frontend that emulates keystone
+# this is the web public frontend that emulates keystone
 import json
 import urllib
 import urlparse
@@ -137,7 +137,7 @@ class AdminRouter(wsgi.Router):
         super(AdminRouter, self).__init__(mapper)
 
 
-class ServiceRouter(wsgi.Router):
+class PublicRouter(wsgi.Router):
     def __init__(self):
         mapper = routes.Mapper()
 
@@ -173,7 +173,7 @@ class ServiceRouter(wsgi.Router):
                        action='get_extensions_info',
                        conditions=dict(method=['GET']))
 
-        super(ServiceRouter, self).__init__(mapper)
+        super(PublicRouter, self).__init__(mapper)
 
 
 class AdminCrudExtension(wsgi.ExtensionRouter):
@@ -806,7 +806,7 @@ class ServiceController(Application):
         super(ServiceController, self).__init__()
 
     # CRUD extensions
-    # NOTE(termie): this OS-KSADM stuff is about the lamest ever
+    # NOTE(termie): this OS-KSADM stuff is not very consistent
     def get_services(self, context):
         service_list = self.catalog_api.list_services(context)
         service_refs = [self.catalog_api.get_service(context, x)
@@ -847,10 +847,10 @@ class ExtensionsController(Application):
         raise NotImplemented()
 
 
-def service_app_factory(global_conf, **local_conf):
+def public_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
-    return ServiceRouter()
+    return PublicRouter()
 
 
 def admin_app_factory(global_conf, **local_conf):
