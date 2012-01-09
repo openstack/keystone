@@ -50,7 +50,7 @@ class LoadData(BaseApp):
     self.add_param('fixture', nargs='+')
 
   def main(self):
-    """Given some fixtures, create the appropriate data in Keystone Light."""
+    """Given some fixtures, create the appropriate data in Keystone."""
     pass
 
 
@@ -64,7 +64,7 @@ class CrudCommands(BaseApp):
     self.add_param('keyvalues', nargs='+')
 
   def main(self):
-    """Given some keyvalues create the appropriate data in Keystone Light."""
+    """Given some keyvalues create the appropriate data in Keystone."""
     c = client.HttpClient(self.params.url, token=self.params.token)
     action_name = self.ACTION_MAP[self.params.action]
     kv = self._parse_keyvalues(self.params.keyvalues)
@@ -97,7 +97,7 @@ class Auth(BaseApp):
     self.add_param('keyvalues', nargs='+')
 
   def main(self):
-    """Attempt to authenticate against the Keystone Light API."""
+    """Attempt to authenticate against the Keystone API."""
     c = client.HttpClient(self.params.url, token=self.params.token)
     kv = self._parse_keyvalues(self.params.keyvalues)
     resp = c.authenticate(**kv)
