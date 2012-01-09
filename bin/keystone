@@ -52,8 +52,8 @@ if __name__ == '__main__':
     options = deploy.appconfig('config:%s' % conf)
 
     servers = []
-    servers.append(create_server('keystone_admin',
+    servers.append(create_server('admin',
                                  int(options['admin_port'])))
-    servers.append(create_server('keystone',
+    servers.append(create_server('main',
                                  int(options['public_port'])))
     serve(*servers)
