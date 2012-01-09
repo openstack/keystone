@@ -1,8 +1,8 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
-from keystonelight import config
-from keystonelight import test
-from keystonelight.backends.sql import util as sql_util
-from keystonelight.backends.sql import migration
+from keystone import config
+from keystone import test
+from keystone.backends.sql import util as sql_util
+from keystone.backends.sql import migration
 
 import test_keystoneclient
 

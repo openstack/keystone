@@ -1,7 +1,7 @@
 import json
 
-from keystonelight import config
-from keystonelight import wsgi
+from keystone import config
+from keystone import wsgi
 
 
 CONF = config.CONF

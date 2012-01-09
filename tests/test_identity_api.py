@@ -1,9 +1,9 @@
 import json
 
-from keystonelight import client
-from keystonelight import config
-from keystonelight import models
-from keystonelight import test
+from keystone import client
+from keystone import config
+from keystone import models
+from keystone import test
 
 import default_fixtures
 

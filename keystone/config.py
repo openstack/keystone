@@ -1,6 +1,6 @@
 
 
-from keystonelight import cfg
+from keystone import cfg
 
 
 class Config(cfg.ConfigOpts):

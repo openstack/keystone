@@ -2,8 +2,8 @@
 # backends will make use of them to return something that conforms to their
 # apis
 
-from keystonelight import config
-from keystonelight import utils
+from keystone import config
+from keystone import utils
 
 
 CONF = config.CONF

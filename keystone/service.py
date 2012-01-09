@@ -6,10 +6,9 @@ import routes
 import webob.dec
 import webob.exc
 
-from keystonelight import identity
-from keystonelight import token
-from keystonelight import utils
-from keystonelight import wsgi
+from keystone import identity
+from keystone import token
+from keystone import wsgi
 
 
 HIGH_LEVEL_CALLS = {

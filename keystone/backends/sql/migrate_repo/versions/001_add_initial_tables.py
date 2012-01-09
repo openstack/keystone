@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from migrate import *
 
-from keystonelight.backends import sql
+from keystone.backends import sql
 
 
 def upgrade(migrate_engine):

@@ -12,13 +12,13 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir,
-                               'keystonelight',
+                               'keystone',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 from paste import deploy
 
-from keystonelight import wsgi
+from keystone import wsgi
 
 
 def create_server(name, port):
@@ -49,6 +49,6 @@ if __name__ == '__main__':
     servers = []
     servers.append(create_server('keystone_admin',
                                  int(options['admin_port'])))
-    servers.append(create_server('keystonelight',
+    servers.append(create_server('keystone',
                                  int(options['public_port'])))
     serve(*servers)

@@ -1,7 +1,7 @@
 import os
 
-from keystonelight import config
-from keystonelight.backends.sql import migration
+from keystone import config
+from keystone.backends.sql import migration
 
 
 CONF = config.CONF

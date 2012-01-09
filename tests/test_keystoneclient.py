@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
-from keystonelight import config
-from keystonelight import test
+from keystone import config
+from keystone import test
 
 import default_fixtures
 
