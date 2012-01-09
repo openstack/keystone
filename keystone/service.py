@@ -14,7 +14,6 @@ from keystone import catalog
 from keystone import identity
 from keystone import logging
 from keystone import policy
-from keystone import service
 from keystone import token
 from keystone import utils
 from keystone import wsgi
