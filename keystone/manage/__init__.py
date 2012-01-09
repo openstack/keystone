@@ -475,15 +475,19 @@ def main(args=None):
         print >> sys.stderr, exc
         sys.exit(2)
     except Exception as exc:
-        try:
-            info = exc.args[1]
-        except IndexError:
-            print "ERROR: %s" % (exc,)
-            logger.error(str(exc))
-        else:
-            print "ERROR: %s: %s" % (exc.args[0], info)
-            logger.error(exc.args[0], exc_info=info)
-        raise exc
+        logstr = str(exc)
+        loginfo = None
+        if len(exc.args) > 1:
+            logstr = exc.args[0]
+            loginfo = exc.args[1]
+
+        errmsg = "ERROR: %s" % logstr
+        if loginfo:
+            errmsg += ": %s" % loginfo
+
+        print errmsg
+        logger.error(logstr, exc_info=loginfo)
+        raise
 
 
 if __name__ == '__main__':
