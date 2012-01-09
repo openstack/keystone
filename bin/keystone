@@ -25,7 +25,7 @@ from keystone import wsgi
 CONF = config.CONF
 
 
-def create_server(name, port):
+def create_server(conf, name, port):
     app = deploy.loadapp('config:%s' % conf, name=name)
     return wsgi.Server(app, port)
 
@@ -42,18 +42,25 @@ def serve(*servers):
 
 
 if __name__ == '__main__':
-    default_conf = os.path.join(possible_topdir,
+    dev_conf = os.path.join(possible_topdir,
                                 'etc',
                                 'keystone.conf')
-    CONF(config_files=[default_conf])
+    config_files = None
+    if os.path.exists(dev_conf):
+        config_files = [dev_conf]
+
+    CONF(config_files=config_files)
+
+    # TODO(termie): configure this based on config
     logging.getLogger().setLevel(logging.DEBUG)
 
-    conf = len(sys.argv) > 1 and sys.argv[1] or default_conf
-    options = deploy.appconfig('config:%s' % conf)
+    options = deploy.appconfig('config:%s' % CONF.config_file[0])
 
     servers = []
-    servers.append(create_server('admin',
+    servers.append(create_server(CONF.config_file[0],
+                                 'admin',
                                  int(options['admin_port'])))
-    servers.append(create_server('main',
+    servers.append(create_server(CONF.config_file[0],
+                                 'main',
                                  int(options['public_port'])))
     serve(*servers)
