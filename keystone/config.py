@@ -1,3 +1,4 @@
+import gettext
 import logging
 import sys
 import os
@@ -82,6 +83,8 @@ def setup_logging(conf):
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
 
+
+gettext.install('keystone', unicode=1)
 
 CONF = Config(project='keystone')
 
