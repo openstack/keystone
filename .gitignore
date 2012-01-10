@@ -7,6 +7,6 @@ run_tests.log
 covhtml
 pep8.txt
 nosetests.xml
-tests/bla.db
+bla.db
 docs/build
 .DS_Store

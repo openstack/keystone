@@ -6,8 +6,8 @@ from keystone import cfg
 class Config(cfg.ConfigOpts):
   def __call__(self, config_files=None, *args, **kw):
     if config_files is not None:
-      self.config_file = config_files
-    super(Config, self).__call__(*args, **kw)
+      self._opts['config_file']['opt'].default = config_files
+    return super(Config, self).__call__(*args, **kw)
 
   def __getitem__(self, key, default=None):
     return getattr(self, key, default)

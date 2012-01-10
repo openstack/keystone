@@ -12,6 +12,7 @@ import sqlalchemy.engine.url
 
 from keystone import config
 from keystone import models
+from keystone.backends.sql import migration
 
 
 CONF = config.CONF
@@ -198,6 +199,11 @@ class SqlBase(object):
 
 
 class SqlIdentity(SqlBase):
+  # Internal interface to manage the database
+  def db_sync(self):
+    migration.db_sync()
+
+  # Identity interface
   def authenticate(self, user_id=None, tenant_id=None, password=None):
     """Authenticate based on a user, tenant and password.
 

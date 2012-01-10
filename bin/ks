@@ -1,22 +1,27 @@
 #!/usr/bin/env python
 
+import os
 import sys
 
 import cli.app
 import cli.log
 
-from keystone import client
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(possible_topdir,
+                               'keystone',
+                               '__init__.py')):
+    sys.path.insert(0, possible_topdir)
 
 
-DEFAULT_PARAMS = (
-    (('--config',), {'dest': 'configfile',
-                     'action': 'store',
-                     'default': './etc/default.conf'}),
-    (('--url',), {'dest': 'url',
-                  'action': 'store',
-                  'default': 'http://localhost:5000'}),
-    (('--token',), {'dest': 'token', 'action': 'store'}),
-    )
+from keystone import config
+from keystone import utils
+
+
+CONF = config.CONF
 
 
 class BaseApp(cli.log.LoggingApp):
@@ -43,80 +48,32 @@ class BaseApp(cli.log.LoggingApp):
     return kv
 
 
-class LoadData(BaseApp):
-  def __init__(self, *args, **kw):
-    super(LoadData, self).__init__(*args, **kw)
-    self.add_default_params()
-    self.add_param('fixture', nargs='+')
-
-  def main(self):
-    """Given some fixtures, create the appropriate data in Keystone."""
-    pass
-
-
-class CrudCommands(BaseApp):
-  ACTION_MAP = {}
+class DbSync(BaseApp):
+  name = 'db_sync'
 
   def __init__(self, *args, **kw):
-    super(CrudCommands, self).__init__(*args, **kw)
-    self.add_default_params()
-    self.add_param('action')
-    self.add_param('keyvalues', nargs='+')
+    super(DbSync, self).__init__(*args, **kw)
 
   def main(self):
-    """Given some keyvalues create the appropriate data in Keystone."""
-    c = client.HttpClient(self.params.url, token=self.params.token)
-    action_name = self.ACTION_MAP[self.params.action]
-    kv = self._parse_keyvalues(self.params.keyvalues)
-    resp = getattr(c, action_name)(**kv)
-    print resp
+    for k in ['identity', 'catalog', 'policy', 'token']:
+      driver = utils.import_object(getattr(CONF, k).driver)
+      if hasattr(driver, 'db_sync'):
+        driver.db_sync()
 
 
-class UserCommands(CrudCommands):
-  ACTION_MAP = {'add': 'create_user',
-                'create': 'create_user',
-                }
-
-
-class TenantCommands(CrudCommands):
-  ACTION_MAP = {'add': 'create_tenant',
-                'create': 'create_tenant',
-                }
-
-
-class ExtrasCommands(CrudCommands):
-  ACTION_MAP = {'add': 'create_extras',
-                'create': 'create_extras',
-                }
-
-
-class Auth(BaseApp):
-  def __init__(self, *args, **kw):
-    super(Auth, self).__init__(*args, **kw)
-    self.add_default_params()
-    self.add_param('keyvalues', nargs='+')
-
-  def main(self):
-    """Attempt to authenticate against the Keystone API."""
-    c = client.HttpClient(self.params.url, token=self.params.token)
-    kv = self._parse_keyvalues(self.params.keyvalues)
-    resp = c.authenticate(**kv)
-    print resp
-
-
-CMDS = {'loaddata': LoadData,
-        'user': UserCommands,
-        'tenant': TenantCommands,
-        'extras': ExtrasCommands,
-        'auth': Auth,
+CMDS = {'db_sync': DbSync,
         }
 
 
 if __name__ == '__main__':
-  if not len(sys.argv) > 1:
-    print 'try one of:', ' '.join(CMDS.keys())
-    sys.exit(1)
+  dev_conf = os.path.join(possible_topdir,
+                          'etc',
+                          'keystone.conf')
+  config_files = None
+  if os.path.exists(dev_conf):
+      config_files = [dev_conf]
 
-  cmd = sys.argv[1]
+  args = CONF(config_files=config_files, args=sys.argv)
+  cmd = args[1]
   if cmd in CMDS:
-    CMDS[cmd](argv=(sys.argv[:1] + sys.argv[2:])).run()
+    CMDS[cmd](argv=(args[:1] + args[2:])).run()
