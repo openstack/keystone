@@ -29,6 +29,9 @@ config.register_cli_str('endpoint',
 config.register_cli_str('token',
                         default='$admin_token',
                         group='ks')
+config.register_cli_bool('id-only',
+                         default=False,
+                         group='ks')
 
 
 class BaseApp(cli.log.LoggingApp):
@@ -93,6 +96,9 @@ class ClientCommand(BaseApp):
     action_name = self.ACTION_MAP[self.params.action]
     kv = self._parse_keyvalues(self.params.keyvalues)
     resp = getattr(self.handle, action_name)(**kv)
+    if CONF.ks.id_only and getattr(resp, 'id'):
+      print resp.id
+      return
     print resp
 
 
