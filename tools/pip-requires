@@ -5,3 +5,5 @@ PasteDeploy
 paste
 routes
 pycli
+sqlalchemy
+sqlalchemy-migrate

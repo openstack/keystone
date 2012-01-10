@@ -32,6 +32,8 @@ def create_server(conf, name, port):
 
 def serve(*servers):
     for server in servers:
+        logging.debug("starting server %s on port %s", server.application,
+                                                       server.port)
         server.start()
 
     for server in servers:
@@ -51,8 +53,11 @@ if __name__ == '__main__':
 
     CONF(config_files=config_files)
 
-    # TODO(termie): configure this based on config
-    logging.getLogger().setLevel(logging.DEBUG)
+    config.setup_logging(CONF)
+
+    # Log the options used when starting if we're in debug mode...
+    if CONF.debug:
+        CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
 
     options = deploy.appconfig('config:%s' % CONF.config_file[0])
 

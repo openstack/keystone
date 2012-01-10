@@ -5,6 +5,8 @@ eventlet==0.9.12
 PasteDeploy
 paste
 routes
+sqlalchemy
+sqlalchemy-migrate
 
 # keystonelight testing dependencies
 nose
