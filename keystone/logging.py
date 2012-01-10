@@ -28,6 +28,9 @@ exception = logging.exception
 critical = logging.critical
 log = logging.log
 
+# classes
+root = logging.root
+Formatter = logging.Formatter
 
 # handlers
 StreamHandler = logging.StreamHandler

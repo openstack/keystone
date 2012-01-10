@@ -1115,6 +1115,10 @@ class CommonConfigOpts(ConfigOpts):
         StrOpt('log-dir',
                help='(Optional) The directory to keep log files in '
                     '(will be prepended to --logfile)'),
+        StrOpt('syslog-log-facility',
+               default='LOG_USER',
+               help='(Optional) The syslog facility to use when logging '
+                    'to syslog (defaults to LOG_USER)'),
         BoolOpt('use-syslog',
                 default=False,
                 help='Use syslog for logging.'),
