@@ -65,13 +65,13 @@ def setup_logging(conf):
 
     if conf.use_syslog:
         try:
-            facility = getattr(logging.handlers.SysLogHandler,
+            facility = getattr(logging.SysLogHandler,
                                conf.syslog_log_facility)
         except AttributeError:
             raise ValueError(_("Invalid syslog facility"))
 
-        handler = logging.handlers.SysLogHandler(address='/dev/log',
-                                                 facility=facility)
+        handler = logging.SysLogHandler(address='/dev/log',
+                                        facility=facility)
     elif conf.log_file:
         logfile = conf.log_file
         if conf.log_dir:
