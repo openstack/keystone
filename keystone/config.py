@@ -27,6 +27,13 @@ def register_str(*args, **kw):
   return CONF.register_opt(cfg.StrOpt(*args, **kw), group=group)
 
 
+def register_cli_str(*args, **kw):
+  group = kw.pop('group', None)
+  if group:
+    CONF.register_group(cfg.OptGroup(name=group))
+  return CONF.register_cli_opt(cfg.StrOpt(*args, **kw), group=group)
+
+
 CONF = Config(project='keystone')
 
 

@@ -5,6 +5,7 @@ import sys
 
 import cli.app
 import cli.log
+from keystoneclient.v2_0 import client as kc
 
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -22,6 +23,12 @@ from keystone import utils
 
 
 CONF = config.CONF
+config.register_cli_str('endpoint',
+                        default='http://localhost:$admin_port/v2.0',
+                        group='ks')
+config.register_cli_str('token',
+                        default='$admin_token',
+                        group='ks')
 
 
 class BaseApp(cli.log.LoggingApp):
@@ -61,7 +68,60 @@ class DbSync(BaseApp):
         driver.db_sync()
 
 
+class ClientCommand(BaseApp):
+  ACTION_MAP = None
+
+  def __init__(self, *args, **kw):
+    super(ClientCommand, self).__init__(*args, **kw)
+    if not self.ACTION_MAP:
+      self.ACTION_MAP = {}
+    self.add_param('action')
+    self.add_param('keyvalues', nargs='*')
+    self.client = kc.Client(CONF.ks.endpoint, token=CONF.ks.token)
+    self.handle = getattr(self.client, '%ss' % self.__class__.__name__.lower())
+    self._build_action_map()
+
+  def _build_action_map(self):
+    actions = {}
+    for k in dir(self.handle):
+      if not k.startswith('_'):
+        actions[k] = k
+    self.ACTION_MAP.update(actions)
+
+  def main(self):
+    """Given some keyvalues create the appropriate data in Keystone."""
+    action_name = self.ACTION_MAP[self.params.action]
+    kv = self._parse_keyvalues(self.params.keyvalues)
+    resp = getattr(self.handle, action_name)(**kv)
+    print resp
+
+
+class Role(ClientCommand):
+  pass
+
+
+class Service(ClientCommand):
+  pass
+
+
+class Token(ClientCommand):
+  pass
+
+
+class Tenant(ClientCommand):
+  pass
+
+
+class User(ClientCommand):
+  pass
+
+
 CMDS = {'db_sync': DbSync,
+        'role': Role,
+        'service': Service,
+        'token': Token,
+        'tenant': Tenant,
+        'user': User,
         }
 
 
