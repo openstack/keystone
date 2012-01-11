@@ -5,6 +5,7 @@ import logging
 import pprint
 
 from logging.handlers import SysLogHandler
+from logging.handlers import WatchedFileHandler
 
 # A list of things we want to replicate from logging.
 # levels
@@ -35,8 +36,7 @@ Formatter = logging.Formatter
 
 # handlers
 StreamHandler = logging.StreamHandler
-#WatchedFileHandler = logging.handlers.WatchedFileHandler
-# logging.SysLogHandler is nicer than logging.logging.handler.SysLogHandler.
+WatchedFileHandler = WatchedFileHandler
 SysLogHandler = SysLogHandler
 
 
