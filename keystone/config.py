@@ -66,7 +66,7 @@ def setup_logging(conf):
         logfile = conf.log_file
         if conf.log_dir:
             logfile = os.path.join(conf.log_dir, logfile)
-        handler = logging.handlers.WatchedFileHandler(logfile)
+        handler = logging.WatchedFileHandler(logfile)
     else:
         handler = logging.StreamHandler(sys.stdout)
 
