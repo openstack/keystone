@@ -465,22 +465,21 @@ class TokenController(Application):
 
         """
         # TODO(termie): this stuff should probably be moved to middleware
-        if not context['is_admin']:
-            user_token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
-            creds = user_token_ref['metadata'].copy()
-            creds['user_id'] = user_token_ref['user'].get('id')
-            creds['tenant_id'] = user_token_ref['tenant'].get('id')
-            # Accept either is_admin or the admin role
-            assert self.policy_api.can_haz(context,
-                                           ('is_admin:1', 'roles:admin'),
-                                           creds)
+        self.assert_admin(context)
 
         token_ref = self.token_api.get_token(context=context,
                                              token_id=token_id)
         if belongs_to:
             assert token_ref['tenant']['id'] == belongs_to
-        return self._format_token(token_ref)
+
+        # TODO(termie): optimize this call at some point and put it into the
+        #               the return for metadata
+        # fill out the roles in the metadata
+        metadata_ref = token_ref['metadata']
+        roles_ref = []
+        for role_id in metadata_ref.get('roles', []):
+            roles_ref.append(self.identity_api.get_role(context, role_id))
+        return self._format_token(token_ref, roles_ref)
 
     def endpoints(self, context, token_id):
         """Return service catalog endpoints."""
