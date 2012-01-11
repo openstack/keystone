@@ -141,6 +141,11 @@ class PublicRouter(wsgi.Router):
     def __init__(self):
         mapper = routes.Mapper()
 
+        noop_controller = NoopController()
+        mapper.connect('/',
+                       controller=noop_controller,
+                       action='noop')
+
         # Token Operations
         auth_controller = TokenController()
         mapper.connect('/tokens',
@@ -323,6 +328,14 @@ class AdminCrudExtension(wsgi.ExtensionRouter):
 
         super(AdminCrudExtension, self).__init__(
                 application, mapper)
+
+
+class NoopController(Application):
+    def __init__(self):
+        super(NoopController, self).__init__()
+
+    def noop(self, context):
+        return {}
 
 
 class TokenController(Application):
