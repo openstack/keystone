@@ -283,6 +283,13 @@ class SqlIdentity(SqlBase):
   # These should probably be part of the high-level API
   def add_user_to_tenant(self, tenant_id, user_id):
     session = self.get_session()
+    q = session.query(UserTenantMembership)\
+               .filter_by(user_id=user_id)\
+               .filter_by(tenant_id=tenant_id)
+    rv = q.first()
+    if rv:
+      return
+
     with session.begin():
       session.add(UserTenantMembership(user_id=user_id, tenant_id=tenant_id))
       session.flush()
