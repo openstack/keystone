@@ -424,7 +424,9 @@ class TokenController(Application):
                                                      token_id=token)
             user_ref = old_token_ref['user']
 
-            assert tenant_id in user_ref['tenants']
+            tenants = self.identity_api.get_tenants_for_user(context,
+                                                             user_ref['id'])
+            assert tenant_id in tenants
 
             tenant_ref = self.identity_api.get_tenant(context=context,
                                                       tenant_id=tenant_id)
