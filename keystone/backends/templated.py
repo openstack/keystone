@@ -50,7 +50,7 @@ class TemplatedCatalog(kvs.KvsCatalog):
       if ' = ' not in line:
         continue
 
-      k, v = line.split(' = ')
+      k, v = line.strip().split(' = ')
       if not k.startswith('catalog.'):
         continue
 
