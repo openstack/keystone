@@ -426,24 +426,30 @@ class TokenController(Application):
 
             tenants = self.identity_api.get_tenants_for_user(context,
                                                              user_ref['id'])
-            assert tenant_id in tenants
+            if tenant_id:
+                assert tenant_id in tenants
 
             tenant_ref = self.identity_api.get_tenant(context=context,
                                                       tenant_id=tenant_id)
-            metadata_ref = self.identity_api.get_metadata(
-                    context=context,
-                    user_id=user_ref['id'],
-                    tenant_id=tenant_ref['id'])
+            if tenant_ref:
+                metadata_ref = self.identity_api.get_metadata(
+                        context=context,
+                        user_id=user_ref['id'],
+                        tenant_id=tenant_ref['id'])
+                catalog_ref = self.catalog_api.get_catalog(
+                        context=context,
+                        user_id=user_ref['id'],
+                        tenant_id=tenant_ref['id'],
+                        metadata=metadata_ref)
+            else:
+                metadata_ref = {}
+                catalog_ref = {}
+
             token_ref = self.token_api.create_token(
                     context, dict(expires='',
                                   user=user_ref,
                                   tenant=tenant_ref,
                                   metadata=metadata_ref))
-            catalog_ref = self.catalog_api.get_catalog(
-                    context=context,
-                    user_id=user_ref['id'],
-                    tenant_id=tenant_ref['id'],
-                    metadata=metadata_ref)
 
         # TODO(termie): optimize this call at some point and put it into the
         #               the return for metadata

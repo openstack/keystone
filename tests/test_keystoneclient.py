@@ -76,7 +76,31 @@ class KcMasterTestCase(CompatTestCase):
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_tenant_id_and_tenants(self):
+        client = self._client(username='FOO',
+                              password='foo2',
+                              tenant_id='bar')
+
+        tenants = client.tenants.list()
+        self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    def test_authenticate_token_no_tenant(self):
         client = self.foo_client()
+        token = client.auth_token
+        token_client = self._client(token=token)
+        tenants = client.tenants.list()
+        self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    def test_authenticate_token_tenant_id(self):
+        client = self.foo_client()
+        token = client.auth_token
+        token_client = self._client(token=token, tenant_id='bar')
+        tenants = client.tenants.list()
+        self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    def test_authenticate_token_tenant_name(self):
+        client = self.foo_client()
+        token = client.auth_token
+        token_client = self._client(token=token, tenant_name='BAR')
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
