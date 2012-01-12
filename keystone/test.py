@@ -10,7 +10,6 @@ from keystone import catalog
 from keystone import config
 from keystone import identity
 from keystone import logging
-from keystone import models
 from keystone import token
 from keystone import utils
 from keystone import wsgi

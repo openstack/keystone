@@ -1,6 +1,5 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# this is the web public frontend that emulates keystone
 import json
 import urllib
 import urlparse

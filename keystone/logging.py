@@ -1,3 +1,7 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+"""Wrapper for built-in logging module."""
+
 from __future__ import absolute_import
 
 import functools

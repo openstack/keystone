@@ -5,7 +5,6 @@ import sys
 
 from keystone import config
 from keystone import logging
-from keystone import models
 from keystone import test
 from keystone import utils
 

@@ -1,6 +1,5 @@
 import uuid
 
-from keystone import models
 from keystone import test
 from keystone.backends import kvs
 

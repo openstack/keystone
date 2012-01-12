@@ -11,7 +11,6 @@ import sqlalchemy.pool
 import sqlalchemy.engine.url
 
 from keystone import config
-from keystone import models
 from keystone.backends.sql import migration
 
 

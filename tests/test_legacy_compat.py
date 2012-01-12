@@ -7,7 +7,6 @@ from nose import exc
 
 from keystone import config
 from keystone import logging
-from keystone import models
 from keystone import test
 from keystone import utils
 
@@ -52,13 +51,13 @@ class CompatTestCase(test.TestCase):
     # validate_token call
     self.tenant_345 = self.identity_api.create_tenant(
         '345',
-        models.Tenant(id='345', name='My Project'))
+        dict(id='345', name='My Project'))
     self.user_123 = self.identity_api.create_user(
         '123',
-        models.User(id='123',
-                    name='jqsmith',
-                    tenants=[self.tenant_345['id']],
-                    password='password'))
+        dict(id='123',
+             name='jqsmith',
+             tenants=[self.tenant_345['id']],
+             password='password'))
     self.metadata_123 = self.identity_api.create_metadata(
         self.user_123['id'], self.tenant_345['id'],
         dict(roles=[{'id': '234',
@@ -69,11 +68,11 @@ class CompatTestCase(test.TestCase):
              roles_links=[]))
     self.token_123 = self.token_api.create_token(
         'ab48a9efdfedb23ty3494',
-        models.Token(id='ab48a9efdfedb23ty3494',
-                     expires='2010-11-01T03:32:15-05:00',
-                     user=self.user_123,
-                     tenant=self.tenant_345,
-                     metadata=self.metadata_123))
+        dict(id='ab48a9efdfedb23ty3494',
+             expires='2010-11-01T03:32:15-05:00',
+             user=self.user_123,
+             tenant=self.tenant_345,
+             metadata=self.metadata_123))
 
     # auth call
     # NOTE(termie): the service catalog in the sample doesn't really have
@@ -90,29 +89,29 @@ class CompatTestCase(test.TestCase):
     # tenants_for_token call
     self.user_foo = self.identity_api.create_user(
         'foo',
-        models.User(id='foo', name='FOO', tenants=['1234', '3456']))
+        dict(id='foo', name='FOO', tenants=['1234', '3456']))
     self.tenant_1234 = self.identity_api.create_tenant(
         '1234',
-        models.Tenant(id='1234',
-                      name='ACME Corp',
-                      description='A description ...',
-                      enabled=True))
+        dict(id='1234',
+             name='ACME Corp',
+             description='A description ...',
+             enabled=True))
     self.tenant_3456 = self.identity_api.create_tenant(
         '3456',
-        models.Tenant(id='3456',
-                      name='Iron Works',
-                      description='A description ...',
-                      enabled=True))
+        dict(id='3456',
+             name='Iron Works',
+             description='A description ...',
+             enabled=True))
 
     self.token_foo_unscoped = self.token_api.create_token(
         'foo_unscoped',
-        models.Token(id='foo_unscoped',
-                     user=self.user_foo))
+        dict(id='foo_unscoped',
+             user=self.user_foo))
     self.token_foo_scoped = self.token_api.create_token(
         'foo_scoped',
-        models.Token(id='foo_scoped',
-                     user=self.user_foo,
-                     tenant=self.tenant_1234))
+        dict(id='foo_scoped',
+             user=self.user_foo,
+             tenant=self.tenant_1234))
 
 
 class DiabloCompatTestCase(CompatTestCase):

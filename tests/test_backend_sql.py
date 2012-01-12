@@ -2,7 +2,6 @@ import os
 import uuid
 
 from keystone import config
-from keystone import models
 from keystone import test
 from keystone.backends import sql
 from keystone.backends.sql import util as sql_util
