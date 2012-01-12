@@ -115,48 +115,48 @@ class KvsIdentity(object):
     self.update_metadata(user_id, tenant_id, metadata_ref)
 
   # CRUD
-  def create_user(self, id, user):
-    self.db.set('user-%s' % id, user)
+  def create_user(self, user_id, user):
+    self.db.set('user-%s' % user_id, user)
     self.db.set('user_name-%s' % user['name'], user)
     user_list = set(self.db.get('user_list', []))
-    user_list.add(id)
+    user_list.add(user_id)
     self.db.set('user_list', list(user_list))
     return user
 
-  def update_user(self, id, user):
+  def update_user(self, user_id, user):
     # get the old name and delete it too
-    old_user = self.db.get('user-%s' % id)
+    old_user = self.db.get('user-%s' % user_id)
     self.db.delete('user_name-%s' % old_user['name'])
-    self.db.set('user-%s' % id, user)
+    self.db.set('user-%s' % user_id, user)
     self.db.set('user_name-%s' % user['name'], user)
     return user
 
-  def delete_user(self, id):
-    old_user = self.db.get('user-%s' % id)
+  def delete_user(self, user_id):
+    old_user = self.db.get('user-%s' % user_id)
     self.db.delete('user_name-%s' % old_user['name'])
-    self.db.delete('user-%s' % id)
+    self.db.delete('user-%s' % user_id)
     user_list = set(self.db.get('user_list', []))
-    user_list.remove(id)
+    user_list.remove(user_id)
     self.db.set('user_list', list(user_list))
     return None
 
-  def create_tenant(self, id, tenant):
-    self.db.set('tenant-%s' % id, tenant)
+  def create_tenant(self, tenant_id, tenant):
+    self.db.set('tenant-%s' % tenant_id, tenant)
     self.db.set('tenant_name-%s' % tenant['name'], tenant)
     return tenant
 
-  def update_tenant(self, id, tenant):
+  def update_tenant(self, tenant_id, tenant):
     # get the old name and delete it too
-    old_tenant = self.db.get('tenant-%s' % id)
+    old_tenant = self.db.get('tenant-%s' % tenant_id)
     self.db.delete('tenant_name-%s' % old_tenant['name'])
-    self.db.set('tenant-%s' % id, tenant)
+    self.db.set('tenant-%s' % tenant_id, tenant)
     self.db.set('tenant_name-%s' % tenant['name'], tenant)
     return tenant
 
-  def delete_tenant(self, id):
-    old_tenant = self.db.get('tenant-%s' % id)
+  def delete_tenant(self, tenant_id):
+    old_tenant = self.db.get('tenant-%s' % tenant_id)
     self.db.delete('tenant_name-%s' % old_tenant['name'])
-    self.db.delete('tenant-%s' % id)
+    self.db.delete('tenant-%s' % tenant_id)
     return None
 
   def create_metadata(self, user_id, tenant_id, metadata):
@@ -171,21 +171,21 @@ class KvsIdentity(object):
     self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
     return None
 
-  def create_role(self, id, role):
-    self.db.set('role-%s' % id, role)
+  def create_role(self, role_id, role):
+    self.db.set('role-%s' % role_id, role)
     role_list = set(self.db.get('role_list', []))
-    role_list.add(id)
+    role_list.add(role_id)
     self.db.set('role_list', list(role_list))
     return role
 
-  def update_role(self, id, role):
-    self.db.set('role-%s' % id, role)
+  def update_role(self, role_id, role):
+    self.db.set('role-%s' % role_id, role)
     return role
 
-  def delete_role(self, id):
-    self.db.delete('role-%s' % id)
+  def delete_role(self, role_id):
+    self.db.delete('role-%s' % role_id)
     role_list = set(self.db.get('role_list', []))
-    role_list.remove(id)
+    role_list.remove(role_id)
     self.db.set('role_list', list(role_list))
     return None
 
@@ -199,15 +199,15 @@ class KvsToken(object):
     self.db = db
 
   # Public interface
-  def get_token(self, id):
-    return self.db.get('token-%s' % id)
+  def get_token(self, token_id):
+    return self.db.get('token-%s' % token_id)
 
-  def create_token(self, id, data):
-    self.db.set('token-%s' % id, data)
+  def create_token(self, token_id, data):
+    self.db.set('token-%s' % token_id, data)
     return data
 
-  def delete_token(self, id):
-    return self.db.delete('token-%s' % id)
+  def delete_token(self, token_id):
+    return self.db.delete('token-%s' % token_id)
 
 
 class KvsCatalog(object):
@@ -228,21 +228,21 @@ class KvsCatalog(object):
   def list_services(self):
     return self.db.get('service_list', [])
 
-  def create_service(self, id, service):
-    self.db.set('service-%s' % id, service)
+  def create_service(self, service_id, service):
+    self.db.set('service-%s' % service_id, service)
     service_list = set(self.db.get('service_list', []))
-    service_list.add(id)
+    service_list.add(service_id)
     self.db.set('service_list', list(service_list))
     return service
 
-  def update_service(self, id, service):
-    self.db.set('service-%s' % id, service)
+  def update_service(self, service_id, service):
+    self.db.set('service-%s' % service_id, service)
     return service
 
-  def delete_service(self, id):
-    self.db.delete('service-%s' % id)
+  def delete_service(self, service_id):
+    self.db.delete('service-%s' % service_id)
     service_list = set(self.db.get('service_list', []))
-    service_list.remove(id)
+    service_list.remove(service_id)
     self.db.set('service_list', list(service_list))
     return None
 

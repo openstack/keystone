@@ -347,7 +347,7 @@ class SqlIdentity(SqlBase):
       self.create_metadata(user_id, tenant_id, metadata_ref)
 
   # CRUD
-  def create_user(self, id, user):
+  def create_user(self, user_id, user):
     session = self.get_session()
     with session.begin():
       user_ref = User.from_dict(user)
@@ -355,10 +355,10 @@ class SqlIdentity(SqlBase):
       session.flush()
     return user_ref.to_dict()
 
-  def update_user(self, id, user):
+  def update_user(self, user_id, user):
     session = self.get_session()
     with session.begin():
-      user_ref = session.query(User).filter_by(id=id).first()
+      user_ref = session.query(User).filter_by(id=user_id).first()
       old_user_dict = user_ref.to_dict()
       for k in user:
         old_user_dict[k] = user[k]
@@ -369,14 +369,14 @@ class SqlIdentity(SqlBase):
       session.flush()
     return user_ref
 
-  def delete_user(self, id):
+  def delete_user(self, user_id):
     session = self.get_session()
-    user_ref = session.query(User).filter_by(id=id).first()
+    user_ref = session.query(User).filter_by(id=user_id).first()
     with session.begin():
       session.delete(user_ref)
       session.flush()
 
-  def create_tenant(self, id, tenant):
+  def create_tenant(self, tenant_id, tenant):
     session = self.get_session()
     with session.begin():
       tenant_ref = Tenant.from_dict(tenant)
@@ -384,10 +384,10 @@ class SqlIdentity(SqlBase):
       session.flush()
     return tenant_ref.to_dict()
 
-  def update_tenant(self, id, tenant):
+  def update_tenant(self, tenant_id, tenant):
     session = self.get_session()
     with session.begin():
-      tenant_ref = session.query(Tenant).filter_by(id=id).first()
+      tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
       old_tenant_dict = tenant_ref.to_dict()
       for k in tenant:
         old_tenant_dict[k] = tenant[k]
@@ -398,9 +398,9 @@ class SqlIdentity(SqlBase):
       session.flush()
     return tenant_ref
 
-  def delete_tenant(self, id):
+  def delete_tenant(self, tenant_id):
     session = self.get_session()
-    tenant_ref = session.query(Tenant).filter_by(id=id).first()
+    tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
     with session.begin():
       session.delete(tenant_ref)
       session.flush()
@@ -432,25 +432,25 @@ class SqlIdentity(SqlBase):
     self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
     return None
 
-  def create_role(self, id, role):
+  def create_role(self, role_id, role):
     session = self.get_session()
     with session.begin():
       session.add(Role(**role))
       session.flush()
     return role
 
-  def update_role(self, id, role):
+  def update_role(self, role_id, role):
     session = self.get_session()
     with session.begin():
-      role_ref = session.query(Role).filter_by(id=id).first()
+      role_ref = session.query(Role).filter_by(id=role_id).first()
       for k in role:
         role_ref[k] = role[k]
       session.flush()
     return role_ref
 
-  def delete_role(self, id):
+  def delete_role(self, role_id):
     session = self.get_session()
-    role_ref = session.query(Role).filter_by(id=id).first()
+    role_ref = session.query(Role).filter_by(id=role_id).first()
     with session.begin():
       session.delete(role_ref)
 

@@ -368,6 +368,7 @@ class TokenController(Application):
         that will return a token that is scoped to that tenant.
         """
 
+        token_id = uuid.uuid4().hex
         if 'passwordCredentials' in auth:
             username = auth['passwordCredentials'].get('username', '')
             password = auth['passwordCredentials'].get('password', '')
@@ -394,10 +395,11 @@ class TokenController(Application):
                                                    password=password,
                                                    tenant_id=tenant_id)
             token_ref = self.token_api.create_token(
-                    context, dict(expires='',
-                                  user=user_ref,
-                                  tenant=tenant_ref,
-                                  metadata=metadata_ref))
+                    context, token_id, dict(expires='',
+                                            id=token_id,
+                                            user=user_ref,
+                                            tenant=tenant_ref,
+                                            metadata=metadata_ref))
             if tenant_ref:
                 catalog_ref = self.catalog_api.get_catalog(
                         context=context,
@@ -446,10 +448,11 @@ class TokenController(Application):
                 catalog_ref = {}
 
             token_ref = self.token_api.create_token(
-                    context, dict(expires='',
-                                  user=user_ref,
-                                  tenant=tenant_ref,
-                                  metadata=metadata_ref))
+                    context, token_id, dict(expires='',
+                                            id=token_id,
+                                            user=user_ref,
+                                            tenant=tenant_ref,
+                                            metadata=metadata_ref))
 
         # TODO(termie): optimize this call at some point and put it into the
         #               the return for metadata
@@ -625,18 +628,18 @@ class TenantController(Application):
         tenant_ref['id'] = tenant_id
 
         tenant = self.identity_api.create_tenant(
-                context, tenant_id=tenant_id, data=tenant_ref)
+                context, tenant_id, tenant_ref)
         return {'tenant': tenant}
 
     def update_tenant(self, context, tenant_id, tenant):
         self.assert_admin(context)
         tenant_ref = self.identity_api.update_tenant(
-                context, tenant_id=tenant_id, data=tenant)
+                context, tenant_id, tenant)
         return {'tenant': tenant_ref}
 
     def delete_tenant(self, context, tenant_id, **kw):
         self.assert_admin(context)
-        self.identity_api.delete_tenant(context, tenant_id=tenant_id)
+        self.identity_api.delete_tenant(context, tenant_id)
 
     def get_tenant_users(self, context, **kw):
         self.assert_admin(context)
