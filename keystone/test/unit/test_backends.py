@@ -5,6 +5,7 @@ import uuid
 from keystone import backends
 import keystone.backends.api as api
 import keystone.backends.models as legacy_backend_models
+import keystone.backends.sqlalchemy as db
 from keystone import models
 from keystone import utils
 
@@ -49,6 +50,10 @@ class BackendTestCase(unittest.TestCase):
             backend_module = utils.import_module(backend)
             settings = options[backend]
             backend_module.configure_backend(settings)
+
+    def tearDown(self):
+        db.unregister_models()
+        reload(db)
 
     def test_registration(self):
         self.assertIsNotNone(backends.api.CREDENTIALS)
@@ -193,6 +198,7 @@ class SQLiteBackendTestCase(BackendTestCase):
         super(SQLiteBackendTestCase, self).setUp(options)
 
     def tearDown(self):
+        super(SQLiteBackendTestCase, self).tearDown()
         if os.path.exists(self.database_name):
             os.unlink(self.database_name)
 

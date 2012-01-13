@@ -26,16 +26,34 @@ class ServiceAPI(api.BaseServiceAPI):
         super(ServiceAPI, self).__init__(*args, **kw)
 
     @staticmethod
+    def from_model(ref):
+        """ Returns SQLAlchemy model object based on Keystone model"""
+        if ref:
+            result = models.Service()
+            try:
+                result.id = int(ref.id)
+            except (AttributeError, TypeError):
+                # Unspecified or invalid ID -- ignore it.
+                pass
+            result.update(ref)
+            if hasattr(ref, 'description'):
+                result.desc = ref.description
+            return result
+
+    @staticmethod
     def to_model(ref):
         """ Returns Keystone model object based on SQLAlchemy model"""
         if ref:
             return Service(id=str(ref.id), name=ref.name, description=ref.desc,
                 type=ref.type, owner_id=ref.owner_id)
 
+    @staticmethod
+    def to_model_list(refs):
+        return [ServiceAPI.to_model(ref) for ref in refs]
+
     # pylint: disable=W0221
     def create(self, values):
-        service_ref = models.Service()
-        service_ref.update(values)
+        service_ref = ServiceAPI.from_model(values)
         service_ref.save()
         return ServiceAPI.to_model(service_ref)
 
@@ -63,7 +81,7 @@ class ServiceAPI(api.BaseServiceAPI):
     def get_all(self, session=None):
         if not session:
             session = get_session()
-        return session.query(models.Service).all()
+        return ServiceAPI.to_model_list(session.query(models.Service).all())
 
     def get_page(self, marker, limit, session=None):
         if not session:
