@@ -58,8 +58,14 @@ X-Tenant-Id
 X-Tenant-Name
     The unique, but mutable (it can change) tenant name.
 
-X-User
+X-User-Id
+    The user id of the user used to log in
+
+X-User-Name
     The username used to log in
+
+X-User
+    The username used to log in. This is to support any legacy implementations before Keystone switched to an ID/Name schema for tenants.
 
 X-Roles
     The roles associated with that user

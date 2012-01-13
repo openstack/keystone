@@ -37,7 +37,6 @@ from nova import flags
 from nova import utils
 from nova import wsgi
 # pylint: disable=W0611
-from nova import exception
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
@@ -63,13 +62,13 @@ class KeystoneAuthShim(wsgi.Middleware):
     def __call__(self, req):
         # find or create user
         try:
-            user_id = req.headers.get('X_USER')
+            user_id = req.headers.get('X_USER_ID') or req.headers['X_USER']
         except Exception as e:
             logger.exception("Unexpected error trying to get user from "
                              "request: %s" % e)
             raise
         if not user_id:
-             return webob.exc.HTTPUnauthorized()
+            return webob.exc.HTTPUnauthorized()
 
         try:
             user_ref = self.auth.get_user(user_id)
