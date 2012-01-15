@@ -146,7 +146,7 @@ function run_pep8 {
   srcfiles+=" keystone examples tools setup.py run_tests.py"
   # Just run PEP8 in current environment
   ${wrapper} pep8 --repeat --show-pep8 --show-source \
-    --ignore=E202,E111 \
+    --ignore=E202,E111,W602 \
     --exclude=vcsversion.py,$GLOBIGNORE ${srcfiles}
 }
 
