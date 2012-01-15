@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# pylint: disable=C0302
+# pylint: disable=C0302,W0603,W0602
 
 from datetime import datetime, timedelta
 import functools
@@ -77,6 +77,7 @@ def service_admin_token_validator(fnc):
     return _wrapper
 
 
+# pylint: disable=R0902
 class IdentityService(object):
     """Implements the Identity service
 
@@ -190,6 +191,25 @@ class IdentityService(object):
             return False
         return self._authenticate(validate, creds.user_id,
                                              creds.tenant_id)
+
+    def authenticate_s3(self, credentials):
+        # Check credentials
+        if not isinstance(credentials, auth.S3Credentials):
+            raise fault.BadRequestFault("Expecting S3 Credentials!")
+
+        creds = self.credential_manager.get_by_access(credentials.access)
+        if not creds:
+            raise fault.UnauthorizedFault("No credentials found for %s"
+                                          % credentials.access)
+
+        def validate(duser):  # pylint: disable=W0613
+            signer = Signer(creds.secret)
+            signature = signer.generate(credentials, s3=True)
+            if signature == credentials.signature:
+                return True
+            return False
+
+        return self._authenticate(validate, creds.user_id, creds.tenant_id)
 
     def _authenticate(self, validate, user_id, tenant_id=None):
         LOG.debug("Authenticating user %s (tenant: %s)" % (user_id, tenant_id))
@@ -648,6 +668,7 @@ class IdentityService(object):
         dtenant.enabled = tenant.enabled
         return self.tenant_manager.create(dtenant)
 
+    # pylint: disable=R0914
     def get_tenants(self, admin_token, marker, limit, url,
                     is_service_operation=False):
         """Fetch tenants for either an admin or service operation."""

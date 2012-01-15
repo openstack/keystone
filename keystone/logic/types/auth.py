@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# pylint: disable=C0103
+# pylint: disable=C0103,R0912,R0913,R0914
 
 import json
 from lxml import etree
@@ -268,6 +268,137 @@ class Ec2Credentials(object):
                 raise fault.BadRequestFault("Expecting params")
             params = cred["params"]
             return Ec2Credentials(access, signature, verb, host, path, params)
+        except (ValueError, TypeError) as e:
+            raise fault.BadRequestFault("Cannot parse password credentials",
+                                        str(e))
+
+
+# pylint: disable=R0902
+class S3Credentials(object):
+    """Credentials based on username, access_key, signature and data.
+
+        @type access: str
+        @param access: Access key for user in the form of access:project.
+
+        @type signature: str
+        @param signature: Signature of the request.
+
+        @type verb: str
+        @param verb: Web request verb ('GET' or 'POST').
+
+        @type host: expire
+        @param host: Web request expire time.
+
+        @type path: str
+        @param path: Web request path.
+
+        @type expire: str
+        @param expire: Web request expire.
+
+        @type content_type: str
+        @param content_type: Web request content contenttype.
+
+        @type content_md5: str
+        @param content_md5: Web request content contentmd5.
+
+        @type xheaders: str
+        @param xheaders: Web request content extended headers.
+
+     """
+
+    def __init__(self, access, signature, verb, path, expire, content_type,
+                 content_md5, xheaders):
+        self.access = access
+        self.signature = signature
+        self.verb = verb
+        self.path = path
+        self.expire = expire
+        self.content_type = content_type
+        self.content_md5 = content_md5
+        self.xheaders = xheaders
+
+    @staticmethod
+    def from_xml(xml_str):
+        try:
+            dom = etree.Element("root")
+            dom.append(etree.fromstring(xml_str))
+            root = dom.find("{http://docs.openstack.org/identity/api/v2.0}"
+                            "auth")
+            xmlns = "http://docs.openstack.org/identity/api/ext/OS-KSS3/v1.0"
+            if root is None:
+                root = dom.find("{%s}s3Credentials" % xmlns)
+            else:
+                root = root.find("{%s}s3Credentials" % xmlns)
+
+            if root is None:
+                raise fault.BadRequestFault("Expecting s3Credentials")
+            access = root.get("access")
+            if access == None:
+                raise fault.BadRequestFault("Expecting an access key")
+            signature = root.get("signature")
+            if signature == None:
+                raise fault.BadRequestFault("Expecting a signature")
+            verb = root.get("verb")
+            if verb == None:
+                raise fault.BadRequestFault("Expecting a verb")
+            path = root.get("path")
+            if path == None:
+                raise fault.BadRequestFault("Expecting a path")
+            expire = root.get("expire")
+            if expire == None:
+                raise fault.BadRequestFault("Expecting a expire")
+            content_type = root.get("content_type", '')
+            content_md5 = root.get("content_md5", '')
+            xheaders = root.get("xheaders", None)
+            return S3Credentials(access, signature, verb, path, expire,
+                                 content_type, content_md5, xheaders)
+        except etree.LxmlError as e:
+            raise fault.BadRequestFault("Cannot parse password credentials",
+                                        str(e))
+
+    @staticmethod
+    def from_json(json_str):
+        try:
+            root = json.loads(json_str)
+            if "auth" in root:
+                obj = root['auth']
+            else:
+                obj = root
+
+            if "OS-KSS3-s3Credentials" in obj:
+                cred = obj["OS-KSS3-s3Credentials"]
+            elif "s3Credentials" in obj:
+                cred = obj["s3Credentials"]
+            else:
+                raise fault.BadRequestFault("Expecting s3Credentials")
+
+            # Check that fields are valid
+            invalid = [key for key in cred if key not in\
+                       ['username', 'access', 'signature', 'verb', 'expire',
+                        'path', 'content_type', 'content_md5', 'xheaders']]
+            if invalid != []:
+                raise fault.BadRequestFault("Invalid attribute(s): %s"
+                                            % invalid)
+            if not "access" in cred:
+                raise fault.BadRequestFault("Expecting an access key")
+            access = cred["access"]
+            if not "signature" in cred:
+                raise fault.BadRequestFault("Expecting a signature")
+            signature = cred["signature"]
+            if not "verb" in cred:
+                raise fault.BadRequestFault("Expecting a verb")
+            verb = cred["verb"]
+            if not "path" in cred:
+                raise fault.BadRequestFault("Expecting a path")
+            path = cred["path"]
+            if not "expire" in cred:
+                raise fault.BadRequestFault("Expecting a expire")
+            expire = cred["expire"]
+            content_type = cred.get("content_type", '')
+            content_md5 = cred.get("content_md5", '')
+            xheaders = cred.get("xheaders", None)
+            return S3Credentials(access, signature, verb, path, expire,
+                                 content_type, content_md5, xheaders)
         except (ValueError, TypeError) as e:
             raise fault.BadRequestFault("Cannot parse password credentials",
                                         str(e))

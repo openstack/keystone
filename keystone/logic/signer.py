@@ -63,8 +63,15 @@ class Signer(object):
         if hashlib.sha256:
             self.hmac_256 = hmac.new(secret_key, digestmod=hashlib.sha256)
 
-    def generate(self, credentials):
+    def generate(self, credentials, s3=False):
         """Generate auth string according to what SignatureVersion is given."""
+        if s3:
+            return self._calc_signature_s3(credentials.verb,
+                                          credentials.expire,
+                                          credentials.path,
+                                          credentials.content_type,
+                                          credentials.content_md5,
+                                          credentials.xheaders)
         if credentials.params['SignatureVersion'] == '0':
             return self._calc_signature_0(credentials.params)
         if credentials.params['SignatureVersion'] == '1':
@@ -123,6 +130,27 @@ class Signer(object):
         qs = '&'.join(pairs)
         LOG.debug('query string: %s', qs)
         string_to_sign += qs
+        LOG.debug('string_to_sign: %s', string_to_sign)
+        current_hmac.update(string_to_sign)
+        b64 = base64.b64encode(current_hmac.digest())
+        LOG.debug('len(b64)=%d', len(b64))
+        LOG.debug('base64 encoded digest: %s', b64)
+        return b64
+
+    # pylint: disable=R0913
+    def _calc_signature_s3(self, verb, expire, path, content_type, content_md5,
+                           xheaders):
+        """Generate AWS signature for S3 string."""
+        LOG.debug('using _calc_signature_s3')
+        string_to_sign = '%s\n%s\n%s\n%s\n' % (
+                         verb, content_md5, content_type, expire)
+        if xheaders:
+            xheader_keys = xheaders.keys()
+            xheader_keys.sort()
+            for key in xheader_keys:
+                string_to_sign += '%s:%s\n' % (key, xheaders[key])
+        string_to_sign += path
+        current_hmac = self.hmac
         LOG.debug('string_to_sign: %s', string_to_sign)
         current_hmac.update(string_to_sign)
         b64 = base64.b64encode(current_hmac.digest())
