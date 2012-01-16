@@ -112,29 +112,6 @@ interpolation)::
   catalog.RegionOne.identity.name = 'Identity Service'
 
 
----------------
-Keystone Compat
----------------
-
-While Keystone Light takes a fundamentally different approach to its services
-from Keystone, a compatibility layer is included to make switching much easier
-for projects already attempting to use Keystone.
-
-The compatibility service is activated by defining an alternate application in
-the paste.deploy config and adding it to your main pipeline::
-
-  [app:keystone]
-  paste.app_factory = keystonelight.keystone_compat:app_factory
-
-Also relevant to Keystone compatibility are these sequence diagrams (openable
-with sdedit_)
-
-.. _sdedit: http://sourceforge.net/projects/sdedit/files/sdedit/4.0/
-
-Diagram: keystone_compat_flows.sdx_
-
-..  _: https://raw.github.com/termie/keystonelight/master/docs/keystone_compat_flows.sdx
-
 ----------------
 Approach to CRUD
 ----------------
@@ -220,11 +197,5 @@ then do what is effectively a 'Simple Match' style match against the creds.
 Still To Do
 -----------
 
- * Dev and testing setups would do well with some user/tenant/etc CRUD, for the
-   KVS backends at least.
- * Fixture loading functionality would also be killer tests and dev.
  * LDAP backend.
- * Keystone import.
- * (./) Admin-only interface
- * Don't check git checkouts as often, to speed up tests
- * common config - http://wiki.openstack.org/CommonConfigModule
+ * Diablo migration.
