@@ -280,9 +280,10 @@ class KvsEc2(object):
         credential_ref = self.db.get('credential-%s' % credential_id)
         return credential_ref
 
-    def list_credentials(self):
+    def list_credentials(self, user_id):
         credential_ids = self.db.get('credential_list', [])
-        return [self.get_credential(x) for x in credential_ids]
+        rv = [self.get_credential(x) for x in credential_ids]
+        return [x for x in rv if x['user_id'] == user_id]
 
     # CRUD
     def create_credential(self, credential_id, credential):

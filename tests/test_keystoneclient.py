@@ -239,6 +239,27 @@ class KcMasterTestCase(CompatTestCase):
         roles = client.roles.get_user_role_refs('foo')
         self.assertTrue(len(roles) > 0)
 
+    def test_ec2_credential_creation(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        client = self.foo_client()
+        creds = client.ec2.list(self.user_foo['id'])
+        self.assertEquals(creds, [])
+
+        cred = client.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
+        creds = client.ec2.list(self.user_foo['id'])
+        self.assertEquals(creds, [cred])
+
+        got = client.ec2.get(self.user_foo['id'], cred.access)
+        self.assertEquals(cred, got)
+
+        # FIXME(ja): need to test ec2 validation here
+
+        client.ec2.delete(self.user_foo['id'], cred.access)
+        creds = client.ec2.list(self.user_foo['id'])
+        self.assertEquals(creds, [])
+
+
     def test_service_create_and_delete(self):
         from keystoneclient import exceptions as client_exceptions
 

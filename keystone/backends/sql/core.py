@@ -494,9 +494,10 @@ class SqlEc2(SqlBase):
             return
         return credential_ref.to_dict()
 
-    def list_credentials(self):
+    def list_credentials(self, user_id):
         session = self.get_session()
-        credential_refs = session.query(Ec2Credential)
+        credential_refs = session.query(Ec2Credential)\
+                                 .filter_by(user_id=user_id)
         return [x.to_dict() for x in credential_refs]
 
     # CRUD

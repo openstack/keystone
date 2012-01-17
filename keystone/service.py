@@ -335,25 +335,25 @@ class Ec2Extension(wsgi.ExtensionRouter):
         mapper.connect('/ec2tokens',
                        controller=ec2_controller,
                        action='authenticate_ec2',
-                       conditions=dict(methods=['POST']))
+                       conditions=dict(method=['POST']))
 
         # crud
         mapper.connect('/users/{user_id}/credentials/OS-EC2',
                        controller=ec2_controller,
                        action='create_credential',
-                       conditions=dict(methods=['POST']))
+                       conditions=dict(method=['POST']))
         mapper.connect('/users/{user_id}/credentials/OS-EC2',
                        controller=ec2_controller,
                        action='get_credentials',
-                       conditions=dict(methods=['GET']))
+                       conditions=dict(method=['GET']))
         mapper.connect('/users/{user_id}/credentials/OS-EC2/{credential_id}',
                        controller=ec2_controller,
                        action='get_credential',
-                       conditions=dict(methods=['GET']))
+                       conditions=dict(method=['GET']))
         mapper.connect('/users/{user_id}/credentials/OS-EC2/{credential_id}',
                        controller=ec2_controller,
                        action='delete_credential',
-                       conditions=dict(methods=['DELETE']))
+                       conditions=dict(method=['DELETE']))
 
         super(Ec2Extension, self).__init__(application, mapper)
 
@@ -442,17 +442,17 @@ class Ec2Controller(Application):
         """List credentials for the given user_id."""
         # TODO(termie): validate that this request is valid for given user
         #               tenant
-        return {'credentials': self.ec2_api.list_credentials(user_id)}
+        return {'credentials': self.ec2_api.list_credentials(context, user_id)}
 
     def get_credential(self, context, user_id, credential_id):
         # TODO(termie): validate that this request is valid for given user
         #               tenant
-        return {'credential': self.ec2_api.get_credential(credential_id)}
+        return {'credential': self.ec2_api.get_credential(context, credential_id)}
 
     def delete_credential(self, context, user_id, credential_id):
         # TODO(termie): validate that this request is valid for given user
         #               tenant
-        return self.ec2_api.delete_credential(credential_id)
+        return self.ec2_api.delete_credential(context, credential_id)
 
 
 class NoopController(Application):
