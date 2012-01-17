@@ -447,7 +447,8 @@ class Ec2Controller(Application):
     def get_credential(self, context, user_id, credential_id):
         # TODO(termie): validate that this request is valid for given user
         #               tenant
-        return {'credential': self.ec2_api.get_credential(context, credential_id)}
+        return {'credential': self.ec2_api.get_credential(context,
+                                                          credential_id)}
 
     def delete_credential(self, context, user_id, credential_id):
         # TODO(termie): validate that this request is valid for given user
