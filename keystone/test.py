@@ -44,6 +44,7 @@ def checkout_vendor(repo, rev):
     if name.endswith('.git'):
         name = name[:-4]
 
+    working_dir = os.getcwd()
     revdir = os.path.join(VENDOR, '%s-%s' % (name, rev.replace('/', '_')))
     modcheck = os.path.join(VENDOR, '.%s-%s' % (name, rev.replace('/', '_')))
     try:
@@ -64,6 +65,7 @@ def checkout_vendor(repo, rev):
             fd.write('1')
     except subprocess.CalledProcessError as e:
         logging.warning('Failed to checkout %s', repo)
+    cd(working_dir)
     return revdir
 
 
