@@ -436,18 +436,18 @@ class Ec2Controller(Application):
                     'access': uuid.uuid4().hex,
                     'secret': uuid.uuid4().hex}
         self.ec2_api.create_credential(context, cred_ref['access'], cred_ref)
-        return cred_ref
+        return {'credential': cred_ref}
 
     def get_credentials(self, context, user_id):
         """List credentials for the given user_id."""
         # TODO(termie): validate that this request is valid for given user
         #               tenant
-        return self.ec2_api.list_credentials(user_id)
+        return {'credentials': self.ec2_api.list_credentials(user_id)}
 
     def get_credential(self, context, user_id, credential_id):
         # TODO(termie): validate that this request is valid for given user
         #               tenant
-        return self.ec2_api.get_credential(credential_id)
+        return {'credential': self.ec2_api.get_credential(credential_id)}
 
     def delete_credential(self, context, user_id, credential_id):
         # TODO(termie): validate that this request is valid for given user
