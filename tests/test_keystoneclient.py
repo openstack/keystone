@@ -259,7 +259,6 @@ class KcMasterTestCase(CompatTestCase):
         creds = client.ec2.list(self.user_foo['id'])
         self.assertEquals(creds, [])
 
-
     def test_service_create_and_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
