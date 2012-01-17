@@ -74,7 +74,7 @@ class KvsIdentity(object):
         role_ids = self.db.get('role_list', [])
         return [self.get_role(x) for x in role_ids]
 
-  # These should probably be part of the high-level API
+    # These should probably be part of the high-level API
     def add_user_to_tenant(self, tenant_id, user_id):
         user_ref = self.get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
@@ -265,3 +265,37 @@ class KvsPolicy(object):
 
     def can_haz(self, target, action, credentials):
         pass
+
+
+class KvsEc2(object):
+    def __init__(self, db=None):
+        if db is None:
+            db = INMEMDB
+        elif type(db) is type({}):
+            db = DictKvs(db)
+        self.db = db
+
+    # Public interface
+    def get_credential(self, credential_id):
+        credential_ref = self.db.get('credential-%s' % credential_id)
+        return credential_ref
+
+    def list_credentials(self):
+        credential_ids = self.db.get('credential_list', [])
+        return [self.get_credential(x) for x in credential_ids]
+
+    # CRUD
+    def create_credential(self, credential_id, credential):
+        self.db.set('credential-%s' % credential_id, credential)
+        credential_list = set(self.db.get('credential_list', []))
+        credential_list.add(credential_id)
+        self.db.set('credential_list', list(credential_list))
+        return credential
+
+    def delete_credential(self, credential_id):
+        old_credential = self.db.get('credential-%s' % credential_id)
+        self.db.delete('credential-%s' % credential_id)
+        credential_list = set(self.db.get('credential_list', []))
+        credential_list.remove(credential_id)
+        self.db.set('credential_list', list(credential_list))
+        return None
