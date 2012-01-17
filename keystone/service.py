@@ -371,7 +371,7 @@ class Ec2Controller(Application):
                          ec2Credentials=None):
         """Validate a signed EC2 request and provide a token."""
         # NOTE(termie): backwards compat hack
-        if not ecredentials and ec2Credentials:
+        if not credentials and ec2Credentials:
             credentials = ec2Credentials
         creds_ref = self.ec2_api.get_credential(context,
                                                 credentials['access'])
