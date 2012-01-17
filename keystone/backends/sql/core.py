@@ -151,6 +151,21 @@ class Token(Base, DictBase):
     data = sql.Column(JsonBlob())
 
 
+class Ec2Credential(Base, DictBase):
+    __tablename__ = 'ec2_credential'
+    access = sql.Column(sql.String(64), primary_key=True)
+    secret = sql.Column(sql.String(64))
+    user_id = sql.Column(sql.String(64))
+    tenant_id = sql.Column(sql.String(64))
+
+    @classmethod
+    def from_dict(cls, user_dict):
+        return cls(**user_dict)
+
+    def to_dict(self):
+        return dict(self.iteritems())
+
+
 class UserTenantMembership(Base, DictBase):
     """Tenant membership join table."""
     __tablename__ = 'user_tenant_membership'
@@ -206,7 +221,7 @@ class SqlIdentity(SqlBase):
     def db_sync(self):
         migration.db_sync()
 
-  # Identity interface
+    # Identity interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate based on a user, tenant and password.
 
@@ -464,3 +479,39 @@ class SqlToken(SqlBase):
 
 class SqlCatalog(SqlBase):
     pass
+
+
+class SqlEc2(SqlBase):
+    # Internal interface to manage the database
+    def db_sync(self):
+        migration.db_sync()
+
+    def get_credential(self, credential_id):
+        session = self.get_session()
+        credential_ref = session.query(Ec2Credential)\
+                                .filter_by(access=credential_id).first()
+        if not credential_ref:
+            return
+        return credential_ref.to_dict()
+
+    def list_credentials(self):
+        session = self.get_session()
+        credential_refs = session.query(Ec2Credential)
+        return [x.to_dict() for x in credential_refs]
+
+    # CRUD
+    def create_credential(self, credential_id, credential):
+        session = self.get_session()
+        with session.begin():
+            credential_ref = Ec2Credential.from_dict(credential)
+            session.add(credential_ref)
+            session.flush()
+        return credential_ref.to_dict()
+
+    def delete_credential(self, credential_id):
+        session = self.get_session()
+        credential_ref = session.query(Ec2Credential)\
+                                .filter_by(access=credential_id).first()
+        with session.begin():
+            session.delete(credential_ref)
+            session.flush()

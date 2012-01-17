@@ -433,9 +433,9 @@ class Ec2Controller(Application):
         #               tenant
         cred_ref = {'user_id': user_id,
                     'tenant_id': tenant_id,
-                    'id': uuid.uuid4().hex,
+                    'access': uuid.uuid4().hex,
                     'secret': uuid.uuid4().hex}
-        self.ec2_api.create_credential(context, cred_ref['id'], cred_ref)
+        self.ec2_api.create_credential(context, cred_ref['access'], cred_ref)
         return cred_ref
 
     def get_credentials(self, context, user_id):
