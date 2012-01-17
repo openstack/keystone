@@ -1,5 +1,8 @@
-Keystone
-========
+.. image:: http://term.ie/data/medium_ksl.png
+   :alt: Keystone
+
+.. toctree::
+   :maxdepth 2
 
 Keystone is an OpenStack project that provides Identity, Token, Catalog and
 Policy services for use specifically by projects in the OpenStack family.
