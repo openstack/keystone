@@ -10,6 +10,7 @@ USERS = [
 
 METADATA = [
     {'user_id': 'foo', 'tenant_id': 'bar', 'extra': 'extra'},
+    {'user_id': 'boo', 'tenant_id': 'baz', 'extra': 'extra'},
     ]
 
 ROLES = [
