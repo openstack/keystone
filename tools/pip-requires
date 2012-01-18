@@ -7,3 +7,6 @@ routes
 pycli
 sqlalchemy
 sqlalchemy-migrate
+pycli
+
+-e git+https://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
