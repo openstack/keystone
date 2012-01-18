@@ -82,7 +82,7 @@ def register_str(*args, **kw):
 
 def register_cli_str(*args, **kw):
     group = _ensure_group(kw)
-    return CONF.register_opt(cfg.StrOpt(*args, **kw), group=group)
+    return CONF.register_cli_opt(cfg.StrOpt(*args, **kw), group=group)
 
 
 def register_bool(*args, **kw):
