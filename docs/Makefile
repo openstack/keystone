@@ -45,7 +45,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 
 autodoc:
-	$(SPHINXAPIDOC) -o $(SOURCEDIR) ../keystone
+	$(SPHINXAPIDOC) -f -o $(SOURCEDIR) ../keystone
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
