@@ -263,14 +263,14 @@ class KcMasterTestCase(CompatTestCase):
         creds = client.ec2.list(self.user_foo['id'])
         self.assertEquals(creds, [])
 
-    def test_ec2_credentials_scoping_list(self):
+    def test_ec2_credentials_list_unauthorized_user(self):
         from keystoneclient import exceptions as client_exceptions
 
         boo = self.get_client('BOO')
         self.assertRaises(client_exceptions.Unauthorized, boo.ec2.list,
                           self.user_foo['id'])
 
-    def test_ec2_credentials_scoping_get(self):
+    def test_ec2_credentials_get_unauthorized_user(self):
         from keystoneclient import exceptions as client_exceptions
 
         foo = self.get_client()
@@ -282,7 +282,7 @@ class KcMasterTestCase(CompatTestCase):
         
         foo.ec2.delete(self.user_foo['id'], cred.access)
 
-    def test_ec2_credentials_scoping_delete(self):
+    def test_ec2_credentials_delete_unauthorized_user(self):
         from keystoneclient import exceptions as client_exceptions
 
         foo = self.get_client()
