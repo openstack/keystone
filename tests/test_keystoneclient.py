@@ -263,12 +263,36 @@ class KcMasterTestCase(CompatTestCase):
         creds = client.ec2.list(self.user_foo['id'])
         self.assertEquals(creds, [])
 
-    def test_ec2_credentials_scoping(self):
+    def test_ec2_credentials_scoping_list(self):
         from keystoneclient import exceptions as client_exceptions
 
         boo = self.get_client('BOO')
         self.assertRaises(client_exceptions.Unauthorized, boo.ec2.list,
                           self.user_foo['id'])
+
+    def test_ec2_credentials_scoping_get(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        foo = self.get_client()
+        cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
+
+        boo = self.get_client('BOO')
+        self.assertRaises(client_exceptions.Unauthorized, boo.ec2.get,
+                          self.user_foo['id'], cred.access)
+        
+        foo.ec2.delete(self.user_foo['id'], cred.access)
+
+    def test_ec2_credentials_scoping_delete(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        foo = self.get_client()
+        cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
+
+        boo = self.get_client('BOO')
+        self.assertRaises(client_exceptions.Unauthorized, boo.ec2.delete,
+                          self.user_foo['id'], cred.access)
+        
+        foo.ec2.delete(self.user_foo['id'], cred.access)
 
     def test_service_create_and_delete(self):
         from keystoneclient import exceptions as client_exceptions
