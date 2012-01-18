@@ -10,3 +10,5 @@ nosetests.xml
 bla.db
 docs/build
 .DS_Store
+docs/source/modules.rst
+docs/source/keystone.*
