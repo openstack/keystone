@@ -131,7 +131,10 @@ CMDS = {'db_sync': DbSync,
         }
 
 
-if __name__ == '__main__':
+def main(argv=None):
+  if argv is None:
+    argv = sys.argv
+
   dev_conf = os.path.join(possible_topdir,
                           'etc',
                           'keystone.conf')
@@ -139,7 +142,11 @@ if __name__ == '__main__':
   if os.path.exists(dev_conf):
       config_files = [dev_conf]
 
-  args = CONF(config_files=config_files, args=sys.argv)
+  args = CONF(config_files=config_files, args=argv)
   cmd = args[1]
   if cmd in CMDS:
     CMDS[cmd](argv=(args[:1] + args[2:])).run()
+
+
+if __name__ == '__main__':
+  main()
