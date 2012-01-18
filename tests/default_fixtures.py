@@ -5,6 +5,7 @@ TENANTS = [
 
 USERS = [
     {'id': 'foo', 'name': 'FOO', 'password': 'foo2', 'tenants': ['bar',]},
+    {'id': 'boo', 'name': 'BOO', 'password': 'boo2', 'tenants': ['baz',]},
     ]
 
 METADATA = [
