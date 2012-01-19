@@ -24,7 +24,7 @@ class OutputBuffer():
         if exc_type is None:
             self.stop()
         else:
-            raise
+            return False
 
     def __unicode__(self):
         return self._contents
