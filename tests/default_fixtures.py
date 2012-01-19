@@ -5,12 +5,12 @@ TENANTS = [
 
 USERS = [
     {'id': 'foo', 'name': 'FOO', 'password': 'foo2', 'tenants': ['bar',]},
-    {'id': 'boo', 'name': 'BOO', 'password': 'boo2', 'tenants': ['baz',]},
+    {'id': 'two', 'name': 'TWO', 'password': 'two2', 'tenants': ['baz',]},
     ]
 
 METADATA = [
     {'user_id': 'foo', 'tenant_id': 'bar', 'extra': 'extra'},
-    {'user_id': 'boo', 'tenant_id': 'baz', 'extra': 'extra'},
+    {'user_id': 'two', 'tenant_id': 'baz', 'extra': 'extra'},
     ]
 
 ROLES = [

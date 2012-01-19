@@ -65,14 +65,13 @@ class KcMasterTestCase(CompatTestCase):
         CONF(config_files=[test.etcdir('keystone.conf'),
                            test.testsdir('test_overrides.conf')])
 
-    def get_client(self, username='FOO'):
-        users = [u for u in default_fixtures.USERS if u['name'] == username]
-        self.assertEquals(1, len(users))
-        user = users[0]
+    def get_client(self, user_ref=None):
+        if user_ref is None:
+            user_ref = self.user_foo
 
-        return self._client(username=user['name'],
-                            password=user['password'],
-                            tenant_id=user['tenants'][0])
+        return self._client(username=user_ref['name'],
+                            password=user_ref['password'],
+                            tenant_id=user_ref['tenants'][0])
 
     def test_authenticate_tenant_name_and_tenants(self):
         client = self.get_client()
@@ -266,8 +265,8 @@ class KcMasterTestCase(CompatTestCase):
     def test_ec2_credentials_list_unauthorized_user(self):
         from keystoneclient import exceptions as client_exceptions
 
-        boo = self.get_client('BOO')
-        self.assertRaises(client_exceptions.Unauthorized, boo.ec2.list,
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Unauthorized, two.ec2.list,
                           self.user_foo['id'])
 
     def test_ec2_credentials_get_unauthorized_user(self):
@@ -276,10 +275,10 @@ class KcMasterTestCase(CompatTestCase):
         foo = self.get_client()
         cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
 
-        boo = self.get_client('BOO')
-        self.assertRaises(client_exceptions.Unauthorized, boo.ec2.get,
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Unauthorized, two.ec2.get,
                           self.user_foo['id'], cred.access)
-        
+
         foo.ec2.delete(self.user_foo['id'], cred.access)
 
     def test_ec2_credentials_delete_unauthorized_user(self):
@@ -288,8 +287,8 @@ class KcMasterTestCase(CompatTestCase):
         foo = self.get_client()
         cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
 
-        boo = self.get_client('BOO')
-        self.assertRaises(client_exceptions.Unauthorized, boo.ec2.delete,
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Unauthorized, two.ec2.delete,
                           self.user_foo['id'], cred.access)
         
         foo.ec2.delete(self.user_foo['id'], cred.access)
