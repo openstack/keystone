@@ -34,6 +34,149 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.identity.driver)
 
 
+class Driver(object):
+    """Interface description for an Identity driver."""
+
+    def authenticate(self, user_id=None, tenant_id=None, password=None):
+        """Authenticate a given user, tenant and password.
+
+        Returns: (user, tenant, metadata).
+
+        """
+        raise NotImplementedError()
+
+    def get_tenant(self, tenant_id):
+        """Get a tenant by id.
+
+        Returns: tenant_ref or None.
+
+        """
+        raise NotImplementedError()
+
+    def get_tenant_by_name(self, tenant_name):
+        """Get a tenant by name.
+
+        Returns: tenant_ref or None.
+
+        """
+        raise NotImplementedError()
+
+    def get_user(self, user_id):
+        """Get a user by id.
+
+        Returns: user_ref or None.
+
+        """
+        raise NotImplementedError()
+
+    def get_user_by_name(self, user_name):
+        """Get a user by name.
+
+        Returns: user_ref or None.
+
+        """
+        raise NotImplementedError()
+
+    def get_role(self, role_id):
+        """Get a role by id.
+
+        Returns: role_ref or None.
+
+        """
+        raise NotImplementedError()
+
+    def list_users(self):
+        """List all users in the system.
+
+        NOTE(termie): I'd prefer if this listed only the users for a given
+                      tenant.
+
+        Returns: a list of user_refs or an empty list.
+
+        """
+        raise NotImplementedError()
+
+    def list_roles(self):
+        """List all roles in the system.
+
+        Returns: a list of role_refs or an empty list.
+
+        """
+        raise NotImplementedError()
+
+    # NOTE(termie): six calls below should probably be exposed by the api
+    #               more clearly when the api redesign happens
+    def add_user_to_tenant(self, tenant_id, user_id):
+        raise NotImplementedError()
+
+    def remove_user_from_tenant(self, tenant_id, user_id):
+        raise NotImplementedError()
+
+    def get_tenants_for_user(self, user_id):
+        """Get the tenants associated with a given user.
+
+        Returns: a list of tenant ids.
+
+        """
+        raise NotImplementedError()
+
+    def get_roles_for_user_and_tenant(self, user_id, tenant_id):
+        """Get the roles associated with a user within given tenant.
+
+        Returns: a list of role ids.
+
+        """
+        raise NotImplementedError()
+
+    def add_role_for_user_and_tenant(self, user_id, tenant_id, role_id):
+        """Add a role to a user within given tenant."""
+        raise NotImplementedError()
+
+    def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
+        """Remove a role from a user within given tenant."""
+        raise NotImplementedError()
+
+    # user crud
+    def create_user(self, user_id, user):
+        raise NotImplementedError()
+
+    def update_user(self, user_id, user):
+        raise NotImplementedError()
+
+    def delete_user(self, user_id):
+        raise NotImplementedError()
+
+    # tenant crud
+    def create_tenant(self, tenant_id, tenant):
+        raise NotImplementedError()
+
+    def update_tenant(self, tenant_id, tenant):
+        raise NotImplementedError()
+
+    def delete_tenant(self, tenant_id, tenant):
+        raise NotImplementedError()
+
+    # metadata crud
+    def create_metadata(self, user_id, tenant_id, metadata):
+        raise NotImplementedError()
+
+    def update_metadata(self, user_id, tenant_id, metadata):
+        raise NotImplementedError()
+
+    def delete_metadata(self, user_id, tenant_id, metadata):
+        raise NotImplementedError()
+
+    # role crud
+    def create_role(self, role_id, role):
+        raise NotImplementedError()
+
+    def update_role(self, role_id, role):
+        raise NotImplementedError()
+
+    def delete_role(self, role_id):
+        raise NotImplementedError()
+
+
 class PublicRouter(wsgi.ComposableRouter):
     def add_routes(self, mapper):
         tenant_controller = TenantController()

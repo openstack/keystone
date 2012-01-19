@@ -1,5 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+from keystone import identity
 from keystone.common import sql
 from keystone.common.sql import migration
 
@@ -83,7 +84,7 @@ class UserTenantMembership(sql.ModelBase, sql.DictBase):
                            primary_key=True)
 
 
-class Identity(sql.Base):
+class Identity(sql.Base, identity.Driver):
     # Internal interface to manage the database
     def db_sync(self):
         migration.db_sync()

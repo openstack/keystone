@@ -1,9 +1,10 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+from keystone import identity
 from keystone.common import kvs
 
 
-class Identity(kvs.Base):
+class Identity(kvs.Base, identity.Driver):
     # Public interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate based on a user, tenant and password.
