@@ -31,7 +31,7 @@ Prerequisites
 
 This document assumes you are using:
 
-- Ubuntu 11.10, Fedora 15, or Mac OS X Lion
+- Ubuntu 11.10, Fedora 15, openSUSE 11.4, 12.1 or Mac OS X Lion
 - `Python 2.7`_
 
 .. _`Python 2.7`: http://www.python.org/
@@ -82,6 +82,10 @@ Ubuntu 11.10::
 Fedora 15::
 
     $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap
+
+openSUSE 11.4, 12.1::
+
+    $ sudo zypper in python-devel python-xml gcc libxslt-devel python-ldap openldap2-devel
 
 Mac OS X Lion (requires MacPorts_)::
 
