@@ -3,7 +3,7 @@
 import functools
 
 from keystone import config
-from keystone import utils
+from keystone.common import utils
 
 
 class Manager(object):

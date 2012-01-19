@@ -1,15 +1,15 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 from keystone import config
-from keystone import logging
-from keystone.backends import kvs
+from keystone.common import logging
+from keystone.catalog.backends import kvs
 
 
 CONF = config.CONF
 config.register_str('template_file', group='catalog')
 
 
-class TemplatedCatalog(kvs.KvsCatalog):
+class TemplatedCatalog(kvs.Catalog):
     """A backend that generates endpoints for the Catalog based on templates.
 
     It is usually configured via config entries that look like:

@@ -25,7 +25,7 @@ import subprocess
 import sys
 import urllib
 
-from keystone import logging
+from keystone.common import logging
 
 
 def import_class(import_str):

@@ -81,7 +81,7 @@ class Request(webob.Request):
     pass
 
 
-class Application(object):
+class BaseApplication(object):
     """Base WSGI application wrapper. Subclasses need to implement __call__."""
 
     @classmethod
@@ -144,6 +144,60 @@ class Application(object):
 
         """
         raise NotImplementedError('You must implement __call__')
+
+
+class Application(wsgi.BaseApplication):
+    @webob.dec.wsgify
+    def __call__(self, req):
+        arg_dict = req.environ['wsgiorg.routing_args'][1]
+        action = arg_dict['action']
+        del arg_dict['action']
+        del arg_dict['controller']
+        logging.debug('arg_dict: %s', arg_dict)
+
+        context = req.environ.get('openstack.context', {})
+        # allow middleware up the stack to override the params
+        params = {}
+        if 'openstack.params' in req.environ:
+            params = req.environ['openstack.params']
+        params.update(arg_dict)
+
+        # TODO(termie): do some basic normalization on methods
+        method = getattr(self, action)
+
+        # NOTE(vish): make sure we have no unicode keys for py2.6.
+        params = self._normalize_dict(params)
+        result = method(context, **params)
+
+        if result is None or type(result) is str or type(result) is unicode:
+            return result
+        elif isinstance(result, webob.exc.WSGIHTTPException):
+            return result
+
+        return self._serialize(result)
+
+    def _serialize(self, result):
+        return json.dumps(result, cls=utils.SmarterEncoder)
+
+    def _normalize_arg(self, arg):
+        return str(arg).replace(':', '_').replace('-', '_')
+
+    def _normalize_dict(self, d):
+        return dict([(self._normalize_arg(k), v)
+                     for (k, v) in d.iteritems()])
+
+    def assert_admin(self, context):
+        if not context['is_admin']:
+            user_token_ref = self.token_api.get_token(
+                    context=context, token_id=context['token_id'])
+            creds = user_token_ref['metadata'].copy()
+            creds['user_id'] = user_token_ref['user'].get('id')
+            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            print creds
+            # Accept either is_admin or the admin role
+            assert self.policy_api.can_haz(context,
+                                           ('is_admin:1', 'roles:admin'),
+                                            creds)
 
 
 class Middleware(Application):
@@ -310,6 +364,31 @@ class Router(object):
         return app
 
 
+class ComposingRouter(Router):
+    def __init__(self, mapper=None, routers=None):
+        if mapper is None:
+            mapper = routes.Mapper()
+        if routers is None:
+            routers = []
+        for router in routers:
+            router.add_routes(mapper)
+        super(ComposingRouter, self).__init__(mapper)
+
+
+class ComposableRouter(object):
+    """Router that supports use by ComposingRouter."""
+
+    def __init__(self, mapper=None):
+        if mapper is None:
+            mapper = routes.Mapper()
+        self.add_routes(mapper)
+        super(ComposableRouter, self).__init__(mapper)
+
+    def add_routes(self, mapper):
+        """Add routes to given mapper."""
+        pass
+
+
 class ExtensionRouter(Router):
     """A router that allows extensions to supplement or overwrite routes.
 
@@ -317,9 +396,12 @@ class ExtensionRouter(Router):
     """
     def __init__(self, application, mapper):
         self.application = application
-
+        self.add_routes(mapper)
         mapper.connect('{path_info:.*}', controller=self.application)
         super(ExtensionRouter, self).__init__(mapper)
+
+    def add_routes(self, mapper):
+        pass
 
     @classmethod
     def factory(cls, global_config, **local_config):
