@@ -3,6 +3,7 @@
 from keystone.common import sql
 from keystone.common.sql import migration
 
+
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
     id = sql.Column(sql.String(64), primary_key=True)
@@ -33,7 +34,7 @@ class Tenant(sql.ModelBase, sql.DictBase):
     __tablename__ = 'tenant'
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True)
-    extra = sql.Column(JsonBlob())
+    extra = sql.Column(sql.JsonBlob())
 
     @classmethod
     def from_dict(cls, tenant_dict):
@@ -68,7 +69,7 @@ class Metadata(sql.ModelBase, sql.DictBase):
 
     user_id = sql.Column(sql.String(64), primary_key=True)
     tenant_id = sql.Column(sql.String(64), primary_key=True)
-    data = sql.Column(JsonBlob())
+    data = sql.Column(sql.JsonBlob())
 
 
 class UserTenantMembership(sql.ModelBase, sql.DictBase):
@@ -337,4 +338,3 @@ class Identity(sql.Base):
         role_ref = session.query(Role).filter_by(id=role_id).first()
         with session.begin():
             session.delete(role_ref)
-

@@ -2,6 +2,12 @@
 
 """Main entry point into the Identity service."""
 
+import uuid
+import urllib
+import urlparse
+
+import webob.exc
+
 from keystone import catalog
 from keystone import config
 from keystone import policy
@@ -317,5 +323,3 @@ class RoleController(wsgi.Application):
         if not roles:
             self.identity_api.remove_user_from_tenant(
                     context, tenant_id, user_id)
-
-

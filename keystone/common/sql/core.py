@@ -25,6 +25,7 @@ ModelBase = declarative.declarative_base()
 # For exporting to other modules
 Column = sql.Column
 String = sql.String
+ForeignKey = sql.ForeignKey
 
 
 # Special Fields

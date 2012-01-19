@@ -37,6 +37,3 @@ class Catalog(kvs.Base):
     def _create_catalog(self, user_id, tenant_id, data):
         self.db.set('catalog-%s-%s' % (tenant_id, user_id), data)
         return data
-
-
-

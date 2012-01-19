@@ -175,4 +175,3 @@ class Identity(kvs.Base):
         role_list.remove(role_id)
         self.db.set('role_list', list(role_list))
         return None
-

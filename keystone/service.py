@@ -37,7 +37,6 @@ class AdminRouter(wsgi.ComposingRouter):
                        action='endpoints',
                        conditions=dict(method=['GET']))
 
-
         # Miscellaneous Operations
         version_controller = VersionController()
         mapper.connect('/',
@@ -52,7 +51,7 @@ class AdminRouter(wsgi.ComposingRouter):
                        conditions=dict(method=['GET']))
         identity_router = identity.AdminRouter()
         routers = [identity_router]
-        super(AdminRouter, self).__init__(mapper, identity_router)
+        super(AdminRouter, self).__init__(mapper, routers)
 
 
 class PublicRouter(wsgi.ComposingRouter):

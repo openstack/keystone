@@ -50,4 +50,3 @@ class Ec2(sql.Base):
         with session.begin():
             session.delete(credential_ref)
             session.flush()
-

@@ -29,4 +29,3 @@ class Ec2(kvs.Base):
         credential_list.remove(credential_id)
         self.db.set('credential_list', list(credential_list))
         return None
-

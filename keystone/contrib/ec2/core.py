@@ -2,6 +2,8 @@
 
 """Main entry point into the EC2 Credentials service."""
 
+import uuid
+
 from keystone import catalog
 from keystone import config
 from keystone import identity
@@ -153,5 +155,3 @@ class Ec2Controller(wsgi.Application):
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return self.ec2_api.delete_credential(context, credential_id)
-
-

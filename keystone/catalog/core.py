@@ -2,6 +2,10 @@
 
 """Main entry point into the Catalog service."""
 
+import uuid
+
+import webob.exc
+
 from keystone import config
 from keystone.common import manager
 from keystone.common import wsgi
@@ -54,4 +58,3 @@ class ServiceController(wsgi.Application):
         new_service_ref = self.catalog_api.create_service(
                 context, service_id, service_ref)
         return {'OS-KSADM:service': new_service_ref}
-
