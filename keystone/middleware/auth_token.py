@@ -318,6 +318,8 @@ class AuthProtocol(object):
                         claims['tenant']['id'], env, proxy_headers)
 
                     # Deprecated in favor of X_USER_ID and _NAME
+                    # TODO(zns): documentation says this should be the username
+                    # the user logged in with. We've been returning the id...
                     self._decorate_request('X_USER',
                         claims['user']['id'], env, proxy_headers)
 
