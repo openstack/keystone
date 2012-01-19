@@ -20,10 +20,6 @@ class Ec2Credential(sql.ModelBase, sql.DictBase):
 
 
 class Ec2(sql.Base):
-    # Internal interface to manage the database
-    def db_sync(self):
-        migration.db_sync()
-
     def get_credential(self, credential_id):
         session = self.get_session()
         credential_ref = session.query(Ec2Credential)\

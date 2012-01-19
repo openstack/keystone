@@ -19,6 +19,7 @@
 
 """Utility methods for working with WSGI servers."""
 
+import json
 import logging
 import sys
 
@@ -30,6 +31,8 @@ import routes.middleware
 import webob
 import webob.dec
 import webob.exc
+
+from keystone.common import utils
 
 
 class WritableLogger(object):
@@ -146,7 +149,7 @@ class BaseApplication(object):
         raise NotImplementedError('You must implement __call__')
 
 
-class Application(wsgi.BaseApplication):
+class Application(BaseApplication):
     @webob.dec.wsgify
     def __call__(self, req):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
@@ -375,7 +378,7 @@ class ComposingRouter(Router):
         super(ComposingRouter, self).__init__(mapper)
 
 
-class ComposableRouter(object):
+class ComposableRouter(Router):
     """Router that supports use by ComposingRouter."""
 
     def __init__(self, mapper=None):
@@ -394,7 +397,9 @@ class ExtensionRouter(Router):
 
     Expects to be subclassed.
     """
-    def __init__(self, application, mapper):
+    def __init__(self, application, mapper=None):
+        if mapper is None:
+            mapper = routes.Mapper()
         self.application = application
         self.add_routes(mapper)
         mapper.connect('{path_info:.*}', controller=self.application)

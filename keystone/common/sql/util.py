@@ -3,7 +3,7 @@
 import os
 
 from keystone import config
-from keystone.backends.sql import migration
+from keystone.common.sql import migration
 
 
 CONF = config.CONF

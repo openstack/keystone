@@ -2,8 +2,12 @@
 
 """Main entry point into the Identity service."""
 
+from keystone import catalog
 from keystone import config
-from keystone import manager
+from keystone import policy
+from keystone import token
+from keystone.common import manager
+from keystone.common import wsgi
 
 
 CONF = config.CONF
@@ -65,9 +69,9 @@ class AdminRouter(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
 
-class TenantController(Application):
+class TenantController(wsgi.Application):
     def __init__(self):
-        self.identity_api = identity.Manager()
+        self.identity_api = Manager()
         self.policy_api = policy.Manager()
         self.token_api = token.Manager()
         super(TenantController, self).__init__()
@@ -148,10 +152,10 @@ class TenantController(Application):
         return o
 
 
-class UserController(Application):
+class UserController(wsgi.Application):
     def __init__(self):
         self.catalog_api = catalog.Manager()
-        self.identity_api = identity.Manager()
+        self.identity_api = Manager()
         self.policy_api = policy.Manager()
         self.token_api = token.Manager()
         super(UserController, self).__init__()
@@ -211,10 +215,10 @@ class UserController(Application):
         return self.update_user(context, user_id, user)
 
 
-class RoleController(Application):
+class RoleController(wsgi.Application):
     def __init__(self):
         self.catalog_api = catalog.Manager()
-        self.identity_api = identity.Manager()
+        self.identity_api = Manager()
         self.token_api = token.Manager()
         self.policy_api = policy.Manager()
         super(RoleController, self).__init__()

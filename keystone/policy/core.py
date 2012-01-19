@@ -3,7 +3,7 @@
 """Main entry point into the Policy service."""
 
 from keystone import config
-from keystone import manager
+from keystone.common import manager
 
 
 CONF = config.CONF

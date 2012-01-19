@@ -11,10 +11,10 @@ from paste import deploy
 from keystone import catalog
 from keystone import config
 from keystone import identity
-from keystone import logging
 from keystone import token
-from keystone import utils
-from keystone import wsgi
+from keystone.common import logging
+from keystone.common import utils
+from keystone.common import wsgi
 
 
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))

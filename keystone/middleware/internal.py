@@ -3,7 +3,7 @@
 import json
 
 from keystone import config
-from keystone import wsgi
+from keystone.common import wsgi
 
 
 CONF = config.CONF

@@ -5,7 +5,7 @@ import logging
 import sys
 import os
 
-from keystone import cfg
+from keystone.common import cfg
 
 
 gettext.install('keystone', unicode=1)

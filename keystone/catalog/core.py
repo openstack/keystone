@@ -3,9 +3,6 @@
 """Main entry point into the Catalog service."""
 
 from keystone import config
-from keystone import identity
-from keystone import token
-from keystone import policy
 from keystone.common import manager
 from keystone.common import wsgi
 
@@ -31,9 +28,6 @@ class Manager(manager.Manager):
 class ServiceController(wsgi.Application):
     def __init__(self):
         self.catalog_api = Manager()
-        self.identity_api = identity.Manager()
-        self.token_api = token.Manager()
-        self.policy_api = policy.Manager()
         super(ServiceController, self).__init__()
 
     # CRUD extensions

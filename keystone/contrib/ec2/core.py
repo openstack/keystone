@@ -30,7 +30,7 @@ class Manager(manager.Manager):
 
 
 class Ec2Extension(wsgi.ExtensionRouter):
-    def add_routes(self, mapper)
+    def add_routes(self, mapper):
         ec2_controller = Ec2Controller()
         # validation
         mapper.connect('/ec2tokens',
