@@ -1,7 +1,9 @@
 import uuid
 
 from keystone import test
-from keystone.backends import kvs
+from keystone.identity.backends import kvs as identity_kvs
+from keystone.token.backends import kvs as token_kvs
+from keystone.catalog.backends import kvs as catalog_kvs
 
 import test_backend
 import default_fixtures
@@ -10,14 +12,14 @@ import default_fixtures
 class KvsIdentity(test.TestCase, test_backend.IdentityTests):
   def setUp(self):
     super(KvsIdentity, self).setUp()
-    self.identity_api = kvs.KvsIdentity(db={})
+    self.identity_api = identity_kvs.Identity(db={})
     self.load_fixtures(default_fixtures)
 
 
 class KvsToken(test.TestCase):
   def setUp(self):
     super(KvsToken, self).setUp()
-    self.token_api = kvs.KvsToken(db={})
+    self.token_api = token_kvs.Token(db={})
 
   def test_token_crud(self):
     token_id = uuid.uuid4().hex
@@ -37,7 +39,7 @@ class KvsToken(test.TestCase):
 class KvsCatalog(test.TestCase):
   def setUp(self):
     super(KvsCatalog, self).setUp()
-    self.catalog_api = kvs.KvsCatalog(db={})
+    self.catalog_api = catalog_kvs.Catalog(db={})
     self._load_fixtures()
 
   def _load_fixtures(self):

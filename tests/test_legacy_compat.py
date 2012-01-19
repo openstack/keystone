@@ -6,9 +6,9 @@ import sys
 from nose import exc
 
 from keystone import config
-from keystone import logging
 from keystone import test
-from keystone import utils
+from keystone.common import logging
+from keystone.common import utils
 
 
 CONF = config.CONF

@@ -3,8 +3,8 @@ import uuid
 
 from keystone import config
 from keystone import test
-from keystone.backends import sql
-from keystone.backends.sql import util as sql_util
+from keystone.common.sql import util as sql_util
+from keystone.identity.backends import sql as identity_sql
 
 import test_backend
 import default_fixtures
@@ -25,7 +25,7 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                        test.testsdir('test_overrides.conf'),
                        test.testsdir('backend_sql.conf')])
     sql_util.setup_test_database()
-    self.identity_api = sql.SqlIdentity()
+    self.identity_api = identity_sql.Identity()
     self.load_fixtures(default_fixtures)
 
 

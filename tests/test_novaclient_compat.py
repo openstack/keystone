@@ -4,9 +4,9 @@ import os
 import sys
 
 from keystone import config
-from keystone import logging
 from keystone import test
-from keystone import utils
+from keystone.common import logging
+from keystone.common import utils
 
 import default_fixtures
 
