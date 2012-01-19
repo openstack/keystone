@@ -23,8 +23,6 @@ class OutputBuffer():
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             self.stop()
-        else:
-            return False
 
     def __unicode__(self):
         return self._contents
