@@ -65,13 +65,19 @@ class KcMasterTestCase(CompatTestCase):
         CONF(config_files=[test.etcdir('keystone.conf'),
                            test.testsdir('test_overrides.conf')])
 
-    def get_client(self, user_ref=None):
+    def get_client(self, user_ref=None, tenant_ref=None):
         if user_ref is None:
             user_ref = self.user_foo
+        if tenant_ref is None:
+            for user in default_fixtures.USERS:
+                if user['id'] == user_ref['id']:
+                    tenant_id = user['tenants'][0]
+        else:
+            tenant_id = tenant_ref['id']
 
         return self._client(username=user_ref['name'],
                             password=user_ref['password'],
-                            tenant_id=user_ref['tenants'][0])
+                            tenant_id=tenant_id)
 
     def test_authenticate_tenant_name_and_tenants(self):
         client = self.get_client()
