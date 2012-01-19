@@ -82,7 +82,7 @@ class UserTenantMembership(sql.ModelBase, sql.DictBase):
                            primary_key=True)
 
 
-class SqlIdentity(sql.Base):
+class Identity(sql.Base):
     # Internal interface to manage the database
     def db_sync(self):
         migration.db_sync()

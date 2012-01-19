@@ -4,7 +4,7 @@
 from keystone.common import kvs
 
 
-class KvsCatalog(kvs.Base):
+class Catalog(kvs.Base):
     # Public interface
     def get_catalog(self, user_id, tenant_id, metadata=None):
         return self.db.get('catalog-%s-%s' % (tenant_id, user_id))

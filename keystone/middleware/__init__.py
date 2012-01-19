@@ -1,1 +1,1 @@
-from keystone.middleware.internal import *
+from keystone.middleware.core import *

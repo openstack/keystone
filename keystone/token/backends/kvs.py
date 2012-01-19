@@ -2,7 +2,7 @@
 
 from keystone.common import kvs
 
-class KvsToken(kvs.Base):
+class Token(kvs.Base):
     # Public interface
     def get_token(self, token_id):
         return self.db.get('token-%s' % token_id)

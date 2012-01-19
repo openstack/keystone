@@ -19,7 +19,7 @@ if os.path.exists(os.path.join(possible_topdir,
 
 
 from keystone import config
-from keystone import utils
+from keystone.common import utils
 
 
 CONF = config.CONF

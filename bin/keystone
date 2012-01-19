@@ -19,7 +19,7 @@ if os.path.exists(os.path.join(possible_topdir,
 from paste import deploy
 
 from keystone import config
-from keystone import wsgi
+from keystone.common import wsgi
 
 
 CONF = config.CONF
