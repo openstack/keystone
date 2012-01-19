@@ -97,6 +97,7 @@ HTTP_X_ROLES
 """
 
 from datetime import datetime
+from dateutil import parser
 import eventlet
 from eventlet import wsgi
 import json
@@ -119,20 +120,6 @@ PROTOCOL_NAME = "Token Authentication"
 # The time format of the 'expires' property of a token
 EXPIRE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 MAX_CACHE_TIME = 86400
-
-
-def get_datetime(time_string):
-    """ Gets datetime object with microsecond accuracy from input string.
-    Handle strings which don't include microseconds
-
-    :param: time_string: datetime in %Y-%m-%dT%H:%M:%S.%f format (.%f optional)
-    """
-    result = time_string.split(".", 1)
-    datetime_string = result[0]
-    microseconds = result[1] if len(result) > 1 else "0"
-    d1 = datetime.strptime(datetime_string, "%Y-%m-%dT%H:%M:%S")
-    ms = int(microseconds.ljust(6, '0')[:6])
-    return d1.replace(microsecond=ms)
 
 
 class ValidationFailed(Exception):
@@ -333,9 +320,7 @@ class AuthProtocol(object):
     @staticmethod
     def _convert_date(date):
         """ Convert datetime to unix timestamp for caching """
-        return time.mktime(datetime.strptime(
-                date[:date.rfind(':')].replace('-', ''), "%Y%m%dT%H:%M",
-                ).timetuple())
+        return time.mktime(parser.parse(date).utctimetuple())
 
     @staticmethod
     def _protect_claims(token, claims):
@@ -360,8 +345,8 @@ class AuthProtocol(object):
                              timeout=expires - time.time())
             else:
                 # normal memcache client
-                expires = get_datetime(claims['expires'])
-                delta = expires - datetime.now()
+                expires = self._convert_date(claims['expires'])
+                delta = expires - time.time()
                 timeout = delta.seconds
                 if timeout > MAX_CACHE_TIME or not valid:
                     # Limit cache to one day (and cache bad tokens for a day)
@@ -383,7 +368,7 @@ class AuthProtocol(object):
                         if expires > time.time():
                             claims = self._unprotect_claims(token, claims)
                     else:
-                        if expires > datetime.now():
+                        if expires > time.time():
                             claims = self._unprotect_claims(token, claims)
                 return (claims, expires, valid)
         return None
@@ -426,7 +411,7 @@ class AuthProtocol(object):
             if not valid:
                 logger.debug("Claims not valid (according to cache)")
                 raise ValidationFailed()
-            if expires <= datetime.now():
+            if expires <= time.time():
                 logger.debug("Claims (token) expired (according to cache)")
                 raise TokenExpired()
             return claims
@@ -467,7 +452,7 @@ class AuthProtocol(object):
                 logger.debug("Caching that results were invalid")
                 self._cache_put(env, claims,
                                 claims={'expires':
-                                datetime.strftime(datetime.now(),
+                                datetime.strftime(time.time(),
                                                   EXPIRE_TIME_FORMAT)},
                                 valid=False)
             # Keystone rejected claim
@@ -507,8 +492,8 @@ class AuthProtocol(object):
                 token_info['access']['user']['id'],
                 token_info['access']['user']['name']))
 
-        expires = get_datetime(verified_claims['expires'])
-        if expires <= datetime.now():
+        expires = self._convert_date(verified_claims['expires'])
+        if expires <= time.time():
             logger.debug("Claims (token) expired: %s" % str(expires))
             # Cache it if there is a cache available (we also cached bad
             # claims)
