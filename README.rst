@@ -11,6 +11,24 @@ Much of the design is precipitated from the expectation that the auth backends
 for most deployments will actually be shims in front of existing user systems.
 
 
+-----------
+Development
+-----------
+
+Building the Documentation
+--------------------------
+
+The documentation is all generated with Sphinx from within the docs directory.
+To generate the full set of HTML documentation:
+
+    cd docs
+    make autodoc
+    make html
+    make man
+
+the results are in the docs/build/html and docs/build/man directories
+respectively.
+
 ------------
 The Services
 ------------
