@@ -47,26 +47,35 @@ class TokenController(wsgi.Controller):
 
     @utils.wrap_error
     def authenticate(self, req):
-        try:
-            auth_with_credentials = utils.get_normalized_request_content(
-                auth.AuthWithPasswordCredentials, req)
-            result = self.identity_service.authenticate(auth_with_credentials)
-        except fault.BadRequestFault as e1:
-            try:
-                unscoped = utils.get_normalized_request_content(
-                    auth.AuthWithUnscopedToken, req)
-                result = self.identity_service.\
-                    authenticate_with_unscoped_token(unscoped)
-            except fault.BadRequestFault as e2:
-                if e1.msg == e2.msg:
-                    raise e1
-                else:
-                    raise fault.BadRequestFault(e1.msg + ' or ' + e2.msg)
+        credential_type = utils.detect_credential_type(req)
 
-        return utils.send_result(200, req, result)
+        if credential_type == "passwordCredentials":
+            auth_with_credentials = utils.get_normalized_request_content(
+                    auth.AuthWithPasswordCredentials, req)
+            result = self.identity_service.authenticate(
+                    auth_with_credentials)
+            return utils.send_result(200, req, result)
+
+        elif credential_type == "token":
+            unscoped = utils.get_normalized_request_content(
+                auth.AuthWithUnscopedToken, req)
+            result = self.identity_service.\
+                authenticate_with_unscoped_token(unscoped)
+            return utils.send_result(200, req, result)
+
+        elif credential_type in ["ec2Credentials", "OS-KSEC2-ec2Credentials"]:
+            return self._authenticate_ec2(req)
+
+        else:
+            raise fault.BadRequestFault("Invalid credentials %s" %
+                                        credential_type)
 
     @utils.wrap_error
     def authenticate_ec2(self, req):
+        return self._authenticate_ec2(req)
+
+    def _authenticate_ec2(self, req):
+        """Undecorated EC2 handler"""
         creds = utils.get_normalized_request_content(auth.Ec2Credentials, req)
         return utils.send_result(200, req,
             self.identity_service.authenticate_ec2(creds))
