@@ -127,6 +127,7 @@ class Ec2Controller(wsgi.Application):
                 self, token_ref, roles_ref, catalog_ref)
 
     def create_credential(self, context, user_id, tenant_id):
+        """Create a secret/access pair for a given user/tenant."""
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         cred_ref = {'user_id': user_id,
@@ -137,18 +138,20 @@ class Ec2Controller(wsgi.Application):
         return {'credential': cred_ref}
 
     def get_credentials(self, context, user_id):
-        """List credentials for the given user_id."""
+        """List all credentials for a user."""
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return {'credentials': self.ec2_api.list_credentials(context, user_id)}
 
     def get_credential(self, context, user_id, credential_id):
+        """Lookup and retreive access/secret pair by access."""
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return {'credential': self.ec2_api.get_credential(context,
                                                           credential_id)}
 
     def delete_credential(self, context, user_id, credential_id):
+        """Delete a user's access/secret pair."""
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return self.ec2_api.delete_credential(context, credential_id)
