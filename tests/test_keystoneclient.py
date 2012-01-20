@@ -65,13 +65,22 @@ class KcMasterTestCase(CompatTestCase):
         CONF(config_files=[test.etcdir('keystone.conf'),
                            test.testsdir('test_overrides.conf')])
 
-    def foo_client(self):
-        return self._client(username='FOO',
-                            password='foo2',
-                            tenant_name='BAR')
+    def get_client(self, user_ref=None, tenant_ref=None):
+        if user_ref is None:
+            user_ref = self.user_foo
+        if tenant_ref is None:
+            for user in default_fixtures.USERS:
+                if user['id'] == user_ref['id']:
+                    tenant_id = user['tenants'][0]
+        else:
+            tenant_id = tenant_ref['id']
+
+        return self._client(username=user_ref['name'],
+                            password=user_ref['password'],
+                            tenant_id=tenant_id)
 
     def test_authenticate_tenant_name_and_tenants(self):
-        client = self.foo_client()
+        client = self.get_client()
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
@@ -84,21 +93,21 @@ class KcMasterTestCase(CompatTestCase):
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_token_no_tenant(self):
-        client = self.foo_client()
+        client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token)
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_token_tenant_id(self):
-        client = self.foo_client()
+        client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token, tenant_id='bar')
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_token_tenant_name(self):
-        client = self.foo_client()
+        client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token, tenant_name='BAR')
         tenants = client.tenants.list()
@@ -106,7 +115,7 @@ class KcMasterTestCase(CompatTestCase):
 
     # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
-        client = self.foo_client()
+        client = self.get_client()
         token = client.auth_token
         endpoints = client.tokens.endpoints(token)
 
@@ -119,7 +128,7 @@ class KcMasterTestCase(CompatTestCase):
         from keystoneclient import exceptions as client_exceptions
 
         test_tenant = 'new_tenant'
-        client = self.foo_client()
+        client = self.get_client()
         tenant = client.tenants.create(test_tenant,
                                        description="My new tenant!",
                                        enabled=True)
@@ -142,12 +151,12 @@ class KcMasterTestCase(CompatTestCase):
                           tenant.id)
 
     def test_tenant_list(self):
-        client = self.foo_client()
+        client = self.get_client()
         tenants = client.tenants.list()
         self.assertEquals(len(tenants), 1)
 
     def test_tenant_add_and_remove_user(self):
-        client = self.foo_client()
+        client = self.get_client()
         client.roles.add_user_to_tenant(self.tenant_baz['id'],
                                         self.user_foo['id'],
                                         self.role_useless['id'])
@@ -177,7 +186,7 @@ class KcMasterTestCase(CompatTestCase):
         from keystoneclient import exceptions as client_exceptions
 
         test_user = 'new_user'
-        client = self.foo_client()
+        client = self.get_client()
         user = client.users.create(test_user, 'password', 'user1@test.com')
         self.assertEquals(user.name, test_user)
 
@@ -203,12 +212,12 @@ class KcMasterTestCase(CompatTestCase):
                           user.id)
 
     def test_user_list(self):
-        client = self.foo_client()
+        client = self.get_client()
         users = client.users.list()
         self.assertTrue(len(users) > 0)
 
     def test_role_get(self):
-        client = self.foo_client()
+        client = self.get_client()
         role = client.roles.get('keystone_admin')
         self.assertEquals(role.id, 'keystone_admin')
 
@@ -216,7 +225,7 @@ class KcMasterTestCase(CompatTestCase):
         from keystoneclient import exceptions as client_exceptions
 
         test_role = 'new_role'
-        client = self.foo_client()
+        client = self.get_client()
         role = client.roles.create(test_role)
         self.assertEquals(role.name, test_role)
 
@@ -229,20 +238,20 @@ class KcMasterTestCase(CompatTestCase):
                           test_role)
 
     def test_role_list(self):
-        client = self.foo_client()
+        client = self.get_client()
         roles = client.roles.list()
         # TODO(devcamcar): This assert should be more specific.
         self.assertTrue(len(roles) > 0)
 
     def test_roles_get_by_user(self):
-        client = self.foo_client()
+        client = self.get_client()
         roles = client.roles.get_user_role_refs('foo')
         self.assertTrue(len(roles) > 0)
 
-    def test_ec2_credential_creation(self):
+    def test_ec2_credential_crud(self):
         from keystoneclient import exceptions as client_exceptions
 
-        client = self.foo_client()
+        client = self.get_client()
         creds = client.ec2.list(self.user_foo['id'])
         self.assertEquals(creds, [])
 
@@ -259,11 +268,42 @@ class KcMasterTestCase(CompatTestCase):
         creds = client.ec2.list(self.user_foo['id'])
         self.assertEquals(creds, [])
 
+    def test_ec2_credentials_list_unauthorized_user(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Unauthorized, two.ec2.list,
+                          self.user_foo['id'])
+
+    def test_ec2_credentials_get_unauthorized_user(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        foo = self.get_client()
+        cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
+
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Unauthorized, two.ec2.get,
+                          self.user_foo['id'], cred.access)
+
+        foo.ec2.delete(self.user_foo['id'], cred.access)
+
+    def test_ec2_credentials_delete_unauthorized_user(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        foo = self.get_client()
+        cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
+
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Unauthorized, two.ec2.delete,
+                          self.user_foo['id'], cred.access)
+        
+        foo.ec2.delete(self.user_foo['id'], cred.access)
+
     def test_service_create_and_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
         test_service = 'new_service'
-        client = self.foo_client()
+        client = self.get_client()
         service = client.services.create(test_service, 'test', 'test')
         self.assertEquals(service.name, test_service)
 
@@ -275,7 +315,7 @@ class KcMasterTestCase(CompatTestCase):
                           service.id)
 
     def test_service_list(self):
-        client = self.foo_client()
+        client = self.get_client()
         test_service = 'new_service'
         service = client.services.create(test_service, 'test', 'test')
         services = client.services.list()
