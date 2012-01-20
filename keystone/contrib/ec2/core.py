@@ -1,6 +1,24 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-"""Main entry point into the EC2 Credentials service."""
+"""Main entry point into the EC2 Credentials service.
+
+This service allows the creation of access/secret credentials used for
+the ec2 interop layer of OpenStack.  
+
+A user can create as many access/secret pairs, each of which map to a
+specific tenant.  This is required because OpenStack supports a user
+belonging to multiple tenants, whereas the signatures created on ec2-style
+requests don't allow specification of which tenant the user wishs to act
+upon.
+
+To complete the cycle, we provide a method that OpenStack services can
+use to validate a signature and get a corresponding openstack token.  This
+token allows method calls to other services within the context the
+access/secret was created.  As an example, nova requests keystone to validate
+the signature of a request, receives a token, and then makes a request to glance
+to list images needed to perform the requested task.
+
+"""
 
 import uuid
 
@@ -67,7 +85,28 @@ class Ec2Controller(wsgi.Application):
 
     def authenticate_ec2(self, context, credentials=None,
                          ec2Credentials=None):
-        """Validate a signed EC2 request and provide a token."""
+        """Validate a signed EC2 request and provide a token.
+
+        Other services (such as Nova) use this **admin** call to determine
+        if a request they signed received is from a valid user.
+
+        If it is a valid signature, an openstack token that maps
+        to the user/tenant is returned to the caller, along with
+        all the other details returned from a normal token validation
+        call.
+
+        The returned token is useful for making calls to other 
+        OpenStack services within the context of the request.
+
+        :param context: standard context
+        :param credentials: dict of ec2 signature
+        :param ec2Credentials: DEPRECATED dict of ec2 signature
+        :returns: token: openstack token equivalent to access key along
+                         with the corresponding service catalog and roles
+        """
+
+        # FIXME(ja): validate that a service token was used!
+
         # NOTE(termie): backwards compat hack
         if not credentials and ec2Credentials:
             credentials = ec2Credentials
@@ -127,7 +166,16 @@ class Ec2Controller(wsgi.Application):
                 self, token_ref, roles_ref, catalog_ref)
 
     def create_credential(self, context, user_id, tenant_id):
-        """Create a secret/access pair for a given user/tenant."""
+        """Create a secret/access pair for use with ec2 style auth.
+
+        Generates a new set of credentials that map the the user/tenant
+        pair.
+
+        :param context: standard context
+        :param user_id: id of user
+        :param tenant_id: id of tenant
+        :returns: credential: dict of ec2 credential
+        """
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         cred_ref = {'user_id': user_id,
@@ -138,20 +186,42 @@ class Ec2Controller(wsgi.Application):
         return {'credential': cred_ref}
 
     def get_credentials(self, context, user_id):
-        """List all credentials for a user."""
+        """List all credentials for a user.
+
+        :param context: standard context
+        :param user_id: id of user
+        :returns: credentials: list of ec2 credential dicts
+        """
+
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return {'credentials': self.ec2_api.list_credentials(context, user_id)}
 
     def get_credential(self, context, user_id, credential_id):
-        """Lookup and retreive access/secret pair by access."""
+        """Retreive a user's access/secret pair by the access key.
+
+        Grab the full access/secret pair for a given access key.
+
+        :param context: standard context
+        :param user_id: id of user
+        :param credential_id: access key for credentials
+        :returns: credential: dict of ec2 credential
+        """
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return {'credential': self.ec2_api.get_credential(context,
                                                           credential_id)}
 
     def delete_credential(self, context, user_id, credential_id):
-        """Delete a user's access/secret pair."""
+        """Delete a user's access/secret pair.
+
+        Used to revoke a user's access/secret pair
+
+        :param context: standard context
+        :param user_id: id of user
+        :param credential_id: access key for credentials
+        :returns: bool: success
+        """
         # TODO(termie): validate that this request is valid for given user
         #               tenant
         return self.ec2_api.delete_credential(context, credential_id)
