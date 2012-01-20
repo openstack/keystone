@@ -181,16 +181,29 @@ class KcMasterTestCase(CompatTestCase):
         self.assert_(self.tenant_baz['id'] not in
                      [x.id for x in tenant_refs])
 
+    def test_invalid_password(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        good_client = self._client(username=self.user_foo['name'],
+                                   password=self.user_foo['password'])
+        good_client.tenants.list()
+
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client,
+                          username=self.user_foo['name'],
+                          password='invalid')
+
+
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
-        test_user = 'new_user'
+        test_username = 'new_user'
         client = self.get_client()
-        user = client.users.create(test_user, 'password', 'user1@test.com')
-        self.assertEquals(user.name, test_user)
+        user = client.users.create(test_username, 'password', 'user1@test.com')
+        self.assertEquals(user.name, test_username)
 
         user = client.users.get(user.id)
-        self.assertEquals(user.name, test_user)
+        self.assertEquals(user.name, test_username)
 
         user = client.users.update_email(user, 'user2@test.com')
         self.assertEquals(user.email, 'user2@test.com')
@@ -200,11 +213,22 @@ class KcMasterTestCase(CompatTestCase):
         user = client.users.get(user.id)
         self.assertFalse(user.enabled)
 
-        # TODO(devcamcar): How to assert this succeeded?
+        # TODO(ja): test that you can't login
+        self.assertRaises(client_exceptions.Unauthorized,
+                  self._client,
+                  username=test_username,
+                  password='password')
+        client.users.update_enabled(user, True)
+
         user = client.users.update_password(user, 'password2')
 
-        # TODO(devcamcar): How to assert this succeeded?
+        test_client = self._client(username=test_username,
+                                   password='password2')
+
         user = client.users.update_tenant(user, 'bar')
+        # TODO(ja): once keystonelight supports default tenant
+        #           when you login without specifying tenant, the
+        #           token should be scoped to tenant 'bar'
 
         client.users.delete(user.id)
         self.assertRaises(client_exceptions.NotFound, client.users.get,
@@ -248,8 +272,6 @@ class KcMasterTestCase(CompatTestCase):
         self.assertTrue(len(roles) > 0)
 
     def test_ec2_credential_crud(self):
-        from keystoneclient import exceptions as client_exceptions
-
         client = self.get_client()
         creds = client.ec2.list(self.user_foo['id'])
         self.assertEquals(creds, [])
