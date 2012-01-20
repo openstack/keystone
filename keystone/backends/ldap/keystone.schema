@@ -51,8 +51,7 @@ objectClass (
     NAME 'keystoneUser'
     SUP top
     AUXILIARY
-    MUST ( keystoneName )
-    MUST ( keystoneEnabled )
+    MUST ( keystoneName $ keystoneEnabled )
     MAY ( mail $ userPassword )
     )
 
@@ -70,8 +69,7 @@ objectClass (
     NAME 'keystoneTenant'
     SUP top
     AUXILIARY
-    MUST ( keystoneName )
-    MUST ( keystoneEnabled )
+    MUST ( keystoneName $ keystoneEnabled )
     MAY ( member $ description )
     )
 
