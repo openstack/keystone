@@ -41,6 +41,7 @@ class ServiceApi(wsgi.Router):
         mapper.connect("/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
+        # TODO(zns): this should be deprecated
         mapper.connect("/ec2tokens", controller=auth_controller,
                        action="authenticate_ec2",
                        conditions=dict(method=["POST"]))

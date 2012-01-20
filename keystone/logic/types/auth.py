@@ -202,10 +202,16 @@ class Ec2Credentials(object):
             dom = etree.Element("root")
             dom.append(etree.fromstring(xml_str))
             root = dom.find("{http://docs.openstack.org/identity/api/v2.0}"
-                            "ec2Credentials")
+                            "auth")
+            xmlns = "http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+            if root is None:
+                root = dom.find("{%s}ec2Credentials" % xmlns)
+            else:
+                root = root.find("{%s}ec2Credentials" % xmlns)
+
             if root is None:
                 raise fault.BadRequestFault("Expecting ec2Credentials")
-            access = root.get("access")
+            access = root.get("key")
             utils.check_empty_string(access, "Expecting an access key.")
             signature = root.get("signature")
             utils.check_empty_string(signature, "Expecting a signature.")
@@ -225,10 +231,19 @@ class Ec2Credentials(object):
     @staticmethod
     def from_json(json_str):
         try:
-            obj = json.loads(json_str)
-            if not "ec2Credentials" in obj:
+            root = json.loads(json_str)
+            if "auth" in root:
+                obj = root['auth']
+            else:
+                obj = root
+
+            if "OS-KSEC2-ec2Credentials" in obj:
+                cred = obj["OS-KSEC2-ec2Credentials"]
+            elif "ec2Credentials" in obj:
+                cred = obj["ec2Credentials"]
+            else:
                 raise fault.BadRequestFault("Expecting ec2Credentials")
-            cred = obj["ec2Credentials"]
+
             # Check that fields are valid
             invalid = [key for key in cred if key not in\
                        ['username', 'access', 'signature', 'params',
