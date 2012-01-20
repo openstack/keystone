@@ -119,10 +119,10 @@ class RoleAPI(api.BaseRoleAPI):
         if marker:
             results = session.query(models.Role).filter("id>:marker").params(
                     marker='%s' % marker).order_by(
-                    models.Role.id.desc()).limit(limit).all()
+                    models.Role.id.desc()).limit(int(limit)).all()
         else:
             results = session.query(models.Role).order_by(
-                                models.Role.id.desc()).limit(limit).all()
+                                models.Role.id.desc()).limit(int(limit)).all()
         return RoleAPI.to_model_list(results)
 
     # pylint: disable=R0912
@@ -139,7 +139,7 @@ class RoleAPI(api.BaseRoleAPI):
             marker = first.id
         next_page = session.query(models.Role).filter("id > :marker").params(
                 marker='%s' % marker).order_by(
-                models.Role.id).limit(limit).all()
+                models.Role.id).limit(int(limit)).all()
         prev_page = session.query(models.Role).filter("id < :marker").params(
                 marker='%s' % marker).order_by(
                 models.Role.id.desc()).limit(int(limit)).all()
@@ -169,11 +169,11 @@ class RoleAPI(api.BaseRoleAPI):
             results = session.query(models.Role).filter("id>:marker").params(
                     marker='%s' % marker).filter_by(
                     service_id=service_id).order_by(
-                    models.Role.id.desc()).limit(limit).all()
+                    models.Role.id.desc()).limit(int(limit)).all()
         else:
             results = session.query(models.Role).filter_by(
                     service_id=service_id).order_by(
-                                models.Role.id.desc()).limit(limit).all()
+                                models.Role.id.desc()).limit(int(limit)).all()
         return RoleAPI.to_model_list(results)
 
     # pylint: disable=R0912
@@ -194,7 +194,7 @@ class RoleAPI(api.BaseRoleAPI):
         next_page = session.query(models.Role).filter("id > :marker").params(
                         marker='%s' % marker).filter_by(
                         service_id=service_id).order_by(
-                        models.Role.id).limit(limit).all()
+                        models.Role.id).limit(int(limit)).all()
         prev_page = session.query(models.Role).filter("id < :marker").params(
                         marker='%s' % marker).filter_by(
                         service_id=service_id).order_by(
@@ -271,7 +271,7 @@ class RoleAPI(api.BaseRoleAPI):
             filter("id > :marker").\
             params(marker='%s' % marker).\
             order_by(models.UserRoleAssociation.id).\
-            limit(limit).\
+            limit(int(limit)).\
             all()
         prev_page = query.\
             filter("id < :marker").\
@@ -317,10 +317,12 @@ class RoleAPI(api.BaseRoleAPI):
         if marker:
             results = query.filter("id>:marker").params(
                     marker='%s' % marker).order_by(
-                    models.UserRoleAssociation.id.desc()).limit(limit).all()
+                    models.UserRoleAssociation.id.desc()).limit(
+                            int(limit)).all()
         else:
             results = query.order_by(
-                    models.UserRoleAssociation.id.desc()).limit(limit).all()
+                    models.UserRoleAssociation.id.desc()).limit(
+                            int(limit)).all()
 
         for result in results:
             if hasattr(api.USER, 'uid_to_id'):

@@ -154,9 +154,9 @@ class TenantAPI(api.BaseTenantAPI):
         if marker:
             results = q3.filter("tenant.id>:marker").params(\
                     marker='%s' % marker).order_by(\
-                    tenant.id.desc()).limit(limit).all()
+                    tenant.id.desc()).limit(int(limit)).all()
         else:
-            results = q3.order_by(tenant.id.desc()).limit(limit).all()
+            results = q3.order_by(tenant.id.desc()).limit(int(limit)).all()
 
         return TenantAPI.to_model_list(results)
 
@@ -193,7 +193,7 @@ class TenantAPI(api.BaseTenantAPI):
         if marker is None:
             marker = first.id
         next_page = q3.filter(tenant.id > marker).order_by(\
-                        tenant.id).limit(limit).all()
+                        tenant.id).limit(int(limit)).all()
         prev_page = q3.filter(tenant.id > marker).order_by(\
                         tenant.id.desc()).limit(int(limit)).all()
         if len(next_page) == 0:
@@ -224,10 +224,11 @@ class TenantAPI(api.BaseTenantAPI):
             tenants = session.query(models.Tenant).\
                     filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.Tenant.id.desc()).limit(limit).all()
+                    models.Tenant.id.desc()).limit(int(limit)).all()
         else:
             tenants = session.query(models.Tenant).order_by(\
-                                models.Tenant.id.desc()).limit(limit).all()
+                                models.Tenant.id.desc()).limit(
+                                        int(limit)).all()
 
         return self.to_model_list(tenants)
 
@@ -247,7 +248,7 @@ class TenantAPI(api.BaseTenantAPI):
             filter("id > :marker").\
             params(marker='%s' % marker).\
             order_by(models.Tenant.id).\
-            limit(limit).\
+            limit(int(limit)).\
             all()
         prev_page = session.query(models.Tenant).\
             filter("id < :marker").\

@@ -141,10 +141,10 @@ class UserAPI(api.BaseUserAPI):
         if marker:
             results = session.query(models.User).filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.User.id.desc()).limit(limit).all()
+                    models.User.id.desc()).limit(int(limit)).all()
         else:
             results = session.query(models.User).order_by(\
-                                models.User.id.desc()).limit(limit).all()
+                                models.User.id.desc()).limit(int(limit)).all()
 
         return UserAPI.to_model_list(results)
 
@@ -163,7 +163,7 @@ class UserAPI(api.BaseUserAPI):
             marker = first.id
         next_page = session.query(models.User).filter("id > :marker").params(\
                         marker='%s' % marker).order_by(\
-                        models.User.id).limit(limit).all()
+                        models.User.id).limit(int(limit)).all()
         prev_page = session.query(models.User).filter("id < :marker").params(\
                         marker='%s' % marker).order_by(\
                         models.User.id.desc()).limit(int(limit)).all()
@@ -293,10 +293,10 @@ class UserAPI(api.BaseUserAPI):
             results = session.query(user).\
                                 filter("id>=:marker").params(
                                 marker='%s' % marker).order_by(
-                                "id").limit(limit).all()
+                                "id").limit(int(limit)).all()
         else:
             results = session.query(user).\
-                                order_by("id").limit(limit).all()
+                                order_by("id").limit(int(limit)).all()
 
         return UserAPI.to_model_list(results)
 
@@ -369,12 +369,12 @@ class UserAPI(api.BaseUserAPI):
             rv = query.filter("id>=:marker").\
                          params(marker='%s' % marker).\
                          order_by("id").\
-                         limit(limit).\
+                         limit(int(limit)).\
                          all()
         else:
             rv = query.\
                          order_by("id").\
-                         limit(limit).\
+                         limit(int(limit)).\
                          all()
 
         user_ids = set([str(assoc.user_id) for assoc in rv])

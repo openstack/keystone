@@ -115,10 +115,11 @@ class ServiceAPI(api.BaseServiceAPI):
         if marker:
             return session.query(models.Service).filter("id>:marker").params(\
                     marker='%s' % marker).order_by(\
-                    models.Service.id.desc()).limit(limit).all()
+                    models.Service.id.desc()).limit(int(limit)).all()
         else:
-            return session.query(models.Service).order_by(\
-                                models.Service.id.desc()).limit(limit).all()
+            return session.query(models.Service).order_by(
+                                models.Service.id.desc()).limit(
+                                        int(limit)).all()
 
     @staticmethod
     def get_page_markers(marker, limit, session=None):
@@ -135,7 +136,7 @@ class ServiceAPI(api.BaseServiceAPI):
         next_page = session.query(models.Service).\
                         filter("id > :marker").params(\
                         marker='%s' % marker).order_by(\
-                        models.Service.id).limit(limit).all()
+                        models.Service.id).limit(int(limit)).all()
         prev_page = session.query(models.Service).\
                         filter("id < :marker").params(\
                         marker='%s' % marker).order_by(\
