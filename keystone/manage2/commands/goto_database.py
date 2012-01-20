@@ -1,4 +1,5 @@
 from keystone.backends.sqlalchemy import migration
+from keystone import config
 from keystone.manage2 import base
 from keystone.manage2 import common
 
@@ -14,9 +15,16 @@ class Command(base.BaseSqlalchemyCommand):
 
     """
 
-    def goto_database_version(self, version):
+    @staticmethod
+    def _get_connection_string():
+        sqla = config.CONF['keystone.backends.sqlalchemy']
+        return sqla.sql_connection
+
+    @staticmethod
+    def goto_database_version(version):
         """Override database's current migration level"""
-        if not migration.db_goto_version(self.options, version):
+        if not migration.db_goto_version(Command._get_connection_string(),
+                                         version):
             raise Exception("Unable to jump to specified version")
 
     def run(self, args):

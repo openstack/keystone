@@ -21,9 +21,9 @@ from keystone.controllers.endpointtemplates import EndpointTemplatesController
 
 
 class ExtensionHandler(BaseExtensionHandler):
-    def map_extension_methods(self, mapper, options):
+    def map_extension_methods(self, mapper):
         #EndpointTemplates Calls
-        endpoint_templates_controller = EndpointTemplatesController(options)
+        endpoint_templates_controller = EndpointTemplatesController()
         mapper.connect("/OS-KSCATALOG/endpointTemplates",
             controller=endpoint_templates_controller,
                 action="get_endpoint_templates",

@@ -25,11 +25,11 @@ from keystone.controllers.credentials import CredentialsController
 
 
 class ExtensionHandler(BaseExtensionHandler):
-    def map_extension_methods(self, mapper, options):
-        tenant_controller = TenantController(options)
-        roles_controller = RolesController(options)
-        user_controller = UserController(options)
-        credentials_controller = CredentialsController(options)
+    def map_extension_methods(self, mapper):
+        tenant_controller = TenantController()
+        roles_controller = RolesController()
+        user_controller = UserController()
+        credentials_controller = CredentialsController()
 
         # Tenant Operations
         mapper.connect("/tenants", controller=tenant_controller,
@@ -96,7 +96,7 @@ class ExtensionHandler(BaseExtensionHandler):
             conditions=dict(method=["DELETE"]))
 
         # Services Operations
-        services_controller = ServicesController(options)
+        services_controller = ServicesController()
         mapper.connect("/OS-KSADM/services",
                     controller=services_controller,
                     action="get_services",

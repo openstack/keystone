@@ -318,11 +318,11 @@ class RoleAPI(api.BaseRoleAPI):
             results = query.filter("id>:marker").params(
                     marker='%s' % marker).order_by(
                     models.UserRoleAssociation.id.desc()).limit(
-                            int(limit)).all()
+                    int(limit)).all()
         else:
             results = query.order_by(
                     models.UserRoleAssociation.id.desc()).limit(
-                            int(limit)).all()
+                    int(limit)).all()
 
         for result in results:
             if hasattr(api.USER, 'uid_to_id'):

@@ -4,6 +4,8 @@ import logging
 import unittest2 as unittest
 import uuid
 
+from keystone import backends
+import keystone.backends.sqlalchemy as db
 from keystone.manage2 import base
 from keystone.manage2 import common
 from keystone.manage2.commands import create_credential
@@ -41,6 +43,7 @@ from keystone.manage2.commands import update_token
 from keystone.manage2.commands import update_user
 from keystone.manage2.commands import version
 from keystone.tools import buffout
+from keystone import utils
 
 
 LOGGER = logging.getLogger(__name__)
@@ -52,11 +55,13 @@ OPTIONS = {
     'backends': 'keystone.backends.sqlalchemy',
     'keystone.backends.sqlalchemy': {
         "sql_connection": "sqlite://",
-        "backend_entities": ("['UserRoleAssociation', "
+        "backend_entities": "['UserRoleAssociation', "
             "'Endpoints', 'Role', 'Tenant', 'User', "
             "'Credentials', 'EndpointTemplates', 'Token', "
-            "'Service']"),
+            "'Service']",
         "sql_idle_timeout": "30"}}
+# Configure the CONF module to match
+utils.set_configuration(OPTIONS)
 
 
 class CommandTestCase(unittest.TestCase):
@@ -68,12 +73,12 @@ class CommandTestCase(unittest.TestCase):
 
         managers = self.managers if use_managers else None
 
-        cmd = module.Command(options=OPTIONS, managers=managers)
+        cmd = module.Command(managers=managers)
         parsed_args = cmd.parser.parse_args(args)
         return cmd.run(parsed_args)
 
     def setUp(self):
-        self.managers = common.init_managers(OPTIONS)
+        self.managers = common.init_managers()
 
         # buffer stdout so we can assert what's printed
         self.ob = buffout.OutputBuffer()
@@ -81,6 +86,16 @@ class CommandTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.ob.stop()
+
+        self.clear_all_data()
+
+    def clear_all_data(self):
+        """
+        Purges the database of all data
+        """
+        db.unregister_models()
+        reload(db)
+        backends.configure_backends()
 
     def assertTableContainsRow(self, table, row):
         """Assumes that row[0] is a unique identifier for the row"""

@@ -21,5 +21,5 @@ from keystone.controllers.token import TokenController
 
 
 class ExtensionHandler(BaseExtensionHandler):
-    def map_extension_methods(self, mapper, options):
+    def map_extension_methods(self, mapper):
         pass

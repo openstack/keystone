@@ -22,15 +22,21 @@ import httplib
 import logging
 from lxml import etree, objectify
 import pprint
+import os
+import sys
+import tempfile
 import unittest2 as unittest
 import webob
 
+from keystone import config
 from keystone import server
 import keystone.backends.sqlalchemy as db
 import keystone.backends.api as db_api
 from keystone import backends
 
 logger = logging.getLogger('test.unit.base')
+
+CONF = config.CONF
 
 
 class ServiceAPITest(unittest.TestCase):
@@ -95,26 +101,41 @@ class ServiceAPITest(unittest.TestCase):
         self.content_type = 'json'
         # Version of the API to test
         self.api_version = '2.0'
-        # Dict of configuration options to pass to the API controller
-        self.options = {
-            'backends': "keystone.backends.sqlalchemy",
-            'keystone.backends.sqlalchemy': {
-                # in-memory db
-                'sql_connection': 'sqlite://',
-                'verbose': False,
-                'debug': False,
-                'backend_entities':
-                    "['UserRoleAssociation', 'Endpoints', 'Role', 'Tenant', "
-                    "'Tenant', 'User', 'Credentials', 'EndpointTemplates', "
-                    "'Token', 'Service']",
-            },
-            'keystone-admin-role': 'Admin',
-            'keystone-service-admin-role': 'KeystoneServiceAdmin',
-            'hash-password': 'True',
-        }
+        # Save the original configuration
+        self.conf_save = CONF
+        # Set the desired conf options
+        conf_text = """
+[DEFAULT]
+backends = keystone.backends.sqlalchemy
+keystone_admin_role = Admin
+keystone_service_admin_role = KeystoneServiceAdmin
+hash_password = True
+verbose = False
+debug = False
+
+[keystone.backends.sqlalchemy]
+sql_connection = sqlite://
+backend_entities = ['UserRoleAssociation',
+        'Endpoints', 'Role', 'Tenant', 'User',
+        'Credentials', 'EndpointTemplates', 'Token', 'Service']
+"""
+        self.update_CONF(conf_text)
+
+    @staticmethod
+    def update_CONF(txt):
+        """
+        Resets the CONF file, and reads in the passed configuration text.
+        """
+        CONF.reset()
+        fd, tmpname = tempfile.mkstemp()
+        os.close(fd)
+        with file(tmpname, "w") as fconf:
+            fconf.write(txt)
+        CONF(config_files=[tmpname])
+        os.remove(tmpname)
 
     def setUp(self):
-        self.api = self.api_class(self.options)
+        self.api = self.api_class()
 
         dt = datetime
         self.expires = dt.datetime.utcnow() + dt.timedelta(days=1)
@@ -162,9 +183,8 @@ class ServiceAPITest(unittest.TestCase):
         """
         db.unregister_models()
         logger.debug("Cleared all data from database")
-        opts = self.options
         reload(db)
-        backends.configure_backends(opts)
+        backends.configure_backends()
 
     def fixture_create_credentials(self, **kwargs):
         """

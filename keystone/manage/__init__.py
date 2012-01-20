@@ -22,19 +22,27 @@
 Keystone Identity Server - CLI Management Interface
 """
 
-import sys
 import logging
 import optparse  # deprecated in 2.7, in favor of argparse
+import os
+import sys
+import tempfile
 
 from keystone import version
 import keystone.backends as db
 from keystone.backends.sqlalchemy import migration
+# Need to give it a different alias
+from keystone import config as new_config
 from keystone.common import config
 from keystone.logic.types import fault
 from keystone.manage import api
 from keystone import utils
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
+
+# We're using two config systems here, so we need to be clear
+# which one we're working with.
+CONF = new_config.CONF
 
 
 # CLI feature set
@@ -88,13 +96,14 @@ def parse_args(args=None):
 
     # Parse command-line and load config
     (options, args) = config.parse_options(parser, args)
-    _config_file, conf = config.load_paste_config('admin', options, args)
-
-    config.setup_logging(options, conf)
 
     if not args or args[0] != 'database':
-        db.configure_backends(conf.global_conf)
+        # Use the legacy code to find the config file
+        config_file = config.find_config_file(options, sys.argv[1:])
+        # Now init the CONF for the backends
+        CONF(config_files=[config_file])
 
+        db.configure_backends()
     return args
 
 
@@ -113,6 +122,7 @@ def get_options(args=None):
     return conf.global_conf
 
 
+# pylint: disable=R0912,R0915
 def process(*args):
     # Check arguments
     if len(args) == 0:
@@ -141,8 +151,8 @@ def process(*args):
         if len(args) < min:
             raise optparse.OptParseError(msg)
 
-    optional_arg = (lambda args, x:
-        len(args) > x and str(args[x]).strip() or None)
+    def optional_arg(args, index):
+        return ((len(args) > index) and str(args[index]).strip()) or None
 
     if object_type == 'database':
         options = get_options(args)
@@ -350,7 +360,7 @@ def process(*args):
         if backend_names:
             if 'keystone.backends.sqlalchemy' in backend_names.split(','):
                 do_db_goto_version(options['keystone.backends.sqlalchemy'],
-                    version=args[2])
+                    target_version=args[2])
             else:
                 raise optparse.OptParseError(
                     'SQL alchemy backend not specified in config')
@@ -368,11 +378,11 @@ def do_db_version(options):
     print (migration.db_version(options))
 
 
-def do_db_goto_version(options, version):
+def do_db_goto_version(options, target_version):
     """Override the database's current migration level"""
-    if migration.db_goto_version(options, version):
+    if migration.db_goto_version(options, target_version):
         msg = ('Jumped to version=%s (without performing intermediate '
-            'migrations)') % version
+            'migrations)') % target_version
         print (msg)
 
 
@@ -443,11 +453,11 @@ class Table:
         self.width = sum(self.fieldlen) + (ncols - 1) * 3 + 4
 
     def __str__(self):
-        bar = "-" * self.width
+        hbar = "-" * self.width
         if self.title:
             title = "| " + self.title + " " * \
                     (self.width - 3 - (len(self.title))) + "|"
-            out = [bar, title, bar]
+            out = [hbar, title, hbar]
         else:
             out = []
         header = ""
@@ -456,7 +466,7 @@ class Table:
                 (self.fieldlen[i] - len(str(self.headers[i]))) + " "
         header += "|"
         out.append(header)
-        out.append(bar)
+        out.append(hbar)
         for i in self.rows:
             line = ""
             for j in range(len(i)):
@@ -464,7 +474,7 @@ class Table:
                 (self.fieldlen[j] - len(str(i[j]))) + " "
             out.append(line + "|")
 
-        out.append(bar)
+        out.append(hbar)
         return "\r\n".join(out)
 
 
@@ -493,5 +503,5 @@ def main(args=None):
 if __name__ == '__main__':
     try:
         main()
-    except Exception as exc:
+    except StandardError:
         sys.exit(1)

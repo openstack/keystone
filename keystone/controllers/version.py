@@ -27,7 +27,7 @@ from webob import Response
 from keystone import utils
 from keystone import version
 from keystone.common import template
-from keystone.common import wsgi
+from keystone.controllers.base_controller import BaseController
 
 # Calculate root path (to get to static files)
 POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
@@ -37,12 +37,8 @@ POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class VersionController(wsgi.Controller):
+class VersionController(BaseController):
     """Controller for version related methods"""
-
-    def __init__(self, options):
-        self.options = options
-
     @utils.wrap_error
     def get_version_info(self, req, file="version"):
         resp = Response()

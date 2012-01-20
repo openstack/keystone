@@ -62,7 +62,6 @@ class ServiceClient(object):
         else:
             connection = httplib.HTTPConnection(self.auth_address)
         connection.request(verb, path, body=body, headers=headers)
-
         response = connection.getresponse()
         response.body = response.read()
         status_int = int(response.status)
@@ -119,6 +118,7 @@ class AdminClient(ServiceClient):
     _default_admin_name = "admin"
     _default_admin_pass = "password"
 
+    # pylint: disable=R0913
     def __init__(self, host, port=None, is_ssl=False, cert_file=None,
                  admin_name=None, admin_pass=None):
         """Initialize client.

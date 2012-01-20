@@ -22,6 +22,7 @@
 Keystone Identity Server - Service API
 """
 
+import optparse
 import os
 import sys
 
@@ -34,10 +35,28 @@ if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 import keystone.tools.tracer  # @UnusedImport # module runs on import
+from keystone.common import config
+from keystone.config import CONF
 import keystone.server
 
 
-if __name__ == '__main__':
+def get_options():
+    # Initialize a parser for our configuration paramaters
+    # since we have special handling for the -a|--admin-port argument
+    parser = optparse.OptionParser()
+    common_group = config.add_common_options(parser)
+    config.add_log_options(parser)
+
+    # Parse CLI arguments and merge with config
+    (options, args) = config.parse_options(parser)
+    return options
+
+
+def main():
+    # Get merged config and CLI options and admin-specific settings
+    options = get_options()
+    config_file = config.find_config_file(options, sys.argv[1:])
+    CONF(config_files=[config_file])
     try:
         # Load Service API server
         server = keystone.server.Server(name='Service API',
@@ -45,3 +64,7 @@ if __name__ == '__main__':
         server.start(wait=True)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
+
+
+if __name__ == '__main__':
+    main()

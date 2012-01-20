@@ -23,20 +23,18 @@ User Controller
 import logging
 
 from keystone import utils
-from keystone.common import wsgi
+from keystone.controllers.base_controller import BaseController
 from keystone.logic import service
 from keystone.logic.types.user import User, User_Update
-from . import get_marker_limit_and_url
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class UserController(wsgi.Controller):
+class UserController(BaseController):
     """Controller for User related operations"""
 
-    def __init__(self, options):
-        self.options = options
-        self.identity_service = service.IdentityService(options)
+    def __init__(self):
+        self.identity_service = service.IdentityService()
 
     @utils.wrap_error
     def create_user(self, req):
@@ -53,7 +51,7 @@ class UserController(wsgi.Controller):
                 user_name)
             return utils.send_result(200, req, tenant)
         else:
-            marker, limit, url = get_marker_limit_and_url(req)
+            marker, limit, url = self.get_marker_limit_and_url(req)
             users = self.identity_service.get_users(utils.get_auth_token(req),
                 marker, limit, url)
             return utils.send_result(200, req, users)
@@ -100,7 +98,7 @@ class UserController(wsgi.Controller):
 
     @utils.wrap_error
     def get_tenant_users(self, req, tenant_id):
-        marker, limit, url = get_marker_limit_and_url(req)
+        marker, limit, url = self.get_marker_limit_and_url(req)
         role_id = req.GET["roleId"] if "roleId" in req.GET else None
         users = self.identity_service.get_tenant_users(
             utils.get_auth_token(req), tenant_id, role_id, marker, limit, url)

@@ -24,8 +24,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
-    def __init__(self, options):
-        self.options = options
+    def __init__(self):
         self.driver = api.ENDPOINT_TEMPLATE
 
     def endpoint_get_by_endpoint_template(self, endpoint_template_id):

@@ -1,78 +1,84 @@
 #!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2010 United States Government as represented by the
-# Administrator of the National Aeronautics and Space Administration.
-# Copyright 2011 OpenStack LLC.
-# All Rights Reserved.
-#
-#    Licensed under the Apache License, Version 2.0 (the "License"); you may
-#    not use this file except in compliance with the License. You may obtain
-#    a copy of the License at
-#
-#         http://www.apache.org/licenses/LICENSE-2.0
-#
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-#    License for the specific language governing permissions and limitations
-#    under the License.
+""" This is only a convenience script. It starts two endpoints of Keystone; the
+first one is a Service API server running on port 5000 (by default), and the
+second one is an Admin API server running on port 35357 (by default).
 
-"""
-Keystone Identity Server - Admin and Service API
+By default, keystone uses bind_host and bind_port to set its litening ports,
+but since this script runs two endpoints, it uses the following options:
+
+    Setting any of the Admin API values for bind host or port using the
+    admin_* entries in the config file. Specoific to this script only is the
+    -a/--admin-port option on the command-line (nothing else supports that).
+
+    Setting any of the Service API values for bind host or port using the
+    service_* entries in the config file.
+
 """
 
 import optparse
 import os
 import sys
 
-# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
-# it will override what happens to be installed in /usr/(local/)lib/python...
-possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir))
-if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
-    sys.path.insert(0, possible_topdir)
-
 import keystone.tools.tracer  # @UnusedImport # module runs on import
-from keystone import version
 from keystone.common import config
+from keystone.config import CONF
 import keystone.server
 
-if __name__ == '__main__':
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+POSSIBLE_TOPDIR = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+        os.pardir, os.pardir))
+if os.path.exists(os.path.join(POSSIBLE_TOPDIR, 'keystone', '__init__.py')):
+    sys.path.insert(0, POSSIBLE_TOPDIR)
 
+
+def get_options():
     # Initialize a parser for our configuration paramaters
-    # since we have special handling for --admin-port argument
-    parser = optparse.OptionParser(version='%%prog %s' % version.version())
+    # since we have special handling for the -a|--admin-port argument
+    parser = optparse.OptionParser()
     common_group = config.add_common_options(parser)
     config.add_log_options(parser)
 
     # Handle a special argument to support starting two endpoints
-    option = common_group.add_option(
+    common_group.add_option(
         '-a', '--admin-port', dest="admin_port", metavar="PORT",
         help="specifies port for Admin API to listen on (default is 35357)")
 
-    # Parse arguments and load config
+    # Parse CLI arguments and merge with config
     (options, args) = config.parse_options(parser)
+    return options
+
+
+def main():
+    # Get merged config and CLI options and admin-specific settings
+    options = get_options()
+    config_file = config.find_config_file(options, sys.argv[1:])
+    CONF(config_files=[config_file])
 
     # Start services
     try:
         # Load Service API Server
         service = keystone.server.Server(name="Service API",
-                                         config_name='keystone-legacy-auth',
-                                         options=options, args=args)
+                                         config_name='keystone-legacy-auth')
         service.start(wait=False)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
 
     try:
-        # Load Admin API server
+        # Get admin-specific settings
         port = options.get('admin_port', None)
         host = options.get('bind_host', None)
-        admin = keystone.server.Server(name='Admin API', config_name='admin',
-                                       options=options, args=args)
+
+        # Load Admin API server
+        admin = keystone.server.Server(name='Admin API', config_name='admin')
         admin.start(host=host, port=port, wait=True)
     except RuntimeError, e:
         sys.exit("ERROR: %s" % e)
     finally:
         service.stop()
+
+
+if __name__ == '__main__':
+    main()

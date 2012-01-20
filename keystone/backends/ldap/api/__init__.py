@@ -90,13 +90,13 @@ class LDAPWrapper(object):
 class API(object):
     apis = ['tenant', 'user', 'role']
 
-    def __init__(self, options):
-        self.LDAP_URL = options['ldap_url']
-        self.LDAP_USER = options['ldap_user']
-        self.LDAP_PASSWORD = options['ldap_password']
-        self.tenant = TenantAPI(self, options)
-        self.user = UserAPI(self, options)
-        self.role = RoleAPI(self, options)
+    def __init__(self, conf):
+        self.LDAP_URL = conf.ldap_url
+        self.LDAP_USER = conf.ldap_user
+        self.LDAP_PASSWORD = conf.ldap_password
+        self.tenant = TenantAPI(self, conf)
+        self.user = UserAPI(self, conf)
+        self.role = RoleAPI(self, conf)
 
     def get_connection(self, user=None, password=None):
         if self.LDAP_URL.startswith('fake://'):

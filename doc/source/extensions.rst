@@ -80,11 +80,6 @@ HP-IDM
     This is an Admin API extension. Applicable to validate token (GET)
     and check token (HEAD) APIs only.
 
-.. note::
-
-    The included extensions are in the process of being rewritten. Currently
-    only osksadm and oskscatalog work with this new extensions design.
-
 OS-KSVALIDATE
 
     This extensions supports admin calls to /tokens without having to specify
@@ -94,6 +89,13 @@ OS-KSVALIDATE
     often (and by default) logged to insecure media.
 
     This is an Admin API extension only.
+
+.. note::
+
+    The included extensions are in the process of being rewritten. Currently
+    osksadm, oskscatalog, hpidm, and osksvalidate work with this new
+    extensions design.
+
 
 Enabling & Disabling Extensions
 -------------------------------

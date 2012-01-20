@@ -25,10 +25,8 @@ EXTENSION_ADMIN_PREFIX = 'admin'
 
 
 class AdminExtensionConfigurer(BaseExtensionConfigurer):
-    def configure(self, mapper, options):
-        self.configure_extensions(
-                EXTENSION_ADMIN_PREFIX,
-                mapper, options)
+    def configure(self, mapper):
+        self.configure_extensions(EXTENSION_ADMIN_PREFIX, mapper)
 
 
 def get_extension_configurer():

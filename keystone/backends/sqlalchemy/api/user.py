@@ -139,11 +139,11 @@ class UserAPI(api.BaseUserAPI):
             session = get_session()
 
         if marker:
-            results = session.query(models.User).filter("id>:marker").params(\
-                    marker='%s' % marker).order_by(\
+            results = session.query(models.User).filter("id>:marker").params(
+                    marker='%s' % marker).order_by(
                     models.User.id.desc()).limit(int(limit)).all()
         else:
-            results = session.query(models.User).order_by(\
+            results = session.query(models.User).order_by(
                                 models.User.id.desc()).limit(int(limit)).all()
 
         return UserAPI.to_model_list(results)
@@ -153,19 +153,19 @@ class UserAPI(api.BaseUserAPI):
         if not session:
             session = get_session()
 
-        first = session.query(models.User).order_by(\
+        first = session.query(models.User).order_by(
                             models.User.id).first()
-        last = session.query(models.User).order_by(\
+        last = session.query(models.User).order_by(
                             models.User.id.desc()).first()
         if first is None:
             return (None, None)
         if marker is None:
             marker = first.id
-        next_page = session.query(models.User).filter("id > :marker").params(\
-                        marker='%s' % marker).order_by(\
+        next_page = session.query(models.User).filter("id > :marker").params(
+                        marker='%s' % marker).order_by(
                         models.User.id).limit(int(limit)).all()
-        prev_page = session.query(models.User).filter("id < :marker").params(\
-                        marker='%s' % marker).order_by(\
+        prev_page = session.query(models.User).filter("id < :marker").params(
+                        marker='%s' % marker).order_by(
                         models.User.id.desc()).limit(int(limit)).all()
         if len(next_page) == 0:
             next_page = last
@@ -315,7 +315,7 @@ class UserAPI(api.BaseUserAPI):
         if marker is None:
             marker = first.id
         next_page = session.query(user).\
-                        filter("id > :marker").params(\
+                        filter("id > :marker").params(
                         marker='%s' % marker).order_by(user.id).\
                         limit(int(limit)).all()
         prev_page = session.query(user).\
@@ -414,7 +414,7 @@ class UserAPI(api.BaseUserAPI):
         if marker is None:
             marker = first.id
         next_page = query.\
-            filter("id > :marker").params(\
+            filter("id > :marker").params(
             marker='%s' % marker).order_by(user.id).\
             limit(int(limit)).all()
         prev_page = query.\

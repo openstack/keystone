@@ -23,20 +23,18 @@ Services Controller
 import logging
 
 from keystone import utils
-from keystone.common import wsgi
+from keystone.controllers.base_controller import BaseController
 from keystone.models import Service
 from keystone.logic import service
-from . import get_marker_limit_and_url
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class ServicesController(wsgi.Controller):
+class ServicesController(BaseController):
     """Controller for Service related operations"""
 
-    def __init__(self, options):
-        self.options = options
-        self.identity_service = service.IdentityService(options)
+    def __init__(self):
+        self.identity_service = service.IdentityService()
 
     @utils.wrap_error
     def create_service(self, req):
@@ -53,7 +51,7 @@ class ServicesController(wsgi.Controller):
                     utils.get_auth_token(req), service_name)
             return utils.send_result(200, req, tenant)
         else:
-            marker, limit, url = get_marker_limit_and_url(req)
+            marker, limit, url = self.get_marker_limit_and_url(req)
             services = self.identity_service.get_services(
                 utils.get_auth_token(req), marker, limit, url)
             return utils.send_result(200, req, services)

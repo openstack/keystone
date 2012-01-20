@@ -31,8 +31,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
-    def __init__(self, options):
-        self.options = options
+    def __init__(self):
         self.driver = api.TENANT
 
     def create(self, tenant):

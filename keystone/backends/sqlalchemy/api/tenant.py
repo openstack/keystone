@@ -152,8 +152,8 @@ class TenantAPI(api.BaseTenantAPI):
         else:
             q3 = q1
         if marker:
-            results = q3.filter("tenant.id>:marker").params(\
-                    marker='%s' % marker).order_by(\
+            results = q3.filter("tenant.id>:marker").params(
+                    marker='%s' % marker).order_by(
                     tenant.id.desc()).limit(int(limit)).all()
         else:
             results = q3.order_by(tenant.id.desc()).limit(int(limit)).all()
@@ -192,9 +192,9 @@ class TenantAPI(api.BaseTenantAPI):
             return (None, None)
         if marker is None:
             marker = first.id
-        next_page = q3.filter(tenant.id > marker).order_by(\
+        next_page = q3.filter(tenant.id > marker).order_by(
                         tenant.id).limit(int(limit)).all()
-        prev_page = q3.filter(tenant.id > marker).order_by(\
+        prev_page = q3.filter(tenant.id > marker).order_by(
                         tenant.id.desc()).limit(int(limit)).all()
         if len(next_page) == 0:
             next_page = last
@@ -222,13 +222,12 @@ class TenantAPI(api.BaseTenantAPI):
 
         if marker:
             tenants = session.query(models.Tenant).\
-                    filter("id>:marker").params(\
-                    marker='%s' % marker).order_by(\
+                    filter("id>:marker").params(
+                    marker='%s' % marker).order_by(
                     models.Tenant.id.desc()).limit(int(limit)).all()
         else:
-            tenants = session.query(models.Tenant).order_by(\
-                                models.Tenant.id.desc()).limit(
-                                        int(limit)).all()
+            tenants = session.query(models.Tenant).order_by(
+                    models.Tenant.id.desc()).limit(int(limit)).all()
 
         return self.to_model_list(tenants)
 
@@ -236,9 +235,9 @@ class TenantAPI(api.BaseTenantAPI):
     def get_page_markers(self, marker, limit, session=None):
         if not session:
             session = get_session()
-        first = session.query(models.Tenant).order_by(\
+        first = session.query(models.Tenant).order_by(
                             models.Tenant.id).first()
-        last = session.query(models.Tenant).order_by(\
+        last = session.query(models.Tenant).order_by(
                             models.Tenant.id.desc()).first()
         if first is None:
             return (None, None)
@@ -283,7 +282,7 @@ class TenantAPI(api.BaseTenantAPI):
         if hasattr(api.TENANT, 'uid_to_id'):
             id = self.uid_to_id(id)
 
-        a_user = session.query(models.UserRoleAssociation).filter_by(\
+        a_user = session.query(models.UserRoleAssociation).filter_by(
             tenant_id=id).first()
         if a_user is not None:
             return False

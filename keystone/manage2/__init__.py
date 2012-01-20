@@ -44,7 +44,7 @@ def main():
         subparser = subparsers.add_parser(module_name,
                 help=module.Command.__doc__)
 
-        cmd = module.Command(options=common.get_options())
+        cmd = module.Command()
         cmd.append_parser(subparser)
 
     # actually parse the command line args or print help
@@ -52,5 +52,5 @@ def main():
 
     # configure and run command
     module = load_module(args.command)
-    cmd = module.Command(options=common.get_options())
+    cmd = module.Command()
     exit(cmd.run(args))

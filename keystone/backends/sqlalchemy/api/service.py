@@ -99,9 +99,9 @@ class ServiceAPI(api.BaseServiceAPI):
         if not session:
             session = get_session()
         result = session.query(models.Service).\
-        filter_by(name=name).\
-        filter_by(type=type).\
-        first()
+                filter_by(name=name).\
+                filter_by(type=type).\
+                first()
         return ServiceAPI.to_model(result)
 
     def get_all(self, session=None):
@@ -113,33 +113,33 @@ class ServiceAPI(api.BaseServiceAPI):
         if not session:
             session = get_session()
         if marker:
-            return session.query(models.Service).filter("id>:marker").params(\
-                    marker='%s' % marker).order_by(\
+            return session.query(models.Service).filter("id>:marker").params(
+                    marker='%s' % marker).order_by(
                     models.Service.id.desc()).limit(int(limit)).all()
         else:
             return session.query(models.Service).order_by(
                                 models.Service.id.desc()).limit(
-                                        int(limit)).all()
+                                int(limit)).all()
 
     @staticmethod
     def get_page_markers(marker, limit, session=None):
         if not session:
             session = get_session()
-        first = session.query(models.Service).order_by(\
+        first = session.query(models.Service).order_by(
                             models.Service.id).first()
-        last = session.query(models.Service).order_by(\
+        last = session.query(models.Service).order_by(
                             models.Service.id.desc()).first()
         if first is None:
             return (None, None)
         if marker is None:
             marker = first.id
         next_page = session.query(models.Service).\
-                        filter("id > :marker").params(\
-                        marker='%s' % marker).order_by(\
+                        filter("id > :marker").params(
+                        marker='%s' % marker).order_by(
                         models.Service.id).limit(int(limit)).all()
         prev_page = session.query(models.Service).\
-                        filter("id < :marker").params(\
-                        marker='%s' % marker).order_by(\
+                        filter("id < :marker").params(
+                        marker='%s' % marker).order_by(
                         models.Service.id.desc()).limit(int(limit)).all()
         if len(next_page) == 0:
             next_page = last

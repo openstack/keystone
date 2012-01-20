@@ -1,4 +1,5 @@
 from keystone.backends.sqlalchemy import migration
+from keystone import config
 from keystone.manage2 import base
 from keystone.manage2 import common
 
@@ -9,9 +10,15 @@ from keystone.manage2 import common
 class Command(base.BaseSqlalchemyCommand):
     """Downgrades the database to the specified version"""
 
-    def downgrade_database(self, version):
+    @staticmethod
+    def _get_connection_string():
+        sqla = config.CONF['keystone.backends.sqlalchemy']
+        return sqla.sql_connection
+
+    @staticmethod
+    def downgrade_database(version):
         """Downgrade database to the specified version"""
-        migration.downgrade(self.options, version=version)
+        migration.downgrade(Command._get_connection_string(), version=version)
 
     def run(self, args):
         """Process argparse args, and print results to stdout"""

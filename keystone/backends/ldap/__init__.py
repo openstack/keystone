@@ -25,8 +25,8 @@ from . import api
 from . import models
 
 
-def configure_backend(options):
-    api_obj = api.API(options)
+def configure_backend(conf):
+    api_obj = api.API(conf)
     for name in api_obj.apis:
         top_api.set_value(name, getattr(api_obj, name))
     for model_name in models.__all__:

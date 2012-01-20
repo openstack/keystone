@@ -35,11 +35,11 @@ class D5_AuthenticationTest(common.FunctionalTestCase):
 
         self.services = {}
         self.endpoint_templates = {}
-        self.services = self.create_service().json['OS-KSADM:service']
+        self.services = self.fixture_create_service()
         self.endpoint_templates = self.create_endpoint_template(
-            name=self.services['name'], \
-            type=self.services['type']).\
-            json['OS-KSCATALOG:endpointTemplate']
+                name=self.services['name'],
+                type=self.services['type']).\
+                json['OS-KSCATALOG:endpointTemplate']
         self.create_endpoint_for_tenant(self.tenant['id'],
         self.endpoint_templates['id'])
 

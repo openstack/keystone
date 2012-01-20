@@ -16,5 +16,5 @@
 
 
 class BaseExtensionHandler(object):
-    def map_extension_methods(self, mapper, options):
+    def map_extension_methods(self, mapper):
         raise NotImplementedError

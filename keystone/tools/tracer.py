@@ -49,7 +49,7 @@ import sys
 
 if '--trace-calls' in sys.argv or '-t' in sys.argv:
     # Pop the trace arguments
-    for i in range(len(sys.argv) - 1):
+    for i in range(len(sys.argv)):
         if sys.argv[i] in ['-t', '--trace-calls']:
             sys.argv.pop(i)
 

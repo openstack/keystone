@@ -100,10 +100,9 @@ class TestMigrations(unittest.TestCase):
         that there are no errors in the version scripts for each engine
         """
         for key, engine in self.engines.items():
-            options = {'sql_connection': TestMigrations.TEST_DATABASES[key]}
-            self._walk_versions(options)
+            self._walk_versions(TestMigrations.TEST_DATABASES[key])
 
-    def _walk_versions(self, options):
+    def _walk_versions(self, sql_connection):
         # Determine latest version script from the repo, then
         # upgrade from 1 through to the latest, with no data
         # in the databases. This just checks that the schema itself
@@ -112,24 +111,24 @@ class TestMigrations(unittest.TestCase):
         # Assert we are not under version control...
         self.assertRaises(fault.DatabaseMigrationError,
                           migration_api.db_version,
-                          options)
+                          sql_connection)
         # Place the database under version control
-        print migration_api.version_control(options)
+        print migration_api.version_control(sql_connection)
 
-        cur_version = migration_api.db_version(options)
+        cur_version = migration_api.db_version(sql_connection)
         self.assertEqual(0, cur_version)
 
         for version in xrange(1, TestMigrations.REPOSITORY.latest + 1):
-            migration_api.upgrade(options, version)
-            cur_version = migration_api.db_version(options)
+            migration_api.upgrade(sql_connection, version)
+            cur_version = migration_api.db_version(sql_connection)
             self.assertEqual(cur_version, version)
 
         # Now walk it back down to 0 from the latest, testing
         # the downgrade paths.
         for version in reversed(
             xrange(0, TestMigrations.REPOSITORY.latest)):
-            migration_api.downgrade(options, version)
-            cur_version = migration_api.db_version(options)
+            migration_api.downgrade(sql_connection, version)
+            cur_version = migration_api.db_version(sql_connection)
             self.assertEqual(cur_version, version)
 
 

@@ -18,20 +18,23 @@
 
 import logging
 
+from keystone import config
 from keystone import utils
 
+CONF = config.CONF
 EXTENSION_PREFIX = 'keystone.contrib.extensions.'
-DEFAULT_EXTENSIONS = 'osksadm,oskscatalog'
+DEFAULT_EXTENSIONS = ['osksadm', 'oskscatalog']
 CONFIG_EXTENSION_PROPERTY = 'extensions'
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class BaseExtensionConfigurer(object):
-    def configure_extensions(self, extension_type, mapper, options):
-        supported_extensions = options.get(CONFIG_EXTENSION_PROPERTY,
-                                           DEFAULT_EXTENSIONS)
-        for supported_extension in supported_extensions.split(','):
+    def configure_extensions(self, extension_type, mapper):
+        extensions = CONF[CONFIG_EXTENSION_PROPERTY] or \
+                DEFAULT_EXTENSIONS
+        extensions = [extension.strip() for extension in extensions]
+        for supported_extension in extensions:
             self.extension_handlers = []
             supported_extension = "%s%s.%s" % (
                 EXTENSION_PREFIX, extension_type, supported_extension.strip())
@@ -39,7 +42,7 @@ class BaseExtensionConfigurer(object):
                 extension_module = utils.import_module(supported_extension)
                 if hasattr(extension_module, 'ExtensionHandler'):
                     extension_class = extension_module.ExtensionHandler()
-                    extension_class.map_extension_methods(mapper, options)
+                    extension_class.map_extension_methods(mapper)
                     self.extension_handlers.append(extension_class)
             except Exception as err:
                 logger.exception("Could not load extension for %s:%s %s" %

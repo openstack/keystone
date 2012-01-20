@@ -26,20 +26,17 @@ class BaseLdapAPI(object):
     attribute_mapping = {}
     attribute_ignore = []
 
-    def __init__(self, api, options):
+    def __init__(self, api, conf):
         self.api = api
         if self.options_name is not None:
-            self.tree_dn = options.get('%s_tree_dn' % (self.options_name,),
-                                        self.DEFAULT_TREE_DN)
-            try:
-                lst = options['%s_structural_classes' % (self.options_name,)]
-            except KeyError:
-                self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
-            else:
-                self.structural_classes = ast.literal_eval(lst)
-            self.id_attr = options.get('%s_id_attr' % (self.options_name,),
-                                        self.DEFAULT_ID_ATTR)
-        self.use_dumb_member = options.get('use_dumb_member', True)
+            dn = '%s_tree_dn' % self.options_name
+            self.tree_dn = conf[dn] or self.DEFAULT_TREE_DN
+            structs = '%s_structural_classes' % self.options_name
+            lst = conf[structs] or self.DEFAULT_STRUCTURAL_CLASSES
+            self.structural_classes = ast.literal_eval(str(lst))
+            idatt = '%s_id_attr' % self.options_name
+            self.id_attr = conf[idatt] or self.DEFAULT_ID_ATTR
+        self.use_dumb_member = conf.use_dumb_member or True
 
     def _id_to_dn(self, id):
         return '%s=%s,%s' % (self.id_attr, ldap.dn.escape_dn_chars(str(id)),

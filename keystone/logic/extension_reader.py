@@ -1,44 +1,55 @@
+# Copyright (c) 2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import json
 from lxml import etree
 
+from keystone import config
 from keystone import utils
 from keystone.contrib.extensions import CONFIG_EXTENSION_PROPERTY
 from keystone.contrib.extensions import DEFAULT_EXTENSIONS
 from keystone.logic.types.extension import Extensions
 
 EXTENSIONS_PATH = 'contrib/extensions'
+CONF = config.CONF
 
 
-def get_supported_extensions(options):
+def get_supported_extensions():
     """
     Returns list of supported extensions.
-    options - global configuration options
     """
-
-    return [extension.strip() for extension in
-                options.get(CONFIG_EXTENSION_PROPERTY,
-                DEFAULT_EXTENSIONS).split(',')]
+    extensions = CONF[CONFIG_EXTENSION_PROPERTY] or DEFAULT_EXTENSIONS
+    return [extension.strip() for extension in extensions]
 
 
-def is_extension_supported(options, extension_name):
+def is_extension_supported(extension_name):
     """
     Return True if the extension is enabled, False otherwise.
-    options - global configuration options
     extension_name - extension name
     extension_name is case-sensitive.
     """
-    if (extension_name is not None) and (options is not None):
-        return extension_name in get_supported_extensions(options)
+    if extension_name is not None:
+        return extension_name in get_supported_extensions()
     return False
 
 
 class ExtensionsReader(object):
     """Reader to read static extensions content"""
-
-    def __init__(self, options, extension_prefix):
+    def __init__(self, extension_prefix):
         self.extensions = None
-        self.options = options
         self.extension_prefix = extension_prefix
         self.root = None
         self.supported_extensions = None
@@ -98,7 +109,7 @@ class ExtensionsReader(object):
     def __get_supported_extensions(self):
         """ Returns list of supported extensions."""
         if self.supported_extensions is None:
-            self.supported_extensions = get_supported_extensions(self.options)
+            self.supported_extensions = get_supported_extensions()
         return self.supported_extensions
 
     def __get_extension_json(self, extension_name):

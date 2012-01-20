@@ -23,21 +23,18 @@ Tenant Controller
 import logging
 
 from keystone import utils
-from keystone.common import wsgi
+from keystone.controllers.base_controller import BaseController
 from keystone.logic import service
 from keystone.models import Tenant
-from . import get_marker_limit_and_url
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class TenantController(wsgi.Controller):
+class TenantController(BaseController):
     """Controller for Tenant related operations"""
 
-    def __init__(self, options, is_service_operation=None):
-        self.options = options
-        self.identity_service = service.IdentityService(options)
-
+    def __init__(self, is_service_operation=None):
+        self.identity_service = service.IdentityService()
         self.is_service_operation = is_service_operation
         logger.debug("Initializing: 'Service API' mode=%s" %
                      self.is_service_operation)
@@ -58,7 +55,7 @@ class TenantController(wsgi.Controller):
                 tenant_name)
             return utils.send_result(200, req, tenant)
         else:
-            marker, limit, url = get_marker_limit_and_url(req)
+            marker, limit, url = self.get_marker_limit_and_url(req)
             tenants = self.identity_service.get_tenants(
                 utils.get_auth_token(req), marker, limit, url,
                 self.is_service_operation)

@@ -23,20 +23,18 @@ Roles Controller
 import logging
 
 from keystone import utils
-from keystone.common import wsgi
+from keystone.controllers.base_controller import BaseController
 from keystone.models import Role
 from keystone.logic import service
-from . import get_marker_limit_and_url
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class RolesController(wsgi.Controller):
+class RolesController(BaseController):
     """Controller for Role related operations"""
 
-    def __init__(self, options):
-        self.options = options
-        self.identity_service = service.IdentityService(options)
+    def __init__(self):
+        self.identity_service = service.IdentityService()
 
     # Not exposed yet.
     @utils.wrap_error
@@ -66,7 +64,7 @@ class RolesController(wsgi.Controller):
 
     def __get_all_roles(self, req):
         service_id = req.GET["serviceId"] if "serviceId" in req.GET else None
-        marker, limit, url = get_marker_limit_and_url(req)
+        marker, limit, url = self.get_marker_limit_and_url(req)
         if service_id:
             roles = self.identity_service.get_roles_by_service(
                 utils.get_auth_token(req), marker, limit, url,
@@ -97,7 +95,7 @@ class RolesController(wsgi.Controller):
 
     @utils.wrap_error
     def get_user_roles(self, req, user_id, tenant_id=None):
-        marker, limit, url = get_marker_limit_and_url(req)
+        marker, limit, url = self.get_marker_limit_and_url(req)
         roles = self.identity_service.get_user_roles(
             utils.get_auth_token(req), marker, limit, url, user_id, tenant_id)
         return utils.send_result(200, req, roles)

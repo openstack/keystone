@@ -1,4 +1,5 @@
 from keystone.backends.sqlalchemy import migration
+from keystone import config
 from keystone.manage2 import base
 from keystone.manage2 import common
 
@@ -9,9 +10,15 @@ from keystone.manage2 import common
 class Command(base.BaseSqlalchemyCommand):
     """Upgrades the database to the latest schema."""
 
-    def sync_database(self, version=None):
+    @staticmethod
+    def _get_connection_string():
+        sqla = config.CONF['keystone.backends.sqlalchemy']
+        return sqla.sql_connection
+
+    @staticmethod
+    def sync_database(version=None):
         """Place database under migration control & automatically upgrade"""
-        migration.db_sync(self.options, version=version)
+        migration.db_sync(Command._get_connection_string(), version=version)
 
     def run(self, args):
         """Process argparse args, and print results to stdout"""

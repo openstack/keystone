@@ -20,6 +20,7 @@ import functools
 import logging
 import uuid
 
+from keystone import config
 from keystone.logic.types import auth, atom
 from keystone.logic.signer import Signer
 import keystone.backends as backends
@@ -45,6 +46,8 @@ from keystone.managers.endpoint_template import Manager \
         as EndpointTemplateManager
 from keystone.managers.endpoint import Manager as EndpointManager
 from keystone.managers.credential import Manager as CredentialManager
+
+CONF = config.CONF
 
 #Reference to Admin Role.
 ADMIN_ROLE_ID = None
@@ -81,31 +84,31 @@ class IdentityService(object):
     backend as well as validating incoming/outgoing data
     """
 
-    def __init__(self, options):
+    def __init__(self):
         """ Initialize
 
         Loads all necessary backends to handle incoming requests.
         """
-        backends.configure_backends(options)
-        self.token_manager = TokenManager(options)
-        self.tenant_manager = TenantManager(options)
-        self.user_manager = UserManager(options)
-        self.role_manager = RoleManager(options)
-        self.grant_manager = GrantManager(options)
-        self.service_manager = ServiceManager(options)
-        self.endpoint_template_manager = EndpointTemplateManager(options)
-        self.endpoint_manager = EndpointManager(options)
-        self.credential_manager = CredentialManager(options)
+        backends.configure_backends()
+        self.token_manager = TokenManager()
+        self.tenant_manager = TenantManager()
+        self.user_manager = UserManager()
+        self.role_manager = RoleManager()
+        self.grant_manager = GrantManager()
+        self.service_manager = ServiceManager()
+        self.endpoint_template_manager = EndpointTemplateManager()
+        self.endpoint_manager = EndpointManager()
+        self.credential_manager = CredentialManager()
 
         # pylint: disable=W0603
         global ADMIN_ROLE_NAME
-        ADMIN_ROLE_NAME = options["keystone-admin-role"]
+        ADMIN_ROLE_NAME = CONF.keystone_admin_role
 
         global SERVICE_ADMIN_ROLE_NAME
-        SERVICE_ADMIN_ROLE_NAME = options["keystone-service-admin-role"]
+        SERVICE_ADMIN_ROLE_NAME = CONF.keystone_service_admin_role
 
         global GLOBAL_SERVICE_ID
-        GLOBAL_SERVICE_ID = options.get("global_service_id", "global")
+        GLOBAL_SERVICE_ID = CONF.global_service_id or "global"
 
         LOG.debug("init with ADMIN_ROLE_NAME=%s, SERVICE_ADMIN_ROLE_NAME=%s, "
                   "GLOBAL_SERVICE_ID=%s" % (ADMIN_ROLE_NAME,

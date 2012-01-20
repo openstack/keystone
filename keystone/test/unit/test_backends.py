@@ -1,55 +1,71 @@
+# Copyright (c) 2011 OpenStack, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import unittest2 as unittest
 import uuid
 
 from keystone import backends
+from keystone import config
+from keystone.cfg import OptGroup, NoSuchOptError
 import keystone.backends.api as api
 import keystone.backends.models as legacy_backend_models
 import keystone.backends.sqlalchemy as db
 from keystone import models
+from keystone.test import KeystoneTest
 from keystone import utils
+
+CONF = config.CONF
 
 
 class BackendTestCase(unittest.TestCase):
     """
     Base class to run tests for Keystone backends (and backend configs)
     """
+    def __init__(self, *args, **kwargs):
+        super(BackendTestCase, self).__init__(*args, **kwargs)
+        self.base_template = "sql.conf.template"
+        self.ldap_template = "ldap.conf.template"
+        self.current_template = self.base_template
 
-    def setUp(self, options=None):  # pylint: disable=W0221
+    def setUp(self):
+        self.update_CONF(self.current_template)
+        db.unregister_models()
+        reload(db)
+        backends.configure_backends()
         super(BackendTestCase, self).setUp()
-        # Set up root options if missing
-        if options is None:
-            options = {
-            'backends': None,
-            "keystone-service-admin-role": "KeystoneServiceAdmin",
-            "keystone-admin-role": "KeystoneAdmin",
-            "hash-password": "False"
-            }
 
-        # set up default backend if none supplied
-        if 'backends' not in options or options['backends'] is None:
-            options['backends'] = 'keystone.backends.sqlalchemy'
-            if 'keystone.backends.sqlalchemy' not in options:
-                options['keystone.backends.sqlalchemy'] = {
-                "sql_connection": "sqlite://",
-                "backend_entities": "['UserRoleAssociation', 'Endpoints',\
-                                     'Role', 'Tenant', 'User',\
-                                     'Credentials', 'EndpointTemplates',\
-                                     'Token', 'Service']",
-                "sql_idle_timeout": "30"
-                }
+    def tearDown(self):
+        self.current_template = self.base_template
 
-        # Init backends module constants (without initializing backends)
-        no_backend_init = options.copy()
-        no_backend_init['backends'] = None
-        reload(backends)
-        backends.configure_backends(no_backend_init)
+    def update_CONF(self, template):
+        """
+        Resets the CONF file, and reads in the passed configuration text.
+        """
+        kt = KeystoneTest()
+        kt.config_name = template
+        kt.construct_temp_conf_file()
+        fname = kt.conf_fp.name
+        # Provide a hook for customizing the config if needed.
+        self.modify_conf(fname)
+        # Create the configuration
+        CONF.reset()
+        CONF(config_files=[fname])
 
-        backend_list = options['backends']
-        for backend in backend_list.split(','):
-            backend_module = utils.import_module(backend)
-            settings = options[backend]
-            backend_module.configure_backend(settings)
+    def modify_conf(self, fname):
+        pass
 
     def tearDown(self):
         db.unregister_models()
@@ -93,16 +109,11 @@ class BackendTestCase(unittest.TestCase):
         id = "T3%s" % uuid.uuid4().hex
         tenant = models.Tenant(id=id, name="Tee Three",
             description="This is T3", enabled=True)
-
         new_tenant = api.TENANT.create(tenant)
-
         new_tenant.enabled = False
         new_tenant.description = "This is UPDATED T3"
-
         api.TENANT.update(id, new_tenant)
-
         updated_tenant = api.TENANT.get(id)
-
         self.assertEqual(new_tenant, updated_tenant)
 
     def test_endpointtemplate_create(self):
@@ -148,29 +159,9 @@ class BackendTestCase(unittest.TestCase):
 
 
 class LDAPBackendTestCase(BackendTestCase):
-    def setUp(self, options=None):
-        if options is None:
-            options = {
-            'backends': 'keystone.backends.sqlalchemy,keystone.backends.ldap',
-            "keystone-service-admin-role": "KeystoneServiceAdmin",
-            "keystone-admin-role": "KeystoneAdmin",
-            "hash-password": "False",
-            'keystone.backends.sqlalchemy': {
-                "sql_connection": "sqlite:///",
-                "backend_entities": "['Endpoints', 'Role',\
-                                     'Credentials', 'EndpointTemplates',\
-                                     'Token', 'Service']",
-                "sql_idle_timeout": "30"
-                },
-            'keystone.backends.ldap': {
-                'ldap_url': 'fake://memory',
-                'ldap_user': 'cn=Admin',
-                'ldap_password': 'password',
-                'backend_entities': "['Tenant', 'User', 'UserRoleAssociation',\
-                    'Role']"
-                }
-            }
-        super(LDAPBackendTestCase, self).setUp(options)
+    def setUp(self):
+        self.current_template = self.ldap_template
+        super(LDAPBackendTestCase, self).setUp()
 
 
 class SQLiteBackendTestCase(BackendTestCase):
@@ -179,28 +170,30 @@ class SQLiteBackendTestCase(BackendTestCase):
     Since we have a code path that is specific to in-memory databases, we need
     to test for when we have a real file behind the ORM
     """
-    def setUp(self, options=None):
-        if options is None:
-            self.database_name = os.path.abspath('%s.test.db' % \
-                                                 uuid.uuid4().hex)
-            options = {
-            'backends': 'keystone.backends.sqlalchemy',
-            "keystone-service-admin-role": "KeystoneServiceAdmin",
-            "keystone-admin-role": "KeystoneAdmin",
-            "hash-password": "False",
-            'keystone.backends.sqlalchemy': {
-                "sql_connection": "sqlite:///%s" % self.database_name,
-                "backend_entities": "['Service', 'Tenant',\
-                        'EndpointTemplates', 'Endpoints']",
-                "sql_idle_timeout": "30"
-                }
-            }
-        super(SQLiteBackendTestCase, self).setUp(options)
+    def setUp(self):
+        self.current_template = self.base_template
+        self.database_name = os.path.abspath("%s.test.db" % \
+                uuid.uuid4().hex)
+        super(SQLiteBackendTestCase, self).setUp()
+
+    def modify_conf(self, fname):
+        # Need to override the connection
+        conn = "sqlite:///%s" % self.database_name
+        out = []
+        with file(fname, "r") as conf_file:
+            for ln in conf_file:
+                if ln.rstrip() == "sql_connection = sqlite://":
+                    out.append("sql_connection = %s" % conn)
+                else:
+                    out.append(ln.rstrip())
+        with file(fname, "w") as conf_file:
+            conf_file.write("\n".join(out))
 
     def tearDown(self):
         super(SQLiteBackendTestCase, self).tearDown()
         if os.path.exists(self.database_name):
             os.unlink(self.database_name)
+
 
 if __name__ == '__main__':
     unittest.main()

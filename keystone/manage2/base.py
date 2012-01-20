@@ -56,21 +56,19 @@ class BaseCommand(object):
 class BaseSqlalchemyCommand(BaseCommand):
     """Common functionality for database management commands"""
 
-    def __init__(self, options, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(BaseSqlalchemyCommand, self).__init__(*args, **kwargs)
-
-        self.options = options['keystone.backends.sqlalchemy']
 
 
 # pylint: disable=E1101,W0223
 class BaseBackendCommand(BaseCommand):
     """Common functionality for commands requiring backend access"""
 
-    def __init__(self, options, managers=None, *args, **kwargs):
+    def __init__(self, managers=None, *args, **kwargs):
         super(BaseBackendCommand, self).__init__(*args, **kwargs)
 
         # we may need to initialize our own managers
-        managers = managers or common.init_managers(options)
+        managers = managers or common.init_managers()
 
         # managers become available as self.attributes
         for name, manager in managers.iteritems():

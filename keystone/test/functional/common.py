@@ -3,6 +3,7 @@ import httplib
 import json
 import logging
 import os
+import random
 import unittest2 as unittest
 import uuid
 from webob import Request, Response
@@ -11,6 +12,7 @@ from xml.etree import ElementTree
 from keystone import server
 import keystone.backends.api as db_api
 from keystone.test import client as client_tests
+from keystone import utils
 
 logger = logging.getLogger(__name__)
 
@@ -229,11 +231,13 @@ class ApiTestCase(RestfulTestCase):
                 "'Tenant', 'User', 'Credentials', 'EndpointTemplates', "
                 "'Token', 'Service']",
         },
-        'extensions': 'osksadm,oskscatalog,hpidm',
+        'extensions': 'osksadm, oskscatalog, hpidm',
         'keystone-admin-role': 'Admin',
         'keystone-service-admin-role': 'KeystoneServiceAdmin',
         'hash-password': 'True',
     }
+    # Populate the CONF module with these values
+    utils.set_configuration(options)
 
     def fixture_create_role(self, **kwargs):
         """
@@ -288,13 +292,36 @@ class ApiTestCase(RestfulTestCase):
         logger.debug("Created user fixture %s (id=%s)", user.name, user.id)
         return user
 
+    def fixture_create_service(self, service_name=None, service_type=None,
+            service_description=None, **kwargs):
+        """
+        Creates a service fixture.
+
+        :params \*\*kwargs: Additional attributes of the service to create
+        """
+        values = kwargs.copy()
+        service_name = optional_str(service_name)
+        if service_type is None:
+            service_type = ['compute', 'identity', 'image-service',
+                            'object-store', 'ext:extension-service'
+                            ][random.randrange(5)]
+        service_description = optional_str(service_description)
+        values["name"] = service_name
+        values["type"] = service_type
+        values["description"] = service_description
+
+        service = db_api.SERVICE.create(values)
+        logger.debug("Created service fixture %s (id=%s)", service.name,
+                     service.id)
+        return service
+
     def setUp(self):
         super(ApiTestCase, self).setUp()
         if self.use_server:
             return
 
-        self.service_api = server.ServiceApi(self.options)
-        self.admin_api = server.AdminApi(self.options)
+        self.service_api = server.ServiceApi()
+        self.admin_api = server.AdminApi()
 
         # ADMIN ROLE
         self.admin_role = self.fixture_create_role(
@@ -1277,7 +1304,10 @@ class FunctionalTestCase(ApiTestCase):
     def create_service(self, service_name=None, service_type=None,
             service_description=None, **kwargs):
         service_name = optional_str(service_name)
-        service_type = optional_str(service_type)
+        if service_type is None:
+            service_type = ['compute', 'identity', 'image-service',
+                            'object-store', 'ext:extension-service'
+                            ][random.randrange(5)]
         service_description = optional_str(service_description)
         data = {
             "OS-KSADM:service": {

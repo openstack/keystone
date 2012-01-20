@@ -34,16 +34,14 @@ logger = logging.getLogger(__name__)  # pylint: disable=C0103
 class AdminApi(wsgi.Router):
     """WSGI entry point for admin Keystone API requests."""
 
-    def __init__(self, options):
-        self.options = options
-        logger.debug("Init with options=%s" % options)
+    def __init__(self):
         mapper = routes.Mapper()
 
         # Load extensions first so they can override core if they need to
-        extension.get_extension_configurer().configure(mapper, options)
+        extension.get_extension_configurer().configure(mapper)
 
         # Token Operations
-        auth_controller = TokenController(options)
+        auth_controller = TokenController()
         mapper.connect("/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
@@ -63,18 +61,18 @@ class AdminApi(wsgi.Router):
                         conditions=dict(method=["GET"]))
 
         # Tenant Operations
-        tenant_controller = TenantController(options)
+        tenant_controller = TenantController()
         mapper.connect("/tenants", controller=tenant_controller,
                     action="get_tenants", conditions=dict(method=["GET"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="get_tenant", conditions=dict(method=["GET"]))
-        roles_controller = RolesController(options)
+        roles_controller = RolesController()
         mapper.connect("/tenants/{tenant_id}/users/{user_id}/roles",
             controller=roles_controller, action="get_user_roles",
             conditions=dict(method=["GET"]))
         # User Operations
-        user_controller = UserController(options)
+        user_controller = UserController()
         mapper.connect("/users/{user_id}",
                     controller=user_controller,
                     action="get_user",
@@ -83,19 +81,19 @@ class AdminApi(wsgi.Router):
             controller=roles_controller, action="get_user_roles",
             conditions=dict(method=["GET"]))
         # Miscellaneous Operations
-        version_controller = VersionController(options)
+        version_controller = VersionController()
         mapper.connect("/", controller=version_controller,
                     action="get_version_info", file="admin/version",
                     conditions=dict(method=["GET"]))
 
-        extensions_controller = ExtensionsController(options)
+        extensions_controller = ExtensionsController()
         mapper.connect("/extensions",
                         controller=extensions_controller,
                         action="get_extensions_info",
                         conditions=dict(method=["GET"]))
 
         # Static Files Controller
-        static_files_controller = StaticFilesController(options)
+        static_files_controller = StaticFilesController()
         mapper.connect("/identityadminguide.pdf",
                     controller=static_files_controller,
                     action="get_pdf_contract",

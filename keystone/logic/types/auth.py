@@ -208,7 +208,6 @@ class Ec2Credentials(object):
                 root = dom.find("{%s}ec2Credentials" % xmlns)
             else:
                 root = root.find("{%s}ec2Credentials" % xmlns)
-
             if root is None:
                 raise fault.BadRequestFault("Expecting ec2Credentials")
             access = root.get("key")
@@ -243,7 +242,6 @@ class Ec2Credentials(object):
                 cred = obj["ec2Credentials"]
             else:
                 raise fault.BadRequestFault("Expecting ec2Credentials")
-
             # Check that fields are valid
             invalid = [key for key in cred if key not in\
                        ['username', 'access', 'signature', 'params',

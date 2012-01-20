@@ -5,6 +5,7 @@ from keystone import backends
 import keystone.backends.sqlalchemy as db
 import keystone.backends.api as db_api
 import keystone.manage.api as manage_api
+from keystone import utils
 
 
 class TestCommandsV1(unittest.TestCase):
@@ -13,18 +14,18 @@ class TestCommandsV1(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestCommandsV1, self).__init__(*args, **kwargs)
         self.options = {
-            'backends': "keystone.backends.sqlalchemy",
+            'backends': 'keystone.backends.sqlalchemy',
             'keystone.backends.sqlalchemy': {
                 # in-memory db
                 'sql_connection': 'sqlite://',
-                'verbose': False,
-                'debug': False,
                 'backend_entities':
                     "['UserRoleAssociation', 'Endpoints', 'Role', 'Tenant', "
                     "'Tenant', 'User', 'Credentials', 'EndpointTemplates', "
                     "'Token', 'Service']",
             },
         }
+        # Need to populate the CONF module with these options
+        utils.set_configuration(self.options)
 
     def setUp(self):
         self.clear_all_data()
@@ -39,9 +40,8 @@ class TestCommandsV1(unittest.TestCase):
         Purges the database of all data
         """
         db.unregister_models()
-        opts = self.options
         reload(db)
-        backends.configure_backends(opts)
+        backends.configure_backends()
 
     def test_service_list(self):
         result = manage_api.list_services()

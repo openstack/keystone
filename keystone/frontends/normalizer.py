@@ -99,7 +99,7 @@ class NormalizingFilter(object):
                 logger.debug("Call without a version - returning 300. Path=%s"
                              % env.get('PATH_INFO', ''))
                 from keystone.controllers.version import VersionController
-                controller = VersionController(options=None)
+                controller = VersionController()
                 response = controller.get_multiple_choice(req=Request(env),
                                 file='multiple_choice')
                 return response(env, start_response)

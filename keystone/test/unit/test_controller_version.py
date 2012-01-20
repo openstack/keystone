@@ -27,7 +27,7 @@ LOGGER = logging.getLogger(__name__)
 
 class TestVersionController(unittest.TestCase):
     def setUp(self):
-        self.controller = VersionController({})
+        self.controller = VersionController()
 
     def _default_version(self, file=None):
         """ Verify default response for versions is JSON """

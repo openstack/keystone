@@ -1,8 +1,10 @@
+# pylint: disable=C0103
 import re
 import socket
 from lxml import etree
 
 
+# pylint: disable=W0232
 class XMLTools():
     @staticmethod
     def xmlEqual(xmlStr1, xmlStr2):
@@ -54,6 +56,6 @@ def get_unused_port():
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('localhost', 0))
-    addr, port = s.getsockname()
+    addr, port = s.getsockname()  # pylint: disable=W0612
     s.close()
     return port

@@ -210,9 +210,12 @@ def find_config_file(options, args):
                     os.pardir,
                     os.pardir))
     fix_path = lambda p: os.path.abspath(os.path.expanduser(p))
-    if options.get('config_file'):
-        if os.path.exists(options['config_file']):
-            return fix_path(options['config_file'])
+    cfg_file = options.get('config_file')
+    if cfg_file:
+        if isinstance(cfg_file, list):
+            cfg_file = cfg_file[0]
+        if os.path.exists(cfg_file):
+            return fix_path(cfg_file)
     elif args:
         if os.path.exists(args[0]):
             return fix_path(args[0])

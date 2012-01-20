@@ -24,8 +24,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Manager(object):
-    def __init__(self, options):
-        self.options = options
+    def __init__(self):
         self.driver = api.TOKEN
 
     def create(self, token):

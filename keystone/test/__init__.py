@@ -61,15 +61,19 @@ import unittest
 import keystone
 import keystone.server
 import keystone.version
+from keystone import config as config_module
 from keystone.common import config
 from keystone.test import utils
 from keystone.test import client as client_tests
+from keystone import utils as main_utils
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.abspath(os.path.join(TEST_DIR, os.pardir, os.pardir))
 TEST_CERT = os.path.join(BASE_DIR, 'examples/ssl/certs/middleware-key.pem')
 
 logger = logging.getLogger(__name__)
+
+CONF = config_module.CONF
 
 
 class _AnsiColorizer(object):
@@ -435,18 +439,22 @@ class KeystoneTest(object):
         # Handle a special argument to support starting two endpoints
         common_group.add_option(
             '-a', '--admin-port', dest="admin_port", metavar="PORT",
-            help="specifies port for Admin API to listen " \
+            help="specifies port for Admin API to listen "
                  "on (default is 35357)")
 
         # Parse arguments and load config
         (options, args) = config.parse_options(parser)
         options['config_file'] = self.conf_fp.name
 
+        # Populate the CONF module
+        CONF.reset()
+        CONF(config_files=[self.conf_fp.name])
+
         try:
             # Load Service API Server
             service = keystone.server.Server(name="Service API",
                                             config_name='keystone-legacy-auth',
-                                            options=options, args=args)
+                                            args=args)
             service.start(wait=False)
 
             # Client tests will use these globals to find out where
@@ -461,13 +469,12 @@ class KeystoneTest(object):
 
         try:
             # Load Admin API server
-            port = options.get('admin_port',
-                               client_tests.TEST_TARGET_SERVER_ADMIN_PORT)
-            host = options.get('bind_host',
-                               client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS)
+            port = int(CONF.admin_port or
+                    client_tests.TEST_TARGET_SERVER_ADMIN_PORT)
+            host = (CONF.admin_host or
+                    client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS)
             admin = keystone.server.Server(name='Admin API',
-                                           config_name='admin',
-                                           options=options, args=args)
+                    config_name='admin', args=args)
             admin.start(host=host, port=port, wait=False)
 
             # Client tests will use these globals to find out where
@@ -487,16 +494,13 @@ class KeystoneTest(object):
         from keystone import manage
         manage_args = ['--config-file', self.conf_fp.name]
         manage.parse_args(args=manage_args)
-        #TODO(zns): make this come from config
-        options['keystone-admin-role'] = 'Admin'
-        options['keystone-service-admin-role'] = 'KeystoneServiceAdmin'
 
         #TODO(zns): this should end up being run by a 'bootstrap' script
         fixtures = [
-            ('role', 'add', options['keystone-admin-role']),
+            ('role', 'add', CONF.keystone_admin_role),
             ('user', 'add', 'admin', 'secrete'),
-            ('role', 'grant', options['keystone-admin-role'], 'admin'),
-            ('role', 'add', options['keystone-service-admin-role']),
+            ('role', 'grant', CONF.keystone_admin_role, 'admin'),
+            ('role', 'add', CONF.keystone_service_admin_role),
             ('role', 'add', 'Member'),
             ]
         for cmd in fixtures:

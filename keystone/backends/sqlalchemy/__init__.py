@@ -20,6 +20,7 @@ from sqlalchemy.orm import joinedload, aliased, sessionmaker
 
 import ast
 import logging
+import os
 import sys
 
 from sqlalchemy import create_engine
@@ -42,12 +43,11 @@ _DRIVER = None
 
 
 class Driver():
-    def __init__(self, options):
+    def __init__(self, conf):
         self.session = None
         self._engine = None
-        self.connection_str = options['sql_connection']
-        model_list = ast.literal_eval(options["backend_entities"])
-
+        self.connection_str = conf.sql_connection
+        model_list = ast.literal_eval(conf.backend_entities)
         self._init_engine(model_list)
         self._init_models(model_list)
         self._init_session_maker()
@@ -149,9 +149,9 @@ class Driver():
             self._engine = None
 
 
-def configure_backend(options):
+def configure_backend(conf):
     global _DRIVER
-    _DRIVER = Driver(options)
+    _DRIVER = Driver(conf)
 
 
 def get_session():

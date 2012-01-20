@@ -26,17 +26,14 @@ import os
 from webob import Response
 
 from keystone import utils
-from keystone.common import template, wsgi
+from keystone.common import template
+from keystone.controllers.base_controller import BaseController
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class StaticFilesController(wsgi.Controller):
+class StaticFilesController(BaseController):
     """Controller for contract documents"""
-
-    def __init__(self, options):
-        self.options = options
-
     @staticmethod
     @utils.wrap_error
     def get_pdf_contract(req, pdf, root="content/"):

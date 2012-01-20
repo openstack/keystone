@@ -23,24 +23,22 @@ EndpointTemplates Controller
 import logging
 
 from keystone import utils
-from keystone.common import wsgi
+from keystone.controllers.base_controller import BaseController
 from keystone.logic import service
 from keystone.logic.types.endpoint import EndpointTemplate
-from . import get_marker_limit_and_url
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
-class EndpointTemplatesController(wsgi.Controller):
+class EndpointTemplatesController(BaseController):
     """Controller for EndpointTemplates related operations"""
 
-    def __init__(self, options):
-        self.options = options
-        self.identity_service = service.IdentityService(options)
+    def __init__(self):
+        self.identity_service = service.IdentityService()
 
     @utils.wrap_error
     def get_endpoint_templates(self, req):
-        marker, limit, url = get_marker_limit_and_url(req)
+        marker, limit, url = self.get_marker_limit_and_url(req)
         service_id = req.GET["serviceId"] if "serviceId" in req.GET else None
         if service_id:
             endpoint_templates = self.identity_service.\
@@ -82,7 +80,7 @@ class EndpointTemplatesController(wsgi.Controller):
 
     @utils.wrap_error
     def get_endpoints_for_tenant(self, req, tenant_id):
-        marker, limit, url = get_marker_limit_and_url(req)
+        marker, limit, url = self.get_marker_limit_and_url(req)
         endpoints = self.identity_service.get_tenant_endpoints(
             utils.get_auth_token(req), marker, limit, url, tenant_id)
         return utils.send_result(200, req, endpoints)

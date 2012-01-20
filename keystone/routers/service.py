@@ -31,13 +31,11 @@ logger = logging.getLogger(__name__)  # pylint: disable=C0103
 class ServiceApi(wsgi.Router):
     """WSGI entry point for Keystone Service API requests."""
 
-    def __init__(self, options):
-        logger.debug("Init with options=%s" % options)
-        self.options = options
+    def __init__(self):
         mapper = routes.Mapper()
 
         # Token Operations
-        auth_controller = TokenController(options)
+        auth_controller = TokenController()
         mapper.connect("/tokens", controller=auth_controller,
                        action="authenticate",
                        conditions=dict(method=["POST"]))
@@ -45,27 +43,27 @@ class ServiceApi(wsgi.Router):
         mapper.connect("/ec2tokens", controller=auth_controller,
                        action="authenticate_ec2",
                        conditions=dict(method=["POST"]))
-        tenant_controller = TenantController(options, True)
+        tenant_controller = TenantController(True)
         mapper.connect("/tenants",
                         controller=tenant_controller,
                         action="get_tenants",
                         conditions=dict(method=["GET"]))
 
         # Miscellaneous Operations
-        version_controller = VersionController(options)
+        version_controller = VersionController()
         mapper.connect("/",
                         controller=version_controller,
                         action="get_version_info", file="service/version",
                         conditions=dict(method=["GET"]))
 
-        extensions_controller = ExtensionsController(options, True)
+        extensions_controller = ExtensionsController(True)
         mapper.connect("/extensions",
                         controller=extensions_controller,
                         action="get_extensions_info",
                         conditions=dict(method=["GET"]))
 
         # Static Files Controller
-        static_files_controller = StaticFilesController(options)
+        static_files_controller = StaticFilesController()
         mapper.connect("/identitydevguide.pdf",
                         controller=static_files_controller,
                         action="get_pdf_contract",

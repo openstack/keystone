@@ -32,9 +32,8 @@ class SecureValidationController(wsgi.Controller):
     """Controller for Tenant related operations"""
 
     # pylint: disable=W0231
-    def __init__(self, options):
-        self.options = options
-        self.token_controller = TokenController(options)
+    def __init__(self):
+        self.token_controller = TokenController()
 
         logger.info("Initializing Secure Token Validation extension")
 

@@ -16,15 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from routes.route import Route
-
 from keystone.contrib.extensions.admin.extension import BaseExtensionHandler
 from keystone.contrib.extensions.admin.osksvalidate import handler
 
 
 class ExtensionHandler(BaseExtensionHandler):
-    def map_extension_methods(self, mapper, options):
-        extension_controller = handler.SecureValidationController(options)
+    def map_extension_methods(self, mapper):
+        extension_controller = handler.SecureValidationController()
 
         # Token Operations
         mapper.connect("/OS-KSVALIDATE/token/validate",
