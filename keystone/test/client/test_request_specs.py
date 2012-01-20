@@ -2,6 +2,37 @@ import unittest2 as unittest
 from keystone.test.functional import common
 
 
+class TestResponseHeaders(common.FunctionalTestCase):
+    """Tests API's response headers"""
+    use_server = True
+
+    def test_vary_header_on_error(self):
+        """A Vary header should be provided to support caching responses."""
+        r = self.admin_request(path='/tokens/not-a-valid-token',
+                assert_status=404)
+        self.assertIn('X-Auth-Token', r.getheader('Vary'))
+
+    def test_vary_header_on_admin(self):
+        """A Vary header should be provided to support caching responses."""
+        r = self.admin_request(path='/tokens/%s' % self.admin_token)
+        self.assertIn('X-Auth-Token', r.getheader('Vary'))
+
+    def test_vary_header_on_service(self):
+        """A Vary header should be provided to support caching responses."""
+        r = self.service_request(path='/tenants')
+        self.assertIn('X-Auth-Token', r.getheader('Vary'))
+
+    def test_vary_header_on_legacy(self):
+        """A Vary header should be provided to support caching responses."""
+        r = self.admin_request('1.1/tenants')
+        self.assertIn('X-Auth-Token', r.getheader('Vary'))
+
+    def test_vary_header_on_static(self):
+        """A Vary header should not be provided on a static request."""
+        r = self.service_request('2.0/')
+        self.assertEqual(None, r.getheader('Vary'))
+
+
 class TestUrlHandling(common.FunctionalTestCase):
     """Tests API's global URL handling behaviors"""
     use_server = True

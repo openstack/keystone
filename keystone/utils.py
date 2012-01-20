@@ -147,6 +147,7 @@ def send_error(code, req, result):
 
     resp = Response()
     resp.headers['content-type'] = None
+    resp.headers['Vary'] = 'X-Auth-Token'
     resp.status = code
 
     if result:
@@ -168,6 +169,7 @@ def send_result(code, req, result=None):
 
     resp = Response()
     resp.headers['content-type'] = None
+    resp.headers['Vary'] = 'X-Auth-Token'
     resp.status = code
     if code > 399:
         return resp
@@ -189,6 +191,8 @@ def send_legacy_result(code, headers):
     resp = Response()
     if 'content-type' not in headers:
         headers['content-type'] = "text/plain"
+
+    headers['Vary'] = 'X-Auth-Token'
 
     resp.headers = headers
     resp.status = code
