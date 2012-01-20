@@ -25,9 +25,6 @@ class Manager(manager.Manager):
     See :mod:`keystone.manager.Manager` for more details on how this
     dynamically calls the backend.
 
-    See :mod:`keystone.backends.base.Identity` for more details on the
-    interface provided by backends.
-
     """
 
     def __init__(self):
