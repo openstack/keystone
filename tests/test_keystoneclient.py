@@ -96,21 +96,21 @@ class KcMasterTestCase(CompatTestCase):
         client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token)
-        tenants = client.tenants.list()
+        tenants = token_client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_token_tenant_id(self):
         client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token, tenant_id='bar')
-        tenants = client.tenants.list()
+        tenants = token_client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_token_tenant_name(self):
         client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token, tenant_name='BAR')
-        tenants = client.tenants.list()
+        tenants = token_client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     # TODO(termie): I'm not really sure that this is testing much
@@ -172,7 +172,6 @@ class KcMasterTestCase(CompatTestCase):
               roleref_ref.tenantId == self.tenant_baz['id']):
             # use python's scope fall through to leave roleref_ref set
             break
-
 
         client.roles.remove_user_from_tenant(self.tenant_baz['id'],
                                              self.user_foo['id'],
@@ -296,7 +295,7 @@ class KcMasterTestCase(CompatTestCase):
         two = self.get_client(self.user_two)
         self.assertRaises(client_exceptions.Unauthorized, two.ec2.delete,
                           self.user_foo['id'], cred.access)
-        
+
         foo.ec2.delete(self.user_foo['id'], cred.access)
 
     def test_service_create_and_delete(self):
