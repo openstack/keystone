@@ -15,6 +15,7 @@ lxml # xml library providing ElementTree API
 passlib # password hashing
 argparse # cli support
 prettytable # cli table printing
+dateutil # for date parsing
 
 # Optional backend: LDAP
 python-ldap # authenticate against an existing LDAP server
