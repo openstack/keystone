@@ -5,6 +5,12 @@ from keystone.common import sql
 from keystone.common.sql import migration
 
 
+def _filter_user(user_ref):
+    if user_ref:
+        user_ref.pop('password', None)
+    return user_ref
+
+
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
     id = sql.Column(sql.String(64), primary_key=True)
@@ -97,7 +103,7 @@ class Identity(sql.Base, identity.Driver):
         in the list of tenants on the user.
 
         """
-        user_ref = self.get_user(user_id)
+        user_ref = self._get_user(user_id)
         tenant_ref = None
         metadata_ref = None
         if not user_ref or user_ref.get('password') != password:
@@ -112,7 +118,7 @@ class Identity(sql.Base, identity.Driver):
             metadata_ref = self.get_metadata(user_id, tenant_id)
         else:
             metadata_ref = {}
-        return (user_ref, tenant_ref, metadata_ref)
+        return (_filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         session = self.get_session()
@@ -128,19 +134,25 @@ class Identity(sql.Base, identity.Driver):
             return
         return tenant_ref.to_dict()
 
-    def get_user(self, user_id):
+    def _get_user(self, user_id):
         session = self.get_session()
         user_ref = session.query(User).filter_by(id=user_id).first()
         if not user_ref:
             return
         return user_ref.to_dict()
 
-    def get_user_by_name(self, user_name):
+    def _get_user_by_name(self, user_name):
         session = self.get_session()
         user_ref = session.query(User).filter_by(name=user_name).first()
         if not user_ref:
             return
         return user_ref.to_dict()
+
+    def get_user(self, user_id):
+        return _filter_user(self._get_user(user_id))
+
+    def get_user_by_name(self, user_name):
+        return _filter_user(self._get_user_by_name(user_name))
 
     def get_metadata(self, user_id, tenant_id):
         session = self.get_session()
@@ -158,7 +170,7 @@ class Identity(sql.Base, identity.Driver):
     def list_users(self):
         session = self.get_session()
         user_refs = session.query(User)
-        return [x.to_dict() for x in user_refs]
+        return [_filter_user(x.to_dict()) for x in user_refs]
 
     def list_roles(self):
         session = self.get_session()
