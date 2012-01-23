@@ -212,8 +212,7 @@ class KcMasterTestCase(CompatTestCase):
         user = client.users.get(user.id)
         self.assertFalse(user.enabled)
 
-        # TODO(ja): test that you can't login
-        self.assertRaises(client_exceptions.Forbidden,
+        self.assertRaises(client_exceptions.AuthorizationFailure,
                   self._client,
                   username=test_username,
                   password='password')

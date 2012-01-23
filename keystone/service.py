@@ -149,11 +149,14 @@ class TokenController(wsgi.Application):
             else:
                 tenant_id = auth.get('tenantId', None)
 
-            (user_ref, tenant_ref, metadata_ref) = \
-                    self.identity_api.authenticate(context=context,
-                                                   user_id=user_id,
-                                                   password=password,
-                                                   tenant_id=tenant_id)
+            try:
+                (user_ref, tenant_ref, metadata_ref) = \
+                        self.identity_api.authenticate(context=context,
+                                                       user_id=user_id,
+                                                       password=password,
+                                                       tenant_id=tenant_id)
+            except AssertionError as e:
+                raise webob.exc.HTTPForbidden(e.message)
             token_ref = self.token_api.create_token(
                     context, token_id, dict(expires='',
                                             id=token_id,
