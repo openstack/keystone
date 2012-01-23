@@ -48,11 +48,7 @@ class TestKeystoneManage(unittest.TestCase):
         # Loop through and try sampledata calls
         sampledata_calls = sampledata.DEFAULT_FIXTURE
         for call in sampledata_calls:
-            try:
-                manage.process(*call)
-            except Exception as exc:
-                self.assertFalse(True, "Call to '%s' failed: %s %s" %
-                                 (' '.join(call), sys.stderr, exc))
+            manage.process(*call)
 
 if __name__ == '__main__':
     unittest.main()
