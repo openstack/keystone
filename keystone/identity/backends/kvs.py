@@ -4,6 +4,12 @@ from keystone import identity
 from keystone.common import kvs
 
 
+def _filter_user(user_ref):
+    if user_ref:
+        user_ref.pop('password', None)
+        #user_ref.pop('tenants', None)
+    return user_ref
+
 class Identity(kvs.Base, identity.Driver):
     # Public interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
@@ -13,7 +19,7 @@ class Identity(kvs.Base, identity.Driver):
         in the list of tenants on the user.
 
         """
-        user_ref = self.get_user(user_id)
+        user_ref = self._get_user(user_id)
         tenant_ref = None
         metadata_ref = None
         if not user_ref or user_ref.get('password') != password:
@@ -26,7 +32,7 @@ class Identity(kvs.Base, identity.Driver):
             metadata_ref = self.get_metadata(user_id, tenant_id)
         else:
             metadata_ref = {}
-        return (user_ref, tenant_ref, metadata_ref)
+        return (_filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         tenant_ref = self.db.get('tenant-%s' % tenant_id)
@@ -36,13 +42,19 @@ class Identity(kvs.Base, identity.Driver):
         tenant_ref = self.db.get('tenant_name-%s' % tenant_name)
         return tenant_ref
 
-    def get_user(self, user_id):
+    def _get_user(self, user_id):
         user_ref = self.db.get('user-%s' % user_id)
         return user_ref
 
-    def get_user_by_name(self, user_name):
+    def _get_user_by_name(self, user_name):
         user_ref = self.db.get('user_name-%s' % user_name)
         return user_ref
+
+    def get_user(self, user_id):
+        return _filter_user(self._get_user(user_id))
+
+    def get_user_by_name(self, user_name):
+        return _filter_user(self._get_user_by_name(user_name))
 
     def get_metadata(self, user_id, tenant_id):
         return self.db.get('metadata-%s-%s' % (tenant_id, user_id))
@@ -61,21 +73,21 @@ class Identity(kvs.Base, identity.Driver):
 
     # These should probably be part of the high-level API
     def add_user_to_tenant(self, tenant_id, user_id):
-        user_ref = self.get_user(user_id)
+        user_ref = self._get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
         tenants.add(tenant_id)
         user_ref['tenants'] = list(tenants)
         self.update_user(user_id, user_ref)
 
     def remove_user_from_tenant(self, tenant_id, user_id):
-        user_ref = self.get_user(user_id)
+        user_ref = self._get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
         tenants.remove(tenant_id)
         user_ref['tenants'] = list(tenants)
         self.update_user(user_id, user_ref)
 
     def get_tenants_for_user(self, user_id):
-        user_ref = self.get_user(user_id)
+        user_ref = self._get_user(user_id)
         return user_ref.get('tenants', [])
 
     def get_roles_for_user_and_tenant(self, user_id, tenant_id):

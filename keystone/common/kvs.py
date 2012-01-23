@@ -3,7 +3,10 @@
 
 class DictKvs(dict):
     def set(self, key, value):
-        self[key] = value
+        if type(value) is type({}):
+            self[key] = value.copy()
+        else:
+            self[key] = value[:]
 
     def delete(self, key):
         del self[key]
