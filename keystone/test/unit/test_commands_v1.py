@@ -30,12 +30,14 @@ class TestCommandsV1(unittest.TestCase):
     def setUp(self):
         self.clear_all_data()
         manage_api.add_tenant('Test tenant')
-        manage_api.add_user('Test user', 'Test password', 'Test tenant')
+        self.user = manage_api.add_user('Test user', 'Test password',
+                                        'Test tenant')
 
     def tearDown(self):
         self.clear_all_data()
 
-    def clear_all_data(self):
+    @staticmethod
+    def clear_all_data():
         """
         Purges the database of all data
         """
@@ -52,7 +54,7 @@ class TestCommandsV1(unittest.TestCase):
             'name': 'Test name',
             'type': 'Test type',
             'desc': 'Test description',
-            'owner_id': 'Test owner',
+            'owner_id': self.user.id,
             }
         manage_api.add_service(**data)
         result = manage_api.list_services()

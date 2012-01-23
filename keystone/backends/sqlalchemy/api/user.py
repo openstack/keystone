@@ -33,20 +33,13 @@ class UserAPI(api.BaseUserAPI):
     def transpose(ref):
         """ Transposes field names from domain to sql model"""
         if 'id' in ref:
-            ref['uid'] = ref['id']
-            del ref['id']
+            ref['uid'] = ref.pop('id')
 
         if hasattr(api.TENANT, 'uid_to_id'):
             if 'tenant_id' in ref:
                 ref['tenant_id'] = api.TENANT.uid_to_id(ref['tenant_id'])
             elif hasattr(ref, 'tenant_id'):
                 ref.tenant_id = api.TENANT.uid_to_id(ref.tenant_id)
-
-        if hasattr(ref, 'enabled'):
-            if ref.enabled in [1, 'true', 'True', True]:
-                ref.enabled = 1
-            else:
-                ref.enabled = 0
 
     @staticmethod
     def to_model(ref):
@@ -90,6 +83,7 @@ class UserAPI(api.BaseUserAPI):
         if not session:
             session = get_session()
 
+        id = str(id) if id is not None else None
         result = session.query(models.User).filter_by(uid=id).first()
 
         return UserAPI.to_model(result)
@@ -104,17 +98,20 @@ class UserAPI(api.BaseUserAPI):
         if not session:
             session = get_session()
 
+        id = str(id) if id is not None else None
         return session.query(models.User).filter_by(id=id).first()
 
     @staticmethod
     def id_to_uid(id, session=None):
         session = session or get_session()
+        id = str(id) if id is not None else None
         user = session.query(models.User).filter_by(id=id).first()
         return user.uid if user else None
 
     @staticmethod
     def uid_to_id(uid, session=None):
         session = session or get_session()
+        uid = str(uid) if uid is not None else None
         user = session.query(models.User).filter_by(uid=uid).first()
         return user.id if user else None
 
@@ -276,10 +273,10 @@ class UserAPI(api.BaseUserAPI):
         user_rolegrant.update(values)
         user_rolegrant.save()
 
-        if hasattr(api.USER, 'uid_to_id'):
-            user_rolegrant.user_id = api.USER.uid_to_id(user_rolegrant.user_id)
-        if hasattr(api.TENANT, 'uid_to_id'):
-            user_rolegrant.tenant_id = api.TENANT.uid_to_id(
+        if hasattr(api.USER, 'id_to_uid'):
+            user_rolegrant.user_id = api.USER.id_to_uid(user_rolegrant.user_id)
+        if hasattr(api.TENANT, 'id_to_uid'):
+            user_rolegrant.tenant_id = api.TENANT.id_to_uid(
                 user_rolegrant.tenant_id)
 
         return user_rolegrant

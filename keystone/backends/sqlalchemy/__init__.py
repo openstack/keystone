@@ -15,7 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# package import
+# pylint: disable=W0602,W0603
+
 from sqlalchemy.orm import joinedload, aliased, sessionmaker
 
 import ast
@@ -27,6 +28,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
 try:
+    # pylint: disable=E0611
     from migrate.versioning import exceptions as versioning_exceptions
 except ImportError:
     from migrate import exceptions as versioning_exceptions
@@ -37,7 +39,7 @@ from keystone.backends.sqlalchemy import migration
 import keystone.backends.api as top_api
 import keystone.backends.models as top_models
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 _DRIVER = None
 
@@ -96,7 +98,8 @@ class Driver():
                 (self.connection_str))
             logging.warning(msg)
 
-    def _init_models(self, model_list):
+    @staticmethod
+    def _init_models(model_list):
         for model in model_list:
             model_class = getattr(models, model)
             top_models.set_value(model, model_class)

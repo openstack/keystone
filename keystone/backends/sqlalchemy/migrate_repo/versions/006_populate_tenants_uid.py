@@ -1,7 +1,7 @@
 """
 Data migration to populate tenants.uid with existing tenants.id values.
 """
-# pylint: disable=C0103
+# pylint: disable=C0103,R0801
 
 
 import sqlalchemy

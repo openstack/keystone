@@ -5,7 +5,7 @@ Renames the 'token' table to 'tokens',
 in order to appear more consistent with
 other table names.
 """
-# pylint: disable=C0103
+# pylint: disable=C0103,R0801
 
 
 import sqlalchemy

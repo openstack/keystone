@@ -124,6 +124,9 @@ class TokenAPI(api.BaseTokenAPI):
         if hasattr(api.USER, 'uid_to_id'):
             user_id = api.USER.uid_to_id(user_id)
 
+        if hasattr(api.TENANT, 'uid_to_id'):
+            tenant_id = api.TENANT.uid_to_id(tenant_id)
+
         result = session.query(models.Token).\
             filter_by(user_id=user_id, tenant_id=tenant_id).\
             order_by("expires desc").\

@@ -1,7 +1,7 @@
 """
 Schema migration to enforce uniqueness on users.uid
 """
-# pylint: disable=C0103
+# pylint: disable=C0103,R0801
 
 
 import sqlalchemy

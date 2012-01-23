@@ -950,7 +950,7 @@ class IdentityService(object):
 
         utils.check_empty_string(role.name, "Expecting a Role name")
 
-        if self.role_manager.get(role.name) is not None:
+        if self.role_manager.get_by_name(role.name) is not None:
             raise fault.RoleConflictFault(
                 "A role with that name '%s' already exists" % role.name)
 

@@ -45,9 +45,9 @@ class TenantAPI(api.BaseTenantAPI):
             del values['description']
         if 'enabled' in values:
             if values['enabled'] in [1, 'true', 'True', True]:
-                values['enabled'] = 1
+                values['enabled'] = True
             else:
-                values['enabled'] = 0
+                values['enabled'] = False
 
     @staticmethod
     def to_model(ref):

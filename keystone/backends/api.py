@@ -387,10 +387,16 @@ class BaseCredentialsAPI(object):
     def create(self, values):
         raise NotImplementedError
 
+    def update(self, id, credential):
+        raise NotImplementedError
+
     def delete(self, id):
         raise NotImplementedError
 
     def get(self, id):
+        raise NotImplementedError
+
+    def get_all(self):
         raise NotImplementedError
 
     def get_by_access(self, access):

@@ -29,7 +29,7 @@ class ServiceAPI(api.BaseServiceAPI):
     @staticmethod
     def transpose(values):
         """ Handles transposing field names from Keystone model to
-        sqlalchemy mode
+        sqlalchemy model
 
         Differences:
             desc <-> description
@@ -38,10 +38,22 @@ class ServiceAPI(api.BaseServiceAPI):
         if 'description' in values:
             values['desc'] = values.pop('description')
 
+        if hasattr(api.USER, 'uid_to_id'):
+            if 'owner_id' in values:
+                values['owner_id'] = api.USER.uid_to_id(values['owner_id'])
+            elif hasattr(values, 'owner_id'):
+                values.owner_id = api.USER.uid_to_id(values.owner_id)
+
     @staticmethod
     def from_model(ref):
         """ Returns SQLAlchemy model object based on Keystone model"""
         if ref:
+            if hasattr(api.USER, 'uid_to_id'):
+                if 'owner_id' in ref:
+                    ref['owner_id'] = api.USER.uid_to_id(ref['owner_id'])
+                elif hasattr(ref, 'owner_id'):
+                    ref.owner_id = api.USER.uid_to_id(ref.owner_id)
+
             result = models.Service()
             try:
                 result.id = int(ref.id)
@@ -57,6 +69,12 @@ class ServiceAPI(api.BaseServiceAPI):
     def to_model(ref):
         """ Returns Keystone model object based on SQLAlchemy model"""
         if ref:
+            if hasattr(api.USER, 'id_to_uid'):
+                if 'owner_id' in ref:
+                    ref['owner_id'] = api.USER.id_to_uid(ref['owner_id'])
+                elif hasattr(ref, 'owner_id'):
+                    ref.owner_id = api.USER.id_to_uid(ref.owner_id)
+
             return Service(id=str(ref.id), name=ref.name, description=ref.desc,
                 type=ref.type, owner_id=ref.owner_id)
 

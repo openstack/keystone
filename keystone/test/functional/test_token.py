@@ -14,8 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=W0613
 
 import unittest2 as unittest
+
+from keystone.backends import api
+from keystone.logic.types import fault
+from keystone.logic import service
 from keystone.test.functional import common
 
 
@@ -124,6 +129,7 @@ class CheckToken(common.FunctionalTestCase):
         self.check_token(common.unique_str(), assert_status=404)
 
 
+# pylint: disable=E1101,E1120
 class TokenEndpointTest(unittest.TestCase):
     def _noop_validate_admin_token(self, admin_token):
         pass
@@ -164,10 +170,10 @@ class TokenEndpointTest(unittest.TestCase):
 
         def test_endpoints_from_good_token(self):
             """Happy Day scenario."""
-            self.stubout.SmartSet(keystone.backends.api.TOKEN,
+            self.stubout.SmartSet(api.TOKEN,
                                   'get', self._fake_token_get)
 
-            self.stubout.SmartSet(keystone.backends.api.BaseTenantAPI,
+            self.stubout.SmartSet(api.BaseTenantAPI,
                                   'get_all_endpoints',
                                   self._fake_tenant_get_all_endpoints)
 
@@ -177,7 +183,7 @@ class TokenEndpointTest(unittest.TestCase):
             self.assertEquals(len(auth_data.base_urls), 1)
 
         def test_endpoints_from_bad_token(self):
-            self.stubout.SmartSet(keystone.backends.api.TOKEN,
+            self.stubout.SmartSet(api.TOKEN,
                                   'get', self._fake_missing_token_get)
 
             self.assertRaises(fault.ItemNotFoundFault,
@@ -185,10 +191,10 @@ class TokenEndpointTest(unittest.TestCase):
                               "admin token", "token id")
 
         def test_bad_endpoints(self):
-            self.stubout.SmartSet(keystone.backends.api.TOKEN,
+            self.stubout.SmartSet(api.TOKEN,
                                   'get', self._fake_token_get)
 
-            self.stubout.SmartSet(keystone.backends.api.TENANT,
+            self.stubout.SmartSet(api.TENANT,
                 'get_all_endpoints',
                 self._fake_exploding_tenant_get_all_endpoints)
 

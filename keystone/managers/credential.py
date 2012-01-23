@@ -20,7 +20,7 @@ import logging
 
 import keystone.backends.api as api
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class Manager(object):
