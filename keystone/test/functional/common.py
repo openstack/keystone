@@ -1347,9 +1347,9 @@ class FunctionalTestCase(ApiTestCase):
         public_url = optional_url(public_url)
         admin_url = optional_url(admin_url)
         internal_url = optional_url(internal_url)
-        version_id = optional_url(version_id)
-        version_list = optional_url(version_list)
-        version_info = optional_url(version_info)
+        version_id = optional_str(version_id)[:20]
+        version_list = optional_str(version_list)
+        version_info = optional_str(version_info)
 
         data = {
             "OS-KSCATALOG:endpointTemplate": {
