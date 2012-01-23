@@ -193,7 +193,6 @@ class KcMasterTestCase(CompatTestCase):
                           username=self.user_foo['name'],
                           password='invalid')
 
-
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
@@ -239,15 +238,12 @@ class KcMasterTestCase(CompatTestCase):
         users = client.users.list()
         self.assertTrue(len(users) > 0)
         user = users[0]
-        with self.assertRaises(AttributeError):
-            user.password
+        self.assertRaises(AttributeError, lambda: user.password)
 
     def test_user_get(self):
         client = self.get_client()
         user = client.users.get(self.user_foo['id'])
-        with self.assertRaises(AttributeError):
-            user.password
-
+        self.assertRaises(AttributeError, lambda: user.password)
 
     def test_role_get(self):
         client = self.get_client()
