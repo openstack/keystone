@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import os
 import sys
 import textwrap
@@ -29,7 +30,7 @@ config.register_cli_str('endpoint',
                         default='http://localhost:$admin_port/v2.0',
                         #group='ks',
                         conf=CONF)
-config.register_cli_str('token',
+config.register_cli_str('auth_token',
                         default='$admin_token',
                         #group='ks',
                         help='asdasd',
@@ -88,10 +89,9 @@ class ClientCommand(BaseApp):
       self.ACTION_MAP = {'help': 'help'}
     self.add_param('action', nargs='?', default='help')
     self.add_param('keyvalues', nargs='*')
-    self.client = kc.Client(CONF.endpoint, token=CONF.token)
+    self.client = kc.Client(CONF.endpoint, token=CONF.auth_token)
     self.handle = getattr(self.client, '%ss' % self.__class__.__name__.lower())
     self._build_action_map()
-    self.usage = "foo"
 
   def _build_action_map(self):
     actions = {}
@@ -108,7 +108,13 @@ class ClientCommand(BaseApp):
       sys.exit(1)
 
     kv = self._parse_keyvalues(self.params.keyvalues)
-    resp = getattr(self.handle, action_name)(**kv)
+    try:
+      f = getattr(self.handle, action_name)
+      resp = f(**kv)
+    except Exception:
+      logging.exception('')
+      raise
+
     if CONF.id_only and getattr(resp, 'id'):
       print resp.id
       return
