@@ -23,7 +23,8 @@ from keystone import config
 from keystone.common import utils
 
 
-CONF = config.Config(usage='%prog COMMAND [key1=value1 key2=value2 ...]')
+CONF = config.CONF
+CONF.set_usage('%prog COMMAND [key1=value1 key2=value2 ...]')
 config.register_cli_str('endpoint',
                         default='http://localhost:$admin_port/v2.0',
                         #group='ks',
@@ -37,10 +38,6 @@ config.register_cli_bool('id-only',
                          default=False,
                          #group='ks',
                          conf=CONF)
-config.register_cli_str('admin-port',
-                        conf=CONF)
-config.register_cli_str('admin-token',
-                        conf=CONF)
 
 
 class BaseApp(cli.log.LoggingApp):
@@ -112,7 +109,7 @@ class ClientCommand(BaseApp):
 
     kv = self._parse_keyvalues(self.params.keyvalues)
     resp = getattr(self.handle, action_name)(**kv)
-    if CONF.ks.id_only and getattr(resp, 'id'):
+    if CONF.id_only and getattr(resp, 'id'):
       print resp.id
       return
     print resp
