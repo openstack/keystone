@@ -192,17 +192,17 @@ class TestCase(unittest.TestCase):
         sys.path.insert(0, path)
         self._paths.append(path)
 
-    def assertListEquals(self, expected, actual):
+    def assertListEquals(self, actual, expected):
         copy = expected[:]
         #print expected, actual
-        self.assertEquals(len(expected), len(actual))
+        self.assertEquals(len(actual), len(expected))
         while copy:
             item = copy.pop()
             matched = False
             for x in actual:
                 #print 'COMPARE', item, x,
                 try:
-                    self.assertDeepEquals(item, x)
+                    self.assertDeepEquals(x, item)
                     matched = True
                     #print 'MATCHED'
                     break
@@ -213,7 +213,7 @@ class TestCase(unittest.TestCase):
                 raise AssertionError('Expected: %s\n Got: %s' % (expected,
                                                                  actual))
 
-    def assertDictEquals(self, expected, actual):
+    def assertDictEquals(self, actual, expected):
         for k in expected:
             self.assertTrue(k in actual,
                             "Expected key %s not in %s." % (k, actual))
@@ -223,15 +223,15 @@ class TestCase(unittest.TestCase):
             self.assertTrue(k in expected,
                             "Unexpected key %s in %s." % (k, actual))
 
-    def assertDeepEquals(self, expected, actual):
+    def assertDeepEquals(self, actual, expected):
         try:
             if type(expected) is type([]) or type(expected) is type(tuple()):
                 # assert items equal, ignore order
-                self.assertListEquals(expected, actual)
+                self.assertListEquals(actual, expected)
             elif type(expected) is type({}):
-                self.assertDictEquals(expected, actual)
+                self.assertDictEquals(actual, expected)
             else:
-                self.assertEquals(expected, actual)
+                self.assertEquals(actual, expected)
         except AssertionError as e:
             raise
             raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
