@@ -2,6 +2,7 @@
 
 from keystone import identity
 from keystone.common import kvs
+from keystone.common import utils
 
 
 def _filter_user(user_ref):
@@ -9,6 +10,13 @@ def _filter_user(user_ref):
         user_ref = user_ref.copy()
         user_ref.pop('password', None)
         user_ref.pop('tenants', None)
+    return user_ref
+
+
+def _ensure_hashed_password(user_ref):
+    pw = user_ref.get('password', None)
+    if pw is not None:
+        user_ref['password'] = utils.hash_password(pw)
     return user_ref
 
 
@@ -24,7 +32,8 @@ class Identity(kvs.Base, identity.Driver):
         user_ref = self._get_user(user_id)
         tenant_ref = None
         metadata_ref = None
-        if not user_ref or user_ref.get('password') != password:
+        if (not user_ref
+            or not utils.check_password(password, user_ref.get('password'))):
             raise AssertionError('Invalid user / password')
         if tenant_id and tenant_id not in user_ref['tenants']:
             raise AssertionError('Invalid tenant')
@@ -78,15 +87,13 @@ class Identity(kvs.Base, identity.Driver):
         user_ref = self._get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
         tenants.add(tenant_id)
-        user_ref['tenants'] = list(tenants)
-        self.update_user(user_id, user_ref)
+        self.update_user(user_id, {'tenants': list(tenants)})
 
     def remove_user_from_tenant(self, tenant_id, user_id):
         user_ref = self._get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
         tenants.remove(tenant_id)
-        user_ref['tenants'] = list(tenants)
-        self.update_user(user_id, user_ref)
+        self.update_user(user_id, {'tenants': list(tenants)})
 
     def get_tenants_for_user(self, user_id):
         user_ref = self._get_user(user_id)
@@ -118,6 +125,7 @@ class Identity(kvs.Base, identity.Driver):
 
     # CRUD
     def create_user(self, user_id, user):
+        user = _ensure_hashed_password(user)
         self.db.set('user-%s' % user_id, user)
         self.db.set('user_name-%s' % user['name'], user)
         user_list = set(self.db.get('user_list', []))
@@ -128,10 +136,13 @@ class Identity(kvs.Base, identity.Driver):
     def update_user(self, user_id, user):
         # get the old name and delete it too
         old_user = self.db.get('user-%s' % user_id)
+        new_user = old_user.copy()
+        user = _ensure_hashed_password(user)
+        new_user.update(user)
         self.db.delete('user_name-%s' % old_user['name'])
-        self.db.set('user-%s' % user_id, user)
-        self.db.set('user_name-%s' % user['name'], user)
-        return user
+        self.db.set('user-%s' % user_id, new_user)
+        self.db.set('user_name-%s' % new_user['name'], new_user)
+        return new_user
 
     def delete_user(self, user_id):
         old_user = self.db.get('user-%s' % user_id)

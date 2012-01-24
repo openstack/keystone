@@ -107,6 +107,11 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
+        self.config()
+
+    def config(self):
+        CONF(config_files=[etcdir('keystone.conf'),
+                           testsdir('test_overrides.conf')])
 
     def tearDown(self):
         for path in self._paths:
@@ -137,10 +142,11 @@ class TestCase(unittest.TestCase):
         for user in fixtures.USERS:
             user_copy = user.copy()
             tenants = user_copy.pop('tenants')
-            rv = self.identity_api.create_user(user['id'], user_copy)
+            rv = self.identity_api.create_user(user['id'], user_copy.copy())
             for tenant_id in tenants:
                 self.identity_api.add_user_to_tenant(tenant_id, user['id'])
-            setattr(self, 'user_%s' % user['id'], rv)
+            setattr(self, 'user_%s' % user['id'], user_copy)
+            print user_copy
 
         for role in fixtures.ROLES:
             rv = self.identity_api.create_role(role['id'], role)

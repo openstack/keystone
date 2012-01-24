@@ -334,13 +334,10 @@ class UserController(wsgi.Application):
             self.identity_api.add_user_to_tenant(tenant_id, user_id)
         return {'user': new_user_ref}
 
-    # NOTE(termie): this is really more of a patch than a put
     def update_user(self, context, user_id, user):
+        # NOTE(termie): this is really more of a patch than a put
         self.assert_admin(context)
-        user_ref = self.identity_api._get_user(context, user_id)
-        del user['id']
-        user_ref.update(user)
-        self.identity_api.update_user(context, user_id, user_ref)
+        user_ref = self.identity_api.update_user(context, user_id, user)
         return {'user': user_ref}
 
     def delete_user(self, context, user_id):

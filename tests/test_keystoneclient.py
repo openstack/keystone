@@ -45,7 +45,6 @@ class KcMasterTestCase(CompatTestCase):
         from keystoneclient.v2_0 import client as ks_client
         reload(ks_client)
 
-        self._config()
         self.public_app = self.loadapp('keystone', name='main')
         self.admin_app = self.loadapp('keystone', name='admin')
 
@@ -62,10 +61,6 @@ class KcMasterTestCase(CompatTestCase):
         self.metadata_foobar = self.identity_api.update_metadata(
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=['keystone_admin'], is_admin='1'))
-
-    def _config(self):
-        CONF(config_files=[test.etcdir('keystone.conf'),
-                           test.testsdir('test_overrides.conf')])
 
     def get_client(self, user_ref=None, tenant_ref=None):
         if user_ref is None:
@@ -87,10 +82,9 @@ class KcMasterTestCase(CompatTestCase):
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_tenant_id_and_tenants(self):
-        client = self._client(username='FOO',
-                              password='foo2',
+        client = self._client(username=self.user_foo['name'],
+                              password=self.user_foo['password'],
                               tenant_id='bar')
-
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 

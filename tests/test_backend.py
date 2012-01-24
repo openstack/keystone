@@ -45,6 +45,11 @@ class IdentityTests(object):
     self.assertDictEquals(tenant_ref, self.tenant_bar)
     self.assertDictEquals(metadata_ref, self.metadata_foobar)
 
+  def test_password_hashed(self):
+    user_ref = self.identity_api._get_user(self.user_foo['id'])
+    self.assertNotEqual(user_ref['password'], self.user_foo['password'])
+
+
   def test_get_tenant_bad_tenant(self):
     tenant_ref = self.identity_api.get_tenant(
         tenant_id=self.tenant_bar['id'] + 'WRONG')

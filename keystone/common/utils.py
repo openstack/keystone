@@ -25,7 +25,14 @@ import subprocess
 import sys
 import urllib
 
+import bcrypt
+
+from keystone import config
 from keystone.common import logging
+
+
+CONF = config.CONF
+config.register_int('bcrypt_strength', default=12)
 
 
 def import_class(import_str):
@@ -132,6 +139,24 @@ class Ec2Signer(object):
         LOG.debug('len(b64)=%d', len(b64))
         LOG.debug('base64 encoded digest: %s', b64)
         return b64
+
+
+def hash_password(password):
+    """Hash a password. Hard."""
+    salt = bcrypt.gensalt(CONF.bcrypt_strength)
+    return bcrypt.hashpw(password, salt)
+
+
+def check_password(password, hashed):
+    """Check that a plaintext password matches hashed.
+
+    Due to the way bcrypt works, hashing a password with the hashed
+    version of that password as salt will return the hashed version
+    of that password (mostly). Neat!
+
+    """
+    check = bcrypt.hashpw(password, hashed[:29])
+    return check == hashed
 
 
 # From python 2.7

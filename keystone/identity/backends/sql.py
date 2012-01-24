@@ -2,12 +2,20 @@
 
 from keystone import identity
 from keystone.common import sql
+from keystone.common import utils
 from keystone.common.sql import migration
 
 
 def _filter_user(user_ref):
     if user_ref:
         user_ref.pop('password', None)
+    return user_ref
+
+
+def _ensure_hashed_password(user_ref):
+    pw = user_ref.get('password', None)
+    if pw is not None:
+        user_ref['password'] = utils.hash_password(pw)
     return user_ref
 
 
@@ -106,7 +114,8 @@ class Identity(sql.Base, identity.Driver):
         user_ref = self._get_user(user_id)
         tenant_ref = None
         metadata_ref = None
-        if not user_ref or user_ref.get('password') != password:
+        if (not user_ref
+            or not utils.check_password(password, user_ref.get('password'))):
             raise AssertionError('Invalid user / password')
 
         tenants = self.get_tenants_for_user(user_id)
@@ -246,6 +255,7 @@ class Identity(sql.Base, identity.Driver):
 
     # CRUD
     def create_user(self, user_id, user):
+        user = _ensure_hashed_password(user)
         session = self.get_session()
         with session.begin():
             user_ref = User.from_dict(user)
@@ -258,6 +268,7 @@ class Identity(sql.Base, identity.Driver):
         with session.begin():
             user_ref = session.query(User).filter_by(id=user_id).first()
             old_user_dict = user_ref.to_dict()
+            user = _ensure_hashed_password(user)
             for k in user:
                 old_user_dict[k] = user[k]
             new_user = User.from_dict(old_user_dict)
