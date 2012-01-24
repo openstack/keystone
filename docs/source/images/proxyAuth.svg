@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="360.43942"
+   height="43.693935"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="layouts.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98901497"
+     inkscape:cx="238.80946"
+     inkscape:cy="161.99774"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="912"
+     inkscape:window-height="842"
+     inkscape:window-x="66"
+     inkscape:window-y="87"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-136.19055,-650.66599)">
+    <g
+       id="1"
+       transform="translate(134.9737,646.56521)">
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="10.4"
+         x="190.39999"
+         xml:space="preserve"
+         id="2">Authorization</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="10.4"
+         x="240.8"
+         xml:space="preserve"
+         id="3">: </text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="10.4"
+         x="245.60001"
+         xml:space="preserve"
+         id="4">Basic dTpw</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="190.39999"
+         xml:space="preserve"
+         id="5">X</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="196"
+         xml:space="preserve"
+         id="6">-</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="199.2"
+         xml:space="preserve"
+         id="7">Authorization</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="248.8"
+         xml:space="preserve"
+         id="8">: </text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="253.60001"
+         xml:space="preserve"
+         id="9">Proxy U</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="5.5999999"
+         xml:space="preserve"
+         id="10">Authorization</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="56"
+         xml:space="preserve"
+         id="11">: </text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="20"
+         x="60.799999"
+         xml:space="preserve"
+         id="12">Basic VTpQ</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#ff0000;font-family:Arial"
+         y="31.200001"
+         x="34.400002"
+         xml:space="preserve"
+         id="13">500 </text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#ff0000;font-family:Arial"
+         y="31.200001"
+         x="50.400002"
+         xml:space="preserve"
+         id="14">Internal Error</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#ff0000;font-family:Arial"
+         y="32.799999"
+         x="190.39999"
+         xml:space="preserve"
+         id="15">403 </text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#ff0000;font-family:Arial"
+         y="32.799999"
+         x="206.39999"
+         xml:space="preserve"
+         id="16">Proxy Unauthorized</text>
+      <path
+         d="m 114.4,23.3 c 1,12.6 -38.55,19.05 -91.35,14.85"
+         style="fill:none;stroke:#ff0000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="17"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 23.6,41.65 -10,-4.35 10.65,-2.55 -0.65,6.9 z"
+         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="18"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 115.6,8.5 0,28.8 67.2,0 0,-28.8 -67.2,0 z"
+         style="fill:#fdefe3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="19"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 115.6,37.3 67.2,0 0,-28.8 -67.2,0 0,28.8 z"
+         style="fill:none;stroke:#c00000;stroke-width:1.29999995px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="20"
+         inkscape:connector-curvature="0" />
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="20"
+         x="138.39999"
+         xml:space="preserve"
+         id="21">Auth</text>
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="31.200001"
+         x="122.4"
+         xml:space="preserve"
+         id="22">Component</text>
+      <path
+         d="M 292.6,22.9 C 295,47.25 251.2,54.6 192,39.75"
+         style="fill:none;stroke:#ff0000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="23"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 191.95,43.3 -9.15,-6 10.9,-0.7 -1.75,6.7 z"
+         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="24"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 293.8,8.5 0,28.8 67.2,0 0,-28.8 -67.2,0 z"
+         style="fill:#d1ebf1;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="25"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 293.8,37.3 67.2,0 0,-28.8 -67.2,0 0,28.8 z"
+         style="fill:none;stroke:#1f477d;stroke-width:1.29999995px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="26"
+         inkscape:connector-curvature="0" />
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="20"
+         x="302.39999"
+         xml:space="preserve"
+         id="27">OpenStack</text>
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="31.200001"
+         x="310.39999"
+         xml:space="preserve"
+         id="28">Service</text>
+      <path
+         d="m 182.8,22.9 101.5,0"
+         style="fill:none;stroke:#000000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="29"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 283.45,19.4 10.35,3.5 -10.35,3.45 0,-6.95 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="30"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 1.6,22.9 106.7,22.85"
+         style="fill:none;stroke:#000000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="31"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 105.85,19.35 10.35,3.5 -10.35,3.45 0,-6.95 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="32"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>
