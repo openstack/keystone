@@ -60,10 +60,15 @@ class TokenController(BaseController):
             result = self.identity_service.\
                 authenticate_with_unscoped_token(unscoped)
             return utils.send_result(200, req, result)
-        elif credential_type in ["ec2Credentials", "OS-KSEC2-ec2Credentials"]:
+        elif credential_type == "OS-KSEC2:ec2Credentials":
             return self._authenticate_ec2(req)
-        elif credential_type == "OS-KSS3-s3Credentials":
+        elif credential_type == "OS-KSS3:s3Credentials":
             return self._authenticate_s3(req)
+        elif credential_type in ["ec2Credentials", "OS-KSEC2-ec2Credentials"]:
+            logger.warning('Received EC2 credentials in %s format. Processing '
+                           'may fail. Update the client code sending this '
+                           'format' % credential_type)
+            return self._authenticate_ec2(req)
         else:
             raise fault.BadRequestFault("Invalid credentials %s" %
                                         credential_type)

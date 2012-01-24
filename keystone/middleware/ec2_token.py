@@ -57,13 +57,14 @@ class EC2Token(wsgi.Middleware):
         auth_params.pop('Signature')
 
         # Authenticate the request.
-        creds = {'OS-KSEC2-ec2Credentials': {'access': access,
+        creds = {'auth':
+                    {'OS-KSEC2:ec2Credentials': {'access': access,
                                     'signature': signature,
                                     'host': req.host,
                                     'verb': req.method,
                                     'path': req.path,
                                     'params': auth_params,
-                                   }}
+                                   }}}
         creds_json = utils.dumps(creds)
         headers = {'Content-Type': 'application/json'}
 

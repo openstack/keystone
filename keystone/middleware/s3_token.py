@@ -100,7 +100,7 @@ class S3Token(object):
         #    account = access
 
         # Authenticate the request.
-        creds = {'OS-KSS3-s3Credentials': {'access': account,
+        creds = {'OS-KSS3:s3Credentials': {'access': account,
                                     'signature': signature,
                                     'verb': req.method,
                                     'path': req.path,

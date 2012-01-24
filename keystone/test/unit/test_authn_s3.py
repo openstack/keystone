@@ -62,7 +62,7 @@ class S3AuthnMethods(base.ServiceAPITest):
         credentials['signature'] = sign.generate(obj_creds, s3=True)
         body = {
             "auth": {
-                "OS-KSS3-s3Credentials": credentials,
+                "OS-KSS3:s3Credentials": credentials,
             }
         }
         req.body = json.dumps(body)
@@ -121,7 +121,7 @@ class S3AuthnMethods(base.ServiceAPITest):
         credentials['signature'] = sign.generate(obj_creds, s3=True)
         body = {
             "auth": {
-                "OS-KSS3-s3Credentials": credentials,
+                "OS-KSS3:s3Credentials": credentials,
             }
         }
         req.body = json.dumps(body)
@@ -169,7 +169,7 @@ class S3AuthnMethods(base.ServiceAPITest):
         credentials['signature'] = sign.generate(obj_creds, s3=True)
         body = {
             "auth": {
-                "OS-KSS3-s3Credentials": credentials,
+                "OS-KSS3:s3Credentials": credentials,
             }
         }
         req.body = json.dumps(body)
@@ -225,7 +225,7 @@ class S3AuthnMethods(base.ServiceAPITest):
         credentials['signature'] = sign.generate(obj_creds, s3=True)
         body = {
             "auth": {
-                "OS-KSS3-s3Credentials": credentials,
+                "OS-KSS3:s3Credentials": credentials,
             }
         }
         req.body = json.dumps(body)

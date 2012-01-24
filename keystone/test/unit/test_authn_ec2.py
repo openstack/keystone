@@ -61,7 +61,7 @@ class EC2AuthnMethods(base.ServiceAPITest):
         credentials['signature'] = sign.generate(obj_creds)
         body = {
             "auth": {
-                "OS-KSEC2-ec2Credentials": credentials,
+                "OS-KSEC2:ec2Credentials": credentials,
             }
         }
         req.body = json.dumps(body)

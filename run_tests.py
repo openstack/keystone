@@ -62,28 +62,16 @@ if __name__ == '__main__':
     if len(TESTS) > 1:
         directory = os.getcwd()
         for test_num, test_cls in enumerate(TESTS):
-            # We've had problems with resetting SQLAlchemy, so we can fire off
-            # a separate process for each test suite to guarantee the
-            # backend is clean. This is enabled with this constant.
-            run_separate_processes = False
-            if run_separate_processes:
-                params = ["python", __file__, '-O',
-                          str(test_cls.__name__)] + sys.argv[1:]
-                p = subprocess.Popen(params)
-                result = p.wait()
+            try:
+                result = test_cls().run()
                 if result:
+                    logger.error("Run returned %s for test %s. Exiting" %
+                                 (result, test_cls.__name__))
                     sys.exit(result)
-            else:
-                try:
-                    result = test_cls().run()
-                    if result:
-                        logger.error("Run returned %s for test %s. Exiting" %
-                                     (result, test_cls.__name__))
-                        sys.exit(result)
-                except Exception, e:
-                    print "Error:", e
-                    logger.exception(e)
-                    sys.exit(1)
+            except Exception, e:
+                print "Error:", e
+                logger.exception(e)
+                sys.exit(1)
             # Collect coverage from each run. They'll be combined later in .sh
             if '--with-coverage' in sys.argv:
                 coverage_file = os.path.join(directory, ".coverage")

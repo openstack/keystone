@@ -236,8 +236,8 @@ class Ec2Credentials(object):
             else:
                 obj = root
 
-            if "OS-KSEC2-ec2Credentials" in obj:
-                cred = obj["OS-KSEC2-ec2Credentials"]
+            if "OS-KSEC2:ec2Credentials" in obj:
+                cred = obj["OS-KSEC2:ec2Credentials"]
             elif "ec2Credentials" in obj:
                 cred = obj["ec2Credentials"]
             else:
@@ -365,8 +365,8 @@ class S3Credentials(object):
             else:
                 obj = root
 
-            if "OS-KSS3-s3Credentials" in obj:
-                cred = obj["OS-KSS3-s3Credentials"]
+            if "OS-KSS3:s3Credentials" in obj:
+                cred = obj["OS-KSS3:s3Credentials"]
             elif "s3Credentials" in obj:
                 cred = obj["s3Credentials"]
             else:
