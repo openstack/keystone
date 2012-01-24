@@ -183,6 +183,8 @@ def setup_logging(options, conf):
 
     # Mirror to console if verbose or debug
     if debug or verbose:
+        add_console_handler(root_logger, logging.DEBUG)
+    else:
         add_console_handler(root_logger, logging.INFO)
 
 
