@@ -375,12 +375,12 @@ def process(*args):
 #
 def do_db_version(options):
     """Print database's current migration level"""
-    print (migration.db_version(options))
+    print (migration.db_version(options['sql_connection']))
 
 
 def do_db_goto_version(options, target_version):
     """Override the database's current migration level"""
-    if migration.db_goto_version(options, target_version):
+    if migration.db_goto_version(options['sql_connection'], target_version):
         msg = ('Jumped to version=%s (without performing intermediate '
             'migrations)') % target_version
         print (msg)
@@ -394,7 +394,7 @@ def do_db_upgrade(options, args):
         db_version = None
 
     print ("Upgrading database to version %s" % db_version)
-    migration.upgrade(options, version=db_version)
+    migration.upgrade(options['sql_connection'], version=db_version)
 
 
 def do_db_downgrade(options, args):
@@ -404,12 +404,12 @@ def do_db_downgrade(options, args):
     except IndexError:
         raise Exception("downgrade requires a version argument")
 
-    migration.downgrade(options, version=db_version)
+    migration.downgrade(options['sql_connection'], version=db_version)
 
 
 def do_db_version_control(options):
     """Place a database under migration control"""
-    migration.version_control(options)
+    migration.version_control(options['sql_connection'])
     print ("Database now under version control")
 
 
@@ -419,7 +419,7 @@ def do_db_sync(options, args):
         db_version = args[2]
     except IndexError:
         db_version = None
-    migration.db_sync(options, version=db_version)
+    migration.db_sync(options['sql_connection'], version=db_version)
 
 
 class Table:
