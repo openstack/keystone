@@ -18,14 +18,36 @@
         schemaLocation="user.xsd"/>
 
     <!-- Elements -->
-    <complexType name="UserWithOnlyPassword">
+    <complexType name="UserWithOnlyEnabled">
         <complexContent>
             <restriction base="identity:User">
                 <attribute name="id" type="xsd:string" use="prohibited"/>
+                <attribute name="username" type="xsd:string" use="prohibited"/>
                 <attribute name="email" type="xsd:string" use="prohibited"/>
-                <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="required"/>
             </restriction>
         </complexContent>
     </complexType>
-</schema>
 
+    <complexType name="UserWithPassword">
+         <complexContent>
+              <annotation>
+                   <xsd:appinfo>
+                        <xsdxt:samples>
+                             <xsdxt:sample>
+                                  <xsdxt:code type="application/xml" href="../samples/RAX-KSADM-userWithPassword.xml" />
+                             </xsdxt:sample>
+                             <xsdxt:sample>
+                                  <xsdxt:code type="application/json" href="../samples/RAX-KSADM-userWithPassword.json" />
+                             </xsdxt:sample>
+                        </xsdxt:samples>
+                   </xsd:appinfo>
+              </annotation>
+              <extension base="identity:User">
+                   <attribute name="password" type="xsd:string" use="optional"/>
+                   <anyAttribute namespace="##other" processContents="lax" />
+              </extension>
+         </complexContent>
+    </complexType>
+
+</schema>
