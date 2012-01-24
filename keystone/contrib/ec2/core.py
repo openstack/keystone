@@ -3,7 +3,7 @@
 """Main entry point into the EC2 Credentials service.
 
 This service allows the creation of access/secret credentials used for
-the ec2 interop layer of OpenStack.  
+the ec2 interop layer of OpenStack.
 
 A user can create as many access/secret pairs, each of which map to a
 specific tenant.  This is required because OpenStack supports a user
@@ -15,8 +15,8 @@ To complete the cycle, we provide a method that OpenStack services can
 use to validate a signature and get a corresponding openstack token.  This
 token allows method calls to other services within the context the
 access/secret was created.  As an example, nova requests keystone to validate
-the signature of a request, receives a token, and then makes a request to glance
-to list images needed to perform the requested task.
+the signature of a request, receives a token, and then makes a request to
+glance to list images needed to perform the requested task.
 
 """
 
@@ -95,7 +95,7 @@ class Ec2Controller(wsgi.Application):
         all the other details returned from a normal token validation
         call.
 
-        The returned token is useful for making calls to other 
+        The returned token is useful for making calls to other
         OpenStack services within the context of the request.
 
         :param context: standard context

@@ -11,6 +11,7 @@ def _filter_user(user_ref):
         user_ref.pop('tenants', None)
     return user_ref
 
+
 class Identity(kvs.Base, identity.Driver):
     # Public interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
