@@ -103,7 +103,7 @@ class Base(object):
         connection_dict = sqlalchemy.engine.url.make_url(CONF.sql.connection)
 
         engine_args = {"pool_recycle": CONF.sql.idle_timeout,
-                       "echo": True,
+                       "echo": False,
                        }
 
         if "sqlite" in connection_dict.drivername:
