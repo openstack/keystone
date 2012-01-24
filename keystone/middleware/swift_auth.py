@@ -43,7 +43,7 @@ import json
 from urlparse import urlparse
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPExpectationFailed
 
-from keystone.bufferedhttp import http_connect_raw as http_connect
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 from swift.common.middleware.acl import clean_acl, parse_acl, referrer_allowed
 from swift.common.utils import get_logger, split_path

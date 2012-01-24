@@ -76,7 +76,7 @@ import webob
 import webob.exc
 from webob.exc import HTTPUnauthorized
 
-from keystone.bufferedhttp import http_connect_raw as http_connect
+from keystone.common.bufferedhttp import http_connect_raw as http_connect
 
 PROTOCOL_NAME = "Token Authentication"
 
