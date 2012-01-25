@@ -737,11 +737,13 @@ class Roles(object):
         dom = etree.Element("roles")
         dom.set(u"xmlns", "http://docs.openstack.org/identity/api/v2.0")
 
-        for t in self.values:
-            dom.append(t.to_dom())
+        if self.values:
+            for t in self.values:
+                dom.append(t.to_dom())
 
-        for t in self.links:
-            dom.append(t.to_dom())
+        if self.links:
+            for t in self.links:
+                dom.append(t.to_dom())
 
         return dom
 

@@ -479,14 +479,14 @@ class AuthData(object):
         dom.append(token)
 
         user = etree.Element("user",
-            id=unicode(self.user.id),
-            name=unicode(self.user.username))
+                id=unicode(self.user.id),
+                name=unicode(self.user.username))
         dom.append(user)
 
         if self.user.rolegrants is not None:
             user.append(self.user.rolegrants.to_dom())
 
-        if self.base_urls is not None or len(self.base_urls) > 0:
+        if self.base_urls is not None and len(self.base_urls) > 0:
             service_catalog = etree.Element("serviceCatalog")
             for key, key_base_urls in self.d.items():
                 dservice = db_api.SERVICE.get(key)
@@ -510,12 +510,18 @@ class AuthData(object):
                                     endpoint.set(url_kind + "URL",
                                         base_url_item.replace('%tenant_id%',
                                         str(self.token.tenant.id)))
+                                    endpoint.set('tenantId',
+                                                 str(self.token.tenant.id))
                                     include_this_endpoint = True
                             else:
                                 endpoint.set(url_kind + "URL", base_url_item)
                                 include_this_endpoint = True
                     if include_this_endpoint:
                         endpoint.set("id", str(base_url.id))
+                        if hasattr(base_url, "version_id"):
+                            if base_url.version_id:
+                                endpoint.set("versionId",
+                                             str(base_url.version_id))
                         service.append(endpoint)
                 if service.find("endpoint") is not None:
                     service_catalog.append(service)
@@ -567,12 +573,18 @@ class AuthData(object):
                                     endpoint[url_kind + "URL"] = \
                                     base_url_item.replace('%tenant_id%',
                                             str(self.token.tenant.id))
+                                    endpoint['tenantId'] = \
+                                            str(self.token.tenant.id)
                                     include_this_endpoint = True
                             else:
                                 endpoint[url_kind + "URL"] = base_url_item
                                 include_this_endpoint = True
                     if include_this_endpoint:
                         endpoint['id'] = str(base_url.id)
+                        if hasattr(base_url, 'version_id'):
+                            if base_url.version_id:
+                                endpoint['versionId'] = \
+                                        str(base_url.version_id)
                         endpoints.append(endpoint)
                         dservice = db_api.SERVICE.get(key)
                         if not dservice:
