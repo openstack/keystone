@@ -1,5 +1,6 @@
 import argparse
 
+from keystone import config
 from keystone.manage2 import common
 
 
@@ -8,9 +9,6 @@ class BaseCommand(object):
 
     # pylint: disable=W0613
     def __init__(self, *args, **kwargs):
-        if not hasattr(self.__class__, '_args'):
-            self.__class__._args = {}
-
         self.parser = argparse.ArgumentParser(prog=self.__module__,
             description=self.__doc__)
         self.append_parser(self.parser)
@@ -35,7 +33,7 @@ class BaseCommand(object):
 
         :param parser: argparse.ArgumentParser
         """
-        args = cls._args
+        args = getattr(cls, '_args', {})
 
         for name in args.keys():
             try:
@@ -58,6 +56,11 @@ class BaseSqlalchemyCommand(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super(BaseSqlalchemyCommand, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def _get_connection_string():
+        sqla = config.CONF['keystone.backends.sqlalchemy']
+        return sqla.sql_connection
 
 
 # pylint: disable=E1101,W0223

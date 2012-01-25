@@ -30,7 +30,7 @@ def arg(name, **kwargs):
 
 def get_options():
     # Initialize a parser for our configuration paramaters
-    parser = optparse.OptionParser("usage", version='%%prog %s'
+    parser = optparse.OptionParser("Usage", version='%%prog %s'
         % version.version())
     config.add_common_options(parser)
     config.add_log_options(parser)

@@ -1,5 +1,4 @@
 from keystone.backends.sqlalchemy import migration
-from keystone import config
 from keystone.manage2 import base
 from keystone.manage2 import common
 
@@ -9,11 +8,6 @@ from keystone.manage2 import common
     help='specify the desired database version')
 class Command(base.BaseSqlalchemyCommand):
     """Downgrades the database to the specified version"""
-
-    @staticmethod
-    def _get_connection_string():
-        sqla = config.CONF['keystone.backends.sqlalchemy']
-        return sqla.sql_connection
 
     @staticmethod
     def downgrade_database(version):
