@@ -93,6 +93,64 @@ class TestServiceAuthentication(common.FunctionalTestCase):
         self.create_endpoint_for_tenant(self.tenant['id'],
             self.endpoint_templates['id'])
 
+    def test_authenticate_twice(self):
+        """Authenticating twice in a row should not result in a new token
+
+        The original token should not have expired and should be provided again
+        """
+        first_token = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']}}}).\
+            json['access']['token']['id']
+
+        second_token = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']}}}).\
+            json['access']['token']['id']
+
+        self.assertEqual(first_token, second_token)
+
+    def test_authenticate_twice_for_tenant(self):
+        """Authenticating twice in a row should not result in a new token
+
+        The original token should not have expired and should be provided again
+        """
+        # Additonal setUp
+        role = self.create_role().json['role']
+        self.grant_role_to_user(self.user['id'], role['id'], self.tenant['id'])
+
+        self.service_token = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']}}}).\
+            json['access']['token']['id']
+
+        tenant = self.service_request(method='GET', path='/tenants').\
+            json['tenants'][0]
+
+        first_token = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']},
+                'tenantId': tenant['id']}}).json['access']['token']['id']
+
+        second_token = self.post_token(as_json={
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user['name'],
+                    'password': self.user['password']},
+                'tenantId': tenant['id']}}).json['access']['token']['id']
+
+        # unscoped token should be different than the two scoped tokens
+        self.assertNotEqual(self.service_token, first_token)
+        self.assertEqual(first_token, second_token)
+
     def test_unscoped_user_auth(self):
         """Admin should be able to validate a user's token"""
         # Authenticate as user to get a token
