@@ -196,7 +196,6 @@ class Application(BaseApplication):
             creds = user_token_ref['metadata'].copy()
             creds['user_id'] = user_token_ref['user'].get('id')
             creds['tenant_id'] = user_token_ref['tenant'].get('id')
-            print creds
             # Accept either is_admin or the admin role
             assert self.policy_api.can_haz(context,
                                            ('is_admin:1', 'roles:admin'),

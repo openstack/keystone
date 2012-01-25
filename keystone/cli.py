@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 
+import json
 import logging
 import os
 import sys
+import StringIO
 import textwrap
 
 import cli.app
@@ -19,7 +21,7 @@ config.register_cli_str('endpoint',
                         default='http://localhost:$admin_port/v2.0',
                         #group='ks',
                         conf=CONF)
-config.register_cli_str('auth_token',
+config.register_cli_str('auth-token',
                         default='$admin_token',
                         #group='ks',
                         help='asdasd',
@@ -113,7 +115,29 @@ class ClientCommand(BaseApp):
     if CONF.id_only and getattr(resp, 'id'):
       print resp.id
       return
-    print resp
+
+    if resp is None:
+      return
+
+    # NOTE(termie): this is ugly but it is mostly because the keystoneclient
+    #               code doesn't give us very serializable instance objects
+    if type(resp) in [type(list()), type(tuple())]:
+      o = []
+      for r in resp:
+        d = {}
+        for k, v in sorted(r.__dict__.iteritems()):
+          if k[0] == '_' or k == 'manager':
+            continue
+          d[k] = v
+        o.append(d)
+    else:
+      o = {}
+      for k, v in sorted(resp.__dict__.iteritems()):
+        if k[0] == '_' or k == 'manager':
+          continue
+        o[k] = v
+
+    print json.dumps(o)
 
   def print_help(self):
     CONF.set_usage(CONF.usage.replace(
@@ -175,6 +199,122 @@ CMDS = {'db_sync': DbSync,
         }
 
 
+class CommandLineGenerator(object):
+  """A keystoneclient lookalike to generate keystone-manage commands.
+
+  One would use it like so:
+
+  >>> gen = CommandLineGenerator(id_only=None)
+  >>> cl = gen.ec2.create(user_id='foo', tenant_id='foo')
+  >>> cl.to_argv()
+  ... ['keystone-manage',
+       '--id-only',
+       'ec2',
+       'create',
+       'user_id=foo',
+       'tenant_id=foo']
+
+  """
+
+  cmd = 'keystone-manage'
+
+  def __init__(self, cmd=None, execute=False, **kw):
+    if cmd:
+      self.cmd = cmd
+    self.flags = kw
+    self.execute = execute
+
+  def __getattr__(self, key):
+    return _Manager(self, key)
+
+
+class _Manager(object):
+  def __init__(self, parent, name):
+    self.parent = parent
+    self.name = name
+
+  def __getattr__(self, key):
+    return _CommandLine(cmd=self.parent.cmd,
+                        flags=self.parent.flags,
+                        manager=self.name,
+                        method=key,
+                        execute=self.parent.execute)
+
+
+class _CommandLine(object):
+  def __init__(self, cmd, flags, manager, method, execute=False):
+    self.cmd = cmd
+    self.flags = flags
+    self.manager = manager
+    self.method = method
+    self.execute = execute
+    self.kw = {}
+
+  def __call__(self, **kw):
+    self.kw = kw
+    if self.execute:
+      logging.debug('generated cli: %s', str(self))
+      out = StringIO.StringIO()
+      old_out = sys.stdout
+      sys.stdout = out
+      try:
+        main(self.to_argv())
+      except SystemExit as e:
+        pass
+      finally:
+        sys.stdout = old_out
+      rv = out.getvalue().strip().split('\n')[-1]
+      try:
+        loaded = json.loads(rv)
+        if type(loaded) in [type(list()), type(tuple())]:
+          return [DictWrapper(**x) for x in loaded]
+        elif type(loaded) is type(dict()):
+          return DictWrapper(**loaded)
+      except Exception:
+        logging.exception('Could not parse JSON: %s', rv)
+        return rv
+    return self
+
+  def __flags(self):
+    o = []
+    for k, v in self.flags.iteritems():
+      k = k.replace('_', '-')
+      if v is None:
+        o.append('--%s' % k)
+      else:
+        o.append('--%s=%s' % (k, str(v)))
+    return o
+
+  def __manager(self):
+    if self.manager.endswith('s'):
+      return self.manager[:-1]
+    return self.manager
+
+  def __kw(self):
+    o = []
+    for k, v in self.kw.iteritems():
+      o.append('%s=%s' % (k, str(v)))
+    return o
+
+  def to_argv(self):
+    return ([self.cmd]
+            + self.__flags()
+            + [self.__manager(), self.method]
+            + self.__kw())
+
+  def __str__(self):
+    args = self.to_argv()
+    return ' '.join(args[:1] + ['"%s"' % x for x in args[1:]])
+
+
+class DictWrapper(dict):
+  def __getattr__(self, key):
+    try:
+      return self[key]
+    except KeyError:
+      raise AttributeError(key)
+
+
 def print_commands(cmds):
   print
   print "Available commands:"
@@ -195,7 +335,9 @@ def run(cmd, args):
 
 
 def main(argv=None, config_files=None):
+  CONF.reset()
   args = CONF(config_files=config_files, args=argv)
+
   if len(args) < 2:
     CONF.print_help()
     print_commands(CMDS)

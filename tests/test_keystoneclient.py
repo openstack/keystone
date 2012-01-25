@@ -113,7 +113,7 @@ class KcMasterTestCase(CompatTestCase):
     def test_endpoints(self):
         client = self.get_client()
         token = client.auth_token
-        endpoints = client.tokens.endpoints(token)
+        endpoints = client.tokens.endpoints(token=token)
 
     # FIXME(ja): this test should require the "keystone:admin" roled
     #            (probably the role set via --keystone_admin_role flag)
@@ -125,16 +125,16 @@ class KcMasterTestCase(CompatTestCase):
 
         test_tenant = 'new_tenant'
         client = self.get_client()
-        tenant = client.tenants.create(test_tenant,
+        tenant = client.tenants.create(tenant_name=test_tenant,
                                        description="My new tenant!",
                                        enabled=True)
         self.assertEquals(tenant.name, test_tenant)
 
-        tenant = client.tenants.get(tenant.id)
+        tenant = client.tenants.get(tenant_id=tenant.id)
         self.assertEquals(tenant.name, test_tenant)
 
         # TODO(devcamcar): update gives 404. why?
-        tenant = client.tenants.update(tenant.id,
+        tenant = client.tenants.update(tenant_id=tenant.id,
                                        tenant_name='new_tenant2',
                                        enabled=False,
                                        description='new description')
@@ -142,7 +142,7 @@ class KcMasterTestCase(CompatTestCase):
         self.assertFalse(tenant.enabled)
         self.assertEquals(tenant.description, 'new description')
 
-        client.tenants.delete(tenant.id)
+        client.tenants.delete(tenant=tenant.id)
         self.assertRaises(client_exceptions.NotFound, client.tenants.get,
                           tenant.id)
 
@@ -153,25 +153,26 @@ class KcMasterTestCase(CompatTestCase):
 
     def test_tenant_add_and_remove_user(self):
         client = self.get_client()
-        client.roles.add_user_to_tenant(self.tenant_baz['id'],
-                                        self.user_foo['id'],
-                                        self.role_useless['id'])
+        client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
+                                        user_id=self.user_foo['id'],
+                                        role_id=self.role_useless['id'])
         tenant_refs = client.tenants.list()
         self.assert_(self.tenant_baz['id'] in
                      [x.id for x in tenant_refs])
 
         # get the "role_refs" so we get the proper id, this is how the clients
         # do it
-        roleref_refs = client.roles.get_user_role_refs(self.user_foo['id'])
+        roleref_refs = client.roles.get_user_role_refs(
+                user_id=self.user_foo['id'])
         for roleref_ref in roleref_refs:
           if (roleref_ref.roleId == self.role_useless['id'] and
               roleref_ref.tenantId == self.tenant_baz['id']):
             # use python's scope fall through to leave roleref_ref set
             break
 
-        client.roles.remove_user_from_tenant(self.tenant_baz['id'],
-                                             self.user_foo['id'],
-                                             roleref_ref.id)
+        client.roles.remove_user_from_tenant(tenant_id=self.tenant_baz['id'],
+                                             user_id=self.user_foo['id'],
+                                             role_id=roleref_ref.id)
 
         tenant_refs = client.tenants.list()
         self.assert_(self.tenant_baz['id'] not in
@@ -194,17 +195,19 @@ class KcMasterTestCase(CompatTestCase):
 
         test_username = 'new_user'
         client = self.get_client()
-        user = client.users.create(test_username, 'password', 'user1@test.com')
+        user = client.users.create(name=test_username,
+                                   password='password',
+                                   email='user1@test.com')
         self.assertEquals(user.name, test_username)
 
-        user = client.users.get(user.id)
+        user = client.users.get(user=user.id)
         self.assertEquals(user.name, test_username)
 
-        user = client.users.update_email(user, 'user2@test.com')
+        user = client.users.update_email(user=user, email='user2@test.com')
         self.assertEquals(user.email, 'user2@test.com')
 
         # NOTE(termie): update_enabled doesn't return anything, probably a bug
-        client.users.update_enabled(user, False)
+        client.users.update_enabled(user=user, enabled=False)
         user = client.users.get(user.id)
         self.assertFalse(user.enabled)
 
@@ -214,12 +217,12 @@ class KcMasterTestCase(CompatTestCase):
                   password='password')
         client.users.update_enabled(user, True)
 
-        user = client.users.update_password(user, 'password2')
+        user = client.users.update_password(user=user, password='password2')
 
         test_client = self._client(username=test_username,
                                    password='password2')
 
-        user = client.users.update_tenant(user, 'bar')
+        user = client.users.update_tenant(user=user, tenant='bar')
         # TODO(ja): once keystonelight supports default tenant
         #           when you login without specifying tenant, the
         #           token should be scoped to tenant 'bar'
@@ -237,12 +240,12 @@ class KcMasterTestCase(CompatTestCase):
 
     def test_user_get(self):
         client = self.get_client()
-        user = client.users.get(self.user_foo['id'])
+        user = client.users.get(user=self.user_foo['id'])
         self.assertRaises(AttributeError, lambda: user.password)
 
     def test_role_get(self):
         client = self.get_client()
-        role = client.roles.get('keystone_admin')
+        role = client.roles.get(role='keystone_admin')
         self.assertEquals(role.id, 'keystone_admin')
 
     def test_role_create_and_delete(self):
@@ -250,16 +253,16 @@ class KcMasterTestCase(CompatTestCase):
 
         test_role = 'new_role'
         client = self.get_client()
-        role = client.roles.create(test_role)
+        role = client.roles.create(name=test_role)
         self.assertEquals(role.name, test_role)
 
-        role = client.roles.get(role)
+        role = client.roles.get(role=role.id)
         self.assertEquals(role.name, test_role)
 
-        client.roles.delete(role)
+        client.roles.delete(role=role.id)
 
         self.assertRaises(client_exceptions.NotFound, client.roles.get,
-                          test_role)
+                          role=test_role)
 
     def test_role_list(self):
         client = self.get_client()
@@ -269,25 +272,26 @@ class KcMasterTestCase(CompatTestCase):
 
     def test_roles_get_by_user(self):
         client = self.get_client()
-        roles = client.roles.get_user_role_refs('foo')
+        roles = client.roles.get_user_role_refs(user_id='foo')
         self.assertTrue(len(roles) > 0)
 
     def test_ec2_credential_crud(self):
         client = self.get_client()
-        creds = client.ec2.list(self.user_foo['id'])
+        creds = client.ec2.list(user_id=self.user_foo['id'])
         self.assertEquals(creds, [])
 
-        cred = client.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
-        creds = client.ec2.list(self.user_foo['id'])
+        cred = client.ec2.create(user_id=self.user_foo['id'],
+                                 tenant_id=self.tenant_bar['id'])
+        creds = client.ec2.list(user_id=self.user_foo['id'])
         self.assertEquals(creds, [cred])
 
-        got = client.ec2.get(self.user_foo['id'], cred.access)
+        got = client.ec2.get(user_id=self.user_foo['id'], access=cred.access)
         self.assertEquals(cred, got)
 
         # FIXME(ja): need to test ec2 validation here
 
-        client.ec2.delete(self.user_foo['id'], cred.access)
-        creds = client.ec2.list(self.user_foo['id'])
+        client.ec2.delete(user_id=self.user_foo['id'], access=cred.access)
+        creds = client.ec2.list(user_id=self.user_foo['id'])
         self.assertEquals(creds, [])
 
     def test_ec2_credentials_list_unauthorized_user(self):
@@ -329,20 +333,24 @@ class KcMasterTestCase(CompatTestCase):
 
         test_service = 'new_service'
         client = self.get_client()
-        service = client.services.create(test_service, 'test', 'test')
+        service = client.services.create(name=test_service,
+                                         service_type='test',
+                                         description='test')
         self.assertEquals(service.name, test_service)
 
-        service = client.services.get(service.id)
+        service = client.services.get(id=service.id)
         self.assertEquals(service.name, test_service)
 
-        client.services.delete(service.id)
+        client.services.delete(id=service.id)
         self.assertRaises(client_exceptions.NotFound, client.services.get,
-                          service.id)
+                          id=service.id)
 
     def test_service_list(self):
         client = self.get_client()
         test_service = 'new_service'
-        service = client.services.create(test_service, 'test', 'test')
+        service = client.services.create(name=test_service,
+                                         service_type='test',
+                                         description='test')
         services = client.services.list()
         # TODO(devcamcar): This assert should be more specific.
         self.assertTrue(len(services) > 0)
