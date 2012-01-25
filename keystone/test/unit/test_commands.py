@@ -818,6 +818,20 @@ class TestDeleteServiceCommand(CommandTestCase):
 
 
 class TestCreateTokenCommand(CommandTestCase):
+    """Creates tokens and validates their attributes.
+
+    This class has a known potential race condition, due to the expected
+    token expiration being 24 hours after token creation. If the
+    'create_token' command runs immediately before the minute rolls over,
+    and the test class produces a timestamp for the subsequent minute, the
+    test will fail.
+
+    """
+
+    @staticmethod
+    def _get_tomorrow_str():
+        return (datetime.datetime.utcnow() +
+                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
 
     def test_no_args(self):
         with self.assertRaises(SystemExit):
@@ -827,8 +841,7 @@ class TestCreateTokenCommand(CommandTestCase):
         user_id = self._create_user()
         self.run_cmd(create_token, [
             '--user-id', user_id])
-        tomorrow = (datetime.datetime.utcnow() +
-                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
+        tomorrow = TestCreateTokenCommand._get_tomorrow_str()
         token_id = self.ob.read_lines()[0]
         self.assertEqual(len(token_id), 32)
 
@@ -844,8 +857,7 @@ class TestCreateTokenCommand(CommandTestCase):
         self.run_cmd(create_token, [
             '--user-id', user_id,
             '--tenant-id', tenant_id])
-        tomorrow = (datetime.datetime.utcnow() +
-                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
+        tomorrow = TestCreateTokenCommand._get_tomorrow_str()
         token_id = self.ob.read_lines()[0]
         self.assertEqual(len(token_id), 32)
 
@@ -876,8 +888,7 @@ class TestCreateTokenCommand(CommandTestCase):
         self.run_cmd(create_token, [
             '--id', token_id,
             '--user-id', user_id])
-        tomorrow = (datetime.datetime.utcnow() +
-                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
+        tomorrow = TestCreateTokenCommand._get_tomorrow_str()
         self.assertEqual(token_id, self.ob.read_lines()[0])
 
         self.ob.clear()
