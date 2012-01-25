@@ -165,12 +165,17 @@ class User(ClientCommand):
   pass
 
 
+class Ec2(ClientCommand):
+  pass
+
+
 CMDS = {'db_sync': DbSync,
         'role': Role,
         'service': Service,
         'token': Token,
         'tenant': Tenant,
         'user': User,
+        'ec2': Ec2,
         }
 
 
