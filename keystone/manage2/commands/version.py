@@ -1,5 +1,4 @@
 from keystone.backends.sqlalchemy import migration
-from keystone import config
 from keystone import version
 from keystone.manage2 import base
 from keystone.manage2 import common
@@ -26,11 +25,6 @@ class Command(base.BaseSqlalchemyCommand):
     def get_api_version():
         """Returns a complete API version string"""
         return ' '.join([version.API_VERSION, version.API_VERSION_STATUS])
-
-    @staticmethod
-    def _get_connection_string():
-        sqla = config.CONF['keystone.backends.sqlalchemy']
-        return sqla.sql_connection
 
     @staticmethod
     def get_implementation_version():

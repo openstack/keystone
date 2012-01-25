@@ -44,8 +44,7 @@ def main():
         subparser = subparsers.add_parser(module_name,
                 help=module.Command.__doc__)
 
-        cmd = module.Command()
-        cmd.append_parser(subparser)
+        module.Command.append_parser(subparser)
 
     # actually parse the command line args or print help
     args = parser.parse_args()
