@@ -818,8 +818,6 @@ class TestDeleteServiceCommand(CommandTestCase):
 
 
 class TestCreateTokenCommand(CommandTestCase):
-    tomorrow = (datetime.datetime.utcnow() +
-            datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
 
     def test_no_args(self):
         with self.assertRaises(SystemExit):
@@ -829,6 +827,8 @@ class TestCreateTokenCommand(CommandTestCase):
         user_id = self._create_user()
         self.run_cmd(create_token, [
             '--user-id', user_id])
+        tomorrow = (datetime.datetime.utcnow() +
+                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
         token_id = self.ob.read_lines()[0]
         self.assertEqual(len(token_id), 32)
 
@@ -836,7 +836,7 @@ class TestCreateTokenCommand(CommandTestCase):
 
         self.run_cmd(list_tokens)
         self.assertTableContainsRow(self.ob.read(), [token_id, user_id,
-            str(None), self.tomorrow])
+            str(None), tomorrow])
 
     def test_create_scoped_token(self):
         user_id = self._create_user()
@@ -844,6 +844,8 @@ class TestCreateTokenCommand(CommandTestCase):
         self.run_cmd(create_token, [
             '--user-id', user_id,
             '--tenant-id', tenant_id])
+        tomorrow = (datetime.datetime.utcnow() +
+                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
         token_id = self.ob.read_lines()[0]
         self.assertEqual(len(token_id), 32)
 
@@ -851,7 +853,7 @@ class TestCreateTokenCommand(CommandTestCase):
 
         self.run_cmd(list_tokens)
         self.assertTableContainsRow(self.ob.read(), [token_id, user_id,
-            tenant_id, self.tomorrow])
+            tenant_id, tomorrow])
 
     def test_create_expired_token(self):
         user_id = self._create_user()
@@ -874,13 +876,15 @@ class TestCreateTokenCommand(CommandTestCase):
         self.run_cmd(create_token, [
             '--id', token_id,
             '--user-id', user_id])
+        tomorrow = (datetime.datetime.utcnow() +
+                datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')
         self.assertEqual(token_id, self.ob.read_lines()[0])
 
         self.ob.clear()
 
         self.run_cmd(list_tokens)
         self.assertTableContainsRow(self.ob.read(), [token_id, user_id,
-            str(None), self.tomorrow])
+            str(None), tomorrow])
 
 
 class TestUpdateTokenCommand(CommandTestCase):
