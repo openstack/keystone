@@ -84,14 +84,15 @@ class Driver():
 
             if repo_version != db_version:
                 msg = ('Database (%s) is not up to date (current=%s, '
-                    'latest=%s); run `keystone-manage database sync` or '
+                    'latest=%s); run `keystone-manage sync_database` or '
                     'override your migrate version manually (see docs)' %
                     (self.connection_str, db_version, repo_version))
                 logging.warning(msg)
                 raise Exception(msg)
         except versioning_exceptions.DatabaseNotControlledError:
-            msg = ('Database (%s) is not version controlled;'
-                'run `keystone-manage database sync`' %
+            msg = ('Database (%s) is not version controlled; '
+                'run `keystone-manage sync_database` or '
+                'override your migrate version manually (see docs)' %
                 (self.connection_str))
             logging.warning(msg)
 
