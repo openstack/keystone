@@ -134,7 +134,7 @@ class Tenant(Base, KeystoneBase):
     uid = Column(String(255), unique=True, nullable=False)
     name = Column(String(255), unique=True)
     desc = Column(String(255))
-    enabled = Column(Integer)
+    enabled = Column(Boolean)
 
 
 class User(Base, KeystoneBase):
@@ -145,7 +145,7 @@ class User(Base, KeystoneBase):
     name = Column(String(255), unique=True)
     password = Column(String(255))
     email = Column(String(255))
-    enabled = Column(Integer)
+    enabled = Column(Boolean)
     tenant_id = Column(Integer, ForeignKey('tenants.id'))
     roles = relationship(UserRoleAssociation, cascade="all")
     credentials = relationship('Credentials', backref='user', cascade="all")
