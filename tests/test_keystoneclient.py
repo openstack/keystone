@@ -403,7 +403,7 @@ class KcMasterTestCase(CompatTestCase):
         self.assertRaises(exception, two.roles.get, role='keystone_admin')
         self.assertRaises(exception, two.roles.list)
         self.assertRaises(exception, two.roles.create, name='oops')
-        self.assertRaises(exception, two.roles.delete, name='keystone_admin')
+        self.assertRaises(exception, two.roles.delete, 'keystone_admin')
 
         # TODO(ja): MEMBERSHIP CRUD
         # TODO(ja): determine what else todo
