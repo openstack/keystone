@@ -3,6 +3,7 @@ TENANTS = [
     {'id': 'baz', 'name': 'BAZ'},
     ]
 
+# NOTE(ja): a role of keystone_admin and attribute "is_admin" is done in setUp
 USERS = [
     {'id': 'foo', 'name': 'FOO', 'password': 'foo2', 'tenants': ['bar',]},
     {'id': 'two', 'name': 'TWO', 'password': 'two2', 'tenants': ['baz',]},
