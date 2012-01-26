@@ -369,3 +369,62 @@ class KcMasterTestCase(CompatTestCase):
         services = client.services.list()
         # TODO(devcamcar): This assert should be more specific.
         self.assertTrue(len(services) > 0)
+
+    def test_admin_requires_adminness(self):
+        from keystoneclient import exceptions as client_exceptions
+        # FIXME(ja): this should be Unauthorized
+        exception = client_exceptions.ClientException
+
+        two = self.get_client(self.user_two)  # non-admin user
+
+        # USER CRUD
+        self.assertRaises(exception,
+                          two.users.list)
+        self.assertRaises(exception,
+                          two.users.get,
+                          user=self.user_two['id'])
+        self.assertRaises(exception,
+                          two.users.create,
+                          name='oops',
+                          password='password',
+                          email='oops@test.com')
+        self.assertRaises(exception,
+                          two.users.delete,
+                          user=self.user_foo['id'])
+
+        # TENANT CRUD
+        # NOTE(ja): tenants.list is different since /tenants fulfills the
+        #           two different tasks: return list of all tenants & return
+        #           list of tenants the current user is a member of...
+        #           which means if you are admin getting the list
+        #           of tenants for admin user is annoying?
+        tenants = two.tenants.list()
+        self.assertTrue(len(tenants) == 1)
+        self.assertTrue(tenants[0].id == self.tenant_baz['id'])
+        self.assertRaises(exception,
+                          two.tenants.get,
+                          tenant_id=self.tenant_bar['id'])
+        self.assertRaises(exception,
+                          two.tenants.create,
+                          tenant_name='oops',
+                          description="shouldn't work!",
+                          enabled=True)
+        self.assertRaises(exception,
+                          two.tenants.delete,
+                          tenant=self.tenant_baz['id'])
+
+        # ROLE CRUD
+        self.assertRaises(exception,
+                          two.roles.get,
+                          role='keystone_admin')
+        self.assertRaises(exception,
+                          two.roles.list)
+        self.assertRaises(exception,
+                          two.roles.create,
+                          name='oops')
+        self.assertRaises(exception,
+                          two.roles.delete,
+                          role='keystone_admin')
+
+        # TODO(ja): MEMBERSHIP CRUD
+        # TODO(ja): determine what else todo
