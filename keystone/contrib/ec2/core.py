@@ -138,11 +138,11 @@ class Ec2Controller(wsgi.Application):
         # TODO(termie): this is copied from TokenController.authenticate
         token_id = uuid.uuid4().hex
         tenant_ref = self.identity_api.get_tenant(
-            context=context,
-            tenant_id=creds_ref['tenant_id'])
+                context=context,
+                tenant_id=creds_ref['tenant_id'])
         user_ref = self.identity_api.get_user(
-            context=context,
-            user_id=creds_ref['user_id'])
+                context=context,
+                user_id=creds_ref['user_id'])
         metadata_ref = self.identity_api.get_metadata(
                 context=context,
                 user_id=user_ref['id'],
@@ -173,7 +173,7 @@ class Ec2Controller(wsgi.Application):
         #               would be better to expect a full return
         token_controller = service.TokenController()
         return token_controller._format_authenticate(
-            token_ref, roles_ref, catalog_ref)
+                token_ref, roles_ref, catalog_ref)
 
     def create_credential(self, context, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
