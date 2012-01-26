@@ -17,27 +17,21 @@ from keystone.contrib import ec2
 CONF = config.CONF
 
 
-def check_signature(creds_ref, credentials):
-    signature = credentials['signature']
-    msg = base64.urlsafe_b64decode(str(credentials['token']))
-    key = str(creds_ref['secret'])
-    signed = base64.encodestring(hmac.new(key, msg, sha1).digest()).strip()
-
-    if signature == signed:
-        pass
-    else:
-        raise Exception("Not Authorized")
-
-
 class S3Extension(wsgi.ExtensionRouter):
     def add_routes(self, mapper):
-        controller = ec2.Ec2Controller()
-        controller.check_signature = check_signature
+        controller = S3Controller()
         # validation
         mapper.connect('/s3tokens',
                        controller=controller,
                        action='authenticate',
                        conditions=dict(method=['POST']))
 
-        # No need CRUD stuff since we are sharing keystone.contrib.ec2
-        # infos.
+
+class S3Controller(ec2.Ec2Controller):
+    def check_signature(self, creds_ref, credentials):
+        msg = base64.urlsafe_b64decode(str(credentials['token']))
+        key = str(creds_ref['secret'])
+        signed = base64.encodestring(hmac.new(key, msg, sha1).digest()).strip()
+
+        if credentials['signature'] != signed:
+            raise Exception("Not Authorized")
