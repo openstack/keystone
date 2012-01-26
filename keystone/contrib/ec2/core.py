@@ -26,8 +26,10 @@ from keystone import catalog
 from keystone import config
 from keystone import identity
 from keystone import policy
+from keystone import service
 from keystone import token
 from keystone.common import manager
+from keystone.common import utils
 from keystone.common import wsgi
 
 
@@ -52,7 +54,7 @@ class Ec2Extension(wsgi.ExtensionRouter):
         # validation
         mapper.connect('/ec2tokens',
                        controller=ec2_controller,
-                       action='authenticate_ec2',
+                       action='authenticate',
                        conditions=dict(method=['POST']))
 
         # crud
@@ -83,7 +85,24 @@ class Ec2Controller(wsgi.Application):
         self.ec2_api = Manager()
         super(Ec2Controller, self).__init__()
 
-    def authenticate_ec2(self, context, credentials=None,
+    def check_signature(self, creds_ref, credentials):
+        signer = utils.Signer(creds_ref['secret'])
+        signature = signer.generate(credentials)
+        if signature == credentials['signature']:
+            return
+        # NOTE(vish): Some libraries don't use the port when signing
+        #             requests, so try again without port.
+        elif ':' in credentials['signature']:
+            hostname, _port = credentials['host'].split(":")
+            credentials['host'] = hostname
+            signature = signer.generate(credentials)
+            if signature != credentials.signature:
+                # TODO(termie): proper exception
+                raise Exception("Not Authorized")
+        else:
+            raise Exception("Not Authorized")
+
+    def authenticate(self, context, credentials=None,
                          ec2Credentials=None):
         """Validate a signed EC2 request and provide a token.
 
@@ -113,27 +132,17 @@ class Ec2Controller(wsgi.Application):
         creds_ref = self.ec2_api.get_credential(context,
                                                 credentials['access'])
 
-        signer = utils.Signer(creds_ref['secret'])
-        signature = signer.generate(credentials)
-        if signature == credentials['signature']:
-            pass
-        # NOTE(vish): Some libraries don't use the port when signing
-        #             requests, so try again without port.
-        elif ':' in credentials['signature']:
-            hostname, _port = credentials['host'].split(":")
-            credentials['host'] = hostname
-            signature = signer.generate(credentials)
-            if signature != credentials.signature:
-                # TODO(termie): proper exception
-                raise Exception("Not Authorized")
-        else:
-            raise Exception("Not Authorized")
+        self.check_signature(creds_ref, credentials)
 
         # TODO(termie): don't create new tokens every time
         # TODO(termie): this is copied from TokenController.authenticate
         token_id = uuid.uuid4().hex
-        tenant_ref = self.identity_api.get_tenant(creds_ref['tenant_id'])
-        user_ref = self.identity_api.get_user(creds_ref['user_id'])
+        tenant_ref = self.identity_api.get_tenant(
+                context=context,
+                tenant_id=creds_ref['tenant_id'])
+        user_ref = self.identity_api.get_user(
+                context=context,
+                user_id=creds_ref['user_id'])
         metadata_ref = self.identity_api.get_metadata(
                 context=context,
                 user_id=user_ref['id'],
@@ -162,8 +171,9 @@ class Ec2Controller(wsgi.Application):
         # TODO(termie): i don't think the ec2 middleware currently expects a
         #               full return, but it contains a note saying that it
         #               would be better to expect a full return
-        return TokenController._format_authenticate(
-                self, token_ref, roles_ref, catalog_ref)
+        token_controller = service.TokenController()
+        return token_controller._format_authenticate(
+                token_ref, roles_ref, catalog_ref)
 
     def create_credential(self, context, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
