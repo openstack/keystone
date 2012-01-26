@@ -80,11 +80,12 @@ class UserAPI(api.BaseUserAPI):
         return UserAPI.to_model(user_ref)
 
     def get(self, id, session=None):
-        if not session:
-            session = get_session()
+        if id is None:
+            return None
 
-        id = str(id) if id is not None else None
-        result = session.query(models.User).filter_by(uid=id).first()
+        session = session or get_session()
+
+        result = session.query(models.User).filter_by(uid=str(id)).first()
 
         return UserAPI.to_model(result)
 
@@ -95,24 +96,30 @@ class UserAPI(api.BaseUserAPI):
         - Queries by PK ID
         - Doesn't wrap result with domain layer models
         """
-        if not session:
-            session = get_session()
+        if id is None:
+            return None
 
-        id = str(id) if id is not None else None
-        return session.query(models.User).filter_by(id=id).first()
+        session = session or get_session()
+
+        # TODO(dolph): user ID's are NOT strings... why is this is being cast?
+        return session.query(models.User).filter_by(id=str(id)).first()
 
     @staticmethod
     def id_to_uid(id, session=None):
+        if id is None:
+            return None
+
         session = session or get_session()
-        id = str(id) if id is not None else None
-        user = session.query(models.User).filter_by(id=id).first()
+        user = session.query(models.User).filter_by(id=str(id)).first()
         return user.uid if user else None
 
     @staticmethod
     def uid_to_id(uid, session=None):
+        if uid is None:
+            return None
+
         session = session or get_session()
-        uid = str(uid) if uid is not None else None
-        user = session.query(models.User).filter_by(uid=uid).first()
+        user = session.query(models.User).filter_by(uid=str(uid)).first()
         return user.id if user else None
 
     def get_by_name(self, name, session=None):

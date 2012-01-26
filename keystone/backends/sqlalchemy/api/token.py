@@ -78,8 +78,10 @@ class TokenAPI(api.BaseTokenAPI):
 
     @staticmethod
     def _get(id, session=None):
-        if not session:
-            session = get_session()
+        if id is None:
+            return None
+
+        session = session or get_session()
 
         result = session.query(models.Token).filter_by(id=id).first()
 

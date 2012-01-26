@@ -61,8 +61,10 @@ class EndpointTemplateAPI(api.BaseEndpointTemplateAPI):
             session.delete(endpoint_template)
 
     def get(self, id, session=None):
-        if not session:
-            session = get_session()
+        if id is None:
+            return None
+
+        session = session or get_session()
 
         return session.query(models.EndpointTemplates).\
             filter_by(id=id).first()

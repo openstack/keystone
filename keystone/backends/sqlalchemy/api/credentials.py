@@ -99,8 +99,10 @@ class CredentialsAPI(api.BaseCredentialsAPI):
 
     @staticmethod
     def _get(id, session=None):
-        if not session:
-            session = get_session()
+        if id is None:
+            return None
+
+        session = session or get_session()
 
         return session.query(models.Credentials).filter_by(id=id).first()
 

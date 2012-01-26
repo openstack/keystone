@@ -102,8 +102,10 @@ class ServiceAPI(api.BaseServiceAPI):
             service_ref.save(session=session)
 
     def get(self, id, session=None):
-        if not session:
-            session = get_session()
+        if id is None:
+            return None
+
+        session = session or get_session()
         return ServiceAPI.to_model(session.query(models.Service).
                                    filter_by(id=id).first())
 

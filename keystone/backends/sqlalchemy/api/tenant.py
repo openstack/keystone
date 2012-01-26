@@ -81,6 +81,9 @@ class TenantAPI(api.BaseTenantAPI):
             For PK lookups from within the sqlalchemy backend,
             use ``_get_by_id()`` instead.
         """
+        if id is None:
+            return None
+
         session = session or get_session()
 
         result = session.query(models.Tenant).filter_by(uid=id).first()
@@ -97,18 +100,27 @@ class TenantAPI(api.BaseTenantAPI):
 
             This is **only** for use within the sqlalchemy backend.
         """
+        if id is None:
+            return None
+
         session = session or get_session()
 
         return session.query(models.Tenant).filter_by(id=id).first()
 
     @staticmethod
     def id_to_uid(id, session=None):
+        if id is None:
+            return None
+
         session = session or get_session()
         tenant = session.query(models.Tenant).filter_by(id=id).first()
         return tenant.uid if tenant else None
 
     @staticmethod
     def uid_to_id(uid, session=None):
+        if uid is None:
+            return None
+
         session = session or get_session()
         tenant = session.query(models.Tenant).filter_by(uid=uid).first()
         return tenant.id if tenant else None
