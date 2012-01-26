@@ -88,6 +88,14 @@ class KcMasterTestCase(CompatTestCase):
         tenants = client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
+    def test_authenticate_invalid_tenant_id(self):
+        from keystoneclient import exceptions as client_exceptions
+        self.assertRaises(client_exceptions.AuthorizationFailure,
+                          self._client,
+                          username=self.user_foo['name'],
+                          password=self.user_foo['password'],
+                          tenant_id='baz')
+
     def test_authenticate_token_no_tenant(self):
         client = self.get_client()
         token = client.auth_token
@@ -101,6 +109,13 @@ class KcMasterTestCase(CompatTestCase):
         token_client = self._client(token=token, tenant_id='bar')
         tenants = token_client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    def test_authenticate_token_invalid_tenant_id(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client()
+        token = client.auth_token
+        self.assertRaises(client_exceptions.AuthorizationFailure,
+                          self._client, token=token, tenant_id='baz')
 
     def test_authenticate_token_tenant_name(self):
         client = self.get_client()
@@ -219,8 +234,8 @@ class KcMasterTestCase(CompatTestCase):
 
         user = client.users.update_password(user=user, password='password2')
 
-        test_client = self._client(username=test_username,
-                                   password='password2')
+        self._client(username=test_username,
+                     password='password2')
 
         user = client.users.update_tenant(user=user, tenant='bar')
         # TODO(ja): once keystonelight supports default tenant
