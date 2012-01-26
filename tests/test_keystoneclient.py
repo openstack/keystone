@@ -372,17 +372,25 @@ class KcMasterTestCase(CompatTestCase):
 
     def test_admin_requires_adminness(self):
         from keystoneclient import exceptions as client_exceptions
-        # FIXME(termie): this should be Unauthorized
+        # FIXME(ja): this should be Unauthorized
         exception = client_exceptions.ClientException
 
         two = self.get_client(self.user_two)  # non-admin user
 
         # USER CRUD
-        self.assertRaises(exception, two.users.list)
-        self.assertRaises(exception, two.users.get, self.user_two['id'])
-        self.assertRaises(exception, two.users.create, name='oops',
-                          password='password', email='oops@test.com')
-        self.assertRaises(exception, two.users.delete, self.user_foo['id'])
+        self.assertRaises(exception,
+                          two.users.list)
+        self.assertRaises(exception,
+                          two.users.get,
+                          user=self.user_two['id'])
+        self.assertRaises(exception,
+                          two.users.create,
+                          name='oops',
+                          password='password',
+                          email='oops@test.com')
+        self.assertRaises(exception,
+                          two.users.delete,
+                          user=self.user_foo['id'])
 
         # TENANT CRUD
         # NOTE(ja): tenants.list is different since /tenants fulfills the
@@ -393,17 +401,30 @@ class KcMasterTestCase(CompatTestCase):
         tenants = two.tenants.list()
         self.assertTrue(len(tenants) == 1)
         self.assertTrue(tenants[0].id == self.tenant_baz['id'])
-        self.assertRaises(exception, two.tenants.get, self.tenant_bar['id'])
-        self.assertRaises(exception, two.tenants.create,
-                          tenant_name='oops', description="shouldn't work!",
+        self.assertRaises(exception,
+                          two.tenants.get,
+                          tenant_id=self.tenant_bar['id'])
+        self.assertRaises(exception,
+                          two.tenants.create,
+                          tenant_name='oops',
+                          description="shouldn't work!",
                           enabled=True)
-        self.assertRaises(exception, two.tenants.delete, self.tenant_baz['id'])
+        self.assertRaises(exception,
+                          two.tenants.delete,
+                          tenant=self.tenant_baz['id'])
 
         # ROLE CRUD
-        self.assertRaises(exception, two.roles.get, role='keystone_admin')
-        self.assertRaises(exception, two.roles.list)
-        self.assertRaises(exception, two.roles.create, name='oops')
-        self.assertRaises(exception, two.roles.delete, 'keystone_admin')
+        self.assertRaises(exception,
+                          two.roles.get,
+                          role='keystone_admin')
+        self.assertRaises(exception,
+                          two.roles.list)
+        self.assertRaises(exception,
+                          two.roles.create,
+                          name='oops')
+        self.assertRaises(exception,
+                          two.roles.delete,
+                          role='keystone_admin')
 
         # TODO(ja): MEMBERSHIP CRUD
         # TODO(ja): determine what else todo
