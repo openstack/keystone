@@ -10,5 +10,5 @@ setup(name='keystone',
       packages=find_packages(exclude=['test', 'bin']),
       scripts=['bin/keystone', 'bin/keystone-manage'],
       zip_safe=False,
-      install_requires=['setuptools'],
+      install_requires = ['setuptools', 'python-keystoneclient'],
       )
