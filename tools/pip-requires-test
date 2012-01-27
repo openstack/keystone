@@ -5,8 +5,10 @@ eventlet==0.9.12
 PasteDeploy
 paste
 routes
+pyCLI
 sqlalchemy
 sqlalchemy-migrate
+py-bcrypt
 
 # keystonelight testing dependencies
 nose
@@ -15,6 +17,7 @@ nosexcover
 # for python-keystoneclient
 httplib2
 pep8
+-e git+https://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
 
 # for python-novaclient
 prettytable

@@ -4,7 +4,7 @@ eventlet==0.9.12
 PasteDeploy
 paste
 routes
-pycli
+pyCLI
 sqlalchemy
 sqlalchemy-migrate
 py-bcrypt
