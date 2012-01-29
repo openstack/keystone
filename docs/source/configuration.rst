@@ -24,7 +24,7 @@ Configuring Keystone
    man/keystone-manage
 
 Once Keystone is installed, it is configured via a primary configuration file
-(:doc:`keystone.conf`), possibly a separate logging configuration file, and
+(``etc/keystone.conf``), possibly a separate logging configuration file, and
 initializing data into keystone using the command line client.
 
 

@@ -42,8 +42,8 @@ Getting Started
     :maxdepth: 1
 
     setup
-	configuration
-	configuringservices
+    configuration
+    configuringservices
     community
 
 Man Pages
@@ -53,7 +53,7 @@ Man Pages
     :maxdepth: 1
 
     man/keystone
-	man/keystone-manage
+    man/keystone-manage
 
 Developers Documentation
 ========================
