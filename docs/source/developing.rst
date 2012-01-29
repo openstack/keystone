@@ -70,7 +70,15 @@ light integration testing to verify the keystone API against other projects.
 Test Structure
 --------------
 
-UPDATE THIS...
+``./run_test.sh`` uses it's python cohort (``run_tests.py``) to iterate through the ``tests`` directory, using Nosetest to collect the tests and invoke them using an 
+OpenStack custom test running that displays the tests as well as the time taken to
+run those tests.
+
+Within the tests directory, the general structure of the tests is a basic set of tests represented under a test class, and then subclasses of those tests under other classes with different configurations to drive different backends through the APIs.
+
+For example, ``test_backend.py`` has a sequence of tests under the class ``IdentityTests`` that will work with the default drivers as configured in this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests, changing the configuration by overriding with configuration files stored in the tests directory aimed at enabling the SQL backend for the Identity module.
+
+Likewise, ``test_cli.py`` takes advantage of the tests written aainst ``test_keystoneclient`` to verify the same tests function through different drivers.
 
 Testing Schema Migrations
 -------------------------
@@ -92,8 +100,9 @@ This command references to a SQLite database (test.db) to be used. Depending on 
 Writing Tests
 -------------
 
-UPDATE THIS...
+To add tests covering all drivers, update the base test class (``test_backend.py``, ``test_legacy_compat.py``, and ``test_keystoneclient.py``).
 
+To add new drivers, subclass the ``test_backend.py`` (look towards ``test_backend_sql.py`` or ``test_backend_kvs.py`` for examples) and update the configuration of the test class in ``setUp()``.
 
 Further Testing
 ---------------
