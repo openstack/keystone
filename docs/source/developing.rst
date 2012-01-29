@@ -107,3 +107,17 @@ or the `OpenStack Integration Testing Project`_.
 .. _devstack: http://devstack.org/
 .. _OpenStack Continuous Integration Project: https://github.com/openstack/openstack-ci
 .. _OpenStack Integration Testing Project: https://github.com/openstack/tempest
+
+Building the Documentation
+==========================
+
+The documentation is all generated with Sphinx from within the docs directory.
+To generate the full set of HTML documentation:
+
+    cd docs
+    make autodoc
+    make html
+    make man
+
+the results are in the docs/build/html and docs/build/man directories
+respectively.
