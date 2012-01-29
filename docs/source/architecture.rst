@@ -17,6 +17,10 @@
 Keystone Architecture
 =====================
 
+Much of the design is precipitated from the expectation that the auth backends
+for most deployments will actually be shims in front of existing user systems.
+
+.........JOEEDIT..........
 Keystone has two major components: Authentication and a Service Catalog.
 
 Authentication

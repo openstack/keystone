@@ -24,7 +24,7 @@ config.register_cli_str('endpoint',
 config.register_cli_str('auth-token',
                         default='$admin_token',
                         #group='ks',
-                        help='asdasd',
+                        help='authorization token',
                         conf=CONF)
 config.register_cli_bool('id-only',
                          default=False,

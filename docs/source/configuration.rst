@@ -21,80 +21,214 @@ Configuring Keystone
 .. toctree::
    :maxdepth: 1
 
-   keystone.conf
    man/keystone-manage
 
-Once Keystone is installed, there are a number of configuration options
-available and potentially some initial data to create and set up.
-
-Sample data / Quick Setup
-=========================
-
-Default sampledata is provided for easy setup and testing in bin/sampeldata. To
-set up the sample data run the following command while Keystone is running::
-
-    $ ./bin/sampledata
-
-The sample data created comes from the file :doc:`sourcecode/keystone.test.sampledata`
+Once Keystone is installed, it is configured via a primary configuration file
+(:doc:`keystone.conf`), possibly a separate logging configuration file, and
+initializing data into keystone using the command line client.
 
 
 Keystone Configuration File
 ===========================
 
-Most configuration is done via configuration files. The default files are
-in ``/etc/keystone.conf``
+The keystone configuration file is an 'ini' file format with sections, 
+extended from Paste_, a common system used to configure python WSGI based
+applications. In addition to the paste config entries, general configuration
+values are stored under [DEFAULT] and [sql], and then drivers for the various
+backend components are included under their individual sections.
 
-When starting up a Keystone server, you can specify the configuration file to
-use (see :doc:`controllingservers`).
-If you do **not** specify a configuration file, keystone will look in the following
-directories for a configuration file, in order:
+The driver sections include:
+* ``[identity]`` - the python module that backends the identity system
+* ``[catalog]`` - the python module that backends the service catalog
+* ``[token]`` - the python module that backends the token providing mechanisms
+* ``[policy]`` - the python module that drives the policy system for RBAC
+* ``[ec2]`` - the python module providing the EC2 translations for OpenStack
+
+The keystone configuration file is expected to be named ``keystone.conf``. 
+When starting up Keystone, you can specify a different configuration file to
+use with ``--config-file``. If you do **not** specify a configuration file,
+keystone will look in the following directories for a configuration file, in
+order:
 
 * ``~/.keystone``
 * ``~/``
 * ``/etc/keystone``
 * ``/etc``
 
-The keystone configuration file should be named ``keystone.conf``.
-If you installed keystone via your operating system's
-package management system, it is likely that you will have sample
-configuration files installed in ``/etc/keystone``.
+Logging is configured externally to the rest of keystone, the file specifying
+the logging configuration is in the [DEFAULT] section of the keystone conf
+file under ``log_config``. If you wish to route all your logging through 
+syslog, there is a ``use_syslog`` option also in the [DEFAULT] section that
+easy.
 
-In addition to this documentation page, you can check the
-``etc/keystone.conf`` sample configuration
-files distributed with keystone for example configuration files for each server
-application with detailed comments on what each options does.
+A sample logging file is available with the project in the directory ``etc/logging.conf.sample``. Like other OpenStack projects, keystone uses the
+`python logging module`, which includes extensive configuration options for
+choosing the output levels and formats.
+
+In addition to this documentation page, you can check the ``etc/keystone.conf``
+sample configuration files distributed with keystone for example configuration
+files for each server application.
+
+.. _Paste: http://pythonpaste.org/
+.. _`python logging module`: http://docs.python.org/library/logging.html
 
 Sample Configuration Files
 --------------------------
 
-Keystone ships with sample configuration files in keystone/etc. These files are:
+* ``etc/keystone.conf``
+* ``etc/logging.conf.sample``
 
-1. keystone.conf
+Initializing Keystone
+=====================
 
-    A standard configuration file for running keystone in stand-alone mode.
-    It has a set of default extensions loaded to support administering Keystone
-    over REST. It uses a local SQLite database.
+Keystone must be running in order to initialize data within it. This is because
+the keystone-manage commands are all used the same REST API that other
+OpenStack systems utilize.
 
-2. memcache.conf
+General keystone-manage options:
+--------------------------------
 
-    A configuration that uses memcached for storing tokens (but still SQLite for all
-    other entities). This requires memcached running.
+* ``--id-only`` : causes ``keystone-manage`` to return only the UUID result
+from the API call.
+* ``--endpoint`` : allows you to specify the keystone endpoint to communicate with. The default endpoint is http://localhost:35357/v2.0'
+* ``--auth-token`` : provides the authorization token
 
-3. ssl.conf
+``keystone-manage`` is set up to expect commands in the general form of ``keystone-manage`` ``command`` ``subcommand``, with keyword arguments to provide additional information to the command. For example, the command
+``tenant`` has the subcommand ``create``, which takes the required keyword ``tenant_name``::
 
-    A configuration that runs Keystone with SSL (so all URLs are accessed over HTTPS).
+	keystone-manage tenant create tenant_name=example_tenant
 
-To run any of these configurations, use the `-c` option::
+Invoking keystone-manage by itself will give you some usage information.
 
-    ./keystone -c ../etc/ssl.conf
+Available keystone-manage commands:
+  db_sync: Sync the database.
+      ec2: no docs
+     role: Role CRUD functions.
+  service: Service CRUD functions.
+   tenant: Tenant CRUD functions.
+    token: Token CRUD functions.
+     user: User CRUD functions.
 
+Tenants
+-------
 
+Tenants are the high level grouping within Keystone that represent groups of
+users. A tenant is the grouping that owns virtual machines within Nova, or
+containers within Swift. A tenant can have zero or more users, Users can be assocaited with more than one tenant, and each tenant - user pairing can have a role associated with it.
 
-Usefule Links
--------------
+* tenant create
 
-For a sample configuration file with explanations of the settings, see :doc:`keystone.conf`
+	keyword arguments
+    * tenant_name
+	* id (optional)
 
-For configuring an LDAP backend, see http://mirantis.blogspot.com/2011/08/ldap-identity-store-for-openstack.html
+example::
+	keystone-manage --id-only tenant create tenant_name=admin
 
-For configuration settings of middleware components, see :doc:`middleware`
+creates a tenant named "admin".
+
+* tenant delete
+
+	keyword arguments
+	* tenant_id
+	
+example::
+	keystone-manage tenant delete tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3
+
+* tenant update
+
+	keyword arguments
+	* description
+	* name
+	* tenant_id
+
+example::
+	keystone-manage tenant update \
+	tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3 \
+	description="those other guys" \
+	name=tog
+
+Users
+-----
+
+* user create
+
+	keyword arguments
+	* name
+	* password
+	* email
+	
+example::
+	keystone-manage user --ks-id-only create \
+	name=admin \
+	password=secrete \
+	email=admin@example.com
+	
+* user delete
+
+	keyword arguments
+
+* user list
+
+	keyword arguments
+
+* user update_email
+
+	keyword arguments
+
+* user update_enabled
+
+	keyword arguments
+
+* user update_password
+ 
+	keyword arguments
+
+* user update_tenant
+
+	keyword arguments
+
+Roles
+-----
+
+* role create
+
+	keyword arguments
+	* name
+
+exmaple::
+	keystone-manage role --ks-id-only create name=Admin
+	
+* role add_user_to_tenant
+
+	keyword arguments
+	* role_id
+	* user_id
+	* tenant_id
+
+example::
+
+	keystone-manage role add_user_to_tenant \
+	role_id=19d1d3344873464d819c45f521ff9890 \
+	user_id=08741d8ed88242ca88d1f61484a0fe3b \
+	tenant_id=20601a7f1d94447daa4dff438cb1c209
+	
+* role remove_user_from_tenant
+
+* role get_user_role_refs
+
+Services
+--------
+
+* service create
+
+	keyword arguments
+	* name
+	* service_type
+	* description
+
+example::
+	keystone-manage service create \
+    name=nova \
+    service_type=compute \
+    description="Nova Compute Service"

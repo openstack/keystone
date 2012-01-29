@@ -22,159 +22,202 @@ DESCRIPTION
 ===========
 
 keystone-manage is the command line tool that interacts with the keystone
-service to configure Keystone
+service to initialize and update data within Keystone. Keystone *must* be 
+opertional for the keystone-manage commands to function correctly.
 
 USAGE
 =====
 
     ``keystone-manage [options] type action [additional args]``
 
-user
-----
 
-* **user add** [username] [password]
+General keystone-manage options:
+--------------------------------
 
-  adds a user to Keystone's data store
+* ``--id-only`` : causes ``keystone-manage`` to return only the UUID result
+from the API call.
+* ``--endpoint`` : allows you to specify the keystone endpoint to communicate with. The default endpoint is http://localhost:35357/v2.0'
+* ``--auth-token`` : provides the authorization token
 
-* **user list**
+``keystone-manage`` is set up to expect commands in the general form of ``keystone-manage`` ``command`` ``subcommand``, with keyword arguments to provide additional information to the command. For example, the command
+``tenant`` has the subcommand ``create``, which takes the required keyword ``tenant_name``::
 
-  lists all users
+	keystone-manage tenant create tenant_name=example_tenant
 
-* **user disable** [username]
+Invoking keystone-manage by itself will give you some usage information.
 
-  disables the user *username*
+Available keystone-manage commands:
+  db_sync: Sync the database.
+      ec2: no docs
+     role: Role CRUD functions.
+  service: Service CRUD functions.
+   tenant: Tenant CRUD functions.
+    token: Token CRUD functions.
+     user: User CRUD functions.
 
-tenant
-------
-
-* **tenant add** [tenant_name]
-
-  adds a tenant to Keystone's data store
-
-* **tenant list**
-
-  lists all users
-
-* **tenant disable** [tenant_name]
-
-role
-----
-
-Roles are used to associated users to tenants. Two roles are defined related
-to the Keystone service in it's configuration file :doc:`../keystone.conf`
-
-* **role add** [role_name]
-
-  adds a role
-
-* **role list** ([tenant_name])
-
-  lists all roles, or all roles for tenant, if tenant_name is provided
-
-* **role grant** [role_name] [username] ([tenant])
-
-  grants a role to a specific user. Granted globally if tenant_name is not
-  provided or granted for a specific tenant if tenant_name is provided.
-
-service
+Tenants
 -------
 
-* **service add** [name] [type] [description] [owner_id]
+Tenants are the high level grouping within Keystone that represent groups of
+users. A tenant is the grouping that owns virtual machines within Nova, or
+containers within Swift. A tenant can have zero or more users, Users can be assocaited with more than one tenant, and each tenant - user pairing can have a role associated with it.
 
-  adds a service
+* tenant create
 
-* **service list**
+	keyword arguments
+    * tenant_name
+	* id (optional)
 
-  lists all services with id, name, and type
+example::
+	keystone-manage --id-only tenant create tenant_name=admin
 
-endpointTemplate
-----------------
+creates a tenant named "admin".
 
-* **endpointTemplate add** [region] [service_name] [public_url] [admin_url] [internal_url] [enabled] [is_global]
+* tenant delete
 
-  Add a service endpoint for keystone.
+	keyword arguments
+	* tenant_id
+	
+example::
+	keystone-manage tenant delete tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3
 
-  example::
+* tenant update
 
-      keystone-manage endpointTemplates add RegionOne \
-                      keystone \
-                      http://keystone_host:5000/v2.0 \
-                      http://keystone_host:35357/v2.0 \
-                      http://keystone_host:5000/v2.0 \
-                      1 1
+	keyword arguments
+	* description
+	* name
+	* tenant_id
 
-* **endpointTemplate list** ([tenant_name])
+example::
+	keystone-manage tenant update \
+	tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3 \
+	description="those other guys" \
+	name=tog
 
-  lists endpoint templates with service, region, and public_url. Restricted to
-  tenant endpoints if tenant_name is provided.
-
-token
+Users
 -----
 
-* **token add** [token] [username] [tenant] [expiration]
+* user create
 
-  adds a token for a given user and tenant with an expiration
+	keyword arguments
+	* name
+	* password
+	* email
+	
+example::
+	keystone-manage user --ks-id-only create \
+	name=admin \
+	password=secrete \
+	email=admin@example.com
+	
+* user delete
 
-* **token list**
+	keyword arguments
 
-  lists all tokens
+* user list
 
-* **token delete** [token]
+	keyword arguments
 
-  deletes the identified token
+* user update_email
 
-endpoint
+	keyword arguments
+
+* user update_enabled
+
+	keyword arguments
+
+* user update_password
+ 
+	keyword arguments
+
+* user update_tenant
+
+	keyword arguments
+
+Roles
+-----
+
+* role create
+
+	keyword arguments
+	* name
+
+exmaple::
+	keystone-manage role --ks-id-only create name=Admin
+	
+* role add_user_to_tenant
+
+	keyword arguments
+	* role_id
+	* user_id
+	* tenant_id
+
+example::
+
+	keystone-manage role add_user_to_tenant \
+	role_id=19d1d3344873464d819c45f521ff9890 \
+	user_id=08741d8ed88242ca88d1f61484a0fe3b \
+	tenant_id=20601a7f1d94447daa4dff438cb1c209
+	
+* role remove_user_from_tenant
+
+* role get_user_role_refs
+
+Services
 --------
 
-* **endpoint add** [tenant_name] [endpoint_template]
+* service create
 
-  adds a tenant-specific endpoint
+	keyword arguments
+	* name
+	* service_type
+	* description
 
-credentials
------------
+example::
+	keystone-manage service create \
+    name=nova \
+    service_type=compute \
+    description="Nova Compute Service"
 
-* **credentials add** [username] [type] [key] [password] ([tenant_name])
 
 OPTIONS
 =======
 
-   --version                     show program's version number and exit
-   -h, --help                    show this help message and exit
-   -v, --verbose                 Print more verbose output
-   -d, --debug                   Print debugging output to console
-   -c PATH, --config-file=PATH   Path to the config file to use. When not
-                                 specified (the default), we generally look at
-                                 the first argument specified to be a config
-                                 file, and if that is also missing, we search
-                                 standard directories for a config file.
-   -p BIND_PORT, --port=BIND_PORT, --bind-port=BIND_PORT
-                                 specifies port to listen on (default is 5000)
-   --host=BIND_HOST, --bind-host=BIND_HOST
-                                 specifies host address to listen on (default
-                                 is all or 0.0.0.0)
-   -t, --trace-calls             Turns on call tracing for troubleshooting
-   -a PORT, --admin-port=PORT    Specifies port for Admin API to listen on
-                                 (default is 35357)
-
-Logging Options:
-================
-
-The following configuration options are specific to logging
-functionality for this program.
-
-   --log-config=PATH             If this option is specified, the logging
-                                 configuration file specified is used and
-                                 overrides any other logging options specified.
-                                 Please see the Python logging module
-                                 documentation for details on logging
-                                 configuration files.
-   --log-date-format=FORMAT      Format string for %(asctime)s in log records.
-                                 Default: %Y-%m-%d %H:%M:%S
-   --log-file=PATH               (Optional) Name of log file to output to. If
-                                 not set, logging will go to stdout.
-   --log-dir=LOG_DIR             (Optional) The directory to keep log files in
-                                 (will be prepended to --logfile)
-
+Options:
+  -h, --help            show this help message and exit
+  --config-file=PATH    Path to a config file to use. Multiple config files
+                        can be specified, with values in later files taking
+                        precedence. The default files used are: []
+  -d, --debug           Print debugging output
+  --nodebug             Print debugging output
+  -v, --verbose         Print more verbose output
+  --noverbose           Print more verbose output
+  --log-config=PATH     If this option is specified, the logging configuration
+                        file specified is used and overrides any other logging
+                        options specified. Please see the Python logging
+                        module documentation for details on logging
+                        configuration files.
+  --log-format=FORMAT   A logging.Formatter log message format string which
+                        may use any of the available logging.LogRecord
+                        attributes. Default: none
+  --log-date-format=DATE_FORMAT
+                        Format string for %(asctime)s in log records. Default:
+                        none
+  --log-file=PATH       (Optional) Name of log file to output to. If not set,
+                        logging will go to stdout.
+  --log-dir=LOG_DIR     (Optional) The directory to keep log files in (will be
+                        prepended to --logfile)
+  --syslog-log-facility=SYSLOG_LOG_FACILITY
+                        (Optional) The syslog facility to use when logging to
+                        syslog (defaults to LOG_USER)
+  --use-syslog          Use syslog for logging.
+  --nouse-syslog        Use syslog for logging.
+  --endpoint=ENDPOINT   
+  --auth-token=AUTH_TOKEN
+                        authorization token
+  --id-only             
+  --noid-only           
+  
 FILES
 =====
 
