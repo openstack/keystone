@@ -101,13 +101,14 @@ from the API call.
 Invoking keystone-manage by itself will give you some usage information.
 
 Available keystone-manage commands:
-  db_sync: Sync the database.
-      ec2: no docs
-     role: Role CRUD functions.
-  service: Service CRUD functions.
-   tenant: Tenant CRUD functions.
-    token: Token CRUD functions.
-     user: User CRUD functions.
+
+* ``db_sync``: Sync the database.
+* ``ec2``: no docs
+* ``role``: Role CRUD functions.
+* ``service``: Service CRUD functions.
+* ``tenant``: Tenant CRUD functions.
+* ``token``: Token CRUD functions.
+* ``user``: User CRUD functions.
 
 Tenants
 -------
@@ -116,33 +117,42 @@ Tenants are the high level grouping within Keystone that represent groups of
 users. A tenant is the grouping that owns virtual machines within Nova, or
 containers within Swift. A tenant can have zero or more users, Users can be assocaited with more than one tenant, and each tenant - user pairing can have a role associated with it.
 
-* tenant create
+``tenant create``
+^^^^^^^^^^^^^^^^^
 
-	keyword arguments
-    * tenant_name
-	* id (optional)
+keyword arguments
+
+* tenant_name
+* id (optional)
 
 example::
+
 	keystone-manage --id-only tenant create tenant_name=admin
 
 creates a tenant named "admin".
 
-* tenant delete
+``tenant delete``
+^^^^^^^^^^^^^^^^^
 
-	keyword arguments
-	* tenant_id
+keyword arguments
+
+* tenant_id
 	
 example::
+
 	keystone-manage tenant delete tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3
 
-* tenant update
+``tenant update``
+^^^^^^^^^^^^^^^^^
 
-	keyword arguments
-	* description
-	* name
-	* tenant_id
+keyword arguments
+
+* description
+* name
+* tenant_id
 
 example::
+
 	keystone-manage tenant update \
 	tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3 \
 	description="those other guys" \
@@ -151,60 +161,74 @@ example::
 Users
 -----
 
-* user create
+``user create``
+^^^^^^^^^^^^^^^
 
-	keyword arguments
-	* name
-	* password
-	* email
+keyword arguments
+
+* name
+* password
+* email
 	
 example::
+
 	keystone-manage user --ks-id-only create \
 	name=admin \
 	password=secrete \
 	email=admin@example.com
 	
-* user delete
+``user delete``
+^^^^^^^^^^^^^^^
 
-	keyword arguments
+keyword arguments
 
-* user list
+``user list``
+^^^^^^^^^^^^^
 
-	keyword arguments
+keyword arguments
 
-* user update_email
+``user update_email``
+^^^^^^^^^^^^^^^^^^^^^
 
-	keyword arguments
+keyword arguments
 
-* user update_enabled
+``user update_enabled``
+^^^^^^^^^^^^^^^^^^^^^^^
 
-	keyword arguments
+keyword arguments
 
-* user update_password
+``user update_password``
+^^^^^^^^^^^^^^^^^^^^^^^^
  
-	keyword arguments
+keyword arguments
 
-* user update_tenant
+``user update_tenant``
+^^^^^^^^^^^^^^^^^^^^^^
 
-	keyword arguments
+keyword arguments
 
 Roles
 -----
 
-* role create
+``role create``
+^^^^^^^^^^^^^^^
 
-	keyword arguments
-	* name
+keyword arguments
+
+* name
 
 exmaple::
+
 	keystone-manage role --ks-id-only create name=Admin
 	
-* role add_user_to_tenant
+``role add_user_to_tenant``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-	keyword arguments
-	* role_id
-	* user_id
-	* tenant_id
+keyword arguments
+
+* role_id
+* user_id
+* tenant_id
 
 example::
 
@@ -213,22 +237,27 @@ example::
 	user_id=08741d8ed88242ca88d1f61484a0fe3b \
 	tenant_id=20601a7f1d94447daa4dff438cb1c209
 	
-* role remove_user_from_tenant
+``role remove_user_from_tenant``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* role get_user_role_refs
+``role get_user_role_refs``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Services
 --------
 
-* service create
+``service create``
+^^^^^^^^^^^^^^^^^^
 
-	keyword arguments
-	* name
-	* service_type
-	* description
+keyword arguments
+
+* name
+* service_type
+* description
 
 example::
-	keystone-manage service create \
+
+    keystone-manage service create \
     name=nova \
     service_type=compute \
     description="Nova Compute Service"
