@@ -150,7 +150,7 @@ If you want to check the version of Keystone you are running:
     >>> print keystone.version.version()
     2012.1-dev
 
-If you can import keystone successfully, you should be ready to move on to :doc:`testing` and :doc:`developing`
+If you can import keystone successfully, you should be ready to move on to :doc:`developing`
 
 Troubleshooting
 ===============

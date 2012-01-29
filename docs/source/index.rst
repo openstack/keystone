@@ -63,6 +63,12 @@ Developers Documentation
    developing
    architecture
    api_curl_examples
+  
+Code Documentation
+==================
+.. toctree::
+   :maxdepth: 1
+
    modules
 
 Indices and tables
