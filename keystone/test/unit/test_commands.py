@@ -26,6 +26,7 @@ from keystone.manage2.commands import grant_role
 from keystone.manage2.commands import list_credentials
 from keystone.manage2.commands import list_endpoint_templates
 from keystone.manage2.commands import list_endpoints
+from keystone.manage2.commands import list_role_grants
 from keystone.manage2.commands import list_roles
 from keystone.manage2.commands import list_services
 from keystone.manage2.commands import list_tenants
@@ -633,6 +634,14 @@ class TestDeleteRoleCommand(CommandTestCase):
         self.assertNotIn(role_id, output)
 
 
+class TestListRoleGrants(CommandTestCase):
+    def test_no_args(self):
+        self.run_cmd(list_role_grants)
+        lines = self.ob.read_lines()
+        row = [col.strip() for col in lines[1].split('|') if col.strip()]
+        self.assertEquals(['Role ID', 'User ID', 'Tenant ID', 'Global'], row)
+
+
 class TestGrantRoleCommand(CommandTestCase):
     def test_no_args(self):
         with self.assertRaises(SystemExit):
@@ -659,6 +668,15 @@ class TestGrantRoleCommand(CommandTestCase):
                 '--user-id', user_id,
                 '--role-id', role_id])
 
+        self.ob.clear()
+
+        self.run_cmd(list_role_grants, [
+            '--where-user-id', user_id,
+            '--where-role-id', role_id,
+            '--where-global'])
+        self.assertTableContainsRow(self.ob.read(), [role_id, user_id,
+            str(None), str(True)])
+
     def test_grant_tenant_role(self):
         user_id = self._create_user()
         role_id = self._create_role()
@@ -676,6 +694,15 @@ class TestGrantRoleCommand(CommandTestCase):
                 '--user-id', user_id,
                 '--role-id', role_id,
                 '--tenant-id', tenant_id])
+
+        self.ob.clear()
+
+        self.run_cmd(list_role_grants, [
+            '--where-user-id', user_id,
+            '--where-role-id', role_id,
+            '--where-tenant-id', tenant_id])
+        self.assertTableContainsRow(self.ob.read(), [role_id, user_id,
+            tenant_id, str(False)])
 
 
 class TestRevokeRoleCommand(CommandTestCase):
@@ -695,6 +722,16 @@ class TestRevokeRoleCommand(CommandTestCase):
             '--user-id', user_id,
             '--role-id', role_id])
 
+        self.ob.clear()
+
+        self.run_cmd(list_role_grants, [
+            '--where-user-id', user_id,
+            '--where-role-id', role_id,
+            '--where-global'])
+        with self.assertRaises(AssertionError):
+            self.assertTableContainsRow(self.ob.read(), [role_id, user_id,
+                str(None), str(True)])
+
     def test_revoke_tenant_role(self):
         user_id = self._create_user()
         role_id = self._create_role()
@@ -709,6 +746,16 @@ class TestRevokeRoleCommand(CommandTestCase):
             '--user-id', user_id,
             '--role-id', role_id,
             '--tenant-id', tenant_id])
+
+        self.ob.clear()
+
+        self.run_cmd(list_role_grants, [
+            '--where-user-id', user_id,
+            '--where-role-id', role_id,
+            '--where-tenant-id', tenant_id])
+        with self.assertRaises(AssertionError):
+            self.assertTableContainsRow(self.ob.read(), [role_id, user_id,
+                tenant_id, str(False)])
 
 
 class TestCreateServiceCommand(CommandTestCase):

@@ -237,6 +237,46 @@ class RoleAPI(api.BaseRoleAPI):
 
         return RoleAPI.to_ura_model(result)
 
+    def list_role_grants(self, role_id=None, user_id=None, tenant_id=None,
+            session=None):
+        """Lists all role grants; optionally specify a role ID, user ID, or
+        tenant ID.
+
+        If tenant ID is provided as False (tenant_id=False), global grants will
+        be returned."""
+
+        session = session or get_session()
+
+        is_global = tenant_id == False
+
+        if hasattr(api.USER, 'uid_to_id'):
+            user_id = api.USER.uid_to_id(user_id)
+        if hasattr(api.TENANT, 'uid_to_id'):
+            tenant_id = api.TENANT.uid_to_id(tenant_id)
+
+        query = session.query(models.UserRoleAssociation)
+
+        if role_id is not None:
+            query = query.filter_by(role_id=role_id)
+
+        if user_id is not None:
+            query = query.filter_by(user_id=user_id)
+
+        if is_global:
+            query = query.filter(models.UserRoleAssociation.tenant_id == None)
+        elif tenant_id is not None:
+            query = query.filter_by(tenant_id=tenant_id)
+
+        results = query.all()
+
+        for result in results:
+            if hasattr(api.USER, 'uid_to_id'):
+                result.user_id = api.USER.id_to_uid(result.user_id)
+            if hasattr(api.TENANT, 'uid_to_id'):
+                result.tenant_id = api.TENANT.id_to_uid(result.tenant_id)
+
+        return RoleAPI.to_ura_model_list(results)
+
     def rolegrant_delete(self, id, session=None):
         if not session:
             session = get_session()

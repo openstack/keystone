@@ -20,7 +20,6 @@ class BaseCommand(object):
 
         """
 
-        # TODO(dolph): this should be an ArgumentParser.error()
         if getattr(args, positive) and getattr(args, negative):
             self.parser.error("Unable to apply both: --%s and --%s" % (
                 tuple([x.replace('_', '-') for x in (positive, negative)])))

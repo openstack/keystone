@@ -12,12 +12,12 @@
 ]>
 
 <application xmlns="http://wadl.dev.java.net/2009/02"
-	xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
-	xmlns:HP-IDM="http://docs.openstack.org/identity/api/ext/HP-IDM/v1.0"
-	xmlns:capi="http://docs.openstack.org/common/api/v1.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0">
+    xmlns:identity="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:HP-IDM="http://docs.openstack.org/identity/api/ext/HP-IDM/v1.0"
+    xmlns:capi="http://docs.openstack.org/common/api/v1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0">
 
     <grammars>
         <include href="https://raw.github.com/openstack/keystone/master/keystone/content/common/xsd/api.xsd"/>
@@ -27,7 +27,7 @@
     <!--*******************************************************-->
     <!--             All Resources                             -->
     <!--*******************************************************-->
-    
+
     <!-- We should use SSL in production -->
     <resources base="http://localhost:35357">
         <resource id="version" path="v2.0">
@@ -35,7 +35,7 @@
                 <resource id="tokenById" path="{tokenId}">
                     <param name="X-Auth-Token" style="header" type="xsd:string" required="true">
                         <doc>You need a valid admin token for access.</doc>
-   	            </param>
+                   </param>
                     <param name="tokenId" style="template" type="xsd:string" required="true"/>
                     <param name="belongsTo" style="query" type="xsd:string" required="false"/>
                     <param name="HP-IDM-serviceId" style="query" type="xsd:string" required="false"/>
@@ -89,15 +89,15 @@
         </request>
         <response status="200 203">
             <representation mediaType="application/xml" element="identity:access">
-	      <doc>
-		<xsdxt:code href="../samples/validatetoken.xml"/>
-	      </doc>
-	    </representation>
+          <doc>
+        <xsdxt:code href="../samples/validatetoken.xml"/>
+          </doc>
+        </representation>
             <representation mediaType="application/json">
-	      <doc>
-		<xsdxt:code href="../samples/validatetoken.json"/>
-	      </doc>
-	    </representation>
+          <doc>
+        <xsdxt:code href="../samples/validatetoken.json"/>
+          </doc>
+        </representation>
         </response>
         &commonFaults;
         &getFaults;
