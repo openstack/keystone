@@ -18,9 +18,9 @@
 Welcome to Keystone, the OpenStack Identity Service!
 ====================================================
 
-Keystone is a cloud identity service written in Python, which provides
-authentication, authorization, and an OpenStack service catalog. It
-implements `OpenStack's Identity API`_.
+Keystone is an OpenStack project that provides Identity, Token, Catalog and
+Policy services for use specifically by projects in the OpenStack family.
+It implements `OpenStack's Identity API`_.
 
 This document describes Keystone for contributors of the project, and assumes
 that you are already familiar with Keystone from an `end-user perspective`_.
@@ -42,9 +42,18 @@ Getting Started
     :maxdepth: 1
 
     setup
+    configuration
+    configuringservices
     community
-    testing
 
+Man Pages
+---------
+
+.. toctree::
+    :maxdepth: 1
+
+    man/keystone
+    man/keystone-manage
 
 Developers Documentation
 ========================
@@ -53,7 +62,14 @@ Developers Documentation
 
    developing
    architecture
-   sourcecode/autoindex
+   api_curl_examples
+  
+Code Documentation
+==================
+.. toctree::
+   :maxdepth: 1
+
+   modules
 
 Indices and tables
 ==================

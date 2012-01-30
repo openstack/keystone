@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="131.44359"
+   height="154.62857"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="New document 1">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98901497"
+     inkscape:cx="111.31439"
+     inkscape:cy="-34.431283"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="912"
+     inkscape:window-height="842"
+     inkscape:window-x="66"
+     inkscape:window-y="87"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-263.68561,-343.30233)">
+    <g
+       id="1"
+       transform="translate(262.49833,342.08712)">
+      <path
+         d="m 1.85,49.6 0,28.8 67.2,0 0,-28.8 -67.2,0 z"
+         style="fill:#fdefe3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="2"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 1.85,78.4 67.2,0 0,-28.8 -67.2,0 0,28.8 z"
+         style="fill:none;stroke:#c00000;stroke-width:1.29999995px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="3"
+         inkscape:connector-curvature="0" />
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="60.799999"
+         x="24.799999"
+         xml:space="preserve"
+         id="4">Auth</text>
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="72.800003"
+         x="8.8000002"
+         xml:space="preserve"
+         id="5">Component</text>
+      <path
+         d="m 1.85,126.4 0,28.8 67.2,0 0,-28.8 -67.2,0 z"
+         style="fill:#d1ebf1;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="6"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 1.85,155.2 67.2,0 0,-28.8 -67.2,0 0,28.8 z"
+         style="fill:none;stroke:#1f477d;stroke-width:1.29999995px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="7"
+         inkscape:connector-curvature="0" />
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="137.60001"
+         x="10.4"
+         xml:space="preserve"
+         id="8">OpenStack</text>
+      <text
+         style="font-size:9.60000038px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;font-family:Arial"
+         y="149.60001"
+         x="18.4"
+         xml:space="preserve"
+         id="9">Service</text>
+      <path
+         d="m 35.45,78.4 0,38.5"
+         style="fill:none;stroke:#000000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="10"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 38.9,116.05 35.45,126.4 32,116.05 l 6.9,0 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="11"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 16.25,1.6 15.7,39.2"
+         style="fill:none;stroke:#000000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="12"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 34.8,38.7 35.45,49.6 28.4,41.25 34.8,38.7 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="13"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 41.05,49.6 56.75,10.45"
+         style="fill:none;stroke:#000000;stroke-width:0.75px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+         id="14"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 53.2,9.95 60.25,1.6 59.6,12.5 53.2,9.95 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         id="15"
+         inkscape:connector-curvature="0" />
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="18.4"
+         x="69.599998"
+         xml:space="preserve"
+         id="16">Reject</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="28.799999"
+         x="69.599998"
+         xml:space="preserve"
+         id="17">unauthenticated</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="39.200001"
+         x="69.599998"
+         xml:space="preserve"
+         id="18">requests</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="95.199997"
+         x="52"
+         xml:space="preserve"
+         id="19">Forward</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="105.6"
+         x="52"
+         xml:space="preserve"
+         id="20">authenticated</text>
+      <text
+         style="font-size:8.80000019px;font-style:italic;font-weight:normal;text-align:start;text-anchor:start;fill:#1f477d;font-family:Arial"
+         y="116"
+         x="52"
+         xml:space="preserve"
+         id="21">requests</text>
+    </g>
+  </g>
+</svg>

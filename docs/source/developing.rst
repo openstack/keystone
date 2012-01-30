@@ -18,33 +18,22 @@
 Developing with Keystone
 ========================
 
-Get your development environment set up according to :doc:`setup`.
+Contributing Code
+=================
 
-Running a development instance
-==============================
+To contribute code, sign up for a Launchpad account and sign a contributor license agreement,
+available on the `<http://wiki.openstack.org/CLA>`_. Once the CLA is signed you 
+can contribute code through the Gerrit version control system which is related to your Launchpad account.
 
-Setting up a virtualenv
------------------------
+To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workflow`_.
 
-We recommend establishing a virtualenv to run keystone within. To establish
-this environment, use the command::
+.. _`Gerrit-Jenkins-Github Workflow`: http://wiki.openstack.org/GerritJenkinsGithub
 
-    $ python tools/install_venv.py
+Setup
+-----
 
-This will create a local virtual environment in the directory ``.venv``.
-Once created, you can activate this virtualenv for your current shell using::
-
-    $ source .venv/bin/activate
-
-The virtual environment can be disabled using the command::
-
-    $ deactivate
-
-You can also use ``tools\with_venv.sh`` to prefix commands so that they run
-within the virtual environment. For more information on virtual environments,
-see virtualenv_.
-
-.. _virtualenv: http://www.virtualenv.org/
+Get your development environment set up according to :doc:`setup`. The instructions from here will
+assume that you have installed keystone into a virtualenv. If you chose not to, simply exclude "tools/with_venv.sh" from the example commands below.
 
 Running Keystone
 ----------------
@@ -52,84 +41,92 @@ Running Keystone
 To run the keystone Admin and API server instances, use::
 
     $ tools/with_venv.sh bin/keystone
-
-Running a demo service that uses Keystone
------------------------------------------
-
-To run client demo (with all auth middleware running locally on sample service)::
-
-    $ tools/with_venv.sh examples/echo/bin/echod
-
-which spins up a simple "echo" service on port 8090. To use a simple echo client::
-
-    $ python examples/echo/echo_client.py
+	
+this runs keystone with the configuration the etc/ directory of the project. See :doc:`configuration` for details on how Keystone is configured.
 
 Interacting with Keystone
-=========================
+-------------------------
 
 You can interact with Keystone through the command line using :doc:`man/keystone-manage`
 which allows you to establish tenants, users, etc.
 
 You can also interact with Keystone through it's REST API. There is a python
-keystone client library python-keystoneclient_ which interacts exclusively through
-the REST API.
+keystone client library `python-keystoneclient`_ which interacts exclusively through
+the REST API, and which keystone itself uses to provide it's command-line interface.
 
-.. _python-keystoneclient: https://github.com/4P/python-keystoneclient
+.. _`python-keystoneclient`: https://github.com/openstack/python-keystoneclient
 
-The easiest way to establish some base information in Keystone to interact with is
-to invoke::
+Running Tests
+=============
 
-    $ tools/with_venv.sh bin/sampledata
+To run the full suites of tests maintained within Keystone, run::
 
-You can see the details of what that creates in ``keystone/test/sampledata.py``
+    $ ./run_tests.sh
 
-Enabling debugging middleware
------------------------------
+This shows realtime feedback during test execution, iterates over
+multiple configuration variations, and uses external projects to do
+light integration testing to verify the keystone API against other projects.
 
-You can enable a huge amount of additional data (debugging information) about
-the request and repsonse objects flowing through Keystone using the debugging
-WSGI middleware.
+Test Structure
+--------------
 
-To enable this, just modify the pipelines in ``etc/keystone.conf``, from::
+``./run_test.sh`` uses it's python cohort (``run_tests.py``) to iterate through the ``tests`` directory, using Nosetest to collect the tests and invoke them using an 
+OpenStack custom test running that displays the tests as well as the time taken to
+run those tests.
 
-    [pipeline:admin]
-    pipeline =
-        urlnormalizer
-        admin_api
+Within the tests directory, the general structure of the tests is a basic set of tests represented under a test class, and then subclasses of those tests under other classes with different configurations to drive different backends through the APIs.
 
-    [pipeline:keystone-legacy-auth]
-    pipeline =
-        urlnormalizer
-        legacy_auth
-        d5_compat
-        service_api
+For example, ``test_backend.py`` has a sequence of tests under the class ``IdentityTests`` that will work with the default drivers as configured in this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests, changing the configuration by overriding with configuration files stored in the tests directory aimed at enabling the SQL backend for the Identity module.
 
-... to::
+Likewise, ``test_cli.py`` takes advantage of the tests written aainst ``test_keystoneclient`` to verify the same tests function through different drivers.
 
-    [pipeline:admin]
-    pipeline =
-        debug
-        urlnormalizer
-        d5_compat
-        admin_api
+Testing Schema Migrations
+-------------------------
 
-    [pipeline:keystone-legacy-auth]
-    pipeline =
-        debug
-        urlnormalizer
-        legacy_auth
-        d5_compat
-        service_api
+The application of schema migrations can be tested using SQLAlchemy Migrate’s built-in test runner, one migration at a time.
 
-Two simple and easy debugging tools are using the ``-d`` when you start keystone::
+.. WARNING::
 
-    $ ./keystone -d
+    This may leave your database in an inconsistent state; attempt this in non-production environments only!
 
-and the `--trace-calls` flag::
+This is useful for testing the *next* migration in sequence (both forward & backward) in a database under version control::
 
-    $ ./keystone -trace-calls
+    python keystone/common/sql/migrate_repo/manage.py test \
+	--url=sqlite:///test.db \
+	--repository=keystone/common/sql/migrate_repo/
 
-The ``-d`` flag outputs debug information to the console. The ``--trace-calls`` flag
-outputs extensive, nested trace calls to the console and highlights any errors
-in red.
+This command references to a SQLite database (test.db) to be used. Depending on the migration, this command alone does not make assertions as to the integrity of your data during migration.
 
+Writing Tests
+-------------
+
+To add tests covering all drivers, update the base test class (``test_backend.py``, ``test_legacy_compat.py``, and ``test_keystoneclient.py``).
+
+To add new drivers, subclass the ``test_backend.py`` (look towards ``test_backend_sql.py`` or ``test_backend_kvs.py`` for examples) and update the configuration of the test class in ``setUp()``.
+
+Further Testing
+---------------
+
+devstack_ is the *best* way to quickly deploy keystone with the rest of the
+OpenStack universe and should be critical step in your development workflow!
+
+You may also be interested in either the `OpenStack Continuous Integration Project`_
+or the `OpenStack Integration Testing Project`_.
+
+.. _devstack: http://devstack.org/
+.. _OpenStack Continuous Integration Project: https://github.com/openstack/openstack-ci
+.. _OpenStack Integration Testing Project: https://github.com/openstack/tempest
+
+Building the Documentation
+==========================
+
+The documentation is all generated with Sphinx from within the docs directory.
+To generate the full set of HTML documentation:
+
+    cd docs
+    make autodoc
+    make html
+    make man
+
+the results are in the docs/build/html and docs/build/man directories
+respectively.

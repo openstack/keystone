@@ -33,20 +33,6 @@ from blueprint designs to documentation to testing to deployment scripts.
 .. _Launchpad: https://launchpad.net/keystone
 .. _wiki: http://wiki.openstack.org/
 
-
-
-Contributing Code
------------------
-
-To contribute code, sign up for a Launchpad account and sign a contributor license agreement,
-available on the `<http://wiki.openstack.org/CLA>`_. Once the CLA is signed you 
-can contribute code through the Gerrit version control system which is related to your Launchpad account.
-
-To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workflow`_.
-
-.. _`Gerrit-Jenkins-Github Workflow`: http://wiki.openstack.org/GerritJenkinsGithub
-
-
 #openstack on Freenode IRC Network
 ----------------------------------
 
@@ -68,10 +54,10 @@ to write drafts for specs or documentation, describe a blueprint, or collaborate
 Keystone on Launchpad
 ---------------------
 
-Launchpad is a code hosting service that hosts the Keystone source code. From
-Launchpad you can report bugs, ask questions, and register blueprints (feature requests). 
+Launchpad is a code hosting that OpenStack is using to track bugs, feature work, and releases of OpenStack. Like other OpenStack projects, Keystone source code is hosted on GitHub
 
-* `Launchpad Keystone Page <http://launchpad.net/keystone>`_
+* `Keystone Project Page on Launchpad <http://launchpad.net/keystone>`_
+* `Keystone Source Repository on GitHub <http://github.com/openstack/keystone>`_
 
 OpenStack Blog
 --------------
@@ -82,9 +68,9 @@ events and posts from OpenStack contributors.
 
 `OpenStack Blog <http://openstack.org/blog>`_
 
-See also: `Planet OpenStack <http://planet.openstack.org/>`_, aggregating blogs
-about OpenStack from around the internet into a single feed. If you'd like to contribute to this blog
-aggregation with your blog posts, there are instructions for `adding your blog <http://wiki.openstack.org/AddingYourBlog>`_.
+See also: `Planet OpenStack <http://planet.openstack.org/>`_, an aggregation of blogs
+about OpenStack from around the internet, combined into a web site and RSS feed. If you'd like to
+contribute with your blog posts, there are instructions for `adding your blog <http://wiki.openstack.org/AddingYourBlog>`_.
 
 Twitter
 -------
