@@ -109,17 +109,17 @@ class TokenController(wsgi.Application):
     def authenticate(self, context, auth=None):
         """Authenticate credentials and return a token.
 
-        Accept auth as a dict that looks like:
+        Accept auth as a dict that looks like::
 
-        {
-            "auth":{
-                "passwordCredentials":{
-                    "username":"test_user",
-                    "password":"mypass"
-                },
-                "tenantName":"customer-x"
+            {
+                "auth":{
+                    "passwordCredentials":{
+                        "username":"test_user",
+                        "password":"mypass"
+                    },
+                    "tenantName":"customer-x"
+                }
             }
-        }
 
         In this case, tenant is optional, if not provided the token will be
         considered "unscoped" and can later be used to get a scoped token.

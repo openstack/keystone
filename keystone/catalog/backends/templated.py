@@ -32,8 +32,11 @@ class TemplatedCatalog(kvs.Catalog):
 
       name - the name of the service, most likely repeated for all services of
              the same type, across regions.
+
       adminURL - the url of the admin endpoint
+
       publicURL - the url of the public endpoint
+
       internalURL - the url of the internal endpoint
 
     """

@@ -31,7 +31,7 @@ initializing data into keystone using the command line client.
 Keystone Configuration File
 ===========================
 
-The keystone configuration file is an 'ini' file format with sections, 
+The keystone configuration file is an 'ini' file format with sections,
 extended from Paste_, a common system used to configure python WSGI based
 applications. In addition to the paste config entries, general configuration
 values are stored under [DEFAULT] and [sql], and then drivers for the various
@@ -44,7 +44,7 @@ The driver sections include:
 * ``[policy]`` - the python module that drives the policy system for RBAC
 * ``[ec2]`` - the python module providing the EC2 translations for OpenStack
 
-The keystone configuration file is expected to be named ``keystone.conf``. 
+The keystone configuration file is expected to be named ``keystone.conf``.
 When starting up Keystone, you can specify a different configuration file to
 use with ``--config-file``. If you do **not** specify a configuration file,
 keystone will look in the following directories for a configuration file, in
@@ -57,7 +57,7 @@ order:
 
 Logging is configured externally to the rest of keystone, the file specifying
 the logging configuration is in the [DEFAULT] section of the keystone conf
-file under ``log_config``. If you wish to route all your logging through 
+file under ``log_config``. If you wish to route all your logging through
 syslog, there is a ``use_syslog`` option also in the [DEFAULT] section that
 easy.
 
@@ -81,20 +81,26 @@ Sample Configuration Files
 Initializing Keystone
 =====================
 
-Keystone must be running in order to initialize data within it. This is because
-the keystone-manage commands are all used the same REST API that other
+Keystone must be running in order to initialize data within it. This is
+because the keystone-manage commands are all used the same REST API that other
 OpenStack systems utilize.
 
 General keystone-manage options:
 --------------------------------
 
 * ``--id-only`` : causes ``keystone-manage`` to return only the UUID result
-from the API call.
-* ``--endpoint`` : allows you to specify the keystone endpoint to communicate with. The default endpoint is http://localhost:35357/v2.0'
+  from the API call.
+
+* ``--endpoint`` : allows you to specify the keystone endpoint to communicate
+  with. The default endpoint is http://localhost:35357/v2.0'
+
 * ``--auth-token`` : provides the authorization token
 
-``keystone-manage`` is set up to expect commands in the general form of ``keystone-manage`` ``command`` ``subcommand``, with keyword arguments to provide additional information to the command. For example, the command
-``tenant`` has the subcommand ``create``, which takes the required keyword ``tenant_name``::
+``keystone-manage`` is set up to expect commands in the general form of
+``keystone-manage`` ``command`` ``subcommand``, with keyword arguments to
+provide additional information to the command. For example, the command
+``tenant`` has the subcommand ``create``, which takes the required keyword
+``tenant_name``::
 
 	keystone-manage tenant create tenant_name=example_tenant
 
@@ -137,7 +143,7 @@ creates a tenant named "admin".
 keyword arguments
 
 * tenant_id
-	
+
 example::
 
 	keystone-manage tenant delete tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3
@@ -169,14 +175,14 @@ keyword arguments
 * name
 * password
 * email
-	
+
 example::
 
 	keystone-manage user --ks-id-only create \
 	name=admin \
 	password=secrete \
 	email=admin@example.com
-	
+
 ``user delete``
 ^^^^^^^^^^^^^^^
 
@@ -199,7 +205,7 @@ keyword arguments
 
 ``user update_password``
 ^^^^^^^^^^^^^^^^^^^^^^^^
- 
+
 keyword arguments
 
 ``user update_tenant``
@@ -220,7 +226,7 @@ keyword arguments
 exmaple::
 
 	keystone-manage role --ks-id-only create name=Admin
-	
+
 ``role add_user_to_tenant``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -236,7 +242,7 @@ example::
 	role_id=19d1d3344873464d819c45f521ff9890 \
 	user_id=08741d8ed88242ca88d1f61484a0fe3b \
 	tenant_id=20601a7f1d94447daa4dff438cb1c209
-	
+
 ``role remove_user_from_tenant``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
