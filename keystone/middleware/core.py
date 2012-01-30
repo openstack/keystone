@@ -103,8 +103,8 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
 class Debug(wsgi.Middleware):
     """
-    Middleware that produces stream debugging traces to the console (stdout) 
-    for HTTP requests and responses flowing through it. 
+    Middleware that produces stream debugging traces to the console (stdout)
+    for HTTP requests and responses flowing through it.
     """
 
     @webob.dec.wsgify
