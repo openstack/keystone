@@ -7,7 +7,8 @@ from keystone import test
 import default_fixtures
 
 CONF = config.CONF
-KEYSTONECLIENT_REPO = 'git://github.com/openstack/python-keystoneclient.git'
+OPENSTACK_REPO = 'https://review.openstack.org/p/openstack'
+KEYSTONECLIENT_REPO = '%s/python-keystoneclient.git' % OPENSTACK_REPO
 
 
 class CompatTestCase(test.TestCase):

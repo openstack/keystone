@@ -12,7 +12,8 @@ import default_fixtures
 
 
 CONF = config.CONF
-NOVACLIENT_REPO = 'git://github.com/openstack/python-novaclient.git'
+OPENSTACK_REPO = 'https://review.openstack.org/p/openstack'
+NOVACLIENT_REPO = '%s/python-novaclient.git' % OPENSTACK_REPO
 
 
 class CompatTestCase(test.TestCase):
