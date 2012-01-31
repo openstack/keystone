@@ -27,7 +27,7 @@ CONF = config.CONF
 DEFAULT_BACKENDS = "keystone.backends.sqlalchemy"
 
 #Configs applicable to all backends.
-SHOULD_HASH_PASSWORD = CONF.hash_password
+SHOULD_HASH_PASSWORD = True
 
 
 class GroupConf(CONF.__class__):
@@ -46,6 +46,9 @@ class GroupConf(CONF.__class__):
 
 def configure_backends():
     """Load backends given in the 'backends' option."""
+    global SHOULD_HASH_PASSWORD  # pylint: disable=W0603
+    SHOULD_HASH_PASSWORD = CONF.hash_password
+
     backend_names = CONF.backends or DEFAULT_BACKENDS
     for module_name in backend_names.split(","):
         backend_module = utils.import_module(module_name)
