@@ -28,8 +28,8 @@ import sys
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-VENV = os.path.join(ROOT, '.ksl-venv')
-PIP_REQUIRES = os.path.join(ROOT, 'tools', 'pip-requires-test')
+VENV = os.path.join(ROOT, '.venv')
+PIP_REQUIRES = os.path.join(ROOT, 'tools', 'pip-requires')
 PY_VERSION = "python%s.%s" % (sys.version_info[0], sys.version_info[1])
 
 

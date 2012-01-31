@@ -40,7 +40,7 @@ function process_option {
   esac
 }
 
-venv=.ksl-venv
+venv=.venv
 with_venv=tools/with_venv.sh
 always_venv=0
 never_venv=0
@@ -89,7 +89,6 @@ function run_pep8 {
   srcfiles+=" keystone"
   # Just run PEP8 in current environment
   ${wrapper} pep8 --repeat --show-pep8 --show-source \
-    --ignore=E202,E111 \
     --exclude=vcsversion.py ${srcfiles} | tee pep8.txt
 }
 

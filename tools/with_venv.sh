@@ -1,4 +1,4 @@
 #!/bin/bash
 TOOLS=`dirname $0`
-VENV=$TOOLS/../.ksl-venv
+VENV=$TOOLS/../.venv
 source $VENV/bin/activate && $@
