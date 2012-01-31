@@ -41,10 +41,9 @@ class KcMasterTestCase(CompatTestCase):
     def setUp(self):
         super(KcMasterTestCase, self).setUp()
 
-        revdir = test.checkout_vendor(KEYSTONECLIENT_REPO, 'master')
+        revdir = test.checkout_vendor(*self.get_checkout())
         self.add_path(revdir)
-        from keystoneclient.v2_0 import client as ks_client
-        reload(ks_client)
+        self.clear_module('keystoneclient')
 
         self.public_app = self.loadapp('keystone', name='main')
         self.admin_app = self.loadapp('keystone', name='admin')
@@ -62,6 +61,9 @@ class KcMasterTestCase(CompatTestCase):
         self.metadata_foobar = self.identity_api.update_metadata(
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=['keystone_admin'], is_admin='1'))
+
+    def get_checkout(self):
+        return KEYSTONECLIENT_REPO, 'master'
 
     def get_client(self, user_ref=None, tenant_ref=None):
         if user_ref is None:
@@ -429,3 +431,8 @@ class KcMasterTestCase(CompatTestCase):
 
         # TODO(ja): MEMBERSHIP CRUD
         # TODO(ja): determine what else todo
+
+
+class KcEssex3TestCase(KcMasterTestCase):
+    def get_checkout(self):
+        return KEYSTONECLIENT_REPO, 'essex-3'

@@ -197,6 +197,11 @@ class TestCase(unittest.TestCase):
         sys.path.insert(0, path)
         self._paths.append(path)
 
+    def clear_module(self, module):
+        for x in sys.modules.keys():
+            if x.startswith(module):
+                del sys.modules[x]
+
     def assertListEquals(self, actual, expected):
         copy = expected[:]
         #print expected, actual
