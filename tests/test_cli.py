@@ -61,8 +61,15 @@ class CliMasterTestCase(test_keystoneclient.KcMasterTestCase):
 
     def test_tenant_create_update_and_delete(self):
         raise nose.exc.SkipTest('cli does not support booleans yet')
+
     def test_invalid_password(self):
         raise nose.exc.SkipTest('N/A')
 
     def test_user_create_update_delete(self):
         raise nose.exc.SkipTest('cli does not support booleans yet')
+
+    def test_role_create_and_delete(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 404 well')
+
+    def test_service_create_and_delete(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 404 well')
