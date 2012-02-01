@@ -110,7 +110,7 @@ class CrudExtension(wsgi.ExtensionRouter):
             conditions=dict(method=["PUT"]))
         mapper.connect(
             "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
-            controller=role_controller, action="delete_role_from_user",
+            controller=role_controller, action="remove_role_from_user",
             conditions=dict(method=["DELETE"]))
 
         # Service Operations

@@ -90,6 +90,8 @@ class JsonBodyMiddleware(wsgi.Middleware):
             return
 
         params_parsed = json.loads(params_json)
+        if not params_parsed:
+            params_parsed = {}
         params = {}
         for k, v in params_parsed.iteritems():
             if k in ('self', 'context'):

@@ -15,32 +15,6 @@ class CompatTestCase(test.TestCase):
     def setUp(self):
         super(CompatTestCase, self).setUp()
 
-    def _public_url(self):
-        public_port = self.public_server.socket_info['socket'][1]
-        CONF.public_port = public_port
-        return "http://localhost:%s/v2.0" % public_port
-
-    def _admin_url(self):
-        admin_port = self.admin_server.socket_info['socket'][1]
-        CONF.admin_port = admin_port
-        return "http://localhost:%s/v2.0" % admin_port
-
-    def _client(self, **kwargs):
-        from keystoneclient.v2_0 import client as ks_client
-
-        kc = ks_client.Client(endpoint=self._admin_url(),
-                              auth_url=self._public_url(),
-                              **kwargs)
-        kc.authenticate()
-        # have to manually overwrite the management url after authentication
-        kc.management_url = self._admin_url()
-        return kc
-
-
-class KcMasterTestCase(CompatTestCase):
-    def setUp(self):
-        super(KcMasterTestCase, self).setUp()
-
         revdir = test.checkout_vendor(*self.get_checkout())
         self.add_path(revdir)
         self.clear_module('keystoneclient')
@@ -62,8 +36,26 @@ class KcMasterTestCase(CompatTestCase):
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=['keystone_admin'], is_admin='1'))
 
-    def get_checkout(self):
-        return KEYSTONECLIENT_REPO, 'master'
+    def _public_url(self):
+        public_port = self.public_server.socket_info['socket'][1]
+        CONF.public_port = public_port
+        return "http://localhost:%s/v2.0" % public_port
+
+    def _admin_url(self):
+        admin_port = self.admin_server.socket_info['socket'][1]
+        CONF.admin_port = admin_port
+        return "http://localhost:%s/v2.0" % admin_port
+
+    def _client(self, **kwargs):
+        from keystoneclient.v2_0 import client as ks_client
+
+        kc = ks_client.Client(endpoint=self._admin_url(),
+                              auth_url=self._public_url(),
+                              **kwargs)
+        kc.authenticate()
+        # have to manually overwrite the management url after authentication
+        kc.management_url = self._admin_url()
+        return kc
 
     def get_client(self, user_ref=None, tenant_ref=None):
         if user_ref is None:
@@ -78,6 +70,10 @@ class KcMasterTestCase(CompatTestCase):
         return self._client(username=user_ref['name'],
                             password=user_ref['password'],
                             tenant_id=tenant_id)
+
+
+class KeystoneClientTests(object):
+    """Tests for all versions of keystoneclient."""
 
     def test_authenticate_tenant_name_and_tenants(self):
         client = self.get_client()
@@ -169,33 +165,6 @@ class KcMasterTestCase(CompatTestCase):
         tenants = client.tenants.list()
         self.assertEquals(len(tenants), 1)
 
-    def test_tenant_add_and_remove_user(self):
-        client = self.get_client()
-        client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
-                                        user_id=self.user_foo['id'],
-                                        role_id=self.role_useless['id'])
-        tenant_refs = client.tenants.list()
-        self.assert_(self.tenant_baz['id'] in
-                     [x.id for x in tenant_refs])
-
-        # get the "role_refs" so we get the proper id, this is how the clients
-        # do it
-        roleref_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
-        for roleref_ref in roleref_refs:
-          if (roleref_ref.roleId == self.role_useless['id'] and
-              roleref_ref.tenantId == self.tenant_baz['id']):
-            # use python's scope fall through to leave roleref_ref set
-            break
-
-        client.roles.remove_user_from_tenant(tenant_id=self.tenant_baz['id'],
-                                             user_id=self.user_foo['id'],
-                                             role_id=roleref_ref.id)
-
-        tenant_refs = client.tenants.list()
-        self.assert_(self.tenant_baz['id'] not in
-                     [x.id for x in tenant_refs])
-
     def test_invalid_password(self):
         from keystoneclient import exceptions as client_exceptions
 
@@ -280,17 +249,12 @@ class KcMasterTestCase(CompatTestCase):
         client.roles.delete(role=role.id)
 
         self.assertRaises(client_exceptions.NotFound, client.roles.get,
-                          role=test_role)
+                          role=role.id)
 
     def test_role_list(self):
         client = self.get_client()
         roles = client.roles.list()
         # TODO(devcamcar): This assert should be more specific.
-        self.assertTrue(len(roles) > 0)
-
-    def test_roles_get_by_user(self):
-        client = self.get_client()
-        roles = client.roles.get_user_role_refs(user_id='foo')
         self.assertTrue(len(roles) > 0)
 
     def test_ec2_credential_crud(self):
@@ -433,6 +397,66 @@ class KcMasterTestCase(CompatTestCase):
         # TODO(ja): determine what else todo
 
 
-class KcEssex3TestCase(KcMasterTestCase):
+class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
+    def get_checkout(self):
+        return KEYSTONECLIENT_REPO, 'master'
+
+    def test_tenant_add_and_remove_user(self):
+        client = self.get_client()
+        client.roles.add_user_role(tenant=self.tenant_baz['id'],
+                                   user=self.user_foo['id'],
+                                   role=self.role_useless['id'])
+        tenant_refs = client.tenants.list()
+        self.assert_(self.tenant_baz['id'] in
+                     [x.id for x in tenant_refs])
+
+        client.roles.remove_user_role(tenant=self.tenant_baz['id'],
+                                      user=self.user_foo['id'],
+                                      role=self.role_useless['id'])
+
+        tenant_refs = client.tenants.list()
+        self.assert_(self.tenant_baz['id'] not in
+                     [x.id for x in tenant_refs])
+
+    def test_roles_get_by_user(self):
+        client = self.get_client()
+        roles = client.roles.roles_for_user(user=self.user_foo['id'],
+                                            tenant=self.tenant_bar['id'])
+        self.assertTrue(len(roles) > 0)
+
+
+class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
     def get_checkout(self):
         return KEYSTONECLIENT_REPO, 'essex-3'
+
+    def test_tenant_add_and_remove_user(self):
+        client = self.get_client()
+        client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
+                                        user_id=self.user_foo['id'],
+                                        role_id=self.role_useless['id'])
+        tenant_refs = client.tenants.list()
+        self.assert_(self.tenant_baz['id'] in
+                     [x.id for x in tenant_refs])
+
+        # get the "role_refs" so we get the proper id, this is how the clients
+        # do it
+        roleref_refs = client.roles.get_user_role_refs(
+                user_id=self.user_foo['id'])
+        for roleref_ref in roleref_refs:
+          if (roleref_ref.roleId == self.role_useless['id'] and
+              roleref_ref.tenantId == self.tenant_baz['id']):
+            # use python's scope fall through to leave roleref_ref set
+            break
+
+        client.roles.remove_user_from_tenant(tenant_id=self.tenant_baz['id'],
+                                             user_id=self.user_foo['id'],
+                                             role_id=roleref_ref.id)
+
+        tenant_refs = client.tenants.list()
+        self.assert_(self.tenant_baz['id'] not in
+                     [x.id for x in tenant_refs])
+
+    def test_roles_get_by_user(self):
+        client = self.get_client()
+        roles = client.roles.get_user_role_refs(user_id='foo')
+        self.assertTrue(len(roles) > 0)
