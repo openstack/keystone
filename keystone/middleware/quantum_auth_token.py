@@ -127,9 +127,9 @@ class AuthProtocol(object):
         logger.debug("Authentication Service:%s", self.auth_location)
         # Credentials used to verify this component with the Auth service
         # since validating tokens is a privileged call
-        self.admin_user = conf.get('auth_admin_user')
-        self.admin_password = conf.get('auth_admin_password')
-        self.admin_token = conf.get('auth_admin_token')
+        self.admin_user = conf.get('admin_user')
+        self.admin_password = conf.get('admin_password')
+        self.admin_token = conf.get('admin_token')
         # bind to one or more service instances
         service_ids = conf.get('service_ids')
         self.serviceId_qs = ''

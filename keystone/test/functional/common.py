@@ -1596,8 +1596,8 @@ class MiddlewareTestCase(FunctionalTestCase):
                               client_tests.TEST_TARGET_SERVER_SERVICE_ADDRESS,
                               client_tests.TEST_TARGET_SERVER_SERVICE_PORT)),
                 'admin_token': self.admin_token,
-                'auth_admin_user': self.admin_username,
-                'auth_admin_password': self.admin_password}
+                'admin_user': self.admin_username,
+                'admin_password': self.admin_password}
         cert_file = isSsl()
         if cert_file:
             settings['certfile'] = cert_file

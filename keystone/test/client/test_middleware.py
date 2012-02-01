@@ -1,6 +1,8 @@
 import unittest2 as unittest
+import uuid
 
 import keystone.common.exception
+import keystone.backends.api as db_api
 from keystone.test.functional import common
 from keystone.test import client as client_tests
 
@@ -18,6 +20,26 @@ class TestAuthTokenMiddleware(common.MiddlewareTestCase):
     def setUp(self):
         super(TestAuthTokenMiddleware, self).setUp(auth_token)
 
+
+class TestAuthTokenMiddlewareWithNoAdminToken(common.MiddlewareTestCase):
+    """
+    Tests for Keystone WSGI middleware: Auth Token
+    """
+
+    def setUp(self):
+        settings = {'delay_auth_decision': '0',
+            'auth_host': client_tests.TEST_TARGET_SERVER_ADMIN_ADDRESS,
+            'auth_port': client_tests.TEST_TARGET_SERVER_ADMIN_PORT,
+            'auth_protocol':
+                client_tests.TEST_TARGET_SERVER_ADMIN_PROTOCOL,
+            'auth_uri': ('%s://%s:%s/' % \
+                         (client_tests.TEST_TARGET_SERVER_SERVICE_PROTOCOL,
+                          client_tests.TEST_TARGET_SERVER_SERVICE_ADDRESS,
+                          client_tests.TEST_TARGET_SERVER_SERVICE_PORT)),
+            'admin_user': self.admin_username,
+            'admin_password': self.admin_password}
+        super(TestAuthTokenMiddlewareWithNoAdminToken, self).setUp(auth_token,
+              settings)
 
 #
 #   Glance
@@ -65,9 +87,9 @@ class TestQuantumMiddleware(common.MiddlewareTestCase):
                               client_tests.TEST_TARGET_SERVER_SERVICE_ADDRESS,
                               client_tests.TEST_TARGET_SERVER_SERVICE_PORT)),
                 'auth_version': '2.0',
-                'auth_admin_token': self.admin_token,
-                'auth_admin_user': self.admin_username,
-                'auth_admin_password': self.admin_password}
+                'admin_token': self.admin_token,
+                'admin_user': self.admin_username,
+                'admin_password': self.admin_password}
         super(TestQuantumMiddleware, self).setUp(quantum_auth_token, settings)
 
 
