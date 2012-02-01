@@ -54,6 +54,12 @@ You can also interact with Keystone through it's REST API. There is a python
 keystone client library `python-keystoneclient`_ which interacts exclusively through
 the REST API, and which keystone itself uses to provide it's command-line interface.
 
+When initially getting set up, after you've configured which databases to use,
+you're probably going to need to run the following to your database schema in place ::
+
+    $ bin/keystone-manage db_sync
+
+
 .. _`python-keystoneclient`: https://github.com/openstack/python-keystoneclient
 
 Running Tests
