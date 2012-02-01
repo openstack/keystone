@@ -15,8 +15,15 @@ KEYSTONECLIENT_REPO = 'git://github.com/openstack/python-keystoneclient.git'
 class CliMasterTestCase(test_keystoneclient.KcMasterTestCase):
     def setUp(self):
         super(CliMasterTestCase, self).setUp()
+        # NOTE(termie): we need to reset and reparse the config here because
+        #               cli adds new command-line config options
+        # NOTE(termie): we are importing cli here because it imports
+        #               keystoneclient, which we are loading from different
+        #               sources between tests
+        CONF.reset()
         from keystone import cli
         self.cli = cli
+        self.config()
 
     def get_client(self, user_ref=None, tenant_ref=None):
         if user_ref is None:
