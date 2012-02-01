@@ -13,11 +13,11 @@ from keystone.common import utils
 
 CONF = config.CONF
 
+OPENSTACK_REPO = 'https://review.openstack.org/p/openstack/'
 
-IDENTITY_API_REPO = 'git://github.com/openstack/identity-api.git'
-KEYSTONE_REPO = 'git://github.com/openstack/keystone.git'
-NOVACLIENT_REPO = 'git://github.com/rackspace/python-novaclient.git'
-
+IDENTITY_API_REPO = '%s/identity-api.git' % OPENSTACK_REPO
+KEYSTONE_REPO = '%s/keystone.git' % OPENSTACK_REPO
+NOVACLIENT_REPO = '%s/python-novaclient.git' % OPENSTACK_REPO
 
 IDENTITY_SAMPLE_DIR = 'openstack-identity-api/src/docbkx/samples'
 KEYSTONE_SAMPLE_DIR = 'keystone/content/common/samples'

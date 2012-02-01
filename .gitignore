@@ -2,6 +2,9 @@
 *.swp
 vendor
 .ksl-venv
+.venv
+.tox
+keystone.egg-info/
 run_tests.log
 .coverage
 covhtml

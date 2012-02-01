@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+
 setup(name='keystone',
       version='2012.1',
       description="Authentication service for OpenStack",
@@ -10,5 +11,5 @@ setup(name='keystone',
       packages=find_packages(exclude=['test', 'bin']),
       scripts=['bin/keystone', 'bin/keystone-manage'],
       zip_safe=False,
-      install_requires = ['setuptools', 'python-keystoneclient'],
+      install_requires=['setuptools', 'python-keystoneclient'],
       )
