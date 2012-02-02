@@ -366,8 +366,20 @@ class RoleController(wsgi.Application):
         self.policy_api = policy.Manager()
         super(RoleController, self).__init__()
 
+    # COMPAT(essex-3)
     def get_user_roles(self, context, user_id, tenant_id=None):
-        raise NotImplemented()
+        """Get the roles for a user and tenant pair.
+
+        Since we're trying to ignore the idea of user-only roles we're
+        not implementing them in hopes that the idea will die off.
+
+        """
+        if tenant_id is None:
+            raise Exception('User roles not supported: tenant_id required')
+        roles = self.identity_api.get_roles_for_user_and_tenant(
+                context, user_id, tenant_id)
+        return {'roles': [self.identity_api.get_role(context, x)
+                          for x in roles]}
 
     # CRUD extension
     def get_role(self, context, role_id):
@@ -395,6 +407,47 @@ class RoleController(wsgi.Application):
         # TODO(termie): probably inefficient at some point
         return {'roles': roles}
 
+    def add_role_to_user(self, context, user_id, role_id, tenant_id=None):
+        """Add a role to a user and tenant pair.
+
+        Since we're trying to ignore the idea of user-only roles we're
+        not implementing them in hopes that the idea will die off.
+
+        """
+        self.assert_admin(context)
+        if tenant_id is None:
+            raise Exception('User roles not supported: tenant_id required')
+
+        # This still has the weird legacy semantics that adding a role to
+        # a user also adds them to a tenant
+        self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+        self.identity_api.add_role_to_user_and_tenant(
+                context, user_id, tenant_id, role_id)
+        role_ref = self.identity_api.get_role(context, role_id)
+        return {'role': role_ref}
+
+    def remove_role_from_user(self, context, user_id, role_id, tenant_id=None):
+        """Remove a role from a user and tenant pair.
+
+        Since we're trying to ignore the idea of user-only roles we're
+        not implementing them in hopes that the idea will die off.
+
+        """
+        self.assert_admin(context)
+        if tenant_id is None:
+            raise Exception('User roles not supported: tenant_id required')
+
+        # This still has the weird legacy semantics that adding a role to
+        # a user also adds them to a tenant
+        self.identity_api.remove_role_from_user_and_tenant(
+                context, user_id, tenant_id, role_id)
+        roles = self.identity_api.get_roles_for_user_and_tenant(
+                context, user_id, tenant_id)
+        if not roles:
+            self.identity_api.remove_user_from_tenant(
+                    context, tenant_id, user_id)
+        return
+
     # COMPAT(diablo): CRUD extension
     def get_role_refs(self, context, user_id):
         """Ultimate hack to get around having to make role_refs first-class.
@@ -420,6 +473,7 @@ class RoleController(wsgi.Application):
                 o.append(ref)
         return {'roles': o}
 
+    # COMPAT(diablo): CRUD extension
     def create_role_ref(self, context, user_id, role):
         """This is actually used for adding a user to a tenant.
 
@@ -437,6 +491,7 @@ class RoleController(wsgi.Application):
         role_ref = self.identity_api.get_role(context, role_id)
         return {'role': role_ref}
 
+    # COMPAT(diablo): CRUD extension
     def delete_role_ref(self, context, user_id, role_ref_id):
         """This is actually used for deleting a user from a tenant.
 

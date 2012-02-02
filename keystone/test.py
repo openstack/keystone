@@ -40,6 +40,7 @@ def testsdir(*p):
 
 
 def checkout_vendor(repo, rev):
+    # TODO(termie): this function is a good target for some optimizations :PERF
     name = repo.split('/')[-1]
     if name.endswith('.git'):
         name = name[:-4]
@@ -57,7 +58,8 @@ def checkout_vendor(repo, rev):
             utils.git('clone', repo, revdir)
 
         cd(revdir)
-        utils.git('pull')
+        utils.git('checkout', '-q', 'master')
+        utils.git('pull', '-q')
         utils.git('checkout', '-q', rev)
 
         # write out a modified time
@@ -196,6 +198,11 @@ class TestCase(unittest.TestCase):
     def add_path(self, path):
         sys.path.insert(0, path)
         self._paths.append(path)
+
+    def clear_module(self, module):
+        for x in sys.modules.keys():
+            if x.startswith(module):
+                del sys.modules[x]
 
     def assertListEquals(self, actual, expected):
         copy = expected[:]

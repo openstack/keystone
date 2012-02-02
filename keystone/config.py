@@ -15,6 +15,7 @@ class ConfigMixin(object):
     def __call__(self, config_files=None, *args, **kw):
         if config_files is not None:
             self._opts['config_file']['opt'].default = config_files
+        kw.setdefault('args', [])
         return super(ConfigMixin, self).__call__(*args, **kw)
 
     def __getitem__(self, key, default=None):

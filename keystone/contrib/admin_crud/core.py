@@ -25,7 +25,7 @@ class CrudExtension(wsgi.ExtensionRouter):
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="update_tenant",
-                    conditions=dict(method=["PUT"]))
+                    conditions=dict(method=["PUT", "POST"]))
         mapper.connect("/tenants/{tenant_id}",
                     controller=tenant_controller,
                     action="delete_tenant",
@@ -110,7 +110,7 @@ class CrudExtension(wsgi.ExtensionRouter):
             conditions=dict(method=["PUT"]))
         mapper.connect(
             "/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}",
-            controller=role_controller, action="delete_role_from_user",
+            controller=role_controller, action="remove_role_from_user",
             conditions=dict(method=["DELETE"]))
 
         # Service Operations
