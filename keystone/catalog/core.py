@@ -17,7 +17,7 @@ CONF = config.CONF
 class Manager(manager.Manager):
     """Default pivot point for the Catalog backend.
 
-    See :mod:`keystone.manager.Manager` for more details on how this
+    See :mod:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.
 
     """
