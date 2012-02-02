@@ -9,7 +9,7 @@ setup(name='keystone',
       author_email='openstack@lists.launchpad.net',
       url='http://www.openstack.org',
       packages=find_packages(exclude=['test', 'bin']),
-      scripts=['bin/keystone', 'bin/keystone-manage'],
+      scripts=['bin/keystone-all', 'bin/keystone-manage'],
       zip_safe=False,
       install_requires=['setuptools', 'python-keystoneclient'],
       )
