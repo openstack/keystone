@@ -54,3 +54,6 @@ class Manager(object):
 
     def rolegrant_delete(self, grant_id):
         return self.driver.rolegrant_delete(grant_id)
+
+    def list_role_grants(self, role_id, user_id, tenant_id):
+        return self.driver.list_role_grants(role_id, user_id, tenant_id)
