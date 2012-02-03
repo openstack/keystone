@@ -62,10 +62,10 @@ When that is complete, you can::
 Installing dependencies
 =======================
 
-Keystone maintains two lists of dependencies:
+Keystone maintains two lists of dependencies::
 
     tools/pip-requires
-	tools/pip-requires-test
+    tools/pip-requires-test
 
 The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of keystone itself.
 
@@ -97,7 +97,7 @@ PyPi Packages and VirtualEnv
 ----------------------------
 
 We recommend establishing a virtualenv to run keystone within. Virtualenv limits the python environment
-to just what you're installing as depdendencies, useful to keep a clean environment for working on 
+to just what you're installing as depdendencies, useful to keep a clean environment for working on
 Keystone. The tools directory in keystone has a script already created to make this very simple::
 
     $ python tools/install_venv.py
@@ -125,10 +125,10 @@ into your system from the requires files::
 
     # Install the dependencies for developing, testing, and running keystone
     $ pip install -r tools/pip-requires-test
-	
+
     # Fake-install the project by symlinking Keystone into your Python site-packages
     $ python setup.py develop
-	
+
 
 Verifying Keystone is set up
 ============================
@@ -142,13 +142,8 @@ the libraries. If you're using a virtualenv, don't forget to activate it::
 You should then be able to `import keystone` from your Python shell
 without issue::
 
-    >>> import keystone.version
+    >>> import keystone
     >>>
-
-If you want to check the version of Keystone you are running:
-
-    >>> print keystone.version.version()
-    2012.1-dev
 
 If you can import keystone successfully, you should be ready to move on to :doc:`developing`
 

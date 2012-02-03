@@ -22,7 +22,7 @@ Contributing Code
 =================
 
 To contribute code, sign up for a Launchpad account and sign a contributor license agreement,
-available on the `<http://wiki.openstack.org/CLA>`_. Once the CLA is signed you 
+available on the `<http://wiki.openstack.org/CLA>`_. Once the CLA is signed you
 can contribute code through the Gerrit version control system which is related to your Launchpad account.
 
 To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workflow`_.
@@ -40,8 +40,8 @@ Running Keystone
 
 To run the keystone Admin and API server instances, use::
 
-    $ tools/with_venv.sh bin/keystone
-	
+    $ tools/with_venv.sh bin/keystone-all
+
 this runs keystone with the configuration the etc/ directory of the project. See :doc:`configuration` for details on how Keystone is configured.
 
 Interacting with Keystone
@@ -76,20 +76,32 @@ light integration testing to verify the keystone API against other projects.
 Test Structure
 --------------
 
-``./run_test.sh`` uses it's python cohort (``run_tests.py``) to iterate through the ``tests`` directory, using Nosetest to collect the tests and invoke them using an 
-OpenStack custom test running that displays the tests as well as the time taken to
+``./run_test.sh`` uses its python cohort (``run_tests.py``) to iterate
+through the ``tests`` directory, using Nosetest to collect the tests and
+invoke them using an OpenStack custom test running that displays the tests
+as well as the time taken to
 run those tests.
 
-Within the tests directory, the general structure of the tests is a basic set of tests represented under a test class, and then subclasses of those tests under other classes with different configurations to drive different backends through the APIs.
+Within the tests directory, the general structure of the tests is a basic
+set of tests represented under a test class, and then subclasses of those
+tests under other classes with different configurations to drive different
+backends through the APIs.
 
-For example, ``test_backend.py`` has a sequence of tests under the class ``IdentityTests`` that will work with the default drivers as configured in this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests, changing the configuration by overriding with configuration files stored in the tests directory aimed at enabling the SQL backend for the Identity module.
+For example, ``test_backend.py`` has a sequence of tests under the class
+``IdentityTests`` that will work with the default drivers as configured in
+this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests,
+changing the configuration by overriding with configuration files stored in
+the tests directory aimed at enabling the SQL backend for the Identity module.
 
-Likewise, ``test_cli.py`` takes advantage of the tests written aainst ``test_keystoneclient`` to verify the same tests function through different drivers.
+Likewise, ``test_cli.py`` takes advantage of the tests written aainst
+``test_keystoneclient`` to verify the same tests function through different
+drivers.
 
 Testing Schema Migrations
 -------------------------
 
-The application of schema migrations can be tested using SQLAlchemy Migrate’s built-in test runner, one migration at a time.
+The application of schema migrations can be tested using SQLAlchemy Migrate’s
+built-in test runner, one migration at a time.
 
 .. WARNING::
 

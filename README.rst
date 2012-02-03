@@ -152,7 +152,7 @@ Approach to Authorization (Policy)
 Various components in the system require that different actions are allowed
 based on whether the user is authorized to perform that action.
 
-For the purposes of Keystone Light there are only a couple levels of
+For the purposes of Keystone there are only a couple levels of
 authorization being checked for:
 
  * Require that the performing user is considered an admin.
@@ -160,7 +160,7 @@ authorization being checked for:
 
 Other systems wishing to use the policy engine will require additional styles
 of checks and will possibly write completely custom backends. Backends included
-in Keystone Light are:
+in Keystone are:
 
 
 Trivial True

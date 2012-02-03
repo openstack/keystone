@@ -16,17 +16,19 @@ Keystone Management Utility
 SYNOPSIS
 ========
 
-  keystone [options]
+  keystone-all [options]
 
 DESCRIPTION
 ===========
 
-keystone starts both the service and administrative APIs for Keystone.
+keystone-all starts both the service and administrative APIs in a single
+process to provide catalog, authorization, and authentication services for
+OpenStack.
 
 USAGE
 =====
 
- keystone ``keystone [options]``
+    ``keystone-all [options]``
 
 Common Options:
 ^^^^^^^^^^^^^^^
@@ -63,7 +65,7 @@ programs.::
                         syslog (defaults to LOG_USER)
   --use-syslog          Use syslog for logging.
   --nouse-syslog        Use syslog for logging.
-  
+
 FILES
 =====
 
@@ -77,5 +79,5 @@ SEE ALSO
 SOURCE
 ======
 
-* Keystone is sourced in GitHub `Keystone <http://github.com/openstack/keystone>`__
+* Keystone source in managed in GitHub `Keystone <http://github.com/openstack/keystone>`__
 * Keystone bugs are managed at Launchpad `Launchpad Keystone <https://bugs.launchpad.net/keystone>`__
