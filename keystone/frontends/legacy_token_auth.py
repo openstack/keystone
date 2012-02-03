@@ -92,7 +92,8 @@ class AuthProtocol(object):
             if "serviceCatalog" in auth:
                 services = auth["serviceCatalog"]
                 service_mappings = ast.literal_eval(
-                    self.conf["service-header-mappings"])
+                    self.conf.get("service_header_mappings",
+                                  self.conf["service-header-mappings"]))
                 for service in services:
                     service_name = service["name"]
                     service_urls = ''
