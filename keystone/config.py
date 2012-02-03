@@ -1,11 +1,11 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 import gettext
-import logging
 import sys
 import os
 
 from keystone.common import cfg
+from keystone.common import logging
 
 
 gettext.install('keystone', unicode=1)
