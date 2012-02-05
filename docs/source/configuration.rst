@@ -195,7 +195,7 @@ keyword arguments
 
 example::
 
-	keystone-manage user --ks-id-only create \
+	keystone-manage user --id-only create \
 	name=admin \
 	password=secrete \
 	email=admin@example.com
@@ -209,7 +209,7 @@ keyword arguments
 
 example::
 
-	keystone-manage user --ks-id-only delete f2b7b39c860840dfa47d9ee4adffa0b3
+	keystone-manage user delete user=f2b7b39c860840dfa47d9ee4adffa0b3
 
 ``user list``
 ^^^^^^^^^^^^^
@@ -219,8 +219,10 @@ list users in the system, optionally by a specific tenant (identified by tenant_
 keyword arguments
 
 * tenant_id (optional, defaults to None)
-* limit (optional, defaults to None)
-* marker (optional, defaults to None)
+
+example::
+
+	keystone-manage user list
 
 ``user update_email``
 ^^^^^^^^^^^^^^^^^^^^^
@@ -230,6 +232,11 @@ keyword arguments
 * user
 * email
 
+example::
+
+	keystone-manage user update_email user=03c84b51574841ba9a0d8db7882ac645 email="someone@somewhere.com"
+
+
 ``user update_enabled``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -237,6 +244,10 @@ keyword arguments
 
 * user
 * enabled (True or False)
+
+example::
+
+	keystone-manage user update_enabled user=03c84b51574841ba9a0d8db7882ac645 enabled=False
 
 ``user update_password``
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -246,6 +257,10 @@ keyword arguments
 * user
 * password
 
+example::
+
+    keystone-manage user update_password user=03c84b51574841ba9a0d8db7882ac645 password=foo
+
 ``user update_tenant``
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -253,6 +268,21 @@ keyword arguments
 
 * user
 * tenant
+
+example::
+
+    keystone-manage user update_tenant user=03c84b51574841ba9a0d8db7882ac645 tenant=b7b8be32c4be4208949f0373c5909e3b
+
+``user get``
+^^^^^^^^^^^^
+
+keyword arguments
+
+* user
+
+example::
+
+    keystone-manage ususer get user=03c84b51574841ba9a0d8db7882ac645
 
 
 Roles
@@ -267,7 +297,7 @@ keyword arguments
 
 exmaple::
 
-	keystone-manage role --ks-id-only create name=Admin
+	keystone-manage role --id-only create name=Admin
 
 ``role delete``
 ^^^^^^^^^^^^^^^
@@ -287,6 +317,18 @@ exmaple::
 
 	keystone-manage role list
 
+``role get``
+^^^^^^^^^^^^
+
+keysword arguments
+
+* role
+
+exmaple::
+
+	keystone-manage role get role=19d1d3344873464d819c45f521ff9890
+
+
 ``role add_user_role``
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -294,13 +336,13 @@ keyword arguments
 
 * role
 * user
-* tenant (optional, defaults to None)
+* tenant
 
 example::
 
 	keystone-manage role add_user_role \
-	role=19d1d3344873464d819c45f521ff9890 \
-	user=08741d8ed88242ca88d1f61484a0fe3b \
+	role=3a751f78ef4c412b827540b829e2d7dd \
+	user=03c84b51574841ba9a0d8db7882ac645 \
 	tenant=20601a7f1d94447daa4dff438cb1c209
 
 ``role remove_user_role``
