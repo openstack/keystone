@@ -24,16 +24,21 @@ Configuring Services to work with Keystone
     nova-api-paste
     middleware_architecture
 
-Once Keystone is installed and running (see :doc:`configuration`), services need to be configured to work
-with it. To do this, we primarily install and configure middleware for the OpenStack service to handle authentication tasks or otherwise interact with Keystone.
+Once Keystone is installed and running (see :doc:`configuration`), services
+need to be configured to work with it. To do this, we primarily install and
+configure middleware for the OpenStack service to handle authentication tasks
+or otherwise interact with Keystone.
 
 In general:
-* Clients making calls to the service will pass in an authentication token. 
-* The Keystone middleware will look for and validate that token, taking the appropriate action. 
-* It will also retrive additional information from the token such as user name, id, tenant name, id, roles, etc...
+* Clients making calls to the service will pass in an authentication token.
+* The Keystone middleware will look for and validate that token, taking the
+  appropriate action.
+* It will also retrive additional information from the token such as user
+  name, id, tenant name, id, roles, etc...
 
-The middleware will pass those data down to the service as headers. More details on the architecture of
-that setup is described in :doc:`middleware_architecture`
+The middleware will pass those data down to the service as headers. More
+details on the architecture of that setup is described in
+:doc:`middleware_architecture`
 
 Setting up credentials
 ======================
@@ -42,23 +47,30 @@ Admin Token
 -----------
 
 For a default installation of Keystone, before you can use the REST API, you
-need to define an authorization token. This is configured in the keystone.conf file under the section ``[DEFAULT]``. In the sample file provided with the keystone project, the line defining this token is
+need to define an authorization token. This is configured in ``keystone.conf``
+file under the section ``[DEFAULT]``. In the sample file provided with the
+keystone project, the line defining this token is
 
 	[DEFAULT]
 	admin_token = ADMIN
 
-This is a "shared secret" between keystone and other openstack services, and will need to be set the
-same between those services in order for keystone services to function correctly.
+This configured token is a "shared secret" between keystone and other
+openstack services (for example: nova, swift, glance, or horizon), and will
+need to be set the same between those services in order for keystone services
+to function correctly.
 
 Setting up tenants, users, and roles
 ------------------------------------
 
-You need to minimally define a tenant, user, and role to link the tenant and user as the most basic set of details to get other services authenticating and authorizing with keystone. See doc:`configuration` for a walk through on how to create tenants, users, and roles.
+You need to minimally define a tenant, user, and role to link the tenant and
+user as the most basic set of details to get other services authenticating
+and authorizing with keystone. See doc:`configuration` for a walk through on
+how to create tenants, users, and roles.
 
 Setting up services
 ===================
 
-Defining Services 
+Defining Services
 -----------------
 
 Keystone also acts as a service catalog to let other OpenStack systems know
@@ -68,13 +80,24 @@ for the OpenStack Dashboard to properly function.
 
 Here's how we define the services::
 
-	keystone-manage service create name=nova service_type=compute description="Nova Compute Service"
-	keystone-manage service create name=ec2 service_type=ec2 description="EC2 Compatibility Layer"
-	keystone-manage service create name=glance service_type=image description="Glance Image Service"
-	keystone-manage service create name=keystone service_type=identity description="Keystone Identity Service"
-    keystone-manage service create name=swift service_type=object-store description="Swift Service"
+    keystone-manage service create name=nova \
+                                   service_type=compute \
+                                   description="Nova Compute Service"
+    keystone-manage service create name=ec2 \
+                                   service_type=ec2 \
+                                   description="EC2 Compatibility Layer"
+    keystone-manage service create name=glance \
+                                   service_type=image \
+                                   description="Glance Image Service"
+    keystone-manage service create name=keystone \
+                                   service_type=identity \
+                                   description="Keystone Identity Service"
+    keystone-manage service create name=swift \
+                                   service_type=object-store \
+                                   description="Swift Service"
 
-The endpoints for these services are defined in a template, an example of which is in the project as the file ``etc/default_catalog.templates``.
+The endpoints for these services are defined in a template, an example of
+which is in the project as the file ``etc/default_catalog.templates``.
 
 Setting Up Middleware
 =====================
@@ -146,7 +169,7 @@ rather than it's built in 'tempauth'.
 
    Note that the optional "cache" property in the keystone filter allows any
    service (not just Swift) to register its memcache client in the WSGI
-   environment.  If such a cache exists, Keystone middleware will utilize it 
+   environment.  If such a cache exists, Keystone middleware will utilize it
    to store validated token information, which could result in better overall
    performance.
 

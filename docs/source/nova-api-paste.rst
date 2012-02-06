@@ -136,7 +136,8 @@ nova-api-paste example
     auth_host = 127.0.0.1
     auth_port = 35357
     auth_protocol = http
-    auth_uri = http://127.0.0.1:5000/
+    auth_uri = http://your_keystone_host.com:5000/
+    ;identical to the admin token defined in keystone.conf
     admin_token = 999888777666
     ;Uncomment next line and check ip:port to use memcached to cache token requests
     ;memcache_hosts = 127.0.0.1:11211
