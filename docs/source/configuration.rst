@@ -200,6 +200,11 @@ example::
 	password=secrete \
 	email=admin@example.com
 
+.. warning::
+    Until https://bugs.launchpad.net/keystone/+bug/927873 is resolved, the
+    keystone-manage cli doesn't allow the setting enabled to be False, making
+    this command partially broken at the moment.
+
 ``user delete``
 ^^^^^^^^^^^^^^^
 
@@ -248,6 +253,12 @@ keyword arguments
 example::
 
 	keystone-manage user update_enabled user=03c84b51574841ba9a0d8db7882ac645 enabled=False
+
+.. warning::
+    Until https://bugs.launchpad.net/keystone/+bug/927873 is resolved, the
+    keystone-manage cli doesn't allow the setting enabled to False, making
+    this command broken at the moment.
+
 
 ``user update_password``
 ^^^^^^^^^^^^^^^^^^^^^^^^

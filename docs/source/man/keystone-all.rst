@@ -79,5 +79,5 @@ SEE ALSO
 SOURCE
 ======
 
-* Keystone source in managed in GitHub `Keystone <http://github.com/openstack/keystone>`__
+* Keystone source is managed in GitHub `Keystone <http://github.com/openstack/keystone>`__
 * Keystone bugs are managed at Launchpad `Launchpad Keystone <https://bugs.launchpad.net/keystone>`__
