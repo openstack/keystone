@@ -22,6 +22,8 @@ glance to list images needed to perform the requested task.
 
 import uuid
 
+import webob.exc
+
 from keystone import catalog
 from keystone import config
 from keystone import identity
@@ -86,7 +88,7 @@ class Ec2Controller(wsgi.Application):
         super(Ec2Controller, self).__init__()
 
     def check_signature(self, creds_ref, credentials):
-        signer = utils.Signer(creds_ref['secret'])
+        signer = utils.Ec2Signer(creds_ref['secret'])
         signature = signer.generate(credentials)
         if signature == credentials['signature']:
             return
@@ -98,9 +100,11 @@ class Ec2Controller(wsgi.Application):
             signature = signer.generate(credentials)
             if signature != credentials.signature:
                 # TODO(termie): proper exception
-                raise Exception("Not Authorized")
+                msg = "Invalid signature"
+                raise webob.exc.HTTPUnauthorized(explanation=msg)
         else:
-            raise Exception("Not Authorized")
+            msg = "Signature not supplied"
+            raise webob.exc.HTTPUnauthorized(explanation=msg)
 
     def authenticate(self, context, credentials=None,
                          ec2Credentials=None):
@@ -129,8 +133,13 @@ class Ec2Controller(wsgi.Application):
         # NOTE(termie): backwards compat hack
         if not credentials and ec2Credentials:
             credentials = ec2Credentials
+
         creds_ref = self.ec2_api.get_credential(context,
                                                 credentials['access'])
+        if not creds_ref:
+            msg = "Access key not found"
+            raise webob.exc.HTTPUnauthorized(explanation=msg)
+
 
         self.check_signature(creds_ref, credentials)
 

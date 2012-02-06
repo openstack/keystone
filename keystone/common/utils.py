@@ -75,17 +75,17 @@ class Ec2Signer(object):
 
     def generate(self, credentials):
         """Generate auth string according to what SignatureVersion is given."""
-        if credentials.params['SignatureVersion'] == '0':
-            return self._calc_signature_0(credentials.params)
-        if credentials.params['SignatureVersion'] == '1':
-            return self._calc_signature_1(credentials.params)
-        if credentials.params['SignatureVersion'] == '2':
-            return self._calc_signature_2(credentials.params,
-                                          credentials.verb,
-                                          credentials.host,
-                                          credentials.path)
+        if credentials['params']['SignatureVersion'] == '0':
+            return self._calc_signature_0(credentials['params'])
+        if credentials['params']['SignatureVersion'] == '1':
+            return self._calc_signature_1(credentials['params'])
+        if credentials['params']['SignatureVersion'] == '2':
+            return self._calc_signature_2(credentials['params'],
+                                          credentials['verb'],
+                                          credentials['host'],
+                                          credentials['path'])
         raise Exception('Unknown Signature Version: %s' %
-                        credentials.params['SignatureVersion'])
+                        credentials['params']['SignatureVersion'])
 
     @staticmethod
     def _get_utf8_value(value):
@@ -115,7 +115,7 @@ class Ec2Signer(object):
 
     def _calc_signature_2(self, params, verb, server_string, path):
         """Generate AWS signature version 2 string."""
-        LOG.debug('using _calc_signature_2')
+        logging.debug('using _calc_signature_2')
         string_to_sign = '%s\n%s\n%s\n' % (verb, server_string, path)
         if self.hmac_256:
             current_hmac = self.hmac_256
@@ -131,13 +131,13 @@ class Ec2Signer(object):
             val = urllib.quote(val, safe='-_~')
             pairs.append(urllib.quote(key, safe='') + '=' + val)
         qs = '&'.join(pairs)
-        LOG.debug('query string: %s', qs)
+        logging.debug('query string: %s', qs)
         string_to_sign += qs
-        LOG.debug('string_to_sign: %s', string_to_sign)
+        logging.debug('string_to_sign: %s', string_to_sign)
         current_hmac.update(string_to_sign)
         b64 = base64.b64encode(current_hmac.digest())
-        LOG.debug('len(b64)=%d', len(b64))
-        LOG.debug('base64 encoded digest: %s', b64)
+        logging.debug('len(b64)=%d', len(b64))
+        logging.debug('base64 encoded digest: %s', b64)
         return b64
 
 
