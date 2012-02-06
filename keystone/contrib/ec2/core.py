@@ -140,7 +140,6 @@ class Ec2Controller(wsgi.Application):
             msg = "Access key not found"
             raise webob.exc.HTTPUnauthorized(explanation=msg)
 
-
         self.check_signature(creds_ref, credentials)
 
         # TODO(termie): don't create new tokens every time
