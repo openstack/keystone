@@ -122,6 +122,22 @@ class KeystoneClientTests(object):
         token_client = self._client(token=token, tenant_name='BAR')
         tenants = token_client.tenants.list()
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+        self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+    def test_authenticate_and_delete_token(self):
+        client = self.get_client()
+        token = client.auth_token
+        token_client = self._client(token=token)
+        tenants = token_client.tenants.list()
+        self.assertEquals(tenants[0].id, self.tenant_bar['id'])
+
+        client.tokens.delete(token_client.auth_token)
+
+        # FIXME(dolph): this should raise unauthorized
+        # from keystoneclient import exceptions as client_exceptions
+        # with self.assertRaises(client_exceptions.Unauthorized):
+        with self.assertRaises(Exception):
+            token_client.tenants.list()
 
     # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
@@ -460,3 +476,6 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         client = self.get_client()
         roles = client.roles.get_user_role_refs(user_id='foo')
         self.assertTrue(len(roles) > 0)
+
+    def test_authenticate_and_delete_token(self):
+        raise nose.exc.SkipTest('N/A')

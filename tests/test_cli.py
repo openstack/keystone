@@ -59,6 +59,9 @@ class CliMasterTestCase(test_keystoneclient.KcMasterTestCase):
     def test_authenticate_token_tenant_name(self):
         raise nose.exc.SkipTest('N/A')
 
+    def test_authenticate_and_delete_token(self):
+        raise nose.exc.SkipTest('N/A')
+
     def test_tenant_create_update_and_delete(self):
         raise nose.exc.SkipTest('cli does not support booleans yet')
 

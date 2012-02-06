@@ -32,6 +32,10 @@ class AdminRouter(wsgi.ComposingRouter):
                        controller=auth_controller,
                        action='validate_token',
                        conditions=dict(method=['GET']))
+        mapper.connect('/tokens/{token_id}',
+                       controller=auth_controller,
+                       action='delete_token',
+                       conditions=dict(method=['DELETE']))
         mapper.connect('/tokens/{token_id}/endpoints',
                        controller=auth_controller,
                        action='endpoints',
@@ -254,6 +258,14 @@ class TokenController(wsgi.Application):
         for role_id in metadata_ref.get('roles', []):
             roles_ref.append(self.identity_api.get_role(context, role_id))
         return self._format_token(token_ref, roles_ref)
+
+    def delete_token(self, context, token_id):
+        """Delete a token, effectively invalidating it for authz."""
+        # TODO(termie): this stuff should probably be moved to middleware
+        self.assert_admin(context)
+
+        token_ref = self.token_api.delete_token(context=context,
+                token_id=token_id)
 
     def endpoints(self, context, token_id):
         """Return service catalog endpoints."""
