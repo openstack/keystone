@@ -264,8 +264,7 @@ class TokenController(wsgi.Application):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
 
-        token_ref = self.token_api.delete_token(context=context,
-                token_id=token_id)
+        self.token_api.delete_token(context=context, token_id=token_id)
 
     def endpoints(self, context, token_id):
         """Return service catalog endpoints."""
