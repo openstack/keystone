@@ -136,8 +136,7 @@ class KeystoneClientTests(object):
         # FIXME(dolph): this should raise unauthorized
         # from keystoneclient import exceptions as client_exceptions
         # with self.assertRaises(client_exceptions.Unauthorized):
-        with self.assertRaises(Exception):
-            token_client.tenants.list()
+        self.assertRaises(Exception, token_client.tenants.list)
 
     # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
