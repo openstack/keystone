@@ -9,6 +9,7 @@ pyCLI
 sqlalchemy
 sqlalchemy-migrate
 py-bcrypt
+python-memcached
 
 # keystonelight testing dependencies
 nose
