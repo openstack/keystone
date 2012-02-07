@@ -78,7 +78,8 @@ class IdentityTests(object):
         self.assert_(tenant_ref is None)
 
     def test_get_tenant(self):
-        tenant_ref = self.identity_api.get_tenant(tenant_id=self.tenant_bar['id'])
+        tenant_ref = self.identity_api.get_tenant(
+            tenant_id=self.tenant_bar['id'])
         self.assertDictEquals(tenant_ref, self.tenant_bar)
 
     def test_get_tenant_by_name_bad_tenant(self):
@@ -219,6 +220,42 @@ class IdentityTests(object):
         self.assertEqual(tenant_ref['id'], 'fake1')
         tenant_ref = self.identity_api.get_tenant('fake2')
         self.assert_(tenant_ref is None)
+
+
+    def test_get_role_by_user_and_tenant(self):
+        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+            self.user_foo['id'],self.tenant_bar['id'])
+        self.assertNotIn('keystone_admin', roles_ref)
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'],self.tenant_bar['id'], 'keystone_admin')
+        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+            self.user_foo['id'],self.tenant_bar['id'])
+        self.assertIn('keystone_admin', roles_ref)
+        self.assertNotIn('useless',roles_ref)
+
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'],self.tenant_bar['id'], 'useless')
+        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+            self.user_foo['id'],self.tenant_bar['id'])
+        self.assertIn('keystone_admin', roles_ref)
+        self.assertIn('useless',roles_ref)
+
+    def test_delete_role(self):
+        role_id = 'test_role_delete'
+        new_role = {'id': role_id, 'name': 'Role to Delete'}
+        self.identity_api.create_role(role_id , new_role)
+        role_ref = self.identity_api.get_role(role_id)
+        self.assertDictEquals(role_ref, new_role)
+        self.identity_api.delete_role(role_id)
+        role_ref = self.identity_api.get_role(role_id)
+        print role_ref
+        self.assertIsNone(role_ref)
+
+    def test_add_user_to_tenant(self):
+        tenant_id = 'tenent4add'
+        self.identity_api.add_user_to_tenant(tenant_id, 'foo')
+        tenants  = self.identity_api.get_tenants_for_user('foo')
+        self.assertIn(tenant_id, tenants)
 
 
 class TokenTests(object):

@@ -31,3 +31,4 @@ mox # mock object framework
 
 -e git+https://review.openstack.org/p/openstack/python-keystoneclient.git#egg=python-keystoneclient
 -e git+https://review.openstack.org/p/openstack-dev/openstack-nose.git#egg=openstack.nose_plugin
+python-ldap==2.3.13# authenticate against an existing LDAP server

@@ -157,3 +157,26 @@ register_str('driver', group='identity')
 register_str('driver', group='policy')
 register_str('driver', group='token')
 register_str('driver', group='ec2')
+
+
+#ldap
+register_str('url', group='ldap')
+register_str('user', group='ldap')
+register_str('password', group='ldap')
+register_str('suffix', group='ldap')
+register_bool('use_dumb_member', group='ldap')
+
+register_str('user_tree_dn', group='ldap')
+register_str('user_objectclass', group='ldap')
+register_str('user_id_attribute', group='ldap')
+
+register_str('tenant_tree_dn', group='ldap')
+register_str('tenant_objectclass', group='ldap')
+register_str('tenant_id_attribute', group='ldap')
+register_str('tenant_member_attribute', group='ldap')
+
+
+register_str('role_tree_dn', group='ldap')
+register_str('role_objectclass', group='ldap')
+register_str('role_id_attribute', group='ldap')
+register_str('role_member_attribute', group='ldap')

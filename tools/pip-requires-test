@@ -2,6 +2,7 @@
 pam==0.1.4
 WebOb==1.0.8
 eventlet
+greenlet
 PasteDeploy
 paste
 routes
@@ -22,3 +23,6 @@ pep8
 
 # for python-novaclient
 prettytable
+
+# Optional backend: LDAP
+python-ldap==2.3.13 # authenticate against an existing LDAP server

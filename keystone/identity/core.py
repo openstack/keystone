@@ -143,7 +143,7 @@ class Driver(object):
         """
         raise NotImplementedError()
 
-    def add_role_for_user_and_tenant(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant."""
         raise NotImplementedError()
 
@@ -172,6 +172,10 @@ class Driver(object):
         raise NotImplementedError()
 
     # metadata crud
+
+    def get_metadata(self, user_id, tenant_id):
+        raise NotImplementedError()
+
     def create_metadata(self, user_id, tenant_id, metadata):
         raise NotImplementedError()
 

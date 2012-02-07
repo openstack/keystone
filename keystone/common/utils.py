@@ -156,6 +156,21 @@ def hash_password(password):
     return h
 
 
+def ldap_hash_password(password):
+    """Hash a password. Hard."""
+    password_utf8 = password.encode('utf-8')
+    h = passlib.hash.ldap_salted_sha1.encrypt(password_utf8)
+    return h
+
+
+def ldap_check_password(password, hashed):
+    if password is None:
+        return False
+    password_utf8 = password.encode('utf-8')
+    h = passlib.hash.ldap_salted_sha1.encrypt(password_utf8)
+    return passlib.hash.ldap_salted_sha1.verify(password_utf8, hashed)
+
+
 def check_password(password, hashed):
     """Check that a plaintext password matches hashed.
 

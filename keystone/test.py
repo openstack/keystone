@@ -233,6 +233,11 @@ class TestCase(unittest.TestCase):
             return super(TestCase, self).assertIsNotNone(actual)
         self.assert_(actual is not None)
 
+    def assertIsNone(self, actual):
+        if hasattr(super(TestCase, self), 'assertIsNone'):
+            return super(TestCase, self).assertIsNone(actual)
+        self.assert_(actual is None)
+
     def assertNotIn(self, needle, haystack):
         if hasattr(super(TestCase, self), 'assertNotIn'):
             return super(TestCase, self).assertNotIn(needle, haystack)

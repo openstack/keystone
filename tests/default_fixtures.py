@@ -1,6 +1,7 @@
 TENANTS = [
     {'id': 'bar', 'name': 'BAR'},
     {'id': 'baz', 'name': 'BAZ'},
+    {'id': 'tenent4add', 'name': 'tenant4add'},
     ]
 
 # NOTE(ja): a role of keystone_admin and attribute "is_admin" is done in setUp
