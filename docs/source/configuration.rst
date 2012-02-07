@@ -179,6 +179,18 @@ example::
 	description="those other guys" \
 	name=tog
 
+``tenant get``
+^^^^^^^^^^^^^^
+
+keyword arguments
+
+* tenant_id
+
+example::
+
+	keystone-manage tenant get \
+	tenant_id=523df7c89ce34640996d3d804cbc56f4
+
 Users
 -----
 
