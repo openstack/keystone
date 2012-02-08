@@ -1,10 +1,10 @@
-import os
-import uuid
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 from keystone import config
 from keystone import test
 from keystone.common.sql import util as sql_util
 from keystone.identity.backends import sql as identity_sql
+from keystone.token.backends import sql as token_sql
 
 import test_backend
 import default_fixtures
@@ -13,14 +13,9 @@ import default_fixtures
 CONF = config.CONF
 
 
-
 class SqlIdentity(test.TestCase, test_backend.IdentityTests):
   def setUp(self):
     super(SqlIdentity, self).setUp()
-    try:
-      os.unlink('bla.db')
-    except Exception:
-      pass
     CONF(config_files=[test.etcdir('keystone.conf'),
                        test.testsdir('test_overrides.conf'),
                        test.testsdir('backend_sql.conf')])
@@ -29,25 +24,14 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
     self.load_fixtures(default_fixtures)
 
 
-#class SqlToken(test_backend_kvs.KvsToken):
-#  def setUp(self):
-#    super(SqlToken, self).setUp()
-#    self.token_api = sql.SqlToken()
-#    self.load_fixtures(default_fixtures)
-
-#  def test_token_crud(self):
-#    token_id = uuid.uuid4().hex
-#    data = {'id': token_id,
-#            'a': 'b'}
-#    data_ref = self.token_api.create_token(token_id, data)
-#    self.assertDictEquals(data_ref, data)
-
-#    new_data_ref = self.token_api.get_token(token_id)
-#    self.assertEquals(new_data_ref, data)
-
-#    self.token_api.delete_token(token_id)
-#    deleted_data_ref = self.token_api.get_token(token_id)
-#    self.assert_(deleted_data_ref is None)
+class SqlToken(test.TestCase, test_backend.TokenTests):
+  def setUp(self):
+    super(SqlToken, self).setUp()
+    CONF(config_files=[test.etcdir('keystone.conf'),
+                       test.testsdir('test_overrides.conf'),
+                       test.testsdir('backend_sql.conf')])
+    sql_util.setup_test_database()
+    self.token_api = token_sql.Token()
 
 
 #class SqlCatalog(test_backend_kvs.KvsCatalog):
