@@ -17,5 +17,7 @@ class SimpleMatch(object):
         for requirement in target:
             key, match = requirement.split(':', 1)
             check = credentials.get(key)
-            if check == match:
+            if check is None or isinstance(check, basestring):
+                check = [check]
+            if match in check:
                 return True
