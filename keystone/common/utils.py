@@ -2,7 +2,7 @@
 
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
-# Copyright 2011 Justin Santa Barbara
+# Copyright 2011 - 2012 Justin Santa Barbara
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -144,7 +144,8 @@ class Ec2Signer(object):
 def hash_password(password):
     """Hash a password. Hard."""
     salt = bcrypt.gensalt(CONF.bcrypt_strength)
-    return bcrypt.hashpw(password, salt)
+    password_utf8 = password.encode('utf-8')
+    return bcrypt.hashpw(password_utf8, salt)
 
 
 def check_password(password, hashed):
@@ -155,7 +156,10 @@ def check_password(password, hashed):
     of that password (mostly). Neat!
 
     """
-    check = bcrypt.hashpw(password, hashed[:29])
+    if password is None:
+        return False
+    password_utf8 = password.encode('utf-8')
+    check = bcrypt.hashpw(password_utf8, hashed[:29])
     return check == hashed
 
 
