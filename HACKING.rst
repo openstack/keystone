@@ -82,6 +82,8 @@ Example::
   after the closing quotations. For more in-depth explanations for these
   decisions see http://www.python.org/dev/peps/pep-0257/
 
+  A docstring ends with an empty line before the closing quotations.
+
   Describe parameters and return values, using the Sphinx format; the
   appropriate syntax is as follows.
 
@@ -91,6 +93,7 @@ Example::
   :returns: return_type -- description of the return value
   :returns: description of the return value
   :raises: AttributeError, KeyError
+
   """
 
 
