@@ -194,8 +194,8 @@ class Ec2Controller(wsgi.Application):
         :param tenant_id: id of tenant
         :returns: credential: dict of ec2 credential
         """
-        # TODO(termie): validate that this request is valid for given user
-        #               tenant
+        if not self._is_admin(context):
+            self._assert_identity(context, user_id)
         cred_ref = {'user_id': user_id,
                     'tenant_id': tenant_id,
                     'access': uuid.uuid4().hex,
@@ -210,9 +210,8 @@ class Ec2Controller(wsgi.Application):
         :param user_id: id of user
         :returns: credentials: list of ec2 credential dicts
         """
-
-        # TODO(termie): validate that this request is valid for given user
-        #               tenant
+        if not self._is_admin(context):
+            self._assert_identity(context, user_id)
         return {'credentials': self.ec2_api.list_credentials(context, user_id)}
 
     def get_credential(self, context, user_id, credential_id):
@@ -225,8 +224,8 @@ class Ec2Controller(wsgi.Application):
         :param credential_id: access key for credentials
         :returns: credential: dict of ec2 credential
         """
-        # TODO(termie): validate that this request is valid for given user
-        #               tenant
+        if not self._is_admin(context):
+            self._assert_identity(context, user_id)
         return {'credential': self.ec2_api.get_credential(context,
                                                           credential_id)}
 
@@ -240,6 +239,47 @@ class Ec2Controller(wsgi.Application):
         :param credential_id: access key for credentials
         :returns: bool: success
         """
-        # TODO(termie): validate that this request is valid for given user
-        #               tenant
+        if not self._is_admin(context):
+            self._assert_identity(context, user_id)
+            self._assert_owner(context, user_id, credential_id)
         return self.ec2_api.delete_credential(context, credential_id)
+
+    def _assert_identity(self, context, user_id):
+        """Check that the provided token belongs to the user.
+
+        :param context: standard context
+        :param user_id: id of user
+        :raises webob.exc.HTTPForbidden: when token is invalid
+
+        """
+        token_ref = self.token_api.get_token(context=context,
+                token_id=context['token_id'])
+        token_user_id = token_ref['user'].get('id')
+        if not token_user_id == user_id:
+            raise webob.exc.HTTPForbidden()
+
+    def _is_admin(self, context):
+        """Wrap admin assertion error return statement.
+
+        :param context: standard context
+        :returns: bool: success
+
+        """
+        try:
+            self.assert_admin(context)
+            return True
+        except AssertionError:
+            return False
+
+    def _assert_owner(self, context, user_id, credential_id):
+        """Ensure the provided user owns the credential.
+
+        :param context: standard context
+        :param user_id: expected credential owner
+        :param credential_id: id of credential object
+        :raises webob.exc.HTTPForbidden: on failure
+
+        """
+        cred_ref = self.ec2_api.get_credential(context, credential_id)
+        if not user_id == cred_ref['user_id']:
+            raise webob.exc.HTTPForbidden()

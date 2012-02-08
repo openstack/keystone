@@ -285,45 +285,42 @@ class KeystoneClientTests(object):
         got = client.ec2.get(user_id=self.user_foo['id'], access=cred.access)
         self.assertEquals(cred, got)
 
-        # FIXME(ja): need to test ec2 validation here
-
         client.ec2.delete(user_id=self.user_foo['id'], access=cred.access)
         creds = client.ec2.list(user_id=self.user_foo['id'])
         self.assertEquals(creds, [])
 
-    def test_ec2_credentials_list_unauthorized_user(self):
-        raise nose.exc.SkipTest('TODO')
+    def test_ec2_credentials_list_user_forbidden(self):
         from keystoneclient import exceptions as client_exceptions
 
         two = self.get_client(self.user_two)
-        self.assertRaises(client_exceptions.Unauthorized, two.ec2.list,
-                          self.user_foo['id'])
+        self.assertRaises(client_exceptions.Forbidden, two.ec2.list,
+                          user_id=self.user_foo['id'])
 
-    def test_ec2_credentials_get_unauthorized_user(self):
-        raise nose.exc.SkipTest('TODO')
-        from keystoneclient import exceptions as client_exceptions
-
-        foo = self.get_client()
-        cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
-
-        two = self.get_client(self.user_two)
-        self.assertRaises(client_exceptions.Unauthorized, two.ec2.get,
-                          self.user_foo['id'], cred.access)
-
-        foo.ec2.delete(self.user_foo['id'], cred.access)
-
-    def test_ec2_credentials_delete_unauthorized_user(self):
-        raise nose.exc.SkipTest('TODO')
+    def test_ec2_credentials_get_user_forbidden(self):
         from keystoneclient import exceptions as client_exceptions
 
         foo = self.get_client()
-        cred = foo.ec2.create(self.user_foo['id'], self.tenant_bar['id'])
+        cred = foo.ec2.create(user_id=self.user_foo['id'],
+                              tenant_id=self.tenant_bar['id'])
 
         two = self.get_client(self.user_two)
-        self.assertRaises(client_exceptions.Unauthorized, two.ec2.delete,
-                          self.user_foo['id'], cred.access)
+        self.assertRaises(client_exceptions.Forbidden, two.ec2.get,
+                          user_id=self.user_foo['id'], access=cred.access)
 
-        foo.ec2.delete(self.user_foo['id'], cred.access)
+        foo.ec2.delete(user_id=self.user_foo['id'], access=cred.access)
+
+    def test_ec2_credentials_delete_user_forbidden(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        foo = self.get_client()
+        cred = foo.ec2.create(user_id=self.user_foo['id'],
+                              tenant_id=self.tenant_bar['id'])
+
+        two = self.get_client(self.user_two)
+        self.assertRaises(client_exceptions.Forbidden, two.ec2.delete,
+                          user_id=self.user_foo['id'], access=cred.access)
+
+        foo.ec2.delete(user_id=self.user_foo['id'], access=cred.access)
 
     def test_service_create_and_delete(self):
         from keystoneclient import exceptions as client_exceptions

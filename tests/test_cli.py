@@ -76,3 +76,12 @@ class CliMasterTestCase(test_keystoneclient.KcMasterTestCase):
 
     def test_service_create_and_delete(self):
         raise nose.exc.SkipTest('cli testing code does not handle 404 well')
+
+    def test_ec2_credentials_list_user_forbidden(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 403 well')
+
+    def test_ec2_credentials_get_user_forbidden(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 403 well')
+
+    def test_ec2_credentials_delete_user_forbidden(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 403 well')
