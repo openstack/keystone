@@ -8,10 +8,8 @@ import time
 
 from paste import deploy
 
-from keystone import catalog
 from keystone import config
-from keystone import identity
-from keystone import token
+from keystone.common import kvs
 from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
@@ -119,6 +117,7 @@ class TestCase(unittest.TestCase):
         for path in self._paths:
             if path in sys.path:
                 sys.path.remove(path)
+        kvs.INMEMDB.clear()
         CONF.reset()
         super(TestCase, self).tearDown()
 
