@@ -80,10 +80,11 @@ class JsonBodyMiddleware(wsgi.Middleware):
     an underscore.
 
     """
-
     def process_request(self, request):
-        #if 'json' not in request.params:
-        #    return
+        # Ignore unrecognized content types. Empty string indicates
+        # the client did not explicitly set the header
+        if not request.content_type in ('application/json', ''):
+            return
 
         params_json = request.body
         if not params_json:
@@ -92,6 +93,9 @@ class JsonBodyMiddleware(wsgi.Middleware):
         params_parsed = {}
         try:
             params_parsed = json.loads(params_json)
+        except ValueError:
+            msg = "Malformed json in request body"
+            raise webob.exc.HTTPBadRequest(explanation=msg)
         finally:
             if not params_parsed:
                 params_parsed = {}
