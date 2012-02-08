@@ -151,15 +151,14 @@ def hash_password(password):
 def check_password(password, hashed):
     """Check that a plaintext password matches hashed.
 
-    Due to the way bcrypt works, hashing a password with the hashed
-    version of that password as salt will return the hashed version
-    of that password (mostly). Neat!
+    hashpw returns the salt value concatenated with the actual hash value.
+    It extracts the actual salt if this value is then passed as the salt.
 
     """
     if password is None:
         return False
     password_utf8 = password.encode('utf-8')
-    check = bcrypt.hashpw(password_utf8, hashed[:29])
+    check = bcrypt.hashpw(password_utf8, hashed)
     return check == hashed
 
 
