@@ -10,6 +10,7 @@ import webob.dec
 import webob.exc
 
 from keystone import catalog
+from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import token
@@ -196,6 +197,10 @@ class TokenController(wsgi.Application):
 
             old_token_ref = self.token_api.get_token(context=context,
                                                      token_id=token)
+
+            if old_token_ref is None:
+                raise exception.Unauthorized()
+
             user_ref = old_token_ref['user']
 
             tenants = self.identity_api.get_tenants_for_user(context,
@@ -247,6 +252,10 @@ class TokenController(wsgi.Application):
 
         token_ref = self.token_api.get_token(context=context,
                                              token_id=token_id)
+
+        if token_ref is None:
+            raise exception.NotFound(target='token')
+
         if belongs_to:
             assert token_ref['tenant']['id'] == belongs_to
 
