@@ -102,12 +102,12 @@ class Base(object):
         """Return a SQLAlchemy engine."""
         connection_dict = sqlalchemy.engine.url.make_url(CONF.sql.connection)
 
-        engine_args = {"pool_recycle": CONF.sql.idle_timeout,
-                       "echo": False,
+        engine_args = {'pool_recycle': CONF.sql.idle_timeout,
+                       'echo': False,
                        }
 
-        if "sqlite" in connection_dict.drivername:
-            engine_args["poolclass"] = sqlalchemy.pool.NullPool
+        if 'sqlite' in connection_dict.drivername:
+            engine_args['poolclass'] = sqlalchemy.pool.NullPool
 
         return sql.create_engine(CONF.sql.connection, **engine_args)
 

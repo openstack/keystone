@@ -95,8 +95,8 @@ class BufferedHTTPConnection(HTTPConnection):
 
     def getresponse(self):
         response = HTTPConnection.getresponse(self)
-        logging.debug(("HTTP PERF: %(time).5f seconds to %(method)s "
-                        "%(host)s:%(port)s %(path)s)"),
+        logging.debug(('HTTP PERF: %(time).5f seconds to %(method)s '
+                        '%(host)s:%(port)s %(path)s)'),
            {'time': time.time() - self._connected_time, 'method': self._method,
             'host': self.host, 'port': self.port, 'path': self._path})
         return response

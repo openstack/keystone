@@ -36,7 +36,7 @@ except ImportError:
         # See LP Bug #717467
         from migrate import exceptions as versioning_exceptions
     except ImportError:
-        sys.exit("python-migrate is not installed. Exiting.")
+        sys.exit('python-migrate is not installed. Exiting.')
 
 
 def db_sync(version=None):
@@ -44,7 +44,7 @@ def db_sync(version=None):
         try:
             version = int(version)
         except ValueError:
-            raise Exception("version should be an integer")
+            raise Exception('version should be an integer')
 
     current_version = db_version()
     repo_path = _find_migrate_repo()

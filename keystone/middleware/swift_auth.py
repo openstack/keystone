@@ -49,7 +49,7 @@ from swift.common.middleware.acl import clean_acl, parse_acl, referrer_allowed
 from swift.common.utils import get_logger, split_path
 
 
-PROTOCOL_NAME = "Swift Token Authentication"
+PROTOCOL_NAME = 'Swift Token Authentication'
 
 
 class AuthProtocol(object):
@@ -195,9 +195,9 @@ class AuthProtocol(object):
         # TODO(todd): cache
 
         self.log.debug('Asking keystone to validate token')
-        headers = {"Content-type": "application/json",
-                    "Accept": "application/json",
-                    "X-Auth-Token": self.admin_token}
+        headers = {'Content-type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Auth-Token': self.admin_token}
         self.log.debug('headers: %r', headers)
         self.log.debug('url: %s', self.keystone_url)
         conn = http_connect(self.keystone_url.hostname, self.keystone_url.port,
@@ -206,17 +206,17 @@ class AuthProtocol(object):
         data = resp.read()
         conn.close()
 
-        # Check http status code for the "OK" family of responses
+        # Check http status code for the 'OK' family of responses
         if not str(resp.status).startswith('20'):
             return False
 
         identity_info = json.loads(data)
         roles = []
-        role_refs = identity_info["access"]["user"]["roles"]
+        role_refs = identity_info['access']['user']['roles']
 
         if role_refs is not None:
             for role_ref in role_refs:
-                roles.append(role_ref["id"])
+                roles.append(role_ref['id'])
 
         try:
             tenant = identity_info['access']['token']['tenantId']

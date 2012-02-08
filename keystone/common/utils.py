@@ -169,14 +169,14 @@ def check_output(*popenargs, **kwargs):
 
     The arguments are the same as for the Popen constructor.  Example:
 
-    >>> check_output(["ls", "-l", "/dev/null"])
+    >>> check_output(['ls', '-l', '/dev/null'])
     'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
 
     The stdout argument is not allowed as it is used internally.
     To capture standard error in the result, use stderr=STDOUT.
 
-    >>> check_output(["/bin/sh", "-c",
-    ...               "ls -l non_existent_file ; exit 0"],
+    >>> check_output(['/bin/sh', '-c',
+    ...               'ls -l non_existent_file ; exit 0'],
     ...              stderr=STDOUT)
     'ls: non_existent_file: No such file or directory\n'
     """
@@ -187,7 +187,7 @@ def check_output(*popenargs, **kwargs):
     output, unused_err = process.communicate()
     retcode = process.poll()
     if retcode:
-        cmd = kwargs.get("args")
+        cmd = kwargs.get('args')
         if cmd is None:
             cmd = popenargs[0]
         raise subprocess.CalledProcessError(retcode, cmd)

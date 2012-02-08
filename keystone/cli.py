@@ -317,7 +317,7 @@ class DictWrapper(dict):
 
 def print_commands(cmds):
     print
-    print "Available commands:"
+    print 'Available commands:'
     o = []
     max_length = max([len(k) for k in cmds]) + 2
     for k, cmd in sorted(cmds.iteritems()):
