@@ -125,6 +125,10 @@ class Identity(kvs.Base, identity.Driver):
 
     # CRUD
     def create_user(self, user_id, user):
+        if self.get_user(user_id):
+            raise Exception('Duplicate id')
+        if self.get_user_by_name(user['name']):
+            raise Exception('Duplicate name')
         user = _ensure_hashed_password(user)
         self.db.set('user-%s' % user_id, user)
         self.db.set('user_name-%s' % user['name'], user)
@@ -134,11 +138,16 @@ class Identity(kvs.Base, identity.Driver):
         return user
 
     def update_user(self, user_id, user):
+        if 'name' in user:
+            existing = self.db.get('user_name-%s' % user['name'])
+            if existing and user_id != existing['id']:
+                raise Exception('Duplicate name')
         # get the old name and delete it too
         old_user = self.db.get('user-%s' % user_id)
         new_user = old_user.copy()
         user = _ensure_hashed_password(user)
         new_user.update(user)
+        new_user['id'] = user_id
         self.db.delete('user_name-%s' % old_user['name'])
         self.db.set('user-%s' % user_id, new_user)
         self.db.set('user_name-%s' % new_user['name'], new_user)
@@ -154,16 +163,26 @@ class Identity(kvs.Base, identity.Driver):
         return None
 
     def create_tenant(self, tenant_id, tenant):
+        if self.get_tenant(tenant_id):
+            raise Exception('Duplicate id')
+        if self.get_tenant_by_name(tenant['name']):
+            raise Exception('Duplicate name')
         self.db.set('tenant-%s' % tenant_id, tenant)
         self.db.set('tenant_name-%s' % tenant['name'], tenant)
         return tenant
 
     def update_tenant(self, tenant_id, tenant):
+        if 'name' in tenant:
+            existing = self.db.get('tenant_name-%s' % tenant['name'])
+            if existing and tenant_id != existing['id']:
+                raise Exception('Duplicate name')
         # get the old name and delete it too
         old_tenant = self.db.get('tenant-%s' % tenant_id)
+        new_tenant = old_tenant.copy()
+        new_tenant['id'] = tenant_id
         self.db.delete('tenant_name-%s' % old_tenant['name'])
-        self.db.set('tenant-%s' % tenant_id, tenant)
-        self.db.set('tenant_name-%s' % tenant['name'], tenant)
+        self.db.set('tenant-%s' % tenant_id, new_tenant)
+        self.db.set('tenant_name-%s' % new_tenant['name'], new_tenant)
         return tenant
 
     def delete_tenant(self, tenant_id):
