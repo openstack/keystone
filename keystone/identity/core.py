@@ -10,6 +10,7 @@ import webob.exc
 
 from keystone import catalog
 from keystone import config
+from keystone import exception
 from keystone import policy
 from keystone import token
 from keystone.common import manager
@@ -233,7 +234,9 @@ class TenantController(wsgi.Application):
         """
         token_ref = self.token_api.get_token(context=context,
                                              token_id=context['token_id'])
-        assert token_ref is not None
+
+        if token_ref is None:
+            raise exception.Unauthorized()
 
         user_ref = token_ref['user']
         tenant_ids = self.identity_api.get_tenants_for_user(

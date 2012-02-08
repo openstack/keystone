@@ -32,6 +32,7 @@ import webob
 import webob.dec
 import webob.exc
 
+from keystone import exception
 from keystone.common import utils
 
 
@@ -153,16 +154,13 @@ class Application(BaseApplication):
     @webob.dec.wsgify
     def __call__(self, req):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
-        action = arg_dict['action']
-        del arg_dict['action']
+        action = arg_dict.pop('action')
         del arg_dict['controller']
         logging.debug('arg_dict: %s', arg_dict)
 
+        # allow middleware up the stack to provide context & params
         context = req.environ.get('openstack.context', {})
-        # allow middleware up the stack to override the params
-        params = {}
-        if 'openstack.params' in req.environ:
-            params = req.environ['openstack.params']
+        params = req.environ.get('openstack.params', {})
         params.update(arg_dict)
 
         # TODO(termie): do some basic normalization on methods
@@ -170,7 +168,12 @@ class Application(BaseApplication):
 
         # NOTE(vish): make sure we have no unicode keys for py2.6.
         params = self._normalize_dict(params)
-        result = method(context, **params)
+
+        try:
+            result = method(context, **params)
+        except exception.Error as e:
+            logging.warning(e)
+            return render_exception(e)
 
         if result is None or type(result) is str or type(result) is unicode:
             return result
@@ -435,3 +438,22 @@ class ExtensionRouter(Router):
             conf.update(local_config)
             return cls(app)
         return _factory
+
+
+def render_exception(error):
+    """Forms a WSGI response based on the current error."""
+    resp = webob.Response()
+    resp.status = '%s %s' % (error.code, error.title)
+    resp.headerlist = [('Content-Type', 'application/json')]
+
+    body = {
+        'error': {
+            'code': error.code,
+            'title': error.title,
+            'message': str(error),
+        }
+    }
+
+    resp.body = json.dumps(body)
+
+    return resp

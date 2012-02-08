@@ -125,6 +125,8 @@ class KeystoneClientTests(object):
         self.assertEquals(tenants[0].id, self.tenant_bar['id'])
 
     def test_authenticate_and_delete_token(self):
+        from keystoneclient import exceptions as client_exceptions
+
         client = self.get_client()
         token = client.auth_token
         token_client = self._client(token=token)
@@ -133,10 +135,26 @@ class KeystoneClientTests(object):
 
         client.tokens.delete(token_client.auth_token)
 
-        # FIXME(dolph): this should raise unauthorized
-        # from keystoneclient import exceptions as client_exceptions
-        # with self.assertRaises(client_exceptions.Unauthorized):
-        self.assertRaises(Exception, token_client.tenants.list)
+        self.assertRaises(client_exceptions.Unauthorized,
+                          token_client.tenants.list)
+
+    def test_authenticate_no_password(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        user_ref = self.user_foo.copy()
+        user_ref['password'] = None
+        self.assertRaises(client_exceptions.AuthorizationFailure,
+                          self.get_client,
+                          user_ref)
+
+    def test_authenticate_no_username(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        user_ref = self.user_foo.copy()
+        user_ref['name'] = None
+        self.assertRaises(client_exceptions.AuthorizationFailure,
+                          self.get_client,
+                          user_ref)
 
     # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
