@@ -1,5 +1,3 @@
-import uuid
-
 from keystone import test
 from keystone.identity.backends import kvs as identity_kvs
 from keystone.token.backends import kvs as token_kvs
@@ -16,24 +14,10 @@ class KvsIdentity(test.TestCase, test_backend.IdentityTests):
     self.load_fixtures(default_fixtures)
 
 
-class KvsToken(test.TestCase):
+class KvsToken(test.TestCase, test_backend.TokenTests):
   def setUp(self):
     super(KvsToken, self).setUp()
     self.token_api = token_kvs.Token(db={})
-
-  def test_token_crud(self):
-    token_id = uuid.uuid4().hex
-    data = {'id': token_id,
-            'a': 'b'}
-    data_ref = self.token_api.create_token(token_id, data)
-    self.assertDictEquals(data_ref, data)
-
-    new_data_ref = self.token_api.get_token(token_id)
-    self.assertEquals(new_data_ref, data)
-
-    self.token_api.delete_token(token_id)
-    deleted_data_ref = self.token_api.get_token(token_id)
-    self.assert_(deleted_data_ref is None)
 
 
 class KvsCatalog(test.TestCase):
