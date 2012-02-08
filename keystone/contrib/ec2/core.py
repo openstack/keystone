@@ -95,15 +95,15 @@ class Ec2Controller(wsgi.Application):
         # NOTE(vish): Some libraries don't use the port when signing
         #             requests, so try again without port.
         elif ':' in credentials['signature']:
-            hostname, _port = credentials['host'].split(":")
+            hostname, _port = credentials['host'].split(':')
             credentials['host'] = hostname
             signature = signer.generate(credentials)
             if signature != credentials.signature:
                 # TODO(termie): proper exception
-                msg = "Invalid signature"
+                msg = 'Invalid signature'
                 raise webob.exc.HTTPUnauthorized(explanation=msg)
         else:
-            msg = "Signature not supplied"
+            msg = 'Signature not supplied'
             raise webob.exc.HTTPUnauthorized(explanation=msg)
 
     def authenticate(self, context, credentials=None,
@@ -137,7 +137,7 @@ class Ec2Controller(wsgi.Application):
         creds_ref = self.ec2_api.get_credential(context,
                                                 credentials['access'])
         if not creds_ref:
-            msg = "Access key not found"
+            msg = 'Access key not found'
             raise webob.exc.HTTPUnauthorized(explanation=msg)
 
         self.check_signature(creds_ref, credentials)

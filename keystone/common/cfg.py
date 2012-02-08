@@ -223,9 +223,9 @@ class ArgsAlreadyParsedError(Error):
     """Raised if a CLI opt is registered after parsing."""
 
     def __str__(self):
-        ret = "arguments already parsed"
+        ret = 'arguments already parsed'
         if self.msg:
-            ret += ": " + self.msg
+            ret += ': ' + self.msg
         return ret
 
 
@@ -238,9 +238,9 @@ class NoSuchOptError(Error):
 
     def __str__(self):
         if self.group is None:
-            return "no such option: %s" % self.opt_name
+            return 'no such option: %s' % self.opt_name
         else:
-            return "no such option in group %s: %s" % (self.group.name,
+            return 'no such option in group %s: %s' % (self.group.name,
                                                        self.opt_name)
 
 
@@ -251,7 +251,7 @@ class NoSuchGroupError(Error):
         self.group_name = group_name
 
     def __str__(self):
-        return "no such group: %s" % self.group_name
+        return 'no such group: %s' % self.group_name
 
 
 class DuplicateOptError(Error):
@@ -261,14 +261,14 @@ class DuplicateOptError(Error):
         self.opt_name = opt_name
 
     def __str__(self):
-        return "duplicate option: %s" % self.opt_name
+        return 'duplicate option: %s' % self.opt_name
 
 
 class TemplateSubstitutionError(Error):
     """Raised if an error occurs substituting a variable in an opt value."""
 
     def __str__(self):
-        return "template substitution error: %s" % self.msg
+        return 'template substitution error: %s' % self.msg
 
 
 class ConfigFilesNotFoundError(Error):

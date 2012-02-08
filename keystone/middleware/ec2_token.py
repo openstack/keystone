@@ -65,11 +65,11 @@ class EC2Token(wsgi.Middleware):
         creds_json = utils.dumps(creds)
         headers = {'Content-Type': 'application/json'}
 
-        # Disable "has no x member" pylint error
+        # Disable 'has no x member' pylint error
         # for httplib and urlparse
         # pylint: disable-msg=E1101
         o = urlparse(FLAGS.keystone_ec2_url)
-        if o.scheme == "http":
+        if o.scheme == 'http':
             conn = httplib.HTTPConnection(o.netloc)
         else:
             conn = httplib.HTTPSConnection(o.netloc)

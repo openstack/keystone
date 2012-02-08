@@ -57,8 +57,8 @@ def setup_logging(conf):
             logging.config.fileConfig(conf.log_config)
             return
         else:
-            raise RuntimeError("Unable to locate specified logging "
-                               "config file: %s" % conf.log_config)
+            raise RuntimeError('Unable to locate specified logging '
+                               'config file: %s' % conf.log_config)
 
     root_logger = logging.root
     if conf.debug:
@@ -75,7 +75,7 @@ def setup_logging(conf):
             facility = getattr(logging.SysLogHandler,
                                conf.syslog_log_facility)
         except AttributeError:
-            raise ValueError(_("Invalid syslog facility"))
+            raise ValueError(_('Invalid syslog facility'))
 
         handler = logging.SysLogHandler(address='/dev/log',
                                         facility=facility)

@@ -227,12 +227,12 @@ class TestCase(unittest.TestCase):
     def assertDictEquals(self, actual, expected):
         for k in expected:
             self.assertTrue(k in actual,
-                            "Expected key %s not in %s." % (k, actual))
+                            'Expected key %s not in %s.' % (k, actual))
             self.assertDeepEquals(expected[k], actual[k])
 
         for k in actual:
             self.assertTrue(k in expected,
-                            "Unexpected key %s in %s." % (k, actual))
+                            'Unexpected key %s in %s.' % (k, actual))
 
     def assertDeepEquals(self, actual, expected):
         try:

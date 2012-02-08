@@ -34,4 +34,4 @@ class S3Controller(ec2.Ec2Controller):
         signed = base64.encodestring(hmac.new(key, msg, sha1).digest()).strip()
 
         if credentials['signature'] != signed:
-            raise Exception("Not Authorized")
+            raise Exception('Not Authorized')
