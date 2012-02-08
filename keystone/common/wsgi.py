@@ -180,10 +180,13 @@ class Application(BaseApplication):
         elif isinstance(result, webob.exc.WSGIHTTPException):
             return result
 
-        return self._serialize(result)
+        response = webob.Response()
+        self._serialize(response, result)
+        return response
 
-    def _serialize(self, result):
-        return json.dumps(result, cls=utils.SmarterEncoder)
+    def _serialize(self, response, result):
+        response.content_type = 'application/json'
+        response.body = json.dumps(result, cls=utils.SmarterEncoder)
 
     def _normalize_arg(self, arg):
         return str(arg).replace(':', '_').replace('-', '_')
