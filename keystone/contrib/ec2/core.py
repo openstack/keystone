@@ -163,8 +163,7 @@ class Ec2Controller(wsgi.Application):
                     metadata=metadata_ref)
 
         token_ref = self.token_api.create_token(
-                context, token_id, dict(expires='',
-                                        id=token_id,
+                context, token_id, dict(id=token_id,
                                         user=user_ref,
                                         tenant=tenant_ref,
                                         metadata=metadata_ref))

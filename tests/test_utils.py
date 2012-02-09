@@ -15,6 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import datetime
+
 from keystone import test
 from keystone.common import utils
 
@@ -38,3 +40,10 @@ class UtilsTestCase(test.TestCase):
         hashed = utils.hash_password(password)
         self.assertTrue(utils.check_password(password, hashed))
         self.assertFalse(utils.check_password(wrong, hashed))
+
+    def test_isotime(self):
+        dt = datetime.datetime(year=1987, month=10, day=13,
+                               hour=1, minute=2, second=3)
+        output = utils.isotime(dt)
+        expected = '1987-10-13T01:02:03Z'
+        self.assertEqual(output, expected)

@@ -26,6 +26,7 @@ ModelBase = declarative.declarative_base()
 Column = sql.Column
 String = sql.String
 ForeignKey = sql.ForeignKey
+DateTime = sql.DateTime
 
 
 # Special Fields

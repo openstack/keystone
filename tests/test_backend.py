@@ -1,5 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import datetime
 import uuid
 
 from keystone import exception
@@ -211,9 +212,13 @@ class TokenTests(object):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'a': 'b'}
         data_ref = self.token_api.create_token(token_id, data)
+        expires = data_ref.pop('expires')
+        self.assertTrue(isinstance(expires, datetime.datetime))
         self.assertDictEquals(data_ref, data)
 
         new_data_ref = self.token_api.get_token(token_id)
+        expires = new_data_ref.pop('expires')
+        self.assertTrue(isinstance(expires, datetime.datetime))
         self.assertEquals(new_data_ref, data)
 
         self.token_api.delete_token(token_id)
@@ -221,3 +226,20 @@ class TokenTests(object):
                 self.token_api.delete_token, token_id)
         self.assertRaises(exception.TokenNotFound,
                 self.token_api.get_token, token_id)
+
+    def test_expired_token(self):
+        token_id = uuid.uuid4().hex
+        expire_time =  datetime.datetime.now() - datetime.timedelta(minutes=1)
+        data = {'id': token_id, 'a': 'b', 'expires': expire_time}
+        data_ref = self.token_api.create_token(token_id, data)
+        self.assertDictEquals(data_ref, data)
+        self.assertRaises(exception.TokenNotFound,
+                self.token_api.get_token, token_id)
+
+    def test_null_expires_token(self):
+        token_id = uuid.uuid4().hex
+        data = {'id': token_id, 'a': 'b', 'expires': None}
+        data_ref = self.token_api.create_token(token_id, data)
+        self.assertDictEquals(data_ref, data)
+        new_data_ref = self.token_api.get_token(token_id)
+        self.assertEqual(data_ref, new_data_ref)

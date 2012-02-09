@@ -5,6 +5,7 @@ from keystone.common import sql
 
 # these are to make sure all the models we care about are defined
 import keystone.identity.backends.sql
+import keystone.token.backends.sql
 import keystone.contrib.ec2.backends.sql
 
 
