@@ -1,12 +1,10 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 import nose.exc
 
-from keystone import config
 from keystone import test
 
 import default_fixtures
 
-CONF = config.CONF
 OPENSTACK_REPO = 'https://review.openstack.org/p/openstack'
 KEYSTONECLIENT_REPO = '%s/python-keystoneclient.git' % OPENSTACK_REPO
 
@@ -18,9 +16,6 @@ class CompatTestCase(test.TestCase):
         revdir = test.checkout_vendor(*self.get_checkout())
         self.add_path(revdir)
         self.clear_module('keystoneclient')
-
-        self.public_app = self.loadapp('keystone', name='main')
-        self.admin_app = self.loadapp('keystone', name='admin')
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -36,14 +31,19 @@ class CompatTestCase(test.TestCase):
             self.user_foo['id'], self.tenant_bar['id'],
             dict(roles=['keystone_admin'], is_admin='1'))
 
+    def tearDown(self):
+        self.public_server.kill()
+        self.admin_server.kill()
+        self.public_server = None
+        self.admin_server = None
+        super(CompatTestCase, self).tearDown()
+
     def _public_url(self):
         public_port = self.public_server.socket_info['socket'][1]
-        CONF.public_port = public_port
         return "http://localhost:%s/v2.0" % public_port
 
     def _admin_url(self):
         admin_port = self.admin_server.socket_info['socket'][1]
-        CONF.admin_port = admin_port
         return "http://localhost:%s/v2.0" % admin_port
 
     def _client(self, **kwargs):
@@ -473,10 +473,10 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         roleref_refs = client.roles.get_user_role_refs(
                 user_id=self.user_foo['id'])
         for roleref_ref in roleref_refs:
-          if (roleref_ref.roleId == self.role_useless['id'] and
-              roleref_ref.tenantId == self.tenant_baz['id']):
-            # use python's scope fall through to leave roleref_ref set
-            break
+            if (roleref_ref.roleId == self.role_useless['id']
+                and roleref_ref.tenantId == self.tenant_baz['id']):
+                # use python's scope fall through to leave roleref_ref set
+                break
 
         client.roles.remove_user_from_tenant(tenant_id=self.tenant_baz['id'],
                                              user_id=self.user_foo['id'],

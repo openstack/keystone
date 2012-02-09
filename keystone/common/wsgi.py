@@ -55,6 +55,7 @@ class Server(object):
         self.port = port
         self.pool = eventlet.GreenPool(threads)
         self.socket_info = {}
+        self.greenthread = None
 
     def start(self, host='0.0.0.0', key=None, backlog=128):
         """Run a WSGI server with the given application."""
@@ -63,9 +64,13 @@ class Server(object):
                        'host': host,
                        'port': self.port})
         socket = eventlet.listen((host, self.port), backlog=backlog)
-        self.pool.spawn_n(self._run, self.application, socket)
+        self.greenthread = self.pool.spawn(self._run, self.application, socket)
         if key:
             self.socket_info[key] = socket.getsockname()
+
+    def kill(self):
+        if self.greenthread:
+            self.greenthread.kill()
 
     def wait(self):
         """Wait until all servers have completed running."""
