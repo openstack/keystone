@@ -26,6 +26,7 @@ import webob.exc
 
 from keystone import catalog
 from keystone import config
+from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import service
@@ -252,8 +253,11 @@ class Ec2Controller(wsgi.Application):
         :raises webob.exc.HTTPForbidden: when token is invalid
 
         """
-        token_ref = self.token_api.get_token(context=context,
-                token_id=context['token_id'])
+        try:
+            token_ref = self.token_api.get_token(context=context,
+                    token_id=context['token_id'])
+        except exception.TokenNotFound:
+            raise exception.Unauthorized()
         token_user_id = token_ref['user'].get('id')
         if not token_user_id == user_id:
             raise webob.exc.HTTPForbidden()

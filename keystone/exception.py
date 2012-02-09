@@ -52,3 +52,7 @@ class NotFound(Error):
     """Could not find: %(target)s"""
     code = 404
     title = 'Not Found'
+
+
+class TokenNotFound(NotFound):
+    """Could not find token: %(token_id)s"""

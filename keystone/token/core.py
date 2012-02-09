@@ -29,7 +29,8 @@ class Driver(object):
 
         :param token_id: identity of the token
         :type token_id: string
-        :returns: token_ref or None.
+        :returns: token_ref
+        :raises: keystone.exception.TokenNotFound
 
         """
         raise NotImplementedError()
@@ -63,6 +64,7 @@ class Driver(object):
         :param token_id: identity of the token
         :type token_id: string
         :returns: None.
+        :raises: keystone.exception.TokenNotFound
 
         """
         raise NotImplementedError()

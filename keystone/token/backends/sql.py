@@ -1,7 +1,8 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-from keystone import token
 from keystone.common import sql
+from keystone import exception
+from keystone import token
 
 
 class TokenModel(sql.ModelBase, sql.DictBase):
@@ -30,7 +31,7 @@ class Token(sql.Base, token.Driver):
         session = self.get_session()
         token_ref = session.query(TokenModel).filter_by(id=token_id).first()
         if not token_ref:
-            return
+            raise exception.TokenNotFound(token_id=token_id)
         return token_ref.to_dict()
 
     def create_token(self, token_id, data):
@@ -47,6 +48,9 @@ class Token(sql.Base, token.Driver):
         token_ref = session.query(TokenModel)\
                                 .filter_by(id=token_id)\
                                 .first()
+        if not token_ref:
+            raise exception.TokenNotFound(token_id=token_id)
+
         with session.begin():
             session.delete(token_ref)
             session.flush()

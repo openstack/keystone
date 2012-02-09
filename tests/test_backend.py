@@ -2,6 +2,9 @@
 
 import uuid
 
+from keystone import exception
+
+
 class IdentityTests(object):
     def test_authenticate_bad_user(self):
         self.assertRaises(AssertionError,
@@ -214,5 +217,7 @@ class TokenTests(object):
         self.assertEquals(new_data_ref, data)
 
         self.token_api.delete_token(token_id)
-        deleted_data_ref = self.token_api.get_token(token_id)
-        self.assertTrue(deleted_data_ref is None)
+        self.assertRaises(exception.TokenNotFound,
+                self.token_api.delete_token, token_id)
+        self.assertRaises(exception.TokenNotFound,
+                self.token_api.get_token, token_id)
