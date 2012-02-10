@@ -9,6 +9,7 @@ sqlalchemy
 sqlalchemy-migrate
 passlib
 python-memcached
+lxml
 
 # keystonelight testing dependencies
 nose
