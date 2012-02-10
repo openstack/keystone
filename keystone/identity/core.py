@@ -246,7 +246,11 @@ class TenantController(wsgi.Application):
             tenant_refs.append(self.identity_api.get_tenant(
                     context=context,
                     tenant_id=tenant_id))
-        return self._format_tenants_for_token(tenant_refs)
+        params = {
+            'limit': context['query_string'].get('limit'),
+            'marker': context['query_string'].get('marker'),
+        }
+        return self._format_tenant_list(tenant_refs, **params)
 
     def get_tenant(self, context, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
@@ -293,7 +297,30 @@ class TenantController(wsgi.Application):
         self.assert_admin(context)
         raise NotImplementedError()
 
-    def _format_tenants_for_token(self, tenant_refs):
+    def _format_tenant_list(self, tenant_refs, **kwargs):
+        marker = kwargs.get('marker')
+        page_idx = 0
+        if marker is not None:
+            for (marker_idx, tenant) in enumerate(tenant_refs):
+                if tenant['id'] == marker:
+                    # we start pagination after the marker
+                    page_idx = marker_idx + 1
+                    break
+            else:
+                msg = 'Marker could not be found'
+                raise webob.exc.HTTPBadRequest(explanation=msg)
+
+        limit = kwargs.get('limit')
+        if limit is not None:
+            try:
+                limit = int(limit)
+                assert limit >= 0
+            except (ValueError, AssertionError):
+                msg = 'Invalid limit value'
+                raise webob.exc.HTTPBadRequest(explanation=msg)
+
+        tenant_refs = tenant_refs[page_idx:limit]
+
         for x in tenant_refs:
             x['enabled'] = True
         o = {'tenants': tenant_refs,
