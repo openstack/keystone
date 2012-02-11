@@ -1,4 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+import uuid
+
 import nose.exc
 
 from keystone import test
@@ -447,6 +450,58 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         tenant_refs = client.tenants.list()
         self.assert_(self.tenant_baz['id'] not in
                      [x.id for x in tenant_refs])
+
+    def test_tenant_list_marker(self):
+        client = self.get_client()
+
+        # Add two arbitrary tenants to user for testing purposes
+        for i in range(2):
+            tenant_id = uuid.uuid4().hex
+            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id}
+            self.identity_api.create_tenant(tenant_id, tenant)
+            self.identity_api.add_user_to_tenant(tenant_id, self.user_foo['id'])
+
+        tenants = client.tenants.list()
+        self.assertEqual(len(tenants), 3)
+
+        tenants_marker = client.tenants.list(marker=tenants[0].id)
+        self.assertEqual(len(tenants_marker), 2)
+        self.assertEqual(tenants[1].name, tenants_marker[0].name)
+        self.assertEqual(tenants[2].name, tenants_marker[1].name)
+
+    def test_tenant_list_marker_not_found(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        client = self.get_client()
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.tenants.list, marker=uuid.uuid4().hex)
+
+    def test_tenant_list_limit(self):
+        client = self.get_client()
+
+        # Add two arbitrary tenants to user for testing purposes
+        for i in range(2):
+            tenant_id = uuid.uuid4().hex
+            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id}
+            self.identity_api.create_tenant(tenant_id, tenant)
+            self.identity_api.add_user_to_tenant(tenant_id, self.user_foo['id'])
+
+        tenants = client.tenants.list()
+        self.assertEqual(len(tenants), 3)
+
+        tenants_limited = client.tenants.list(limit=2)
+        self.assertEqual(len(tenants_limited), 2)
+        self.assertEqual(tenants[0].name, tenants_limited[0].name)
+        self.assertEqual(tenants[1].name, tenants_limited[1].name)
+
+    def test_tenant_list_limit_bad_value(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        client = self.get_client()
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.tenants.list, limit='a')
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.tenants.list, limit=-1)
 
     def test_roles_get_by_user(self):
         client = self.get_client()

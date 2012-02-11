@@ -85,3 +85,9 @@ class CliMasterTestCase(test_keystoneclient.KcMasterTestCase):
 
     def test_ec2_credentials_delete_user_forbidden(self):
         raise nose.exc.SkipTest('cli testing code does not handle 403 well')
+
+    def test_tenant_list_limit_bad_value(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 400 well')
+
+    def test_tenant_list_marker_not_found(self):
+        raise nose.exc.SkipTest('cli testing code does not handle 400 well')

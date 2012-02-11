@@ -165,6 +165,7 @@ class Application(BaseApplication):
 
         # allow middleware up the stack to provide context & params
         context = req.environ.get('openstack.context', {})
+        context['query_string'] = dict(req.params.iteritems())
         params = req.environ.get('openstack.params', {})
         params.update(arg_dict)
 
