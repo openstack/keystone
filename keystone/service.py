@@ -253,10 +253,10 @@ class TokenController(wsgi.Application):
             else:
                 tenant_id = auth.get('tenantId', None)
 
-            old_token_ref = self.token_api.get_token(context=context,
-                                                     token_id=token)
-
-            if old_token_ref is None:
+            try:
+                old_token_ref = self.token_api.get_token(context=context,
+                                                         token_id=token)
+            except exception.NotFound:
                 raise exception.Unauthorized()
 
             user_ref = old_token_ref['user']
@@ -311,9 +311,6 @@ class TokenController(wsgi.Application):
         token_ref = self.token_api.get_token(context=context,
                                              token_id=token_id)
 
-        if token_ref is None:
-            raise exception.NotFound(target='token')
-
         if belongs_to:
             assert token_ref['tenant']['id'] == belongs_to
 
@@ -335,8 +332,12 @@ class TokenController(wsgi.Application):
 
     def endpoints(self, context, token_id):
         """Return service catalog endpoints."""
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=token_id)
+        try:
+            token_ref = self.token_api.get_token(context=context,
+                                                 token_id=token_id)
+        except exception.NotFound:
+            raise exception.Unauthorized()
+
         catalog_ref = self.catalog_api.get_catalog(context,
                                                    token_ref['user']['id'],
                                                    token_ref['tenant']['id'])

@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import memcache
 
 from keystone import config
+from keystone import exception
 from keystone import token
 
 
@@ -30,7 +31,11 @@ class Token(token.Driver):
 
     def get_token(self, token_id):
         ptk = self._prefix_token_id(token_id)
-        return self.client.get(ptk)
+        token = self.client.get(ptk)
+        if token is None:
+            raise exception.TokenNotFound(token_id=token_id)
+
+        return token
 
     def create_token(self, token_id, data):
         ptk = self._prefix_token_id(token_id)
@@ -38,5 +43,7 @@ class Token(token.Driver):
         return data
 
     def delete_token(self, token_id):
+        # Test for existence
+        self.get_token(token_id)
         ptk = self._prefix_token_id(token_id)
         return self.client.delete(ptk)

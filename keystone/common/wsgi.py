@@ -203,8 +203,11 @@ class Application(BaseApplication):
 
     def assert_admin(self, context):
         if not context['is_admin']:
-            user_token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
+            try:
+                user_token_ref = self.token_api.get_token(
+                        context=context, token_id=context['token_id'])
+            except exception.TokenNotFound:
+                raise exception.Unauthorized()
             creds = user_token_ref['metadata'].copy()
             creds['user_id'] = user_token_ref['user'].get('id')
             creds['tenant_id'] = user_token_ref['tenant'].get('id')

@@ -232,10 +232,10 @@ class TenantController(wsgi.Application):
         Doesn't care about token scopedness.
 
         """
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=context['token_id'])
-
-        if token_ref is None:
+        try:
+            token_ref = self.token_api.get_token(context=context,
+                                                 token_id=context['token_id'])
+        except exception.NotFound:
             raise exception.Unauthorized()
 
         user_ref = token_ref['user']
@@ -254,17 +254,7 @@ class TenantController(wsgi.Application):
 
     def get_tenant(self, context, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
-        if not context['is_admin']:
-            user_token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
-            creds = user_token_ref['metadata'].copy()
-            creds['user_id'] = user_token_ref['user'].get('id')
-            creds['tenant_id'] = user_token_ref['tenant'].get('id')
-            # Accept either is_admin or the admin role
-            assert self.policy_api.can_haz(context,
-                                           ('is_admin:1', 'roles:admin'),
-                                           creds)
-
+        self.assert_admin(context)
         tenant = self.identity_api.get_tenant(context, tenant_id)
         if not tenant:
             return webob.exc.HTTPNotFound()
