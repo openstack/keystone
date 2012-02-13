@@ -1,5 +1,9 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import uuid
+
+import memcache
+
 from keystone import exception
 from keystone import test
 from keystone.token.backends import memcache as token_memcache
@@ -14,8 +18,13 @@ class MemcacheClient(object):
         """Ignores the passed in args."""
         self.cache = {}
 
+    def check_key(self, key):
+        if not isinstance(key, str):
+            raise memcache.Client.MemcachedStringEncodingError()
+
     def get(self, key):
         """Retrieves the value for a key or None."""
+        self.check_key(key)
         try:
             return self.cache[key]
         except KeyError:
@@ -23,10 +32,12 @@ class MemcacheClient(object):
 
     def set(self, key, value):
         """Sets the value for a key."""
+        self.check_key(key)
         self.cache[key] = value
         return True
 
     def delete(self, key):
+        self.check_key(key)
         try:
             del self.cache[key]
         except KeyError:
@@ -39,3 +50,9 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
         super(MemcacheToken, self).setUp()
         fake_client = MemcacheClient()
         self.token_api = token_memcache.Token(client=fake_client)
+
+    def test_get_unicode(self):
+        token_id = unicode(uuid.uuid4().hex)
+        data = {'id': token_id, 'a': 'b'}
+        self.token_api.create_token(token_id, data)
+        self.token_api.get_token(token_id)
