@@ -1,0 +1,281 @@
+-- MySQL dump 10.13  Distrib 5.1.58, for debian-linux-gnu (x86_64)
+--
+-- Host: localhost    Database: keystone
+-- ------------------------------------------------------
+-- Server version	5.1.58-1ubuntu1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `credentials`
+--
+
+DROP TABLE IF EXISTS `credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credentials` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `tenant_id` int(11) DEFAULT NULL,
+  `type` varchar(20) DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
+  `secret` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `tenant_id` (`tenant_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `credentials`
+--
+
+LOCK TABLES `credentials` WRITE;
+/*!40000 ALTER TABLE `credentials` DISABLE KEYS */;
+INSERT INTO `credentials` VALUES (1,1,1,'EC2','admin','secrete'),(2,2,2,'EC2','demo','secrete');
+/*!40000 ALTER TABLE `credentials` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `endpoint_templates`
+--
+
+DROP TABLE IF EXISTS `endpoint_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `endpoint_templates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `region` varchar(255) DEFAULT NULL,
+  `service_id` int(11) DEFAULT NULL,
+  `public_url` varchar(2000) DEFAULT NULL,
+  `admin_url` varchar(2000) DEFAULT NULL,
+  `internal_url` varchar(2000) DEFAULT NULL,
+  `enabled` tinyint(1) DEFAULT NULL,
+  `is_global` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `service_id` (`service_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `endpoint_templates`
+--
+
+LOCK TABLES `endpoint_templates` WRITE;
+/*!40000 ALTER TABLE `endpoint_templates` DISABLE KEYS */;
+INSERT INTO `endpoint_templates` VALUES (1,'RegionOne',1,'http://192.168.2.10:8774/v1.1/%tenant_id%','http://192.168.2.10:8774/v1.1/%tenant_id%','http://192.168.2.10:8774/v1.1/%tenant_id%',1,1),(2,'RegionOne',2,'http://192.168.2.10:9292/v1','http://192.168.2.10:9292/v1','http://192.168.2.10:9292/v1',1,1),(3,'RegionOne',3,'http://192.168.2.10:5000/v2.0','http://192.168.2.10:35357/v2.0','http://192.168.2.10:5000/v2.0',1,1),(4,'RegionOne',4,'http://192.168.2.10:8080/v1/AUTH_%tenant_id%','http://192.168.2.10:8080/','http://192.168.2.10:8080/v1/AUTH_%tenant_id%',1,1);
+/*!40000 ALTER TABLE `endpoint_templates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `endpoints`
+--
+
+DROP TABLE IF EXISTS `endpoints`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `endpoints` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) DEFAULT NULL,
+  `endpoint_template_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `endpoint_template_id` (`endpoint_template_id`,`tenant_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `endpoints`
+--
+
+LOCK TABLES `endpoints` WRITE;
+/*!40000 ALTER TABLE `endpoints` DISABLE KEYS */;
+/*!40000 ALTER TABLE `endpoints` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `desc` varchar(255) DEFAULT NULL,
+  `service_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`,`service_id`),
+  KEY `service_id` (`service_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
+
+LOCK TABLES `roles` WRITE;
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'Admin',NULL,NULL),(2,'Member',NULL,NULL),(3,'KeystoneAdmin',NULL,NULL),(4,'KeystoneServiceAdmin',NULL,NULL),(5,'sysadmin',NULL,NULL),(6,'netadmin',NULL,NULL);
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `services`
+--
+
+DROP TABLE IF EXISTS `services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `desc` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `services`
+--
+
+LOCK TABLES `services` WRITE;
+/*!40000 ALTER TABLE `services` DISABLE KEYS */;
+INSERT INTO `services` VALUES (1,'nova','compute','Nova Compute Service'),(2,'glance','image','Glance Image Service'),(3,'keystone','identity','Keystone Identity Service'),(4,'swift','object-store','Swift Service');
+/*!40000 ALTER TABLE `services` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tenants`
+--
+
+DROP TABLE IF EXISTS `tenants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tenants` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `desc` varchar(255) DEFAULT NULL,
+  `enabled` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tenants`
+--
+
+LOCK TABLES `tenants` WRITE;
+/*!40000 ALTER TABLE `tenants` DISABLE KEYS */;
+INSERT INTO `tenants` VALUES (1,'admin',NULL,1),(2,'demo',NULL,1),(3,'invisible_to_admin',NULL,1);
+/*!40000 ALTER TABLE `tenants` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `token`
+--
+
+DROP TABLE IF EXISTS `token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `token` (
+  `id` varchar(255) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `tenant_id` int(11) DEFAULT NULL,
+  `expires` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `token`
+--
+
+LOCK TABLES `token` WRITE;
+/*!40000 ALTER TABLE `token` DISABLE KEYS */;
+INSERT INTO `token` VALUES ('secrete',1,1,'2015-02-05 00:00:00');
+/*!40000 ALTER TABLE `token` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_roles`
+--
+
+DROP TABLE IF EXISTS `user_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL,
+  `tenant_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`role_id`,`tenant_id`),
+  KEY `tenant_id` (`tenant_id`),
+  KEY `role_id` (`role_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_roles`
+--
+
+LOCK TABLES `user_roles` WRITE;
+/*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
+INSERT INTO `user_roles` VALUES (1,1,1,1),(2,2,2,2),(3,2,5,2),(4,2,6,2),(5,2,2,3),(6,1,1,2),(7,1,1,NULL),(8,1,3,NULL),(9,1,4,NULL);
+/*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `enabled` int(11) DEFAULT NULL,
+  `tenant_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `tenant_id` (`tenant_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'admin','secrete',NULL,1,NULL),(2,'demo','secrete',NULL,1,NULL);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2012-02-13 17:30:03

@@ -47,6 +47,14 @@ class ImportLegacy(test.TestCase):
     user_ref = self.identity_api.get_user('1')
     self.assertEquals(user_ref['name'], 'admin')
 
+  def test_import_diablo(self):
+    db_path = self.setup_old_database('legacy_diablo.sqlite')
+    migration = legacy.LegacyMigration('sqlite:///%s' % db_path)
+    migration.migrate_all()
+
+    user_ref = self.identity_api.get_user('1')
+    self.assertEquals(user_ref['name'], 'admin')
+
   def test_import_essex(self):
     db_path = self.setup_old_database('legacy_essex.sqlite')
     migration = legacy.LegacyMigration('sqlite:///%s' % db_path)
