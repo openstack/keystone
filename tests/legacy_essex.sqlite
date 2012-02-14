@@ -1,0 +1,313 @@
+begin;
+-- MySQL dump 10.13  Distrib 5.1.58, for debian-linux-gnu (x86_64)
+--
+-- Host: localhost    Database: keystone
+-- ------------------------------------------------------
+-- Server version	5.1.58-1ubuntu1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `credentials`
+--
+
+DROP TABLE IF EXISTS `credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credentials` (
+  `user_id` integer   NULL,
+  `tenant_id` integer   NULL,
+  `secret` varchar(255)   NULL,
+  `key` varchar(255)   NULL,
+  `type` varchar(20)   NULL,
+  `id` integer NOT NULL primary key autoincrement
+)      ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `credentials`
+--
+
+
+/*!40000 ALTER TABLE `credentials` DISABLE KEYS */;
+/*!40000 ALTER TABLE `credentials` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `endpoint_templates`
+--
+
+DROP TABLE IF EXISTS `endpoint_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `endpoint_templates` (
+  `is_global` integer   NULL,
+  `region` varchar(255)   NULL,
+  `public_url` varchar(2000)   NULL,
+  `enabled` integer   NULL,
+  `internal_url` varchar(2000)   NULL,
+  `id` integer NOT NULL primary key autoincrement,
+  `service_id` integer   NULL,
+  `admin_url` varchar(2000)   NULL,
+  `version_id` varchar(20)   NULL,
+  `version_list` varchar(2000)   NULL,
+  `version_info` varchar(500)   NULL
+)        ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `endpoint_templates`
+--
+
+
+/*!40000 ALTER TABLE `endpoint_templates` DISABLE KEYS */;
+INSERT INTO `endpoint_templates` VALUES (1,'RegionOne','http://4.2.2.1:8774/v1.1/%tenant_id%',1,'http://4.2.2.1:8774/v1.1/%tenant_id%',1,1,'http://4.2.2.1:8774/v1.1/%tenant_id%',NULL,NULL,NULL);
+INSERT INTO `endpoint_templates` VALUES (1,'RegionOne','http://4.2.2.1:8773/services/Cloud',1,'http://4.2.2.1:8773/services/Cloud',2,2,'http://4.2.2.1:8773/services/Admin',NULL,NULL,NULL);
+INSERT INTO `endpoint_templates` VALUES (1,'RegionOne','http://4.2.2.1:9292/v1',1,'http://4.2.2.1:9292/v1',3,3,'http://4.2.2.1:9292/v1',NULL,NULL,NULL);
+INSERT INTO `endpoint_templates` VALUES (1,'RegionOne','http://4.2.2.1:5000/v2.0',1,'http://4.2.2.1:5000/v2.0',4,4,'http://4.2.2.1:35357/v2.0',NULL,NULL,NULL);
+INSERT INTO `endpoint_templates` VALUES (1,'RegionOne','http://4.2.2.1:8080/v1/AUTH_%tenant_id%',1,'http://4.2.2.1:8080/v1/AUTH_%tenant_id%',5,5,'http://4.2.2.1:8080/',NULL,NULL,NULL);
+/*!40000 ALTER TABLE `endpoint_templates` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `endpoints`
+--
+
+DROP TABLE IF EXISTS `endpoints`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `endpoints` (
+  `endpoint_template_id` integer   NULL,
+  `tenant_id` integer   NULL,
+  `id` integer NOT NULL primary key autoincrement
+)      ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `endpoints`
+--
+
+
+/*!40000 ALTER TABLE `endpoints` DISABLE KEYS */;
+/*!40000 ALTER TABLE `endpoints` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `migrate_version`
+--
+
+DROP TABLE IF EXISTS `migrate_version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `migrate_version` (
+  `repository_id` varchar(250) NOT NULL,
+  `repository_path` text,
+  `version` integer   NULL
+)      ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `migrate_version`
+--
+
+
+/*!40000 ALTER TABLE `migrate_version` DISABLE KEYS */;
+INSERT INTO `migrate_version` VALUES ('Keystone','/opt/stack/keystone/keystone/backends/sqlalchemy/migrate_repo',11);
+/*!40000 ALTER TABLE `migrate_version` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roles` (
+  `service_id` integer   NULL,
+  `desc` varchar(255)   NULL,
+  `id` integer NOT NULL primary key autoincrement,
+  `name` varchar(255)   NULL
+)        ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
+
+
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (NULL,NULL,1,'admin');
+INSERT INTO `roles` VALUES (NULL,NULL,2,'Member');
+INSERT INTO `roles` VALUES (NULL,NULL,3,'KeystoneAdmin');
+INSERT INTO `roles` VALUES (NULL,NULL,4,'KeystoneServiceAdmin');
+INSERT INTO `roles` VALUES (NULL,NULL,5,'sysadmin');
+INSERT INTO `roles` VALUES (NULL,NULL,6,'netadmin');
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `services`
+--
+
+DROP TABLE IF EXISTS `services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services` (
+  `desc` varchar(255)   NULL,
+  `type` varchar(255)   NULL,
+  `id` integer NOT NULL primary key autoincrement,
+  `name` varchar(255)   NULL,
+  `owner_id` integer   NULL
+)        ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `services`
+--
+
+
+/*!40000 ALTER TABLE `services` DISABLE KEYS */;
+INSERT INTO `services` VALUES ('Nova Compute Service','compute',1,'nova',NULL);
+INSERT INTO `services` VALUES ('EC2 Compatability Layer','ec2',2,'ec2',NULL);
+INSERT INTO `services` VALUES ('Glance Image Service','image',3,'glance',NULL);
+INSERT INTO `services` VALUES ('Keystone Identity Service','identity',4,'keystone',NULL);
+INSERT INTO `services` VALUES ('Swift Service','object-store',5,'swift',NULL);
+/*!40000 ALTER TABLE `services` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `tenants`
+--
+
+DROP TABLE IF EXISTS `tenants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tenants` (
+  `desc` varchar(255)   NULL,
+  `enabled` integer   NULL,
+  `id` integer NOT NULL primary key autoincrement,
+  `name` varchar(255)   NULL,
+  `uid` varchar(255) NOT NULL
+)        ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tenants`
+--
+
+
+/*!40000 ALTER TABLE `tenants` DISABLE KEYS */;
+INSERT INTO `tenants` VALUES (NULL,1,1,'admin','182c1fbf7eef44eda162ff3fd30c0a76');
+INSERT INTO `tenants` VALUES (NULL,1,2,'demo','b1a7ea3a884f4d0685a98cd6e682a5da');
+INSERT INTO `tenants` VALUES (NULL,1,3,'invisible_to_admin','f4d1eed9bb5d4d35a5f37af934f87574');
+/*!40000 ALTER TABLE `tenants` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `tokens`
+--
+
+DROP TABLE IF EXISTS `tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tokens` (
+  `tenant_id` integer   NULL,
+  `expires` datetime   NULL,
+  `user_id` integer   NULL,
+  `id` varchar(255) NOT NULL
+)      ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tokens`
+--
+
+
+/*!40000 ALTER TABLE `tokens` DISABLE KEYS */;
+INSERT INTO `tokens` VALUES (1,'2015-02-05 00:00:00',1,'123123123123123123123');
+/*!40000 ALTER TABLE `tokens` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `user_roles`
+--
+
+DROP TABLE IF EXISTS `user_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_roles` (
+  `tenant_id` integer   NULL,
+  `user_id` integer   NULL,
+  `id` integer NOT NULL primary key autoincrement,
+  `role_id` integer   NULL
+)        ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_roles`
+--
+
+
+/*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
+INSERT INTO `user_roles` VALUES (1,1,1,1);
+INSERT INTO `user_roles` VALUES (2,2,2,2);
+INSERT INTO `user_roles` VALUES (2,2,3,5);
+INSERT INTO `user_roles` VALUES (2,2,4,6);
+INSERT INTO `user_roles` VALUES (3,2,5,2);
+INSERT INTO `user_roles` VALUES (2,1,6,1);
+INSERT INTO `user_roles` VALUES (NULL,1,7,1);
+INSERT INTO `user_roles` VALUES (NULL,1,8,3);
+INSERT INTO `user_roles` VALUES (NULL,1,9,4);
+/*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `name` varchar(255)   NULL,
+  `tenant_id` integer   NULL,
+  `enabled` integer   NULL,
+  `id` integer NOT NULL primary key autoincrement,
+  `password` varchar(255)   NULL,
+  `email` varchar(255)   NULL,
+  `uid` varchar(255) NOT NULL
+)        ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES ('admin',NULL,1,1,'$6$rounds=40000$hFXlgBSMi599197d$tmGKBpoGHNRsLB3ruK9f1wPvvtfWWuMEUzdqUAynsmmYXBK6eekyNHTzzhwXTM3mWpnaMHCI4mHPOycqmPJJc0',NULL,'c93b19ea3fa94484824213db8ac0afce');
+INSERT INTO `users` VALUES ('demo',NULL,1,2,'$6$rounds=40000$RBsX2ja9fdj2uTNQ$/wJOn510AYKW9BPFAJneVQAjm6TM0Ty11LG.u4.k4RhmoUcXNSjGKmQT6KO0SsvypMM7A.doWgt73V5rNnv5h.',NULL,'04c6697e88ff4667820903fcce05d904');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2012-02-13 19:23:51
+commit;
