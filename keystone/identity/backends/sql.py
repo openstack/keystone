@@ -1,5 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import copy
+
 from keystone import identity
 from keystone.common import sql
 from keystone.common import utils
@@ -64,7 +66,7 @@ class Tenant(sql.ModelBase, sql.DictBase):
         return cls(**tenant_dict)
 
     def to_dict(self):
-        extra_copy = self.extra.copy()
+        extra_copy = copy.deepcopy(self.extra)
         extra_copy['id'] = self.id
         extra_copy['name'] = self.name
         return extra_copy

@@ -2,7 +2,6 @@
 from keystone import config
 from keystone import test
 from keystone.common.sql import util as sql_util
-from keystone.common.sql import migration
 
 import test_keystoneclient
 

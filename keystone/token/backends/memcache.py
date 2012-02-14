@@ -1,12 +1,14 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 from __future__ import absolute_import
+import copy
 
 import memcache
 
 from keystone import config
 from keystone import exception
 from keystone import token
+from keystone.common import utils
 
 
 CONF = config.CONF
@@ -38,9 +40,16 @@ class Token(token.Driver):
         return token
 
     def create_token(self, token_id, data):
+        data_copy = copy.deepcopy(data)
         ptk = self._prefix_token_id(token_id)
-        self.client.set(ptk, data)
-        return data
+        if 'expires' not in data_copy:
+            data_copy['expires'] = self._get_default_expire_time()
+        kwargs = {}
+        if data_copy['expires'] is not None:
+            expires_ts = utils.unixtime(data_copy['expires'])
+            kwargs['time'] = expires_ts
+        self.client.set(ptk, data_copy, **kwargs)
+        return copy.deepcopy(data_copy)
 
     def delete_token(self, token_id):
         # Test for existence
