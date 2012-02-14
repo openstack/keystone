@@ -1,3 +1,5 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
 from __future__ import absolute_import
 
 import json
@@ -56,7 +58,24 @@ class DbSync(BaseApp):
                 driver.db_sync()
 
 
+class ImportLegacy(BaseApp):
+    """Import a legacy database."""
+
+    name = 'import_legacy'
+
+    def __init__(self, *args, **kw):
+        super(ImportLegacy, self).__init__(*args, **kw)
+        self.add_param('old_db', nargs=1)
+
+    def main(self):
+        from keystone.common.sql import legacy
+        old_db = self.params.old_db[0]
+        migration = legacy.LegacyMigration(old_db)
+        migration.migrate_all()
+
+
 CMDS = {'db_sync': DbSync,
+        'import_legacy': ImportLegacy,
         }
 
 
