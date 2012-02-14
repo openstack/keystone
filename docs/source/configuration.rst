@@ -91,6 +91,54 @@ Invoking this command starts up two wsgi.Server instances, configured by the
 ``admin`` (the administration API) and the other is ``main`` (the
 primary/public  API interface). Both of these run in a single process.
 
+Migrating from legacy versions of keystone
+==========================================
+Migration support is provided for the following legacy keystone versions:
+
+* diablo-5
+* stable/diablo
+* essex-2
+* essex-3
+
+To migrate from legacy versions of keystone, use the following steps:
+
+Step 1: Configure keystone.conf
+-------------------------------
+It is important that the database that you specify be different from the one
+containing your existing install.
+
+Step 2: db_sync your new, empty database
+----------------------------------------
+Run the following command to configure the most recent schema in your new
+keystone installation::
+
+    keystone-manage db_sync
+
+Step 3: Import your legacy data
+-------------------------------
+Use the following command to import your old data::
+
+    keystone-manage import_legacy [db_url, e.g. 'mysql://root@foobar/keystone']
+
+Specify db_url as the connection string that was present in your old
+keystone.conf file.
+
+Step 3: Import your legacy service catalog
+------------------------------------------
+While the older keystone stored the service catalog in the database,
+the updated version configures the service catalog using a template file.
+An example service catalog template file may be found in
+etc/default_catalog.templates.
+
+To import your legacy catalog, run this command::
+
+    keystone-manage export_legacy_catalog \
+        [db_url e.g. 'mysql://root@foobar/keystone'] > \
+        [path_to_templates e.g. 'etc/default_catalog.templates']
+
+After executing this command, you will need to restart the keystone service to
+see your changes.
+
 Initializing Keystone
 =====================
 
