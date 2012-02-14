@@ -1,5 +1,0 @@
-ALTER TABLE users ALTER COLUMN enabled DROP DEFAULT;
-ALTER TABLE users ALTER COLUMN enabled TYPE boolean USING CASE enabled WHEN '1' THEN true ELSE '0' END;
-
-ALTER TABLE tenants ALTER COLUMN enabled DROP DEFAULT;
-ALTER TABLE tenants ALTER COLUMN enabled TYPE boolean USING CASE enabled WHEN '1' THEN true ELSE '0' END;

@@ -1,36 +1,33 @@
-# NOTE: You may need to install additional binary packages prior to using 'pip install'
-#       See the Contributor Documentation for more information
+# keystonelight dependencies
+pam==0.1.4
+WebOb==1.0.8
+eventlet
+PasteDeploy
+paste
+routes
+pyCLI
+sqlalchemy
+sqlalchemy-migrate
+passlib
 
-# Production
-httplib2 # handles additional HTTP features such as SSL, HEAD/PUT/DELETE, etc
-eventlet # scalable networking lib
-paste # wsgi framework
-pastedeploy # loads & configures wsgi apps
-pastescript # command line frontend
-webob # wsgi framework
-Routes # URL matching / controller routing
-sqlalchemy # core backend
-sqlalchemy-migrate # database migrations
-lxml # xml library providing ElementTree API
-passlib # password hashing
-argparse # cli support
-prettytable # cli table printing
-python-dateutil==1.5 # for date parsing
-
-# Optional backend: LDAP
-python-ldap # authenticate against an existing LDAP server
+# for python-novaclient
+prettytable
 
 # Optional backend: Memcache
 python-memcached # increases performance of token validation calls
 
 # Development
-Sphinx # required to build documentation
+Sphinx>=1.1.2 # required to build documentation
 coverage # computes code coverage percentages
 
 # Testing
 nose # for test discovery and console feedback
+nosexcover
 unittest2 # backport of unittest lib in python 2.7
 webtest # test wsgi apps without starting an http server
 pylint # static code analysis
-pep8 # checks for PEP8 code style compliance
+pep8==0.6.1 # checks for PEP8 code style compliance
 mox # mock object framework
+
+-e git+https://review.openstack.org/p/openstack/python-keystoneclient.git#egg=python-keystoneclient
+-e git+https://review.openstack.org/p/openstack-dev/openstack-nose.git#egg=openstack.nose_plugin

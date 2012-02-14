@@ -17,102 +17,60 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# pylint: disable=W0613
-"""
-Utility methods for working with WSGI servers
-"""
+"""Utility methods for working with WSGI servers."""
 
 import json
 import logging
 import sys
-import datetime
-import ssl
 
+import eventlet
 import eventlet.wsgi
-eventlet.patcher.monkey_patch(all=False, socket=True)
+eventlet.patcher.monkey_patch(all=False, socket=True, time=True)
+import routes
 import routes.middleware
-from webob import Response
+import webob
 import webob.dec
+import webob.exc
 
-LOG = logging.getLogger(__name__)
-
-
-def find_console_handler(logger):
-    """Returns a stream handler, if any"""
-    for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler) and \
-                handler.stream == sys.stderr:
-            return handler
-
-
-def add_console_handler(logger, level=logging.INFO):
-    """
-    Add a Handler which writes log messages to sys.stderr (usually the console)
-    """
-    console = find_console_handler(logger)
-
-    if not console:
-        console = logging.StreamHandler()
-        console.setLevel(level)
-        # set a format which is simpler for console use
-        formatter = logging.Formatter(
-            "%(name)-12s: %(levelname)-8s %(message)s")
-        # tell the handler to use this format
-        console.setFormatter(formatter)
-        # add the handler to the root logger
-        LOG.debug("Adding console handler at level %s" % level)
-        logger.addHandler(console)
-    elif console.level != level:
-        LOG.debug("Setting console handler level to %s from %s" % (level,
-                                                                console.level))
-        console.setLevel(level)
-    return console
+from keystone import exception
+from keystone.common import utils
 
 
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
 
-    def __init__(self, logger, level=logging.INFO):
+    def __init__(self, logger, level=logging.DEBUG):
         self.logger = logger
         self.level = level
-        if level == logging.DEBUG:
-            add_console_handler(logger, level)
 
     def write(self, msg):
-        self.logger.log(self.level, msg.strip("\n"))
-
-
-def run_server(application, port):
-    """Run a WSGI server with the given application."""
-    LOG.debug("Running WSGI server on 0.0.0.0:%s" % port)
-    sock = eventlet.listen(('0.0.0.0', port))
-    eventlet.wsgi.server(sock, application)
+        self.logger.log(self.level, msg)
 
 
 class Server(object):
     """Server class to manage multiple WSGI sockets and applications."""
-    started = False
 
-    def __init__(self, application=None, port=None, threads=1000):
+    def __init__(self, application, port, threads=1000):
         self.application = application
         self.port = port
         self.pool = eventlet.GreenPool(threads)
         self.socket_info = {}
-        self.threads = {}
+        self.greenthread = None
 
-    def start(self, application=None, port=None, host='0.0.0.0', key=None,
-            backlog=128):
+    def start(self, host='0.0.0.0', key=None, backlog=128):
         """Run a WSGI server with the given application."""
-        if application is not None:
-            self.application = application
-        if port is not None:
-            self.port = port
-        LOG.debug("start server '%s' on %s:%s" % (key, host, self.port))
+        logging.debug('Starting %(arg0)s on %(host)s:%(port)s' % \
+                      {'arg0': sys.argv[0],
+                       'host': host,
+                       'port': self.port})
         socket = eventlet.listen((host, self.port), backlog=backlog)
-        thread = self.pool.spawn(self._run, self.application, socket)
+        self.greenthread = self.pool.spawn(self._run, self.application, socket)
         if key:
-            self.socket_info[key] = socket
-            self.threads[key] = thread
+            self.socket_info[key] = socket.getsockname()
+
+    def kill(self):
+        if self.greenthread:
+            self.greenthread.kill()
 
     def wait(self):
         """Wait until all servers have completed running."""
@@ -123,50 +81,189 @@ class Server(object):
 
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
-        LOG.debug("_run called")
-        eventlet_logger = logging.getLogger('eventlet.wsgi.server')
+        logger = logging.getLogger('eventlet.wsgi.server')
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                log=WritableLogger(eventlet_logger, logging.root.level))
+                             log=WritableLogger(logger))
 
 
-class SslServer(Server):
-    """SSL Server class to manage multiple WSGI sockets and applications."""
-    # pylint: disable=W0221,R0913
-    def start(self, application, port, host='0.0.0.0', backlog=128,
-              certfile=None, keyfile=None, ca_certs=None,
-              cert_required='True', key=None):
-        """Run a 2-way SSL WSGI server with the given application."""
-        LOG.debug("start SSL server '%s' on %s:%s" % (key, host, port))
-        socket = eventlet.listen((host, port), backlog=backlog)
-        if cert_required == 'True':
-            cert_reqs = ssl.CERT_REQUIRED
-        else:
-            cert_reqs = ssl.CERT_NONE
-        sslsocket = eventlet.wrap_ssl(socket, certfile=certfile,
-                                      keyfile=keyfile,
-                                      server_side=True, cert_reqs=cert_reqs,
-                                      ca_certs=ca_certs)
-        thread = self.pool.spawn(self._run, application, sslsocket)
-        if key:
-            self.socket_info[key] = sslsocket
-            self.threads[key] = thread
+class Request(webob.Request):
+    pass
 
 
-class Middleware(object):
-    """
-    Base WSGI middleware wrapper. These classes require an application to be
+class BaseApplication(object):
+    """Base WSGI application wrapper. Subclasses need to implement __call__."""
+
+    @classmethod
+    def factory(cls, global_config, **local_config):
+        """Used for paste app factories in paste.deploy config files.
+
+        Any local configuration (that is, values under the [app:APPNAME]
+        section of the paste config) will be passed into the `__init__` method
+        as kwargs.
+
+        A hypothetical configuration would look like:
+
+            [app:wadl]
+            latest_version = 1.3
+            paste.app_factory = nova.api.fancy_api:Wadl.factory
+
+        which would result in a call to the `Wadl` class as
+
+            import nova.api.fancy_api
+            fancy_api.Wadl(latest_version='1.3')
+
+        You could of course re-implement the `factory` method in subclasses,
+        but using the kwarg passing it shouldn't be necessary.
+
+        """
+        return cls()
+
+    def __call__(self, environ, start_response):
+        r"""Subclasses will probably want to implement __call__ like this:
+
+        @webob.dec.wsgify(RequestClass=Request)
+        def __call__(self, req):
+          # Any of the following objects work as responses:
+
+          # Option 1: simple string
+          res = 'message\n'
+
+          # Option 2: a nicely formatted HTTP exception page
+          res = exc.HTTPForbidden(detail='Nice try')
+
+          # Option 3: a webob Response object (in case you need to play with
+          # headers, or you want to be treated like an iterable, or or or)
+          res = Response();
+          res.app_iter = open('somefile')
+
+          # Option 4: any wsgi app to be run next
+          res = self.application
+
+          # Option 5: you can get a Response object for a wsgi app, too, to
+          # play with headers etc
+          res = req.get_response(self.application)
+
+          # You can then just return your response...
+          return res
+          # ... or set req.response and return None.
+          req.response = res
+
+        See the end of http://pythonpaste.org/webob/modules/dec.html
+        for more info.
+
+        """
+        raise NotImplementedError('You must implement __call__')
+
+
+class Application(BaseApplication):
+    @webob.dec.wsgify
+    def __call__(self, req):
+        arg_dict = req.environ['wsgiorg.routing_args'][1]
+        action = arg_dict.pop('action')
+        del arg_dict['controller']
+        logging.debug('arg_dict: %s', arg_dict)
+
+        # allow middleware up the stack to provide context & params
+        context = req.environ.get('openstack.context', {})
+        context['query_string'] = dict(req.params.iteritems())
+        params = req.environ.get('openstack.params', {})
+        params.update(arg_dict)
+
+        # TODO(termie): do some basic normalization on methods
+        method = getattr(self, action)
+
+        # NOTE(vish): make sure we have no unicode keys for py2.6.
+        params = self._normalize_dict(params)
+
+        try:
+            result = method(context, **params)
+        except exception.Error as e:
+            logging.warning(e)
+            return render_exception(e)
+
+        if result is None or type(result) is str or type(result) is unicode:
+            return result
+        elif isinstance(result, webob.exc.WSGIHTTPException):
+            return result
+
+        response = webob.Response()
+        self._serialize(response, result)
+        return response
+
+    def _serialize(self, response, result):
+        response.content_type = 'application/json'
+        response.body = json.dumps(result, cls=utils.SmarterEncoder)
+
+    def _normalize_arg(self, arg):
+        return str(arg).replace(':', '_').replace('-', '_')
+
+    def _normalize_dict(self, d):
+        return dict([(self._normalize_arg(k), v)
+                     for (k, v) in d.iteritems()])
+
+    def assert_admin(self, context):
+        if not context['is_admin']:
+            try:
+                user_token_ref = self.token_api.get_token(
+                        context=context, token_id=context['token_id'])
+            except exception.TokenNotFound:
+                raise exception.Unauthorized()
+            creds = user_token_ref['metadata'].copy()
+            creds['user_id'] = user_token_ref['user'].get('id')
+            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            # NOTE(vish): this is pretty inefficient
+            creds['roles'] = [self.identity_api.get_role(context, role)['name']
+                              for role in creds.get('roles', [])]
+            # Accept either is_admin or the admin role
+            assert self.policy_api.can_haz(context,
+                                           ('is_admin:1', 'roles:admin'),
+                                            creds)
+
+
+class Middleware(Application):
+    """Base WSGI middleware.
+
+    These classes require an application to be
     initialized that will be called next.  By default the middleware will
     simply call its wrapped app, or you can override __call__ to customize its
     behavior.
+
     """
+
+    @classmethod
+    def factory(cls, global_config, **local_config):
+        """Used for paste app factories in paste.deploy config files.
+
+        Any local configuration (that is, values under the [filter:APPNAME]
+        section of the paste config) will be passed into the `__init__` method
+        as kwargs.
+
+        A hypothetical configuration would look like:
+
+            [filter:analytics]
+            redis_host = 127.0.0.1
+            paste.filter_factory = nova.api.analytics:Analytics.factory
+
+        which would result in a call to the `Analytics` class as
+
+            import nova.api.analytics
+            analytics.Analytics(app_from_paste, redis_host='127.0.0.1')
+
+        You could of course re-implement the `factory` method in subclasses,
+        but using the kwarg passing it shouldn't be necessary.
+
+        """
+        def _factory(app):
+            conf = global_config.copy()
+            conf.update(local_config)
+            return cls(app)
+        return _factory
 
     def __init__(self, application):
         self.application = application
 
-    @staticmethod
-    def process_request(req):
-        """
-        Called on each request.
+    def process_request(self, req):
+        """Called on each request.
 
         If this returns None, the next application down the stack will be
         executed. If it returns a response then that response will be returned
@@ -175,13 +272,11 @@ class Middleware(object):
         """
         return None
 
-    @staticmethod
-    def process_response(response):
+    def process_response(self, response):
         """Do whatever you'd like to the response."""
         return response
 
-    # pylint: disable=W1111
-    @webob.dec.wsgify
+    @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
         response = self.process_request(req)
         if response:
@@ -191,23 +286,30 @@ class Middleware(object):
 
 
 class Debug(Middleware):
-    """
-    Helper class that can be inserted into any WSGI application chain
-    to get information about the request and response.
+    """Helper class for debugging a WSGI application.
+
+    Can be inserted into any WSGI application chain to get information
+    about the request and response.
+
     """
 
-    @webob.dec.wsgify
+    @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
-        print ("*" * 40) + " REQUEST ENVIRON"
+        logging.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
         for key, value in req.environ.items():
-            print key, "=", value
-        print
+            logging.debug('%s = %s', key, value)
+        logging.debug('')
+        logging.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
+        for line in req.body_file:
+            logging.debug(line)
+        logging.debug('')
+
         resp = req.get_response(self.application)
 
-        print ("*" * 40) + " RESPONSE HEADERS"
+        logging.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
         for (key, value) in resp.headers.iteritems():
-            print key, "=", value
-        print
+            logging.debug('%s = %s', key, value)
+        logging.debug('')
 
         resp.app_iter = self.print_generator(resp.app_iter)
 
@@ -215,283 +317,158 @@ class Debug(Middleware):
 
     @staticmethod
     def print_generator(app_iter):
-        """
-        Iterator that prints the contents of a wrapper string iterator
-        when iterated.
-        """
-        print ("*" * 40) + " BODY"
+        """Iterator that prints the contents of a wrapper string."""
+        logging.debug('%s %s %s', ('*' * 20), 'RESPONSE BODY', ('*' * 20))
         for part in app_iter:
-            sys.stdout.write(part)
-            sys.stdout.flush()
+            #sys.stdout.write(part)
+            logging.debug(part)
+            #sys.stdout.flush()
             yield part
         print
 
 
-def debug_filter_factory(global_conf):
-    """Filter factor to easily insert a debugging middleware into the
-    paste.deploy pipeline"""
-    def filter(app):
-        return Debug(app)
-    return filter
-
-
 class Router(object):
-    """
-    WSGI middleware that maps incoming requests to WSGI apps.
-    """
+    """WSGI middleware that maps incoming requests to WSGI apps."""
 
     def __init__(self, mapper):
-        """
-        Create a router for the given routes.Mapper.
+        """Create a router for the given routes.Mapper.
 
         Each route in `mapper` must specify a 'controller', which is a
         WSGI app to call.  You'll probably want to specify an 'action' as
-        well and have your controller be a wsgi.Controller, who will route
-        the request to the action method.
+        well and have your controller be an object that can route
+        the request to the action-specific method.
 
         Examples:
           mapper = routes.Mapper()
           sc = ServerController()
 
           # Explicit mapping of one route to a controller+action
-          mapper.connect(None, "/svrlist", controller=sc, action="list")
+          mapper.connect(None, '/svrlist', controller=sc, action='list')
 
           # Actions are all implicitly defined
-          mapper.resource("server", "servers", controller=sc)
+          mapper.resource('server', 'servers', controller=sc)
 
           # Pointing to an arbitrary WSGI app.  You can specify the
           # {path_info:.*} parameter so the target app can be handed just that
           # section of the URL.
-          mapper.connect(None, "/v2.0/{path_info:.*}", controller=TheApp())
+          mapper.connect(None, '/v1.0/{path_info:.*}', controller=BlogApp())
+
         """
         self.map = mapper
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,
                                                           self.map)
 
-    @webob.dec.wsgify
+    @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
-        """
-        Route the incoming request to a controller based on self.map.
+        """Route the incoming request to a controller based on self.map.
+
         If no match, return a 404.
+
         """
         return self._router
 
     @staticmethod
-    @webob.dec.wsgify
+    @webob.dec.wsgify(RequestClass=Request)
     def _dispatch(req):
-        """
+        """Dispatch the request to the appropriate controller.
+
         Called by self._router after matching the incoming request to a route
-        and putting the information into req.environ.  Returns the routed
-        WSGI app's response or an Accept-appropriate 404.
+        and putting the information into req.environ.  Either returns 404
+        or the routed WSGI app's response.
+
         """
-        return req.environ['wsgiorg.routing_args'][1].get('controller') \
-            or HTTPNotFound()
+        match = req.environ['wsgiorg.routing_args'][1]
+        if not match:
+            return webob.exc.HTTPNotFound()
+        app = match['controller']
+        return app
 
 
-class Controller(object):
+class ComposingRouter(Router):
+    def __init__(self, mapper=None, routers=None):
+        if mapper is None:
+            mapper = routes.Mapper()
+        if routers is None:
+            routers = []
+        for router in routers:
+            router.add_routes(mapper)
+        super(ComposingRouter, self).__init__(mapper)
+
+
+class ComposableRouter(Router):
+    """Router that supports use by ComposingRouter."""
+
+    def __init__(self, mapper=None):
+        if mapper is None:
+            mapper = routes.Mapper()
+        self.add_routes(mapper)
+        super(ComposableRouter, self).__init__(mapper)
+
+    def add_routes(self, mapper):
+        """Add routes to given mapper."""
+        pass
+
+
+class ExtensionRouter(Router):
+    """A router that allows extensions to supplement or overwrite routes.
+
+    Expects to be subclassed.
     """
-    WSGI app that reads routing information supplied by RoutesMiddleware
-    and calls the requested action method upon itself.  All action methods
-    must, in addition to their normal parameters, accept a 'req' argument
-    which is the incoming webob.Request.  They raise a webob.exc exception,
-    or return a dict which will be serialized by requested content type.
-    """
+    def __init__(self, application, mapper=None):
+        if mapper is None:
+            mapper = routes.Mapper()
+        self.application = application
+        self.add_routes(mapper)
+        mapper.connect('{path_info:.*}', controller=self.application)
+        super(ExtensionRouter, self).__init__(mapper)
 
-    @webob.dec.wsgify
-    def __call__(self, req):
+    def add_routes(self, mapper):
+        pass
+
+    @classmethod
+    def factory(cls, global_config, **local_config):
+        """Used for paste app factories in paste.deploy config files.
+
+        Any local configuration (that is, values under the [filter:APPNAME]
+        section of the paste config) will be passed into the `__init__` method
+        as kwargs.
+
+        A hypothetical configuration would look like:
+
+            [filter:analytics]
+            redis_host = 127.0.0.1
+            paste.filter_factory = nova.api.analytics:Analytics.factory
+
+        which would result in a call to the `Analytics` class as
+
+            import nova.api.analytics
+            analytics.Analytics(app_from_paste, redis_host='127.0.0.1')
+
+        You could of course re-implement the `factory` method in subclasses,
+        but using the kwarg passing it shouldn't be necessary.
+
         """
-        Call the method specified in req.environ by RoutesMiddleware.
-        """
-        arg_dict = req.environ['wsgiorg.routing_args'][1]
-        action = arg_dict['action']
-        method = getattr(self, action)
-        del arg_dict['controller']
-        del arg_dict['action']
-        arg_dict['req'] = req
-        result = method(**arg_dict)
-        if isinstance(result, dict):
-            return self._serialize(result, req)
-        else:
-            return result
-
-    def _serialize(self, data, request):
-        """
-        Serialize the given dict to the response type requested in request.
-        Uses self._serialization_metadata if it exists, which is a dict mapping
-        MIME types to information needed to serialize to that type.
-        """
-        _metadata = getattr(type(self), "_serialization_metadata", {})
-        serializer = Serializer(request.environ, _metadata)
-        return serializer.to_content_type(data)
+        def _factory(app):
+            conf = global_config.copy()
+            conf.update(local_config)
+            return cls(app)
+        return _factory
 
 
-class Serializer(object):
-    """
-    Serializes a dictionary to a Content Type specified by a WSGI environment.
-    """
+def render_exception(error):
+    """Forms a WSGI response based on the current error."""
+    resp = webob.Response()
+    resp.status = '%s %s' % (error.code, error.title)
+    resp.headerlist = [('Content-Type', 'application/json')]
 
-    def __init__(self, environ, metadata=None):
-        """
-        Create a serializer based on the given WSGI environment.
-        'metadata' is an optional dict mapping MIME types to information
-        needed to serialize a dictionary to that type.
-        """
-        if metadata is None:
-            metadata = {}
-        self.environ = environ
-        self.metadata = metadata
-        self._methods = {
-            'application/json': self._to_json,
-            'application/xml': self._to_xml}
+    body = {
+        'error': {
+            'code': error.code,
+            'title': error.title,
+            'message': str(error),
+        }
+    }
 
-    def to_content_type(self, data):
-        """
-        Serialize a dictionary into a string.  The format of the string
-        will be decided based on the Content Type requested in self.environ:
-        by Accept: header, or by URL suffix.
-        """
-        # FIXME(sirp): for now, supporting json only
-        #mimetype = 'application/xml'
-        mimetype = 'application/json'
-        LOG.debug("serializing: mimetype=%s" % mimetype)
-        # TODO(gundlach): determine mimetype from request
-        return self._methods.get(mimetype, repr)(data)
+    resp.body = json.dumps(body)
 
-    @staticmethod
-    def _to_json(data):
-        def sanitizer(obj):
-            if isinstance(obj, datetime.datetime):
-                return obj.isoformat()
-            return obj
-
-        return json.dumps(data, default=sanitizer)
-
-    def _to_xml(self, data):
-        metadata = self.metadata.get('application/xml', {})
-        # We expect data to contain a single key which is the XML root.
-        root_key = data.keys()[0]
-        from xml.dom import minidom
-        doc = minidom.Document()
-        node = self._to_xml_node(doc, metadata, root_key, data[root_key])
-        return node.toprettyxml(indent='    ')
-
-    def _to_xml_node(self, doc, metadata, nodename, data):
-        """Recursive method to convert data members to XML nodes."""
-        result = doc.createElement(nodename)
-        if isinstance(data, list):
-            singular = metadata.get('plurals', {}).get(nodename, None)
-            if singular is None:
-                if nodename.endswith('s'):
-                    singular = nodename[:-1]
-                else:
-                    singular = 'item'
-            for item in data:
-                node = self._to_xml_node(doc, metadata, singular, item)
-                result.appendChild(node)
-        elif isinstance(data, dict):
-            attrs = metadata.get('attributes', {}).get(nodename, {})
-            for k, v in data.items():
-                if k in attrs:
-                    result.setAttribute(k, str(v))
-                else:
-                    node = self._to_xml_node(doc, metadata, k, v)
-                    result.appendChild(node)
-        else:  # atom
-            node = doc.createTextNode(str(data))
-            result.appendChild(node)
-        return result
-
-
-class WSGIHTTPException(Response, webob.exc.HTTPException):
-    """Returned when no matching route can be identified"""
-
-    code = None
-    label = None
-    title = None
-    explanation = None
-
-    xml_template = """\
-<?xml version="1.0" encoding="UTF-8"?>
-<%s xmlns="http://docs.openstack.org/identity/api/v2.0" code="%s">
-    <message>%s</message>
-    <details>%s</details>
-</%s>"""
-
-    def __init__(self, code, label, title, explanation, **kw):
-        self.code = code
-        self.label = label
-        self.title = title
-        self.explanation = explanation
-
-        Response.__init__(self, status='%s %s' % (self.code, self.title), **kw)
-        webob.exc.HTTPException.__init__(self, self.explanation, self)
-
-    def xml_body(self):
-        """Generate a XML body string using the available data"""
-        return self.xml_template % (
-            self.label, self.code, self.title, self.explanation, self.label)
-
-    def json_body(self):
-        """Generate a JSON body string using the available data"""
-        json_dict = {self.label: {}}
-        json_dict[self.label]['message'] = self.title
-        json_dict[self.label]['details'] = self.explanation
-        json_dict[self.label]['code'] = self.code
-
-        return json.dumps(json_dict)
-
-    def generate_response(self, environ, start_response):
-        """Returns a response to the given environment"""
-        if self.content_length is not None:
-            del self.content_length
-
-        headerlist = list(self.headerlist)
-
-        accept = environ.get('HTTP_ACCEPT', '')
-
-        # Return JSON by default
-        if accept and 'xml' in accept:
-            content_type = 'application/xml'
-            body = self.xml_body()
-        else:
-            content_type = 'application/json'
-            body = self.json_body()
-
-        extra_kw = {}
-
-        if isinstance(body, unicode):
-            extra_kw.update(charset='utf-8')
-
-        resp = Response(body,
-            status=self.status,
-            headerlist=headerlist,
-            content_type=content_type,
-            **extra_kw)
-
-        # Why is this repeated?
-        resp.content_type = content_type
-
-        return resp(environ, start_response)
-
-    def __call__(self, environ, start_response):
-        if environ['REQUEST_METHOD'] == 'HEAD':
-            start_response(self.status, self.headerlist)
-            return []
-        if not self.body:
-            return self.generate_response(environ, start_response)
-        return webob.Response.__call__(self, environ, start_response)
-
-    def exception(self):
-        """Returns self as an exception response"""
-        return webob.exc.HTTPException(self.explanation, self)
-
-    exception = property(exception)
-
-
-class HTTPNotFound(WSGIHTTPException):
-    """Represents a 404 Not Found webob response exception"""
-    def __init__(self, code=404, label='itemNotFound', title='Item not found.',
-            explanation='Error Details...', **kw):
-        """Build a 404 WSGI response"""
-        super(HTTPNotFound, self).__init__(code, label, title, explanation,
-            **kw)
+    return resp

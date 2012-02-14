@@ -1,0 +1,24 @@
+# keystonelight dependencies
+pam==0.1.4
+WebOb==1.0.8
+eventlet
+PasteDeploy
+paste
+routes
+pyCLI
+sqlalchemy
+sqlalchemy-migrate
+passlib
+python-memcached
+
+# keystonelight testing dependencies
+nose
+nosexcover
+
+# for python-keystoneclient
+httplib2
+pep8
+-e git+https://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
+
+# for python-novaclient
+prettytable

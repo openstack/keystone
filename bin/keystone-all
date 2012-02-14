@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+import greenlet
+import logging
+import os
+import sys
+
+# If ../../keystone/__init__.py exists, add ../ to Python search path, so that
+# it will override what happens to be installed in /usr/(local/)lib/python...
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+                                   os.pardir,
+                                   os.pardir))
+if os.path.exists(os.path.join(possible_topdir,
+                               'keystone-all',
+                               '__init__.py')):
+    sys.path.insert(0, possible_topdir)
+
+from paste import deploy
+
+from keystone import config
+from keystone.common import wsgi
+
+
+CONF = config.CONF
+
+
+def create_server(conf, name, port):
+    app = deploy.loadapp('config:%s' % conf, name=name)
+    return wsgi.Server(app, port)
+
+
+def serve(*servers):
+    for server in servers:
+        logging.debug("starting server %s on port %s", server.application,
+                                                       server.port)
+        server.start()
+
+    for server in servers:
+        try:
+            server.wait()
+        except greenlet.GreenletExit:
+            pass
+
+
+if __name__ == '__main__':
+    dev_conf = os.path.join(possible_topdir,
+                                'etc',
+                                'keystone.conf')
+    config_files = None
+    if os.path.exists(dev_conf):
+        config_files = [dev_conf]
+
+    CONF(config_files=config_files)
+
+    config.setup_logging(CONF)
+
+    # Log the options used when starting if we're in debug mode...
+    if CONF.debug:
+        CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
+
+    options = deploy.appconfig('config:%s' % CONF.config_file[0])
+
+    servers = []
+    servers.append(create_server(CONF.config_file[0],
+                                 'admin',
+                                 int(options['admin_port'])))
+    servers.append(create_server(CONF.config_file[0],
+                                 'main',
+                                 int(options['public_port'])))
+    serve(*servers)

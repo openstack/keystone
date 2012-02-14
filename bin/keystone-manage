@@ -2,35 +2,27 @@
 
 import os
 import sys
+
 # If ../../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,
                                    os.pardir))
-if os.path.exists(os.path.join(possible_topdir, 'keystone', '__init__.py')):
+if os.path.exists(os.path.join(possible_topdir,
+                               'keystone',
+                               '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-import keystone.manage
-import keystone.manage2
-import keystone.tools.tracer  # @UnusedImport # module runs on import
+
+from keystone import cli
 
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
-    while True:
-        if len(args) > 1 and args[0] in keystone.manage.OBJECTS:
-            # the args look like the old 'subject verb' (e.g. 'user add')
-            # (this module is pending deprecation)
-            keystone.manage.main()
-            break
-        elif len(args) > 2 and args[0] == '-c':
-            # Remove -c <config file> and try again
-            del args[0:2]
-        elif len(args) > 1 and args[0] == '-d':
-            # Remove -d and try again
-            del args[0]
-        else:
-            # calls that don't start with a 'subject' go to the new impl
-            # which uses a 'verb_subject' convention (e.g. 'add_user')
-            keystone.manage2.main()
-            break
+    dev_conf = os.path.join(possible_topdir,
+                            'etc',
+                            'keystone.conf')
+    config_files = None
+    if os.path.exists(dev_conf):
+        config_files = [dev_conf]
+
+    cli.main(argv=sys.argv, config_files=config_files)

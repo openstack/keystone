@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<services xmlns="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0">
-  <service id="123" name="nova" type="compute" description="Openstack Compute Service" />
-  <service id="234" name="glance" type="image" description="Openstack Image Service" />
-</services>

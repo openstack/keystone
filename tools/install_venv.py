@@ -4,7 +4,7 @@
 # Administrator of the National Aeronautics and Space Administration.
 # All Rights Reserved.
 #
-# Copyright 2010 OpenStack LLC.
+# Copyright 2011 OpenStack, LLC
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -19,7 +19,7 @@
 #    under the License.
 
 """
-Installation script for Keystone's development virtualenv
+virtualenv installation script
 """
 
 import os
@@ -30,11 +30,17 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 VENV = os.path.join(ROOT, '.venv')
 PIP_REQUIRES = os.path.join(ROOT, 'tools', 'pip-requires')
+PY_VERSION = "python%s.%s" % (sys.version_info[0], sys.version_info[1])
 
 
 def die(message, *args):
-    print >> sys.stderr, message % args
+    print >>sys.stderr, message % args
     sys.exit(1)
+
+
+def check_python_version():
+    if sys.version_info < (2, 6):
+        die("Need Python Version >= 2.6")
 
 
 def run_command(cmd, redirect_output=True, check_exit_code=True):
@@ -55,84 +61,68 @@ def run_command(cmd, redirect_output=True, check_exit_code=True):
 
 
 HAS_EASY_INSTALL = bool(run_command(['which', 'easy_install'],
-                                    check_exit_code=False).strip())
+                    check_exit_code=False).strip())
 HAS_VIRTUALENV = bool(run_command(['which', 'virtualenv'],
-                                    check_exit_code=False).strip())
+                    check_exit_code=False).strip())
 
 
 def check_dependencies():
     """Make sure virtualenv is in the path."""
 
+    print 'Checking for virtualenv...'
     if not HAS_VIRTUALENV:
         print 'not found.'
         # Try installing it via easy_install...
         if HAS_EASY_INSTALL:
             print 'Installing virtualenv via easy_install...',
-            if not run_command(['which', 'easy_install']):
-                die('ERROR: virtualenv not found.\n\n'
-                    'Keystone development requires virtualenv, please install'
-                    ' it using your favorite package management tool')
+            if not (run_command(['which', 'easy_install']) and
+                    run_command(['easy_install', 'virtualenv'])):
+                die('ERROR: virtualenv not found.\n\nNova development'
+                    ' requires virtualenv, please install it using your'
+                    ' favorite package management tool')
             print 'done.'
     print 'done.'
 
 
 def create_virtualenv(venv=VENV):
-    """
-    Creates the virtual environment and installs PIP only into the
+    """Creates the virtual environment and installs PIP only into the
     virtual environment
     """
     print 'Creating venv...',
     run_command(['virtualenv', '-q', '--no-site-packages', VENV])
     print 'done.'
     print 'Installing pip in virtualenv...',
-    if not run_command(['tools/with_venv.sh', 'easy_install',
-                        'pip>1.0']).strip():
+    if not run_command(['tools/with_venv.sh', 'easy_install', 'pip']).strip():
         die("Failed to install pip.")
     print 'done.'
 
 
 def install_dependencies(venv=VENV):
     print 'Installing dependencies with pip (this can take a while)...'
-
-    # Install greenlet by hand - just listing it in the requires file does not
-    # get it in stalled in the right order
-    venv_tool = 'tools/with_venv.sh'
-    run_command([venv_tool, 'pip', 'install', '-E', venv, '-r', PIP_REQUIRES],
-                redirect_output=False)
-
-    # Tell the virtual env how to "import keystone"
-
-    for version in ['python2.7', 'python2.6']:
-        pth = os.path.join(venv, "lib", version, "site-packages")
-        if os.path.exists(pth):
-            pthfile = os.path.join(pth, "keystone.pth")
-            f = open(pthfile, 'w')
-            f.write("%s\n" % ROOT)
+    run_command(['tools/with_venv.sh', 'pip', 'install', '-E', venv, '-r',
+              PIP_REQUIRES], redirect_output=False)
 
 
 def print_help():
     help = """
- Keystone development environment setup is complete.
+    Virtual environment configuration complete.
 
- Keystone development uses virtualenv to track and manage Python dependencies
- while in development and testing.
+    To activate the virtualenv for the extent of your current shell
+    session you can run:
 
- To activate the Keystone virtualenv for the extent of your current shell
- session you can run:
+    $ source %s/bin/activate
 
- $ source .venv/bin/activate
+    Or, if you prefer, you can run commands in the virtualenv on a case by case
+    basis by running:
 
- Or, if you prefer, you can run commands in the virtualenv on a case by case
- basis by running:
+    $ tools/with_venv.sh <your command>
 
- $ tools/with_venv.sh <your command>
-
- Also, make test will automatically use the virtualenv.
-    """
+    """ % VENV
     print help
 
 
 def main(argv):
+    check_python_version()
     check_dependencies()
     create_virtualenv()
     install_dependencies()

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<echo xmlns="http://docs.openstack.org/echo/api/v1.0"
-      method="GET" pathInfo="/bla/bla" queryString="hello">
-    <content type="application/xml">
-        This is some content.
-    </content>
-</echo>

@@ -1,1 +1,0 @@
-EXTENSION_SERVICE_PREFIX = 'service'

@@ -1,9 +1,0 @@
-{
-  "RAX-KSGRP:groups": [
-    {
-      "id": "test_global_group_add",
-      "description": "A description ..."
-    }
-  ],
-  "RAX-KSGRP:groups_links": []
-}

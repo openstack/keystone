@@ -1,3 +1,5 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
 # Copyright (c) 2010-2011 OpenStack, LLC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,20 +32,13 @@ from urllib import quote
 import logging
 import time
 
-# pylint: disable=E0611
 from eventlet.green.httplib import CONTINUE, HTTPConnection, HTTPMessage, \
     HTTPResponse, HTTPSConnection, _UNKNOWN
 
-DEFAULT_TIMEOUT = 30
 
-logger = logging.getLogger(__name__)  # pylint: disable=C0103
-
-
-# pylint: disable=R0902
 class BufferedHTTPResponse(HTTPResponse):
     """HTTPResponse class that buffers reading of headers"""
 
-    # pylint: disable=C0103
     def __init__(self, sock, debuglevel=0, strict=0,
                  method=None):          # pragma: no cover
         self.sock = sock
@@ -64,7 +59,6 @@ class BufferedHTTPResponse(HTTPResponse):
         self.length = _UNKNOWN          # number of bytes left in response
         self.will_close = _UNKNOWN      # conn will close at end of response
 
-    # pylint: disable=E1101,E0203,W0201
     def expect_response(self):
         self.fp = self.sock.makefile('rb', 0)
         version, status, reason = self._read_status()
@@ -79,24 +73,20 @@ class BufferedHTTPResponse(HTTPResponse):
             self.msg.fp = None
 
 
-# pylint: disable=W0232
 class BufferedHTTPConnection(HTTPConnection):
     """HTTPConnection class that uses BufferedHTTPResponse"""
     response_class = BufferedHTTPResponse
 
-    # pylint: disable=W0201
     def connect(self):
         self._connected_time = time.time()
         return HTTPConnection.connect(self)
 
-    # pylint: disable=W0201
     def putrequest(self, method, url, skip_host=0, skip_accept_encoding=0):
         self._method = method
         self._path = url
         return HTTPConnection.putrequest(self, method, url, skip_host,
                                          skip_accept_encoding)
 
-    # pylint: disable=E1101
     def getexpect(self):
         response = BufferedHTTPResponse(self.sock, strict=self.strict,
                                        method=self._method)
@@ -105,17 +95,15 @@ class BufferedHTTPConnection(HTTPConnection):
 
     def getresponse(self):
         response = HTTPConnection.getresponse(self)
-        logger.debug(("HTTP PERF: %(time).5f seconds to %(method)s "
-                        "%(host)s:%(port)s %(path)s)"),
+        logging.debug(('HTTP PERF: %(time).5f seconds to %(method)s '
+                        '%(host)s:%(port)s %(path)s)'),
            {'time': time.time() - self._connected_time, 'method': self._method,
             'host': self.host, 'port': self.port, 'path': self._path})
         return response
 
 
-# pylint: disable=R0913
 def http_connect(ipaddr, port, device, partition, method, path,
-                 headers=None, query_string=None, ssl=False, key_file=None,
-                 cert_file=None, timeout=None):
+                 headers=None, query_string=None, ssl=False):
     """
     Helper function to create an HTTPConnection object. If ssl is set True,
     HTTPSConnection will be used. However, if ssl=False, BufferedHTTPConnection
@@ -130,21 +118,26 @@ def http_connect(ipaddr, port, device, partition, method, path,
     :param headers: dictionary of headers
     :param query_string: request query string
     :param ssl: set True if SSL should be used (default: False)
-    :param key_file: Private key file (not needed if cert_file has private key)
-    :param cert_file: Certificate file (Keystore)
     :returns: HTTPConnection object
     """
+    if ssl:
+        conn = HTTPSConnection('%s:%s' % (ipaddr, port))
+    else:
+        conn = BufferedHTTPConnection('%s:%s' % (ipaddr, port))
     path = quote('/' + device + '/' + str(partition) + path)
-    # pylint: disable=E1121, E1124
-    return http_connect_raw(ipaddr, port, device, partition, method, path,
-                            headers, query_string, ssl, key_file, cert_file,
-                            timeout=timeout)
+    if query_string:
+        path += '?' + query_string
+    conn.path = path
+    conn.putrequest(method, path)
+    if headers:
+        for header, value in headers.iteritems():
+            conn.putheader(header, value)
+    conn.endheaders()
+    return conn
 
 
-# pylint: disable=W0201
 def http_connect_raw(ipaddr, port, method, path, headers=None,
-                     query_string=None, ssl=False, key_file=None,
-                     cert_file=None, timeout=None):
+                     query_string=None, ssl=False):
     """
     Helper function to create an HTTPConnection object. If ssl is set True,
     HTTPSConnection will be used. However, if ssl=False, BufferedHTTPConnection
@@ -157,26 +150,18 @@ def http_connect_raw(ipaddr, port, method, path, headers=None,
     :param headers: dictionary of headers
     :param query_string: request query string
     :param ssl: set True if SSL should be used (default: False)
-    :param key_file: Private key file (not needed if cert_file has private key)
-    :param cert_file: Certificate file (Keystore)
     :returns: HTTPConnection object
     """
-    if timeout is None:
-        timeout = DEFAULT_TIMEOUT
     if ssl:
-        conn = HTTPSConnection('%s:%s' % (ipaddr, port), key_file=key_file,
-                               cert_file=cert_file, timeout=timeout)
+        conn = HTTPSConnection('%s:%s' % (ipaddr, port))
     else:
-        conn = BufferedHTTPConnection('%s:%s' % (ipaddr, port),
-                                      timeout=timeout)
+        conn = BufferedHTTPConnection('%s:%s' % (ipaddr, port))
     if query_string:
         path += '?' + query_string
     conn.path = path
     conn.putrequest(method, path)
     if headers:
-        # pylint: disable=E1103
         for header, value in headers.iteritems():
             conn.putheader(header, value)
-    # pylint: disable=E1103
     conn.endheaders()
     return conn

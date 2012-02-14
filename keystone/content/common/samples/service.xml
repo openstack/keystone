@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<service xmlns="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-	id="123" name="nova" type="compute" description="OpenStack Compute Service" />

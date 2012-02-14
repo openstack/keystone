@@ -1,5 +1,0 @@
-<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
-    <group xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0" id="test_global_group_add">
-        <description>A Description of the group</description>
-    </group>
-</groups>

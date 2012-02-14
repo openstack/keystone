@@ -30,11 +30,8 @@ middleware.
 Example: examples/paste/glance-api.conf,
     examples/paste/glance-registry.conf
 """
-import logging
 
 from glance.common import context
-
-logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 class KeystoneContextMiddleware(context.ContextMiddleware):
@@ -47,8 +44,6 @@ class KeystoneContextMiddleware(context.ContextMiddleware):
         """
         # Only accept the authentication information if the identity
         # has been confirmed--presumably by upstream
-        logger.debug('X_IDENTITY_STATUS=%s' %
-                     req.headers.get('X_IDENTITY_STATUS'))
         if req.headers.get('X_IDENTITY_STATUS', 'Invalid') != 'Confirmed':
             # Use the default empty context
             req.context = self.make_context(read_only=True)
@@ -57,7 +52,7 @@ class KeystoneContextMiddleware(context.ContextMiddleware):
         # OK, let's extract the information we need
         auth_tok = req.headers.get('X_AUTH_TOKEN',
                                    req.headers.get('X_STORAGE_TOKEN'))
-        user = req.headers.get('X_USER_ID') or req.headers.get('X_USER')
+        user = req.headers.get('X_USER')
         tenant = req.headers.get('X_TENANT')
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
         is_admin = 'Admin' in roles
@@ -74,11 +69,10 @@ def filter_factory(global_conf, **local_conf):
     """
     Factory method for paste.deploy
     """
-    context_opts = context.cfg.ConfigOpts()
     conf = global_conf.copy()
     conf.update(local_conf)
 
     def filter(app):
-        return KeystoneContextMiddleware(app, context_opts, **conf)
+        return KeystoneContextMiddleware(app, conf)
 
     return filter

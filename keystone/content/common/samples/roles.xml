@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-  <role id="123" name="Admin" description="All Access" />
-  <role id="234" name="Guest" description="Guest Access" />
-</roles>

@@ -20,33 +20,27 @@
 # This source code is based ./auth_token.py and ./ec2_token.py.
 # See them for their copyright.
 
-"""
-Starting point for routing S3 requests.
-
-"""
+"""Starting point for routing S3 requests."""
 
 import httplib
 import json
-from webob.dec import wsgify
-from urlparse import urlparse
+
+import webob
+
+from swift.common import utils as swift_utils
+
 
 PROTOCOL_NAME = "S3 Token Authentication"
 
 
 class S3Token(object):
-    """Auth Middleware that handles S3 authenticating client calls"""
+    """Auth Middleware that handles S3 authenticating client calls."""
 
-    def _init_protocol_common(self, app, conf):
-        """ Common initialization code"""
-        print "Starting the %s component" % PROTOCOL_NAME
-
-        self.conf = conf
+    def __init__(self, app, conf):
+        """Common initialization code."""
         self.app = app
-        #if app is set, then we are in a WSGI pipeline and requests get passed
-        # on to app. If it is not set, this component should forward requests
-
-    def _init_protocol(self, conf):
-        """ Protocol specific initialization """
+        self.logger = swift_utils.get_logger(conf, log_route='s3_token')
+        self.logger.debug('Starting the %s component' % PROTOCOL_NAME)
 
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
@@ -56,68 +50,38 @@ class S3Token(object):
         # where to tell clients to find the auth service (default to url
         # constructed based on endpoint we have for the service to use)
         self.auth_location = conf.get('auth_uri',
-                                        "%s://%s:%s" % (self.auth_protocol,
-                                        self.auth_host,
-                                        self.auth_port))
+                                      '%s://%s:%s' % (self.auth_protocol,
+                                                      self.auth_host,
+                                                      self.auth_port))
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
         self.admin_token = conf.get('admin_token')
 
-    def __init__(self, app, conf):
-        """ Common initialization code """
-
-        #TODO(ziad): maybe we refactor this into a superclass
-        self._init_protocol_common(app, conf)  # Applies to all protocols
-        self._init_protocol(conf)  # Specific to this protocol
-        self.app = None
-        self.auth_port = None
-        self.auth_protocol = None
-        self.auth_location = None
-        self.auth_host = None
-        self.admin_token = None
-        self.conf = None
-
-    #@webob.dec.wsgify(RequestClass=webob.exc.Request)
-    # pylint: disable=R0914
-    @wsgify
-    def __call__(self, req):
-        """ Handle incoming request. Authenticate. And send downstream. """
+    def __call__(self, environ, start_response):
+        """Handle incoming request. authenticate and send downstream."""
+        req = webob.Request(environ)
+        parts = swift_utils.split_path(req.path, 1, 4, True)
+        version, account, container, obj = parts
 
         # Read request signature and access id.
         if not 'Authorization' in req.headers:
-            return self.app
-        try:
-            account, signature = \
-                req.headers['Authorization'].split(' ')[-1].rsplit(':', 1)
-            #del(req.headers['Authorization'])
-        except StandardError:
-            return self.app
+            return self.app(environ, start_response)
+        token = req.headers.get('X-Auth-Token',
+                                req.headers.get('X-Storage-Token'))
 
-        #try:
-        #    account, tenant = access.split(':')
-        #except Exception:
-        #    account = access
+        auth_header = req.headers['Authorization']
+        access, signature = auth_header.split(' ')[-1].rsplit(':', 1)
 
         # Authenticate the request.
-        creds = {'OS-KSS3:s3Credentials': {'access': account,
-                                    'signature': signature,
-                                    'verb': req.method,
-                                    'path': req.path,
-                                    'expire': req.headers['Date'],
-                                   }}
-
-        if req.headers.get('Content-Type'):
-            creds['s3Credentials']['content_type'] = \
-                    req.headers['Content-Type']
-        if req.headers.get('Content-MD5'):
-            creds['s3Credentials']['content_md5'] = req.headers['Content-MD5']
-        xheaders = {}
-        for key, value in req.headers.iteritems():
-            if key.startswith('X-Amz'):
-                xheaders[key.lower()] = value
-        if xheaders:
-            creds['s3Credentials']['xheaders'] = xheaders
+        creds = {'credentials': {'access': access,
+                                 'token': token,
+                                 'signature': signature,
+                                 'host': req.host,
+                                 'verb': req.method,
+                                 'path': req.path,
+                                 'expire': req.headers['Date'],
+                                 }}
 
         creds_json = json.dumps(creds)
         headers = {'Content-Type': 'application/json'}
@@ -126,29 +90,40 @@ class S3Token(object):
         else:
             conn = httplib.HTTPSConnection(self.auth_host, self.auth_port)
 
-        conn.request('POST', '/v2.0/tokens', body=creds_json, headers=headers)
-        response = conn.getresponse().read()
+        conn.request('POST', '/v2.0/s3tokens',
+                     body=creds_json,
+                     headers=headers)
+        resp = conn.getresponse()
+        if resp.status < 200 or resp.status >= 300:
+            raise Exception('Keystone reply error: status=%s reason=%s' % (
+                    resp.status,
+                    resp.reason))
+
+        # NOTE(vish): We could save a call to keystone by having
+        #             keystone return token, tenant, user, and roles
+        #             from this call.
+        #
+        # NOTE(chmou): We still have the same problem we would need to
+        #              change token_auth to detect if we already
+        #              identified and not doing a second query and just
+        #              pass it through to swiftauth in this case.
+        #              identity_info = json.loads(response)
+        output = resp.read()
         conn.close()
-
-        # NOTE(vish): We could save a call to keystone by
-        #             having keystone return token, tenant,
-        #             user, and roles from this call.
-        result = json.loads(response)
-        endpoint_path = ''
+        identity_info = json.loads(output)
         try:
-            token_id = str(result['access']['token']['id'])
-            for endpoint in result['access']['serviceCatalog']:
-                if endpoint['type'] == 'Swift Service':
-                    ep = urlparse(endpoint['endpoints'][0]['internalURL'])
-                    endpoint_path = str(ep.path)  # pylint: disable=E1101
-                    break
-        except KeyError:
-            return self.app
+            token_id = str(identity_info['access']['token']['id'])
+            tenant = (identity_info['access']['token']['tenant']['id'],
+                      identity_info['access']['token']['tenant']['name'])
+        except (KeyError, IndexError):
+            self.logger.debug('Error getting keystone reply: %s' %
+                              (str(output)))
+            raise
 
-        # Authenticated!
         req.headers['X-Auth-Token'] = token_id
-        req.headers['X-Endpoint-Path'] = endpoint_path
-        return self.app
+        environ['PATH_INFO'] = environ['PATH_INFO'].replace(
+                account, 'AUTH_%s' % tenant[0])
+        return self.app(environ, start_response)
 
 
 def filter_factory(global_conf, **local_conf):
