@@ -44,21 +44,36 @@ class ImportLegacy(test.TestCase):
     migration = legacy.LegacyMigration('sqlite:///%s' % db_path)
     migration.migrate_all()
 
-    user_ref = self.identity_api.get_user('1')
+    admin_id = '1'
+    user_ref = self.identity_api.get_user(admin_id)
     self.assertEquals(user_ref['name'], 'admin')
+
+    # check password hashing
+    user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+        user_id=admin_id, password='secrete')
 
   def test_import_diablo(self):
     db_path = self.setup_old_database('legacy_diablo.sqlite')
     migration = legacy.LegacyMigration('sqlite:///%s' % db_path)
     migration.migrate_all()
 
-    user_ref = self.identity_api.get_user('1')
+    admin_id = '1'
+    user_ref = self.identity_api.get_user(admin_id)
     self.assertEquals(user_ref['name'], 'admin')
+
+    # check password hashing
+    user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+        user_id=admin_id, password='secrete')
 
   def test_import_essex(self):
     db_path = self.setup_old_database('legacy_essex.sqlite')
     migration = legacy.LegacyMigration('sqlite:///%s' % db_path)
     migration.migrate_all()
 
-    user_ref = self.identity_api.get_user('c93b19ea3fa94484824213db8ac0afce')
+    admin_id = 'c93b19ea3fa94484824213db8ac0afce'
+    user_ref = self.identity_api.get_user(admin_id)
     self.assertEquals(user_ref['name'], 'admin')
+
+    # check password hashing
+    user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+        user_id=admin_id, password='secrete')

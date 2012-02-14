@@ -143,7 +143,10 @@ class Ec2Signer(object):
 
 def hash_password(password):
     """Hash a password. Hard."""
-    h = passlib.hash.sha512_crypt.encrypt(password.encode('utf-8'),
+    password_utf8 = password.encode('utf-8')
+    if passlib.hash.sha512_crypt.identify(password_utf8):
+        return password_utf8
+    h = passlib.hash.sha512_crypt.encrypt(password_utf8,
                                           rounds=CONF.crypt_strength)
     return h
 
