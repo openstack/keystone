@@ -8,7 +8,7 @@ routes
 pyCLI
 sqlalchemy
 sqlalchemy-migrate
-py-bcrypt
+passlib
 python-memcached
 
 # keystonelight testing dependencies

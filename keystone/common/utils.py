@@ -25,14 +25,14 @@ import subprocess
 import sys
 import urllib
 
-import bcrypt
+import passlib.hash
 
 from keystone import config
 from keystone.common import logging
 
 
 CONF = config.CONF
-config.register_int('bcrypt_strength', default=12)
+config.register_int('crypt_strength', default=40000)
 
 
 def import_class(import_str):
@@ -143,9 +143,9 @@ class Ec2Signer(object):
 
 def hash_password(password):
     """Hash a password. Hard."""
-    salt = bcrypt.gensalt(CONF.bcrypt_strength)
-    password_utf8 = password.encode('utf-8')
-    return bcrypt.hashpw(password_utf8, salt)
+    h = passlib.hash.sha512_crypt.encrypt(password.encode('utf-8'),
+                                          rounds=CONF.crypt_strength)
+    return h
 
 
 def check_password(password, hashed):
@@ -158,8 +158,7 @@ def check_password(password, hashed):
     if password is None:
         return False
     password_utf8 = password.encode('utf-8')
-    check = bcrypt.hashpw(password_utf8, hashed)
-    return check == hashed
+    return passlib.hash.sha512_crypt.verify(password_utf8, hashed)
 
 
 # From python 2.7

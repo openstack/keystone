@@ -8,7 +8,7 @@ routes
 pyCLI
 sqlalchemy
 sqlalchemy-migrate
-py-bcrypt
+passlib
 
 # for python-novaclient
 prettytable
