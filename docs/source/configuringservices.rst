@@ -80,21 +80,21 @@ for the OpenStack Dashboard to properly function.
 
 Here's how we define the services::
 
-    keystone-manage service create name=nova \
-                                   service_type=compute \
-                                   description="Nova Compute Service"
-    keystone-manage service create name=ec2 \
-                                   service_type=ec2 \
-                                   description="EC2 Compatibility Layer"
-    keystone-manage service create name=glance \
-                                   service_type=image \
-                                   description="Glance Image Service"
-    keystone-manage service create name=keystone \
-                                   service_type=identity \
-                                   description="Keystone Identity Service"
-    keystone-manage service create name=swift \
-                                   service_type=object-store \
-                                   description="Swift Service"
+    keystone service-create --name=nova \
+                                   --type=compute \
+                                   --description="Nova Compute Service"
+    keystone service-create --name=ec2 \
+                                   --type=ec2 \
+                                   --description="EC2 Compatibility Layer"
+    keystone service-create --name=glance \
+                                   --type=image \
+                                   --description="Glance Image Service"
+    keystone service-create --name=keystone \
+                                   --type=identity \
+                                   --description="Keystone Identity Service"
+    keystone service-create --name=swift \
+                                   --type=object-store \
+                                   --description="Swift Service"
 
 The endpoints for these services are defined in a template, an example of
 which is in the project as the file ``etc/default_catalog.templates``.

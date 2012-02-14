@@ -22,162 +22,29 @@ DESCRIPTION
 ===========
 
 keystone-manage is the command line tool that interacts with the keystone
-service to initialize and update data within Keystone. Keystone *must* be 
-opertional for the keystone-manage commands to function correctly.
+service to initialize and update data within Keystone.  Generally,
+keystone-manage is only used for operations that can not be accomplished
+with through the keystone REST api, such data import/export and schema
+migrations.
+
 
 USAGE
 =====
 
-    ``keystone-manage [options] type action [additional args]``
+    ``keystone-manage [options] action [additional args]``
 
 
 General keystone-manage options:
 --------------------------------
 
-* ``--id-only`` : causes ``keystone-manage`` to return only the UUID result
-from the API call.
-* ``--endpoint`` : allows you to specify the keystone endpoint to communicate with. The default endpoint is http://localhost:35357/v2.0'
-* ``--auth-token`` : provides the authorization token
-
-``keystone-manage`` is set up to expect commands in the general form of ``keystone-manage`` ``command`` ``subcommand``, with keyword arguments to provide additional information to the command. For example, the command
-``tenant`` has the subcommand ``create``, which takes the required keyword ``tenant_name``::
-
-	keystone-manage tenant create tenant_name=example_tenant
+* ``--help`` : display verbose help output.
 
 Invoking keystone-manage by itself will give you some usage information.
 
 Available keystone-manage commands:
   db_sync: Sync the database.
-      ec2: no docs
-     role: Role CRUD functions.
-  service: Service CRUD functions.
-   tenant: Tenant CRUD functions.
-    token: Token CRUD functions.
-     user: User CRUD functions.
-
-Tenants
--------
-
-Tenants are the high level grouping within Keystone that represent groups of
-users. A tenant is the grouping that owns virtual machines within Nova, or
-containers within Swift. A tenant can have zero or more users, Users can be assocaited with more than one tenant, and each tenant - user pairing can have a role associated with it.
-
-* tenant create
-
-	keyword arguments
-    * tenant_name
-	* id (optional)
-
-example::
-	keystone-manage --id-only tenant create tenant_name=admin
-
-creates a tenant named "admin".
-
-* tenant delete
-
-	keyword arguments
-	* tenant_id
-	
-example::
-	keystone-manage tenant delete tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3
-
-* tenant update
-
-	keyword arguments
-	* description
-	* name
-	* tenant_id
-
-example::
-	keystone-manage tenant update \
-	tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3 \
-	description="those other guys" \
-	name=tog
-
-Users
------
-
-* user create
-
-	keyword arguments
-	* name
-	* password
-	* email
-	
-example::
-	keystone-manage user --ks-id-only create \
-	name=admin \
-	password=secrete \
-	email=admin@example.com
-	
-* user delete
-
-	keyword arguments
-
-* user list
-
-	keyword arguments
-
-* user update_email
-
-	keyword arguments
-
-* user update_enabled
-
-	keyword arguments
-
-* user update_password
- 
-	keyword arguments
-
-* user update_tenant
-
-	keyword arguments
-
-Roles
------
-
-* role create
-
-	keyword arguments
-	* name
-
-exmaple::
-	keystone-manage role --ks-id-only create name=Admin
-	
-* role add_user_to_tenant
-
-	keyword arguments
-	* role_id
-	* user_id
-	* tenant_id
-
-example::
-
-	keystone-manage role add_user_to_tenant \
-	role_id=19d1d3344873464d819c45f521ff9890 \
-	user_id=08741d8ed88242ca88d1f61484a0fe3b \
-	tenant_id=20601a7f1d94447daa4dff438cb1c209
-	
-* role remove_user_from_tenant
-
-* role get_user_role_refs
-
-Services
---------
-
-* service create
-
-	keyword arguments
-	* name
-	* service_type
-	* description
-
-example::
-	keystone-manage service create \
-    name=nova \
-    service_type=compute \
-    description="Nova Compute Service"
+  import_legacy: Import a legacy (pre-essex) version of the db.
+  export_legacy_catalog: Export service catalog from a legacy (pre-essex) db.
 
 
 OPTIONS
@@ -212,11 +79,6 @@ Options:
                         syslog (defaults to LOG_USER)
   --use-syslog          Use syslog for logging.
   --nouse-syslog        Use syslog for logging.
-  --endpoint=ENDPOINT   
-  --auth-token=AUTH_TOKEN
-                        authorization token
-  --id-only             
-  --noid-only           
   
 FILES
 =====
