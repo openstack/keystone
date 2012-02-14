@@ -9,6 +9,33 @@ CONF = config.CONF
 config.register_str('template_file', group='catalog')
 
 
+def parse_templates(template_lines):
+    o = {}
+    for line in template_lines:
+        if ' = ' not in line:
+            continue
+
+        k, v = line.strip().split(' = ')
+        if not k.startswith('catalog.'):
+            continue
+
+        parts = k.split('.')
+
+        region = parts[1]
+        # NOTE(termie): object-store insists on having a dash
+        service = parts[2].replace('_', '-')
+        key = parts[3]
+
+        region_ref = o.get(region, {})
+        service_ref = region_ref.get(service, {})
+        service_ref[key] = v
+
+        region_ref[service] = service_ref
+        o[region] = region_ref
+
+    return o
+
+
 class TemplatedCatalog(kvs.Catalog):
     """A backend that generates endpoints for the Catalog based on templates.
 
@@ -49,30 +76,7 @@ class TemplatedCatalog(kvs.Catalog):
         super(TemplatedCatalog, self).__init__()
 
     def _load_templates(self, template_file):
-        o = {}
-        for line in open(template_file):
-            if ' = ' not in line:
-                continue
-
-            k, v = line.strip().split(' = ')
-            if not k.startswith('catalog.'):
-                continue
-
-            parts = k.split('.')
-
-            region = parts[1]
-            # NOTE(termie): object-store insists on having a dash
-            service = parts[2].replace('_', '-')
-            key = parts[3]
-
-            region_ref = o.get(region, {})
-            service_ref = region_ref.get(service, {})
-            service_ref[key] = v
-
-            region_ref[service] = service_ref
-            o[region] = region_ref
-
-        self.templates = o
+        self.templates = parse_templates(open(template_file))
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
         d = dict(CONF.iteritems())

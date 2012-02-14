@@ -74,8 +74,25 @@ class ImportLegacy(BaseApp):
         migration.migrate_all()
 
 
+class ExportLegacyCatalog(BaseApp):
+    """Export the service catalog from a legacy database."""
+
+    name = 'export_legacy_catalog'
+
+    def __init__(self, *args, **kw):
+        super(ExportLegacyCatalog, self).__init__(*args, **kw)
+        self.add_param('old_db', nargs=1)
+
+    def main(self):
+        from keystone.common.sql import legacy
+        old_db = self.params.old_db[0]
+        migration = legacy.LegacyMigration(old_db)
+        print '\n'.join(migration.dump_catalog())
+
+
 CMDS = {'db_sync': DbSync,
         'import_legacy': ImportLegacy,
+        'export_legacy_catalog': ExportLegacyCatalog,
         }
 
 

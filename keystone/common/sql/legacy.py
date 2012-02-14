@@ -1,5 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import re
+
 import sqlalchemy
 
 from keystone.identity.backends import sql as identity_sql
@@ -23,6 +25,12 @@ def export_db(db):
     return migration_data
 
 
+def _translate_replacements(s):
+    if '%' not in str(s):
+        return s
+    return re.sub(r'%([\w_]+)%', r'$(\1)s', s)
+
+
 class LegacyMigration(object):
     def __init__(self, db_string):
         self.db = sqlalchemy.create_engine(db_string)
@@ -41,9 +49,29 @@ class LegacyMigration(object):
         self._migrate_user_roles()
         self._migrate_tokens()
 
-    def dump_catalog(self, path):
+    def dump_catalog(self):
         """Generate the contents of a catalog templates file."""
-        pass
+        self._export_legacy_db()
+
+        services_by_id = dict((x['id'], x) for x in self._data['services'])
+        template = 'catalog.%(region)s.%(service_type)s.%(key)s = %(value)s'
+
+        o = []
+        for row in self._data['endpoint_templates']:
+            service = services_by_id[row['service_id']]
+            d = {'service_type': service['type'],
+                 'region': row['region']}
+
+            for x in ['internal_url', 'public_url', 'admin_url', 'enabled']:
+                d['key'] = x.replace('_u', 'U')
+                d['value'] = _translate_replacements(row[x])
+                o.append(template % d)
+
+            d['key'] = 'name'
+            d['value'] = service['desc']
+            o.append(template % d)
+
+        return o
 
     def _export_legacy_db(self):
         self._data = export_db(self.db)
