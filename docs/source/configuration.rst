@@ -94,130 +94,152 @@ primary/public  API interface). Both of these run in a single process.
 Initializing Keystone
 =====================
 
-Keystone must be running in order to initialize data within it. This is
-because the keystone-manage commands are all used the same REST API that other
-OpenStack systems utilize.
-
-General keystone-manage options:
---------------------------------
-
-* ``--id-only`` : causes ``keystone-manage`` to return only the UUID result
-  from the API call.
-
-* ``--endpoint`` : allows you to specify the keystone endpoint to communicate
-  with. The default endpoint is http://localhost:35357/v2.0'
-
-* ``--auth-token`` : provides the authorization token
-
-``keystone-manage`` is set up to expect commands in the general form of
-``keystone-manage`` ``command`` ``subcommand``, with keyword arguments to
-provide additional information to the command. For example, the command
-``tenant`` has the subcommand ``create``, which takes the required keyword
-``tenant_name``::
-
-	keystone-manage tenant create tenant_name=example_tenant
-
-Invoking keystone-manage by itself will give you some usage information.
-
-Available keystone-manage commands:
+keystone-manage is designed to execute commands that cannot be administered
+through the normal REST api.  At the moment, the following calls are supported:
 
 * ``db_sync``: Sync the database.
-* ``ec2``: no docs
-* ``role``: Role CRUD functions.
-* ``service``: Service CRUD functions.
-* ``tenant``: Tenant CRUD functions.
-* ``token``: Token CRUD functions.
-* ``user``: User CRUD functions.
+* ``import_legacy``: Import a legacy (pre-essex) version of the db.
+* ``export_legacy_catalog``: Export service catalog from a legacy (pre-essex) db.
+
+
+Generally, the following is the first step after a source installation::
+
+    keystone-manage db_sync
+
+Invoking keystone-manage by itself will give you additional usage information.
+
+Adding Users, Tenants, and Roles with python-keystoneclient
+===========================================================
+
+User, tenants, and roles must be administered using admin credentials.
+There are two ways to configure python-keystoneclient to use admin
+credentials, using the token auth method, or password auth method.
+
+Token Auth Method
+-----------------
+To use keystone client using token auth, set the following flags
+
+* ``--endpoint SERVIVE_ENDPOINT`` : allows you to specify the keystone endpoint to communicate
+  with. The default endpoint is http://localhost:35357/v2.0'
+* ``--token SERVIVE_TOKEN`` : your administrator service token.
+
+Password Auth Method
+--------------------
+
+* ``--username OS_USERNAME`` : allows you to specify the keystone endpoint to communicate
+  with. For example, http://localhost:35357/v2.0'
+* ``--password OS_PASSWORD`` : Your administrator password
+* ``--tenant_name OS_TENANT_NAME`` : Name of your tenant
+* ``--auth_url OS_AUTH_URL`` : url of your keystone auth server, for example
+http://localhost:5000/v2.0'
+
+Example usage
+-------------
+``keystone`` is set up to expect commands in the general form of
+``keystone`` ``command`` ``argument``, followed by flag-like keyword arguments to
+provide additional (often optional) information. For example, the command
+``user-list`` and ``tenant-create`` can be invoked as follows::
+
+    # Using token auth env variables
+    export SERVICE_ENDPOINT=http://127.0.0.1:5000/v2.0/
+    export SERVICE_TOKEN=secrete_token
+    keystone user-list
+    keystone tenant-create --name=demo
+
+    # Using token auth flags
+    keystone --token=secrete --endpoint=http://127.0.0.1:5000/v2.0/ user-list
+    keystone --token=secrete --endpoint=http://127.0.0.1:5000/v2.0/ tenant-create --name=demo
+
+    # Using user + password + tenant_name env variables
+    export OS_USERNAME=admin
+    export OS_PASSWORD=secrete
+    export OS_TENANT_NAME=admin
+    keystone user-list
+    keystone tenant-create --name=demo
+
+    # Using user + password + tenant_name flags
+    keystone --username=admin --password=secrete --tenant_name=admin user-list
+    keystone --username=admin --password=secrete --tenant_name=admin tenant-create --name=demo
 
 Tenants
 -------
 
 Tenants are the high level grouping within Keystone that represent groups of
 users. A tenant is the grouping that owns virtual machines within Nova, or
-containers within Swift. A tenant can have zero or more users, Users can be assocaited with more than one tenant, and each tenant - user pairing can have a role associated with it.
+containers within Swift. A tenant can have zero or more users, Users can
+be associated with more than one tenant, and each tenant - user pairing can
+have a role associated with it.
 
-``tenant create``
+``tenant-create``
 ^^^^^^^^^^^^^^^^^
 
 keyword arguments
 
-* tenant_name
+* name
 * description (optional, defaults to None)
 * enabled (optional, defaults to True)
 
 example::
 
-	keystone-manage --id-only tenant create tenant_name=admin
+	keystone tenant-create --name=demo
 
-creates a tenant named "admin".
+creates a tenant named "demo".
 
-``tenant delete``
+``tenant-delete``
 ^^^^^^^^^^^^^^^^^
 
-keyword arguments
-
-* tenant
-
-example::
-
-	keystone-manage tenant delete tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3
-
-``tenant update``
-^^^^^^^^^^^^^^^^^
-
-keyword arguments
-
-* tenant_id
-* tenant_name (optional, defaults to None)
-* description (optional, defaults to None)
-* enabled (optional, defaults to True)
-
-example::
-
-	keystone-manage tenant update \
-	tenant_id=f2b7b39c860840dfa47d9ee4adffa0b3 \
-	description="those other guys" \
-	name=tog
-
-``tenant get``
-^^^^^^^^^^^^^^
-
-keyword arguments
+arguments
 
 * tenant_id
 
 example::
 
-	keystone-manage tenant get \
-	tenant_id=523df7c89ce34640996d3d804cbc56f4
+	keystone tenant-delete f2b7b39c860840dfa47d9ee4adffa0b3
+
+``tenant-enable``
+^^^^^^^^^^^^^^^^^
+
+arguments
+
+* tenant_id
+
+example::
+
+	keystone tenant-enable f2b7b39c860840dfa47d9ee4adffa0b3
+
+``tenant-disable``
+^^^^^^^^^^^^^^^^^
+
+arguments
+
+* tenant_id
+
+example::
+
+	keystone tenant-disable f2b7b39c860840dfa47d9ee4adffa0b3
 
 Users
 -----
 
-``user create``
+``user-create``
 ^^^^^^^^^^^^^^^
 
 keyword arguments
 
 * name
-* password
+* pass
 * email
-* tenant_id (optional, defaults to None)
+* default_tenant (optional, defaults to None)
 * enabled (optional, defaults to True)
 
 example::
 
-	keystone-manage user --id-only create \
-	name=admin \
-	password=secrete \
-	email=admin@example.com
+	keystone user-create
+	--name=admin \
+	--pass=secrete \
+	--email=admin@example.com
 
-.. warning::
-    Until https://bugs.launchpad.net/keystone/+bug/927873 is resolved, the
-    keystone-manage cli doesn't allow the setting enabled to be False, making
-    this command partially broken at the moment.
-
-``user delete``
+``user-delete``
 ^^^^^^^^^^^^^^^
 
 keyword arguments
@@ -226,219 +248,193 @@ keyword arguments
 
 example::
 
-	keystone-manage user delete user=f2b7b39c860840dfa47d9ee4adffa0b3
+	keystone user-delete f2b7b39c860840dfa47d9ee4adffa0b3
 
-``user list``
+``user-list``
 ^^^^^^^^^^^^^
 
 list users in the system, optionally by a specific tenant (identified by tenant_id)
 
-keyword arguments
+arguments
 
 * tenant_id (optional, defaults to None)
 
 example::
 
-	keystone-manage user list
+	keystone user-list
 
-``user update_email``
+``user-update-email``
 ^^^^^^^^^^^^^^^^^^^^^
 
-keyword arguments
-
-* user
+arguments
+* user_id
 * email
 
+
 example::
 
-	keystone-manage user update_email user=03c84b51574841ba9a0d8db7882ac645 email="someone@somewhere.com"
+	keystone user-update-email 03c84b51574841ba9a0d8db7882ac645 "someone@somewhere.com"
 
-
-``user update_enabled``
+``user-enable``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
 
-* user
-* enabled (True or False)
+* user_id
 
 example::
 
-	keystone-manage user update_enabled user=03c84b51574841ba9a0d8db7882ac645 enabled=False
+	keystone user-enable 03c84b51574841ba9a0d8db7882ac645
 
-.. warning::
-    Until https://bugs.launchpad.net/keystone/+bug/927873 is resolved, the
-    keystone-manage cli doesn't allow the setting enabled to False, making
-    this command broken at the moment.
+``user-disable``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+arguments
+
+* user_id
+
+example::
+
+	keystone user-disable 03c84b51574841ba9a0d8db7882ac645
 
 
-``user update_password``
+``user-update-password``
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
 
-* user
+* user_id
 * password
 
 example::
 
-    keystone-manage user update_password user=03c84b51574841ba9a0d8db7882ac645 password=foo
-
-``user update_tenant``
-^^^^^^^^^^^^^^^^^^^^^^
-
-keyword arguments
-
-* user
-* tenant
-
-example::
-
-    keystone-manage user update_tenant user=03c84b51574841ba9a0d8db7882ac645 tenant=b7b8be32c4be4208949f0373c5909e3b
-
-``user get``
-^^^^^^^^^^^^
-
-keyword arguments
-
-* user
-
-example::
-
-    keystone-manage ususer get user=03c84b51574841ba9a0d8db7882ac645
-
+    keystone user-update-password 03c84b51574841ba9a0d8db7882ac645 foo
 
 Roles
 -----
 
-``role create``
+``role-create``
 ^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
 
 * name
 
 exmaple::
 
-	keystone-manage role --id-only create name=Admin
+	keystone role-create --name=demo
 
-``role delete``
+``role-delete``
 ^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
 
-* role
+* role_id
 
 exmaple::
 
-	keystone-manage role delete role=19d1d3344873464d819c45f521ff9890
+	keystone role-delete 19d1d3344873464d819c45f521ff9890
 
-``role list``
+``role-list``
 ^^^^^^^^^^^^^^^
 
 exmaple::
 
-	keystone-manage role list
+	keystone role-list
 
-``role get``
+``role-get``
 ^^^^^^^^^^^^
 
-keysword arguments
+arguments
 
-* role
+* role_id
 
 exmaple::
 
-	keystone-manage role get role=19d1d3344873464d819c45f521ff9890
+	keystone role-get role=19d1d3344873464d819c45f521ff9890
 
 
-``role add_user_role``
+``add-user-role``
 ^^^^^^^^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
 
-* role
-* user
-* tenant
+* role_id
+* user_id
+* tenant_id
 
 example::
 
-	keystone-manage role add_user_role \
-	role=3a751f78ef4c412b827540b829e2d7dd \
-	user=03c84b51574841ba9a0d8db7882ac645 \
-	tenant=20601a7f1d94447daa4dff438cb1c209
+	keystone role add-user-role \
+	3a751f78ef4c412b827540b829e2d7dd \
+	03c84b51574841ba9a0d8db7882ac645 \
+	20601a7f1d94447daa4dff438cb1c209
 
-``role remove_user_role``
+``remove-user-role``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
 
-* role
-* user
-* tenant (optional, defaults to None)
-
-example::
-
-	keystone-manage role remove_user_to_tenant \
-	role=19d1d3344873464d819c45f521ff9890 \
-	user=08741d8ed88242ca88d1f61484a0fe3b \
-	tenant=20601a7f1d94447daa4dff438cb1c209
-
-``role roles_for_user``
-^^^^^^^^^^^^^^^^^^^^^^^
-
-keyword arguments
-
-* user
-* tenant (optional, defaults to None)
+* role_id
+* user_id
+* tenant_id
 
 example::
 
-	keystone-manage role roles_for_user user=08741d8ed88242ca88d1f61484a0fe3b
+	keystone remove-user-role \
+	19d1d3344873464d819c45f521ff9890 \
+	08741d8ed88242ca88d1f61484a0fe3b \
+	20601a7f1d94447daa4dff438cb1c209
 
 Services
 --------
 
-``service create``
+``service-create``
 ^^^^^^^^^^^^^^^^^^
 
 keyword arguments
 
 * name
-* service_type
+* type
 * description
 
 example::
 
-    keystone-manage service create \
-    name=nova \
-    service_type=compute \
-    description="Nova Compute Service"
+    keystone service create \
+    --name=nova \
+    --type=compute \
+    --description="Nova Compute Service"
 
-``service list``
+``service-list``
 ^^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
+
+* service_id
 
 example::
 
-	keystone-manage service list
+	keystone service-list
 
-``service get``
+``service-get``
 ^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
+
+* service_id
 
 example::
 
-	keystone-manage service get id=08741d8ed88242ca88d1f61484a0fe3b
+	keystone service-get 08741d8ed88242ca88d1f61484a0fe3b
 
-``service delete``
+``service-delete``
 ^^^^^^^^^^^^^^^^^^
 
-keyword arguments
+arguments
+
+* service_id
 
 example::
 
-	keystone-manage service delete id=08741d8ed88242ca88d1f61484a0fe3b
+	keystone service-delete 08741d8ed88242ca88d1f61484a0fe3b
 
