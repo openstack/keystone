@@ -1,0 +1,4 @@
+include LICENSE
+include etc/*
+include tests/*conf
+include tests/default_catalog.templates
