@@ -22,39 +22,26 @@ import sys
 import StringIO
 import textwrap
 
-import cli.app
-import cli.log
-
 from keystone import config
 from keystone.common import utils
 
 
 CONF = config.CONF
-CONF.set_usage('%prog COMMAND [key1=value1 key2=value2 ...]')
+CONF.set_usage('%prog COMMAND')
 
 
-class BaseApp(cli.log.LoggingApp):
-    def __init__(self, *args, **kw):
-        kw.setdefault('name', self.__class__.__name__.lower())
-        super(BaseApp, self).__init__(*args, **kw)
+class BaseApp(object):
+    def __init__(self, argv=None):
+        self.argv = argv
 
-    def add_default_params(self):
-        for args, kw in DEFAULT_PARAMS:
-            self.add_param(*args, **kw)
+    def run(self):
+        return self.main()
 
-    def _parse_keyvalues(self, args):
-        kv = {}
-        for x in args:
-            key, value = x.split('=', 1)
-            # make lists if there are multiple values
-            if key.endswith('[]'):
-                key = key[:-2]
-                existing = kv.get(key, [])
-                existing.append(value)
-                kv[key] = existing
-            else:
-                kv[key] = value
-        return kv
+    def missing_param(self, param):
+        print 'Missing parameter: %s' % param
+        CONF.print_help()
+        print_commands(CMDS)
+        sys.exit(1)
 
 
 class DbSync(BaseApp):
@@ -79,11 +66,12 @@ class ImportLegacy(BaseApp):
 
     def __init__(self, *args, **kw):
         super(ImportLegacy, self).__init__(*args, **kw)
-        self.add_param('old_db', nargs=1)
 
     def main(self):
         from keystone.common.sql import legacy
-        old_db = self.params.old_db[0]
+        if len(self.argv) < 2:
+            return self.missing_param('old_db')
+        old_db = self.argv[1]
         migration = legacy.LegacyMigration(old_db)
         migration.migrate_all()
 
@@ -95,11 +83,12 @@ class ExportLegacyCatalog(BaseApp):
 
     def __init__(self, *args, **kw):
         super(ExportLegacyCatalog, self).__init__(*args, **kw)
-        self.add_param('old_db', nargs=1)
 
     def main(self):
         from keystone.common.sql import legacy
-        old_db = self.params.old_db[0]
+        if len(self.argv) < 2:
+            return self.missing_param('old_db')
+        old_db = self.argv[1]
         migration = legacy.LegacyMigration(old_db)
         print '\n'.join(migration.dump_catalog())
 
