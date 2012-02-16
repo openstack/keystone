@@ -197,7 +197,6 @@ class KeystoneClientTests(object):
         tenant = client.tenants.get(tenant_id=tenant.id)
         self.assertEquals(tenant.name, test_tenant)
 
-        # TODO(devcamcar): update gives 404. why?
         tenant = client.tenants.update(tenant_id=tenant.id,
                                        tenant_name='new_tenant2',
                                        enabled=False,
@@ -240,7 +239,9 @@ class KeystoneClientTests(object):
         user = client.users.get(user=user.id)
         self.assertEquals(user.name, test_username)
 
-        user = client.users.update_email(user=user, email='user2@test.com')
+        user = client.users.update(user=user,
+                                   name=test_username,
+                                   email='user2@test.com')
         self.assertEquals(user.email, 'user2@test.com')
 
         # NOTE(termie): update_enabled doesn't return anything, probably a bug
@@ -562,3 +563,44 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
 
     def test_authenticate_and_delete_token(self):
         raise nose.exc.SkipTest('N/A')
+
+    def test_user_create_update_delete(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        test_username = 'new_user'
+        client = self.get_client()
+        user = client.users.create(name=test_username,
+                                   password='password',
+                                   email='user1@test.com')
+        self.assertEquals(user.name, test_username)
+
+        user = client.users.get(user=user.id)
+        self.assertEquals(user.name, test_username)
+
+        user = client.users.update_email(user=user, email='user2@test.com')
+        self.assertEquals(user.email, 'user2@test.com')
+
+        # NOTE(termie): update_enabled doesn't return anything, probably a bug
+        client.users.update_enabled(user=user, enabled=False)
+        user = client.users.get(user.id)
+        self.assertFalse(user.enabled)
+
+        self.assertRaises(client_exceptions.AuthorizationFailure,
+                  self._client,
+                  username=test_username,
+                  password='password')
+        client.users.update_enabled(user, True)
+
+        user = client.users.update_password(user=user, password='password2')
+
+        self._client(username=test_username,
+                     password='password2')
+
+        user = client.users.update_tenant(user=user, tenant='bar')
+        # TODO(ja): once keystonelight supports default tenant
+        #           when you login without specifying tenant, the
+        #           token should be scoped to tenant 'bar'
+
+        client.users.delete(user.id)
+        self.assertRaises(client_exceptions.NotFound, client.users.get,
+                          user.id)
