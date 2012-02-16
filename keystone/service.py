@@ -131,7 +131,7 @@ class VersionController(wsgi.Application):
                 if service == 'identity':
                     return service_ref[self.url_key]
 
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_versions(self, context):
         identity_url = self._get_identity_url(context)
@@ -435,7 +435,7 @@ class ExtensionsController(wsgi.Application):
         super(ExtensionsController, self).__init__()
 
     def get_extensions_info(self, context):
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 def public_app_factory(global_conf, **local_conf):
