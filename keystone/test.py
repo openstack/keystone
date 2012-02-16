@@ -217,6 +217,21 @@ class TestCase(unittest.TestCase):
             if x.startswith(module):
                 del sys.modules[x]
 
+    def assertIsNotNone(self, actual):
+        if hasattr(super(TestCase, self), 'assertIsNotNone'):
+            return super(TestCase, self).assertIsNotNone(actual)
+        self.assert_(actual is not None)
+
+    def assertNotIn(self, needle, haystack):
+        if hasattr(super(TestCase, self), 'assertNotIn'):
+            return super(TestCase, self).assertNotIn(needle, haystack)
+        self.assert_(needle not in haystack)
+
+    def assertIn(self, needle, haystack):
+        if hasattr(super(TestCase, self), 'assertIn'):
+            return super(TestCase, self).assertIn(needle, haystack)
+        self.assert_(needle in haystack)
+
     def assertListEquals(self, actual, expected):
         copy = expected[:]
         #print expected, actual
