@@ -365,7 +365,7 @@ class UserController(wsgi.Application):
         new_user_ref = self.identity_api.create_user(
                 context, user_id, user_ref)
         if tenant_id:
-            self.identity_api.add_user_to_tenant(tenant_id, user_id)
+            self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         return {'user': new_user_ref}
 
     def update_user(self, context, user_id, user):

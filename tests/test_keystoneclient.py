@@ -269,6 +269,13 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.NotFound, client.users.get,
                           user.id)
 
+        # Test creating a user with a tenant (auto-add to tenant)
+        user2 = client.users.create(name=test_username,
+                                    password='password',
+                                    email='user1@test.com',
+                                    tenant_id='bar')
+        self.assertEquals(user2.name, test_username)
+
     def test_user_list(self):
         client = self.get_client()
         users = client.users.list()
