@@ -137,7 +137,8 @@ class VersionController(wsgi.Application):
         identity_url = self._get_identity_url(context)
         if not identity_url.endswith('/'):
             identity_url = identity_url + '/'
-        return {
+
+        return wsgi.render_response(status=(300, 'Multiple Choices'), body={
             "versions": {
                 "values": [{
                     "id": "v2.0",
@@ -165,7 +166,7 @@ class VersionController(wsgi.Application):
                         }]
                 }]
             }
-        }
+        })
 
 
 class NoopController(wsgi.Application):

@@ -183,6 +183,8 @@ class Application(BaseApplication):
 
         if result is None or type(result) is str or type(result) is unicode:
             return result
+        elif isinstance(result, webob.Response):
+            return result
         elif isinstance(result, webob.exc.WSGIHTTPException):
             return result
 
@@ -455,20 +457,23 @@ class ExtensionRouter(Router):
         return _factory
 
 
+def render_response(body, status=(200, 'OK'), headers=None):
+    """Forms a WSGI response"""
+    resp = webob.Response()
+    resp.status = '%s %s' % status
+    resp.headerlist = headers or [('Content-Type', 'application/json')]
+
+    resp.body = json.dumps(body)
+
+    return resp
+
+
 def render_exception(error):
     """Forms a WSGI response based on the current error."""
-    resp = webob.Response()
-    resp.status = '%s %s' % (error.code, error.title)
-    resp.headerlist = [('Content-Type', 'application/json')]
-
-    body = {
+    return render_response(status=(error.code, error.title), body={
         'error': {
             'code': error.code,
             'title': error.title,
             'message': str(error),
         }
-    }
-
-    resp.body = json.dumps(body)
-
-    return resp
+    })
