@@ -51,6 +51,7 @@ class VersionTestCase(test.TestCase):
     def test_public_versions(self):
         client = self.client(self.public_app)
         resp = client.get('/')
+        self.assertEqual(resp.status_int, 300)
         data = json.loads(resp.body)
         expected = {
             "versions": {
@@ -87,6 +88,7 @@ class VersionTestCase(test.TestCase):
     def test_admin_versions(self):
         client = self.client(self.admin_app)
         resp = client.get('/')
+        self.assertEqual(resp.status_int, 300)
         data = json.loads(resp.body)
         expected = {
             "versions": {
