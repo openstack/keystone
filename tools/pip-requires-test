@@ -5,7 +5,6 @@ eventlet
 PasteDeploy
 paste
 routes
-pyCLI
 sqlalchemy
 sqlalchemy-migrate
 passlib
