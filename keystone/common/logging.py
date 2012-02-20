@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 import functools
 import logging
+import logging.config
 import pprint
 
 from logging.handlers import SysLogHandler
@@ -36,6 +37,7 @@ log = logging.log
 
 # classes
 root = logging.root
+config = logging.config
 Formatter = logging.Formatter
 
 # handlers
