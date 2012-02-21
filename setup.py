@@ -9,10 +9,8 @@ setup(name='keystone',
       author_email='openstack@lists.launchpad.net',
       url='http://www.openstack.org',
       packages=find_packages(exclude=['test', 'bin']),
+      include_package_data=True,
       scripts=['bin/keystone-all', 'bin/keystone-manage'],
       zip_safe=False,
       install_requires=['setuptools', 'python-keystoneclient'],
-      data_files=[
-          ('keystone/common/sql/migrate_repo',
-           ['keystone/common/sql/migrate_repo/migrate.cfg'])]
       )
