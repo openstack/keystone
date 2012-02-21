@@ -46,6 +46,10 @@ class AdminRouter(wsgi.ComposingRouter):
                        conditions=dict(method=['GET']))
         mapper.connect('/tokens/{token_id}',
                        controller=auth_controller,
+                       action='validate_token_head',
+                       conditions=dict(method=['HEAD']))
+        mapper.connect('/tokens/{token_id}',
+                       controller=auth_controller,
                        action='delete_token',
                        conditions=dict(method=['DELETE']))
         mapper.connect('/tokens/{token_id}/endpoints',
@@ -316,11 +320,10 @@ class TokenController(wsgi.Application):
         logging.debug('TOKEN_REF %s', token_ref)
         return self._format_authenticate(token_ref, roles_ref, catalog_ref)
 
-    # admin only
-    def validate_token(self, context, token_id, belongs_to=None):
-        """Check that a token is valid.
+    def _get_token_ref(self, context, token_id, belongs_to=None):
+        """Returns a token if a valid one exists.
 
-        Optionally, also ensure that it is owned by a specific tenant.
+        Optionally, limited to a token owned by a specific tenant.
 
         """
         # TODO(termie): this stuff should probably be moved to middleware
@@ -331,6 +334,30 @@ class TokenController(wsgi.Application):
 
         if belongs_to:
             assert token_ref['tenant']['id'] == belongs_to
+
+        return token_ref
+
+    # admin only
+    def validate_token_head(self, context, token_id, belongs_to=None):
+        """Check that a token is valid.
+
+        Optionally, also ensure that it is owned by a specific tenant.
+
+        Identical to ``validate_token``, except does not return a response.
+
+        """
+        assert self._get_token_ref(context, token_id, belongs_to)
+
+    # admin only
+    def validate_token(self, context, token_id, belongs_to=None):
+        """Check that a token is valid.
+
+        Optionally, also ensure that it is owned by a specific tenant.
+
+        Returns metadata about the token along any associated roles.
+
+        """
+        token_ref = self._get_token_ref(context, token_id, belongs_to)
 
         # TODO(termie): optimize this call at some point and put it into the
         #               the return for metadata

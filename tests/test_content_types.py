@@ -313,13 +313,12 @@ class CoreApiTests(object):
         sake of completely covering the core API.
 
         """
-        raise nose.exc.SkipTest('Blocked by bug 933587')
-
         token = self.get_scoped_token()
         self.admin_request(method='HEAD', path='/v2.0/tokens/%(token_id)s' % {
                 'token_id': token,
             },
-            token=token)
+            token=token,
+            expected_status=204)
 
     def test_endpoints(self):
         raise nose.exc.SkipTest('Blocked by bug 933555')
