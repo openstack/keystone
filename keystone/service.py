@@ -213,20 +213,20 @@ class TokenController(wsgi.Application):
             password = auth['passwordCredentials'].get('password', '')
             tenant_name = auth.get('tenantName', None)
 
+            user_id = auth['passwordCredentials'].get('userId', None)
             if username:
                 user_ref = self.identity_api.get_user_by_name(
                         context=context, user_name=username)
-                user_id = user_ref['id']
-            else:
-                user_id = auth['passwordCredentials'].get('userId', None)
+                if user_ref:
+                    user_id = user_ref['id']
 
             # more compat
+            tenant_id = auth.get('tenantId', None)
             if tenant_name:
                 tenant_ref = self.identity_api.get_tenant_by_name(
                         context=context, tenant_name=tenant_name)
-                tenant_id = tenant_ref['id']
-            else:
-                tenant_id = auth.get('tenantId', None)
+                if tenant_ref:
+                    tenant_id = tenant_ref['id']
 
             try:
                 (user_ref, tenant_ref, metadata_ref) = \
@@ -239,7 +239,7 @@ class TokenController(wsgi.Application):
                 if not user_ref.get('enabled', True):
                     raise webob.exc.HTTPForbidden('User has been disabled')
             except AssertionError as e:
-                raise webob.exc.HTTPForbidden(e.message)
+                raise exception.Unauthorized(e.message)
 
             token_ref = self.token_api.create_token(
                     context, token_id, dict(id=token_id,
