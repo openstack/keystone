@@ -18,8 +18,8 @@ import gettext
 import sys
 import os
 
-from keystone.common import cfg
 from keystone.common import logging
+from keystone.openstack.common import cfg
 
 
 gettext.install('keystone', unicode=1)
