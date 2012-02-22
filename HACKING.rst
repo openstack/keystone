@@ -13,6 +13,7 @@ General
 - Do not write "except:", use "except Exception:" at the very least
 - Include your name with TODOs as in "#TODO(termie)"
 - Do not name anything the same name as a built-in or reserved word
+- When defining global constants, define them before functions and classes
 
 TODO vs FIXME
 -------------
