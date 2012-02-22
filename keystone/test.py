@@ -118,6 +118,7 @@ class TestCase(unittest.TestCase):
         super(TestCase, self).__init__(*args, **kw)
         self._paths = []
         self._memo = {}
+        self._overrides = []
 
     def setUp(self):
         super(TestCase, self).setUp()
@@ -132,8 +133,19 @@ class TestCase(unittest.TestCase):
             if path in sys.path:
                 sys.path.remove(path)
         kvs.INMEMDB.clear()
-        CONF.reset()
+        self.reset_opts()
         super(TestCase, self).tearDown()
+
+    def opt(self, **kw):
+        for k, v in kw.iteritems():
+            CONF.set_override(k, v)
+        self._overrides.append(k)
+
+    def reset_opts(self):
+        for k in self._overrides:
+            CONF.set_override(k, None)
+        self._overrides = []
+        CONF.reset()
 
     def load_backends(self):
         """Hacky shortcut to load the backends for data manipulation."""
@@ -201,8 +213,7 @@ class TestCase(unittest.TestCase):
 
         # Service catalog tests need to know the port we ran on.
         port = server.socket_info['socket'][1]
-        CONF.public_port = port
-        CONF.admin_port = port
+        self.opt(public_port=port, admin_port=port)
         return server
 
     def client(self, app, *args, **kw):
