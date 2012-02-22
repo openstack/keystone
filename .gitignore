@@ -10,7 +10,7 @@ run_tests.log
 covhtml
 pep8.txt
 nosetests.xml
-bla.db
+*.db
 docs/build
 .DS_Store
 docs/source/modules.rst
