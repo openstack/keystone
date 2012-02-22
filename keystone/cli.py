@@ -130,3 +130,6 @@ def main(argv=None, config_files=None):
     cmd = args[1]
     if cmd in CMDS:
         return run(cmd, (args[:1] + args[2:]))
+    else:
+        print_commands(CMDS)
+        sys.exit("Unknown command: %s" % cmd)
