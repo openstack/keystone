@@ -16,10 +16,7 @@
 
 from __future__ import absolute_import
 
-import json
-import logging
 import sys
-import StringIO
 import textwrap
 
 from keystone import config
