@@ -461,17 +461,15 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         client.roles.add_user_role(tenant=self.tenant_baz['id'],
                                    user=self.user_foo['id'],
                                    role=self.role_useless['id'])
-        tenant_refs = client.tenants.list()
-        self.assert_(self.tenant_baz['id'] in
-                     [x.id for x in tenant_refs])
+        user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
+        self.assert_(self.user_foo['id'] in [x.id for x in user_refs])
 
         client.roles.remove_user_role(tenant=self.tenant_baz['id'],
                                       user=self.user_foo['id'],
                                       role=self.role_useless['id'])
 
-        tenant_refs = client.tenants.list()
-        self.assert_(self.tenant_baz['id'] not in
-                     [x.id for x in tenant_refs])
+        user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
+        self.assert_(self.user_foo['id'] not in [x.id for x in user_refs])
 
     def test_tenant_list_marker(self):
         client = self.get_client()
@@ -541,9 +539,9 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
                                         user_id=self.user_foo['id'],
                                         role_id=self.role_useless['id'])
-        tenant_refs = client.tenants.list()
-        self.assert_(self.tenant_baz['id'] in
-                     [x.id for x in tenant_refs])
+        role_refs = client.roles.get_user_role_refs(
+                user_id=self.user_foo['id'])
+        self.assert_(self.tenant_baz['id'] in [x.tenantId for x in role_refs])
 
         # get the "role_refs" so we get the proper id, this is how the clients
         # do it
@@ -559,9 +557,10 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
                                              user_id=self.user_foo['id'],
                                              role_id=roleref_ref.id)
 
-        tenant_refs = client.tenants.list()
+        role_refs = client.roles.get_user_role_refs(
+                user_id=self.user_foo['id'])
         self.assert_(self.tenant_baz['id'] not in
-                     [x.id for x in tenant_refs])
+                     [x.tenantId for x in role_refs])
 
     def test_roles_get_by_user(self):
         client = self.get_client()

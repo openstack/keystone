@@ -67,6 +67,11 @@ class Identity(kvs.Base, identity.Driver):
         tenant_ref = self.db.get('tenant_name-%s' % tenant_name)
         return tenant_ref
 
+    def get_tenant_users(self, tenant_id):
+        user_keys = filter(lambda x: x.startswith("user-"), self.db.keys())
+        user_refs = [self.db.get(key) for key in user_keys]
+        return filter(lambda x: tenant_id in x['tenants'], user_refs)
+
     def _get_user(self, user_id):
         user_ref = self.db.get('user-%s' % user_id)
         return user_ref

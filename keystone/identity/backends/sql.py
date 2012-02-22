@@ -159,6 +159,14 @@ class Identity(sql.Base, identity.Driver):
             return
         return tenant_ref.to_dict()
 
+    def get_tenant_users(self, tenant_id):
+        session = self.get_session()
+        user_refs = session.query(User)\
+                .join(UserTenantMembership)\
+                .filter(UserTenantMembership.tenant_id == tenant_id)\
+                .all()
+        return [_filter_user(user_ref.to_dict()) for user_ref in user_refs]
+
     def _get_user(self, user_id):
         session = self.get_session()
         user_ref = session.query(User).filter_by(id=user_id).first()

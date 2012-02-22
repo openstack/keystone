@@ -297,9 +297,10 @@ class TenantController(wsgi.Application):
         self.assert_admin(context)
         self.identity_api.delete_tenant(context, tenant_id)
 
-    def get_tenant_users(self, context, **kw):
+    def get_tenant_users(self, context, tenant_id, **kw):
         self.assert_admin(context)
-        raise NotImplementedError()
+        user_refs = self.identity_api.get_tenant_users(context, tenant_id)
+        return {'users': user_refs}
 
     def _format_tenant_list(self, tenant_refs, **kwargs):
         marker = kwargs.get('marker')
