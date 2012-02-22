@@ -235,12 +235,16 @@ class Identity(sql.Base, identity.Driver):
             session.delete(membership_ref)
             session.flush()
 
+    def get_tenants(self):
+        session = self.get_session()
+        tenant_refs = session.query(Tenant).all()
+        return [tenant_ref.to_dict() for tenant_ref in tenant_refs]
+
     def get_tenants_for_user(self, user_id):
         session = self.get_session()
         membership_refs = session.query(UserTenantMembership)\
                           .filter_by(user_id=user_id)\
                           .all()
-
         return [x.tenant_id for x in membership_refs]
 
     def get_roles_for_user_and_tenant(self, user_id, tenant_id):

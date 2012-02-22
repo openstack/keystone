@@ -116,12 +116,15 @@ class Driver(object):
         """
         raise NotImplementedError()
 
-    # NOTE(termie): six calls below should probably be exposed by the api
+    # NOTE(termie): seven calls below should probably be exposed by the api
     #               more clearly when the api redesign happens
     def add_user_to_tenant(self, tenant_id, user_id):
         raise NotImplementedError()
 
     def remove_user_from_tenant(self, tenant_id, user_id):
+        raise NotImplementedError()
+
+    def get_all_tenants(self):
         raise NotImplementedError()
 
     def get_tenants_for_user(self, user_id):
@@ -204,7 +207,7 @@ class AdminRouter(wsgi.ComposableRouter):
         tenant_controller = TenantController()
         mapper.connect('/tenants',
                        controller=tenant_controller,
-                       action='get_tenants_for_token',
+                       action='get_all_tenants',
                        conditions=dict(method=['GET']))
         mapper.connect('/tenants/{tenant_id}',
                        controller=tenant_controller,
@@ -236,6 +239,16 @@ class TenantController(wsgi.Application):
         self.policy_api = policy.Manager()
         self.token_api = token.Manager()
         super(TenantController, self).__init__()
+
+    def get_all_tenants(self, context, **kw):
+        """Gets a list of all tenants for an admin user."""
+        self.assert_admin(context)
+        tenant_refs = self.identity_api.get_tenants(context)
+        params = {
+            'limit': context['query_string'].get('limit'),
+            'marker': context['query_string'].get('marker'),
+        }
+        return self._format_tenant_list(tenant_refs, **params)
 
     def get_tenants_for_token(self, context, **kw):
         """Get valid tenants for token based on token used to authenticate.

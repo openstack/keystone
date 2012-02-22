@@ -63,18 +63,19 @@ class CompatTestCase(test.TestCase):
         admin_port = self.admin_server.socket_info['socket'][1]
         return "http://localhost:%s/v2.0" % admin_port
 
-    def _client(self, **kwargs):
+    def _client(self, admin=False, **kwargs):
         from keystoneclient.v2_0 import client as ks_client
 
-        kc = ks_client.Client(endpoint=self._admin_url(),
+        url = self._admin_url() if admin else self._public_url()
+        kc = ks_client.Client(endpoint=url,
                               auth_url=self._public_url(),
                               **kwargs)
         kc.authenticate()
         # have to manually overwrite the management url after authentication
-        kc.management_url = self._admin_url()
+        kc.management_url = url
         return kc
 
-    def get_client(self, user_ref=None, tenant_ref=None):
+    def get_client(self, user_ref=None, tenant_ref=None, admin=False):
         if user_ref is None:
             user_ref = self.user_foo
         if tenant_ref is None:
@@ -86,7 +87,8 @@ class CompatTestCase(test.TestCase):
 
         return self._client(username=user_ref['name'],
                             password=user_ref['password'],
-                            tenant_id=tenant_id)
+                            tenant_id=tenant_id,
+                            admin=admin)
 
 
 class KeystoneClientTests(object):
@@ -144,7 +146,7 @@ class KeystoneClientTests(object):
     def test_authenticate_and_delete_token(self):
         from keystoneclient import exceptions as client_exceptions
 
-        client = self.get_client()
+        client = self.get_client(admin=True)
         token = client.auth_token
         token_client = self._client(token=token)
         tenants = token_client.tenants.list()
@@ -175,7 +177,7 @@ class KeystoneClientTests(object):
 
     # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         token = client.auth_token
         endpoints = client.tokens.endpoints(token=token)
 
@@ -188,7 +190,7 @@ class KeystoneClientTests(object):
         from keystoneclient import exceptions as client_exceptions
 
         test_tenant = 'new_tenant'
-        client = self.get_client()
+        client = self.get_client(admin=True)
         tenant = client.tenants.create(tenant_name=test_tenant,
                                        description="My new tenant!",
                                        enabled=True)
@@ -214,6 +216,11 @@ class KeystoneClientTests(object):
         tenants = client.tenants.list()
         self.assertEquals(len(tenants), 1)
 
+        # Admin endpoint should return *all* tenants
+        client = self.get_client(admin=True)
+        tenants = client.tenants.list()
+        self.assertEquals(len(tenants), 2)
+
     def test_invalid_password(self):
         from keystoneclient import exceptions as client_exceptions
 
@@ -230,7 +237,7 @@ class KeystoneClientTests(object):
         from keystoneclient import exceptions as client_exceptions
 
         test_username = 'new_user'
-        client = self.get_client()
+        client = self.get_client(admin=True)
         user = client.users.create(name=test_username,
                                    password='password',
                                    email='user1@test.com')
@@ -277,19 +284,19 @@ class KeystoneClientTests(object):
         self.assertEquals(user2.name, test_username)
 
     def test_user_list(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         users = client.users.list()
         self.assertTrue(len(users) > 0)
         user = users[0]
         self.assertRaises(AttributeError, lambda: user.password)
 
     def test_user_get(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         user = client.users.get(user=self.user_foo['id'])
         self.assertRaises(AttributeError, lambda: user.password)
 
     def test_role_get(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         role = client.roles.get(role='keystone_admin')
         self.assertEquals(role.id, 'keystone_admin')
 
@@ -297,7 +304,7 @@ class KeystoneClientTests(object):
         from keystoneclient import exceptions as client_exceptions
 
         test_role = 'new_role'
-        client = self.get_client()
+        client = self.get_client(admin=True)
         role = client.roles.create(name=test_role)
         self.assertEquals(role.name, test_role)
 
@@ -310,7 +317,7 @@ class KeystoneClientTests(object):
                           role=role.id)
 
     def test_role_list(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         roles = client.roles.list()
         # TODO(devcamcar): This assert should be more specific.
         self.assertTrue(len(roles) > 0)
@@ -369,7 +376,7 @@ class KeystoneClientTests(object):
         from keystoneclient import exceptions as client_exceptions
 
         test_service = 'new_service'
-        client = self.get_client()
+        client = self.get_client(admin=True)
         service = client.services.create(name=test_service,
                                          service_type='test',
                                          description='test')
@@ -383,7 +390,7 @@ class KeystoneClientTests(object):
                           id=service.id)
 
     def test_service_list(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         test_service = 'new_service'
         service = client.services.create(name=test_service,
                                          service_type='test',
@@ -397,7 +404,7 @@ class KeystoneClientTests(object):
         # FIXME(ja): this should be Unauthorized
         exception = client_exceptions.ClientException
 
-        two = self.get_client(self.user_two)  # non-admin user
+        two = self.get_client(self.user_two, admin=True)  # non-admin user
 
         # USER CRUD
         self.assertRaises(exception,
@@ -415,14 +422,8 @@ class KeystoneClientTests(object):
                           user=self.user_foo['id'])
 
         # TENANT CRUD
-        # NOTE(ja): tenants.list is different since /tenants fulfills the
-        #           two different tasks: return list of all tenants & return
-        #           list of tenants the current user is a member of...
-        #           which means if you are admin getting the list
-        #           of tenants for admin user is annoying?
-        tenants = two.tenants.list()
-        self.assertTrue(len(tenants) == 1)
-        self.assertTrue(tenants[0].id == self.tenant_baz['id'])
+        self.assertRaises(exception,
+                          two.tenants.list)
         self.assertRaises(exception,
                           two.tenants.get,
                           tenant_id=self.tenant_bar['id'])
@@ -457,17 +458,15 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         return KEYSTONECLIENT_REPO, 'master'
 
     def test_tenant_add_and_remove_user(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         client.roles.add_user_role(tenant=self.tenant_baz['id'],
                                    user=self.user_foo['id'],
                                    role=self.role_useless['id'])
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
         self.assert_(self.user_foo['id'] in [x.id for x in user_refs])
-
         client.roles.remove_user_role(tenant=self.tenant_baz['id'],
                                       user=self.user_foo['id'],
                                       role=self.role_useless['id'])
-
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
         self.assert_(self.user_foo['id'] not in [x.id for x in user_refs])
 
@@ -524,7 +523,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
                           client.tenants.list, limit=-1)
 
     def test_roles_get_by_user(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         roles = client.roles.roles_for_user(user=self.user_foo['id'],
                                             tenant=self.tenant_bar['id'])
         self.assertTrue(len(roles) > 0)
@@ -535,7 +534,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         return KEYSTONECLIENT_REPO, 'essex-3'
 
     def test_tenant_add_and_remove_user(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
                                         user_id=self.user_foo['id'],
                                         role_id=self.role_useless['id'])
@@ -563,7 +562,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
                      [x.tenantId for x in role_refs])
 
     def test_roles_get_by_user(self):
-        client = self.get_client()
+        client = self.get_client(admin=True)
         roles = client.roles.get_user_role_refs(user_id='foo')
         self.assertTrue(len(roles) > 0)
 
@@ -574,7 +573,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         from keystoneclient import exceptions as client_exceptions
 
         test_username = 'new_user'
-        client = self.get_client()
+        client = self.get_client(admin=True)
         user = client.users.create(name=test_username,
                                    password='password',
                                    email='user1@test.com')
