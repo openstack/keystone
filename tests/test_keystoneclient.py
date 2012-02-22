@@ -106,7 +106,7 @@ class KeystoneClientTests(object):
 
     def test_authenticate_invalid_tenant_id(self):
         from keystoneclient import exceptions as client_exceptions
-        self.assertRaises(client_exceptions.AuthorizationFailure,
+        self.assertRaises(client_exceptions.Unauthorized,
                           self._client,
                           username=self.user_foo['name'],
                           password=self.user_foo['password'],
@@ -221,10 +221,18 @@ class KeystoneClientTests(object):
                                    password=self.user_foo['password'])
         good_client.tenants.list()
 
-        self.assertRaises(client_exceptions.AuthorizationFailure,
+        self.assertRaises(client_exceptions.Unauthorized,
                           self._client,
                           username=self.user_foo['name'],
                           password='invalid')
+
+    def test_invalid_user_password(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client,
+                          username='blah',
+                          password='blah')
 
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
