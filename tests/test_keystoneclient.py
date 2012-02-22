@@ -177,6 +177,8 @@ class KeystoneClientTests(object):
 
     # TODO(termie): I'm not really sure that this is testing much
     def test_endpoints(self):
+        raise nose.exc.SkipTest('Not implemented due to bug 933555')
+
         client = self.get_client(admin=True)
         token = client.auth_token
         endpoints = client.tokens.endpoints(token=token)
