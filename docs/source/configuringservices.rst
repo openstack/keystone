@@ -133,65 +133,129 @@ rather than it's built in 'tempauth'.
 
 2. Configure the paste file for swift-proxy (`/etc/swift/swift-proxy.conf`)
 
-3.  Reconfigure Swift's proxy server to use Keystone instead of TempAuth.
-    Here's an example `/etc/swift/proxy-server.conf`::
+3. Reconfigure Swift's proxy server to use Keystone instead of TempAuth.
+   Here's an example `/etc/swift/proxy-server.conf`::
 
-        [DEFAULT]
-        bind_port = 8888
-        user = <user>
+    [DEFAULT]
+    bind_port = 8888
+    user = <user>
 
-        [pipeline:main]
-        pipeline = catch_errors cache keystone proxy-server
+    [pipeline:main]
+    pipeline = catch_errors healthcheck cache tokenauth keystone proxy-server
 
-        [app:proxy-server]
-        use = egg:swift#proxy
-        account_autocreate = true
+    [app:proxy-server]
+    use = egg:swift#proxy
+    account_autocreate = true
 
-        [filter:keystone]
-        use = egg:keystone#tokenauth
-        auth_protocol = http
-        auth_host = 127.0.0.1
-        auth_port = 35357
-        admin_token = 999888777666
-        delay_auth_decision = 0
-        service_protocol = http
-        service_host = 127.0.0.1
-        service_port = 8100
-        service_pass = dTpw
-        cache = swift.cache
+    [filter:keystone]
+    paste.filter_factory = keystone.middleware.swift_auth:filter_factory
+    operator_roles = admin, swiftoperator
 
-        [filter:cache]
-        use = egg:swift#memcache
-        set log_name = cache
+    [filter:tokenauth]
+    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    service_port = 5000
+    service_host = 127.0.0.1
+    auth_port = 35357
+    auth_host = 127.0.0.1
+    auth_token = ADMIN
+    admin_token = ADMIN
 
-        [filter:catch_errors]
-        use = egg:swift#catch_errors
+    [filter:cache]
+    use = egg:swift#memcache
+    set log_name = cache
 
-   Note that the optional "cache" property in the keystone filter allows any
-   service (not just Swift) to register its memcache client in the WSGI
-   environment.  If such a cache exists, Keystone middleware will utilize it
-   to store validated token information, which could result in better overall
-   performance.
+    [filter:catch_errors]
+    use = egg:swift#catch_errors
+
+    [filter:healthcheck]
+    use = egg:swift#healthcheck
+
+.. Note::
+   Your user needs to have the role swiftoperator or admin by default
+   to be able to operate on an swift account or as specified by the
+   variable `operator_roles`.
 
 4. Restart swift
 
 5. Verify that keystone is providing authentication to Swift
 
-Use `swift` to check everything works (note: you currently have to create a
-container or upload something as your first action to have the account
-created; there's a Swift bug to be fixed soon)::
+    $ swift -V 2 -A http://localhost:5000/v2.0/tokens -U admin:admin -K ADMIN stat
 
-    $ swift -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete post container
-    $ swift -A http://127.0.0.1:5000/v1.0 -U joeuser -K secrete stat -v
-    StorageURL: http://127.0.0.1:8888/v1/AUTH_1234
-    Auth Token: 74ce1b05-e839-43b7-bd76-85ef178726c3
-    Account: AUTH_1234
-    Containers: 1
-    Objects: 0
-    Bytes: 0
-    Accept-Ranges: bytes
-    X-Trans-Id: tx25c1a6969d8f4372b63912f411de3c3b
+Configuring Swift with S3 emuluation to use Keystone
+----------------------------------------------------
 
-.. WARNING::
-    Keystone currently allows any valid token to do anything with any account.
+Keystone support validating S3 tokens using the same tokens as the
+generated EC2 tokens. After you have generated a pair of EC2 access
+token and secret you can access your swift cluster directly with the
+S3 api.
 
+1. Configure the paste file for swift-proxy
+   (`/etc/swift/swift-proxy.conf` to use S3token and Swift3
+   middleware.
+
+   Here's an example::
+
+    [DEFAULT]
+    bind_port = 8080
+    user = <user>
+
+    [pipeline:main]
+    pipeline = catch_errors healthcheck cache swift3 s3token tokenauth keystone proxy-server
+
+    [app:proxy-server]
+    use = egg:swift#proxy
+    account_autocreate = true
+
+    [filter:catch_errors]
+    use = egg:swift#catch_errors
+
+    [filter:healthcheck]
+    use = egg:swift#healthcheck
+
+    [filter:cache]
+    use = egg:swift#memcache
+
+    [filter:swift3]
+    use = egg:swift#swift3
+
+    [filter:keystone]
+    paste.filter_factory = keystone.middleware.swift_auth:filter_factory
+    operator_roles = admin, swiftoperator
+
+    [filter:s3token]
+    paste.filter_factory = keystone.middleware.s3_token:filter_factory
+    service_port = 5000
+    service_host = 127.0.0.1
+    auth_port = 35357
+    auth_host = 127.0.0.1
+    auth_protocol = http
+    auth_token = ADMIN
+    admin_token = ADMIN
+
+    [filter:tokenauth]
+    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    service_port = 5000
+    service_host = 127.0.0.1
+    auth_port = 35357
+    auth_host = 127.0.0.1
+    auth_token = ADMIN
+    admin_token = ADMIN
+
+2. You can then access directly your Swift via the S3 API, here's an
+   example with the `boto` library::
+
+    import boto
+    import boto.s3.connection
+
+    connection = boto.connect_s3(
+        aws_access_key_id='<ec2 access key for user>',
+        aws_secret_access_key='<ec2 secret access key for user>',
+        port=8080,
+        host='localhost',
+        is_secure=False,
+        calling_format=boto.s3.connection.OrdinaryCallingFormat())
+
+
+.. Note::
+   With the S3 middleware you are connecting to the `Swift` proxy and
+   not to `keystone`.

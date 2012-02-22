@@ -52,22 +52,14 @@ class SwiftAuth(object):
 
         [filter:swiftauth]
         use = egg:keystone#swiftauth
-        operator_roles = admin, SwiftOperator
-        is_admin = true
-
-    If Swift memcache is to be used for caching tokens, add the additional
-    property in the tokenauth filter:
-
-        [filter:tokenauth]
-        paste.filter_factory = keystone.middleware.auth_token:filter_factory
-        ...
-        cache = swift.cache
+        operator_roles = admin, swiftoperator
+        is_admin = false
 
     This maps tenants to account in Swift.
 
     The user whose able to give ACL / create Containers permissions
     will be the one that are inside the operator_roles
-    setting which by default includes the Admin and the SwiftOperator
+    setting which by default includes the admin and the swiftoperator
     roles.
 
     The option is_admin if set to true will allow the
@@ -144,8 +136,8 @@ class SwiftAuth(object):
 
         # Check the groups the user is belonging to. If the user is
         # part of the group defined in the config variable
-        # operator_roles (like Admin) then it will be
-        # promoted as an Admin of the account/tenant.
+        # operator_roles (like admin) then it will be
+        # promoted as an admin of the account/tenant.
         for group in self.operator_roles.split(','):
             group = group.strip()
             if group in user_groups:
