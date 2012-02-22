@@ -962,6 +962,10 @@ class ConfigOpts(collections.Mapping):
         """Print the usage message for the current program."""
         self._oparser.print_usage(file)
 
+    def print_help(self, file=None):
+        """Print the help message for the current program."""
+        self._oparser.print_help(file)
+
     def _get(self, name, group=None):
         """Look up an option value.
 
