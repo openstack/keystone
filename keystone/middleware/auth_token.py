@@ -140,6 +140,8 @@ class AuthProtocol(object):
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
         self.admin_token = conf.get('admin_token')
+        self.admin_user = conf.get('admin_user')
+        self.admin_password = conf.get('admin_password')
 
     def __init__(self, app, conf):
         """ Common initialization code """
@@ -261,15 +263,42 @@ class AuthProtocol(object):
         return webob.exc.HTTPUnauthorized()(env,
             start_response)
 
-    def _validate_claims(self, claims):
+    def _get_admin_auth_token(self, username, password):
+        """
+        This function gets an admin auth token to be used by this service to
+        validate a user's token. Validate_token is a priviledged call so
+        it needs to be authenticated by a service that is calling it
+        """
+        headers = {
+            "Content-type": "application/json",
+            "Accept": "application/json"}
+        params = {
+                  "auth": {
+                   "passwordCredentials": {
+                    "username": username,
+                    "password": password,
+                    }
+                   }
+                  }
+        if self.auth_protocol == "http":
+            conn = httplib.HTTPConnection(self.auth_host, self.auth_port)
+        else:
+            conn = httplib.HTTPSConnection(self.auth_host, self.auth_port,
+                cert_file=self.cert_file)
+        conn.request("POST", '/v2.0/tokens', json.dumps(params),
+            headers=headers)
+        response = conn.getresponse()
+        data = response.read()
+        return json.loads(data)["access"]["token"]["id"]
+
+    def _validate_claims(self, claims, retry=True):
         """Validate claims, and provide identity information isf applicable """
 
         # Step 1: We need to auth with the keystone service, so get an
         # admin token
-        #TODO(ziad): Need to properly implement this, where to store creds
-        # for now using token from ini
-        #auth = self.get_admin_auth_token('admin', 'secrete', '1')
-        #admin_token = json.loads(auth)['auth']['token']['id']
+        if not self.admin_token:
+            self.admin_token = self._get_admin_auth_token(self.admin_user,
+                                                          self.admin_password)
 
         # Step 2: validate the user's token with the auth service
         # since this is a priviledged op,m we need to auth ourselves
@@ -289,8 +318,11 @@ class AuthProtocol(object):
         conn.close()
 
         if not str(resp.status).startswith('20'):
-            # Keystone rejected claim
-            return False
+            if retry:
+                self.admin_token = None
+                return self._validate_claims(env, claims, False)
+            else:
+                return False
         else:
             #TODO(Ziad): there is an optimization we can do here. We have just
             #received data from Keystone that we can use instead of making
