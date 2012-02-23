@@ -31,6 +31,7 @@ class CrudExtension(wsgi.ExtensionRouter):
         user_controller = identity.UserController()
         role_controller = identity.RoleController()
         service_controller = catalog.ServiceController()
+        endpoint_controller = catalog.EndpointController()
 
         # Tenant Operations
         mapper.connect('/tenants', controller=tenant_controller,
@@ -144,6 +145,20 @@ class CrudExtension(wsgi.ExtensionRouter):
                        controller=service_controller,
                        action='get_service',
                        conditions=dict(method=['GET']))
+
+        # Endpoint Templates
+        mapper.connect('/endpoints',
+                       controller=endpoint_controller,
+                       action='get_endpoints',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/endpoints',
+                       controller=endpoint_controller,
+                       action='create_endpoint',
+                       conditions=dict(method=['POST']))
+        mapper.connect('/endpoints/{endpoint_id}',
+                       controller=endpoint_controller,
+                       action='delete_endpoint',
+                       conditions=dict(method=['DELETE']))
 
         # Role Operations
         mapper.connect('/OS-KSADM/roles',

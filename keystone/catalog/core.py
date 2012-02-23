@@ -1,6 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # Copyright 2012 OpenStack LLC
+# Copyright 2012 Canonical Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -21,6 +22,9 @@ import uuid
 import webob.exc
 
 from keystone import config
+from keystone import identity
+from keystone import policy
+from keystone import token
 from keystone.common import manager
 from keystone.common import wsgi
 
@@ -69,3 +73,38 @@ class ServiceController(wsgi.Application):
         new_service_ref = self.catalog_api.create_service(
                 context, service_id, service_ref)
         return {'OS-KSADM:service': new_service_ref}
+
+
+class EndpointController(wsgi.Application):
+    def __init__(self):
+        self.catalog_api = Manager()
+        self.identity_api = identity.Manager()
+        self.policy_api = policy.Manager()
+        self.token_api = token.Manager()
+        super(EndpointController, self).__init__()
+
+    def get_endpoints(self, context):
+        self.assert_admin(context)
+        endpoint_list = self.catalog_api.list_endpoints(context)
+        endpoint_refs = [self.catalog_api.get_endpoint(context, e)
+                         for e in endpoint_list]
+        return {'endpoints': endpoint_refs}
+
+    def create_endpoint(self, context, endpoint):
+        self.assert_admin(context)
+        endpoint_id = uuid.uuid4().hex
+        endpoint_ref = endpoint.copy()
+        endpoint_ref['id'] = endpoint_id
+
+        service_id = endpoint_ref['service_id']
+        if not self.catalog_api.service_exists(context, service_id):
+            msg = 'No service exists with id %s' % service_id
+            raise webob.exc.HTTPBadRequest(msg)
+
+        new_endpoint_ref = self.catalog_api.create_endpoint(
+                                context, endpoint_id, endpoint_ref)
+        return {'endpoint': new_endpoint_ref}
+
+    def delete_endpoint(self, context, endpoint_id):
+        self.assert_admin(context)
+        endpoint_ref = self.catalog_api.delete_endpoint(context, endpoint_id)
