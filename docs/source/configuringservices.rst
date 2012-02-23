@@ -259,3 +259,27 @@ S3 api.
 .. Note::
    With the S3 middleware you are connecting to the `Swift` proxy and
    not to `keystone`.
+
+Auth-Token Middleware with Username and Password
+--------------------------------
+
+It is also possible to configure Keystone's auth_token middleware using the
+'admin_user' and 'admin_password' options. When using the 'admin_user' and
+'admin_password' options the 'admin_token' parameter is optional. If
+'admin_token' is specified it will by used only if the specified token is
+still valid.
+
+Here is an example paste config filter that makes use of the 'admin_user' and
+'admin_password' parameters::
+
+    [filter:tokenauth]
+    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    service_port = 5000
+    service_host = 127.0.0.1
+    auth_port = 35357
+    auth_host = 127.0.0.1
+    auth_token = ADMIN
+    admin_user = admin
+    admin_password = keystone123
+
+It should be noted that when using this option an 'admin' tenant/role relationship is required. The admin user is granted access to to the 'admin' role via the 'admin' tenant.
