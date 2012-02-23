@@ -161,7 +161,7 @@ register_str('public_port')
 register_str('connection', group='sql')
 register_str('idle_timeout', group='sql')
 register_str('min_pool_size', group='sql')
-register_str('maz_pool_size', group='sql')
+register_str('max_pool_size', group='sql')
 register_str('pool_timeout', group='sql')
 
 
