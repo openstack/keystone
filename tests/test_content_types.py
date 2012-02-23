@@ -23,12 +23,14 @@ class RestfulTestCase(test.TestCase):
     need to bypass restful conventions or access HTTP details in your test
     implementation.
 
-    Two new asserts are provided:
+    Three new asserts are provided:
 
     * ``assertResponseSuccessful``: called automatically for every request
         unless an ``expected_status`` is provided
     * ``assertResponseStatus``: called instead of ``assertResponseSuccessful``,
         if an ``expected_status`` is provided
+    * ``assertValidResponseHeaders``: validates that the response headers
+        appear as expected
 
     Requests are automatically serialized according to the defined
     ``content_type``. Responses are automatically deserialized as well, and
@@ -91,6 +93,7 @@ class RestfulTestCase(test.TestCase):
             self.assertResponseStatus(response, expected_status)
         else:
             self.assertResponseSuccessful(response)
+        self.assertValidResponseHeaders(response)
 
         # Contains the response headers, body, etc
         return response
@@ -122,6 +125,10 @@ class RestfulTestCase(test.TestCase):
         self.assertEqual(response.status, expected_status,
             'Status code %s is not %s, as expected)\n\n%s' %
             (response.status, expected_status, response.body))
+
+    def assertValidResponseHeaders(self, response):
+        """Ensures that response headers appear as expected."""
+        self.assertIn('X-Auth-Token', response.getheader('Vary'))
 
     def _to_content_type(self, body, headers, content_type=None):
         """Attempt to encode JSON and XML automatically."""

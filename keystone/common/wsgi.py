@@ -190,14 +190,7 @@ class Application(BaseApplication):
             return result
         elif isinstance(result, webob.exc.WSGIHTTPException):
             return result
-
-        response = webob.Response()
-        self._serialize(response, result)
-        return response
-
-    def _serialize(self, response, result):
-        response.content_type = 'application/json'
-        response.body = json.dumps(result, cls=utils.SmarterEncoder)
+        return render_response(body=result)
 
     def _normalize_arg(self, arg):
         return str(arg).replace(':', '_').replace('-', '_')
@@ -461,13 +454,14 @@ class ExtensionRouter(Router):
 
 
 def render_response(body=None, status=(200, 'OK'), headers=None):
-    """Forms a WSGI response"""
+    """Forms a WSGI response."""
     resp = webob.Response()
     resp.status = '%s %s' % status
-    resp.headerlist = headers or [('Content-Type', 'application/json')]
+    resp.headerlist = headers or [('Content-Type', 'application/json'),
+                                  ('Vary', 'X-Auth-Token')]
 
     if body is not None:
-        resp.body = json.dumps(body)
+        resp.body = json.dumps(body, cls=utils.SmarterEncoder)
 
     return resp
 
