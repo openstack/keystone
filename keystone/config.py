@@ -32,19 +32,6 @@ class ConfigMixin(object):
         kw.setdefault('args', [])
         return super(ConfigMixin, self).__call__(*args, **kw)
 
-    def __getitem__(self, key, default=None):
-        return getattr(self, key, default)
-
-    def __setitem__(self, key, value):
-        return setattr(self, key, value)
-
-    def iteritems(self):
-        for k in self._opts:
-            yield (k, getattr(self, k))
-
-    def print_help(self):
-        self._oparser.print_help()
-
     def set_usage(self, usage):
         self.usage = usage
         self._oparser.usage = usage
