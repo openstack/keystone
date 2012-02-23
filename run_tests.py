@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+# Copyright 2012 OpenStack LLC
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
 # All Rights Reserved.
