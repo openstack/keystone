@@ -306,7 +306,7 @@ class AuthProtocol(object):
         if not str(resp.status).startswith('20'):
             if retry:
                 self.admin_token = None
-                return self._validate_claims(env, claims, False)
+                return self._validate_claims(claims, False)
             else:
                 return False
         else:
