@@ -229,11 +229,11 @@ class TokenController(wsgi.Application):
                     tenant_id = tenant_ref['id']
 
             try:
-                (user_ref, tenant_ref, metadata_ref) = \
-                        self.identity_api.authenticate(context=context,
-                                                       user_id=user_id,
-                                                       password=password,
-                                                       tenant_id=tenant_id)
+                auth_info = self.identity_api.authenticate(context=context,
+                                                           user_id=user_id,
+                                                           password=password,
+                                                           tenant_id=tenant_id)
+                (user_ref, tenant_ref, metadata_ref) = auth_info
 
                 # If the user is disabled don't allow them to authenticate
                 if not user_ref.get('enabled', True):
