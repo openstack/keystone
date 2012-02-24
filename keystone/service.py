@@ -345,17 +345,8 @@ class TokenController(wsgi.Application):
         self.token_api.delete_token(context=context, token_id=token_id)
 
     def endpoints(self, context, token_id):
-        """Return service catalog endpoints."""
-        try:
-            token_ref = self.token_api.get_token(context=context,
-                                                 token_id=token_id)
-        except exception.NotFound:
-            raise exception.Unauthorized()
-
-        catalog_ref = self.catalog_api.get_catalog(context,
-                                                   token_ref['user']['id'],
-                                                   token_ref['tenant']['id'])
-        return {'token': {'serviceCatalog': self._format_catalog(catalog_ref)}}
+        """Return a list of endpoints available to the token."""
+        raise NotImplementedError()
 
     def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
         o = self._format_token(token_ref, roles_ref)
