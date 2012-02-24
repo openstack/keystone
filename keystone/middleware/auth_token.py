@@ -340,7 +340,7 @@ class AuthProtocol(object):
         role_refs = token_info['access']['user']['roles']
         if role_refs != None:
             for role_ref in role_refs:
-                # Nova looks for the non case-sensitive role 'Admin'
+                # Nova looks for the non case-sensitive role 'admin'
                 # to determine admin-ness
                 roles.append(role_ref['name'])
 

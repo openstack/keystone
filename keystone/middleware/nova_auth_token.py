@@ -67,7 +67,7 @@ class KeystoneAuthShim(wsgi.Middleware):
         # FIXME: keystone-admin-role value from keystone.conf is not
         # used neither here nor in glance_auth_token!
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
-        is_admin = 'Admin' in roles
+        is_admin = 'admin' in roles
         if user_ref.is_admin() != is_admin:
             self.auth.modify_user(user_ref, admin=is_admin)
 
@@ -96,7 +96,7 @@ class KeystoneAuthShim(wsgi.Middleware):
 
         # Build a context, including the auth_token...
         ctx = context.RequestContext(user_id, project_id,
-                                     is_admin=('Admin' in roles),
+                                     is_admin=('admin' in roles),
                                      auth_token=auth_token)
 
         req.environ['nova.context'] = ctx
