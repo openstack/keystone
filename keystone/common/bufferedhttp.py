@@ -32,8 +32,8 @@ from urllib import quote
 import logging
 import time
 
-from eventlet.green.httplib import CONTINUE, HTTPConnection, HTTPMessage, \
-    HTTPResponse, HTTPSConnection, _UNKNOWN
+from eventlet.green.httplib import (CONTINUE, HTTPConnection, HTTPMessage,
+                                    HTTPResponse, HTTPSConnection, _UNKNOWN)
 
 
 class BufferedHTTPResponse(HTTPResponse):

@@ -32,8 +32,9 @@ def create_server(conf, name, port):
 
 def serve(*servers):
     for server in servers:
-        logging.debug("starting server %s on port %s", server.application,
-                                                       server.port)
+        logging.debug("starting server %s on port %s",
+                      server.application,
+                      server.port)
         server.start()
 
     for server in servers:
@@ -45,8 +46,8 @@ def serve(*servers):
 
 if __name__ == '__main__':
     dev_conf = os.path.join(possible_topdir,
-                                'etc',
-                                'keystone.conf')
+                            'etc',
+                            'keystone.conf')
     config_files = None
     if os.path.exists(dev_conf):
         config_files = [dev_conf]
