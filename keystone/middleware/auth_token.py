@@ -189,13 +189,16 @@ class AuthProtocol(object):
 
                     # Services should use these
                     self._decorate_request('X_TENANT_NAME',
-                        claims.get('tenant_name', claims['tenant']),
+                        claims.get('tenantName', claims['tenant']),
                         env, proxy_headers)
                     self._decorate_request('X_TENANT_ID',
                         claims['tenant'], env, proxy_headers)
 
                     self._decorate_request('X_USER',
+                        claims['userName'], env, proxy_headers)
+                    self._decorate_request('X_USER_ID',
                         claims['user'], env, proxy_headers)
+
                     if 'roles' in claims and len(claims['roles']) > 0:
                         if claims['roles'] != None:
                             roles = ''
@@ -353,7 +356,9 @@ class AuthProtocol(object):
         if not tenant:
             tenant = token_info['access']['user'].get('tenantId')
             tenant_name = token_info['access']['user'].get('tenantName')
-        verified_claims = {'user': token_info['access']['user']['username'],
+        verified_claims = {
+                    'user': token_info['access']['user']['id'],
+                    'userName': token_info['access']['user']['username'],
                     'tenant': tenant,
                     'roles': roles}
         if tenant_name:
