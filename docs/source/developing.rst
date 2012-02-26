@@ -21,9 +21,11 @@ Developing with Keystone
 Contributing Code
 =================
 
-To contribute code, sign up for a Launchpad account and sign a contributor license agreement,
-available on the `<http://wiki.openstack.org/CLA>`_. Once the CLA is signed you
-can contribute code through the Gerrit version control system which is related to your Launchpad account.
+To contribute code, sign up for a Launchpad account and sign a contributor
+license agreement, available on the `<http://wiki.openstack.org/CLA>`_. Once
+the CLA is signed you can contribute code through the Gerrit version control
+system which is related to your Launchpad account.
+
 
 To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workflow`_.
 
@@ -32,8 +34,11 @@ To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workfl
 Setup
 -----
 
-Get your development environment set up according to :doc:`setup`. The instructions from here will
-assume that you have installed keystone into a virtualenv. If you chose not to, simply exclude "tools/with_venv.sh" from the example commands below.
+Get your development environment set up according to :doc:`setup`. The
+instructions from here will assume that you have installed keystone into a
+virtualenv. If you chose not to, simply exclude "tools/with_venv.sh" from the
+example commands below.
+
 
 Running Keystone
 ----------------
@@ -42,23 +47,29 @@ To run the keystone Admin and API server instances, use::
 
     $ tools/with_venv.sh bin/keystone-all
 
-this runs keystone with the configuration the etc/ directory of the project. See :doc:`configuration` for details on how Keystone is configured.
+this runs keystone with the configuration the etc/ directory of the project.
+See :doc:`configuration` for details on how Keystone is configured. By default,
+keystone is configured with KVS backends, so any data entered into keystone run
+in this fashion will not persist across restarts.
+
 
 Interacting with Keystone
 -------------------------
 
-You can interact with Keystone through the command line using :doc:`man/keystone-manage`
-which allows you to establish tenants, users, etc.
+You can interact with Keystone through the command line using
+:doc:`man/keystone-manage` which allows you to establish tenants, users, etc.
+
 
 You can also interact with Keystone through it's REST API. There is a python
-keystone client library `python-keystoneclient`_ which interacts exclusively through
-the REST API, and which keystone itself uses to provide it's command-line interface.
+keystone client library `python-keystoneclient`_ which interacts exclusively
+through the REST API, and which keystone itself uses to provide it's
+command-line interface.
 
 When initially getting set up, after you've configured which databases to use,
-you're probably going to need to run the following to your database schema in place ::
+you're probably going to need to run the following to your database schema in
+place::
 
     $ bin/keystone-manage db_sync
-
 
 .. _`python-keystoneclient`: https://github.com/openstack/python-keystoneclient
 
@@ -107,20 +118,30 @@ built-in test runner, one migration at a time.
 
     This may leave your database in an inconsistent state; attempt this in non-production environments only!
 
-This is useful for testing the *next* migration in sequence (both forward & backward) in a database under version control::
+This is useful for testing the *next* migration in sequence (both forward &
+backward) in a database under version control::
+
 
     python keystone/common/sql/migrate_repo/manage.py test \
-	--url=sqlite:///test.db \
-	--repository=keystone/common/sql/migrate_repo/
+    --url=sqlite:///test.db \
+    --repository=keystone/common/sql/migrate_repo/
 
-This command references to a SQLite database (test.db) to be used. Depending on the migration, this command alone does not make assertions as to the integrity of your data during migration.
+This command references to a SQLite database (test.db) to be used. Depending on
+the migration, this command alone does not make assertions as to the integrity
+of your data during migration.
+
 
 Writing Tests
 -------------
 
-To add tests covering all drivers, update the base test class (``test_backend.py``, ``test_legacy_compat.py``, and ``test_keystoneclient.py``).
+To add tests covering all drivers, update the base test class
+(``test_backend.py``, ``test_legacy_compat.py``, and
+``test_keystoneclient.py``).
 
-To add new drivers, subclass the ``test_backend.py`` (look towards ``test_backend_sql.py`` or ``test_backend_kvs.py`` for examples) and update the configuration of the test class in ``setUp()``.
+To add new drivers, subclass the ``test_backend.py`` (look towards
+``test_backend_sql.py`` or ``test_backend_kvs.py`` for examples) and update the
+configuration of the test class in ``setUp()``.
+
 
 Further Testing
 ---------------
@@ -128,8 +149,9 @@ Further Testing
 devstack_ is the *best* way to quickly deploy keystone with the rest of the
 OpenStack universe and should be critical step in your development workflow!
 
-You may also be interested in either the `OpenStack Continuous Integration Project`_
-or the `OpenStack Integration Testing Project`_.
+You may also be interested in either the
+`OpenStack Continuous Integration Project`_ or the
+`OpenStack Integration Testing Project`_.
 
 .. _devstack: http://devstack.org/
 .. _OpenStack Continuous Integration Project: https://github.com/openstack/openstack-ci
