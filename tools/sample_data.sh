@@ -50,6 +50,17 @@
 # invisible_to_admin   demo      Member
 
 TOOLS_DIR=$(cd $(dirname "$0") && pwd)
+KEYSTONE_CONF=${KEYSTONE_CONF:-/etc/keystone/keystone.conf}
+if [[ -r "$KEYSTONE_CONF" ]]; then
+    EC2RC="$(dirname "$KEYSTONE_CONF")/ec2rc"
+elif [[ -r "$TOOLS_DIR/../etc/keystone.conf" ]]; then
+    # assume git checkout
+    KEYSTONE_CONF="$TOOLS_DIR/../etc/keystone.conf"
+    EC2RC="$TOOLS_DIR/../etc/ec2rc"
+else
+    KEYSTONE_CONF=""
+    EC2RC="ec2rc"
+fi
 
 # Please set these, they are ONLY SAMPLE PASSWORDS!
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-secrete}
@@ -64,9 +75,9 @@ if [[ "$SERVICE_PASSWORD" == "$ADMIN_PASSWORD" ]]; then
 fi
 
 # Extract some info from Keystone's configuration file
-if [[ -r $TOOLS_DIR/../etc/keystone.conf ]]; then
-    CONFIG_SERVICE_TOKEN=$(sed 's/[[:space:]]//g' $TOOLS_DIR/../etc/keystone.conf | grep ^admin_token= | cut -d'=' -f2)
-    CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $TOOLS_DIR/../etc/keystone.conf | grep ^admin_port= | cut -d'=' -f2)
+if [[ -r "$KEYSTONE_CONF" ]]; then
+    CONFIG_SERVICE_TOKEN=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_token= | cut -d'=' -f2)
+    CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_port= | cut -d'=' -f2)
 fi
 
 export SERVICE_TOKEN=${SERVICE_TOKEN:-$CONFIG_SERVICE_TOKEN}
@@ -232,7 +243,7 @@ DEMO_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
 DEMO_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
 
 # write the secret and access to ec2rc
-cat > $TOOLS_DIR/../etc/ec2rc <<EOF
+cat > $EC2RC <<EOF
 ADMIN_ACCESS=$ADMIN_ACCESS
 ADMIN_SECRET=$ADMIN_SECRET
 DEMO_ACCESS=$DEMO_ACCESS
