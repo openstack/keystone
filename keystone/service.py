@@ -54,10 +54,14 @@ class AdminRouter(wsgi.ComposingRouter):
                        conditions=dict(method=['GET']))
 
         # Miscellaneous Operations
-        extensions_controller = ExtensionsController()
+        extensions_controller = AdminExtensionsController()
         mapper.connect('/extensions',
                        controller=extensions_controller,
                        action='get_extensions_info',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/extensions/{extension_alias}',
+                       controller=extensions_controller,
+                       action='get_extension_info',
                        conditions=dict(method=['GET']))
         identity_router = identity.AdminRouter()
         routers = [identity_router]
@@ -81,10 +85,14 @@ class PublicRouter(wsgi.ComposingRouter):
                        conditions=dict(method=['POST']))
 
         # Miscellaneous
-        extensions_controller = ExtensionsController()
+        extensions_controller = PublicExtensionsController()
         mapper.connect('/extensions',
                        controller=extensions_controller,
                        action='get_extensions_info',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/extensions/{extension_alias}',
+                       controller=extensions_controller,
+                       action='get_extension_info',
                        conditions=dict(method=['GET']))
 
         identity_router = identity.PublicRouter()
@@ -427,11 +435,53 @@ class TokenController(wsgi.Application):
 
 
 class ExtensionsController(wsgi.Application):
-    def __init__(self):
+    """Base extensions controller to be extended by public and admin API's."""
+
+    def __init__(self, extensions=None):
         super(ExtensionsController, self).__init__()
 
+        self.extensions = extensions or {}
+
     def get_extensions_info(self, context):
-        raise NotImplementedError()
+        return {'extensions': {'values': self.extensions.values()}}
+
+    def get_extension_info(self, context, extension_alias):
+        try:
+            return {'extension': self.extensions[extension_alias]}
+        except KeyError:
+            raise exception.NotFound(target=extension_alias)
+
+
+class PublicExtensionsController(ExtensionsController):
+    pass
+
+
+class AdminExtensionsController(ExtensionsController):
+    def __init__(self, *args, **kwargs):
+        super(AdminExtensionsController, self).__init__(*args, **kwargs)
+
+        # TODO(dolph): Extensions should obviously provide this information
+        #               themselves, but hardcoding it here allows us to match
+        #               the API spec in the short term with minimal complexity.
+        self.extensions['OS-KSADM'] = {
+            'name': 'Openstack Keystone Admin',
+            'namespace': 'http://docs.openstack.org/identity/api/ext/'
+                         'OS-KSADM/v1.0',
+            'alias': 'OS-KSADM',
+            'updated': '2011-08-19T13:25:27-06:00',
+            'description': 'Openstack extensions to Keystone v2.0 API '
+                           'enabling Admin Operations.',
+            'links': [
+                {
+                    'rel': 'describedby',
+                    # TODO(dolph): link needs to be revised after
+                    #              bug 928059 merges
+                    'type': 'text/html',
+                    'href': ('https://github.com/openstack/'
+                        'identity-api'),
+                }
+            ]
+        }
 
 
 def public_app_factory(global_conf, **local_conf):
