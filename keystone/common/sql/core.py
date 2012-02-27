@@ -105,6 +105,7 @@ class Base(object):
 
         engine_args = {'pool_recycle': CONF.sql.idle_timeout,
                        'echo': False,
+                       'convert_unicode': True
                        }
 
         if 'sqlite' in connection_dict.drivername:
