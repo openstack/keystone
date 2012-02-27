@@ -19,6 +19,8 @@ import json
 import webob.exc
 
 from keystone import config
+from keystone import exception
+from keystone.common import serializer
 from keystone.common import wsgi
 
 
@@ -109,7 +111,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
         try:
             params_parsed = json.loads(params_json)
         except ValueError:
-            msg = "Malformed json in request body"
+            msg = 'Malformed json in request body'
             raise webob.exc.HTTPBadRequest(explanation=msg)
         finally:
             if not params_parsed:
@@ -124,3 +126,30 @@ class JsonBodyMiddleware(wsgi.Middleware):
             params[k] = v
 
         request.environ[PARAMS_ENV] = params
+
+
+class XmlBodyMiddleware(wsgi.Middleware):
+    """De/serializes XML to/from JSON."""
+    @webob.dec.wsgify(RequestClass=wsgi.Request)
+    def __call__(self, request):
+        self.process_request(request)
+        response = request.get_response(self.application)
+        self.process_response(request, response)
+        return response
+
+    def process_request(self, request):
+        """Transform the request from XML to JSON."""
+        incoming_xml = 'application/xml' in str(request.content_type)
+        if incoming_xml and request.body:
+            request.content_type = 'application/json'
+            request.body = json.dumps(serializer.from_xml(request.body))
+
+    def process_response(self, request, response):
+        """Transform the response from JSON to XML."""
+        outgoing_xml = 'application/xml' in str(request.accept)
+        if outgoing_xml and response.body:
+            response.content_type = 'application/xml'
+            try:
+                response.body = serializer.to_xml(json.loads(response.body))
+            except:
+                raise exception.Error(message=response.body)

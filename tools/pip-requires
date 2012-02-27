@@ -8,6 +8,7 @@ routes
 sqlalchemy
 sqlalchemy-migrate
 passlib
+lxml
 
 # for python-novaclient
 prettytable

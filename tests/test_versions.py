@@ -41,32 +41,43 @@ class VersionTestCase(test.TestCase):
         data = json.loads(resp.body)
         expected = {
             "versions": {
-                "values": [{
-                    "id": "v2.0",
-                    "status": "beta",
-                    "updated": "2011-11-19T00:00:00Z",
-                    "links": [{
-                            "rel": "self",
-                            "href": ("http://localhost:%s/v2.0/" %
-                                      CONF.public_port),
-                        }, {
-                            "rel": "describedby",
-                            "type": "text/html",
-                            "href": "http://docs.openstack.org/api/openstack-"
-                                     "identity-service/2.0/content/"
-                        }, {
-                            "rel": "describedby",
-                            "type": "application/pdf",
-                            "href": "http://docs.openstack.org/api/openstack-"
-                                     "identity-service/2.0/identity-dev-guide-"
-                                     "2.0.pdf"
-                        }],
-                    "media-types": [{
-                            "base": "application/json",
-                            "type": "application/vnd.openstack.identity-v2.0"
-                                     "+json"
-                        }]
-                }]
+                "values": [
+                    {
+                        "id": "v2.0",
+                        "status": "beta",
+                        "updated": "2011-11-19T00:00:00Z",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "href": "http://localhost:%s/v2.0/" %
+                                        CONF.public_port,
+                            }, {
+                                "rel": "describedby",
+                                "type": "text/html",
+                                "href": "http://docs.openstack.org/api/"
+                                        "openstack-identity-service/2.0/"
+                                        "content/"
+                            }, {
+                                "rel": "describedby",
+                                "type": "application/pdf",
+                                "href": "http://docs.openstack.org/api/"
+                                        "openstack-identity-service/2.0/"
+                                        "identity-dev-guide-2.0.pdf"
+                            }
+                        ],
+                        "media-types": [
+                            {
+                                "base": "application/json",
+                                "type": "application/"
+                                        "vnd.openstack.identity-v2.0+json"
+                            }, {
+                                "base": "application/xml",
+                                "type": "application/"
+                                        "vnd.openstack.identity-v2.0+xml"
+                            }
+                        ]
+                    }
+                ]
             }
         }
         self.assertEqual(data, expected)
@@ -78,32 +89,43 @@ class VersionTestCase(test.TestCase):
         data = json.loads(resp.body)
         expected = {
             "versions": {
-                "values": [{
-                    "id": "v2.0",
-                    "status": "beta",
-                    "updated": "2011-11-19T00:00:00Z",
-                    "links": [{
-                            "rel": "self",
-                            "href": ("http://localhost:%s/v2.0/" %
-                                      CONF.admin_port),
-                        }, {
-                            "rel": "describedby",
-                            "type": "text/html",
-                            "href": "http://docs.openstack.org/api/openstack-"
-                                     "identity-service/2.0/content/"
-                        }, {
-                            "rel": "describedby",
-                            "type": "application/pdf",
-                            "href": "http://docs.openstack.org/api/openstack-"
-                                     "identity-service/2.0/identity-dev-guide-"
-                                     "2.0.pdf"
-                        }],
-                    "media-types": [{
-                            "base": "application/json",
-                            "type": "application/vnd.openstack.identity-v2.0"
-                                     "+json"
-                        }]
-                }]
+                "values": [
+                    {
+                        "id": "v2.0",
+                        "status": "beta",
+                        "updated": "2011-11-19T00:00:00Z",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "href": "http://localhost:%s/v2.0/" %
+                                        CONF.admin_port,
+                            }, {
+                                "rel": "describedby",
+                                "type": "text/html",
+                                "href": "http://docs.openstack.org/api/"
+                                        "openstack-identity-service/2.0/"
+                                        "content/"
+                            }, {
+                                "rel": "describedby",
+                                "type": "application/pdf",
+                                "href": "http://docs.openstack.org/api/"
+                                        "openstack-identity-service/2.0/"
+                                        "identity-dev-guide-2.0.pdf"
+                            }
+                        ],
+                        "media-types": [
+                            {
+                                "base": "application/json",
+                                "type": "application/"
+                                        "vnd.openstack.identity-v2.0+json"
+                            }, {
+                                "base": "application/xml",
+                                "type": "application/"
+                                        "vnd.openstack.identity-v2.0+xml"
+                            }
+                        ]
+                    }
+                ]
             }
         }
         self.assertEqual(data, expected)

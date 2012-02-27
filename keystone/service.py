@@ -163,6 +163,10 @@ class VersionController(wsgi.Application):
                             "base": "application/json",
                             "type": "application/vnd.openstack.identity-v2.0"
                                      "+json"
+                        }, {
+                            "base": "application/xml",
+                            "type": "application/vnd.openstack.identity-v2.0"
+                                     "+xml"
                         }]
                 }]
             }
