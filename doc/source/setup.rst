@@ -124,7 +124,7 @@ into your system from the requires files::
     $ pip install -r tools/pip-requires
 
     # Install the dependencies for developing, testing, and running keystone
-    $ pip install -r tools/pip-requires-test
+    $ pip install -r tools/test-requires
 
     # Fake-install the project by symlinking Keystone into your Python site-packages
     $ python setup.py develop
