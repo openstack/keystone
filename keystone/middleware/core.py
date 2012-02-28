@@ -130,12 +130,6 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
 class XmlBodyMiddleware(wsgi.Middleware):
     """De/serializes XML to/from JSON."""
-    @webob.dec.wsgify(RequestClass=wsgi.Request)
-    def __call__(self, request):
-        self.process_request(request)
-        response = request.get_response(self.application)
-        self.process_response(request, response)
-        return response
 
     def process_request(self, request):
         """Transform the request from XML to JSON."""
@@ -153,3 +147,4 @@ class XmlBodyMiddleware(wsgi.Middleware):
                 response.body = serializer.to_xml(json.loads(response.body))
             except:
                 raise exception.Error(message=response.body)
+        return response
