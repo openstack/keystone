@@ -260,7 +260,11 @@ class AuthProtocol(object):
             headers=headers)
         response = conn.getresponse()
         data = response.read()
-        return json.loads(data)["access"]["token"]["id"]
+        conn.close()
+        try:
+            return json.loads(data)["access"]["token"]["id"]
+        except KeyError:
+            return None
 
     def _validate_claims(self, claims, retry=True):
         """Validate claims, and provide identity information isf applicable """
