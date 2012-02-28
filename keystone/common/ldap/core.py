@@ -79,7 +79,7 @@ class BaseLdap(object):
                                  or self.DEFAULT_OBJECTCLASS)
 
             self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
-        self.use_dumb_member = conf.ldap.use_dumb_member
+        self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member') or True
 
     def get_connection(self, user=None, password=None):
         if self.LDAP_URL.startswith('fake://'):
@@ -287,7 +287,7 @@ class LdapWrapper(object):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug('LDAP search: dn=%s, scope=%s, query=%s',
                       dn,
-                      fakeldap.scope_names[scope],
+                      scope,
                       query)
         res = self.conn.search_s(dn, scope, query)
 
