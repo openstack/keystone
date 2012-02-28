@@ -1,0 +1,24 @@
+# Optional backend: Memcache
+python-memcached
+
+# Optional backend: LDAP
+python-ldap==2.3.13 # authenticate against an existing LDAP server
+
+# Testing
+coverage # computes code coverage percentages
+mox # mock object framework
+nose # for test discovery and console feedback
+nosexcover
+openstack.nose_plugin
+pylint # static code analysis
+pep8==0.6.1 # checks for PEP8 code style compliance
+Sphinx>=1.1.2 # required to build documentation
+unittest2 # backport of unittest lib in python 2.7
+webtest # test wsgi apps without starting an http server
+
+# for python-keystoneclient
+httplib2
+-e git+https://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
+
+# for python-novaclient
+prettytable

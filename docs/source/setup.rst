@@ -65,7 +65,7 @@ Installing dependencies
 Keystone maintains two lists of dependencies::
 
     tools/pip-requires
-    tools/pip-requires-test
+    tools/test-requires
 
 The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of keystone itself.
 

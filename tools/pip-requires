@@ -2,6 +2,7 @@
 pam==0.1.4
 WebOb==1.0.8
 eventlet
+greenlet
 PasteDeploy
 paste
 routes
@@ -9,26 +10,3 @@ sqlalchemy
 sqlalchemy-migrate
 passlib
 lxml
-
-# for python-novaclient
-prettytable
-
-# Optional backend: Memcache
-python-memcached # increases performance of token validation calls
-
-# Development
-Sphinx>=1.1.2 # required to build documentation
-coverage # computes code coverage percentages
-
-# Testing
-nose # for test discovery and console feedback
-nosexcover
-unittest2 # backport of unittest lib in python 2.7
-webtest # test wsgi apps without starting an http server
-pylint # static code analysis
-pep8==0.6.1 # checks for PEP8 code style compliance
-mox # mock object framework
-
--e git+https://review.openstack.org/p/openstack/python-keystoneclient.git#egg=python-keystoneclient
--e git+https://review.openstack.org/p/openstack-dev/openstack-nose.git#egg=openstack.nose_plugin
-python-ldap==2.3.13# authenticate against an existing LDAP server
