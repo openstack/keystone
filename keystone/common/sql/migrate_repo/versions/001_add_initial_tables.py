@@ -23,6 +23,7 @@ from keystone.common import sql
 import keystone.identity.backends.sql
 import keystone.token.backends.sql
 import keystone.contrib.ec2.backends.sql
+import keystone.catalog.backends.sql
 
 
 def upgrade(migrate_engine):

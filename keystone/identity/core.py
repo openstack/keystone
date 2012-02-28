@@ -22,7 +22,6 @@ import urlparse
 
 import webob.exc
 
-from keystone import catalog
 from keystone import config
 from keystone import exception
 from keystone import policy
@@ -352,7 +351,6 @@ class TenantController(wsgi.Application):
 
 class UserController(wsgi.Application):
     def __init__(self):
-        self.catalog_api = catalog.Manager()
         self.identity_api = Manager()
         self.policy_api = policy.Manager()
         self.token_api = token.Manager()
@@ -412,7 +410,6 @@ class UserController(wsgi.Application):
 
 class RoleController(wsgi.Application):
     def __init__(self):
-        self.catalog_api = catalog.Manager()
         self.identity_api = Manager()
         self.token_api = token.Manager()
         self.policy_api = policy.Manager()
