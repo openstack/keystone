@@ -34,6 +34,11 @@ class AdminRouter(wsgi.ComposingRouter):
     def __init__(self):
         mapper = routes.Mapper()
 
+        version_controller = VersionController('admin')
+        mapper.connect('/',
+                       controller=version_controller,
+                       action='get_version')
+
         # Token Operations
         auth_controller = TokenController()
         mapper.connect('/tokens',
@@ -76,10 +81,10 @@ class PublicRouter(wsgi.ComposingRouter):
     def __init__(self):
         mapper = routes.Mapper()
 
-        noop_controller = NoopController()
+        version_controller = VersionController('public')
         mapper.connect('/',
-                       controller=noop_controller,
-                       action='noop')
+                       controller=version_controller,
+                       action='get_version')
 
         # Token Operations
         auth_controller = TokenController()
@@ -131,6 +136,7 @@ class VersionController(wsgi.Application):
     def __init__(self, version_type):
         self.catalog_api = catalog.Manager()
         self.url_key = "%sURL" % version_type
+
         super(VersionController, self).__init__()
 
     def _get_identity_url(self, context):
@@ -145,43 +151,61 @@ class VersionController(wsgi.Application):
 
         raise NotImplementedError()
 
-    def get_versions(self, context):
+    def _get_versions_list(self, context):
+        """The list of versions is dependent on the context."""
         identity_url = self._get_identity_url(context)
         if not identity_url.endswith('/'):
             identity_url = identity_url + '/'
 
+        versions = {}
+        versions['v2.0'] = {
+            "id": "v2.0",
+            "status": "beta",
+            "updated": "2011-11-19T00:00:00Z",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": identity_url,
+                }, {
+                    "rel": "describedby",
+                    "type": "text/html",
+                    "href": "http://docs.openstack.org/api/openstack-"
+                                "identity-service/2.0/content/"
+                }, {
+                    "rel": "describedby",
+                    "type": "application/pdf",
+                    "href": "http://docs.openstack.org/api/openstack-"
+                                "identity-service/2.0/identity-dev-guide-"
+                                "2.0.pdf"
+                }
+            ],
+            "media-types": [
+                {
+                    "base": "application/json",
+                    "type": "application/vnd.openstack.identity-v2.0"
+                                "+json"
+                }, {
+                    "base": "application/xml",
+                    "type": "application/vnd.openstack.identity-v2.0"
+                                "+xml"
+                }
+            ]
+        }
+
+        return versions
+
+    def get_versions(self, context):
+        versions = self._get_versions_list(context)
         return wsgi.render_response(status=(300, 'Multiple Choices'), body={
             "versions": {
-                "values": [{
-                    "id": "v2.0",
-                    "status": "beta",
-                    "updated": "2011-11-19T00:00:00Z",
-                    "links": [{
-                            "rel": "self",
-                            "href": identity_url,
-                        }, {
-                            "rel": "describedby",
-                            "type": "text/html",
-                            "href": "http://docs.openstack.org/api/openstack-"
-                                     "identity-service/2.0/content/"
-                        }, {
-                            "rel": "describedby",
-                            "type": "application/pdf",
-                            "href": "http://docs.openstack.org/api/openstack-"
-                                     "identity-service/2.0/identity-dev-guide-"
-                                     "2.0.pdf"
-                        }],
-                    "media-types": [{
-                            "base": "application/json",
-                            "type": "application/vnd.openstack.identity-v2.0"
-                                     "+json"
-                        }, {
-                            "base": "application/xml",
-                            "type": "application/vnd.openstack.identity-v2.0"
-                                     "+xml"
-                        }]
-                }]
+                "values": versions.values()
             }
+        })
+
+    def get_version(self, context):
+        versions = self._get_versions_list(context)
+        return wsgi.render_response(body={
+            "version": versions['v2.0']
         })
 
 
