@@ -61,3 +61,8 @@ class UtilsTestCase(test.TestCase):
         output = utils.isotime(dt)
         expected = '1987-10-13T01:02:03Z'
         self.assertEqual(output, expected)
+
+    def test_auth_str_equal(self):
+        self.assertTrue(utils.auth_str_equal('abc123', 'abc123'))
+        self.assertFalse(utils.auth_str_equal('a', 'aaaaa'))
+        self.assertFalse(utils.auth_str_equal('ABC123', 'abc123'))

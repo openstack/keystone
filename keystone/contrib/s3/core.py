@@ -25,6 +25,7 @@ import hmac
 from hashlib import sha1
 
 from keystone import config
+from keystone.common import utils
 from keystone.common import wsgi
 from keystone.contrib import ec2
 
@@ -47,5 +48,5 @@ class S3Controller(ec2.Ec2Controller):
         key = str(creds_ref['secret'])
         signed = base64.encodestring(hmac.new(key, msg, sha1).digest()).strip()
 
-        if credentials['signature'] != signed:
+        if not utils.auth_str_equal(credentials['signature'], signed):
             raise Exception('Not Authorized')
