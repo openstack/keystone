@@ -260,7 +260,7 @@ class Middleware(Application):
     def __init__(self, application):
         self.application = application
 
-    def process_request(self, req):
+    def process_request(self, request):
         """Called on each request.
 
         If this returns None, the next application down the stack will be
@@ -270,17 +270,17 @@ class Middleware(Application):
         """
         return None
 
-    def process_response(self, response):
-        """Do whatever you'd like to the response."""
+    def process_response(self, request, response):
+        """Do whatever you'd like to the response, based on the request."""
         return response
 
     @webob.dec.wsgify(RequestClass=Request)
-    def __call__(self, req):
-        response = self.process_request(req)
+    def __call__(self, request):
+        response = self.process_request(request)
         if response:
             return response
-        response = req.get_response(self.application)
-        return self.process_response(response)
+        response = request.get_response(self.application)
+        return self.process_response(request, response)
 
 
 class Debug(Middleware):
