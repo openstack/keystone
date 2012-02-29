@@ -14,24 +14,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# This file exists as a shim to get devstack testing to pass.
+# It will be removed once devstack has been updated.
 
-from keystone.common import logging
-
-
-class TrivialTrue(object):
-    def can_haz(self, target, credentials):
-        return True
+from keystone.policy.backends import rules
 
 
-class SimpleMatch(object):
-    def can_haz(self, target, credentials):
-        """Check whether key-values in target are present in credentials."""
-        # TODO(termie): handle ANDs, probably by providing a tuple instead of a
-        #               string
-        for requirement in target:
-            key, match = requirement.split(':', 1)
-            check = credentials.get(key)
-            if check is None or isinstance(check, basestring):
-                check = [check]
-            if match in check:
-                return True
+SimpleMatch = rules.Policy

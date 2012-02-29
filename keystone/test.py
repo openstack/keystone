@@ -20,7 +20,9 @@ import subprocess
 import sys
 import time
 
+import mox
 from paste import deploy
+import stubout
 
 from keystone import config
 from keystone.common import kvs
@@ -123,18 +125,26 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         super(TestCase, self).setUp()
         self.config()
+        self.mox = mox.Mox()
+        self.stubs = stubout.StubOutForTesting()
 
     def config(self):
         CONF(config_files=[etcdir('keystone.conf'),
                            testsdir('test_overrides.conf')])
 
     def tearDown(self):
-        for path in self._paths:
-            if path in sys.path:
-                sys.path.remove(path)
-        kvs.INMEMDB.clear()
-        self.reset_opts()
-        super(TestCase, self).tearDown()
+        try:
+            self.mox.UnsetStubs()
+            self.stubs.UnsetAll()
+            self.stubs.SmartUnsetAll()
+            self.mox.VerifyAll()
+            super(TestCase, self).tearDown()
+        finally:
+            for path in self._paths:
+                if path in sys.path:
+                    sys.path.remove(path)
+            kvs.INMEMDB.clear()
+            self.reset_opts()
 
     def opt(self, **kw):
         for k, v in kw.iteritems():

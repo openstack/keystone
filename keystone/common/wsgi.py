@@ -214,9 +214,10 @@ class Application(BaseApplication):
             creds['roles'] = [self.identity_api.get_role(context, role)['name']
                               for role in creds.get('roles', [])]
             # Accept either is_admin or the admin role
-            assert self.policy_api.can_haz(context,
-                                           ('is_admin:1', 'roles:admin'),
-                                            creds)
+            self.policy_api.enforce(context,
+                                    creds,
+                                    'admin_required',
+                                    {})
 
 
 class Middleware(Application):

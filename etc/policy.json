@@ -1,0 +1,3 @@
+{
+    "admin_required": [["role:admin"], ["is_admin:1"]]
+}

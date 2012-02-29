@@ -22,6 +22,7 @@ import base64
 import hashlib
 import hmac
 import json
+import os
 import subprocess
 import sys
 import time
@@ -59,6 +60,48 @@ def import_object(import_str, *args, **kw):
     except ImportError:
         cls = import_class(import_str)
         return cls(*args, **kw)
+
+
+def find_config(config_path):
+    """Find a configuration file using the given hint.
+
+    :param config_path: Full or relative path to the config.
+    :returns: Full path of the config, if it exists.
+
+    """
+    possible_locations = [
+        config_path,
+        os.path.join('etc', 'keystone', config_path),
+        os.path.join('etc', config_path),
+        os.path.join(config_path),
+        '/etc/keystone/%s' % config_path,
+    ]
+
+    for path in possible_locations:
+        if os.path.exists(path):
+            return os.path.abspath(path)
+
+    raise Exception('Config not found: %s', os.path.abspath(config_path))
+
+
+def read_cached_file(filename, cache_info, reload_func=None):
+    """Read from a file if it has been modified.
+
+    :param cache_info: dictionary to hold opaque cache.
+    :param reload_func: optional function to be called with data when
+                        file is reloaded due to a modification.
+
+    :returns: data from file
+
+    """
+    mtime = os.path.getmtime(filename)
+    if not cache_info or mtime != cache_info.get('mtime'):
+        with open(filename) as fap:
+            cache_info['data'] = fap.read()
+        cache_info['mtime'] = mtime
+        if reload_func:
+            reload_func(cache_info['data'])
+    return cache_info['data']
 
 
 class SmarterEncoder(json.JSONEncoder):
