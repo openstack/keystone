@@ -241,6 +241,18 @@ class CoreApiTests(object):
         self.assertIsNotNone(error.get('title'))
         self.assertIsNotNone(error.get('message'))
 
+    def assertValidVersion(self, version):
+        """Applicable to XML and JSON.
+
+        However, navigating links and media-types differs between content
+        types so they need to be validated seperately.
+
+        """
+        self.assertIsNotNone(version)
+        self.assertIsNotNone(version.get('id'))
+        self.assertIsNotNone(version.get('status'))
+        self.assertIsNotNone(version.get('updated'))
+
     def assertValidExtension(self, extension):
         """Applicable to XML and JSON.
 
@@ -284,14 +296,10 @@ class CoreApiTests(object):
         self.assertValidMultipleChoiceResponse(r)
 
     def test_public_version(self):
-        raise nose.exc.SkipTest('Blocked by bug 925548')
-
         r = self.public_request(path='/v2.0/')
         self.assertValidVersionResponse(r)
 
     def test_admin_version(self):
-        raise nose.exc.SkipTest('Blocked by bug 925548')
-
         r = self.admin_request(path='/v2.0/')
         self.assertValidVersionResponse(r)
 
@@ -495,27 +503,30 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         for role in r.body['roles']:
             self.assertValidRole(role)
 
+    def assertValidVersion(self, version):
+        super(JsonTestCase, self).assertValidVersion(version)
+
+        self.assertIsNotNone(version.get('links'))
+        self.assertTrue(len(version.get('links')))
+        for link in version.get('links'):
+            self.assertIsNotNone(link.get('rel'))
+            self.assertIsNotNone(link.get('href'))
+
+        self.assertIsNotNone(version.get('media-types'))
+        self.assertTrue(len(version.get('media-types')))
+        for media in version.get('media-types'):
+            self.assertIsNotNone(media.get('base'))
+            self.assertIsNotNone(media.get('type'))
+
     def assertValidMultipleChoiceResponse(self, r):
         self.assertIsNotNone(r.body.get('versions'))
         self.assertIsNotNone(r.body['versions'].get('values'))
         self.assertTrue(len(r.body['versions']['values']))
         for version in r.body['versions']['values']:
-            self.assertIsNotNone(version.get('id'))
-            self.assertIsNotNone(version.get('status'))
-            self.assertIsNotNone(version.get('updated'))
-            self.assertIsNotNone(version.get('links'))
-            self.assertTrue(len(version.get('links')))
-            for link in version.get('links'):
-                self.assertIsNotNone(link.get('rel'))
-                self.assertIsNotNone(link.get('href'))
-            self.assertIsNotNone(version.get('media-types'))
-            self.assertTrue(len(version.get('media-types')))
-            for media in version.get('media-types'):
-                self.assertIsNotNone(media.get('base'))
-                self.assertIsNotNone(media.get('type'))
+            self.assertValidVersion(version)
 
     def assertValidVersionResponse(self, r):
-        raise NotImplementedError()
+        self.assertValidVersion(r.body.get('version'))
 
 
 class XmlTestCase(RestfulTestCase, CoreApiTests):
@@ -559,31 +570,34 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
 
         self.assertValidExtension(xml)
 
+    def assertValidVersion(self, version):
+        super(XmlTestCase, self).assertValidVersion(version)
+
+        self.assertTrue(len(version.findall(self._tag('link'))))
+        for link in version.findall(self._tag('link')):
+            self.assertIsNotNone(link.get('rel'))
+            self.assertIsNotNone(link.get('href'))
+
+        media_types = version.find(self._tag('media-types'))
+        self.assertIsNotNone(media_types)
+        self.assertTrue(len(media_types.findall(self._tag('media-type'))))
+        for media in media_types.findall(self._tag('media-type')):
+            self.assertIsNotNone(media.get('base'))
+            self.assertIsNotNone(media.get('type'))
+
     def assertValidMultipleChoiceResponse(self, r):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('versions'))
 
         self.assertTrue(len(xml.findall(self._tag('version'))))
         for version in xml.findall(self._tag('version')):
-            # validate service endpoint
-            self.assertIsNotNone(version.get('id'))
-            self.assertIsNotNone(version.get('status'))
-            self.assertIsNotNone(version.get('updated'))
-
-            self.assertTrue(len(version.findall(self._tag('link'))))
-            for link in version.findall(self._tag('link')):
-                self.assertIsNotNone(link.get('rel'))
-                self.assertIsNotNone(link.get('href'))
-
-            media_types = version.find(self._tag('media-types'))
-            self.assertIsNotNone(media_types)
-            self.assertTrue(len(media_types.findall(self._tag('media-type'))))
-            for media in media_types.findall(self._tag('media-type')):
-                self.assertIsNotNone(media.get('base'))
-                self.assertIsNotNone(media.get('type'))
+            self.assertValidVersion(version)
 
     def assertValidVersionResponse(self, r):
-        raise NotImplementedError()
+        xml = r.body
+        self.assertEqual(xml.tag, self._tag('version'))
+
+        self.assertValidVersion(xml)
 
     def assertValidTokenCatalogResponse(self, r):
         xml = r.body
