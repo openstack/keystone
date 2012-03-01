@@ -41,11 +41,12 @@ General keystone-manage options:
 
 Invoking keystone-manage by itself will give you some usage information.
 
-Available keystone-manage commands:
-  db_sync: Sync the database.
-  import_legacy: Import a legacy (pre-essex) version of the db.
-  export_legacy_catalog: Export service catalog from a legacy (pre-essex) db.
+Available commands:
 
+* ``db_sync``: Sync the database.
+* ``export_legacy_catalog``: Export the service catalog from a legacy database.
+* ``import_legacy``: Import a legacy database.
+* ``import_nova_auth``: Import a dump of nova auth data into keystone.
 
 OPTIONS
 =======

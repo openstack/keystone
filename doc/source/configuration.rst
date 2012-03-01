@@ -28,47 +28,66 @@ Once Keystone is installed, it is configured via a primary configuration file
 (``etc/keystone.conf``), possibly a separate logging configuration file, and
 initializing data into keystone using the command line client.
 
+Starting and Stopping Keystone
+==============================
 
-Keystone Configuration File
-===========================
+Start Keystone services using the command::
 
-The keystone configuration file is an 'ini' file format with sections,
-extended from Paste_, a common system used to configure python WSGI based
-applications. In addition to the paste config entries, general configuration
-values are stored under ``[DEFAULT]``, ``[sql]``, ``[ec2]`` and then drivers
-for the various services are included under their individual sections.
+    $ keystone-all
 
-The services include:
-* ``[identity]`` - the python module that backends the identity system
-* ``[catalog]`` - the python module that backends the service catalog
-* ``[token]`` - the python module that backends the token providing mechanisms
-* ``[policy]`` - the python module that drives the policy system for RBAC
+Invoking this command starts up two ``wsgi.Server`` instances, ``admin`` (the
+administration API) and ``main`` (the primary/public API interface). Both
+services are configured by ``keystone.conf`` as run in a single process.
 
-The keystone configuration file is expected to be named ``keystone.conf``.
-When starting up Keystone, you can specify a different configuration file to
+Stop the process using ``Control-C``.
+
+.. NOTE::
+    If you have not already configured Keystone, it may not start as expected.
+
+Configuration Files
+===================
+
+The keystone configuration file is an ``ini`` file based on Paste_, a
+common system used to configure python WSGI based applications. In addition to
+the paste configuration entries, general and driver-specific configuration
+values are organized into the following sections:
+
+* ``[DEFAULT]`` - general configuration
+* ``[sql]`` - optional storage backend configuration
+* ``[ec2]`` - Amazon EC2 authentication driver configuration
+* ``[identity]`` - identity system driver configuration
+* ``[catalog]`` - service catalog driver configuration
+* ``[token]`` - token driver configuration
+* ``[policy]`` - policy system driver configuration for RBAC
+
+The Keystone configuration file is expected to be named ``keystone.conf``.
+When starting keystone, you can specify a different configuration file to
 use with ``--config-file``. If you do **not** specify a configuration file,
 keystone will look in the following directories for a configuration file, in
 order:
 
-* ``~/.keystone``
+* ``~/.keystone/``
 * ``~/``
-* ``/etc/keystone``
-* ``/etc``
+* ``/etc/keystone/``
+* ``/etc/``
 
-Logging is configured externally to the rest of keystone, the file specifying
-the logging configuration is in the [DEFAULT] section of the keystone conf
-file under ``log_config``. If you wish to route all your logging through
-syslog, there is a ``use_syslog`` option also in the [DEFAULT] section that
-easy.
+Your Keystone service catalog can also be defined in a flat ``template_file``
+defined by ``[catalog] template_file`` in ``keystone.conf``. The default
+``template_file`` is included in Keystone as an example, but you must create
+your own to reflect your deployment and update the path in ``keystone.conf``.
+If you are migrating from a legacy deployment, a tool is available to help with
+this task (see `Migrating your Service Catalog from legacy versions of
+Keystone`_).
 
-A sample logging file is available with the project in the directory
-``etc/logging.conf.sample``. Like other OpenStack projects, keystone uses the
+Logging is configured externally to the rest of keystone. Configure the path
+to your logging configuration file using the ``[DEFAULT] log_config`` option of
+``keystone.conf``. If you wish to route all your logging through syslog, set
+the ``[DEFAULT] use_syslog`` option.
+
+A sample ``log_config`` file is included with the project at
+``etc/logging.conf.sample``. Like other OpenStack projects, Keystone uses the
 `python logging module`, which includes extensive configuration options for
 choosing the output levels and formats.
-
-In addition to this documentation page, you can check the ``etc/keystone.conf``
-sample configuration files distributed with keystone for example configuration
-files for each server application.
 
 .. _Paste: http://pythonpaste.org/
 .. _`python logging module`: http://docs.python.org/library/logging.html
@@ -76,161 +95,244 @@ files for each server application.
 Sample Configuration Files
 --------------------------
 
+The ``etc/`` folder distributed with Keystone contains example configuration
+files for each Server application.
+
 * ``etc/keystone.conf``
 * ``etc/logging.conf.sample``
 
-Running Keystone
-================
+.. _`prepare your Essex deployment`:
 
-Running keystone is simply starting the services by using the command::
+Preparing your Essex deployment
+===============================
 
-    keystone-all
+Step 1: Configure keystone.conf
+-------------------------------
 
-Invoking this command starts up two wsgi.Server instances, configured by the
-``keystone.conf`` file as described above. One of these wsgi 'servers' is
-``admin`` (the administration API) and the other is ``main`` (the
-primary/public  API interface). Both of these run in a single process.
+Ensure that your ``keystone.conf`` is configured to use a SQL driver::
 
-Migrating from legacy versions of keystone
+    [identity]
+    driver = keystone.identity.backends.sql.Identity
+
+You may also want to configure your ``[sql]`` settings to better reflect your
+environment::
+
+    [sql]
+    connection = sqlite:///keystone.db
+    idle_timeout = 200
+    min_pool_size = 5
+    max_pool_size = 10
+    pool_timeout = 200
+
+.. NOTE::
+
+    It is important that the database that you specify be different from the
+    one containing your existing install.
+
+Step 2: Sync your new, empty database
+-------------------------------------
+
+You should now be ready to initialize your new database without error, using::
+
+    $ keystone-manage db_sync
+
+To test this, you should now be able to start ``keystone-all`` and use the
+Keystone Client to list your tenants (which should successfully return an
+empty list from your new database)::
+
+    $ keystone --token ADMIN --endpoint http://127.0.0.1:35357/v2.0/ tenant-list
+    +----+------+---------+
+    | id | name | enabled |
+    +----+------+---------+
+    +----+------+---------+
+
+.. NOTE::
+
+    We're providing the default SERVICE_TOKEN and SERVICE_ENDPOINT values from
+    ``keystone.conf`` to connect to the Keystone service. If you changed those
+    values, or deployed Keystone to a different endpoint, you will need to
+    change the provided command accordingly.
+
+Migrating from legacy versions of Keystone
 ==========================================
-Migration support is provided for the following legacy keystone versions:
+
+Migration support is provided for the following legacy Keystone versions:
 
 * diablo-5
 * stable/diablo
 * essex-2
 * essex-3
 
-To migrate from legacy versions of keystone, use the following steps:
+.. NOTE::
+    Before you can import your legacy data, you must first
+    `prepare your Essex deployment`_.
 
-Step 1: Configure keystone.conf
+Step 1: Ensure your Essex deployment can access your legacy database
+--------------------------------------------------------------------
+
+Your legacy ``keystone.conf`` contains a SQL configuration section called
+``[keystone.backends.sqlalchemy]`` connection string which, by default,
+looks like::
+
+    sql_connection = sqlite:///keystone.db
+
+This connection string needs to be accessible from your Essex deployment (e.g.
+you may need to copy your SQLite ``*.db`` file to a new server, adjust the
+relative path as appropriate, or open a firewall for MySQL, etc).
+
+Step 2: Import your legacy data
 -------------------------------
-It is important that the database that you specify be different from the one
-containing your existing install.
 
-Step 2: db_sync your new, empty database
-----------------------------------------
-Run the following command to configure the most recent schema in your new
-keystone installation::
+Use the following command to import your old data using the value of
+``sql_connection`` from step 3::
 
-    keystone-manage db_sync
+    $ keystone-manage import_legacy <sql_connection>
 
-Step 3: Import your legacy data
--------------------------------
-Use the following command to import your old data::
+You should now be able to run the same command you used to test your new
+database above, but now you'll see your legacy Keystone data in Essex::
 
-    keystone-manage import_legacy [db_url, e.g. 'mysql://root@foobar/keystone']
+    $ keystone --token ADMIN --endpoint http://127.0.0.1:35357/v2.0/ tenant-list
+    +----------------------------------+----------------+---------+
+    |                id                |      name      | enabled |
+    +----------------------------------+----------------+---------+
+    | 12edde26a6224199a66ece67b762a065 | project-y      | True    |
+    | 593715ed4359404999915ea7005a7da1 | ANOTHER:TENANT | True    |
+    | be57fed798b049bc9637d2be30bfa857 | coffee-tea     | True    |
+    | e3c382f4757a4385b502056431763cca | customer-x     | True    |
+    +----------------------------------+----------------+---------+
 
-Specify db_url as the connection string that was present in your old
-keystone.conf file.
 
-Step 4: Import your legacy service catalog
-------------------------------------------
-While the older keystone stored the service catalog in the database,
-the updated version configures the service catalog using a template file.
-An example service catalog template file may be found in
-etc/default_catalog.templates.
+Migrating your Service Catalog from legacy versions of Keystone
+===============================================================
 
-To import your legacy catalog, run this command::
+While legacy Keystone deployments stored the service catalog in the database,
+the service catalog in Essex is stored in a flat ``template_file``. An example
+service catalog template file may be found in
+``etc/default_catalog.templates``. You can change the path to your service
+catalog template in ``keystone.conf`` by changing the value of
+``[catalog] template_file``.
 
-    keystone-manage export_legacy_catalog \
-        [db_url e.g. 'mysql://root@foobar/keystone'] > \
-        [path_to_templates e.g. 'etc/default_catalog.templates']
+Import your legacy catalog and redirect the output to your ``template_file``::
 
-After executing this command, you will need to restart the keystone service to
-see your changes.
+    $ keystone-manage export_legacy_catalog <sql_connection> > <template_file>
+
+.. NOTE::
+
+    After executing this command, you will need to restart the Keystone
+    service to see your changes.
 
 Migrating from Nova Auth
 ========================
+
 Migration of users, projects (aka tenants), roles and EC2 credentials
 is supported for the Diablo and Essex releases of Nova. To migrate your auth
 data from Nova, use the following steps:
 
+.. NOTE::
+    Before you can migrate from nova auth, you must first
+    `prepare your Essex deployment`_.
+
 Step 1: Export your data from Nova
 ----------------------------------
-Use the following command to export your data fron Nova::
 
-    nova-manage export auth > /path/to/dump
+Use the following command to export your data from Nova to a ``dump_file``::
 
-It is important to redirect the output to a file so it can be imported
-in a later step.
+    $ nova-manage export auth > /path/to/dump
 
-Step 2: db_sync your new, empty database
-----------------------------------------
-Run the following command to configure the most recent schema in your new
-keystone installation::
+It is important to redirect the output to a file so it can be imported in the
+next step.
 
-    keystone-manage db_sync
-
-Step 3: Import your data to Keystone
+Step 2: Import your data to Keystone
 ------------------------------------
-To import your Nova auth data from a dump file created with nova-manage,
-run this command::
 
-    keystone-manage import_nova_auth [dump_file, e.g. /path/to/dump]
+Import your Nova auth data from a ``dump_file`` created with ``nova-manage``::
 
-.. note::
-    Users are added to Keystone with the user id from Nova as the user name.
-    Nova's projects are imported with the project id as the tenant name. The
-    password used to authenticate a user in Keystone will be the api key
+    $ keystone-manage import_nova_auth <dump_file>
+
+.. NOTE::
+    Users are added to Keystone with the user ID from Nova as the user name.
+    Nova's projects are imported with the project ID as the tenant name. The
+    password used to authenticate a user in Keystone will be the API key
     (also EC2 access key) used in Nova. Users also lose any administrative
     privileges they had in Nova. The necessary admin role must be explicitly
     re-assigned to each user.
 
-.. note::
+.. NOTE::
     Users in Nova's auth system have a single set of EC2 credentials that
     works with all projects (tenants) that user can access. In Keystone, these
     credentials are scoped to a single user/tenant pair. In order to use the
     same secret keys from Nova, you must prefix each corresponding access key
-    with the id of the project used in Nova. For example, if you had access
+    with the ID of the project used in Nova. For example, if you had access
     to the 'Beta' project in your Nova installation with the access/secret
-    keys 'XXX'/'YYY', you should use 'Beta:XXX'/'YYY' in Keystone. These
-    credentials are active once your migration is complete.
+    keys 'ACCESS'/'SECRET', you should use 'Beta:ACCESS'/'SECRET' in Keystone.
+    These credentials are active once your migration is complete.
 
 Initializing Keystone
 =====================
 
-keystone-manage is designed to execute commands that cannot be administered
-through the normal REST api.  At the moment, the following calls are supported:
+``keystone-manage`` is designed to execute commands that cannot be administered
+through the normal REST API. At the moment, the following calls are supported:
 
-* ``db_sync``: Sync the database.
-* ``import_legacy``: Import a legacy (pre-essex) version of the db.
-* ``export_legacy_catalog``: Export service catalog from a legacy (pre-essex) db.
-* ``import_nova_auth``: Load auth data from a dump created with keystone-manage.
+* ``db_sync``: Sync the database schema.
+* ``import_legacy``: Import data from a legacy (pre-Essex) database.
+* ``export_legacy_catalog``: Export service catalog from a legacy (pre-Essex) database.
+* ``import_nova_auth``: Load auth data from a dump created with ``nova-manage``.
 
-
-Generally, the following is the first step after a source installation::
-
-    keystone-manage db_sync
-
-Invoking keystone-manage by itself will give you additional usage information.
+Invoking ``keystone-manage`` by itself will give you additional usage
+information.
 
 Adding Users, Tenants, and Roles with python-keystoneclient
 ===========================================================
 
 User, tenants, and roles must be administered using admin credentials.
-There are two ways to configure python-keystoneclient to use admin
-credentials, using the token auth method, or password auth method.
+There are two ways to configure ``python-keystoneclient`` to use admin
+credentials, using the either an existing token or password credentials.
 
-Token Auth Method
------------------
-To use keystone client using token auth, set the following flags
+Authenticating with a Token
+---------------------------
 
-* ``--endpoint SERVICE_ENDPOINT`` : allows you to specify the keystone endpoint to communicate
-  with. The default endpoint is http://localhost:35357/v2.0'
-* ``--token SERVICE_TOKEN`` : your administrator service token.
+.. NOTE::
+    If your Keystone deployment is brand new, you will need to use this
+    authentication method, along with your ``[DEFAULT] admin_token``.
 
-Password Auth Method
---------------------
+To use Keystone with a token, set the following flags:
 
-* ``--username OS_USERNAME`` : allows you to specify the keystone endpoint to communicate
-  with. For example, http://localhost:35357/v2.0'
-* ``--password OS_PASSWORD`` : Your administrator password
-* ``--tenant_name OS_TENANT_NAME`` : Name of your tenant
-* ``--auth_url OS_AUTH_URL`` : url of your keystone auth server, for example
-http://localhost:5000/v2.0'
+* ``--endpoint SERVICE_ENDPOINT``: allows you to specify the Keystone endpoint
+  to communicate with. The default endpoint is ``http://localhost:35357/v2.0``
+* ``--token SERVICE_TOKEN``: your service token
+
+To administer a Keystone endpoint, your token should be either belong to a user
+with the ``admin`` role, or, if you haven't created one yet, should be equal to
+the value defined by ``[DEFAULT] admin_token`` in your ``keystone.conf``.
+
+You can also set these variables in your environment so that they do not need
+to be passed as arguments each time::
+
+    $ export SERVICE_ENDPOINT=http://localhost:35357/v2.0
+    $ export SERVICE_TOKEN=ADMIN
+
+Authenticating with a Password
+------------------------------
+
+To administer a Keystone endpoint, the following user referenced below should
+be granted the ``admin`` role.
+
+* ``--username OS_USERNAME``: Name of your user
+* ``--password OS_PASSWORD``: Password for your user
+* ``--tenant_name OS_TENANT_NAME``: Name of your tenant
+* ``--auth_url OS_AUTH_URL``: URL of your Keystone auth server, e.g.
+  ``http://localhost:5000/v2.0``
+
+You can also set these variables in your environment so that they do not need
+to be passed as arguments each time::
+
+    $ export OS_USERNAME=my_username
+    $ export OS_PASSWORD=my_password
+    $ export OS_TENANT_NAME=my_tenant
 
 Example usage
 -------------
+
 ``keystone`` is set up to expect commands in the general form of
 ``keystone`` ``command`` ``argument``, followed by flag-like keyword arguments to
 provide additional (often optional) information. For example, the command
@@ -277,7 +379,7 @@ keyword arguments
 
 example::
 
-	keystone tenant-create --name=demo
+    $ keystone tenant-create --name=demo
 
 creates a tenant named "demo".
 
@@ -290,7 +392,7 @@ arguments
 
 example::
 
-	keystone tenant-delete f2b7b39c860840dfa47d9ee4adffa0b3
+    $ keystone tenant-delete f2b7b39c860840dfa47d9ee4adffa0b3
 
 ``tenant-enable``
 ^^^^^^^^^^^^^^^^^
@@ -301,10 +403,10 @@ arguments
 
 example::
 
-	keystone tenant-enable f2b7b39c860840dfa47d9ee4adffa0b3
+    $ keystone tenant-enable f2b7b39c860840dfa47d9ee4adffa0b3
 
 ``tenant-disable``
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 arguments
 
@@ -312,7 +414,7 @@ arguments
 
 example::
 
-	keystone tenant-disable f2b7b39c860840dfa47d9ee4adffa0b3
+    $ keystone tenant-disable f2b7b39c860840dfa47d9ee4adffa0b3
 
 Users
 -----
@@ -330,10 +432,10 @@ keyword arguments
 
 example::
 
-	keystone user-create
-	--name=admin \
-	--pass=secrete \
-	--email=admin@example.com
+    $ keystone user-create
+    --name=admin \
+    --pass=secrete \
+    --email=admin@example.com
 
 ``user-delete``
 ^^^^^^^^^^^^^^^
@@ -344,7 +446,7 @@ keyword arguments
 
 example::
 
-	keystone user-delete f2b7b39c860840dfa47d9ee4adffa0b3
+    $ keystone user-delete f2b7b39c860840dfa47d9ee4adffa0b3
 
 ``user-list``
 ^^^^^^^^^^^^^
@@ -357,7 +459,7 @@ arguments
 
 example::
 
-	keystone user-list
+    $ keystone user-list
 
 ``user-update-email``
 ^^^^^^^^^^^^^^^^^^^^^
@@ -369,10 +471,10 @@ arguments
 
 example::
 
-	keystone user-update-email 03c84b51574841ba9a0d8db7882ac645 "someone@somewhere.com"
+    $ keystone user-update-email 03c84b51574841ba9a0d8db7882ac645 "someone@somewhere.com"
 
 ``user-enable``
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 arguments
 
@@ -380,10 +482,10 @@ arguments
 
 example::
 
-	keystone user-enable 03c84b51574841ba9a0d8db7882ac645
+    $ keystone user-enable 03c84b51574841ba9a0d8db7882ac645
 
 ``user-disable``
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
 arguments
 
@@ -391,7 +493,7 @@ arguments
 
 example::
 
-	keystone user-disable 03c84b51574841ba9a0d8db7882ac645
+    $ keystone user-disable 03c84b51574841ba9a0d8db7882ac645
 
 
 ``user-update-password``
@@ -404,7 +506,7 @@ arguments
 
 example::
 
-    keystone user-update-password 03c84b51574841ba9a0d8db7882ac645 foo
+    $ keystone user-update-password 03c84b51574841ba9a0d8db7882ac645 foo
 
 Roles
 -----
@@ -418,7 +520,7 @@ arguments
 
 exmaple::
 
-	keystone role-create --name=demo
+    $ keystone role-create --name=demo
 
 ``role-delete``
 ^^^^^^^^^^^^^^^
@@ -429,14 +531,14 @@ arguments
 
 exmaple::
 
-	keystone role-delete 19d1d3344873464d819c45f521ff9890
+    $ keystone role-delete 19d1d3344873464d819c45f521ff9890
 
 ``role-list``
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 exmaple::
 
-	keystone role-list
+    $ keystone role-list
 
 ``role-get``
 ^^^^^^^^^^^^
@@ -447,11 +549,11 @@ arguments
 
 exmaple::
 
-	keystone role-get role=19d1d3344873464d819c45f521ff9890
+    $ keystone role-get role=19d1d3344873464d819c45f521ff9890
 
 
 ``add-user-role``
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 
 arguments
 
@@ -461,13 +563,13 @@ arguments
 
 example::
 
-	keystone role add-user-role \
-	3a751f78ef4c412b827540b829e2d7dd \
-	03c84b51574841ba9a0d8db7882ac645 \
-	20601a7f1d94447daa4dff438cb1c209
+    $ keystone role add-user-role \
+    3a751f78ef4c412b827540b829e2d7dd \
+    03c84b51574841ba9a0d8db7882ac645 \
+    20601a7f1d94447daa4dff438cb1c209
 
 ``remove-user-role``
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
 
 arguments
 
@@ -477,10 +579,10 @@ arguments
 
 example::
 
-	keystone remove-user-role \
-	19d1d3344873464d819c45f521ff9890 \
-	08741d8ed88242ca88d1f61484a0fe3b \
-	20601a7f1d94447daa4dff438cb1c209
+    $ keystone remove-user-role \
+    19d1d3344873464d819c45f521ff9890 \
+    08741d8ed88242ca88d1f61484a0fe3b \
+    20601a7f1d94447daa4dff438cb1c209
 
 Services
 --------
@@ -496,7 +598,7 @@ keyword arguments
 
 example::
 
-    keystone service create \
+    $ keystone service create \
     --name=nova \
     --type=compute \
     --description="Nova Compute Service"
@@ -510,7 +612,7 @@ arguments
 
 example::
 
-	keystone service-list
+    $ keystone service-list
 
 ``service-get``
 ^^^^^^^^^^^^^^^
@@ -521,7 +623,7 @@ arguments
 
 example::
 
-	keystone service-get 08741d8ed88242ca88d1f61484a0fe3b
+    $ keystone service-get 08741d8ed88242ca88d1f61484a0fe3b
 
 ``service-delete``
 ^^^^^^^^^^^^^^^^^^
@@ -532,5 +634,5 @@ arguments
 
 example::
 
-	keystone service-delete 08741d8ed88242ca88d1f61484a0fe3b
+    $ keystone service-delete 08741d8ed88242ca88d1f61484a0fe3b
 
