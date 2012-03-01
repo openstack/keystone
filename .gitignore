@@ -11,7 +11,7 @@ covhtml
 pep8.txt
 nosetests.xml
 *.db
-docs/build
+doc/build
 .DS_Store
-docs/source/modules.rst
-docs/source/keystone.*
+doc/source/modules.rst
+doc/source/keystone.*
