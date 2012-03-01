@@ -215,9 +215,9 @@ Token Auth Method
 -----------------
 To use keystone client using token auth, set the following flags
 
-* ``--endpoint SERVIVE_ENDPOINT`` : allows you to specify the keystone endpoint to communicate
+* ``--endpoint SERVICE_ENDPOINT`` : allows you to specify the keystone endpoint to communicate
   with. The default endpoint is http://localhost:35357/v2.0'
-* ``--token SERVIVE_TOKEN`` : your administrator service token.
+* ``--token SERVICE_TOKEN`` : your administrator service token.
 
 Password Auth Method
 --------------------
