@@ -31,6 +31,3 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def tearDown(self):
         test.TestCase.tearDown(self)
-
-    def test_get_user_by_name(self):
-        raise nose.exc.SkipTest('not implemented in ldap yet')
