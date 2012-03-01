@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 #
-# Sample data for Keystone using python-keystoneclient
+# Sample initial data for Keystone using python-keystoneclient
 #
-# This is based on the origina sample configuration created by DevStack.
+# This script is based on the original DevStack keystone_data.sh script.
+#
 # It demonstrates how to bootstrap Keystone with an administrative user
 # using the SERVICE_TOKEN and SERVICE_ENDPOINT environment variables
-# and the administrative API.  It need not be run on the node running
-# Keystone, but will get the admin_token (SERVICE_TOKEN) and admin_port
-# from keystone.conf if available.
+# and the administrative API.  It will get the admin_token (SERVICE_TOKEN)
+# and admin_port from keystone.conf if available.
+#
+# There are two environment variables to set passwords that should be set
+# prior to running this script.  Warnings will appear if they are unset.
+# * ADMIN_PASSWORD is used to set the password for the admin and demo accounts.
+# * SERVICE_PASSWORD is used to set the password for the service accounts.
+#
+# Enable the Swift and Quantum accounts by setting ENABLE_SWIFT and/or 
+# ENABLE_QUANTUM environment variables.
 #
 # A set of EC2-compatible credentials is created for both admin and demo
 # users and placed in etc/ec2rc.
@@ -15,17 +23,26 @@
 # Tenant               User      Roles
 # -------------------------------------------------------
 # admin                admin     admin
+# service              glance    admin
+# service              nova      admin
+# service              quantum   admin        # if enabled
+# service              swift     admin        # if enabled
 # demo                 admin     admin
 # demo                 demo      Member,sysadmin,netadmin
 # invisible_to_admin   demo      Member
 
 TOOLS_DIR=$(cd $(dirname "$0") && pwd)
 
-# Please set this, it is ONLY A SAMPLE PASSWORD!
+# Please set these, they are ONLY SAMPLE PASSWORDS!
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-secrete}
 if [[ "$ADMIN_PASSWORD" == "secrete" ]]; then
     echo "The default admin password has been detected.  Please consider"
     echo "setting an actual password in environment variable ADMIN_PASSWORD"
+fi
+SERVICE_PASSWORD=${SERVICE_PASSWORD:-$ADMIN_PASSWORD}
+if [[ "$SERVICE_PASSWORD" == "$ADMIN_PASSWORD" ]]; then
+    echo "The default service password has been detected.  Please consider"
+    echo "setting an actual password in environment variable SERVICE_PASSWORD"
 fi
 
 # Extract some info from Keystone's configuration file
@@ -50,6 +67,7 @@ function get_id () {
 
 # Tenants
 ADMIN_TENANT=$(get_id keystone tenant-create --name=admin)
+SERVICE_TENANT=$(get_id keystone tenant-create --name=service)
 DEMO_TENANT=$(get_id keystone tenant-create --name=demo)
 INVIS_TENANT=$(get_id keystone tenant-create --name=invisible_to_admin)
 
@@ -89,6 +107,13 @@ keystone user-role-add --user $ADMIN_USER --role $KEYSTONESERVICE_ROLE --tenant_
 keystone service-create --name=nova \
                         --type=compute \
                         --description="Nova Compute Service"
+NOVA_USER=$(get_id keystone user-create --name=nova \
+                                        --pass="$SERVICE_PASSWORD" \
+                                        --tenant_id $SERVICE_TENANT \
+                                        --email=nova@example.com)
+keystone user-role-add --tenant_id $SERVICE_TENANT \
+                       --user $NOVA_USER \
+                       --role $ADMIN_ROLE
 
 keystone service-create --name=ec2 \
                         --type=ec2 \
@@ -97,25 +122,50 @@ keystone service-create --name=ec2 \
 keystone service-create --name=glance \
                         --type=image \
                         --description="Glance Image Service"
+GLANCE_USER=$(get_id keystone user-create --name=glance \
+                                          --pass="$SERVICE_PASSWORD" \
+                                          --tenant_id $SERVICE_TENANT \
+                                          --email=glance@example.com)
+keystone user-role-add --tenant_id $SERVICE_TENANT \
+                       --user $GLANCE_USER \
+                       --role $ADMIN_ROLE
 
 keystone service-create --name=keystone \
                         --type=identity \
                         --description="Keystone Identity Service"
 
-keystone service-create --name=swift \
+keystone service-create --name=volume \
                         --type="nova-volume" \
                         --description="Nova Volume Service"
 
-if [[ -d "$TOOLS_DIR/../../swift" ]]; then
+keystone service-create --name="horizon" \
+						--type=dashboard \
+						--description="OpenStack Dashboard"
+
+if [[ -n "$ENABLE_SWIFT" ]]; then
     keystone service-create --name=swift \
                             --type="object-store" \
                             --description="Swift Service"
+    SWIFT_USER=$(get_id keystone user-create --name=swift \
+                                             --pass="$SERVICE_PASSWORD" \
+                                             --tenant_id $SERVICE_TENANT \
+                                             --email=swift@example.com)
+    keystone user-role-add --tenant_id $SERVICE_TENANT \
+                           --user $SWIFT_USER \
+                           --role $ADMIN_ROLE
 fi
 
-if [[ -d "$TOOLD_DIR/../../quantum" ]]; then
+if [[ -n "$ENABLE_QUANTUM" ]]; then
     keystone service-create --name=quantum \
                             --type=network \
                             --description="Quantum Service"
+    QUANTUM_USER=$(get_id keystone user-create --name=quantum \
+                                               --pass="$SERVICE_PASSWORD" \
+                                               --tenant_id $SERVICE_TENANT \
+                                               --email=quantum@example.com)
+    keystone user-role-add --tenant_id $SERVICE_TENANT \
+                           --user $QUANTUM_USER \
+                           --role $ADMIN_ROLE
 fi
 
 
