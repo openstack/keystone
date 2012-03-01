@@ -49,7 +49,9 @@ class Identity(kvs.Base, identity.Driver):
         if (not user_ref
             or not utils.check_password(password, user_ref.get('password'))):
             raise AssertionError('Invalid user / password')
-        if tenant_id and tenant_id not in user_ref['tenants']:
+
+        tenants = self.get_tenants_for_user(user_id)
+        if tenant_id and tenant_id not in tenants:
             raise AssertionError('Invalid tenant')
 
         tenant_ref = self.get_tenant(tenant_id)

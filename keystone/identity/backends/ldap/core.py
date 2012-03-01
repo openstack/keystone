@@ -74,17 +74,11 @@ class Identity(identity.Driver):
         except Exception:
             raise AssertionError('Invalid user / password')
 
-        if tenant_id:
-            found = False
-            for tenant in user_ref['tenants']:
-                if tenant == tenant_id:
-                    found = True
-                    break
+        tenants = self.get_tenants_for_user(user_id)
+        if tenant_id and tenant_id not in tenants:
+            raise AssertionError('Invalid tenant')
 
-            if not found:
-                raise AssertionError('Invalid tenant')
-
-        tenant_ref = self.tenant.get(tenant_id)
+        tenant_ref = self.get_tenant(tenant_id)
         metadata_ref = {}
         # TODO(termie): this should probably be made into a get roles call
         #if tenant_ref:
@@ -103,10 +97,6 @@ class Identity(identity.Driver):
         user_ref = self.user.get(user_id)
         if not user_ref:
             return None
-        tenants = self.tenant.get_user_tenants(user_id)
-        user_ref['tenants'] = []
-        for tenant in tenants:
-            user_ref['tenants'].append(tenant['id'])
         return user_ref
 
     def get_user(self, user_id):

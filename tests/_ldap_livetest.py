@@ -1,6 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 import subprocess
+import nose.exc
 
 from keystone import config
 from keystone import test
@@ -27,20 +28,20 @@ def delete_object(name):
 
 def clear_live_database():
     roles = ['keystone_admin']
-    groups = ['baz', 'bar', 'tenent4add','fake1','fake2']
-    users = ['foo', 'two','fake1','fake2']
+    groups = ['baz', 'bar', 'tenent4add', 'fake1', 'fake2']
+    users = ['foo', 'two', 'fake1', 'fake2']
     roles = ['keystone_admin', 'useless']
 
     for group in groups:
         for role in roles:
-            delete_object ('cn=%s,cn=%s,ou=Groups' % (role, group))
+            delete_object('cn=%s,cn=%s,ou=Groups' % (role, group))
         delete_object('cn=%s,ou=Groups' % group)
 
     for user in users:
-        delete_object ('cn=%s,ou=Users' % user)
+        delete_object('cn=%s,ou=Users' % user)
 
     for role in roles:
-        delete_object ('cn=%s,ou=Roles' % role)
+        delete_object('cn=%s,ou=Roles' % role)
 
 
 class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
@@ -52,10 +53,9 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_live_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        self.user_foo = {'id': 'foo',
-                         'name': 'FOO',
-                         'password': 'foo2',
-                         'tenants': ['bar']}
 
     def tearDown(self):
         test.TestCase.tearDown(self)
+
+    def test_get_user_by_name(self):
+        raise nose.exc.SkipTest('not implemented in ldap yet')
