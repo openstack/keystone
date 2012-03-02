@@ -12,7 +12,7 @@ CONF = config.CONF
 def setup_test_database():
     # TODO(termie): be smart about this
     try:
-        os.unlink('bla.db')
+        os.unlink('test.db')
     except Exception:
         pass
     migration.db_sync()
