@@ -1,5 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import nose.exc
+
 from keystone import config
 from keystone import test
 from keystone.common.ldap import fakeldap
@@ -26,10 +28,9 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        self.user_foo = {'id': 'foo',
-                         'name': 'FOO',
-                         'password': 'foo2',
-                         'tenants': ['bar']}
 
     def tearDown(self):
         test.TestCase.tearDown(self)
+
+    def test_get_user_by_name(self):
+        raise nose.exc.SkipTest('not implemented in ldap yet')

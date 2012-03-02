@@ -71,7 +71,6 @@ class IdentityTests(object):
         user_ref = self.identity_api._get_user(self.user_foo['id'])
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
 
-
     def test_get_tenant_bad_tenant(self):
         tenant_ref = self.identity_api.get_tenant(
                 tenant_id=self.tenant_bar['id'] + 'WRONG')
@@ -99,6 +98,15 @@ class IdentityTests(object):
 
     def test_get_user(self):
         user_ref = self.identity_api.get_user(user_id=self.user_foo['id'])
+        # NOTE(termie): the password field is left in user_foo to make it easier
+        #               to authenticate in tests, but should not be returned by
+        #               the api
+        self.user_foo.pop('password')
+        self.assertDictEquals(user_ref, self.user_foo)
+
+    def test_get_user_by_name(self):
+        user_ref = self.identity_api.get_user_by_name(
+                user_name=self.user_foo['name'])
         # NOTE(termie): the password field is left in user_foo to make it easier
         #               to authenticate in tests, but should not be returned by
         #               the api

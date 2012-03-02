@@ -128,8 +128,6 @@ class Identity(sql.Base, identity.Driver):
 
         """
         user_ref = self._get_user(user_id)
-        tenant_ref = None
-        metadata_ref = None
         if (not user_ref
             or not utils.check_password(password, user_ref.get('password'))):
             raise AssertionError('Invalid user / password')
