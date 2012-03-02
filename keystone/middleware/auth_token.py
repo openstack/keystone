@@ -90,9 +90,11 @@ HTTP_X_ROLE
 
 """
 
+import datetime
 import httplib
 import json
 import logging
+import time
 
 import webob
 import webob.exc
@@ -142,6 +144,20 @@ class AuthProtocol(object):
         self.admin_user = conf.get('admin_user')
         self.admin_password = conf.get('admin_password')
         self.admin_tenant_name = conf.get('admin_tenant_name', 'admin')
+
+        # Token caching via memcache
+        self._cache = None
+        memcache_servers = conf.get('memcache_servers')
+        # By default the token will be cached for 5 minutes
+        self.token_cache_time = conf.get('token_cache_time', 300)
+        if memcache_servers:
+            try:
+                import memcache
+                import iso8601
+                logger.info('Using memcache for caching token')
+                self._cache = memcache.Client(memcache_servers.split(','))
+            except NameError as e:
+                logger.warn('disabled caching due to missing libraries %s', e)
 
     def __call__(self, env, start_response):
         """Handle incoming request.
@@ -317,16 +333,22 @@ class AuthProtocol(object):
         :raise ServiceError if unable to authenticate token
 
         """
+        cached = self._cache_get(user_token)
+        if cached:
+            return cached
+
         headers = {'X-Auth-Token': self.get_admin_token()}
         response, data = self._json_request('GET',
                                             '/v2.0/tokens/%s' % user_token,
                                             additional_headers=headers)
 
         if response.status == 200:
+            self._cache_put(user_token, data)
             return data
         if response.status == 404:
             # FIXME(ja): I'm assuming the 404 status means that user_token is
             #            invalid - not that the admin_token is invalid
+            self._cache_store_invalid(user_token)
             raise InvalidUserToken('Token authorization failed')
         if response.status == 401:
             logger.info('Keystone rejected admin token, resetting')
@@ -418,6 +440,54 @@ class AuthProtocol(object):
         """Get http header from environment."""
         env_key = self._header_to_env_var(key)
         return env.get(env_key, default)
+
+    def _cache_get(self, token):
+        """Return token information from cache.
+
+        If token is invalid raise InvalidUserToken
+        return token only if fresh (not expired).
+        """
+        if self._cache and token:
+            key = 'tokens/%s' % token
+            cached = self._cache.get(key)
+            if cached == 'invalid':
+                logger.debug('Cached Token %s is marked unauthorized', token)
+                raise InvalidUserToken('Token authorization failed')
+            if cached:
+                data, expires = cached
+                if time.time() < expires:
+                    logger.debug('Returning cached token %s', token)
+                    return data
+                else:
+                    logger.debug('Cached Token %s seems expired', token)
+
+    def _cache_put(self, token, data):
+        """Put token data into the cache.
+
+        Stores the parsed expire date in cache allowing
+        quick check of token freshness on retrieval.
+        """
+        if self._cache and data:
+            key = 'tokens/%s' % token
+            if 'token' in data.get('access', {}):
+                timestamp = data['access']['token']['expires']
+                expires = iso8601.parse_date(timestamp)
+            else:
+                logger.error('invalid token format')
+                return
+            logger.debug('Storing %s token in memcache', token)
+            self._cache.set(key,
+                            (data, expires),
+                            time=self.token_cache_time)
+
+    def _cache_store_invalid(self, token):
+        """Store invalid token in cache."""
+        if self._cache:
+            key = 'tokens/%s' % token
+            logger.debug('Marking token %s as unauthorized in memcache', token)
+            self._cache.set(key,
+                            'invalid',
+                            time=self.token_cache_time)
 
 
 def filter_factory(global_conf, **local_conf):

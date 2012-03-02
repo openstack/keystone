@@ -93,7 +93,7 @@ a WSGI component. Example for the auth_token middleware::
     auth_uri = http://127.0.0.1:5000/
     admin_token = 999888777666
     ;Uncomment next line and check ip:port to use memcached to cache token requests
-    ;memcache_hosts = 127.0.0.1:11211
+    ;memcache_servers = 127.0.0.1:11211
 
 *The required configuration entries are:*
 

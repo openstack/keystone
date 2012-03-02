@@ -140,4 +140,4 @@ nova-api-paste example
     ;identical to the admin token defined in keystone.conf
     admin_token = 999888777666
     ;Uncomment next line and check ip:port to use memcached to cache token requests
-    ;memcache_hosts = 127.0.0.1:11211
+    ;memcache_servers = 127.0.0.1:11211
