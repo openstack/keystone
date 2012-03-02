@@ -129,8 +129,7 @@ class AuthProtocol(object):
 
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
-        self.auth_port = int(conf.get('auth_port'))
-
+        self.auth_port = int(conf.get('auth_port', 35357))
         auth_protocol = conf.get('auth_protocol', 'https')
         if auth_protocol == 'http':
             self.http_client_class = httplib.HTTPConnection
