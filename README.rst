@@ -15,6 +15,13 @@ for most deployments will actually be shims in front of existing user systems.
 Development
 -----------
 
+Setting up a development environment
+------------------------------------
+
+Please see the documentation under ``doc/source/`` for development setup
+(``doc/source/setup.rst``) and configuration
+(``doc/source/configuration.rst``).
+
 Building the Documentation
 --------------------------
 
