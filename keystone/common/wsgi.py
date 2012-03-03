@@ -51,20 +51,21 @@ class WritableLogger(object):
 class Server(object):
     """Server class to manage multiple WSGI sockets and applications."""
 
-    def __init__(self, application, port, threads=1000):
+    def __init__(self, application, host=None, port=None, threads=1000):
         self.application = application
-        self.port = port
+        self.host = host or '0.0.0.0'
+        self.port = port or 0
         self.pool = eventlet.GreenPool(threads)
         self.socket_info = {}
         self.greenthread = None
 
-    def start(self, host='0.0.0.0', key=None, backlog=128):
+    def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
         logging.debug('Starting %(arg0)s on %(host)s:%(port)s' %
                       {'arg0': sys.argv[0],
-                       'host': host,
+                       'host': self.host,
                        'port': self.port})
-        socket = eventlet.listen((host, self.port), backlog=backlog)
+        socket = eventlet.listen((self.host, self.port), backlog=backlog)
         self.greenthread = self.pool.spawn(self._run, self.application, socket)
         if key:
             self.socket_info[key] = socket.getsockname()

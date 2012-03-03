@@ -25,9 +25,9 @@ from keystone.common import wsgi
 CONF = config.CONF
 
 
-def create_server(conf, name, port):
+def create_server(conf, name, host, port):
     app = deploy.loadapp('config:%s' % conf, name=name)
-    return wsgi.Server(app, port)
+    return wsgi.Server(app, host=host, port=port)
 
 
 def serve(*servers):
@@ -65,8 +65,10 @@ if __name__ == '__main__':
     servers = []
     servers.append(create_server(CONF.config_file[0],
                                  'admin',
+                                 options['bind_host'],
                                  int(options['admin_port'])))
     servers.append(create_server(CONF.config_file[0],
                                  'main',
+                                 options['bind_host'],
                                  int(options['public_port'])))
     serve(*servers)
