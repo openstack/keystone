@@ -14,7 +14,7 @@
 # * ADMIN_PASSWORD is used to set the password for the admin and demo accounts.
 # * SERVICE_PASSWORD is used to set the password for the service accounts.
 #
-# Enable the Swift and Quantum accounts by setting ENABLE_SWIFT and/or 
+# Enable the Swift and Quantum accounts by setting ENABLE_SWIFT and/or
 # ENABLE_QUANTUM environment variables.
 #
 # A set of EC2-compatible credentials is created for both admin and demo

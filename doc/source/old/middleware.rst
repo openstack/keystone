@@ -110,11 +110,11 @@ auth_uri
     The externally accessible URL of the Keystone server. This will be where unauthenticated
     clients are redirected to. This is in the form of a URL. For example, if they make an
     unauthenticated call, they get this response::
-    
+
         HTTP/1.1 401 Unauthorized
         Www-Authenticate: Keystone uri='https://auth.example.com/'
         Content-Length: 381
-    
+
     In this case, the auth_uri setting is set to https://auth.example.com/
 
 admin_token
