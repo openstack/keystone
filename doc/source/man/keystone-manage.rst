@@ -79,7 +79,7 @@ Options:
                         syslog (defaults to LOG_USER)
   --use-syslog          Use syslog for logging.
   --nouse-syslog        Use syslog for logging.
-  
+
 FILES
 =====
 

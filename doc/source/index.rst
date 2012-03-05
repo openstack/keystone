@@ -63,7 +63,7 @@ Developers Documentation
    developing
    architecture
    api_curl_examples
-  
+
 Code Documentation
 ==================
 .. toctree::
