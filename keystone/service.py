@@ -535,24 +535,28 @@ class AdminExtensionsController(ExtensionsController):
         }
 
 
+@logging.fail_gracefully
 def public_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return PublicRouter()
 
 
+@logging.fail_gracefully
 def admin_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return AdminRouter()
 
 
+@logging.fail_gracefully
 def public_version_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return PublicVersionRouter()
 
 
+@logging.fail_gracefully
 def admin_version_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
