@@ -78,7 +78,9 @@ class SwiftAuth(object):
         self.logger = swift_utils.get_logger(conf, log_route='keystoneauth')
         self.reseller_prefix = conf.get('reseller_prefix', 'AUTH').strip()
         self.operator_roles = conf.get('operator_roles',
-                                       'admin, SwiftOperator')
+                                       'admin, swiftoperator')
+        self.reseller_admin_role = conf.get('reseller_admin_role',
+                                            'ResellerAdmin')
         config_is_admin = conf.get('is_admin', "false").lower()
         self.is_admin = config_is_admin in ('true', 't', '1', 'on', 'yes', 'y')
         cfg_synchosts = conf.get('allowed_sync_hosts', '127.0.0.1')
@@ -127,21 +129,31 @@ class SwiftAuth(object):
         except ValueError:
             return webob.exc.HTTPNotFound(request=req)
 
+        user_roles = env_identity.get('roles', [])
+
+        # Give unconditional access to a user with the reseller_admin
+        # role.
+        if self.reseller_admin_role in user_roles:
+            msg = 'User %s has reseller admin authorizing'
+            self.logger.debug(msg % tenant[0])
+            req.environ['swift_owner'] = True
+            return
+
+        # Check if a user tries to access an account that does not match their
+        # token
         if not self._reseller_check(account, tenant[0]):
             log_msg = 'tenant mismatch: %s != %s' % (account, tenant[0])
             self.logger.debug(log_msg)
             return self.denied_response(req)
 
-        user_groups = env_identity.get('roles', [])
-
-        # Check the groups the user is belonging to. If the user is
-        # part of the group defined in the config variable
+        # Check the roles the user is belonging to. If the user is
+        # part of the role defined in the config variable
         # operator_roles (like admin) then it will be
         # promoted as an admin of the account/tenant.
-        for group in self.operator_roles.split(','):
-            group = group.strip()
-            if group in user_groups:
-                log_msg = "allow user in group %s as account admin" % group
+        for role in self.operator_roles.split(','):
+            role = role.strip()
+            if role in user_roles:
+                log_msg = 'allow user with role %s as account admin' % (role)
                 self.logger.debug(log_msg)
                 req.environ['swift_owner'] = True
                 return
@@ -165,25 +177,26 @@ class SwiftAuth(object):
             return
 
         # Check if referrer is allowed.
-        referrers, groups = swift_acl.parse_acl(getattr(req, 'acl', None))
+        referrers, roles = swift_acl.parse_acl(getattr(req, 'acl', None))
         if swift_acl.referrer_allowed(req.referer, referrers):
-            if obj or '.rlistings' in groups:
+            #TODO(chmou): convert .rlistings to Keystone type role.
+            if obj or '.rlistings' in roles:
                 log_msg = 'authorizing %s via referer ACL' % req.referrer
                 self.logger.debug(log_msg)
                 return
             return self.denied_response(req)
 
         # Allow ACL at individual user level (tenant:user format)
-        if '%s:%s' % (tenant[0], user) in groups:
+        if '%s:%s' % (tenant[0], user) in roles:
             log_msg = 'user %s:%s allowed in ACL authorizing'
             self.logger.debug(log_msg % (tenant[0], user))
             return
 
-        # Check if we have the group in the usergroups and allow it
-        for user_group in user_groups:
-            if user_group in groups:
+        # Check if we have the role in the userroles and allow it
+        for user_role in user_roles:
+            if user_role in roles:
                 log_msg = 'user %s:%s allowed in ACL: %s authorizing'
-                self.logger.debug(log_msg % (tenant[0], user, user_group))
+                self.logger.debug(log_msg % (tenant[0], user, user_role))
                 return
 
         return self.denied_response(req)
