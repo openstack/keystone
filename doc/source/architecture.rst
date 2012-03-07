@@ -167,6 +167,12 @@ interpolation)::
   catalog.RegionOne.identity.internalURL = http://localhost:$(public_port)s/v2.0
   catalog.RegionOne.identity.name = 'Identity Service'
 
+
+LDAP Backend
+-----------------
+The LDAP backend stored Users and Tenents in separate Subtrees.  Roles are recorded
+as entries under the Tenants.
+
 ----------
 Data Model
 ----------

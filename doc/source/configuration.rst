@@ -6,7 +6,7 @@
       not use this file except in compliance with the License. You may obtain
       a copy of the License at
 
-          http://www.apache.org/licenses/LICENSE-2.0
+	  http://www.apache.org/licenses/LICENSE-2.0
 
       Unless required by applicable law or agreed to in writing, software
       distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -516,7 +516,7 @@ exmaple::
 
 keyword arguments
 
-* user <user-id> 
+* user <user-id>
 * role <role-id>
 * tenant_id <tenant-id>
 
@@ -532,7 +532,7 @@ example::
 
 keyword arguments
 
-* user <user-id> 
+* user <user-id>
 * role <role-id>
 * tenant_id <tenant-id>
 
@@ -595,3 +595,39 @@ example::
 
     $ keystone service-delete 08741d8ed88242ca88d1f61484a0fe3b
 
+
+Configuring the LDAP Identity Provider
+===========================================================
+
+As an alternative to the SQL Databse backing store, Keystone can Use a
+Directory server to provide the Identity service.  An example Schema
+for openstack would look like this::
+
+  dn: cn=openstack,cn=org
+  dc: openstack
+  objectClass: dcObject
+  objectClass: organizationalUnit
+  ou: openstack
+
+  dn: ou=Groups,cn=openstack,cn=org
+  objectClass: top
+  objectClass: organizationalUnit
+  ou: groups
+
+  dn: ou=Users,cn=openstack,cn=org
+  objectClass: top
+  objectClass: organizationalUnit
+  ou: users
+
+  dn: ou=Roles,cn=openstack,cn=org
+  objectClass: top
+  objectClass: organizationalUnit
+  ou: users
+
+The corresponding entries in the Keystone configuration file are::
+
+  [ldap]
+  url = ldap://localhost
+  suffix = dc=openstack,dc=org
+  user = dc=Manager,dc=openstack,dc=org
+  password = badpassword
