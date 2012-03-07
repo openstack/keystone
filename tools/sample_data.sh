@@ -17,6 +17,10 @@
 # Enable the Swift and Quantum accounts by setting ENABLE_SWIFT and/or
 # ENABLE_QUANTUM environment variables.
 #
+# Enable creation of endpoints by setting ENABLE_ENDPOINTS environment variable.
+# Works with Catalog SQL backend. Do not use with Catalog Templated backend
+# (default).
+#
 # A set of EC2-compatible credentials is created for both admin and demo
 # users and placed in etc/ec2rc.
 #
@@ -61,7 +65,7 @@ fi
 export SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-http://127.0.0.1:${CONFIG_ADMIN_PORT:-35357}/v2.0}
 
 function get_id () {
-    echo `$@ | grep ' id ' | awk '{print $4}'`
+    echo `"$@" | grep ' id ' | awk '{print $4}'`
 }
 
 
@@ -104,9 +108,10 @@ keystone user-role-add --user $ADMIN_USER --role $KEYSTONESERVICE_ROLE --tenant_
 
 
 # Services
+NOVA_SERVICE=$(get_id \
 keystone service-create --name=nova \
                         --type=compute \
-                        --description="Nova Compute Service"
+                        --description="Nova Compute Service")
 NOVA_USER=$(get_id keystone user-create --name=nova \
                                         --pass="$SERVICE_PASSWORD" \
                                         --tenant_id $SERVICE_TENANT \
@@ -114,14 +119,28 @@ NOVA_USER=$(get_id keystone user-create --name=nova \
 keystone user-role-add --tenant_id $SERVICE_TENANT \
                        --user $NOVA_USER \
                        --role $ADMIN_ROLE
+if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+    keystone endpoint-create --region RegionOne --service_id $NOVA_SERVICE \
+        --publicurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s' \
+        --adminurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s' \
+        --internalurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s'
+fi
 
+EC2_SERVICE=$(get_id \
 keystone service-create --name=ec2 \
                         --type=ec2 \
-                        --description="EC2 Compatibility Layer"
+                        --description="EC2 Compatibility Layer")
+if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+    keystone endpoint-create --region RegionOne --service_id $EC2_SERVICE \
+        --publicurl http://localhost:8773/services/Cloud \
+        --adminurl http://localhost:8773/services/Admin \
+        --internalurl http://localhost:8773/services/Cloud
+fi
 
+GLANCE_SERVICE=$(get_id \
 keystone service-create --name=glance \
                         --type=image \
-                        --description="Glance Image Service"
+                        --description="Glance Image Service")
 GLANCE_USER=$(get_id keystone user-create --name=glance \
                                           --pass="$SERVICE_PASSWORD" \
                                           --tenant_id $SERVICE_TENANT \
@@ -129,14 +148,34 @@ GLANCE_USER=$(get_id keystone user-create --name=glance \
 keystone user-role-add --tenant_id $SERVICE_TENANT \
                        --user $GLANCE_USER \
                        --role $ADMIN_ROLE
+if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+    keystone endpoint-create --region RegionOne --service_id $GLANCE_SERVICE \
+        --publicurl http://localhost:9292/v1 \
+        --adminurl http://localhost:9292/v1 \
+        --internalurl http://localhost:9292/v1
+fi
 
+KEYSTONE_SERVICE=$(get_id \
 keystone service-create --name=keystone \
                         --type=identity \
-                        --description="Keystone Identity Service"
+                        --description="Keystone Identity Service")
+if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+    keystone endpoint-create --region RegionOne --service_id $KEYSTONE_SERVICE \
+        --publicurl 'http://localhost:$(public_port)s/v2.0' \
+        --adminurl 'http://localhost:$(admin_port)s/v2.0' \
+        --internalurl 'http://localhost:$(admin_port)s/v2.0'
+fi
 
+VOLUME_SERVICE=$(get_id \
 keystone service-create --name="nova-volume" \
                         --type=volume \
-                        --description="Nova Volume Service"
+                        --description="Nova Volume Service")
+if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+    keystone endpoint-create --region RegionOne --service_id $VOLUME_SERVICE \
+        --publicurl 'http://localhost:8776/v1/$(tenant_id)s' \
+        --adminurl 'http://localhost:8776/v1/$(tenant_id)s' \
+        --internalurl 'http://localhost:8776/v1/$(tenant_id)s'
+fi
 
 keystone service-create --name="horizon" \
 						--type=dashboard \
