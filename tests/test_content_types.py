@@ -352,6 +352,14 @@ class CoreApiTests(object):
             token=token)
         self.assertValidAuthenticationResponse(r)
 
+    def test_validate_token_belongs_to(self):
+        token = self.get_scoped_token()
+        path = ('/v2.0/tokens/%s?belongs_to=%s'
+                 % (token, self.tenant_bar['id']))
+        r = self.admin_request(path=path,token=token)
+        self.assertValidAuthenticationResponse(r,
+                                               require_service_catalog=True)
+
     def test_validate_token_head(self):
         """The same call as above, except using HEAD.
 
@@ -448,7 +456,8 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
     def assertValidExtensionResponse(self, r):
         self.assertValidExtension(r.body.get('extension'))
 
-    def assertValidAuthenticationResponse(self, r):
+    def assertValidAuthenticationResponse(self, r,
+                                          require_service_catalog=False):
         self.assertIsNotNone(r.body.get('access'))
         self.assertIsNotNone(r.body['access'].get('token'))
         self.assertIsNotNone(r.body['access'].get('user'))
@@ -466,8 +475,11 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         self.assertIsNotNone(r.body['access']['user'].get('id'))
         self.assertIsNotNone(r.body['access']['user'].get('name'))
 
+        serviceCatalog = r.body['access'].get('serviceCatalog')
         # validate service catalog
-        if r.body['access'].get('serviceCatalog') is not None:
+        if require_service_catalog:
+            self.assertIsNotNone(serviceCatalog)
+        if serviceCatalog is not None:
             self.assertTrue(len(r.body['access']['serviceCatalog']))
             for service in r.body['access']['serviceCatalog']:
                 # validate service
@@ -627,7 +639,8 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         for role in r.body.findall(self._tag('role')):
             self.assertValidRole(role)
 
-    def assertValidAuthenticationResponse(self, r):
+    def assertValidAuthenticationResponse(self, r,
+                                          require_service_catalog=False):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('access'))
 
@@ -648,6 +661,9 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         self.assertIsNotNone(user.get('name'))
 
         serviceCatalog = xml.find(self._tag('serviceCatalog'))
+        # validate the serviceCatalog
+        if require_service_catalog:
+            self.assertIsNotNone(serviceCatalog)
         if serviceCatalog is not None:
             self.assertTrue(len(serviceCatalog.findall(self._tag('service'))))
             for service in serviceCatalog.findall(self._tag('service')):
