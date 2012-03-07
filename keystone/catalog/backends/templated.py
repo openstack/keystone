@@ -19,6 +19,8 @@ from keystone.common import logging
 from keystone.catalog.backends import kvs
 
 
+LOG = logging.getLogger('keystone.catalog.backends.templated')
+
 CONF = config.CONF
 config.register_str('template_file', group='catalog')
 
@@ -90,7 +92,11 @@ class TemplatedCatalog(kvs.Catalog):
         super(TemplatedCatalog, self).__init__()
 
     def _load_templates(self, template_file):
-        self.templates = parse_templates(open(template_file))
+        try:
+            self.templates = parse_templates(open(template_file))
+        except IOError:
+            LOG.critical('Unable to open template file %s' % template_file)
+            raise
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
         d = dict(CONF.iteritems())

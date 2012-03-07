@@ -8,6 +8,7 @@ import functools
 import logging
 import logging.config
 import pprint
+import traceback
 
 from logging.handlers import SysLogHandler
 from logging.handlers import WatchedFileHandler
@@ -54,4 +55,21 @@ def log_debug(f):
         logging.debug(pprint.pformat(rv, indent=2))
         logging.debug('')
         return rv
+    return wrapper
+
+
+def fail_gracefully(f):
+    """Logs exceptions and aborts."""
+    @functools.wraps(f)
+    def wrapper(*args, **kw):
+        try:
+            return f(*args, **kw)
+        except Exception as e:
+            # tracebacks are kept in the debug log
+            logging.debug(traceback.format_exc(e))
+
+            # exception message is printed to all logs
+            logging.critical(e)
+
+            exit(1)
     return wrapper
