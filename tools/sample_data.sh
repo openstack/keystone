@@ -134,8 +134,8 @@ keystone service-create --name=keystone \
                         --type=identity \
                         --description="Keystone Identity Service"
 
-keystone service-create --name=volume \
-                        --type="nova-volume" \
+keystone service-create --name="nova-volume" \
+                        --type=volume \
                         --description="Nova Volume Service"
 
 keystone service-create --name="horizon" \
