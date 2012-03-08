@@ -10,3 +10,18 @@ catalog.RegionOne.compute.publicURL = http://localhost:$(compute_port)s/v1.1/$(t
 catalog.RegionOne.compute.adminURL = http://localhost:$(compute_port)s/v1.1/$(tenant_id)s
 catalog.RegionOne.compute.internalURL = http://localhost:$(compute_port)s/v1.1/$(tenant_id)s
 catalog.RegionOne.compute.name = 'Compute Service'
+
+catalog.RegionOne.volume.publicURL = http://localhost:8776/v1/$(tenant_id)s
+catalog.RegionOne.volume.adminURL = http://localhost:8776/v1/$(tenant_id)s
+catalog.RegionOne.volume.internalURL = http://localhost:8776/v1/$(tenant_id)s
+catalog.RegionOne.volume.name = 'Volume Service'
+
+catalog.RegionOne.ec2.publicURL = http://localhost:8773/services/Cloud
+catalog.RegionOne.ec2.adminURL = http://localhost:8773/services/Admin
+catalog.RegionOne.ec2.internalURL = http://localhost:8773/services/Cloud
+catalog.RegionOne.ec2.name = 'EC2 Service'
+
+catalog.RegionOne.image.publicURL = http://localhost:9292/v1
+catalog.RegionOne.image.adminURL = http://localhost:9292/v1
+catalog.RegionOne.image.internalURL = http://localhost:9292/v1
+catalog.RegionOne.image.name = 'Image Service'
