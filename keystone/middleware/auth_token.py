@@ -53,14 +53,8 @@ WWW-Authenticate
     HTTP header returned to a user indicating which endpoint to use
     to retrieve a new token
 
-HTTP_AUTHORIZATION
-    basic auth password used to validate the connection
-
 What we add to the request for use by the OpenStack service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-HTTP_X_AUTHORIZATION
-    The client identity being passed in
 
 HTTP_X_IDENTITY_STATUS
     'Confirmed' or 'Invalid'
