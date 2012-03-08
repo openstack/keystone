@@ -321,7 +321,7 @@ be granted the ``admin`` role.
 * ``--password OS_PASSWORD``: Password for your user
 * ``--tenant_name OS_TENANT_NAME``: Name of your tenant
 * ``--auth_url OS_AUTH_URL``: URL of your Keystone auth server, e.g.
-  ``http://localhost:5000/v2.0``
+  ``http://localhost:35357/v2.0``
 
 You can also set these variables in your environment so that they do not need
 to be passed as arguments each time::
@@ -339,14 +339,14 @@ provide additional (often optional) information. For example, the command
 ``user-list`` and ``tenant-create`` can be invoked as follows::
 
     # Using token auth env variables
-    export SERVICE_ENDPOINT=http://127.0.0.1:5000/v2.0/
+    export SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0/
     export SERVICE_TOKEN=secrete_token
     keystone user-list
     keystone tenant-create --name=demo
 
     # Using token auth flags
-    keystone --token=secrete --endpoint=http://127.0.0.1:5000/v2.0/ user-list
-    keystone --token=secrete --endpoint=http://127.0.0.1:5000/v2.0/ tenant-create --name=demo
+    keystone --token=secrete --endpoint=http://127.0.0.1:35357/v2.0/ user-list
+    keystone --token=secrete --endpoint=http://127.0.0.1:35357/v2.0/ tenant-create --name=demo
 
     # Using user + password + tenant_name env variables
     export OS_USERNAME=admin
@@ -394,28 +394,6 @@ example::
 
     $ keystone tenant-delete f2b7b39c860840dfa47d9ee4adffa0b3
 
-``tenant-enable``
-^^^^^^^^^^^^^^^^^
-
-arguments
-
-* tenant_id
-
-example::
-
-    $ keystone tenant-enable f2b7b39c860840dfa47d9ee4adffa0b3
-
-``tenant-disable``
-^^^^^^^^^^^^^^^^^^
-
-arguments
-
-* tenant_id
-
-example::
-
-    $ keystone tenant-disable f2b7b39c860840dfa47d9ee4adffa0b3
-
 Users
 -----
 
@@ -442,7 +420,7 @@ example::
 
 keyword arguments
 
-* user
+* user_id
 
 example::
 
@@ -461,40 +439,21 @@ example::
 
     $ keystone user-list
 
-``user-update-email``
+``user-update``
 ^^^^^^^^^^^^^^^^^^^^^
 
 arguments
 * user_id
-* email
+
+keyword arguments
+* name     Desired new user name (Optional)
+* email    Desired new email address (Optional)
+* enabled <true|false>   Enable or disable user (Optional)
 
 
 example::
 
-    $ keystone user-update-email 03c84b51574841ba9a0d8db7882ac645 "someone@somewhere.com"
-
-``user-enable``
-^^^^^^^^^^^^^^^
-
-arguments
-
-* user_id
-
-example::
-
-    $ keystone user-enable 03c84b51574841ba9a0d8db7882ac645
-
-``user-disable``
-^^^^^^^^^^^^^^^^
-
-arguments
-
-* user_id
-
-example::
-
-    $ keystone user-disable 03c84b51574841ba9a0d8db7882ac645
-
+    $ keystone user-update 03c84b51574841ba9a0d8db7882ac645 --email=newemail@example.com
 
 ``user-password-update``
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -549,40 +508,40 @@ arguments
 
 exmaple::
 
-    $ keystone role-get role=19d1d3344873464d819c45f521ff9890
+    $ keystone role-get 19d1d3344873464d819c45f521ff9890
 
 
-``add-user-role``
+``user-role-add``
 ^^^^^^^^^^^^^^^^^
 
-arguments
+keyword arguments
 
-* role_id
-* user_id
-* tenant_id
+* user <user-id> 
+* role <role-id>
+* tenant_id <tenant-id>
 
 example::
 
-    $ keystone role add-user-role \
-    3a751f78ef4c412b827540b829e2d7dd \
-    03c84b51574841ba9a0d8db7882ac645 \
-    20601a7f1d94447daa4dff438cb1c209
+    $ keystone user-role-add  \
+      --user=96a6ebba0d4c441887aceaeced892585  \
+      --role=f8dd5a2e4dc64a41b96add562d9a764e  \
+      --tenant_id=2395953419144b67955ac4bab96b8fd2
 
-``remove-user-role``
+``user-role-remove``
 ^^^^^^^^^^^^^^^^^^^^
 
-arguments
+keyword arguments
 
-* role_id
-* user_id
-* tenant_id
+* user <user-id> 
+* role <role-id>
+* tenant_id <tenant-id>
 
 example::
 
-    $ keystone remove-user-role \
-    19d1d3344873464d819c45f521ff9890 \
-    08741d8ed88242ca88d1f61484a0fe3b \
-    20601a7f1d94447daa4dff438cb1c209
+    $ keystone user-role-remove  \
+      --user=96a6ebba0d4c441887aceaeced892585  \
+      --role=f8dd5a2e4dc64a41b96add562d9a764e  \
+      --tenant_id=2395953419144b67955ac4bab96b8fd2
 
 Services
 --------
@@ -598,7 +557,7 @@ keyword arguments
 
 example::
 
-    $ keystone service create \
+    $ keystone service-create \
     --name=nova \
     --type=compute \
     --description="Nova Compute Service"
