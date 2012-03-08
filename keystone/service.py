@@ -370,7 +370,7 @@ class TokenController(wsgi.Application):
         return token_ref
 
     # admin only
-    def validate_token_head(self, context, token_id, belongs_to=None):
+    def validate_token_head(self, context, token_id):
         """Check that a token is valid.
 
         Optionally, also ensure that it is owned by a specific tenant.
@@ -378,10 +378,11 @@ class TokenController(wsgi.Application):
         Identical to ``validate_token``, except does not return a response.
 
         """
+        belongs_to = context['query_string'].get("belongs_to")
         assert self._get_token_ref(context, token_id, belongs_to)
 
     # admin only
-    def validate_token(self, context, token_id, belongs_to=None):
+    def validate_token(self, context, token_id):
         """Check that a token is valid.
 
         Optionally, also ensure that it is owned by a specific tenant.
@@ -389,6 +390,7 @@ class TokenController(wsgi.Application):
         Returns metadata about the token along any associated roles.
 
         """
+        belongs_to = context['query_string'].get("belongs_to")
         token_ref = self._get_token_ref(context, token_id, belongs_to)
 
         # TODO(termie): optimize this call at some point and put it into the
@@ -398,7 +400,17 @@ class TokenController(wsgi.Application):
         roles_ref = []
         for role_id in metadata_ref.get('roles', []):
             roles_ref.append(self.identity_api.get_role(context, role_id))
-        return self._format_token(token_ref, roles_ref)
+
+        # Get a service catalog if belongs_to is not none
+        # This is needed for on-behalf-of requests
+        catalog_ref = None
+        if belongs_to is not None:
+            catalog_ref = self.catalog_api.get_catalog(
+                context=context,
+                user_id=token_ref['user']['id'],
+                tenant_id=token_ref['tenant']['id'],
+                metadata=metadata_ref)
+        return self._format_token(token_ref, roles_ref, catalog_ref)
 
     def delete_token(self, context, token_id):
         """Delete a token, effectively invalidating it for authz."""
@@ -416,7 +428,7 @@ class TokenController(wsgi.Application):
         o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
         return o
 
-    def _format_token(self, token_ref, roles_ref):
+    def _format_token(self, token_ref, roles_ref, catalog_ref=None):
         user_ref = token_ref['user']
         metadata_ref = token_ref['metadata']
         expires = token_ref['expires']
@@ -437,6 +449,8 @@ class TokenController(wsgi.Application):
         if 'tenant' in token_ref and token_ref['tenant']:
             token_ref['tenant']['enabled'] = True
             o['access']['token']['tenant'] = token_ref['tenant']
+        if catalog_ref is not None:
+            o['access']['serviceCatalog'] = self._format_catalog(catalog_ref)
         return o
 
     def _format_catalog(self, catalog_ref):
