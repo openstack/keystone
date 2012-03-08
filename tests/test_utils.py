@@ -65,4 +65,5 @@ class UtilsTestCase(test.TestCase):
     def test_auth_str_equal(self):
         self.assertTrue(utils.auth_str_equal('abc123', 'abc123'))
         self.assertFalse(utils.auth_str_equal('a', 'aaaaa'))
+        self.assertFalse(utils.auth_str_equal('aaaaa', 'a'))
         self.assertFalse(utils.auth_str_equal('ABC123', 'abc123'))
