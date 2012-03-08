@@ -354,7 +354,7 @@ class CoreApiTests(object):
 
     def test_validate_token_belongs_to(self):
         token = self.get_scoped_token()
-        path = ('/v2.0/tokens/%s?belongs_to=%s'
+        path = ('/v2.0/tokens/%s?belongsTo=%s'
                  % (token, self.tenant_bar['name']))
         r = self.admin_request(path=path,token=token)
         self.assertValidAuthenticationResponse(r,

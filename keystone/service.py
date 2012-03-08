@@ -378,7 +378,7 @@ class TokenController(wsgi.Application):
         Identical to ``validate_token``, except does not return a response.
 
         """
-        belongs_to = context['query_string'].get("belongs_to")
+        belongs_to = context['query_string'].get("belongsTo")
         assert self._get_token_ref(context, token_id, belongs_to)
 
     # admin only
@@ -390,7 +390,7 @@ class TokenController(wsgi.Application):
         Returns metadata about the token along any associated roles.
 
         """
-        belongs_to = context['query_string'].get("belongs_to")
+        belongs_to = context['query_string'].get("belongsTo")
         token_ref = self._get_token_ref(context, token_id, belongs_to)
 
         # TODO(termie): optimize this call at some point and put it into the
