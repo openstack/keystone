@@ -191,7 +191,7 @@ class Identity(sql.Base, identity.Driver):
                               .filter_by(user_id=user_id)\
                               .filter_by(tenant_id=tenant_id)\
                               .first()
-        return getattr(metadata_ref, 'data', None)
+        return getattr(metadata_ref, 'data', {})
 
     def get_role(self, role_id):
         session = self.get_session()

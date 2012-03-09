@@ -93,7 +93,7 @@ class Identity(kvs.Base, identity.Driver):
         return _filter_user(self._get_user_by_name(user_name))
 
     def get_metadata(self, user_id, tenant_id):
-        return self.db.get('metadata-%s-%s' % (tenant_id, user_id))
+        return self.db.get('metadata-%s-%s' % (tenant_id, user_id)) or {}
 
     def get_role(self, role_id):
         role_ref = self.db.get('role-%s' % role_id)
