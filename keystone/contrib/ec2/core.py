@@ -285,7 +285,7 @@ class Ec2Controller(wsgi.Application):
         try:
             self.assert_admin(context)
             return True
-        except AssertionError:
+        except exception.Forbidden:
             return False
 
     def _assert_owner(self, context, user_id, credential_id):
