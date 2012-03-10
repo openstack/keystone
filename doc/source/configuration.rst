@@ -496,7 +496,7 @@ example::
     $ keystone user-disable 03c84b51574841ba9a0d8db7882ac645
 
 
-``user-update-password``
+``user-password-update``
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 arguments
@@ -506,7 +506,7 @@ arguments
 
 example::
 
-    $ keystone user-update-password 03c84b51574841ba9a0d8db7882ac645 foo
+    $ keystone user-password-update --pass foo 03c84b51574841ba9a0d8db7882ac645
 
 Roles
 -----
