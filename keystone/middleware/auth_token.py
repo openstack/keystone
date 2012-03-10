@@ -283,12 +283,17 @@ class AuthProtocol(object):
             conn.request(method, path, **kwargs)
             response = conn.getresponse()
             body = response.read()
-            data = json.loads(body)
         except Exception, e:
             logger.error('HTTP connection exception: %s' % e)
             raise ServiceError('Unable to communicate with keystone')
         finally:
             conn.close()
+
+        try:
+            data = json.loads(body)
+        except ValueError:
+            logger.debug('Keystone did not return json-encoded body')
+            data = {}
 
         return response, data
 
