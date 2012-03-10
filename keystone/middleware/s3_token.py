@@ -45,15 +45,8 @@ class S3Token(object):
 
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
-        self.auth_port = int(conf.get('auth_port'))
+        self.auth_port = int(conf.get('auth_port', 35357))
         self.auth_protocol = conf.get('auth_protocol', 'https')
-
-        # where to tell clients to find the auth service (default to url
-        # constructed based on endpoint we have for the service to use)
-        self.auth_location = conf.get('auth_uri',
-                                      '%s://%s:%s' % (self.auth_protocol,
-                                                      self.auth_host,
-                                                      self.auth_port))
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
