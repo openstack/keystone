@@ -17,9 +17,54 @@
 import json
 
 import webob
+import datetime
+import iso8601
 
 from keystone.middleware import auth_token
 from keystone import test
+
+DATA = {
+    'access': {
+        'token': {
+            'id': 'token1',
+            'tenant': {
+                'id': 'tenant_id1',
+                'name': 'tenant_name1',
+            },
+        },
+        'user': {
+            'id': 'user_id1',
+            'username': 'user_name1',
+            'roles': [
+                {'name': 'role1'},
+                {'name': 'role2'},
+            ],
+        },
+    },
+}
+
+
+class FakeMemcache(object):
+    def __init__(self):
+        self.set_key = None
+        self.set_value = None
+        self.token_expiration = None
+
+    def get(self, key):
+        data = DATA.copy()
+        if not data or key != "tokens/%s" % (data['access']['token']['id']):
+            return
+        if not self.token_expiration:
+            dt = datetime.datetime.now() + datetime.timedelta(minutes=5)
+            self.token_expiration = dt.strftime("%s")
+        dt = datetime.datetime.now() + datetime.timedelta(hours=24)
+        ks_expires = dt.isoformat()
+        data['access']['token']['expires'] = ks_expires
+        return (data, str(self.token_expiration))
+
+    def set(self, key, value, time=None):
+        self.set_value = value
+        self.set_key = key
 
 
 class FakeHTTPResponse(object):
@@ -59,25 +104,7 @@ class FakeHTTPConnection(object):
             token_id = path.rsplit('/', 1)[1]
             if token_id == 'token1':
                 status = 200
-                body = json.dumps({
-                    'access': {
-                        'token': {
-                            'id': token_id,
-                            'tenant': {
-                                'id': 'tenant_id1',
-                                'name': 'tenant_name1',
-                            },
-                        },
-                        'user': {
-                            'id': 'user_id1',
-                            'username': 'user_name1',
-                            'roles': [
-                                {'name': 'role1'},
-                                {'name': 'role2'},
-                            ],
-                        },
-                    },
-                })
+                body = json.dumps(DATA)
             else:
                 status = 404
                 body = ''
@@ -123,6 +150,7 @@ class AuthTokenMiddlewareTest(test.TestCase):
 
         self.middleware = auth_token.AuthProtocol(fake_app, conf)
         self.middleware.http_client_class = FakeHTTPConnection
+        self.middleware._iso8601 = iso8601
 
         self.response_status = None
         self.response_headers = None
@@ -160,3 +188,30 @@ class AuthTokenMiddlewareTest(test.TestCase):
         self.assertEqual(self.response_status, 401)
         self.assertEqual(self.response_headers['WWW-Authenticate'],
                          'Keystone uri=\'https://keystone.example.com:1234\'')
+
+    def test_memcache(self):
+        req = webob.Request.blank('/')
+        req.headers['X-Auth-Token'] = 'token1'
+        self.middleware._cache = FakeMemcache()
+        self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.middleware._cache.set_value, None)
+
+    def test_memcache_set_invalid(self):
+        req = webob.Request.blank('/')
+        req.headers['X-Auth-Token'] = 'token2'
+        self.middleware._cache = FakeMemcache()
+        self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.middleware._cache.set_value, "invalid")
+
+    def test_memcache_set_expired(self):
+        req = webob.Request.blank('/')
+        req.headers['X-Auth-Token'] = 'token1'
+        self.middleware._cache = FakeMemcache()
+        expired = datetime.datetime.now() - datetime.timedelta(minutes=1)
+        self.middleware._cache.token_expiration = float(expired.strftime("%s"))
+        self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(len(self.middleware._cache.set_value), 2)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.main()

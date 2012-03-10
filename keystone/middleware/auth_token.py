@@ -146,6 +146,7 @@ class AuthProtocol(object):
 
         # Token caching via memcache
         self._cache = None
+        self._iso8601 = None
         memcache_servers = conf.get('memcache_servers')
         # By default the token will be cached for 5 minutes
         self.token_cache_time = conf.get('token_cache_time', 300)
@@ -155,6 +156,7 @@ class AuthProtocol(object):
                 import iso8601
                 logger.info('Using memcache for caching token')
                 self._cache = memcache.Client(memcache_servers.split(','))
+                self._iso8601 = iso8601
             except NameError as e:
                 logger.warn('disabled caching due to missing libraries %s', e)
 
@@ -459,7 +461,7 @@ class AuthProtocol(object):
                 raise InvalidUserToken('Token authorization failed')
             if cached:
                 data, expires = cached
-                if time.time() < expires:
+                if time.time() < float(expires):
                     logger.debug('Returning cached token %s', token)
                     return data
                 else:
@@ -475,7 +477,7 @@ class AuthProtocol(object):
             key = 'tokens/%s' % token
             if 'token' in data.get('access', {}):
                 timestamp = data['access']['token']['expires']
-                expires = iso8601.parse_date(timestamp)
+                expires = self._iso8601.parse_date(timestamp).strftime('%s')
             else:
                 logger.error('invalid token format')
                 return

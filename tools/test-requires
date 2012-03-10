@@ -22,3 +22,4 @@ httplib2
 
 # for python-novaclient
 prettytable
+iso8601>=0.1.4
