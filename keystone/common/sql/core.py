@@ -22,12 +22,14 @@ import json
 import eventlet.db_pool
 import sqlalchemy as sql
 from sqlalchemy import types as sql_types
+from sqlalchemy.exc import DisconnectionError
 from sqlalchemy.ext import declarative
 import sqlalchemy.orm
 import sqlalchemy.pool
 import sqlalchemy.engine.url
 
 from keystone import config
+from keystone.common import logging
 
 
 CONF = config.CONF
@@ -45,6 +47,7 @@ DateTime = sql.DateTime
 
 # Special Fields
 class JsonBlob(sql_types.TypeDecorator):
+
     impl = sql.Text
 
     def process_bind_param(self, value, dialect):
@@ -55,6 +58,7 @@ class JsonBlob(sql_types.TypeDecorator):
 
 
 class DictBase(object):
+
     def to_dict(self):
         return dict(self.iteritems())
 
@@ -94,8 +98,39 @@ class DictBase(object):
         #return local.iteritems()
 
 
+class MySQLPingListener(object):
+
+    """
+    Ensures that MySQL connections checked out of the
+    pool are alive.
+
+    Borrowed from:
+    http://groups.google.com/group/sqlalchemy/msg/a4ce563d802c929f
+
+    Error codes caught:
+    * 2006 MySQL server has gone away
+    * 2013 Lost connection to MySQL server during query
+    * 2014 Commands out of sync; you can't run this command now
+    * 2045 Can't open shared memory; no answer from server (%lu)
+    * 2055 Lost connection to MySQL server at '%s', system error: %d
+
+    from http://dev.mysql.com/doc/refman/5.6/en/error-messages-client.html
+    """
+
+    def checkout(self, dbapi_con, con_record, con_proxy):
+        try:
+            dbapi_con.cursor().execute('select 1')
+        except dbapi_con.OperationalError, ex:
+            if ex.args[0] in (2006, 2013, 2014, 2045, 2055):
+                logging.warn('Got mysql server has gone away: %s', ex)
+                raise DisconnectionError("Database server went away")
+            else:
+                raise
+
+
 # Backends
 class Base(object):
+
     _MAKER = None
     _ENGINE = None
 
@@ -108,14 +143,11 @@ class Base(object):
                                          expire_on_commit)
 
         session = self._MAKER()
-        # TODO(termie): we may want to do something similar
-        #session.query = nova.exception.wrap_db_error(session.query)
-        #session.flush = nova.exception.wrap_db_error(session.flush)
         return session
 
     def get_engine(self):
         """Return a SQLAlchemy engine."""
-        connection_dict = sqlalchemy.engine.url.make_url(CONF.sql.connection)
+        connection_dict = sql.engine.url.make_url(CONF.sql.connection)
 
         engine_args = {'pool_recycle': CONF.sql.idle_timeout,
                        'echo': False,
@@ -124,6 +156,9 @@ class Base(object):
 
         if 'sqlite' in connection_dict.drivername:
             engine_args['poolclass'] = sqlalchemy.pool.NullPool
+
+        if 'mysql' in connection_dict.drivername:
+            engine_args['listeners'] = [MySQLPingListener()]
 
         return sql.create_engine(CONF.sql.connection, **engine_args)
 
