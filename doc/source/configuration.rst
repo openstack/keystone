@@ -225,7 +225,7 @@ Migrating from Nova Auth
 ========================
 
 Migration of users, projects (aka tenants), roles and EC2 credentials
-is supported for the Diablo and Essex releases of Nova. To migrate your auth
+is supported for the Essex release of Nova. To migrate your auth
 data from Nova, use the following steps:
 
 .. NOTE::
