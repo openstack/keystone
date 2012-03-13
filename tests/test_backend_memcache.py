@@ -42,7 +42,7 @@ class MemcacheClient(object):
         """Retrieves the value for a key or None."""
         self.check_key(key)
         obj = self.cache.get(key)
-        now = time.mktime(datetime.datetime.now().timetuple())
+        now = time.mktime(datetime.datetime.utcnow().timetuple())
         if obj and (obj[1] == 0 or obj[1] > now):
             return obj[0]
         else:

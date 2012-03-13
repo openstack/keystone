@@ -89,8 +89,8 @@ class Driver(object):
     def _get_default_expire_time(self):
         """Determine when a token should expire based on the config.
 
-        :returns: datetime.datetime object
+        :returns: a naive utc datetime.datetime object
 
         """
         expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
-        return datetime.datetime.now() + expire_delta
+        return datetime.datetime.utcnow() + expire_delta

@@ -50,7 +50,7 @@ class Token(sql.Base, token.Driver):
     def get_token(self, token_id):
         session = self.get_session()
         token_ref = session.query(TokenModel).filter_by(id=token_id).first()
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         if token_ref and (not token_ref.expires or now < token_ref.expires):
             return token_ref.to_dict()
         else:

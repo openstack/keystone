@@ -27,7 +27,7 @@ class Token(kvs.Base, token.Driver):
     def get_token(self, token_id):
         token = self.db.get('token-%s' % token_id)
         if (token and (token['expires'] is None
-                       or token['expires'] > datetime.datetime.now())):
+                       or token['expires'] > datetime.datetime.utcnow())):
             return token
         else:
             raise exception.TokenNotFound(token_id=token_id)
