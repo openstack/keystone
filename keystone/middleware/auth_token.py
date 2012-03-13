@@ -90,7 +90,6 @@ HTTP_X_ROLE
 
 """
 
-import datetime
 import httplib
 import json
 import logging
@@ -392,15 +391,29 @@ class AuthProtocol(object):
         token = token_info['access']['token']
         roles = ','.join([role['name'] for role in user.get('roles', [])])
 
-        # FIXME(ja): I think we are checking in both places because:
-        # tenant might not be returned, and there was a pre-release
-        # that put tenant objects inside the user object?
-        try:
-            tenant_id = token['tenant']['id']
-            tenant_name = token['tenant']['name']
-        except:
-            tenant_id = user.get('tenantId')
-            tenant_name = user.get('tenantName')
+        def get_tenant_info():
+            """Returns a (tenant_id, tenant_name) tuple from context."""
+            def essex():
+                """Essex puts the tenant ID and name on the token."""
+                return (token['tenant']['id'], token['tenant']['name'])
+
+            def pre_diablo():
+                """Pre-diablo, Keystone only provided tenantId."""
+                return (token['tenantId'], token['tenantId'])
+
+            def default_tenant():
+                """Assume the user's default tenant."""
+                return (user['tenantId'], user['tenantName'])
+
+            for method in [essex, pre_diablo, default_tenant]:
+                try:
+                    return method()
+                except KeyError:
+                    pass
+
+            raise InvalidUserToken('Unable to determine tenancy.')
+
+        tenant_id, tenant_name = get_tenant_info()
 
         user_id = user['id']
         user_name = user['username']
