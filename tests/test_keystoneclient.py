@@ -191,27 +191,57 @@ class KeystoneClientTests(object):
     def test_tenant_create_update_and_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
-        test_tenant = 'new_tenant'
+        tenant_name = 'original_tenant'
+        tenant_description = 'My original tenant!'
+        tenant_enabled = True
         client = self.get_client(admin=True)
-        tenant = client.tenants.create(tenant_name=test_tenant,
-                                       description="My new tenant!",
-                                       enabled=True)
-        self.assertEquals(tenant.name, test_tenant)
+
+        # create, get, and list a tenant
+        tenant = client.tenants.create(tenant_name=tenant_name,
+                                       description=tenant_description,
+                                       enabled=tenant_enabled)
+        self.assertEquals(tenant.name, tenant_name)
+        self.assertEquals(tenant.description, tenant_description)
+        self.assertEquals(tenant.enabled, tenant_enabled)
 
         tenant = client.tenants.get(tenant_id=tenant.id)
-        self.assertEquals(tenant.name, test_tenant)
+        self.assertEquals(tenant.name, tenant_name)
+        self.assertEquals(tenant.description, tenant_description)
+        self.assertEquals(tenant.enabled, tenant_enabled)
 
+        tenant = [t for t in client.tenants.list() if t.id == tenant.id].pop()
+        self.assertEquals(tenant.name, tenant_name)
+        self.assertEquals(tenant.description, tenant_description)
+        self.assertEquals(tenant.enabled, tenant_enabled)
+
+        # update, get, and list a tenant
+        tenant_name = 'updated_tenant'
+        tenant_description = 'Updated tenant!'
+        tenant_enabled = False
         tenant = client.tenants.update(tenant_id=tenant.id,
-                                       tenant_name='new_tenant2',
-                                       enabled=False,
-                                       description='new description')
-        self.assertEquals(tenant.name, 'new_tenant2')
-        self.assertFalse(tenant.enabled)
-        self.assertEquals(tenant.description, 'new description')
+                                       tenant_name=tenant_name,
+                                       enabled=tenant_enabled,
+                                       description=tenant_description)
+        self.assertEquals(tenant.name, tenant_name)
+        self.assertEquals(tenant.description, tenant_description)
+        self.assertEquals(tenant.enabled, tenant_enabled)
 
+        tenant = client.tenants.get(tenant_id=tenant.id)
+        self.assertEquals(tenant.name, tenant_name)
+        self.assertEquals(tenant.description, tenant_description)
+        self.assertEquals(tenant.enabled, tenant_enabled)
+
+        tenant = [t for t in client.tenants.list() if t.id == tenant.id].pop()
+        self.assertEquals(tenant.name, tenant_name)
+        self.assertEquals(tenant.description, tenant_description)
+        self.assertEquals(tenant.enabled, tenant_enabled)
+
+        # delete, get, and list a tenant
         client.tenants.delete(tenant=tenant.id)
         self.assertRaises(client_exceptions.NotFound, client.tenants.get,
                           tenant.id)
+        self.assertFalse([t for t in client.tenants.list()
+                           if t.id == tenant.id])
 
     def test_tenant_list(self):
         client = self.get_client()
