@@ -16,6 +16,7 @@
 
 
 from keystone import catalog
+from keystone import exception
 from keystone.common import kvs
 
 
@@ -25,7 +26,10 @@ class Catalog(kvs.Base, catalog.Driver):
         return self.db.get('catalog-%s-%s' % (tenant_id, user_id))
 
     def get_service(self, service_id):
-        return self.db.get('service-%s' % service_id)
+        res = self.db.get('service-%s' % service_id)
+        if not res:
+            raise exception.ServiceNotFound(service_id=service_id)
+        return res
 
     def list_services(self):
         return self.db.get('service_list', [])
@@ -42,6 +46,9 @@ class Catalog(kvs.Base, catalog.Driver):
         return service
 
     def delete_service(self, service_id):
+        if not self.db.get('service-%s' % service_id):
+            raise exception.ServiceNotFound(service_id=service_id)
+
         self.db.delete('service-%s' % service_id)
         service_list = set(self.db.get('service_list', []))
         service_list.remove(service_id)

@@ -35,13 +35,14 @@ class KvsToken(test.TestCase, test_backend.TokenTests):
     self.token_api = token_kvs.Token(db={})
 
 
-class KvsCatalog(test.TestCase):
+class KvsCatalog(test.TestCase, test_backend.CatalogTests):
   def setUp(self):
     super(KvsCatalog, self).setUp()
     self.catalog_api = catalog_kvs.Catalog(db={})
-    self._load_fixtures()
+    self.load_fixtures(default_fixtures)
+    self._load_fake_catalog()
 
-  def _load_fixtures(self):
+  def _load_fake_catalog(self):
     self.catalog_foobar = self.catalog_api._create_catalog(
         'foo', 'bar',
         {'RegionFoo': {'service_bar': {'foo': 'bar'}}})

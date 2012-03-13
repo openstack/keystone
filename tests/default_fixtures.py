@@ -35,3 +35,24 @@ ROLES = [
     {'id': 'keystone_admin', 'name': 'Keystone Admin'},
     {'id': 'useless', 'name': 'Useless'},
     ]
+
+SERVICES = [
+    {
+        'id': 'COMPUTE_ID',
+        'type': 'compute',
+        'name': 'Nova',
+        'description': 'OpenStack Compute service'
+    },
+    {
+        'id': 'IDENTITY_ID',
+        'type': 'identity',
+        'name': 'Keystone',
+        'description': 'OpenStack Identity service'
+    },
+    {
+        'id': 'IMAGE_ID',
+        'type': 'image',
+        'name': 'Glance',
+        'description': 'OpenStack Image service'
+    },
+]
