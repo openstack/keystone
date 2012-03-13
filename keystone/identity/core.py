@@ -54,7 +54,7 @@ class Driver(object):
         Returns: (user, tenant, metadata).
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_tenant(self, tenant_id):
         """Get a tenant by id.
@@ -62,7 +62,7 @@ class Driver(object):
         Returns: tenant_ref or None.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_tenant_by_name(self, tenant_name):
         """Get a tenant by name.
@@ -70,7 +70,7 @@ class Driver(object):
         Returns: tenant_ref or None.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_user(self, user_id):
         """Get a user by id.
@@ -78,7 +78,7 @@ class Driver(object):
         Returns: user_ref or None.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_user_by_name(self, user_name):
         """Get a user by name.
@@ -86,7 +86,7 @@ class Driver(object):
         Returns: user_ref or None.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_role(self, role_id):
         """Get a role by id.
@@ -94,7 +94,7 @@ class Driver(object):
         Returns: role_ref or None.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def list_users(self):
         """List all users in the system.
@@ -105,7 +105,7 @@ class Driver(object):
         Returns: a list of user_refs or an empty list.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def list_roles(self):
         """List all roles in the system.
@@ -113,18 +113,18 @@ class Driver(object):
         Returns: a list of role_refs or an empty list.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     # NOTE(termie): seven calls below should probably be exposed by the api
     #               more clearly when the api redesign happens
     def add_user_to_tenant(self, tenant_id, user_id):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def remove_user_from_tenant(self, tenant_id, user_id):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_all_tenants(self):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_tenants_for_user(self, user_id):
         """Get the tenants associated with a given user.
@@ -132,7 +132,7 @@ class Driver(object):
         Returns: a list of tenant ids.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def get_roles_for_user_and_tenant(self, user_id, tenant_id):
         """Get the roles associated with a user within given tenant.
@@ -140,59 +140,59 @@ class Driver(object):
         Returns: a list of role ids.
 
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant."""
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
         """Remove a role from a user within given tenant."""
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     # user crud
     def create_user(self, user_id, user):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def update_user(self, user_id, user):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def delete_user(self, user_id):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     # tenant crud
     def create_tenant(self, tenant_id, tenant):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def update_tenant(self, tenant_id, tenant):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def delete_tenant(self, tenant_id, tenant):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     # metadata crud
 
     def get_metadata(self, user_id, tenant_id):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def create_metadata(self, user_id, tenant_id, metadata):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def update_metadata(self, user_id, tenant_id, metadata):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def delete_metadata(self, user_id, tenant_id, metadata):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     # role crud
     def create_role(self, role_id, role):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def update_role(self, role_id, role):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def delete_role(self, role_id):
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
 
 class PublicRouter(wsgi.ComposableRouter):

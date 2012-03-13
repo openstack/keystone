@@ -77,7 +77,7 @@ class Endpoint(sql.ModelBase, sql.DictBase):
         return extra_copy
 
 
-class Catalog(sql.Base):
+class Catalog(sql.Base, catalog.Driver):
     def db_sync(self):
         migration.db_sync()
 
@@ -99,7 +99,7 @@ class Catalog(sql.Base):
             session.delete(service_ref)
             session.flush()
 
-    def create_service(self, context, service_ref):
+    def create_service(self, service_id, service_ref):
         session = self.get_session()
         with session.begin():
             service = Service.from_dict(service_ref)
@@ -114,7 +114,7 @@ class Catalog(sql.Base):
         return True
 
     # Endpoints
-    def create_endpoint(self, context, endpoint_ref):
+    def create_endpoint(self, endpoint_id, endpoint_ref):
         session = self.get_session()
         new_endpoint = Endpoint.from_dict(endpoint_ref)
         with session.begin():
