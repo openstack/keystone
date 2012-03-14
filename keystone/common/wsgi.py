@@ -207,17 +207,26 @@ class Application(BaseApplication):
                         context=context, token_id=context['token_id'])
             except exception.TokenNotFound:
                 raise exception.Unauthorized()
+
             creds = user_token_ref['metadata'].copy()
-            creds['user_id'] = user_token_ref['user'].get('id')
-            creds['tenant_id'] = user_token_ref['tenant'].get('id')
+
+            try:
+                creds['user_id'] = user_token_ref['user'].get('id')
+            except AttributeError:
+                logging.debug('Invalid user')
+                raise exception.Unauthorized()
+
+            try:
+                creds['tenant_id'] = user_token_ref['tenant'].get('id')
+            except AttributeError:
+                logging.debug('Invalid tenant')
+                raise exception.Unauthorized()
+
             # NOTE(vish): this is pretty inefficient
             creds['roles'] = [self.identity_api.get_role(context, role)['name']
                               for role in creds.get('roles', [])]
             # Accept either is_admin or the admin role
-            self.policy_api.enforce(context,
-                                    creds,
-                                    'admin_required',
-                                    {})
+            self.policy_api.enforce(context, creds, 'admin_required', {})
 
 
 class Middleware(Application):
