@@ -317,10 +317,10 @@ Authenticating with a Password
 To administer a Keystone endpoint, the following user referenced below should
 be granted the ``admin`` role.
 
-* ``--username OS_USERNAME``: Name of your user
-* ``--password OS_PASSWORD``: Password for your user
-* ``--tenant_name OS_TENANT_NAME``: Name of your tenant
-* ``--auth_url OS_AUTH_URL``: URL of your Keystone auth server, e.g.
+* ``--os_username OS_USERNAME``: Name of your user
+* ``--os_password OS_PASSWORD``: Password for your user
+* ``--os_tenant_name OS_TENANT_NAME``: Name of your tenant
+* ``--os_auth_url OS_AUTH_URL``: URL of your Keystone auth server, e.g.
   ``http://localhost:35357/v2.0``
 
 You can also set these variables in your environment so that they do not need
@@ -356,8 +356,8 @@ provide additional (often optional) information. For example, the command
     keystone tenant-create --name=demo
 
     # Using user + password + tenant_name flags
-    keystone --username=admin --password=secrete --tenant_name=admin user-list
-    keystone --username=admin --password=secrete --tenant_name=admin tenant-create --name=demo
+    keystone --os_username=admin --os_password=secrete --os_tenant_name=admin user-list
+    keystone --os_username=admin --os_password=secrete --os_tenant_name=admin tenant-create --name=demo
 
 Tenants
 -------
