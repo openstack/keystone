@@ -343,7 +343,8 @@ class TenantController(wsgi.Application):
         tenant_refs = tenant_refs[page_idx:limit]
 
         for x in tenant_refs:
-            x['enabled'] = True
+            if 'enabled' not in x:
+                x['enabled'] = True
         o = {'tenants': tenant_refs,
              'tenants_links': []}
         return o

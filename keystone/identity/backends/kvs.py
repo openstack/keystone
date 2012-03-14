@@ -204,11 +204,12 @@ class Identity(kvs.Base, identity.Driver):
         # get the old name and delete it too
         old_tenant = self.db.get('tenant-%s' % tenant_id)
         new_tenant = old_tenant.copy()
+        new_tenant.update(tenant)
         new_tenant['id'] = tenant_id
         self.db.delete('tenant_name-%s' % old_tenant['name'])
         self.db.set('tenant-%s' % tenant_id, new_tenant)
         self.db.set('tenant_name-%s' % new_tenant['name'], new_tenant)
-        return tenant
+        return new_tenant
 
     def delete_tenant(self, tenant_id):
         old_tenant = self.db.get('tenant-%s' % tenant_id)
