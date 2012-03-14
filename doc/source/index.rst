@@ -52,7 +52,7 @@ Man Pages
 .. toctree::
     :maxdepth: 1
 
-    man/keystone
+    man/keystone-all
     man/keystone-manage
 
 Developers Documentation
@@ -62,6 +62,7 @@ Developers Documentation
 
    developing
    architecture
+   middleware_architecture
    api_curl_examples
 
 Code Documentation

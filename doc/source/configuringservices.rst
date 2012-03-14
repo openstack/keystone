@@ -30,6 +30,7 @@ configure middleware for the OpenStack service to handle authentication tasks
 or otherwise interact with Keystone.
 
 In general:
+
 * Clients making calls to the service will pass in an authentication token.
 * The Keystone middleware will look for and validate that token, taking the
   appropriate action.
@@ -261,7 +262,7 @@ S3 api.
    not to `keystone`.
 
 Auth-Token Middleware with Username and Password
---------------------------------
+------------------------------------------------
 
 It is also possible to configure Keystone's auth_token middleware using the
 'admin_user' and 'admin_password' options. When using the 'admin_user' and

@@ -21,7 +21,8 @@ Setting up a Keystone development environment
 This document describes getting the source from keystone's `GitHub repository`_
 for development purposes.
 
-To install keystone from packaging, refer instead to Keystone's `User Documentation`_.
+To install keystone from packaging, refer instead to Keystone's `User
+Documentation`_.
 
 .. _`GitHub Repository`: http://github.com/openstack/keystone
 .. _`User Documentation`: http://docs.openstack.org/
@@ -96,9 +97,10 @@ Mac OS X Lion (requires MacPorts_)::
 PyPi Packages and VirtualEnv
 ----------------------------
 
-We recommend establishing a virtualenv to run keystone within. Virtualenv limits the python environment
-to just what you're installing as depdendencies, useful to keep a clean environment for working on
-Keystone. The tools directory in keystone has a script already created to make this very simple::
+We recommend establishing a virtualenv to run keystone within. Virtualenv
+limits the python environment to just what you're installing as depdendencies,
+useful to keep a clean environment for working on Keystone. The tools directory
+in keystone has a script already created to make this very simple::
 
     $ python tools/install_venv.py
 
@@ -117,8 +119,8 @@ see virtualenv_.
 
 .. _virtualenv: http://www.virtualenv.org/
 
-If you want to run keystone outside of a virtualenv, you can install the dependencies directly
-into your system from the requires files::
+If you want to run keystone outside of a virtualenv, you can install the
+dependencies directly into your system from the requires files::
 
     # Install the dependencies for running keystone
     $ pip install -r tools/pip-requires
@@ -126,18 +128,19 @@ into your system from the requires files::
     # Install the dependencies for developing, testing, and running keystone
     $ pip install -r tools/test-requires
 
-    # Fake-install the project by symlinking Keystone into your Python site-packages
+    # Use python setup.py to link Keystone into python's site-packages
     $ python setup.py develop
 
 
 Verifying Keystone is set up
 ============================
 
-Once set up, either directly or within a virtualenv, you should be able to invoke python and import
-the libraries. If you're using a virtualenv, don't forget to activate it::
+Once set up, either directly or within a virtualenv, you should be able to
+invoke python and import the libraries. If you're using a virtualenv, don't
+forget to activate it::
 
-	$ source .venv/bin/activate
-	$ python
+    $ source .venv/bin/activate
+    $ python
 
 You should then be able to `import keystone` from your Python shell
 without issue::
@@ -145,7 +148,8 @@ without issue::
     >>> import keystone
     >>>
 
-If you can import keystone successfully, you should be ready to move on to :doc:`developing`
+If you can import keystone successfully, you should be ready to move on to
+:doc:`developing`
 
 Troubleshooting
 ===============
