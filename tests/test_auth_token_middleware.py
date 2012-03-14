@@ -37,7 +37,7 @@ TOKEN_RESPONSES = {
             },
             'user': {
                 'id': 'user_id1',
-                'username': 'user_name1',
+                'name': 'user_name1',
                 'roles': [
                     {'name': 'role1'},
                     {'name': 'role2'},
@@ -52,7 +52,7 @@ TOKEN_RESPONSES = {
             },
             'user': {
                 'id': 'user_id1',
-                'username': 'user_name1',
+                'name': 'user_name1',
                 'tenantId': 'tenant_id1',
                 'tenantName': 'tenant_name1',
                 'roles': [
@@ -70,7 +70,7 @@ TOKEN_RESPONSES = {
             },
             'user': {
                 'id': 'user_id1',
-                'username': 'user_name1',
+                'name': 'user_name1',
                 'roles': [
                     {'name': 'role1'},
                     {'name': 'role2'},
@@ -85,7 +85,7 @@ TOKEN_RESPONSES = {
             },
             'user': {
                 'id': 'user_id1',
-                'username': 'user_name1',
+                'name': 'user_name1',
                 'roles': [
                     {'name': 'role1'},
                     {'name': 'role2'},
