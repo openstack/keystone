@@ -36,8 +36,6 @@ glance to list images needed to perform the requested task.
 
 import uuid
 
-import webob.exc
-
 from keystone import catalog
 from keystone import config
 from keystone import exception
@@ -114,12 +112,9 @@ class Ec2Controller(wsgi.Application):
             credentials['host'] = hostname
             signature = signer.generate(credentials)
             if not utils.auth_str_equal(credentials.signature, signature):
-                # TODO(termie): proper exception
-                msg = 'Invalid signature'
-                raise webob.exc.HTTPUnauthorized(explanation=msg)
+                raise exception.Unauthorized(message='Invalid EC2 signature.')
         else:
-            msg = 'Signature not supplied'
-            raise webob.exc.HTTPUnauthorized(explanation=msg)
+            raise exception.Unauthorized(message='EC2 signature not supplied.')
 
     def authenticate(self, context, credentials=None,
                          ec2Credentials=None):
@@ -152,8 +147,7 @@ class Ec2Controller(wsgi.Application):
         creds_ref = self.ec2_api.get_credential(context,
                                                 credentials['access'])
         if not creds_ref:
-            msg = 'Access key not found'
-            raise webob.exc.HTTPUnauthorized(explanation=msg)
+            raise exception.Unauthorized(message='EC2 access key not found.')
 
         self.check_signature(creds_ref, credentials)
 
@@ -263,7 +257,7 @@ class Ec2Controller(wsgi.Application):
 
         :param context: standard context
         :param user_id: id of user
-        :raises webob.exc.HTTPForbidden: when token is invalid
+        :raises exception.Forbidden: when token is invalid
 
         """
         try:
@@ -273,7 +267,7 @@ class Ec2Controller(wsgi.Application):
             raise exception.Unauthorized()
         token_user_id = token_ref['user'].get('id')
         if not token_user_id == user_id:
-            raise webob.exc.HTTPForbidden()
+            raise exception.Forbidden()
 
     def _is_admin(self, context):
         """Wrap admin assertion error return statement.
@@ -294,9 +288,9 @@ class Ec2Controller(wsgi.Application):
         :param context: standard context
         :param user_id: expected credential owner
         :param credential_id: id of credential object
-        :raises webob.exc.HTTPForbidden: on failure
+        :raises exception.Forbidden: on failure
 
         """
         cred_ref = self.ec2_api.get_credential(context, credential_id)
         if not user_id == cred_ref['user_id']:
-            raise webob.exc.HTTPForbidden()
+            raise exception.Forbidden()

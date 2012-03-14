@@ -16,6 +16,7 @@
 
 import ldap
 
+from keystone import exception
 from keystone.common import logging
 from keystone.common.ldap import fakeldap
 
@@ -140,14 +141,16 @@ class BaseLdap(object):
         if values['name'] is not None:
             entity = self.get_by_name(values['name'])
             if entity is not None:
-                raise Exception('%s with id %s already exists'
-                                % (self.options_name, values['id']))
+                raise exception.Conflict(type=self.options_name,
+                                         details='Duplicate name, %s.' %
+                                                 values['name'])
 
         if values['id'] is not None:
             entity = self.get(values['id'])
             if entity is not None:
-                raise Exception('%s with id %s already exists'
-                                % (self.options_name, values['id']))
+                raise exception.Conflict(type=self.options_name,
+                                         details='Duplicate ID, %s.' %
+                                                 values['id'])
 
     def create(self, values):
         conn = self.get_connection()

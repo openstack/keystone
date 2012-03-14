@@ -58,9 +58,13 @@ class Unauthorized(Error):
 
 
 class Forbidden(Error):
-    """You are not authorized to perform the requested action: %(action)s"""
+    """You are not authorized to perform the requested action."""
     code = 403
     title = 'Not Authorized'
+
+
+class ForbiddenAction(Forbidden):
+    """You are not authorized to perform the requested action: %(action)s"""
 
 
 class NotFound(Error):
@@ -69,15 +73,51 @@ class NotFound(Error):
     title = 'Not Found'
 
 
-class NotImplemented(Error):
-    """The action you have requested has not been implemented."""
-    code = 501
-    action = 'Not Implemented'
+class EndpointNotFound(NotFound):
+    """Could not find endopint: %(endpoint_id)s"""
+
+
+class RoleNotFound(NotFound):
+    """Could not find role: %(role_id)s"""
+
+
+class ServiceNotFound(NotFound):
+    """Could not find service: %(service_id)s"""
+
+
+class TenantNotFound(NotFound):
+    """Could not find tenant: %(tenant_id)s"""
 
 
 class TokenNotFound(NotFound):
     """Could not find token: %(token_id)s"""
 
 
-class ServiceNotFound(NotFound):
-    """Could not find service: %(service_id)s"""
+class UserNotFound(NotFound):
+    """Could not find user: %(user_id)s"""
+
+
+class Conflict(Error):
+    """Conflict occurred attempting to store %(type)s.
+
+    %(details)s
+
+    """
+    code = 409
+    title = 'Conflict'
+
+
+class NotImplemented(Error):
+    """The action you have requested has not been implemented."""
+    code = 501
+    action = 'Not Implemented'
+
+
+class UnexpectedError(Error):
+    """An unexpected error prevented the server from fulfilling your request.
+
+    %(exception)s
+
+    """
+    code = 500
+    title = 'Internal Server Error'

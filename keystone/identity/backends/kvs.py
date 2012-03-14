@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone import exception
 from keystone import identity
 from keystone.common import kvs
 from keystone.common import utils
@@ -151,9 +152,11 @@ class Identity(kvs.Base, identity.Driver):
     # CRUD
     def create_user(self, user_id, user):
         if self.get_user(user_id):
-            raise Exception('Duplicate id')
+            msg = 'Duplicate ID, %s.' % user_id
+            raise exception.Conflict(type='user', details=msg)
         if self.get_user_by_name(user['name']):
-            raise Exception('Duplicate name')
+            msg = 'Duplicate name, %s.' % user['name']
+            raise exception.Conflict(type='user', details=msg)
         user = _ensure_hashed_password(user)
         self.db.set('user-%s' % user_id, user)
         self.db.set('user_name-%s' % user['name'], user)
@@ -166,7 +169,8 @@ class Identity(kvs.Base, identity.Driver):
         if 'name' in user:
             existing = self.db.get('user_name-%s' % user['name'])
             if existing and user_id != existing['id']:
-                raise Exception('Duplicate name')
+                msg = 'Duplicate name, %s.' % user['name']
+                raise exception.Conflict(type='user', details=msg)
         # get the old name and delete it too
         old_user = self.db.get('user-%s' % user_id)
         new_user = old_user.copy()
@@ -189,9 +193,11 @@ class Identity(kvs.Base, identity.Driver):
 
     def create_tenant(self, tenant_id, tenant):
         if self.get_tenant(tenant_id):
-            raise Exception('Duplicate id')
+            msg = 'Duplicate ID, %s.' % tenant_id
+            raise exception.Conflict(type='tenant', details=msg)
         if self.get_tenant_by_name(tenant['name']):
-            raise Exception('Duplicate name')
+            msg = 'Duplicate name, %s.' % tenant['name']
+            raise exception.Conflict(type='tenant', details=msg)
         self.db.set('tenant-%s' % tenant_id, tenant)
         self.db.set('tenant_name-%s' % tenant['name'], tenant)
         return tenant
@@ -200,7 +206,8 @@ class Identity(kvs.Base, identity.Driver):
         if 'name' in tenant:
             existing = self.db.get('tenant_name-%s' % tenant['name'])
             if existing and tenant_id != existing['id']:
-                raise Exception('Duplicate name')
+                msg = 'Duplicate name, %s.' % tenant['name']
+                raise exception.Conflict(type='tenant', details=msg)
         # get the old name and delete it too
         old_tenant = self.db.get('tenant-%s' % tenant_id)
         new_tenant = old_tenant.copy()

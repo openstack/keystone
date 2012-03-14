@@ -20,8 +20,6 @@ import uuid
 import urllib
 import urlparse
 
-import webob.exc
-
 from keystone import config
 from keystone import exception
 from keystone import policy
@@ -287,7 +285,7 @@ class TenantController(wsgi.Application):
         self.assert_admin(context)
         tenant = self.identity_api.get_tenant(context, tenant_id)
         if not tenant:
-            return webob.exc.HTTPNotFound()
+            raise exception.TenantNotFound(tenant_id=tenant_id)
         return {'tenant': tenant}
 
     # CRUD Extension
@@ -329,16 +327,17 @@ class TenantController(wsgi.Application):
                     break
             else:
                 msg = 'Marker could not be found'
-                raise webob.exc.HTTPBadRequest(explanation=msg)
+                raise exception.ValidationError(message=msg)
 
         limit = kwargs.get('limit')
         if limit is not None:
             try:
                 limit = int(limit)
-                assert limit >= 0
+                if limit < 0:
+                    raise AssertionError()
             except (ValueError, AssertionError):
                 msg = 'Invalid limit value'
-                raise webob.exc.HTTPBadRequest(explanation=msg)
+                raise exception.ValidationError(message=msg)
 
         tenant_refs = tenant_refs[page_idx:limit]
 
@@ -361,7 +360,7 @@ class UserController(wsgi.Application):
         self.assert_admin(context)
         user_ref = self.identity_api.get_user(context, user_id)
         if not user_ref:
-            raise webob.exc.HTTPNotFound()
+            raise exception.UserNotFound(user_id=user_id)
         return {'user': user_ref}
 
     def get_users(self, context):
@@ -425,7 +424,8 @@ class RoleController(wsgi.Application):
 
         """
         if tenant_id is None:
-            raise Exception('User roles not supported: tenant_id required')
+            raise exception.NotImplemented(message='User roles not supported: '
+                                                   'tenant_id required')
         roles = self.identity_api.get_roles_for_user_and_tenant(
                 context, user_id, tenant_id)
         return {'roles': [self.identity_api.get_role(context, x)
@@ -436,7 +436,7 @@ class RoleController(wsgi.Application):
         self.assert_admin(context)
         role_ref = self.identity_api.get_role(context, role_id)
         if not role_ref:
-            raise webob.exc.HTTPNotFound()
+            raise exception.RoleNotFound(role_id=role_id)
         return {'role': role_ref}
 
     def create_role(self, context, role):
@@ -466,7 +466,8 @@ class RoleController(wsgi.Application):
         """
         self.assert_admin(context)
         if tenant_id is None:
-            raise Exception('User roles not supported: tenant_id required')
+            raise exception.NotImplemented(message='User roles not supported: '
+                                                   'tenant_id required')
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant
@@ -485,7 +486,8 @@ class RoleController(wsgi.Application):
         """
         self.assert_admin(context)
         if tenant_id is None:
-            raise Exception('User roles not supported: tenant_id required')
+            raise exception.NotImplemented(message='User roles not supported: '
+                                                   'tenant_id required')
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant

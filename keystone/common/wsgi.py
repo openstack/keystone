@@ -185,6 +185,9 @@ class Application(BaseApplication):
         except exception.Error as e:
             LOG.warning(e)
             return render_exception(e)
+        except Exception as e:
+            logging.exception(e)
+            return render_exception(exception.UnexpectedError(exception=e))
 
         if result is None:
             return render_response(status=(204, 'No Content'))

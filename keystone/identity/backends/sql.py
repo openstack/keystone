@@ -15,8 +15,10 @@
 # under the License.
 
 import copy
+import functools
 
 from keystone import identity
+from keystone import exception
 from keystone.common import sql
 from keystone.common import utils
 from keystone.common.sql import migration
@@ -33,6 +35,19 @@ def _ensure_hashed_password(user_ref):
     if pw is not None:
         user_ref['password'] = utils.hash_password(pw)
     return user_ref
+
+
+def handle_conflicts(type='object'):
+    """Converts IntegrityError into HTTP 409 Conflict."""
+    def decorator(method):
+        @functools.wraps(method)
+        def wrapper(*args, **kwargs):
+            try:
+                return method(*args, **kwargs)
+            except sql.IntegrityError as e:
+                raise exception.Conflict(type=type, details=str(e))
+        return wrapper
+    return decorator
 
 
 class User(sql.ModelBase, sql.DictBase):
@@ -280,6 +295,7 @@ class Identity(sql.Base, identity.Driver):
             self.create_metadata(user_id, tenant_id, metadata_ref)
 
     # CRUD
+    @handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user = _ensure_hashed_password(user)
         session = self.get_session()
@@ -289,6 +305,7 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
         return user_ref.to_dict()
 
+    @handle_conflicts(type='user')
     def update_user(self, user_id, user):
         session = self.get_session()
         with session.begin():
@@ -311,6 +328,7 @@ class Identity(sql.Base, identity.Driver):
             session.delete(user_ref)
             session.flush()
 
+    @handle_conflicts(type='tenant')
     def create_tenant(self, tenant_id, tenant):
         session = self.get_session()
         with session.begin():
@@ -319,6 +337,7 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
         return tenant_ref.to_dict()
 
+    @handle_conflicts(type='tenant')
     def update_tenant(self, tenant_id, tenant):
         session = self.get_session()
         with session.begin():
@@ -340,6 +359,7 @@ class Identity(sql.Base, identity.Driver):
             session.delete(tenant_ref)
             session.flush()
 
+    @handle_conflicts(type='metadata')
     def create_metadata(self, user_id, tenant_id, metadata):
         session = self.get_session()
         with session.begin():
@@ -349,6 +369,7 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
         return metadata
 
+    @handle_conflicts(type='metadata')
     def update_metadata(self, user_id, tenant_id, metadata):
         session = self.get_session()
         with session.begin():
@@ -367,6 +388,7 @@ class Identity(sql.Base, identity.Driver):
         self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
         return None
 
+    @handle_conflicts(type='role')
     def create_role(self, role_id, role):
         session = self.get_session()
         with session.begin():
@@ -374,6 +396,7 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
         return role
 
+    @handle_conflicts(type='role')
     def update_role(self, role_id, role):
         session = self.get_session()
         with session.begin():
