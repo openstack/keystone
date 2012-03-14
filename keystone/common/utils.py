@@ -37,6 +37,7 @@ from keystone.common import logging
 CONF = config.CONF
 config.register_int('crypt_strength', default=40000)
 
+LOG = logging.getLogger(__name__)
 
 ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
@@ -48,7 +49,7 @@ def import_class(import_str):
         __import__(mod_str)
         return getattr(sys.modules[mod_str], class_str)
     except (ImportError, ValueError, AttributeError), exc:
-        logging.debug('Inner Exception: %s', exc)
+        LOG.debug('Inner Exception: %s', exc)
         raise
 
 
@@ -163,7 +164,7 @@ class Ec2Signer(object):
 
     def _calc_signature_2(self, params, verb, server_string, path):
         """Generate AWS signature version 2 string."""
-        logging.debug('using _calc_signature_2')
+        LOG.debug('using _calc_signature_2')
         string_to_sign = '%s\n%s\n%s\n' % (verb, server_string, path)
         if self.hmac_256:
             current_hmac = self.hmac_256
@@ -179,13 +180,13 @@ class Ec2Signer(object):
             val = urllib.quote(val, safe='-_~')
             pairs.append(urllib.quote(key, safe='') + '=' + val)
         qs = '&'.join(pairs)
-        logging.debug('query string: %s', qs)
+        LOG.debug('query string: %s', qs)
         string_to_sign += qs
-        logging.debug('string_to_sign: %s', string_to_sign)
+        LOG.debug('string_to_sign: %s', string_to_sign)
         current_hmac.update(string_to_sign)
         b64 = base64.b64encode(current_hmac.digest())
-        logging.debug('len(b64)=%d', len(b64))
-        logging.debug('base64 encoded digest: %s', b64)
+        LOG.debug('len(b64)=%d', len(b64))
+        LOG.debug('base64 encoded digest: %s', b64)
         return b64
 
 
@@ -250,7 +251,7 @@ def check_output(*popenargs, **kwargs):
     """
     if 'stdout' in kwargs:
         raise ValueError('stdout argument not allowed, it will be overridden.')
-    logging.debug(' '.join(popenargs[0]))
+    LOG.debug(' '.join(popenargs[0]))
     process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
     output, unused_err = process.communicate()
     retcode = process.poll()

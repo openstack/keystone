@@ -24,12 +24,12 @@ library to work with nova.
 
 """
 
-import logging
 import re
 import shelve
 
 import ldap
 
+from keystone.common import logging
 from keystone.common import utils
 
 
@@ -40,7 +40,7 @@ SCOPE_NAMES = {
 }
 
 
-LOG = logging.getLogger('keystone.backends.ldap.fakeldap')
+LOG = logging.getLogger(__name__)
 
 
 def _match_query(query, attrs):

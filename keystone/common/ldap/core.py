@@ -14,14 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-
 import ldap
 
+from keystone.common import logging
 from keystone.common.ldap import fakeldap
 
 
-LOG = logging.getLogger('keystone.common.ldap')
+LOG = logging.getLogger(__name__)
 
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}

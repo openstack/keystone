@@ -8,12 +8,14 @@ Keystone Style Commandments
 
 General
 -------
+
 - Put two newlines between top-level code (funcs, classes, etc)
 - Put one newline between methods in classes and anywhere else
 - Do not write "except:", use "except Exception:" at the very least
 - Include your name with TODOs as in "#TODO(termie)"
 - Do not name anything the same name as a built-in or reserved word
 - When defining global constants, define them before functions and classes
+
 
 TODO vs FIXME
 -------------
@@ -23,8 +25,20 @@ TODO vs FIXME
 - FIXME(name): implies that the method/function/etc shouldn't be used until
   that code is resolved and bug fixed.
 
+Logging
+-------
+
+Use the built-in logging module, and ensure you ``getLogger``::
+
+    from keystone.common import logging
+
+    LOG = logging.getLogger(__name__)
+
+    LOG.debug('Foobar')
+
 Imports
 -------
+
 - Do not import objects, only modules
 - Do not import more than one module per line
 - Do not make relative imports
@@ -46,6 +60,7 @@ Example::
 
 Human Alphabetical Order Examples
 ---------------------------------
+
 Example::
 
   import httplib
@@ -70,6 +85,7 @@ Example::
 
 Docstrings
 ----------
+
 Example::
 
   """A one line docstring looks like this and ends in a period."""
@@ -102,6 +118,7 @@ Example::
 
 Dictionaries/Lists
 ------------------
+
 If a dictionary (dict) or list object is longer than 80 characters, its items
 should be split with newlines. Embedded iterables should have their items
 indented. Additionally, the last item in the dictionary should have a trailing
@@ -128,6 +145,7 @@ Example::
 
 Calling Methods
 ---------------
+
 Calls to methods 80 characters or longer should format each argument with
 newlines. This is not a requirement, but a guideline::
 
@@ -158,6 +176,7 @@ Rather than constructing parameters inline, it is better to break things up::
 
 Internationalization (i18n) Strings
 -----------------------------------
+
 In order to support multiple languages, we have a mechanism to support
 automatic translations of exception and log strings.
 
@@ -185,6 +204,7 @@ Example::
 
 Creating Unit Tests
 -------------------
+
 For every new feature, unit tests should be created that both test and
 (implicitly) document the usage of said feature. If submitting a patch for a
 bug that had no unit test, a new passing unit test should be added. If a

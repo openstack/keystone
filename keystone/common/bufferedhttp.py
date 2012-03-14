@@ -29,11 +29,15 @@ BufferedHTTPResponse.
 """
 
 from urllib import quote
-import logging
 import time
 
 from eventlet.green.httplib import (CONTINUE, HTTPConnection, HTTPMessage,
                                     HTTPResponse, HTTPSConnection, _UNKNOWN)
+
+from keystone.common import logging
+
+
+LOG = logging.getLogger(__name__)
 
 
 class BufferedHTTPResponse(HTTPResponse):
@@ -95,7 +99,7 @@ class BufferedHTTPConnection(HTTPConnection):
 
     def getresponse(self):
         response = HTTPConnection.getresponse(self)
-        logging.debug(('HTTP PERF: %(time).5f seconds to %(method)s '
+        LOG.debug(('HTTP PERF: %(time).5f seconds to %(method)s '
                         '%(host)s:%(port)s %(path)s)'),
            {'time': time.time() - self._connected_time, 'method': self._method,
             'host': self.host, 'port': self.port, 'path': self._path})
