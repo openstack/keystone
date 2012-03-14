@@ -66,8 +66,22 @@ class S3Token(object):
 
         auth_header = req.headers['Authorization']
         access, signature = auth_header.split(' ')[-1].rsplit(':', 1)
+        # NOTE(chmou): This is to handle the special case with nova
+        # when we have the option s3_affix_tenant. We will force it to
+        # connect to another account than the one
+        # authenticated. Before people start getting worried about
+        # security, I should point that we are connecting with
+        # username/token specified by the user but instead of
+        # connecting to its own account we will force it to go to an
+        # another account. In a normal scenario if that user don't
+        # have the reseller right it will just fail but since the
+        # reseller account can connect to every account it is allowed
+        # by the swift_auth middleware.
+        force_tenant = None
+        if ':' in access:
+            access, force_tenant = access.split(':')
 
-        # Authenticate the request.
+        # Authenticate request.
         creds = {'credentials': {'access': access,
                                  'token': token,
                                  'signature': signature,
@@ -100,8 +114,7 @@ class S3Token(object):
         # NOTE(chmou): We still have the same problem we would need to
         #              change token_auth to detect if we already
         #              identified and not doing a second query and just
-        #              pass it through to swiftauth in this case.
-        #              identity_info = json.loads(response)
+        #              pass it thru to swiftauth in this case.
         output = resp.read()
         conn.close()
         identity_info = json.loads(output)
@@ -115,8 +128,11 @@ class S3Token(object):
             raise
 
         req.headers['X-Auth-Token'] = token_id
+        tenant_to_connect = force_tenant or tenant[0]
+        self.logger.debug('Connecting with tenant: %s' %
+                              (tenant_to_connect))
         environ['PATH_INFO'] = environ['PATH_INFO'].replace(
-                account, 'AUTH_%s' % tenant[0])
+                account, 'AUTH_%s' % tenant_to_connect)
         return self.app(environ, start_response)
 
 
