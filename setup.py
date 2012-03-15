@@ -17,6 +17,7 @@
 from setuptools import find_packages
 from setuptools.command.sdist import sdist
 from setuptools import setup
+import subprocess
 
 from keystone.openstack.common.setup import parse_requirements
 from keystone.openstack.common.setup import parse_dependency_links
@@ -37,6 +38,8 @@ try:
 
     class local_BuildDoc(BuildDoc):
         def run(self):
+            subprocess.call('sphinx-apidoc -f -o doc/source keystone',
+                            shell=True)
             for builder in ['html', 'man']:
                 self.builder = builder
                 self.finalize_options()
