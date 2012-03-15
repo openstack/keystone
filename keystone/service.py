@@ -149,7 +149,7 @@ class VersionController(wsgi.Application):
                 if service == 'identity':
                     return service_ref[self.url_key]
 
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def _get_versions_list(self, context):
         """The list of versions is dependent on the context."""
@@ -421,7 +421,7 @@ class TokenController(wsgi.Application):
 
     def endpoints(self, context, token_id):
         """Return a list of endpoints available to the token."""
-        raise NotImplementedError()
+        raise exception.NotImplemented()
 
     def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
         o = self._format_token(token_ref, roles_ref)

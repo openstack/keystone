@@ -22,6 +22,7 @@ import uuid
 import webob.exc
 
 from keystone import config
+from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import token
@@ -42,6 +43,84 @@ class Manager(manager.Manager):
 
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
+
+
+class Driver(object):
+    """Interface description for an Catalog driver."""
+    def list_services(self):
+        """List all service ids in catalog.
+
+        Returns: list of service_ids or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_service(self, service_id):
+        """Get service by id.
+
+        Returns: service_ref dict or None.
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_service(self, service_id):
+        raise exception.NotImplemented()
+
+    def create_service(self, service_id, service_ref):
+        raise exception.NotImplemented()
+
+    def service_exists(self, service_id):
+        """Query existence of a service by id.
+
+        Returns: True if the service exists or False.
+
+        """
+        raise exception.NotImplemented()
+
+    def create_endpoint(self, endpoint_id, endpoint_ref):
+        raise exception.NotImplemented()
+
+    def delete_endpoint(self, endpoint_id):
+        raise exception.NotImplemented()
+
+    def get_endpoint(self, endpoint_id):
+        """Get endpoint by id.
+
+        Returns: endpoint_ref dict or None.
+
+        """
+        raise exception.NotImplemented()
+
+    def list_endpoints(self):
+        """List all endpoint ids in catalog.
+
+        Returns: list of endpoint_ids or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_catalog(self, user_id, tenant_id, metadata=None):
+        """Retreive and format the current service catalog.
+
+        Returns: A nested dict representing the service catalog or an
+                 empty dict.
+
+        Example:
+
+            { 'RegionOne':
+                {'compute': {
+                    'adminURL': u'http://host:8774/v1.1/tenantid',
+                    'internalURL': u'http://host:8774/v1.1/tenant_id',
+                    'name': 'Compute Service',
+                    'publicURL': u'http://host:8774/v1.1/tenantid'},
+                 'ec2': {
+                    'adminURL': 'http://host:8773/services/Admin',
+                    'internalURL': 'http://host:8773/services/Cloud',
+                    'name': 'EC2 Service',
+                    'publicURL': 'http://host:8773/services/Cloud'}}
+
+        """
+        raise exception.NotImplemented()
 
 
 class ServiceController(wsgi.Application):

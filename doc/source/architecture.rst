@@ -207,7 +207,7 @@ variety of CRUD operations are provided for the sake of development and testing.
 CRUD is treated as an extension or additional feature to the core feature set
 in that it is not required that a backend support it. It is expected that
 backends for services that don't support the CRUD operations will raise a
-:mod:`NotImplementedError`.
+:mod:`keystone.exception.NotImplemented`.
 
 
 ----------------------------------

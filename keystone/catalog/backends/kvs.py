@@ -15,10 +15,11 @@
 # under the License.
 
 
+from keystone import catalog
 from keystone.common import kvs
 
 
-class Catalog(kvs.Base):
+class Catalog(kvs.Base, catalog.Driver):
     # Public interface
     def get_catalog(self, user_id, tenant_id, metadata=None):
         return self.db.get('catalog-%s-%s' % (tenant_id, user_id))

@@ -17,6 +17,7 @@
 """Main entry point into the Policy service."""
 
 from keystone import config
+from keystone import exception
 from keystone.common import manager
 
 
@@ -42,4 +43,4 @@ class Driver(object):
         For more information on a full implementation of this see:
         `keystone.common.policy.enforce`.
         """
-        raise NotImplementedError()
+        raise exception.NotImplemented()
