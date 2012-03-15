@@ -416,7 +416,7 @@ class AuthProtocol(object):
         tenant_id, tenant_name = get_tenant_info()
 
         user_id = user['id']
-        user_name = user['username']
+        user_name = user['name']
 
         return {
             'X-Identity-Status': 'Confirmed',
