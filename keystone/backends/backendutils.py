@@ -2,6 +2,8 @@ from keystone.backends import models
 import keystone.backends as backends
 from passlib.hash import sha512_crypt as sc
 
+MAX_PASSWORD_LENGTH = 4096
+
 
 def __get_hashed_password(password):
     if password != None and len(password) > 0:
@@ -28,6 +30,8 @@ def check_password(raw_password, enc_password):
     if not raw_password:
         return False
     if backends.SHOULD_HASH_PASSWORD:
+        if len(raw_password) > MAX_PASSWORD_LENGTH:
+            raw_password = raw_password[:MAX_PASSWORD_LENGTH]
         return sc.verify(raw_password, enc_password)
     else:
         return enc_password == raw_password
@@ -39,6 +43,8 @@ def __make_password(raw_password):
     """
     if raw_password is None:
         return None
+    if len(raw_password) > MAX_PASSWORD_LENGTH:
+        raw_password = raw_password[:MAX_PASSWORD_LENGTH]
     hsh = __get_hexdigest(raw_password)
     return '%s' % (hsh)
 
