@@ -39,6 +39,7 @@ config.register_int('crypt_strength', default=40000)
 
 
 ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+MAX_PASSWORD_LENGTH = 4096
 
 
 def import_class(import_str):
@@ -189,9 +190,17 @@ class Ec2Signer(object):
         return b64
 
 
+def trunc_password(password):
+    """Truncate passwords to the MAX_PASSWORD_LENGTH."""
+    if len(password) > MAX_PASSWORD_LENGTH:
+        return password[:MAX_PASSWORD_LENGTH]
+    else:
+        return password
+
+
 def hash_password(password):
     """Hash a password. Hard."""
-    password_utf8 = password.encode('utf-8')
+    password_utf8 = trunc_password(password).encode('utf-8')
     if passlib.hash.sha512_crypt.identify(password_utf8):
         return password_utf8
     h = passlib.hash.sha512_crypt.encrypt(password_utf8,
@@ -201,7 +210,7 @@ def hash_password(password):
 
 def ldap_hash_password(password):
     """Hash a password. Hard."""
-    password_utf8 = password.encode('utf-8')
+    password_utf8 = trunc_password(password).encode('utf-8')
     h = passlib.hash.ldap_salted_sha1.encrypt(password_utf8)
     return h
 
@@ -209,7 +218,7 @@ def ldap_hash_password(password):
 def ldap_check_password(password, hashed):
     if password is None:
         return False
-    password_utf8 = password.encode('utf-8')
+    password_utf8 = trunc_password(password).encode('utf-8')
     h = passlib.hash.ldap_salted_sha1.encrypt(password_utf8)
     return passlib.hash.ldap_salted_sha1.verify(password_utf8, hashed)
 
@@ -223,7 +232,7 @@ def check_password(password, hashed):
     """
     if password is None:
         return False
-    password_utf8 = password.encode('utf-8')
+    password_utf8 = trunc_password(password).encode('utf-8')
     return passlib.hash.sha512_crypt.verify(password_utf8, hashed)
 
 
