@@ -104,7 +104,7 @@ class Tenant(sql.ModelBase, sql.DictBase):
 class Role(sql.ModelBase, sql.DictBase):
     __tablename__ = 'role'
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64))
+    name = sql.Column(sql.String(64), unique=True)
 
 
 class Metadata(sql.ModelBase, sql.DictBase):
