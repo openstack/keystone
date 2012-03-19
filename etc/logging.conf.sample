@@ -1,5 +1,5 @@
 [loggers]
-keys=root,api,registry,combined
+keys=root
 
 [formatters]
 keys=normal,normal_with_name,debug
@@ -8,23 +8,8 @@ keys=normal,normal_with_name,debug
 keys=production,file,devel
 
 [logger_root]
-level=NOTSET
-handlers=devel
-
-[logger_api]
-level=DEBUG
-handlers=devel
-qualname=glance-api
-
-[logger_registry]
-level=DEBUG
-handlers=devel
-qualname=glance-registry
-
-[logger_combined]
-level=DEBUG
-handlers=devel
-qualname=glance-combined
+level=WARNING
+handlers=file
 
 [handler_production]
 class=handlers.SysLogHandler
@@ -36,7 +21,7 @@ args=(('localhost', handlers.SYSLOG_UDP_PORT), handlers.SysLogHandler.LOG_USER)
 class=FileHandler
 level=DEBUG
 formatter=normal_with_name
-args=('glance.log', 'w')
+args=('keystone.log', 'a')
 
 [handler_devel]
 class=StreamHandler
