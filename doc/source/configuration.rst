@@ -120,9 +120,6 @@ environment::
     [sql]
     connection = sqlite:///keystone.db
     idle_timeout = 200
-    min_pool_size = 5
-    max_pool_size = 10
-    pool_timeout = 200
 
 .. NOTE::
 
