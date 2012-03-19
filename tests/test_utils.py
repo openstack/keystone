@@ -43,6 +43,11 @@ class UtilsTestCase(test.TestCase):
         self.assertTrue(utils.check_password(password, hashed))
         self.assertFalse(utils.check_password(wrong, hashed))
 
+    def test_hash_long_password(self):
+        bigboy = '0' * 9999999
+        hashed = utils.hash_password(bigboy)
+        self.assertTrue(utils.check_password(bigboy, hashed))
+
     def test_hash_edge_cases(self):
         hashed = utils.hash_password('secret')
         self.assertFalse(utils.check_password('', hashed))
