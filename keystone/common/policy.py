@@ -49,6 +49,7 @@ def enforce(match_list, target_dict, credentials_dict):
     """Enforces authorization of some rules against credentials.
 
     :param match_list: nested tuples of data to match against
+
     The basic brain supports three types of match lists:
         1) rules
             looks like: ('rule:compute:get_instance',)
@@ -68,14 +69,14 @@ def enforce(match_list, target_dict, credentials_dict):
         perform simple boolean logic.  For example, the following rule would
         return True if the creds contain the role 'admin' OR the if the
         tenant_id matches the target dict AND the the creds contains the
-        role 'compute_sysadmin':
+        role 'compute_sysadmin'::
 
-        {
-            "rule:combined": (
-                'role:admin',
-                ('tenant_id:%(tenant_id)s', 'role:compute_sysadmin')
-            )
-        }
+            {
+                "rule:combined": (
+                    'role:admin',
+                    ('tenant_id:%(tenant_id)s', 'role:compute_sysadmin')
+                )
+            }
 
 
     Note that rule and role are reserved words in the credentials match, so
@@ -84,10 +85,12 @@ def enforce(match_list, target_dict, credentials_dict):
     reserved word.
 
     :param target_dict: dict of object properties
+
     Target dicts contain as much information as we can about the object being
     operated on.
 
     :param credentials_dict: dict of actor properties
+
     Credentials dicts contain as much information as we can about the user
     performing the action.
 
