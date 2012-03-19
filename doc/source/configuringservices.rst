@@ -21,7 +21,6 @@ Configuring Services to work with Keystone
 .. toctree::
    :maxdepth: 1
 
-    nova-api-paste
     middleware_architecture
 
 Once Keystone is installed and running (see :doc:`configuration`), services
@@ -112,17 +111,9 @@ the WSGI pipeline to handle authenticating tokens with Keystone.
 Configuring Nova to use Keystone
 --------------------------------
 
-To configure Nova to use Keystone for authentication, the Nova API service
-can be run against the api-paste file provided by Keystone. This is most
-easily accomplished by setting the `--api_paste_config` flag in nova.conf to
-point to `examples/paste/nova-api-paste.ini` from Keystone. This paste file
-included references to the WSGI authentication middleware provided with the
-keystone installation.
-
 When configuring Nova, it is important to create a admin service token for
 the service (from the Configuration step above) and include that as the key
-'admin_token' in the nova-api-paste.ini. See the documented
-:doc:`nova-api-paste` file for references.
+'admin_token' in Nova's api-paste.ini.
 
 Configuring Swift to use Keystone
 ---------------------------------
