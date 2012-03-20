@@ -52,7 +52,7 @@ if __name__ == '__main__':
     if os.path.exists(dev_conf):
         config_files = [dev_conf]
 
-    CONF(config_files=config_files)
+    CONF(config_files=config_files, args=sys.argv)
 
     config.setup_logging(CONF)
 
