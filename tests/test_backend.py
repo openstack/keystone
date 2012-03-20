@@ -67,6 +67,21 @@ class IdentityTests(object):
         self.assertDictEquals(tenant_ref, self.tenant_bar)
         self.assertDictEquals(metadata_ref, self.metadata_foobar)
 
+    def test_authenticate_no_metadata(self):
+        user = self.user_no_meta
+        tenant = self.tenant_baz
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+                user_id=user['id'],
+                tenant_id=tenant['id'],
+                password=user['password'])
+        # NOTE(termie): the password field is left in user_foo to make it easier
+        #               to authenticate in tests, but should not be returned by
+        #               the api
+        user.pop('password')
+        self.assertEquals(metadata_ref, {})
+        self.assertDictEquals(user_ref, user)
+        self.assertDictEquals(tenant_ref, tenant)
+
     def test_password_hashed(self):
         user_ref = self.identity_api._get_user(self.user_foo['id'])
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
@@ -117,13 +132,13 @@ class IdentityTests(object):
         metadata_ref = self.identity_api.get_metadata(
                 user_id=self.user_foo['id'] + 'WRONG',
                 tenant_id=self.tenant_bar['id'])
-        self.assert_(metadata_ref is None)
+        self.assert_(metadata_ref == {})
 
     def test_get_metadata_bad_tenant(self):
         metadata_ref = self.identity_api.get_metadata(
                 user_id=self.user_foo['id'],
                 tenant_id=self.tenant_bar['id'] + 'WRONG')
-        self.assert_(metadata_ref is None)
+        self.assert_(metadata_ref == {})
 
     def test_get_metadata(self):
         metadata_ref = self.identity_api.get_metadata(
