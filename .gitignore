@@ -5,7 +5,7 @@ vendor
 .venv
 .tox
 keystone.egg-info/
-run_tests.log
+*.log
 .coverage
 covhtml
 pep8.txt
