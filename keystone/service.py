@@ -365,7 +365,7 @@ class TokenController(wsgi.Application):
                                              token_id=token_id)
 
         if belongs_to:
-            assert token_ref['tenant']['name'] == belongs_to
+            assert token_ref['tenant']['id'] == belongs_to
 
         return token_ref
 
