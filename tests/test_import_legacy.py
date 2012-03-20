@@ -24,9 +24,7 @@ from keystone import test
 from keystone.common.sql import legacy
 from keystone.common.sql import util as sql_util
 from keystone.identity.backends import sql as identity_sql
-from keystone.token.backends import sql as token_sql
 from keystone.catalog.backends import templated as catalog_templated
-
 
 
 CONF = config.CONF

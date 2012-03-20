@@ -28,24 +28,24 @@ CONF = config.CONF
 
 
 class SqlIdentity(test.TestCase, test_backend.IdentityTests):
-  def setUp(self):
-    super(SqlIdentity, self).setUp()
-    CONF(config_files=[test.etcdir('keystone.conf'),
-                       test.testsdir('test_overrides.conf'),
-                       test.testsdir('backend_sql.conf')])
-    sql_util.setup_test_database()
-    self.identity_api = identity_sql.Identity()
-    self.load_fixtures(default_fixtures)
+    def setUp(self):
+        super(SqlIdentity, self).setUp()
+        CONF(config_files=[test.etcdir('keystone.conf'),
+                           test.testsdir('test_overrides.conf'),
+                           test.testsdir('backend_sql.conf')])
+        sql_util.setup_test_database()
+        self.identity_api = identity_sql.Identity()
+        self.load_fixtures(default_fixtures)
 
 
 class SqlToken(test.TestCase, test_backend.TokenTests):
-  def setUp(self):
-    super(SqlToken, self).setUp()
-    CONF(config_files=[test.etcdir('keystone.conf'),
-                       test.testsdir('test_overrides.conf'),
-                       test.testsdir('backend_sql.conf')])
-    sql_util.setup_test_database()
-    self.token_api = token_sql.Token()
+    def setUp(self):
+        super(SqlToken, self).setUp()
+        CONF(config_files=[test.etcdir('keystone.conf'),
+                           test.testsdir('test_overrides.conf'),
+                           test.testsdir('backend_sql.conf')])
+        sql_util.setup_test_database()
+        self.token_api = token_sql.Token()
 
 
 #class SqlCatalog(test_backend_kvs.KvsCatalog):

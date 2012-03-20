@@ -169,10 +169,9 @@ class FakeHTTPConnection(object):
     def close(self):
         pass
 
-class FakeApp(object):
-    """This represents a WSGI app protected by the auth_token middleware.
 
-    """
+class FakeApp(object):
+    """This represents a WSGI app protected by the auth_token middleware."""
     def __init__(self, expected_env=None):
         expected_env = expected_env or {}
         self.expected_env = {
@@ -237,6 +236,7 @@ class DiabloAuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         body = self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
         self.assertEqual(body, ['SUCCESS'])
+
 
 class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
     def test_valid_request(self):
