@@ -69,14 +69,6 @@ class Driver(object):
     def create_service(self, service_id, service_ref):
         raise exception.NotImplemented()
 
-    def service_exists(self, service_id):
-        """Query existence of a service by id.
-
-        Returns: True if the service exists or False.
-
-        """
-        raise exception.NotImplemented()
-
     def create_endpoint(self, endpoint_id, endpoint_ref):
         raise exception.NotImplemented()
 
@@ -176,7 +168,9 @@ class EndpointController(wsgi.Application):
         endpoint_ref['id'] = endpoint_id
 
         service_id = endpoint_ref['service_id']
-        if not self.catalog_api.service_exists(context, service_id):
+        try:
+            service = self.catalog_api.get_service(context, service_id)
+        except exception.ServiceNotFound:
             msg = 'No service exists with id %s' % service_id
             raise webob.exc.HTTPBadRequest(msg)
 

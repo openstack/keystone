@@ -175,14 +175,6 @@ class KeystoneClientTests(object):
                           self.get_client,
                           user_ref)
 
-    # TODO(termie): I'm not really sure that this is testing much
-    def test_endpoints(self):
-        raise nose.exc.SkipTest('Not implemented due to bug 933555')
-
-        client = self.get_client(admin=True)
-        token = client.auth_token
-        endpoints = client.tokens.endpoints(token=token)
-
     # FIXME(ja): this test should require the "keystone:admin" roled
     #            (probably the role set via --keystone_admin_role flag)
     # FIXME(ja): add a test that admin endpoint is only sent to admin user

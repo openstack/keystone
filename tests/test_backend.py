@@ -317,3 +317,23 @@ class TokenTests(object):
         self.assertDictEquals(data_ref, data)
         new_data_ref = self.token_api.get_token(token_id)
         self.assertEqual(data_ref, new_data_ref)
+
+
+class CatalogTests(object):
+
+    def test_service_crud(self):
+        new_service = {'id': 'MY_SERVICE', 'type': 'myservice',
+            'name': 'My Service', 'description': 'My description'}
+        res = self.catalog_api.create_service(new_service['id'], new_service)
+        self.assertDictEquals(res, new_service)
+
+        service_id = new_service['id']
+        self.catalog_api.delete_service(service_id)
+        self.assertRaises(exception.ServiceNotFound,
+                self.catalog_api.delete_service, service_id)
+        self.assertRaises(exception.ServiceNotFound,
+                self.catalog_api.get_service, service_id)
+
+    def test_service_list(self):
+        services = self.catalog_api.list_services()
+        self.assertEqual(3, len(services))
