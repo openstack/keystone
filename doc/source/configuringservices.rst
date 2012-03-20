@@ -133,7 +133,7 @@ rather than it's built in 'tempauth'.
     user = <user>
 
     [pipeline:main]
-    pipeline = catch_errors healthcheck cache tokenauth keystone proxy-server
+    pipeline = catch_errors healthcheck cache authtoken keystone proxy-server
 
     [app:proxy-server]
     use = egg:swift#proxy
@@ -143,7 +143,7 @@ rather than it's built in 'tempauth'.
     paste.filter_factory = keystone.middleware.swift_auth:filter_factory
     operator_roles = admin, swiftoperator
 
-    [filter:tokenauth]
+    [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
     service_port = 5000
     service_host = 127.0.0.1
@@ -196,7 +196,7 @@ S3 api.
     user = <user>
 
     [pipeline:main]
-    pipeline = catch_errors healthcheck cache swift3 s3token tokenauth keystone proxy-server
+    pipeline = catch_errors healthcheck cache swift3 s3token authtoken keystone proxy-server
 
     [app:proxy-server]
     use = egg:swift#proxy
@@ -227,7 +227,7 @@ S3 api.
     auth_token = ADMIN
     admin_token = ADMIN
 
-    [filter:tokenauth]
+    [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
     service_port = 5000
     service_host = 127.0.0.1
@@ -267,7 +267,7 @@ still valid.
 Here is an example paste config filter that makes use of the 'admin_user' and
 'admin_password' parameters::
 
-    [filter:tokenauth]
+    [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
     service_port = 5000
     service_host = 127.0.0.1
