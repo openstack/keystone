@@ -171,13 +171,17 @@ rather than it's built in 'tempauth'.
 
 5. Verify that keystone is providing authentication to Swift
 
-    $ swift -V 2 -A http://localhost:5000/v2.0/tokens -U admin:admin -K ADMIN stat
+    $ swift -V 2 -A http://localhost:5000/v2.0 -U admin:admin -K ADMIN stat
 
-Configuring Swift with S3 emuluation to use Keystone
-----------------------------------------------------
+.. NOTE::
+   Instead of connecting to Swift here, as you would with other services, we
+   are connecting directly to Keystone.
+
+Configuring Swift with S3 emulation to use Keystone
+---------------------------------------------------
 
 Keystone support validating S3 tokens using the same tokens as the
-generated EC2 tokens. After you have generated a pair of EC2 access
+generated EC2 tokens. When you have generated a pair of EC2 access
 token and secret you can access your swift cluster directly with the
 S3 api.
 
@@ -220,7 +224,6 @@ S3 api.
     service_host = 127.0.0.1
     auth_port = 35357
     auth_host = 127.0.0.1
-    auth_protocol = http
     auth_token = ADMIN
     admin_token = ADMIN
 
