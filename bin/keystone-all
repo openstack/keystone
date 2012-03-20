@@ -65,10 +65,10 @@ if __name__ == '__main__':
     servers = []
     servers.append(create_server(CONF.config_file[0],
                                  'admin',
-                                 options['bind_host'],
-                                 int(options['admin_port'])))
+                                 CONF.bind_host,
+                                 int(CONF.admin_port)))
     servers.append(create_server(CONF.config_file[0],
                                  'main',
-                                 options['bind_host'],
-                                 int(options['public_port'])))
+                                 CONF.bind_host,
+                                 int(CONF.public_port)))
     serve(*servers)
