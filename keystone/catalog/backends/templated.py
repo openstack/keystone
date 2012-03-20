@@ -19,7 +19,7 @@ from keystone.common import logging
 from keystone.catalog.backends import kvs
 
 
-LOG = logging.getLogger('keystone.catalog.backends.templated')
+LOG = logging.getLogger(__name__)
 
 CONF = config.CONF
 config.register_str('template_file', group='catalog')

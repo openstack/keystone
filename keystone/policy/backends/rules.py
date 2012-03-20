@@ -40,7 +40,7 @@ CONF = config.CONF
 CONF.register_opts(policy_opts)
 
 
-LOG = logging.getLogger('keystone.policy.backends.rules')
+LOG = logging.getLogger(__name__)
 
 
 _POLICY_PATH = None

@@ -21,7 +21,6 @@
 """Utility methods for working with WSGI servers."""
 
 import json
-import logging
 import sys
 
 import eventlet
@@ -34,7 +33,11 @@ import webob.dec
 import webob.exc
 
 from keystone import exception
+from keystone.common import logging
 from keystone.common import utils
+
+
+LOG = logging.getLogger(__name__)
 
 
 class WritableLogger(object):
@@ -61,7 +64,7 @@ class Server(object):
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
-        logging.debug('Starting %(arg0)s on %(host)s:%(port)s' %
+        LOG.debug('Starting %(arg0)s on %(host)s:%(port)s' %
                       {'arg0': sys.argv[0],
                        'host': self.host,
                        'port': self.port})
@@ -83,9 +86,9 @@ class Server(object):
 
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
-        logger = logging.getLogger('eventlet.wsgi.server')
+        log = logging.getLogger('eventlet.wsgi.server')
         eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                             log=WritableLogger(logger))
+                             log=WritableLogger(log))
 
 
 class Request(webob.Request):
@@ -163,7 +166,7 @@ class Application(BaseApplication):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
         action = arg_dict.pop('action')
         del arg_dict['controller']
-        logging.debug('arg_dict: %s', arg_dict)
+        LOG.debug('arg_dict: %s', arg_dict)
 
         # allow middleware up the stack to provide context & params
         context = req.environ.get('openstack.context', {})
@@ -180,7 +183,7 @@ class Application(BaseApplication):
         try:
             result = method(context, **params)
         except exception.Error as e:
-            logging.warning(e)
+            LOG.warning(e)
             return render_exception(e)
 
         if result is None:
@@ -304,21 +307,21 @@ class Debug(Middleware):
 
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
-        logging.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
+        LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
         for key, value in req.environ.items():
-            logging.debug('%s = %s', key, value)
-        logging.debug('')
-        logging.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
+            LOG.debug('%s = %s', key, value)
+        LOG.debug('')
+        LOG.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
         for line in req.body_file:
-            logging.debug(line)
-        logging.debug('')
+            LOG.debug(line)
+        LOG.debug('')
 
         resp = req.get_response(self.application)
 
-        logging.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
+        LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
         for (key, value) in resp.headers.iteritems():
-            logging.debug('%s = %s', key, value)
-        logging.debug('')
+            LOG.debug('%s = %s', key, value)
+        LOG.debug('')
 
         resp.app_iter = self.print_generator(resp.app_iter)
 
@@ -327,10 +330,10 @@ class Debug(Middleware):
     @staticmethod
     def print_generator(app_iter):
         """Iterator that prints the contents of a wrapper string."""
-        logging.debug('%s %s %s', ('*' * 20), 'RESPONSE BODY', ('*' * 20))
+        LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE BODY', ('*' * 20))
         for part in app_iter:
             #sys.stdout.write(part)
-            logging.debug(part)
+            LOG.debug(part)
             #sys.stdout.flush()
             yield part
         print

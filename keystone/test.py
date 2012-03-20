@@ -31,6 +31,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 
 
+LOG = logging.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.dirname(__file__))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
 TESTSDIR = os.path.join(ROOTDIR, 'tests')
@@ -80,7 +81,7 @@ def checkout_vendor(repo, rev):
         with open(modcheck, 'w') as fd:
             fd.write('1')
     except subprocess.CalledProcessError as e:
-        logging.warning('Failed to checkout %s', repo)
+        LOG.warning('Failed to checkout %s', repo)
     cd(working_dir)
     return revdir
 
