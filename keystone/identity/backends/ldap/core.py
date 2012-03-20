@@ -545,7 +545,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     def add_user(self, role_id, user_id, tenant_id=None):
         user = self.user_api.get(user_id)
         if user is None:
-            raise exception.NotFound('User %s not found' % (user_id,))
+            raise exception.UserNotFound(user_id=user_id)
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         conn = self.get_connection()
         user_dn = self.user_api._id_to_dn(user_id)

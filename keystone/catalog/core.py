@@ -19,8 +19,6 @@
 
 import uuid
 
-import webob.exc
-
 from keystone import config
 from keystone import exception
 from keystone import identity
@@ -131,7 +129,7 @@ class ServiceController(wsgi.Application):
     def get_service(self, context, service_id):
         service_ref = self.catalog_api.get_service(context, service_id)
         if not service_ref:
-            raise webob.exc.HTTPNotFound()
+            raise exception.ServiceNotFound(service_id=service_id)
         return {'OS-KSADM:service': service_ref}
 
     def delete_service(self, context, service_id):
@@ -168,11 +166,8 @@ class EndpointController(wsgi.Application):
         endpoint_ref['id'] = endpoint_id
 
         service_id = endpoint_ref['service_id']
-        try:
-            service = self.catalog_api.get_service(context, service_id)
-        except exception.ServiceNotFound:
-            msg = 'No service exists with id %s' % service_id
-            raise webob.exc.HTTPBadRequest(msg)
+        if not self.catalog_api.service_exists(context, service_id):
+            raise exception.ServiceNotFound(service_id=service_id)
 
         new_endpoint_ref = self.catalog_api.create_endpoint(
                                 context, endpoint_id, endpoint_ref)

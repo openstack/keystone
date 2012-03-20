@@ -43,6 +43,7 @@ Column = sql.Column
 String = sql.String
 ForeignKey = sql.ForeignKey
 DateTime = sql.DateTime
+IntegrityError = sql.exc.IntegrityError
 
 
 # Special Fields

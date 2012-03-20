@@ -17,8 +17,6 @@
 import uuid
 
 import routes
-import webob.dec
-import webob.exc
 
 from keystone import catalog
 from keystone import exception
@@ -277,7 +275,7 @@ class TokenController(wsgi.Application):
 
                 # If the user is disabled don't allow them to authenticate
                 if not user_ref.get('enabled', True):
-                    raise webob.exc.HTTPForbidden('User has been disabled')
+                    raise exception.Forbidden(message='User has been disabled')
             except AssertionError as e:
                 raise exception.Unauthorized(e.message)
 
