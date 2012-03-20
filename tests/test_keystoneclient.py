@@ -510,7 +510,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             tenant_id = uuid.uuid4().hex
             tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id}
             self.identity_api.create_tenant(tenant_id, tenant)
-            self.identity_api.add_user_to_tenant(tenant_id, self.user_foo['id'])
+            self.identity_api.add_user_to_tenant(tenant_id,
+                                                 self.user_foo['id'])
 
         tenants = client.tenants.list()
         self.assertEqual(len(tenants), 3)
@@ -535,7 +536,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             tenant_id = uuid.uuid4().hex
             tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id}
             self.identity_api.create_tenant(tenant_id, tenant)
-            self.identity_api.add_user_to_tenant(tenant_id, self.user_foo['id'])
+            self.identity_api.add_user_to_tenant(tenant_id,
+                                                 self.user_foo['id'])
 
         tenants = client.tenants.list()
         self.assertEqual(len(tenants), 3)

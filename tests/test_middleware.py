@@ -95,7 +95,8 @@ class JsonBodyMiddlewareTest(test.TestCase):
                           _middleware.process_request, req)
 
     def test_no_content_type(self):
-        req = make_request(body='{"arg1": "one", "arg2": ["a"]}', method='POST')
+        req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
+                           method='POST')
         middleware.JsonBodyMiddleware(None).process_request(req)
         params = req.environ[middleware.PARAMS_ENV]
         self.assertEqual(params, {"arg1": "one", "arg2": ["a"]})

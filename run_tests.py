@@ -69,7 +69,6 @@ from nose import core
 from nose import result
 
 
-
 class _AnsiColorizer(object):
     """
     A colorizer is an object that loosely wraps around a stream, allowing

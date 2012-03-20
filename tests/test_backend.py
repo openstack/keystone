@@ -46,9 +46,9 @@ class IdentityTests(object):
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
                 user_id=self.user_foo['id'],
                 password=self.user_foo['password'])
-        # NOTE(termie): the password field is left in user_foo to make it easier
-        #               to authenticate in tests, but should not be returned by
-        #               the api
+        # NOTE(termie): the password field is left in user_foo to make
+        #               it easier to authenticate in tests, but should
+        #               not be returned by the api
         self.user_foo.pop('password')
         self.assertDictEquals(user_ref, self.user_foo)
         self.assert_(tenant_ref is None)
@@ -59,9 +59,9 @@ class IdentityTests(object):
                 user_id=self.user_foo['id'],
                 tenant_id=self.tenant_bar['id'],
                 password=self.user_foo['password'])
-        # NOTE(termie): the password field is left in user_foo to make it easier
-        #               to authenticate in tests, but should not be returned by
-        #               the api
+        # NOTE(termie): the password field is left in user_foo to make
+        #               it easier to authenticate in tests, but should
+        #               not be returned by the api
         self.user_foo.pop('password')
         self.assertDictEquals(user_ref, self.user_foo)
         self.assertDictEquals(tenant_ref, self.tenant_bar)
@@ -74,9 +74,9 @@ class IdentityTests(object):
                 user_id=user['id'],
                 tenant_id=tenant['id'],
                 password=user['password'])
-        # NOTE(termie): the password field is left in user_foo to make it easier
-        #               to authenticate in tests, but should not be returned by
-        #               the api
+        # NOTE(termie): the password field is left in user_foo to make
+        #               it easier to authenticate in tests, but should
+        #               not be returned by the api
         user.pop('password')
         self.assertEquals(metadata_ref, {})
         self.assertDictEquals(user_ref, user)
@@ -113,18 +113,18 @@ class IdentityTests(object):
 
     def test_get_user(self):
         user_ref = self.identity_api.get_user(user_id=self.user_foo['id'])
-        # NOTE(termie): the password field is left in user_foo to make it easier
-        #               to authenticate in tests, but should not be returned by
-        #               the api
+        # NOTE(termie): the password field is left in user_foo to make
+        #               it easier to authenticate in tests, but should
+        #               not be returned by the api
         self.user_foo.pop('password')
         self.assertDictEquals(user_ref, self.user_foo)
 
     def test_get_user_by_name(self):
         user_ref = self.identity_api.get_user_by_name(
                 user_name=self.user_foo['name'])
-        # NOTE(termie): the password field is left in user_foo to make it easier
-        #               to authenticate in tests, but should not be returned by
-        #               the api
+        # NOTE(termie): the password field is left in user_foo to make
+        #               it easier to authenticate in tests, but should
+        #               not be returned by the api
         self.user_foo.pop('password')
         self.assertDictEquals(user_ref, self.user_foo)
 
@@ -155,7 +155,7 @@ class IdentityTests(object):
         user = {'id': 'fake1',
                 'name': 'fake1',
                 'password': 'fakepass',
-                'tenants': ['bar',]}
+                'tenants': ['bar']}
         self.identity_api.create_user('fake1', user)
         user['name'] = 'fake2'
         self.assertRaises(Exception,
@@ -167,7 +167,7 @@ class IdentityTests(object):
         user = {'id': 'fake1',
                 'name': 'fake1',
                 'password': 'fakepass',
-                'tenants': ['bar',]}
+                'tenants': ['bar']}
         self.identity_api.create_user('fake1', user)
         user['id'] = 'fake2'
         self.assertRaises(Exception,
@@ -179,11 +179,11 @@ class IdentityTests(object):
         user1 = {'id': 'fake1',
                  'name': 'fake1',
                  'password': 'fakepass',
-                 'tenants': ['bar',]}
+                 'tenants': ['bar']}
         user2 = {'id': 'fake2',
                  'name': 'fake2',
                  'password': 'fakepass',
-                 'tenants': ['bar',]}
+                 'tenants': ['bar']}
         self.identity_api.create_user('fake1', user1)
         self.identity_api.create_user('fake2', user2)
         user2['name'] = 'fake1'
@@ -196,7 +196,7 @@ class IdentityTests(object):
         user = {'id': 'fake1',
                 'name': 'fake1',
                 'password': 'fakepass',
-                'tenants': ['bar',]}
+                'tenants': ['bar']}
         self.identity_api.create_user('fake1', user)
         user['id'] = 'fake2'
         self.identity_api.update_user('fake1', user)
@@ -244,29 +244,28 @@ class IdentityTests(object):
         tenant_ref = self.identity_api.get_tenant('fake2')
         self.assert_(tenant_ref is None)
 
-
     def test_get_role_by_user_and_tenant(self):
         roles_ref = self.identity_api.get_roles_for_user_and_tenant(
-            self.user_foo['id'],self.tenant_bar['id'])
+            self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn('keystone_admin', roles_ref)
         self.identity_api.add_role_to_user_and_tenant(
-            self.user_foo['id'],self.tenant_bar['id'], 'keystone_admin')
+            self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
         roles_ref = self.identity_api.get_roles_for_user_and_tenant(
-            self.user_foo['id'],self.tenant_bar['id'])
+            self.user_foo['id'], self.tenant_bar['id'])
         self.assertIn('keystone_admin', roles_ref)
-        self.assertNotIn('useless',roles_ref)
+        self.assertNotIn('useless', roles_ref)
 
         self.identity_api.add_role_to_user_and_tenant(
-            self.user_foo['id'],self.tenant_bar['id'], 'useless')
+            self.user_foo['id'], self.tenant_bar['id'], 'useless')
         roles_ref = self.identity_api.get_roles_for_user_and_tenant(
-            self.user_foo['id'],self.tenant_bar['id'])
+            self.user_foo['id'], self.tenant_bar['id'])
         self.assertIn('keystone_admin', roles_ref)
-        self.assertIn('useless',roles_ref)
+        self.assertIn('useless', roles_ref)
 
     def test_delete_role(self):
         role_id = 'test_role_delete'
         new_role = {'id': role_id, 'name': 'Role to Delete'}
-        self.identity_api.create_role(role_id , new_role)
+        self.identity_api.create_role(role_id, new_role)
         role_ref = self.identity_api.get_role(role_id)
         self.assertDictEquals(role_ref, new_role)
         self.identity_api.delete_role(role_id)
@@ -277,7 +276,7 @@ class IdentityTests(object):
     def test_add_user_to_tenant(self):
         tenant_id = 'tenent4add'
         self.identity_api.add_user_to_tenant(tenant_id, 'foo')
-        tenants  = self.identity_api.get_tenants_for_user('foo')
+        tenants = self.identity_api.get_tenants_for_user('foo')
         self.assertIn(tenant_id, tenants)
 
 
@@ -303,7 +302,7 @@ class TokenTests(object):
 
     def test_expired_token(self):
         token_id = uuid.uuid4().hex
-        expire_time =  datetime.datetime.now() - datetime.timedelta(minutes=1)
+        expire_time = datetime.datetime.now() - datetime.timedelta(minutes=1)
         data = {'id': token_id, 'a': 'b', 'expires': expire_time}
         data_ref = self.token_api.create_token(token_id, data)
         self.assertDictEquals(data_ref, data)
