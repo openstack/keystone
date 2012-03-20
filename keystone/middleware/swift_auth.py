@@ -38,10 +38,15 @@ from swift.common.middleware import acl as swift_acl
 class SwiftAuth(object):
     """Swift middleware to Keystone authorization system.
 
-    In Swift's proxy-server.conf add the middleware to your pipeline::
+    In Swift's proxy-server.conf add this middleware to your pipeline::
 
         [pipeline:main]
-        pipeline = catch_errors cache tokenauth swiftauth proxy-server
+        pipeline = catch_errors cache authtoken swiftauth proxy-server
+
+    Make sure you have the authtoken middleware before the swiftauth
+    middleware. The authtoken will take care of validating the user
+    and swiftauth middleware will authorize it. See the documentation
+    about how to configure the authtoken middleware.
 
     Set account auto creation to true::
 
