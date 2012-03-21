@@ -220,12 +220,9 @@ S3 api.
 
     [filter:s3token]
     paste.filter_factory = keystone.middleware.s3_token:filter_factory
-    service_port = 5000
-    service_host = 127.0.0.1
     auth_port = 35357
     auth_host = 127.0.0.1
-    auth_token = ADMIN
-    admin_token = ADMIN
+    auth_protocol = http
 
     [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
@@ -233,6 +230,7 @@ S3 api.
     service_host = 127.0.0.1
     auth_port = 35357
     auth_host = 127.0.0.1
+    auth_protocol = http
     auth_token = ADMIN
     admin_token = ADMIN
 
