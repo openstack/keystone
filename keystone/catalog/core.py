@@ -166,7 +166,7 @@ class EndpointController(wsgi.Application):
         endpoint_ref['id'] = endpoint_id
 
         service_id = endpoint_ref['service_id']
-        if not self.catalog_api.service_exists(context, service_id):
+        if not self.catalog_api.get_service(context, service_id):
             raise exception.ServiceNotFound(service_id=service_id)
 
         new_endpoint_ref = self.catalog_api.create_endpoint(
