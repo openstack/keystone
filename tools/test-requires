@@ -23,3 +23,7 @@ httplib2
 # for python-novaclient
 prettytable
 iso8601>=0.1.4
+
+# swift_auth test dependencies
+-e git+https://github.com/openstack/swift.git#egg=swift
+netifaces

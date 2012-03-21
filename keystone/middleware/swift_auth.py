@@ -121,12 +121,12 @@ class SwiftAuth(object):
 
     def _reseller_check(self, account, tenant_id):
         """Check reseller prefix."""
-        return account == '%s_%s' % (self.reseller_prefix, tenant_id)
+        return account == '%s%s' % (self.reseller_prefix, tenant_id)
 
     def authorize(self, req):
         env = req.environ
         env_identity = env.get('keystone.identity', {})
-        tenant = env_identity.get('tenant')
+        tenant_id, tenant_name = env_identity.get('tenant')
 
         try:
             part = swift_utils.split_path(req.path, 1, 4, True)
@@ -140,14 +140,14 @@ class SwiftAuth(object):
         # role.
         if self.reseller_admin_role in user_roles:
             msg = 'User %s has reseller admin authorizing'
-            self.logger.debug(msg % tenant[0])
+            self.logger.debug(msg % tenant_id)
             req.environ['swift_owner'] = True
             return
 
         # Check if a user tries to access an account that does not match their
         # token
-        if not self._reseller_check(account, tenant[0]):
-            log_msg = 'tenant mismatch: %s != %s' % (account, tenant[0])
+        if not self._reseller_check(account, tenant_id):
+            log_msg = 'tenant mismatch: %s != %s' % (account, tenant_id)
             self.logger.debug(log_msg)
             return self.denied_response(req)
 
@@ -165,7 +165,7 @@ class SwiftAuth(object):
 
         # If user is of the same name of the tenant then make owner of it.
         user = env_identity.get('user', '')
-        if self.is_admin and user == tenant[1]:
+        if self.is_admin and user == tenant_name:
             req.environ['swift_owner'] = True
             return
 
@@ -192,16 +192,16 @@ class SwiftAuth(object):
             return self.denied_response(req)
 
         # Allow ACL at individual user level (tenant:user format)
-        if '%s:%s' % (tenant[0], user) in roles:
+        if '%s:%s' % (tenant_name, user) in roles:
             log_msg = 'user %s:%s allowed in ACL authorizing'
-            self.logger.debug(log_msg % (tenant[0], user))
+            self.logger.debug(log_msg % (tenant_name, user))
             return
 
         # Check if we have the role in the userroles and allow it
         for user_role in user_roles:
             if user_role in roles:
                 log_msg = 'user %s:%s allowed in ACL: %s authorizing'
-                self.logger.debug(log_msg % (tenant[0], user, user_role))
+                self.logger.debug(log_msg % (tenant_name, user, user_role))
                 return
 
         return self.denied_response(req)
