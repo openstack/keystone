@@ -54,4 +54,4 @@ class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
 
     def test_get_catalog(self):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
-        self.assertDictEquals(catalog_ref, self.DEFAULT_FIXTURE)
+        self.assertDictEqual(catalog_ref, self.DEFAULT_FIXTURE)

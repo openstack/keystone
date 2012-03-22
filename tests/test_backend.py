@@ -50,7 +50,7 @@ class IdentityTests(object):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
-        self.assertDictEquals(user_ref, self.user_foo)
+        self.assertDictEqual(user_ref, self.user_foo)
         self.assert_(tenant_ref is None)
         self.assert_(not metadata_ref)
 
@@ -63,9 +63,9 @@ class IdentityTests(object):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
-        self.assertDictEquals(user_ref, self.user_foo)
-        self.assertDictEquals(tenant_ref, self.tenant_bar)
-        self.assertDictEquals(metadata_ref, self.metadata_foobar)
+        self.assertDictEqual(user_ref, self.user_foo)
+        self.assertDictEqual(tenant_ref, self.tenant_bar)
+        self.assertDictEqual(metadata_ref, self.metadata_foobar)
 
     def test_authenticate_no_metadata(self):
         user = self.user_no_meta
@@ -79,8 +79,8 @@ class IdentityTests(object):
         #               not be returned by the api
         user.pop('password')
         self.assertEquals(metadata_ref, {})
-        self.assertDictEquals(user_ref, user)
-        self.assertDictEquals(tenant_ref, tenant)
+        self.assertDictEqual(user_ref, user)
+        self.assertDictEqual(tenant_ref, tenant)
 
     def test_password_hashed(self):
         user_ref = self.identity_api._get_user(self.user_foo['id'])
@@ -94,7 +94,7 @@ class IdentityTests(object):
     def test_get_tenant(self):
         tenant_ref = self.identity_api.get_tenant(
             tenant_id=self.tenant_bar['id'])
-        self.assertDictEquals(tenant_ref, self.tenant_bar)
+        self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_tenant_by_name_bad_tenant(self):
         tenant_ref = self.identity_api.get_tenant(
@@ -104,7 +104,7 @@ class IdentityTests(object):
     def test_get_tenant_by_name(self):
         tenant_ref = self.identity_api.get_tenant_by_name(
                 tenant_name=self.tenant_bar['name'])
-        self.assertDictEquals(tenant_ref, self.tenant_bar)
+        self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_user_bad_user(self):
         user_ref = self.identity_api.get_user(
@@ -117,7 +117,7 @@ class IdentityTests(object):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
-        self.assertDictEquals(user_ref, self.user_foo)
+        self.assertDictEqual(user_ref, self.user_foo)
 
     def test_get_user_by_name(self):
         user_ref = self.identity_api.get_user_by_name(
@@ -126,7 +126,7 @@ class IdentityTests(object):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
-        self.assertDictEquals(user_ref, self.user_foo)
+        self.assertDictEqual(user_ref, self.user_foo)
 
     def test_get_metadata_bad_user(self):
         metadata_ref = self.identity_api.get_metadata(
@@ -144,12 +144,13 @@ class IdentityTests(object):
         metadata_ref = self.identity_api.get_metadata(
                 user_id=self.user_foo['id'],
                 tenant_id=self.tenant_bar['id'])
-        self.assertDictEquals(metadata_ref, self.metadata_foobar)
+        self.assertDictEqual(metadata_ref, self.metadata_foobar)
 
     def test_get_role(self):
         role_ref = self.identity_api.get_role(
                 role_id=self.role_keystone_admin['id'])
-        self.assertDictEquals(role_ref, self.role_keystone_admin)
+        role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
+        self.assertDictEqual(role_ref_dict, self.role_keystone_admin)
 
     def test_create_duplicate_role_name_fails(self):
         role = {'id': 'fake1',
@@ -290,10 +291,10 @@ class IdentityTests(object):
         new_role = {'id': role_id, 'name': 'Role to Delete'}
         self.identity_api.create_role(role_id, new_role)
         role_ref = self.identity_api.get_role(role_id)
-        self.assertDictEquals(role_ref, new_role)
+        role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
+        self.assertDictEqual(role_ref_dict, new_role)
         self.identity_api.delete_role(role_id)
         role_ref = self.identity_api.get_role(role_id)
-        print role_ref
         self.assertIsNone(role_ref)
 
     def test_add_user_to_tenant(self):
@@ -310,7 +311,7 @@ class TokenTests(object):
         data_ref = self.token_api.create_token(token_id, data)
         expires = data_ref.pop('expires')
         self.assertTrue(isinstance(expires, datetime.datetime))
-        self.assertDictEquals(data_ref, data)
+        self.assertDictEqual(data_ref, data)
 
         new_data_ref = self.token_api.get_token(token_id)
         expires = new_data_ref.pop('expires')
@@ -328,7 +329,7 @@ class TokenTests(object):
         expire_time = datetime.datetime.now() - datetime.timedelta(minutes=1)
         data = {'id': token_id, 'a': 'b', 'expires': expire_time}
         data_ref = self.token_api.create_token(token_id, data)
-        self.assertDictEquals(data_ref, data)
+        self.assertDictEqual(data_ref, data)
         self.assertRaises(exception.TokenNotFound,
                 self.token_api.get_token, token_id)
 
@@ -336,7 +337,7 @@ class TokenTests(object):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'a': 'b', 'expires': None}
         data_ref = self.token_api.create_token(token_id, data)
-        self.assertDictEquals(data_ref, data)
+        self.assertDictEqual(data_ref, data)
         new_data_ref = self.token_api.get_token(token_id)
         self.assertEqual(data_ref, new_data_ref)
 
@@ -347,7 +348,7 @@ class CatalogTests(object):
         new_service = {'id': 'MY_SERVICE', 'type': 'myservice',
             'name': 'My Service', 'description': 'My description'}
         res = self.catalog_api.create_service(new_service['id'], new_service)
-        self.assertDictEquals(res, new_service)
+        self.assertDictEqual(res, new_service)
 
         service_id = new_service['id']
         self.catalog_api.delete_service(service_id)
