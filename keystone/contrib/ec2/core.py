@@ -144,11 +144,11 @@ class Ec2Controller(wsgi.Application):
         if not credentials and ec2Credentials:
             credentials = ec2Credentials
 
-        creds_ref = self.ec2_api.get_credential(context,
-                                                credentials['access'])
-        if not creds_ref:
-            raise exception.Unauthorized(message='EC2 access key not found.')
+        if not 'access' in credentials:
+            raise exception.Unauthorized(message='EC2 signature not supplied.')
 
+        creds_ref = self._get_credentials(context,
+                                          credentials['access'])
         self.check_signature(creds_ref, credentials)
 
         # TODO(termie): don't create new tokens every time
@@ -204,6 +204,10 @@ class Ec2Controller(wsgi.Application):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
+
+        self._assert_valid_user_id(context, user_id)
+        self._assert_valid_tenant_id(context, tenant_id)
+
         cred_ref = {'user_id': user_id,
                     'tenant_id': tenant_id,
                     'access': uuid.uuid4().hex,
@@ -220,6 +224,7 @@ class Ec2Controller(wsgi.Application):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
+        self._assert_valid_user_id(context, user_id)
         return {'credentials': self.ec2_api.list_credentials(context, user_id)}
 
     def get_credential(self, context, user_id, credential_id):
@@ -234,8 +239,8 @@ class Ec2Controller(wsgi.Application):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
-        return {'credential': self.ec2_api.get_credential(context,
-                                                          credential_id)}
+        creds = self._get_credentials(context, credential_id)
+        return {'credential': creds}
 
     def delete_credential(self, context, user_id, credential_id):
         """Delete a user's access/secret pair.
@@ -250,7 +255,23 @@ class Ec2Controller(wsgi.Application):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
             self._assert_owner(context, user_id, credential_id)
+
+        self._get_credentials(context, credential_id)
         return self.ec2_api.delete_credential(context, credential_id)
+
+    def _get_credentials(self, context, credential_id):
+        """Return credentials from an ID.
+
+        :param context: standard context
+        :param credential_id: id of credential
+        :raises exception.Unauthorized: when credential id is invalid
+        :returns: credential: dict of ec2 credential.
+        """
+        creds = self.ec2_api.get_credential(context,
+                                            credential_id)
+        if not creds:
+            raise exception.Unauthorized(message='EC2 access key not found.')
+        return creds
 
     def _assert_identity(self, context, user_id):
         """Check that the provided token belongs to the user.
@@ -294,3 +315,31 @@ class Ec2Controller(wsgi.Application):
         cred_ref = self.ec2_api.get_credential(context, credential_id)
         if not user_id == cred_ref['user_id']:
             raise exception.Forbidden()
+
+    def _assert_valid_user_id(self, context, user_id):
+        """Ensure a valid user id.
+
+        :param context: standard context
+        :param user_id: expected credential owner
+        :raises exception.UserNotFound: on failure
+
+        """
+        user_ref = self.identity_api.get_user(
+            context=context,
+            user_id=user_id)
+        if not user_ref:
+            raise exception.UserNotFound(user_id=user_id)
+
+    def _assert_valid_tenant_id(self, context, tenant_id):
+        """Ensure a valid tenant id.
+
+        :param context: standard context
+        :param user_id: expected credential owner
+        :raises exception.UserNotFound: on failure
+
+        """
+        tenant_ref = self.identity_api.get_tenant(
+            context=context,
+            tenant_id=tenant_id)
+        if not tenant_ref:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
