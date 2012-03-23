@@ -235,6 +235,27 @@ class KeystoneClientTests(object):
         self.assertFalse([t for t in client.tenants.list()
                            if t.id == tenant.id])
 
+    def test_tenant_delete_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.tenants.delete,
+                          tenant=uuid.uuid4().hex)
+
+    def test_tenant_get_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.tenants.get,
+                          tenant_id=uuid.uuid4().hex)
+
+    def test_tenant_update_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.tenants.update,
+                          tenant_id=uuid.uuid4().hex)
+
     def test_tenant_list(self):
         client = self.get_client()
         tenants = client.tenants.list()
