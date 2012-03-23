@@ -320,6 +320,9 @@ class TenantController(wsgi.Application):
 
     def get_tenant_users(self, context, tenant_id, **kw):
         self.assert_admin(context)
+        if self.identity_api.get_tenant(context, tenant_id) is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+
         user_refs = self.identity_api.get_tenant_users(context, tenant_id)
         return {'users': user_refs}
 
@@ -383,6 +386,9 @@ class UserController(wsgi.Application):
         user = self._normalize_dict(user)
         self.assert_admin(context)
         tenant_id = user.get('tenantId', None)
+        if (tenant_id is not None
+                and self.identity_api.get_tenant(context, tenant_id) is None):
+            raise exception.TenantNotFound(tenant_id=tenant_id)
         user_id = uuid.uuid4().hex
         user_ref = user.copy()
         user_ref['id'] = user_id
@@ -395,11 +401,17 @@ class UserController(wsgi.Application):
     def update_user(self, context, user_id, user):
         # NOTE(termie): this is really more of a patch than a put
         self.assert_admin(context)
+        if self.identity_api.get_user(context, user_id) is None:
+            raise exception.UserNotFound(user_id=user_id)
+
         user_ref = self.identity_api.update_user(context, user_id, user)
         return {'user': user_ref}
 
     def delete_user(self, context, user_id):
         self.assert_admin(context)
+        if self.identity_api.get_user(context, user_id) is None:
+            raise exception.UserNotFound(user_id=user_id)
+
         self.identity_api.delete_user(context, user_id)
 
     def set_user_enabled(self, context, user_id, user):

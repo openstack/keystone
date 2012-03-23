@@ -336,6 +336,61 @@ class KeystoneClientTests(object):
                                     tenant_id='bar')
         self.assertEquals(user2.name, test_username)
 
+    def test_user_create_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.create,
+                          name=uuid.uuid4().hex,
+                          password=uuid.uuid4().hex,
+                          email=uuid.uuid4().hex,
+                          tenant_id=uuid.uuid4().hex)
+
+    def test_user_get_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.get,
+                          user=uuid.uuid4().hex)
+
+    def test_user_list_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.list,
+                          tenant_id=uuid.uuid4().hex)
+
+    def test_user_update_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.update,
+                          user=uuid.uuid4().hex)
+
+    def test_user_update_tenant_404(self):
+        raise nose.exc.SkipTest('N/A')
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.update,
+                          user=self.user_foo['id'],
+                          tenant_id=uuid.uuid4().hex)
+
+    def test_user_update_password_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.update_password,
+                          user=uuid.uuid4().hex,
+                          password=uuid.uuid4().hex)
+
+    def test_user_delete_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.users.delete,
+                          user=uuid.uuid4().hex)
+
     def test_user_list(self):
         client = self.get_client(admin=True)
         users = client.users.list()
@@ -710,3 +765,6 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         client.users.delete(user.id)
         self.assertRaises(client_exceptions.NotFound, client.users.get,
                           user.id)
+
+    def test_user_update_404(self):
+        raise nose.exc.SkipTest('N/A')
