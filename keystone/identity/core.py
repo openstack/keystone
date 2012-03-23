@@ -284,8 +284,9 @@ class TenantController(wsgi.Application):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
         tenant = self.identity_api.get_tenant(context, tenant_id)
-        if not tenant:
+        if tenant is None:
             raise exception.TenantNotFound(tenant_id=tenant_id)
+
         return {'tenant': tenant}
 
     # CRUD Extension
@@ -303,12 +304,18 @@ class TenantController(wsgi.Application):
 
     def update_tenant(self, context, tenant_id, tenant):
         self.assert_admin(context)
+        if self.identity_api.get_tenant(context, tenant_id) is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+
         tenant_ref = self.identity_api.update_tenant(
                 context, tenant_id, tenant)
         return {'tenant': tenant_ref}
 
     def delete_tenant(self, context, tenant_id, **kw):
         self.assert_admin(context)
+        if self.identity_api.get_tenant(context, tenant_id) is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+
         self.identity_api.delete_tenant(context, tenant_id)
 
     def get_tenant_users(self, context, tenant_id, **kw):
@@ -361,6 +368,7 @@ class UserController(wsgi.Application):
         user_ref = self.identity_api.get_user(context, user_id)
         if not user_ref:
             raise exception.UserNotFound(user_id=user_id)
+
         return {'user': user_ref}
 
     def get_users(self, context):
