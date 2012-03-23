@@ -239,6 +239,7 @@ class Ec2Controller(wsgi.Application):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
+        self._assert_valid_user_id(context, user_id)
         creds = self._get_credentials(context, credential_id)
         return {'credential': creds}
 
@@ -256,6 +257,7 @@ class Ec2Controller(wsgi.Application):
             self._assert_identity(context, user_id)
             self._assert_owner(context, user_id, credential_id)
 
+        self._assert_valid_user_id(context, user_id)
         self._get_credentials(context, credential_id)
         return self.ec2_api.delete_credential(context, credential_id)
 

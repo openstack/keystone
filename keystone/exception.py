@@ -74,7 +74,7 @@ class NotFound(Error):
 
 
 class EndpointNotFound(NotFound):
-    """Could not find endopint: %(endpoint_id)s"""
+    """Could not find endpoint: %(endpoint_id)s"""
 
 
 class RoleNotFound(NotFound):
