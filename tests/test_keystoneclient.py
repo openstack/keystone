@@ -481,6 +481,41 @@ class KeystoneClientTests(object):
         creds = client.ec2.list(user_id=self.user_foo['id'])
         self.assertEquals(creds, [])
 
+    def test_ec2_credentials_create_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client()
+        self.assertRaises(client_exceptions.NotFound,
+                          client.ec2.create,
+                          user_id=uuid.uuid4().hex,
+                          tenant_id=self.tenant_bar['id'])
+        self.assertRaises(client_exceptions.NotFound,
+                          client.ec2.create,
+                          user_id=self.user_foo['id'],
+                          tenant_id=uuid.uuid4().hex)
+
+    def test_ec2_credentials_delete_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client()
+        self.assertRaises(client_exceptions.NotFound,
+                          client.ec2.delete,
+                          user_id=uuid.uuid4().hex,
+                          access=uuid.uuid4().hex)
+
+    def test_ec2_credentials_get_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client()
+        self.assertRaises(client_exceptions.NotFound,
+                          client.ec2.get,
+                          user_id=uuid.uuid4().hex,
+                          access=uuid.uuid4().hex)
+
+    def test_ec2_credentials_list_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client()
+        self.assertRaises(client_exceptions.NotFound,
+                          client.ec2.list,
+                          user_id=uuid.uuid4().hex)
+
     def test_ec2_credentials_list_user_forbidden(self):
         from keystoneclient import exceptions as client_exceptions
 
