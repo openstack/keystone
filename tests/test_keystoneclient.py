@@ -670,6 +670,49 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
         self.assert_(self.user_foo['id'] not in [x.id for x in user_refs])
 
+    def test_user_role_add_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.add_user_role,
+                          tenant=uuid.uuid4().hex,
+                          user=self.user_foo['id'],
+                          role=self.role_useless['id'])
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.add_user_role,
+                          tenant=self.tenant_baz['id'],
+                          user=uuid.uuid4().hex,
+                          role=self.role_useless['id'])
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.add_user_role,
+                          tenant=self.tenant_baz['id'],
+                          user=self.user_foo['id'],
+                          role=uuid.uuid4().hex)
+
+    def test_user_role_remove_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.remove_user_role,
+                          tenant=uuid.uuid4().hex,
+                          user=self.user_foo['id'],
+                          role=self.role_useless['id'])
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.remove_user_role,
+                          tenant=self.tenant_baz['id'],
+                          user=uuid.uuid4().hex,
+                          role=self.role_useless['id'])
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.remove_user_role,
+                          tenant=self.tenant_baz['id'],
+                          user=self.user_foo['id'],
+                          role=uuid.uuid4().hex)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.remove_user_role,
+                          tenant=self.tenant_baz['id'],
+                          user=self.user_foo['id'],
+                          role=self.role_useless['id'])
+
     def test_tenant_list_marker(self):
         client = self.get_client()
 

@@ -497,6 +497,12 @@ class RoleController(wsgi.Application):
         if tenant_id is None:
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant_id required')
+        if self.identity_api.get_user(context, user_id) is None:
+            raise exception.UserNotFound(user_id=user_id)
+        if self.identity_api.get_tenant(context, tenant_id) is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+        if self.identity_api.get_role(context, role_id) is None:
+            raise exception.RoleNotFound(role_id=role_id)
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant
@@ -517,9 +523,15 @@ class RoleController(wsgi.Application):
         if tenant_id is None:
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant_id required')
+        if self.identity_api.get_user(context, user_id) is None:
+            raise exception.UserNotFound(user_id=user_id)
+        if self.identity_api.get_tenant(context, tenant_id) is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+        if self.identity_api.get_role(context, role_id) is None:
+            raise exception.RoleNotFound(role_id=role_id)
 
         # This still has the weird legacy semantics that adding a role to
-        # a user also adds them to a tenant
+        # a user also adds them to a tenant, so we must follow up on that
         self.identity_api.remove_role_from_user_and_tenant(
                 context, user_id, tenant_id, role_id)
         roles = self.identity_api.get_roles_for_user_and_tenant(
