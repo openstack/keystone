@@ -72,3 +72,10 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         client.endpoints.delete(id=endpoint.id)
         self.assertRaises(client_exceptions.NotFound, client.endpoints.delete,
                           id=endpoint.id)
+
+    def test_endpoint_delete_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.endpoints.delete,
+                          id=uuid.uuid4().hex)

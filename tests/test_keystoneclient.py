@@ -599,6 +599,25 @@ class KeystoneClientTests(object):
                           client.services.get,
                           id=uuid.uuid4().hex)
 
+    def test_endpoint_create_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.endpoints.create,
+                          region=uuid.uuid4().hex,
+                          service_id=uuid.uuid4().hex,
+                          publicurl=uuid.uuid4().hex,
+                          adminurl=uuid.uuid4().hex,
+                          internalurl=uuid.uuid4().hex)
+
+    def test_endpoint_delete_404(self):
+        # the catalog backend is expected to return Not Implemented
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.HTTPNotImplemented,
+                          client.endpoints.delete,
+                          id=uuid.uuid4().hex)
+
     def test_admin_requires_adminness(self):
         from keystoneclient import exceptions as client_exceptions
         # FIXME(ja): this should be Unauthorized
@@ -859,4 +878,10 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
                           user.id)
 
     def test_user_update_404(self):
+        raise nose.exc.SkipTest('N/A')
+
+    def test_endpoint_create_404(self):
+        raise nose.exc.SkipTest('N/A')
+
+    def test_endpoint_delete_404(self):
         raise nose.exc.SkipTest('N/A')
