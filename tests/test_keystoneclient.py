@@ -550,6 +550,20 @@ class KeystoneClientTests(object):
         services = [x for x in client.services.list() if x.id == service.id]
         self.assertEquals(len(services), 0)
 
+    def test_service_delete_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.services.delete,
+                          id=uuid.uuid4().hex)
+
+    def test_service_get_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.services.get,
+                          id=uuid.uuid4().hex)
+
     def test_admin_requires_adminness(self):
         from keystoneclient import exceptions as client_exceptions
         # FIXME(ja): this should be Unauthorized

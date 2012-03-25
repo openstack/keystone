@@ -133,7 +133,10 @@ class ServiceController(wsgi.Application):
         return {'OS-KSADM:service': service_ref}
 
     def delete_service(self, context, service_id):
-        service_ref = self.catalog_api.delete_service(context, service_id)
+        service_ref = self.catalog_api.get_service(context, service_id)
+        if not service_ref:
+            raise exception.ServiceNotFound(service_id=service_id)
+        self.catalog_api.delete_service(context, service_id)
 
     def create_service(self, context, OS_KSADM_service):
         service_id = uuid.uuid4().hex
