@@ -51,8 +51,8 @@ need to define an authorization token. This is configured in ``keystone.conf``
 file under the section ``[DEFAULT]``. In the sample file provided with the
 keystone project, the line defining this token is
 
-	[DEFAULT]
-	admin_token = ADMIN
+    [DEFAULT]
+    admin_token = ADMIN
 
 This configured token is a "shared secret" between keystone and other
 openstack services (for example: nova, swift, glance, or horizon), and will
