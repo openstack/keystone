@@ -42,6 +42,7 @@ services are configured by ``keystone.conf`` as run in a single process.
 Stop the process using ``Control-C``.
 
 .. NOTE::
+
     If you have not already configured Keystone, it may not start as expected.
 
 Configuration Files
@@ -71,15 +72,71 @@ order:
 * ``/etc/keystone/``
 * ``/etc/``
 
-Your Keystone service catalog can also be defined in a flat ``template_file``
-defined by ``[catalog] template_file`` in ``keystone.conf``. The default
-``template_file`` is included in Keystone as an example, but you must create
-your own to reflect your deployment and update the path in ``keystone.conf``.
+Service Catalog
+---------------
+
+Keystone provides two configuration options for your service catalog.
+
+SQL-based Service Catalog (``sql.Catalog``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A dynamic database-backed driver fully supporting persistent configuration via
+keystoneclient administration commands (e.g. ``keystone endpoint-create``).
+
+``keystone.conf`` example::
+
+    [catalog]
+    driver = keystone.catalog.backends.sql.Catalog
+
+.. NOTE::
+
+    A `template_file` does not need to be defined for the sql.Catalog driver.
+
+To build your service catalog using this driver, see the built-in help::
+
+    $ keystone
+    $ keystone help service-create
+    $ keystone help endpoint-create
+
+You can also refer to `an example in Keystone (tools/sample_data.sh)
+<https://github.com/openstack/keystone/blob/master/tools/sample_data.sh>`_.
+
+File-based Service Catalog (``templated.TemplatedCatalog``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The templated catalog is an in-memory backend initialized from a read-only
+``template_file``. Choose this option only if you know that your
+service catalog will not change very much over time.
+
+.. NOTE::
+
+    Attempting to manage your service catalog using keystoneclient commands
+    (e.g. ``keystone endpoint-create``) against this driver will result in
+    ``HTTP 501 Not Implemented`` errors. This is the expected behavior. If you
+    want to use these commands, you must instead use the SQL-based Service
+    Catalog driver.
+
+``keystone.conf`` example::
+
+    [catalog]
+    driver = keystone.catalog.backends.templated.TemplatedCatalog
+    template_file = /opt/stack/keystone/etc/default_catalog.templates
+
+The value of ``template_file`` is expected to be an absolute path to your
+service catalog configuration. An example ``template_file`` is included in
+Keystone, however you should create your own to reflect your deployment.
 If you are migrating from a legacy deployment, a tool is available to help with
 this task (see `Migrating your Service Catalog from legacy versions of
 Keystone`_).
 
-Logging is configured externally to the rest of keystone. Configure the path
+Another such example is `available in devstack
+(files/default_catalog.templates)
+<https://github.com/openstack-dev/devstack/blob/master/files/default_catalog.templates>`_.
+
+Logging
+-------
+
+Logging is configured externally to the rest of Keystone. Configure the path
 to your logging configuration file using the ``[DEFAULT] log_config`` option of
 ``keystone.conf``. If you wish to route all your logging through syslog, set
 the ``[DEFAULT] use_syslog`` option.
@@ -100,6 +157,7 @@ files for each Server application.
 
 * ``etc/keystone.conf``
 * ``etc/logging.conf.sample``
+* ``etc/default_catalog.templates``
 
 .. _`prepare your Essex deployment`:
 
@@ -161,6 +219,7 @@ Migration support is provided for the following legacy Keystone versions:
 * essex-3
 
 .. NOTE::
+
     Before you can import your legacy data, you must first
     `prepare your Essex deployment`_.
 
@@ -226,6 +285,7 @@ is supported for the Essex release of Nova. To migrate your auth
 data from Nova, use the following steps:
 
 .. NOTE::
+
     Before you can migrate from nova auth, you must first
     `prepare your Essex deployment`_.
 
@@ -247,6 +307,7 @@ Import your Nova auth data from a ``dump_file`` created with ``nova-manage``::
     $ keystone-manage import_nova_auth <dump_file>
 
 .. NOTE::
+
     Users are added to Keystone with the user ID from Nova as the user name.
     Nova's projects are imported with the project ID as the tenant name. The
     password used to authenticate a user in Keystone will be the API key
@@ -255,6 +316,7 @@ Import your Nova auth data from a ``dump_file`` created with ``nova-manage``::
     re-assigned to each user.
 
 .. NOTE::
+
     Users in Nova's auth system have a single set of EC2 credentials that
     works with all projects (tenants) that user can access. In Keystone, these
     credentials are scoped to a single user/tenant pair. In order to use the
@@ -289,6 +351,7 @@ Authenticating with a Token
 ---------------------------
 
 .. NOTE::
+
     If your Keystone deployment is brand new, you will need to use this
     authentication method, along with your ``[DEFAULT] admin_token``.
 
