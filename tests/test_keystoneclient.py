@@ -404,32 +404,41 @@ class KeystoneClientTests(object):
 
         foo.ec2.delete(user_id=self.user_foo['id'], access=cred.access)
 
-    def test_service_create_and_delete(self):
+    def test_service_crud(self):
         from keystoneclient import exceptions as client_exceptions
-
-        test_service = 'new_service'
         client = self.get_client(admin=True)
-        service = client.services.create(name=test_service,
-                                         service_type='test',
-                                         description='test')
-        self.assertEquals(service.name, test_service)
+
+        service_name = uuid.uuid4().hex
+        service_type = uuid.uuid4().hex
+        service_desc = uuid.uuid4().hex
+
+        # create & read
+        service = client.services.create(name=service_name,
+                                         service_type=service_type,
+                                         description=service_desc)
+        self.assertEquals(service_name, service.name)
+        self.assertEquals(service_type, service.type)
+        self.assertEquals(service_desc, service.description)
 
         service = client.services.get(id=service.id)
-        self.assertEquals(service.name, test_service)
+        self.assertEquals(service_name, service.name)
+        self.assertEquals(service_type, service.type)
+        self.assertEquals(service_desc, service.description)
 
+        service = [x for x in client.services.list() if x.id == service.id][0]
+        self.assertEquals(service_name, service.name)
+        self.assertEquals(service_type, service.type)
+        self.assertEquals(service_desc, service.description)
+
+        # update is not supported...
+
+        # delete & read
         client.services.delete(id=service.id)
-        self.assertRaises(client_exceptions.NotFound, client.services.get,
+        self.assertRaises(client_exceptions.NotFound,
+                          client.services.get,
                           id=service.id)
-
-    def test_service_list(self):
-        client = self.get_client(admin=True)
-        test_service = 'new_service'
-        service = client.services.create(name=test_service,
-                                         service_type='test',
-                                         description='test')
-        services = client.services.list()
-        # TODO(devcamcar): This assert should be more specific.
-        self.assertTrue(len(services) > 0)
+        services = [x for x in client.services.list() if x.id == service.id]
+        self.assertEquals(len(services), 0)
 
     def test_admin_requires_adminness(self):
         from keystoneclient import exceptions as client_exceptions
