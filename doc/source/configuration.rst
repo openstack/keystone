@@ -440,9 +440,11 @@ example::
 ^^^^^^^^^^^^^^^^^^^^^
 
 arguments
+
 * user_id
 
 keyword arguments
+
 * name     Desired new user name (Optional)
 * email    Desired new email address (Optional)
 * enabled <true|false>   Enable or disable user (Optional)
@@ -474,7 +476,7 @@ arguments
 
 * name
 
-exmaple::
+example::
 
     $ keystone role-create --name=demo
 
@@ -485,14 +487,14 @@ arguments
 
 * role_id
 
-exmaple::
+example::
 
     $ keystone role-delete 19d1d3344873464d819c45f521ff9890
 
 ``role-list``
 ^^^^^^^^^^^^^
 
-exmaple::
+example::
 
     $ keystone role-list
 
@@ -503,7 +505,7 @@ arguments
 
 * role_id
 
-exmaple::
+example::
 
     $ keystone role-get 19d1d3344873464d819c45f521ff9890
 
