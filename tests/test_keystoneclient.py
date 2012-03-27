@@ -332,7 +332,7 @@ class KeystoneClientTests(object):
         role = client.roles.get(role='keystone_admin')
         self.assertEquals(role.id, 'keystone_admin')
 
-    def test_role_create_and_delete(self):
+    def test_role_crud(self):
         from keystoneclient import exceptions as client_exceptions
 
         test_role = 'new_role'
@@ -345,8 +345,42 @@ class KeystoneClientTests(object):
 
         client.roles.delete(role=role.id)
 
-        self.assertRaises(client_exceptions.NotFound, client.roles.get,
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.delete,
                           role=role.id)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.get,
+                          role=role.id)
+
+    def test_role_get_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.get,
+                          role=uuid.uuid4().hex)
+
+    def test_role_delete_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.delete,
+                          role=uuid.uuid4().hex)
+
+    def test_role_list_404(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.roles_for_user,
+                          user=uuid.uuid4().hex,
+                          tenant=uuid.uuid4().hex)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.roles_for_user,
+                          user=self.user_foo['id'],
+                          tenant=uuid.uuid4().hex)
+        self.assertRaises(client_exceptions.NotFound,
+                          client.roles.roles_for_user,
+                          user=uuid.uuid4().hex,
+                          tenant=self.tenant_bar['id'])
 
     def test_role_list(self):
         client = self.get_client(admin=True)
@@ -608,6 +642,9 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         client = self.get_client(admin=True)
         roles = client.roles.get_user_role_refs(user_id='foo')
         self.assertTrue(len(roles) > 0)
+
+    def test_role_list_404(self):
+        raise nose.exc.SkipTest('N/A')
 
     def test_authenticate_and_delete_token(self):
         raise nose.exc.SkipTest('N/A')
