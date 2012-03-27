@@ -8,7 +8,7 @@ import sys
 
 # If ../keystone/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
-possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
+possible_topdir = os.path.normpath(os.path.join(os.path.abspath(__file__),
                                    os.pardir,
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir,
@@ -59,6 +59,11 @@ if __name__ == '__main__':
     # Log the options used when starting if we're in debug mode...
     if CONF.debug:
         CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
+
+    if not CONF.config_file:
+        print "No config files could be found."
+        CONF.print_help()
+        sys.exit(1)
 
     options = deploy.appconfig('config:%s' % CONF.config_file[0])
 
