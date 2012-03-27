@@ -7,6 +7,7 @@ include pylintrc
 include run_tests.py
 include run_tests.sh
 include setup.py
+include tox.ini
 graft bin
 graft doc
 prune doc/source/sourcecode
