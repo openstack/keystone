@@ -52,7 +52,8 @@ class Driver(object):
     def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate a given user, tenant and password.
 
-        Returns: (user, tenant, metadata).
+        :returns: (user_ref, tenant_ref, metadata_ref)
+        :raises: AssertionError
 
         """
         raise exception.NotImplemented()
@@ -60,7 +61,8 @@ class Driver(object):
     def get_tenant(self, tenant_id):
         """Get a tenant by id.
 
-        Returns: tenant_ref or None.
+        :returns: tenant_ref
+        :raises: keystone.exception.TenantNotFound
 
         """
         raise exception.NotImplemented()
@@ -68,7 +70,8 @@ class Driver(object):
     def get_tenant_by_name(self, tenant_name):
         """Get a tenant by name.
 
-        Returns: tenant_ref or None.
+        :returns: tenant_ref
+        :raises: keystone.exception.TenantNotFound
 
         """
         raise exception.NotImplemented()
@@ -76,7 +79,8 @@ class Driver(object):
     def get_user(self, user_id):
         """Get a user by id.
 
-        Returns: user_ref or None.
+        :returns: user_ref
+        :raises: keystone.exception.UserNotFound
 
         """
         raise exception.NotImplemented()
@@ -84,7 +88,8 @@ class Driver(object):
     def get_user_by_name(self, user_name):
         """Get a user by name.
 
-        Returns: user_ref or None.
+        :returns: user_ref
+        :raises: keystone.exception.UserNotFound
 
         """
         raise exception.NotImplemented()
@@ -92,7 +97,8 @@ class Driver(object):
     def get_role(self, role_id):
         """Get a role by id.
 
-        Returns: role_ref or None.
+        :returns: role_ref
+        :raises: keystone.exception.RoleNotFound
 
         """
         raise exception.NotImplemented()
@@ -103,7 +109,7 @@ class Driver(object):
         NOTE(termie): I'd prefer if this listed only the users for a given
                       tenant.
 
-        Returns: a list of user_refs or an empty list.
+        :returns: a list of user_refs or an empty list
 
         """
         raise exception.NotImplemented()
@@ -111,7 +117,7 @@ class Driver(object):
     def list_roles(self):
         """List all roles in the system.
 
-        Returns: a list of role_refs or an empty list.
+        :returns: a list of role_refs or an empty list.
 
         """
         raise exception.NotImplemented()
@@ -119,18 +125,50 @@ class Driver(object):
     # NOTE(termie): seven calls below should probably be exposed by the api
     #               more clearly when the api redesign happens
     def add_user_to_tenant(self, tenant_id, user_id):
+        """Add user to a tenant without an explicit role relationship.
+
+        :raises: keystone.exception.TenantNotFound,
+                 keystone.exception.UserNotFound
+
+        """
         raise exception.NotImplemented()
 
     def remove_user_from_tenant(self, tenant_id, user_id):
+        """Remove user from a tenant without an explicit role relationship.
+
+        :raises: keystone.exception.TenantNotFound,
+                 keystone.exception.UserNotFound
+
+        """
         raise exception.NotImplemented()
 
     def get_all_tenants(self):
+        """FIXME(dolph): Lists all tenants in the system? I'm not sure how this
+                         is different from get_tenants, why get_tenants isn't
+                         documented as part of the driver, or why it's called
+                         get_tenants instead of list_tenants (i.e. list_roles
+                         and list_users)...
+
+        :returns: a list of ... FIXME(dolph): tenant_refs or tenant_id's?
+
+        """
+        raise exception.NotImplemented()
+
+    def get_tenant_users(self, tenant_id):
+        """FIXME(dolph): Lists all users with a relationship to the specified
+                         tenant?
+
+        :returns: a list of ... FIXME(dolph): user_refs or user_id's?
+        :raises: keystone.exception.UserNotFound
+
+        """
         raise exception.NotImplemented()
 
     def get_tenants_for_user(self, user_id):
         """Get the tenants associated with a given user.
 
-        Returns: a list of tenant ids.
+        :returns: a list of tenant_id's.
+        :raises: keystone.exception.UserNotFound
 
         """
         raise exception.NotImplemented()
@@ -138,41 +176,83 @@ class Driver(object):
     def get_roles_for_user_and_tenant(self, user_id, tenant_id):
         """Get the roles associated with a user within given tenant.
 
-        Returns: a list of role ids.
+        :returns: a list of role ids.
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.TenantNotFound
 
         """
         raise exception.NotImplemented()
 
     def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
-        """Add a role to a user within given tenant."""
+        """Add a role to a user within given tenant.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.TenantNotFound,
+                 keystone.exception.RoleNotFound
+        """
         raise exception.NotImplemented()
 
     def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
-        """Remove a role from a user within given tenant."""
+        """Remove a role from a user within given tenant.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.TenantNotFound,
+                 keystone.exception.RoleNotFound
+
+        """
         raise exception.NotImplemented()
 
     # user crud
     def create_user(self, user_id, user):
+        """Creates a new user.
+
+        :raises: keystone.exception.Conflict
+
+        """
         raise exception.NotImplemented()
 
     def update_user(self, user_id, user):
+        """Updates an existing user.
+
+        :raises: keystone.exception.UserNotFound, keystone.exception.Conflict
+
+        """
         raise exception.NotImplemented()
 
     def delete_user(self, user_id):
+        """Deletes an existing user.
+
+        :raises: keystone.exception.UserNotFound
+
+        """
         raise exception.NotImplemented()
 
     # tenant crud
     def create_tenant(self, tenant_id, tenant):
+        """Creates a new tenant.
+
+        :raises: keystone.exception.Conflict
+
+        """
         raise exception.NotImplemented()
 
     def update_tenant(self, tenant_id, tenant):
+        """Updates an existing tenant.
+
+        :raises: keystone.exception.TenantNotFound, keystone.exception.Conflict
+
+        """
         raise exception.NotImplemented()
 
-    def delete_tenant(self, tenant_id, tenant):
+    def delete_tenant(self, tenant_id):
+        """Deletes an existing tenant.
+
+        :raises: keystone.exception.TenantNotFound
+
+        """
         raise exception.NotImplemented()
 
     # metadata crud
-
     def get_metadata(self, user_id, tenant_id):
         raise exception.NotImplemented()
 
@@ -182,17 +262,32 @@ class Driver(object):
     def update_metadata(self, user_id, tenant_id, metadata):
         raise exception.NotImplemented()
 
-    def delete_metadata(self, user_id, tenant_id, metadata):
+    def delete_metadata(self, user_id, tenant_id):
         raise exception.NotImplemented()
 
     # role crud
     def create_role(self, role_id, role):
+        """Creates a new role.
+
+        :raises: keystone.exception.Conflict
+
+        """
         raise exception.NotImplemented()
 
     def update_role(self, role_id, role):
+        """Updates an existing role.
+
+        :raises: keystone.exception.RoleNotFound, keystone.exception.Conflict
+
+        """
         raise exception.NotImplemented()
 
     def delete_role(self, role_id):
+        """Deletes an existing role.
+
+        :raises: keystone.exception.RoleNotFound
+
+        """
         raise exception.NotImplemented()
 
 
@@ -286,11 +381,7 @@ class TenantController(wsgi.Application):
     def get_tenant(self, context, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-        tenant = self.identity_api.get_tenant(context, tenant_id)
-        if tenant is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-
-        return {'tenant': tenant}
+        return {'tenant': self.identity_api.get_tenant(context, tenant_id)}
 
     # CRUD Extension
     def create_tenant(self, context, tenant):
@@ -301,36 +392,23 @@ class TenantController(wsgi.Application):
             raise exception.ValidationError(message=msg)
 
         self.assert_admin(context)
-        tenant_id = (tenant_ref.get('id')
-                     and tenant_ref.get('id')
-                     or uuid.uuid4().hex)
-        tenant_ref['id'] = tenant_id
-
+        tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
         tenant = self.identity_api.create_tenant(
-            context, tenant_id, tenant_ref)
+            context, tenant_ref['id'], tenant_ref)
         return {'tenant': tenant}
 
     def update_tenant(self, context, tenant_id, tenant):
         self.assert_admin(context)
-        if self.identity_api.get_tenant(context, tenant_id) is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-
         tenant_ref = self.identity_api.update_tenant(
             context, tenant_id, tenant)
         return {'tenant': tenant_ref}
 
-    def delete_tenant(self, context, tenant_id, **kw):
+    def delete_tenant(self, context, tenant_id):
         self.assert_admin(context)
-        if self.identity_api.get_tenant(context, tenant_id) is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-
         self.identity_api.delete_tenant(context, tenant_id)
 
     def get_tenant_users(self, context, tenant_id, **kw):
         self.assert_admin(context)
-        if self.identity_api.get_tenant(context, tenant_id) is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-
         user_refs = self.identity_api.get_tenant_users(context, tenant_id)
         return {'users': user_refs}
 
@@ -376,18 +454,13 @@ class UserController(wsgi.Application):
 
     def get_user(self, context, user_id):
         self.assert_admin(context)
-        user_ref = self.identity_api.get_user(context, user_id)
-        if not user_ref:
-            raise exception.UserNotFound(user_id=user_id)
-
-        return {'user': user_ref}
+        return {'user': self.identity_api.get_user(context, user_id)}
 
     def get_users(self, context):
         # NOTE(termie): i can't imagine that this really wants all the data
         #               about every single user in the system...
         self.assert_admin(context)
-        user_refs = self.identity_api.list_users(context)
-        return {'users': user_refs}
+        return {'users': self.identity_api.list_users(context)}
 
     # CRUD extension
     def create_user(self, context, user):
@@ -414,9 +487,6 @@ class UserController(wsgi.Application):
     def update_user(self, context, user_id, user):
         # NOTE(termie): this is really more of a patch than a put
         self.assert_admin(context)
-        if self.identity_api.get_user(context, user_id) is None:
-            raise exception.UserNotFound(user_id=user_id)
-
         user_ref = self.identity_api.update_user(context, user_id, user)
 
         # If the password was changed or the user was disabled we clear tokens
@@ -433,9 +503,6 @@ class UserController(wsgi.Application):
 
     def delete_user(self, context, user_id):
         self.assert_admin(context)
-        if self.identity_api.get_user(context, user_id) is None:
-            raise exception.UserNotFound(user_id=user_id)
-
         self.identity_api.delete_user(context, user_id)
 
     def set_user_enabled(self, context, user_id, user):
@@ -472,13 +539,6 @@ class RoleController(wsgi.Application):
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant ID required')
 
-        user = self.identity_api.get_user(context, user_id)
-        if user is None:
-            raise exception.UserNotFound(user_id=user_id)
-        tenant = self.identity_api.get_tenant(context, tenant_id)
-        if tenant is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-
         roles = self.identity_api.get_roles_for_user_and_tenant(
             context, user_id, tenant_id)
         return {'roles': [self.identity_api.get_role(context, x)
@@ -487,10 +547,7 @@ class RoleController(wsgi.Application):
     # CRUD extension
     def get_role(self, context, role_id):
         self.assert_admin(context)
-        role_ref = self.identity_api.get_role(context, role_id)
-        if not role_ref:
-            raise exception.RoleNotFound(role_id=role_id)
-        return {'role': role_ref}
+        return {'role': self.identity_api.get_role(context, role_id)}
 
     def create_role(self, context, role):
         role = self._normalize_dict(role)
@@ -507,14 +564,11 @@ class RoleController(wsgi.Application):
 
     def delete_role(self, context, role_id):
         self.assert_admin(context)
-        self.get_role(context, role_id)
         self.identity_api.delete_role(context, role_id)
 
     def get_roles(self, context):
         self.assert_admin(context)
-        roles = self.identity_api.list_roles(context)
-        # TODO(termie): probably inefficient at some point
-        return {'roles': roles}
+        return {'roles': self.identity_api.list_roles(context)}
 
     def add_role_to_user(self, context, user_id, role_id, tenant_id=None):
         """Add a role to a user and tenant pair.
@@ -527,12 +581,6 @@ class RoleController(wsgi.Application):
         if tenant_id is None:
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant_id required')
-        if self.identity_api.get_user(context, user_id) is None:
-            raise exception.UserNotFound(user_id=user_id)
-        if self.identity_api.get_tenant(context, tenant_id) is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-        if self.identity_api.get_role(context, role_id) is None:
-            raise exception.RoleNotFound(role_id=role_id)
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant
@@ -553,12 +601,6 @@ class RoleController(wsgi.Application):
         if tenant_id is None:
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant_id required')
-        if self.identity_api.get_user(context, user_id) is None:
-            raise exception.UserNotFound(user_id=user_id)
-        if self.identity_api.get_tenant(context, tenant_id) is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-        if self.identity_api.get_role(context, role_id) is None:
-            raise exception.RoleNotFound(role_id=role_id)
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant, so we must follow up on that

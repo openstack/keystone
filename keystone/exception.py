@@ -77,6 +77,12 @@ class EndpointNotFound(NotFound):
     """Could not find endpoint: %(endpoint_id)s"""
 
 
+class MetadataNotFound(NotFound):
+    """An unhandled exception has occurred: Could not find metadata."""
+    # (dolph): metadata is not a user-facing concept,
+    #          so this exception should not be exposed
+
+
 class RoleNotFound(NotFound):
     """Could not find role: %(role_id)s"""
 

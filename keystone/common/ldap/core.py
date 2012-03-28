@@ -138,16 +138,22 @@ class BaseLdap(object):
         return obj
 
     def affirm_unique(self, values):
-        if values['name'] is not None:
-            entity = self.get_by_name(values['name'])
-            if entity is not None:
+        if values.get('name') is not None:
+            try:
+                self.get_by_name(values['name'])
+            except exception.NotFound:
+                pass
+            else:
                 raise exception.Conflict(type=self.options_name,
                                          details='Duplicate name, %s.' %
                                                  values['name'])
 
-        if values['id'] is not None:
-            entity = self.get(values['id'])
-            if entity is not None:
+        if values.get('id') is not None:
+            try:
+                self.get(values['id'])
+            except exception.NotFound:
+                pass
+            else:
                 raise exception.Conflict(type=self.options_name,
                                          details='Duplicate ID, %s.' %
                                                  values['id'])
@@ -198,7 +204,7 @@ class BaseLdap(object):
     def get(self, id, filter=None):
         res = self._ldap_get(id, filter)
         if res is None:
-            return None
+            raise exception.NotFound(target=id)
         else:
             return self._ldap_res_to_model(res)
 

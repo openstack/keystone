@@ -133,8 +133,9 @@ class KeystoneClientTests(object):
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client()
         token = client.auth_token
-        self.assertRaises(client_exceptions.AuthorizationFailure,
-                          self._client, token=token, tenant_id='baz')
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client, token=token,
+                          tenant_id=uuid.uuid4().hex)
 
     def test_authenticate_token_tenant_name(self):
         client = self.get_client()
@@ -284,15 +285,15 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.Unauthorized,
                           self._client,
                           username=self.user_foo['name'],
-                          password='invalid')
+                          password=uuid.uuid4().hex)
 
-    def test_invalid_user_password(self):
+    def test_invalid_user_and_password(self):
         from keystoneclient import exceptions as client_exceptions
 
         self.assertRaises(client_exceptions.Unauthorized,
                           self._client,
-                          username='blah',
-                          password='blah')
+                          username=uuid.uuid4().hex,
+                          password=uuid.uuid4().hex)
 
     def test_change_password_invalidates_token(self):
         from keystoneclient import exceptions as client_exceptions
@@ -673,17 +674,6 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.NotFound,
                           client.services.get,
                           id=uuid.uuid4().hex)
-
-    def test_endpoint_create_404(self):
-        from keystoneclient import exceptions as client_exceptions
-        client = self.get_client(admin=True)
-        self.assertRaises(client_exceptions.NotFound,
-                          client.endpoints.create,
-                          region=uuid.uuid4().hex,
-                          service_id=uuid.uuid4().hex,
-                          publicurl=uuid.uuid4().hex,
-                          adminurl=uuid.uuid4().hex,
-                          internalurl=uuid.uuid4().hex)
 
     def test_endpoint_delete_404(self):
         # the catalog backend is expected to return Not Implemented

@@ -157,38 +157,50 @@ class Identity(sql.Base, identity.Driver):
         in the list of tenants on the user.
 
         """
-        user_ref = self._get_user(user_id)
-        if (not user_ref
-                or not self._check_password(password, user_ref)):
+        user_ref = None
+        tenant_ref = None
+        metadata_ref = {}
+
+        try:
+            user_ref = self._get_user(user_id)
+        except exception.UserNotFound:
             raise AssertionError('Invalid user / password')
 
-        tenants = self.get_tenants_for_user(user_id)
-        if tenant_id and tenant_id not in tenants:
-            raise AssertionError('Invalid tenant')
+        if not utils.check_password(password, user_ref.get('password')):
+            raise AssertionError('Invalid user / password')
 
-        tenant_ref = self.get_tenant(tenant_id)
-        if tenant_ref:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
-        else:
-            metadata_ref = {}
+        if tenant_id is not None:
+            if tenant_id not in self.get_tenants_for_user(user_id):
+                raise AssertionError('Invalid tenant')
+
+            try:
+                tenant_ref = self.get_tenant(tenant_id)
+                metadata_ref = self.get_metadata(user_id, tenant_id)
+            except exception.TenantNotFound:
+                tenant_ref = None
+                metadata_ref = {}
+            except exception.MetadataNotFound:
+                metadata_ref = {}
+
         return (_filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         session = self.get_session()
         tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
-        if not tenant_ref:
-            return
+        if tenant_ref is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
         return tenant_ref.to_dict()
 
     def get_tenant_by_name(self, tenant_name):
         session = self.get_session()
         tenant_ref = session.query(Tenant).filter_by(name=tenant_name).first()
         if not tenant_ref:
-            return
+            raise exception.TenantNotFound(tenant_id=tenant_name)
         return tenant_ref.to_dict()
 
     def get_tenant_users(self, tenant_id):
         session = self.get_session()
+        self.get_tenant(tenant_id)
         user_refs = session.query(User)\
             .join(UserTenantMembership)\
             .filter(UserTenantMembership.tenant_id ==
@@ -200,14 +212,14 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         user_ref = session.query(User).filter_by(id=user_id).first()
         if not user_ref:
-            return
+            raise exception.UserNotFound(user_id=user_id)
         return user_ref.to_dict()
 
     def _get_user_by_name(self, user_name):
         session = self.get_session()
         user_ref = session.query(User).filter_by(name=user_name).first()
         if not user_ref:
-            return
+            raise exception.UserNotFound(user_id=user_name)
         return user_ref.to_dict()
 
     def get_user(self, user_id):
@@ -222,11 +234,16 @@ class Identity(sql.Base, identity.Driver):
                               .filter_by(user_id=user_id)\
                               .filter_by(tenant_id=tenant_id)\
                               .first()
-        return getattr(metadata_ref, 'data', {})
+        if metadata_ref is None:
+            raise exception.MetadataNotFound()
+        return metadata_ref.data
 
     def get_role(self, role_id):
         session = self.get_session()
-        return session.query(Role).filter_by(id=role_id).first()
+        role_ref = session.query(Role).filter_by(id=role_id).first()
+        if role_ref is None:
+            raise exception.RoleNotFound(role_id=role_id)
+        return role_ref
 
     def list_users(self):
         session = self.get_session()
@@ -241,6 +258,8 @@ class Identity(sql.Base, identity.Driver):
     # These should probably be part of the high-level API
     def add_user_to_tenant(self, tenant_id, user_id):
         session = self.get_session()
+        self.get_tenant(tenant_id)
+        self.get_user(user_id)
         q = session.query(UserTenantMembership)\
                    .filter_by(user_id=user_id)\
                    .filter_by(tenant_id=tenant_id)
@@ -255,10 +274,14 @@ class Identity(sql.Base, identity.Driver):
 
     def remove_user_from_tenant(self, tenant_id, user_id):
         session = self.get_session()
+        self.get_tenant(tenant_id)
+        self.get_user(user_id)
         membership_ref = session.query(UserTenantMembership)\
                                 .filter_by(user_id=user_id)\
                                 .filter_by(tenant_id=tenant_id)\
                                 .first()
+        if membership_ref is None:
+            raise exception.NotFound('User not found in tenant')
         with session.begin():
             session.delete(membership_ref)
             session.flush()
@@ -270,37 +293,46 @@ class Identity(sql.Base, identity.Driver):
 
     def get_tenants_for_user(self, user_id):
         session = self.get_session()
+        self.get_user(user_id)
         membership_refs = session.query(UserTenantMembership)\
                                  .filter_by(user_id=user_id)\
                                  .all()
         return [x.tenant_id for x in membership_refs]
 
     def get_roles_for_user_and_tenant(self, user_id, tenant_id):
-        metadata_ref = self.get_metadata(user_id, tenant_id)
-        if not metadata_ref:
+        self.get_user(user_id)
+        self.get_tenant(tenant_id)
+        try:
+            metadata_ref = self.get_metadata(user_id, tenant_id)
+        except exception.MetadataNotFound:
             metadata_ref = {}
         return metadata_ref.get('roles', [])
 
     def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
-        metadata_ref = self.get_metadata(user_id, tenant_id)
-        is_new = False
-        if not metadata_ref:
-            is_new = True
+        self.get_user(user_id)
+        self.get_tenant(tenant_id)
+        self.get_role(role_id)
+        try:
+            metadata_ref = self.get_metadata(user_id, tenant_id)
+            is_new = False
+        except exception.MetadataNotFound:
             metadata_ref = {}
+            is_new = True
         roles = set(metadata_ref.get('roles', []))
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
-        if not is_new:
-            self.update_metadata(user_id, tenant_id, metadata_ref)
-        else:
+        if is_new:
             self.create_metadata(user_id, tenant_id, metadata_ref)
+        else:
+            self.update_metadata(user_id, tenant_id, metadata_ref)
 
     def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
-        metadata_ref = self.get_metadata(user_id, tenant_id)
-        is_new = False
-        if not metadata_ref:
-            is_new = True
+        try:
+            metadata_ref = self.get_metadata(user_id, tenant_id)
+            is_new = False
+        except exception.MetadataNotFound:
             metadata_ref = {}
+            is_new = True
         roles = set(metadata_ref.get('roles', []))
         if role_id not in roles:
             msg = 'Cannot remove role that has not been granted, %s' % role_id
@@ -308,10 +340,10 @@ class Identity(sql.Base, identity.Driver):
 
         roles.remove(role_id)
         metadata_ref['roles'] = list(roles)
-        if not is_new:
-            self.update_metadata(user_id, tenant_id, metadata_ref)
-        else:
+        if is_new:
             self.create_metadata(user_id, tenant_id, metadata_ref)
+        else:
+            self.update_metadata(user_id, tenant_id, metadata_ref)
 
     # CRUD
     @handle_conflicts(type='user')
@@ -327,8 +359,12 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='user')
     def update_user(self, user_id, user):
         session = self.get_session()
+        if user_id != user['id']:
+            raise exception.ValidationError('Cannot change user ID')
         with session.begin():
             user_ref = session.query(User).filter_by(id=user_id).first()
+            if user_ref is None:
+                raise exception.UserNotFound(user_id=user_id)
             old_user_dict = user_ref.to_dict()
             user = _ensure_hashed_password(user)
             for k in user:
@@ -343,6 +379,8 @@ class Identity(sql.Base, identity.Driver):
     def delete_user(self, user_id):
         session = self.get_session()
         user_ref = session.query(User).filter_by(id=user_id).first()
+        if not user_ref:
+            raise exception.UserNotFound(user_id=user_id)
         membership_refs = session.query(UserTenantMembership)\
                                  .filter_by(user_id=user_id)\
                                  .all()
@@ -379,6 +417,8 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         with session.begin():
             tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
+            if tenant_ref is None:
+                raise exception.TenantNotFound(tenant_id=tenant_id)
             old_tenant_dict = tenant_ref.to_dict()
             for k in tenant:
                 old_tenant_dict[k] = tenant[k]
@@ -392,6 +432,8 @@ class Identity(sql.Base, identity.Driver):
     def delete_tenant(self, tenant_id):
         session = self.get_session()
         tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
+        if not tenant_ref:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
         membership_refs = session.query(UserTenantMembership)\
                                  .filter_by(tenant_id=tenant_id)\
                                  .all()
@@ -452,6 +494,8 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         with session.begin():
             role_ref = session.query(Role).filter_by(id=role_id).first()
+            if role_ref is None:
+                raise exception.RoleNotFound(role_id=role_id)
             for k in role:
                 role_ref[k] = role[k]
             session.flush()
@@ -459,6 +503,7 @@ class Identity(sql.Base, identity.Driver):
 
     def delete_role(self, role_id):
         session = self.get_session()
-        role_ref = session.query(Role).filter_by(id=role_id).first()
         with session.begin():
-            session.delete(role_ref)
+            if not session.query(Role).filter_by(id=role_id).delete():
+                raise exception.RoleNotFound(role_id=role_id)
+            session.flush()

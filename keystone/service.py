@@ -249,25 +249,28 @@ class TokenController(wsgi.Application):
 
         token_id = uuid.uuid4().hex
         if 'passwordCredentials' in auth:
+            user_id = auth['passwordCredentials'].get('userId', None)
             username = auth['passwordCredentials'].get('username', '')
             password = auth['passwordCredentials'].get('password', '')
             tenant_name = auth.get('tenantName', None)
 
-            user_id = auth['passwordCredentials'].get('userId', None)
             if username:
-                user_ref = self.identity_api.get_user_by_name(
-                    context=context,
-                    user_name=username)
-                if user_ref:
+                try:
+                    user_ref = self.identity_api.get_user_by_name(
+                        context=context, user_name=username)
                     user_id = user_ref['id']
+                except exception.UserNotFound:
+                    raise exception.Unauthorized()
 
             # more compat
             tenant_id = auth.get('tenantId', None)
             if tenant_name:
-                tenant_ref = self.identity_api.get_tenant_by_name(
-                    context=context, tenant_name=tenant_name)
-                if tenant_ref:
+                try:
+                    tenant_ref = self.identity_api.get_tenant_by_name(
+                        context=context, tenant_name=tenant_name)
                     tenant_id = tenant_ref['id']
+                except exception.TenantNotFound:
+                    raise exception.Unauthorized()
 
             try:
                 auth_info = self.identity_api.authenticate(context=context,
@@ -330,12 +333,13 @@ class TokenController(wsgi.Application):
 
             tenants = self.identity_api.get_tenants_for_user(context,
                                                              user_ref['id'])
-            if tenant_id:
-                assert tenant_id in tenants
+            if tenant_id and tenant_id not in tenants:
+                raise exception.Unauthorized()
 
-            tenant_ref = self.identity_api.get_tenant(context=context,
-                                                      tenant_id=tenant_id)
-            if tenant_ref:
+            try:
+                tenant_ref = self.identity_api.get_tenant(
+                    context=context,
+                    tenant_id=tenant_id)
                 metadata_ref = self.identity_api.get_metadata(
                     context=context,
                     user_id=user_ref['id'],
@@ -345,7 +349,8 @@ class TokenController(wsgi.Application):
                     user_id=user_ref['id'],
                     tenant_id=tenant_ref['id'],
                     metadata=metadata_ref)
-            else:
+            except exception.TenantNotFound:
+                tenant_ref = None
                 metadata_ref = {}
                 catalog_ref = {}
 

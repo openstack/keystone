@@ -41,15 +41,16 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
         self.load_fixtures(default_fixtures)
 
     def test_delete_user_with_tenant_association(self):
-        user = {'id': 'fake',
-                'name': 'fakeuser',
-                'password': 'passwd'}
-        self.identity_api.create_user('fake', user)
+        user = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex}
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
                                              user['id'])
         self.identity_api.delete_user(user['id'])
-        tenants = self.identity_api.get_tenants_for_user(user['id'])
-        self.assertEquals(tenants, [])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_tenants_for_user,
+                          user['id'])
 
     def test_create_null_user_name(self):
         user = {'id': uuid.uuid4().hex,
@@ -59,13 +60,12 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                           self.identity_api.create_user,
                           user['id'],
                           user)
-        # TODO(dolph): can be uncommented pending bug 968519
-        #self.assertRaises(exception.UserNotFound,
-        #                  self.identity_api.get_user,
-        #                  user['id'])
-        #self.assertRaises(exception.UserNotFound,
-        #                  self.identity_api.get_user_by_name,
-        #                  user['name'])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          user['id'])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user_by_name,
+                          user['name'])
 
     def test_create_null_tenant_name(self):
         tenant = {'id': uuid.uuid4().hex,
@@ -74,13 +74,12 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                           self.identity_api.create_tenant,
                           tenant['id'],
                           tenant)
-        # TODO(dolph): can be uncommented pending bug 968519
-        #self.assertRaises(exception.TenantNotFound,
-        #                  self.identity_api.get_tenant,
-        #                  tenant['id'])
-        #self.assertRaises(exception.TenantNotFound,
-        #                  self.identity_api.get_tenant_by_name,
-        #                  tenant['name'])
+        self.assertRaises(exception.TenantNotFound,
+                          self.identity_api.get_tenant,
+                          tenant['id'])
+        self.assertRaises(exception.TenantNotFound,
+                          self.identity_api.get_tenant_by_name,
+                          tenant['name'])
 
     def test_create_null_role_name(self):
         role = {'id': uuid.uuid4().hex,
@@ -89,10 +88,9 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                           self.identity_api.create_role,
                           role['id'],
                           role)
-        # TODO(dolph): can be uncommented pending bug 968519
-        #self.assertRaises(exception.RoleNotFound,
-        #                  self.identity_api.get_role,
-        #                  role['id'])
+        self.assertRaises(exception.RoleNotFound,
+                          self.identity_api.get_role,
+                          role['id'])
 
     def test_delete_tenant_with_user_association(self):
         user = {'id': 'fake',
@@ -114,9 +112,10 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                                           self.tenant_bar['id'],
                                           {'extra': 'extra'})
         self.identity_api.delete_user(user['id'])
-        metadata = self.identity_api.get_metadata(user['id'],
-                                                  self.tenant_bar['id'])
-        self.assertEquals(metadata, {})
+        self.assertRaises(exception.MetadataNotFound,
+                          self.identity_api.get_metadata,
+                          user['id'],
+                          self.tenant_bar['id'])
 
     def test_delete_tenant_with_metadata(self):
         user = {'id': 'fake',
@@ -127,9 +126,10 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                                           self.tenant_bar['id'],
                                           {'extra': 'extra'})
         self.identity_api.delete_tenant(self.tenant_bar['id'])
-        metadata = self.identity_api.get_metadata(user['id'],
-                                                  self.tenant_bar['id'])
-        self.assertEquals(metadata, {})
+        self.assertRaises(exception.MetadataNotFound,
+                          self.identity_api.get_metadata,
+                          user['id'],
+                          self.tenant_bar['id'])
 
 
 class SqlToken(test.TestCase, test_backend.TokenTests):

@@ -72,14 +72,9 @@ class Token(sql.Base, token.Driver):
 
     def delete_token(self, token_id):
         session = self.get_session()
-        token_ref = session.query(TokenModel)\
-                           .filter_by(id=token_id)\
-                           .first()
-        if not token_ref:
-            raise exception.TokenNotFound(token_id=token_id)
-
         with session.begin():
-            session.delete(token_ref)
+            if not session.query(TokenModel).filter_by(id=token_id).delete():
+                raise exception.TokenNotFound(token_id=token_id)
             session.flush()
 
     def list_tokens(self, user_id):
