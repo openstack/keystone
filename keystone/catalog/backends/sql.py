@@ -38,7 +38,7 @@ class Service(sql.ModelBase, sql.DictBase):
     def from_dict(cls, service_dict):
         extra = {}
         for k, v in service_dict.copy().iteritems():
-            if k not in ['id', 'type']:
+            if k not in ['id', 'type', 'extra']:
                 extra[k] = service_dict.pop(k)
 
         service_dict['extra'] = extra
@@ -64,7 +64,7 @@ class Endpoint(sql.ModelBase, sql.DictBase):
     def from_dict(cls, endpoint_dict):
         extra = {}
         for k, v in endpoint_dict.copy().iteritems():
-            if k not in ['id', 'region', 'service_id']:
+            if k not in ['id', 'region', 'service_id', 'extra']:
                 extra[k] = endpoint_dict.pop(k)
         endpoint_dict['extra'] = extra
         return cls(**endpoint_dict)
