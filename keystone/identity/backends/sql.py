@@ -63,7 +63,7 @@ class User(sql.ModelBase, sql.DictBase):
         extra = {}
         for k, v in user_dict.copy().iteritems():
             # TODO(termie): infer this somehow
-            if k not in ['id', 'name']:
+            if k not in ['id', 'name', 'extra']:
                 extra[k] = user_dict.pop(k)
 
         user_dict['extra'] = extra
@@ -88,7 +88,7 @@ class Tenant(sql.ModelBase, sql.DictBase):
         extra = {}
         for k, v in tenant_dict.copy().iteritems():
             # TODO(termie): infer this somehow
-            if k not in ['id', 'name']:
+            if k not in ['id', 'name', 'extra']:
                 extra[k] = tenant_dict.pop(k)
 
         tenant_dict['extra'] = extra
