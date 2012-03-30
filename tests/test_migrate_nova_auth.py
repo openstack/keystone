@@ -14,6 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from keystone.common.sql import nova
 from keystone.common.sql import util as sql_util
 from keystone import config
@@ -73,7 +75,14 @@ class MigrateNovaAuth(test.TestCase):
         self.identity_api = identity_sql.Identity()
         self.ec2_api = ec2_sql.Ec2()
 
+    def _create_role(self, role_name):
+        role_id = uuid.uuid4().hex
+        role_dict = {'id': role_id, 'name': role_name}
+        self.identity_api.create_role(role_id, role_dict)
+
     def test_import(self):
+        self._create_role('role1')
+
         nova.import_auth(FIXTURE)
 
         users = {}
