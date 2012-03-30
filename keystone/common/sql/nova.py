@@ -85,8 +85,11 @@ def _create_memberships(api, memberships, user_map, tenant_map):
 
 
 def _create_roles(api, roles):
-    role_map = {}
+    role_map = dict((r['name'], r['id']) for r in api.list_roles())
     for role in roles:
+        if role in role_map:
+            LOG.debug('Ignoring existing role %s' % role)
+            continue
         role_dict = {
             'id': _generate_uuid(),
             'name': role,
