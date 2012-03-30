@@ -15,3 +15,7 @@ doc/build
 .DS_Store
 doc/source/modules.rst
 doc/source/keystone.*
+ChangeLog
+requirements.txt
+build/
+dist/
