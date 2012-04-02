@@ -37,6 +37,17 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api = identity_sql.Identity()
         self.load_fixtures(default_fixtures)
 
+    def test_delete_user_with_tenant_association(self):
+        user = {'id': 'fake',
+                'name': 'fakeuser',
+                'password': 'passwd'}
+        self.identity_api.create_user('fake', user)
+        self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
+                                             user['id'])
+        self.identity_api.delete_user(user['id'])
+        tenants = self.identity_api.get_tenants_for_user(user['id'])
+        self.assertEquals(tenants, [])
+
 
 class SqlToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):
