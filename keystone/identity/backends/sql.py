@@ -327,7 +327,15 @@ class Identity(sql.Base, identity.Driver):
     def delete_user(self, user_id):
         session = self.get_session()
         user_ref = session.query(User).filter_by(id=user_id).first()
+        membership_refs = session.query(UserTenantMembership)\
+                          .filter_by(user_id=user_id)\
+                          .all()
+
         with session.begin():
+            if membership_refs:
+                for membership_ref in membership_refs:
+                    session.delete(membership_ref)
+
             session.delete(user_ref)
             session.flush()
 
