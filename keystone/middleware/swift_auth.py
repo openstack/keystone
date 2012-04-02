@@ -77,6 +77,15 @@ class SwiftAuth(object):
     hellocorp that user will be admin on that account and can give ACL
     to all other users for hellocorp.
 
+    If you need to have a different reseller_prefix to be able to
+    mix different auth servers you can configure the option
+    reseller_prefix in your swiftauth entry like this :
+
+        reseller_prefix = NEWAUTH_
+
+    Make sure you have a underscore at the end of your new
+    reseller_prefix option.
+
     :param app: The next WSGI app in the pipeline
     :param conf: The dict of configuration values
     """
@@ -84,7 +93,7 @@ class SwiftAuth(object):
         self.app = app
         self.conf = conf
         self.logger = swift_utils.get_logger(conf, log_route='keystoneauth')
-        self.reseller_prefix = conf.get('reseller_prefix', 'AUTH').strip()
+        self.reseller_prefix = conf.get('reseller_prefix', 'AUTH_').strip()
         self.operator_roles = conf.get('operator_roles',
                                        'admin, swiftoperator')
         self.reseller_admin_role = conf.get('reseller_admin_role',
