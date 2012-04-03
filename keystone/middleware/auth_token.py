@@ -224,6 +224,7 @@ class AuthProtocol(object):
         if token:
             return token
         else:
+            LOG.warn("Unable to find authentication token in headers: %s", env)
             raise InvalidUserToken('Unable to find token in headers')
 
     def _reject_request(self, env, start_response):
@@ -324,6 +325,7 @@ class AuthProtocol(object):
             assert token
             return token
         except (AssertionError, KeyError):
+            LOG.warn("Unexpected response from keystone service: %s", data)
             raise ServiceError('invalid json response')
 
     def _validate_user_token(self, user_token, retry=True):
@@ -354,9 +356,10 @@ class AuthProtocol(object):
             # FIXME(ja): I'm assuming the 404 status means that user_token is
             #            invalid - not that the admin_token is invalid
             self._cache_store_invalid(user_token)
+            LOG.warn("Authorization failed for token %s", user_token)
             raise InvalidUserToken('Token authorization failed')
         if response.status == 401:
-            LOG.info('Keystone rejected admin token, resetting')
+            LOG.info('Keystone rejected admin token %s, resetting', headers)
             self.admin_token = None
         else:
             LOG.error('Bad response code while validating token: %s' %
@@ -365,6 +368,9 @@ class AuthProtocol(object):
             LOG.info('Retrying validation')
             return self._validate_user_token(user_token, False)
         else:
+            LOG.warn("Invalid user token: %s. Keystone response: %s.",
+                     user_token, data)
+
             raise InvalidUserToken()
 
     def _build_user_headers(self, token_info):
