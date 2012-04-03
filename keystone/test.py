@@ -15,7 +15,6 @@
 # under the License.
 
 import os
-import unittest
 import subprocess
 import sys
 import time
@@ -23,6 +22,7 @@ import time
 import mox
 from paste import deploy
 import stubout
+import unittest2 as unittest
 
 from keystone import config
 from keystone.common import kvs
@@ -257,67 +257,3 @@ class TestCase(unittest.TestCase):
         for x in sys.modules.keys():
             if x.startswith(module):
                 del sys.modules[x]
-
-    def assertIsNotNone(self, actual):
-        if hasattr(super(TestCase, self), 'assertIsNotNone'):
-            return super(TestCase, self).assertIsNotNone(actual)
-        self.assert_(actual is not None)
-
-    def assertIsNone(self, actual):
-        if hasattr(super(TestCase, self), 'assertIsNone'):
-            return super(TestCase, self).assertIsNone(actual)
-        self.assert_(actual is None)
-
-    def assertNotIn(self, needle, haystack):
-        if hasattr(super(TestCase, self), 'assertNotIn'):
-            return super(TestCase, self).assertNotIn(needle, haystack)
-        self.assert_(needle not in haystack)
-
-    def assertIn(self, needle, haystack):
-        if hasattr(super(TestCase, self), 'assertIn'):
-            return super(TestCase, self).assertIn(needle, haystack)
-        self.assert_(needle in haystack)
-
-    def assertListEquals(self, actual, expected):
-        copy = expected[:]
-        #print expected, actual
-        self.assertEquals(len(actual), len(expected))
-        while copy:
-            item = copy.pop()
-            matched = False
-            for x in actual:
-                #print 'COMPARE', item, x,
-                try:
-                    self.assertDeepEquals(x, item)
-                    matched = True
-                    #print 'MATCHED'
-                    break
-                except AssertionError as e:
-                    #print e
-                    pass
-            if not matched:
-                raise AssertionError('Expected: %s\n Got: %s' % (expected,
-                                                                 actual))
-
-    def assertDictEquals(self, actual, expected):
-        for k in expected:
-            self.assertTrue(k in actual,
-                            'Expected key %s not in %s.' % (k, actual))
-            self.assertDeepEquals(expected[k], actual[k])
-
-        for k in actual:
-            self.assertTrue(k in expected,
-                            'Unexpected key %s in %s.' % (k, actual))
-
-    def assertDeepEquals(self, actual, expected):
-        try:
-            if type(expected) is type([]) or type(expected) is type(tuple()):
-                # assert items equal, ignore order
-                self.assertListEquals(actual, expected)
-            elif type(expected) is type({}):
-                self.assertDictEquals(actual, expected)
-            else:
-                self.assertEquals(actual, expected)
-        except AssertionError as e:
-            raise
-            raise AssertionError('Expected: %s\n Got: %s' % (expected, actual))
