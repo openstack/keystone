@@ -201,6 +201,9 @@ rather than it's built in 'tempauth'.
 
     [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    # Delaying the auth decision is required to support token-less
+    # usage for anonymous referrers ('.r:*').
+    delay_auth_decision = true
     service_port = 5000
     service_host = 127.0.0.1
     auth_port = 35357
