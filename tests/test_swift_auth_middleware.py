@@ -20,21 +20,15 @@ from keystone.middleware import swift_auth
 
 
 class FakeApp(object):
-    def __init__(self, status_headers_body_iter=None, acl=None, sync_key=None):
+    def __init__(self, status_headers_body_iter=None):
         self.calls = 0
         self.status_headers_body_iter = status_headers_body_iter
         if not self.status_headers_body_iter:
             self.status_headers_body_iter = iter([('404 Not Found', {}, '')])
-        self.acl = acl
-        self.sync_key = sync_key
 
     def __call__(self, env, start_response):
         self.calls += 1
         self.request = webob.Request.blank('', environ=env)
-        if self.acl:
-            self.request.acl = self.acl
-        if self.sync_key:
-            self.request.environ['swift_sync_key'] = self.sync_key
         if 'swift.authorize' in env:
             resp = env['swift.authorize'](self.request)
             if resp:
@@ -48,7 +42,9 @@ class SwiftAuth(unittest.TestCase):
     def setUp(self):
         self.test_auth = swift_auth.filter_factory({})(FakeApp())
 
-    def _make_request(self, path, headers=None, **kwargs):
+    def _make_request(self, path=None, headers=None, **kwargs):
+        if not path:
+            path = '/v1/%s/c/o' % self.test_auth._get_account_for_tenant('foo')
         return webob.Request.blank(path, headers=headers, **kwargs)
 
     def _get_identity_headers(self, status='Confirmed', tenant_id='1',
@@ -59,35 +55,34 @@ class SwiftAuth(unittest.TestCase):
                     X_ROLE=role,
                     X_USER=user)
 
+    def _get_successful_middleware(self):
+        response_iter = iter([('200 OK', {}, '')])
+        return swift_auth.filter_factory({})(FakeApp(response_iter))
+
     def test_confirmed_identity_is_authorized(self):
         role = self.test_auth.reseller_admin_role
         headers = self._get_identity_headers(role=role)
         req = self._make_request('/v1/AUTH_acct/c', headers)
-        response_iter = iter([('200 OK', {}, '')])
-        test_auth = swift_auth.filter_factory({})(
-            FakeApp(response_iter))
-        resp = req.get_response(test_auth)
-        self.assertEquals(resp.status_int, 200)
+        resp = req.get_response(self._get_successful_middleware())
+        self.assertEqual(resp.status_int, 200)
 
-    def test_invalid_identity_is_not_authorized(self):
-        headers = self._get_identity_headers(status='Invalid')
-        req = self._make_request('/v1/AUTH_acct', headers)
-        resp = req.get_response(self.test_auth)
-        self.assertEquals(resp.status_int, 401)
-
-    def test_auth_deny_token_not_for_account(self):
-        headers = self._get_identity_headers(role='AUTH_acct')
-        req = self._make_request('/v1/AUTH_1', headers)
-        resp = req.get_response(self.test_auth)
-        self.assertEquals(resp.status_int, 403)
-
-    #NOTE(chmou): This should fail when we are going to add anonymous
-    #access back.
-    def test_default_forbidden(self):
+    def test_confirmed_identity_is_not_authorized(self):
         headers = self._get_identity_headers()
-        req = self._make_request('/v1/AUTH_acct', headers)
+        req = self._make_request('/v1/AUTH_acct/c', headers)
         resp = req.get_response(self.test_auth)
-        self.assertEquals(resp.status_int, 403)
+        self.assertEqual(resp.status_int, 403)
+
+    def test_anonymous_is_authorized_for_permitted_referrer(self):
+        req = self._make_request(headers={'X_IDENTITY_STATUS': 'Invalid'})
+        req.acl = '.r:*'
+        resp = req.get_response(self._get_successful_middleware())
+        self.assertEqual(resp.status_int, 200)
+
+    def test_anonymous_is_not_authorized_for_unknown_reseller_prefix(self):
+        req = self._make_request(path='/v1/BLAH_foo/c/o',
+                                 headers={'X_IDENTITY_STATUS': 'Invalid'})
+        resp = req.get_response(self.test_auth)
+        self.assertEqual(resp.status_int, 401)
 
     def test_blank_reseller_prefix(self):
         conf = {'reseller_prefix': ''}
@@ -106,8 +101,7 @@ class TestAuthorize(unittest.TestCase):
     def _get_account(self, identity=None):
         if not identity:
             identity = self._get_identity()
-        return '%s%s' % (self.test_auth.reseller_prefix,
-                         identity['tenant'][0])
+        return self.test_auth._get_account_for_tenant(identity['tenant'][0])
 
     def _get_identity(self, tenant_id='tenant_id',
                       tenant_name='tenant_name', user='user', roles=None):
