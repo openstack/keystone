@@ -425,7 +425,15 @@ class RoleController(wsgi.Application):
         """
         if tenant_id is None:
             raise exception.NotImplemented(message='User roles not supported: '
-                                                   'tenant_id required')
+                                                   'tenant ID required')
+
+        user = self.identity_api.get_user(context, user_id)
+        if user is None:
+            raise exception.UserNotFound(user_id=user_id)
+        tenant = self.identity_api.get_tenant(context, tenant_id)
+        if tenant is None:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+
         roles = self.identity_api.get_roles_for_user_and_tenant(
                 context, user_id, tenant_id)
         return {'roles': [self.identity_api.get_role(context, x)
@@ -449,7 +457,8 @@ class RoleController(wsgi.Application):
 
     def delete_role(self, context, role_id):
         self.assert_admin(context)
-        role_ref = self.identity_api.delete_role(context, role_id)
+        self.get_role(context, role_id)
+        self.identity_api.delete_role(context, role_id)
 
     def get_roles(self, context):
         self.assert_admin(context)

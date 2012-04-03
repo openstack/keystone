@@ -210,8 +210,7 @@ class Identity(sql.Base, identity.Driver):
 
     def get_role(self, role_id):
         session = self.get_session()
-        role_ref = session.query(Role).filter_by(id=role_id).first()
-        return role_ref
+        return session.query(Role).filter_by(id=role_id).first()
 
     def list_users(self):
         session = self.get_session()
