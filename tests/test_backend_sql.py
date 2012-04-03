@@ -70,7 +70,7 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
     def test_create_null_tenant_name(self):
         tenant = {'id': uuid.uuid4().hex,
                   'name': None}
-        self.assertRaises(exception.Conflict,
+        self.assertRaises(exception.ValidationError,
                           self.identity_api.create_tenant,
                           tenant['id'],
                           tenant)

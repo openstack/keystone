@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone import clean
 from keystone import exception
 from keystone import identity
 from keystone.common import kvs
@@ -195,6 +196,7 @@ class Identity(kvs.Base, identity.Driver):
         return None
 
     def create_tenant(self, tenant_id, tenant):
+        tenant['name'] = clean.tenant_name(tenant['name'])
         if self.get_tenant(tenant_id):
             msg = 'Duplicate ID, %s.' % tenant_id
             raise exception.Conflict(type='tenant', details=msg)
@@ -207,6 +209,7 @@ class Identity(kvs.Base, identity.Driver):
 
     def update_tenant(self, tenant_id, tenant):
         if 'name' in tenant:
+            tenant['name'] = clean.tenant_name(tenant['name'])
             existing = self.db.get('tenant_name-%s' % tenant['name'])
             if existing and tenant_id != existing['id']:
                 msg = 'Duplicate name, %s.' % tenant['name']

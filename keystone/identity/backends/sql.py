@@ -17,8 +17,9 @@
 import copy
 import functools
 
-from keystone import identity
+from keystone import clean
 from keystone import exception
+from keystone import identity
 from keystone.common import sql
 from keystone.common import utils
 from keystone.common.sql import migration
@@ -341,6 +342,7 @@ class Identity(sql.Base, identity.Driver):
 
     @handle_conflicts(type='tenant')
     def create_tenant(self, tenant_id, tenant):
+        tenant['name'] = clean.tenant_name(tenant['name'])
         session = self.get_session()
         with session.begin():
             tenant_ref = Tenant.from_dict(tenant)
@@ -350,6 +352,8 @@ class Identity(sql.Base, identity.Driver):
 
     @handle_conflicts(type='tenant')
     def update_tenant(self, tenant_id, tenant):
+        if 'name' in tenant:
+            tenant['name'] = clean.tenant_name(tenant['name'])
         session = self.get_session()
         with session.begin():
             tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()

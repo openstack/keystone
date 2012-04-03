@@ -13,6 +13,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from keystone import test
 from keystone.identity.backends import kvs as identity_kvs
 from keystone.token.backends import kvs as token_kvs

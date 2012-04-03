@@ -303,6 +303,65 @@ class IdentityTests(object):
         tenants = self.identity_api.get_tenants_for_user('foo')
         self.assertIn(tenant_id, tenants)
 
+    def test_create_tenant_long_name_fails(self):
+        tenant = {'id': 'fake1', 'name': 'a' * 65}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_tenant,
+                          tenant['id'],
+                          tenant)
+
+    def test_create_tenant_blank_name_fails(self):
+        tenant = {'id': 'fake1', 'name': ''}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_tenant,
+                          tenant['id'],
+                          tenant)
+
+    def test_create_tenant_invalid_name_fails(self):
+        tenant = {'id': 'fake1', 'name': None}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_tenant,
+                          tenant['id'],
+                          tenant)
+        tenant = {'id': 'fake1', 'name': 123}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_tenant,
+                          tenant['id'],
+                          tenant)
+
+    def test_update_tenant_blank_name_fails(self):
+        tenant = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_tenant('fake1', tenant)
+        tenant['name'] = ''
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_tenant,
+                          tenant['id'],
+                          tenant)
+
+    def test_update_tenant_long_name_fails(self):
+        tenant = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_tenant('fake1', tenant)
+        tenant['name'] = 'a' * 65
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_tenant,
+                          tenant['id'],
+                          tenant)
+
+    def test_update_tenant_invalid_name_fails(self):
+        tenant = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_tenant('fake1', tenant)
+        tenant['name'] = None
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_tenant,
+                          tenant['id'],
+                          tenant)
+
+        tenant['name'] = 123
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_tenant,
+                          tenant['id'],
+                          tenant)
+
 
 class TokenTests(object):
     def test_token_crud(self):
@@ -326,7 +385,8 @@ class TokenTests(object):
 
     def test_expired_token(self):
         token_id = uuid.uuid4().hex
-        expire_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+        expire_time = datetime.datetime.utcnow() - datetime.timedelta(
+                        minutes=1)
         data = {'id': token_id, 'a': 'b', 'expires': expire_time}
         data_ref = self.token_api.create_token(token_id, data)
         self.assertDictEqual(data_ref, data)
