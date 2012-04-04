@@ -41,7 +41,7 @@ import webob
 from swift.common import utils as swift_utils
 
 
-PROTOCOL_NAME = "S3 Token Authentication"
+PROTOCOL_NAME = 'S3 Token Authentication'
 
 
 class ServiceError(Exception):
@@ -54,11 +54,8 @@ class S3Token(object):
     def __init__(self, app, conf):
         """Common initialization code."""
         self.app = app
-        self.logger = swift_utils.get_logger(conf, log_route='s3_token')
+        self.logger = swift_utils.get_logger(conf, log_route='s3token')
         self.logger.debug('Starting the %s component' % PROTOCOL_NAME)
-
-        # NOTE(chmou): We probably want to make sure that there is a _
-        # at the end of our reseller_prefix.
         self.reseller_prefix = conf.get('reseller_prefix', 'AUTH_')
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
@@ -68,6 +65,21 @@ class S3Token(object):
             self.http_client_class = httplib.HTTPConnection
         else:
             self.http_client_class = httplib.HTTPSConnection
+
+    def deny_request(self, code):
+        error_table = {
+            'AccessDenied':
+                (401, 'Access denied'),
+            'InvalidURI':
+                (400, 'Could not parse the specified URI'),
+            }
+        resp = webob.Response(content_type='text/xml')
+        resp.status = error_table[code][0]
+        resp.body = error_table[code][1]
+        resp.body = '<?xml version="1.0" encoding="UTF-8"?>\r\n<Error>\r\n  ' \
+            '<Code>%s</Code>\r\n  <Message>%s</Message>\r\n</Error>\r\n' \
+            % (code, error_table[code][1])
+        return resp
 
     def _json_request(self, creds_json):
         headers = {'Content-Type': 'application/json'}
@@ -81,20 +93,23 @@ class S3Token(object):
             output = response.read()
         except Exception, e:
             self.logger.info('HTTP connection exception: %s' % e)
-            raise ServiceError('Unable to communicate with keystone')
+            resp = self.deny_request('InvalidURI')
+            raise ServiceError(resp)
         finally:
             conn.close()
 
         if response.status < 200 or response.status >= 300:
-            raise ServiceError('Keystone reply error: status=%s reason=%s' % (
-                    response.status,
-                    response.reason))
+            self.logger.debug('Keystone reply error: status=%s reason=%s' %
+                              (response.status, response.reason))
+            resp = self.deny_request('AccessDenied')
+            raise ServiceError(resp)
 
         return (response, output)
 
     def __call__(self, environ, start_response):
         """Handle incoming request. authenticate and send downstream."""
         req = webob.Request(environ)
+        self.logger.debug('Calling S3Token middleware.')
 
         try:
             parts = swift_utils.split_path(req.path, 1, 4, True)
@@ -123,7 +138,7 @@ class S3Token(object):
         except(ValueError):
             msg = 'You have an invalid Authorization header: %s'
             self.logger.debug(msg % (auth_header))
-            return webob.exc.HTTPBadRequest()(environ, start_response)
+            return self.deny_request('InvalidURI')(environ, start_response)
 
         # NOTE(chmou): This is to handle the special case with nova
         # when we have the option s3_affix_tenant. We will force it to
@@ -145,7 +160,8 @@ class S3Token(object):
                                  'token': token,
                                  'signature': signature}}
         creds_json = json.dumps(creds)
-
+        self.logger.debug('Connecting to Keystone sending this JSON: %s' %
+                          creds_json)
         # NOTE(vish): We could save a call to keystone by having
         #             keystone return token, tenant, user, and roles
         #             from this call.
@@ -154,7 +170,16 @@ class S3Token(object):
         #              change token_auth to detect if we already
         #              identified and not doing a second query and just
         #              pass it thru to swiftauth in this case.
-        (resp, output) = self._json_request(creds_json)
+        try:
+            resp, output = self._json_request(creds_json)
+        except ServiceError as e:
+            resp = e.args[0]
+            msg = 'Received error, exiting middleware with error: %s'
+            self.logger.debug(msg % (resp.status))
+            return resp(environ, start_response)
+
+        self.logger.debug('Keystone Reply: Status: %d, Output: %s' % (
+                resp.status, output))
 
         try:
             identity_info = json.loads(output)
@@ -163,7 +188,7 @@ class S3Token(object):
         except (ValueError, KeyError):
             error = 'Error on keystone reply: %d %s'
             self.logger.debug(error % (resp.status, str(output)))
-            return webob.exc.HTTPBadRequest()(environ, start_response)
+            return self.deny_request('InvalidURI')(environ, start_response)
 
         req.headers['X-Auth-Token'] = token_id
         tenant_to_connect = force_tenant or tenant['id']

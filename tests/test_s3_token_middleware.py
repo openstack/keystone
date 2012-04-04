@@ -26,10 +26,24 @@ from swift.common import utils as swift_utils
 from keystone.middleware import s3_token
 
 
+def denied_request(code):
+    error_table = {
+        'AccessDenied':
+            (401, 'Access denied'),
+        'InvalidURI':
+            (400, 'Could not parse the specified URI'),
+        }
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\r\n<Error>\r\n  ' \
+        '<Code>%s</Code>\r\n  <Message>%s</Message>\r\n</Error>\r\n' \
+        % (code, error_table[code][1])
+    return xml
+
+
 def setUpModule(self):
     self.stubs = stubout.StubOutForTesting()
     # Stub out swift_utils.get_logger.  get_logger tries to configure
     # syslogging to '/dev/log', which will fail on OS X.
+
     def fake_get_logger(config, log_route=None):
         return logging.getLogger(log_route)
     self.stubs.Set(swift_utils, 'get_logger', fake_get_logger)
@@ -43,20 +57,25 @@ class FakeHTTPResponse(object):
     def __init__(self, status, body):
         self.status = status
         self.body = body
+        self.reason = ""
 
     def read(self):
         return self.body
 
 
 class FakeHTTPConnection(object):
+    status = 201
+
     def __init__(self, *args):
         pass
 
     def request(self, method, path, **kwargs):
+        if self.status == 503:
+            raise Exception
         ret = {'access': {'token': {'id': 'TOKEN_ID',
                                     'tenant': {'id':  'TENANT_ID'}}}}
         body = json.dumps(ret)
-        status = 201
+        status = self.status
         self.resp = FakeHTTPResponse(status, body)
 
     def getresponse(self):
@@ -111,8 +130,27 @@ class S3TokenMiddlewareTest(unittest.TestCase):
         req = webob.Request.blank('/v1/AUTH_cfa/c/o')
         req.headers['Authorization'] = 'badboy'
         req.headers['X-Storage-Token'] = 'token'
-        self.middleware(req.environ, self._start_fake_response)
-        self.assertEqual(self.response_status, 400)
+        resp = req.get_response(self.middleware)
+        self.assertEqual(resp.status_int, 400)
+        self.assertEqual(resp.body, denied_request('InvalidURI'))
+
+    def test_bad_token(self):
+        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
+        req.headers['Authorization'] = 'access:signature'
+        req.headers['X-Storage-Token'] = 'token'
+        self.middleware.http_client_class.status = 403
+        resp = req.get_response(self.middleware)
+        self.assertEqual(resp.status_int, 401)
+        self.assertEqual(resp.body, denied_request('AccessDenied'))
+
+    def test_fail_to_connect_to_keystone(self):
+        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
+        req.headers['Authorization'] = 'access:signature'
+        req.headers['X-Storage-Token'] = 'token'
+        self.middleware.http_client_class.status = 503
+        resp = req.get_response(self.middleware)
+        self.assertEqual(resp.status_int, 400)
+        self.assertEqual(resp.body, denied_request('InvalidURI'))
 
     def test_authorized(self):
         req = webob.Request.blank('/v1/AUTH_cfa/c/o')
