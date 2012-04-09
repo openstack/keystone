@@ -131,7 +131,7 @@ class TestCase(unittest.TestCase):
         self.stubs = stubout.StubOutForTesting()
 
     def config(self):
-        CONF(config_files=[etcdir('keystone.conf'),
+        CONF(config_files=[etcdir('keystone.conf.sample'),
                            testsdir('test_overrides.conf')])
 
     def tearDown(self):
@@ -226,8 +226,8 @@ class TestCase(unittest.TestCase):
             test_path = os.path.join(TESTSDIR, config)
             etc_path = os.path.join(ROOTDIR, 'etc', config)
             for path in [test_path, etc_path]:
-                if os.path.exists('%s.conf' % path):
-                    return 'config:%s.conf' % path
+                if os.path.exists('%s.conf.sample' % path):
+                    return 'config:%s.conf.sample' % path
         return config
 
     def loadapp(self, config, name='main'):

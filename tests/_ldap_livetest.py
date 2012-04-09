@@ -61,7 +61,7 @@ def clear_live_database():
 class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def setUp(self):
         super(LDAPIdentity, self).setUp()
-        CONF(config_files=[test.etcdir('keystone.conf'),
+        CONF(config_files=[test.etcdir('keystone.conf.sample'),
                            test.testsdir('test_overrides.conf'),
                            test.testsdir('backend_liveldap.conf')])
         clear_live_database()

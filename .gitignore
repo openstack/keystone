@@ -19,3 +19,4 @@ ChangeLog
 requirements.txt
 build/
 dist/
+etc/keystone.conf

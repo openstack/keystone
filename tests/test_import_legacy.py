@@ -33,7 +33,7 @@ CONF = config.CONF
 class ImportLegacy(test.TestCase):
     def setUp(self):
         super(ImportLegacy, self).setUp()
-        CONF(config_files=[test.etcdir('keystone.conf'),
+        CONF(config_files=[test.etcdir('keystone.conf.sample'),
                            test.testsdir('test_overrides.conf'),
                            test.testsdir('backend_sql.conf')])
         sql_util.setup_test_database()
