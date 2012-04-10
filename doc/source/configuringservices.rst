@@ -175,7 +175,7 @@ Configuring Swift to use Keystone
 ---------------------------------
 
 Similar to Nova, swift can be configured to use Keystone for authentication
-rather than it's built in 'tempauth'.
+rather than its built in 'tempauth'.
 
 1. Add a service endpoint for Swift to Keystone
 

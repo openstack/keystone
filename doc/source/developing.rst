@@ -60,9 +60,9 @@ You can interact with Keystone through the command line using
 :doc:`man/keystone-manage` which allows you to establish tenants, users, etc.
 
 
-You can also interact with Keystone through it's REST API. There is a python
+You can also interact with Keystone through its REST API. There is a python
 keystone client library `python-keystoneclient`_ which interacts exclusively
-through the REST API, and which keystone itself uses to provide it's
+through the REST API, and which keystone itself uses to provide its
 command-line interface.
 
 When initially getting set up, after you've configured which databases to use,

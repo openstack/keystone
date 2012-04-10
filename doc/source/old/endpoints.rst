@@ -285,7 +285,7 @@ them all whenever a service changed versions or I added a new service.
 
 To provide a simpler mechanism to manage endpoints on tenants, Keystone uses
 Endpoint Templates. I can, for example, define a template with parametrized URLs
-and set it's `global` to true and that will show up as an endpoint on all the tenants
+and set its `global` to true and that will show up as an endpoint on all the tenants
 I have. Here is an example:
 
 Define a global Endpoint Template::
