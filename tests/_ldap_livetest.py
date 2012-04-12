@@ -43,7 +43,7 @@ def delete_object(name):
 def clear_live_database():
     roles = ['keystone_admin']
     groups = ['baz', 'bar', 'tenent4add', 'fake1', 'fake2']
-    users = ['foo', 'two', 'fake1', 'fake2']
+    users = ['foo', 'two', 'fake1', 'fake2','no_meta']
     roles = ['keystone_admin', 'useless']
 
     for group in groups:
