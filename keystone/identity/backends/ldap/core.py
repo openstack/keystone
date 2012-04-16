@@ -116,6 +116,9 @@ class Identity(identity.Driver):
         except exception.NotFound:
             raise exception.TenantNotFound(tenant_id=tenant_id)
 
+    def get_tenants(self):
+        return self.tenant.get_all()
+
     def get_tenant_by_name(self, tenant_name):
         try:
             return self.tenant.get_by_name(tenant_name)
@@ -130,6 +133,9 @@ class Identity(identity.Driver):
 
     def get_user(self, user_id):
         return _filter_user(self._get_user(user_id))
+
+    def list_users(self):
+        return self.user.get_all()
 
     def get_user_by_name(self, user_name):
         try:
@@ -151,6 +157,9 @@ class Identity(identity.Driver):
             return self.role.get(role_id)
         except exception.NotFound:
             raise exception.RoleNotFound(role_id=role_id)
+
+    def list_roles(self):
+        return self.role.get_all()
 
     # These should probably be part of the high-level API
     # When this happens, then change TenantAPI.add_user to not ignore
