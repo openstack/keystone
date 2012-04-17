@@ -15,6 +15,7 @@ pep8==0.6.1 # checks for PEP8 code style compliance
 Sphinx>=1.1.2 # required to build documentation
 unittest2 # backport of unittest lib in python 2.7
 webtest # test wsgi apps without starting an http server
+distribute>=0.6.24
 
 # for python-keystoneclient
 httplib2
