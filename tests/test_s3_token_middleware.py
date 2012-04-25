@@ -15,19 +15,28 @@
 # under the License.
 
 import json
+import logging
 
-import nose
+import stubout
+import unittest2 as unittest
 import webob
 
-from keystone import test
+from swift.common import utils as swift_utils
 
-try:
-    # NOTE(chmou): We don't want to force to have swift installed for
-    # unit test so we skip it we have an ImportError.
-    from keystone.middleware import s3_token
-    skip = False
-except ImportError:
-    skip = True
+from keystone.middleware import s3_token
+
+
+def setUpModule(self):
+    self.stubs = stubout.StubOutForTesting()
+    # Stub out swift_utils.get_logger.  get_logger tries to configure
+    # syslogging to '/dev/log', which will fail on OS X.
+    def fake_get_logger(config, log_route=None):
+        return logging.getLogger(log_route)
+    self.stubs.Set(swift_utils, 'get_logger', fake_get_logger)
+
+
+def tearDownModule(self):
+    self.stubs.UnsetAll()
 
 
 class FakeHTTPResponse(object):
@@ -65,12 +74,8 @@ class FakeApp(object):
         return resp(env, start_response)
 
 
-class S3TokenMiddlewareTest(test.TestCase):
+class S3TokenMiddlewareTest(unittest.TestCase):
     def setUp(self, expected_env=None):
-        # We probably going to end-up with the same strategy than
-        # test_swift_auth when this is decided.
-        if skip:
-            raise nose.SkipTest('no swift detected')
         self.middleware = s3_token.S3Token(FakeApp(), {})
         self.middleware.http_client_class = FakeHTTPConnection
 
@@ -125,6 +130,6 @@ class S3TokenMiddlewareTest(test.TestCase):
         path = req.environ['PATH_INFO']
         self.assertTrue(path.startswith('/v1/AUTH_FORCED_TENANT_ID'))
 
+
 if __name__ == '__main__':
-    import unittest
     unittest.main()
