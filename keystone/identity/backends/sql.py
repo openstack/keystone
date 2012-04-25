@@ -53,7 +53,7 @@ def handle_conflicts(type='object'):
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), unique=True)
+    name = sql.Column(sql.String(64), unique=True, nullable=False)
     #password = sql.Column(sql.String(64))
     extra = sql.Column(sql.JsonBlob())
 
@@ -79,7 +79,7 @@ class User(sql.ModelBase, sql.DictBase):
 class Tenant(sql.ModelBase, sql.DictBase):
     __tablename__ = 'tenant'
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), unique=True)
+    name = sql.Column(sql.String(64), unique=True, nullable=False)
     extra = sql.Column(sql.JsonBlob())
 
     @classmethod
@@ -104,7 +104,7 @@ class Tenant(sql.ModelBase, sql.DictBase):
 class Role(sql.ModelBase, sql.DictBase):
     __tablename__ = 'role'
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), unique=True)
+    name = sql.Column(sql.String(64), unique=True, nullable=False)
 
 
 class Metadata(sql.ModelBase, sql.DictBase):
