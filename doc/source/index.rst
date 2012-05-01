@@ -65,6 +65,7 @@ Developers Documentation
    architecture
    middlewarearchitecture
    api_curl_examples
+   apache-httpd
 
 Code Documentation
 ==================
