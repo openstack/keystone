@@ -19,6 +19,7 @@ from setuptools.command.sdist import sdist
 from setuptools import setup
 import subprocess
 
+from keystone.openstack.common.setup import generate_authors
 from keystone.openstack.common.setup import parse_requirements
 from keystone.openstack.common.setup import parse_dependency_links
 from keystone.openstack.common.setup import write_requirements
@@ -29,6 +30,7 @@ class local_sdist(sdist):
     """Customized sdist hook - builds the ChangeLog file from VC first"""
     def run(self):
         write_git_changelog()
+        generate_authors()
         sdist.run(self)
 cmdclass = {'sdist': local_sdist}
 
