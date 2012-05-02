@@ -15,6 +15,7 @@ for most deployments will actually be shims in front of existing user systems.
 Development
 -----------
 
+
 Setting up a development environment
 ------------------------------------
 
@@ -22,19 +23,21 @@ Please see the documentation under ``doc/source/`` for development setup
 (``doc/source/setup.rst``) and configuration
 (``doc/source/configuration.rst``).
 
+
 Building the Documentation
 --------------------------
 
 The documentation is all generated with Sphinx from within the docs directory.
-To generate the full set of HTML documentation:
+To generate the full set of HTML documentation::
 
     cd docs
     make autodoc
     make html
     make man
 
-the results are in the docs/build/html and docs/build/man directories
+the results are in the ``docs/build/html`` and ``docs/build/man`` directories
 respectively.
+
 
 ------------
 The Services
@@ -79,7 +82,6 @@ Policy
 
 The Policy service provides a rule-based authorization engine and the
 associated rule management interface.
-
 
 
 ----------
@@ -170,12 +172,6 @@ of checks and will possibly write completely custom backends. Backends included
 in Keystone are:
 
 
-Trivial True
-------------
-
-Allows all actions.
-
-
 Simple Match
 ------------
 
@@ -219,11 +215,3 @@ to which capabilities are allowed for that role. For example::
 
 In the backend this would look up the policy for 'action:nova:add_network' and
 then do what is effectively a 'Simple Match' style match against the creds.
-
-
------------
-Still To Do
------------
-
- * LDAP backend.
- * Diablo migration.
