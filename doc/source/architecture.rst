@@ -20,6 +20,7 @@ Keystone Architecture
 Much of the design is precipitated from the expectation that the auth backends
 for most deployments will actually be shims in front of existing user systems.
 
+
 ------------
 The Services
 ------------
@@ -64,6 +65,7 @@ Policy
 The Policy service provides a rule-based authorization engine and the
 associated rule management interface.
 
+
 ------------------------
 Application Construction
 ------------------------
@@ -101,8 +103,8 @@ on the keystone configuration.
 At this time, the policy service and associated manager is not exposed as a URL
 frontend, and has no associated Controller class.
 
-
 .. _Paste: http://pythonpaste.org/
+
 
 ----------------
 Service Backends
@@ -123,6 +125,7 @@ implementations. The drivers for the services are:
 If you implement a backend driver for one of the keystone services, you're
 expected to subclass from these classes. The default response for the defined
 apis in these Drivers is to raise a :mod:`keystone.service.TokenController`.
+
 
 KVS Backend
 -----------
@@ -169,9 +172,11 @@ interpolation)::
 
 
 LDAP Backend
------------------
+------------
+
 The LDAP backend stored Users and Tenents in separate Subtrees.  Roles are recorded
 as entries under the Tenants.
+
 
 ----------
 Data Model
@@ -228,14 +233,8 @@ of checks and will possibly write completely custom backends. Backends included
 in Keystone are:
 
 
-Trivial True
-------------
-
-Allows all actions.
-
-
-Simple Match
-------------
+Rules
+-----
 
 Given a list of matches to check for, simply verify that the credentials
 contain the matches. For example::
@@ -243,16 +242,13 @@ contain the matches. For example::
   credentials = {'user_id': 'foo', 'is_admin': 1, 'roles': ['nova:netadmin']}
 
   # An admin only call:
-  policy_api.can_haz(('is_admin:1',), credentials)
+  policy_api.enforce(('is_admin:1',), credentials)
 
   # An admin or owner call:
-  policy_api.can_haz(('is_admin:1', 'user_id:foo'),
-                     credentials)
+  policy_api.enforce(('is_admin:1', 'user_id:foo'), credentials)
 
   # A netadmin call:
-  policy_api.can_haz(('roles:nova:netadmin',),
-                     credentials)
-
+  policy_api.enforce(('roles:nova:netadmin',), credentials)
 
 Credentials are generally built from the user metadata in the 'extras' part
 of the Identity API. So, adding a 'role' to the user just means adding the role
@@ -272,8 +268,7 @@ to which capabilities are allowed for that role. For example::
   # add a policy
   policy_api.add_policy('action:nova:add_network', ('roles:nova:netadmin',))
 
-  policy_api.can_haz(('action:nova:add_network',), credentials)
-
+  policy_api.enforce(('action:nova:add_network',), credentials)
 
 In the backend this would look up the policy for 'action:nova:add_network' and
 then do what is effectively a 'Simple Match' style match against the creds.
