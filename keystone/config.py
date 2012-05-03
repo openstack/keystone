@@ -150,11 +150,16 @@ register_str('connection', group='sql')
 register_int('idle_timeout', group='sql')
 
 
-register_str('driver', group='catalog')
-register_str('driver', group='identity')
-register_str('driver', group='policy')
-register_str('driver', group='token')
-register_str('driver', group='ec2')
+register_str('driver', group='catalog',
+             default='keystone.catalog.backends.sql.Catalog')
+register_str('driver', group='identity',
+             default='keystone.identity.backends.sql.Identity')
+register_str('driver', group='policy',
+             default='keystone.policy.backends.rules.Policy')
+register_str('driver', group='token',
+             default='keystone.token.backends.kvs.Token')
+register_str('driver', group='ec2',
+             default='keystone.contrib.ec2.backends.kvs.Ec2')
 
 
 #ldap
