@@ -146,8 +146,8 @@ register_str('public_port', default=5000)
 
 
 # sql options
-register_str('connection', group='sql')
-register_int('idle_timeout', group='sql')
+register_str('connection', group='sql', default='sqlite:///keystone.db')
+register_int('idle_timeout', group='sql', default=200)
 
 
 register_str('driver', group='catalog',
