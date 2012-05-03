@@ -138,10 +138,8 @@ def generate_authors():
                       "grep -v " + jenkins_email
         changelog = _run_shell_command(git_log_cmd)
         mailmap = parse_mailmap()
-        new_authors_fh = open(new_authors, "w")
-        new_authors_fh.write(canonicalize_emails(changelog, mailmap))
-        if os.path.exists(old_authors):
-            new_authors_fh.write("\n")
-            with open(old_authors, "r") as old_authors_fh:
-                new_authors_fh.write(''.join(old_authors_fh.readlines()))
-        new_authors_fh.close()
+        with open(new_authors, 'w') as new_authors_fh:
+            new_authors_fh.write(canonicalize_emails(changelog, mailmap))
+            if os.path.exists(old_authors):
+                with open(old_authors, "r") as old_authors_fh:
+                    new_authors_fh.write('\n' + old_authors_fh.read())
