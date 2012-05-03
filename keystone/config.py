@@ -140,9 +140,9 @@ CONF = CommonConfig(project='keystone')
 
 register_str('admin_token', default='ADMIN')
 register_str('bind_host', default='0.0.0.0')
-register_str('compute_port')
-register_str('admin_port')
-register_str('public_port')
+register_str('compute_port', default=8774)
+register_str('admin_port', default=35357)
+register_str('public_port', default=5000)
 
 
 # sql options
