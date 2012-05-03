@@ -163,23 +163,26 @@ register_str('driver', group='ec2',
 
 
 #ldap
-register_str('url', group='ldap')
-register_str('user', group='ldap')
-register_str('password', group='ldap')
-register_str('suffix', group='ldap')
-register_bool('use_dumb_member', group='ldap')
+register_str('url', group='ldap', default='ldap://localhost')
+register_str('user', group='ldap', default='dc=Manager,dc=example,dc=com')
+register_str('password', group='ldap', default='freeipa4all')
+register_str('suffix', group='ldap', default='cn=example,cn=com')
+register_bool('use_dumb_member', group='ldap', default=False)
 
-register_str('user_tree_dn', group='ldap')
-register_str('user_objectclass', group='ldap')
-register_str('user_id_attribute', group='ldap')
+register_str('user_tree_dn', group='ldap',
+             default='ou=Users,dc=example,dc=com')
+register_str('user_objectclass', group='ldap', default='inetOrgPerson')
+register_str('user_id_attribute', group='ldap', default='cn')
 
-register_str('tenant_tree_dn', group='ldap')
-register_str('tenant_objectclass', group='ldap')
-register_str('tenant_id_attribute', group='ldap')
-register_str('tenant_member_attribute', group='ldap')
+register_str('tenant_tree_dn', group='ldap',
+             default='ou=Groups,dc=example,dc=com')
+register_str('tenant_objectclass', group='ldap', default='groupOfNames')
+register_str('tenant_id_attribute', group='ldap', default='cn')
+register_str('tenant_member_attribute', group='ldap', default='member')
 
 
-register_str('role_tree_dn', group='ldap')
-register_str('role_objectclass', group='ldap')
-register_str('role_id_attribute', group='ldap')
-register_str('role_member_attribute', group='ldap')
+register_str('role_tree_dn', group='ldap',
+             default='ou=Roles,dc=example,dc=com')
+register_str('role_objectclass', group='ldap', default='organizationalRole')
+register_str('role_id_attribute', group='ldap', default='cn')
+register_str('role_member_attribute', group='ldap', default='roleOccupant')
