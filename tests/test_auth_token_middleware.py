@@ -20,6 +20,7 @@ import webob
 
 from keystone.middleware import auth_token
 from keystone.openstack.common import jsonutils
+from keystone import config
 from keystone import test
 
 
@@ -130,6 +131,8 @@ class FakeHTTPResponse(object):
 
 class FakeHTTPConnection(object):
 
+    last_requested_url = ''
+
     def __init__(self, *args):
         pass
 
@@ -144,6 +147,7 @@ class FakeHTTPConnection(object):
         a 404, indicating an unknown (therefore unauthorized) token.
 
         """
+        FakeHTTPConnection.last_requested_url = path
         if method == 'POST':
             status = 200
             body = jsonutils.dumps({
@@ -204,6 +208,7 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
             'admin_token': 'admin_token1',
             'auth_host': 'keystone.example.com',
             'auth_port': 1234,
+            'auth_admin_prefix': '/testadmin',
         }
 
         self.middleware = auth_token.AuthProtocol(FakeApp(expected_env), conf)
@@ -243,6 +248,10 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         req = webob.Request.blank('/')
         req.headers['X-Auth-Token'] = 'valid-token'
         body = self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.middleware.conf['auth_admin_prefix'],
+                         "/testadmin")
+        self.assertEqual("/testadmin/v2.0/tokens/valid-token",
+                         FakeHTTPConnection.last_requested_url)
         self.assertEqual(self.response_status, 200)
         self.assertTrue(req.headers.get('X-Service-Catalog'))
         self.assertEqual(body, ['SUCCESS'])
