@@ -77,7 +77,7 @@ class LegacyMigration(object):
                  'region': row['region']}
 
             for x in ['internal_url', 'public_url', 'admin_url', 'enabled']:
-                d['key'] = x.replace('_u', 'U')
+                d['key'] = x.replace('_url', 'URL')
                 d['value'] = _translate_replacements(row[x])
                 o.append(template % d)
 
