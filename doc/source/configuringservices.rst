@@ -204,8 +204,6 @@ rather than its built in 'tempauth'.
     # Delaying the auth decision is required to support token-less
     # usage for anonymous referrers ('.r:*').
     delay_auth_decision = 1
-    service_port = 5000
-    service_host = 127.0.0.1
     auth_port = 35357
     auth_host = 127.0.0.1
     auth_token = ADMIN
@@ -285,8 +283,6 @@ S3 api.
 
     [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
-    service_port = 5000
-    service_host = 127.0.0.1
     auth_port = 35357
     auth_host = 127.0.0.1
     auth_protocol = http
@@ -326,8 +322,6 @@ Here is an example paste config filter that makes use of the 'admin_user' and
 
     [filter:authtoken]
     paste.filter_factory = keystone.middleware.auth_token:filter_factory
-    service_port = 5000
-    service_host = 127.0.0.1
     auth_port = 35357
     auth_host = 127.0.0.1
     auth_token = 012345SECRET99TOKEN012345
