@@ -20,6 +20,7 @@ from paste import deploy
 
 from keystone import config
 from keystone.common import wsgi
+from keystone.common import utils
 
 
 CONF = config.CONF
@@ -36,6 +37,13 @@ def serve(*servers):
                       server.application,
                       server.port)
         server.start()
+
+    # notify calling process we are ready to serve
+    if CONF.onready:
+        try:
+            utils.check_output(CONF.onready.split())
+        except Exception:
+            logging.exception('Failed to execute onready command')
 
     for server in servers:
         try:
