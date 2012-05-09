@@ -1,57 +1,102 @@
 [DEFAULT]
-#bind_host = 0.0.0.0
-public_port = 5000
-admin_port = 35357
-admin_token = ADMIN
-compute_port = 8774
-verbose = True
-debug = True
-#log_config = ./etc/logging.conf.sample
+# A "shared secret" between keystone and other openstack services
+# admin_token = ADMIN
 
-# ================= Syslog Options ============================
-# Send logs to syslog (/dev/log) instead of to file specified
-# by `log-file`
-use_syslog = False
+# The IP address of the network interface to listen on
+# bind_host = 0.0.0.0
 
-# Facility to use. If unset defaults to LOG_USER.
-# syslog_log_facility = LOG_LOCAL0
+# The port number which the public service listens on
+# public_port = 5000
+
+# The port number which the public admin listens on
+# admin_port = 35357
+
+# The port number which the OpenStack Compute service listens on
+# compute_port = 8774
+
+# === Logging Options ===
+# Print debugging output
+# verbose = True
+
+# Print more verbose output
+# debug = True
+
+# Name of log file to output to. If not set, logging will go to stdout.
+# log_file = keystone.log
+
+# The directory to keep log files in (will be prepended to --logfile)
+# log_dir = /var/log/keystone
+
+# Use syslog for logging.
+# use_syslog = False
+
+# syslog facility to receive log lines
+# syslog_log_facility = LOG_USER
+
+# If this option is specified, the logging configuration file specified is
+# used and overrides any other logging options specified. Please see the
+# Python logging module documentation for details on logging configuration
+# files.
+# log_config = logging.conf
+
+# A logging.Formatter log message format string which may use any of the
+# available logging.LogRecord attributes.
+# log_format = %(asctime)s %(levelname)8s [%(name)s] %(message)s
+
+# Format string for %(asctime)s in log records.
+# log_date_format = %Y-%m-%d %H:%M:%S
 
 [sql]
-connection = sqlite:///keystone.db
-idle_timeout = 200
+# The SQLAlchemy connection string used to connect to the database
+# connection = sqlite:///keystone.db
 
-[ldap]
-#url = ldap://localhost
-#tree_dn = dc=example,dc=com
-#user_tree_dn = ou=Users,dc=example,dc=com
-#role_tree_dn = ou=Roles,dc=example,dc=com
-#tenant_tree_dn = ou=Groups,dc=example,dc=com
-#user = dc=Manager,dc=example,dc=com
-#password = freeipa4all
-#suffix = cn=example,cn=com
+# the timeout before idle sql connections are reaped
+# idle_timeout = 200
 
 [identity]
-driver = keystone.identity.backends.sql.Identity
+# driver = keystone.identity.backends.sql.Identity
 
 [catalog]
 # dynamic, sql-based backend (supports API/CLI-based management commands)
-driver = keystone.catalog.backends.sql.Catalog
+# driver = keystone.catalog.backends.sql.Catalog
 
 # static, file-based backend (does *NOT* support any management commands)
-#driver = keystone.catalog.backends.templated.TemplatedCatalog
-#template_file = ./etc/default_catalog.templates
+# driver = keystone.catalog.backends.templated.TemplatedCatalog
+
+# template_file = default_catalog.templates
 
 [token]
-driver = keystone.token.backends.kvs.Token
+# driver = keystone.token.backends.kvs.Token
 
 # Amount of time a token should remain valid (in seconds)
-expiration = 86400
+# expiration = 86400
 
 [policy]
-driver = keystone.policy.backends.rules.Policy
+# driver = keystone.policy.backends.rules.Policy
 
 [ec2]
-driver = keystone.contrib.ec2.backends.kvs.Ec2
+# driver = keystone.contrib.ec2.backends.kvs.Ec2
+
+[ldap]
+# url = ldap://localhost
+# user = dc=Manager,dc=example,dc=com
+# password = freeipa4all
+# suffix = cn=example,cn=com
+# use_dumb_member = False
+
+# user_tree_dn = ou=Users,dc=example,dc=com
+# user_objectclass = inetOrgPerson
+# user_id_attribute = cn
+
+# tenant_tree_dn = ou=Groups,dc=example,dc=com
+# tenant_objectclass = groupOfNames
+# tenant_id_attribute = cn
+# tenant_member_attribute = member
+
+# role_tree_dn = ou=Roles,dc=example,dc=com
+# role_objectclass = organizationalRole
+# role_id_attribute = cn
+# role_member_attribute = roleOccupant
 
 [filter:debug]
 paste.filter_factory = keystone.common.wsgi:Debug.factory

@@ -17,6 +17,8 @@
 
 """Rules-based Policy Engine."""
 
+import os.path
+
 from keystone import config
 from keystone import exception
 from keystone import policy
@@ -59,7 +61,9 @@ def init():
     global _POLICY_PATH
     global _POLICY_CACHE
     if not _POLICY_PATH:
-        _POLICY_PATH = utils.find_config(CONF.policy_file)
+        _POLICY_PATH = CONF.policy_file
+        if not os.path.exists(_POLICY_PATH):
+            _POLICY_PATH = CONF.find_file(_POLICY_PATH)
     utils.read_cached_file(_POLICY_PATH,
                            _POLICY_CACHE,
                            reload_func=_set_brain)

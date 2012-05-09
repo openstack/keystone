@@ -64,28 +64,6 @@ def import_object(import_str, *args, **kw):
         return cls(*args, **kw)
 
 
-def find_config(config_path):
-    """Find a configuration file using the given hint.
-
-    :param config_path: Full or relative path to the config.
-    :returns: Full path of the config, if it exists.
-
-    """
-    possible_locations = [
-        config_path,
-        os.path.join('etc', 'keystone', config_path),
-        os.path.join('etc', config_path),
-        os.path.join(config_path),
-        '/etc/keystone/%s' % config_path,
-    ]
-
-    for path in possible_locations:
-        if os.path.exists(path):
-            return os.path.abspath(path)
-
-    raise Exception('Config not found: %s', os.path.abspath(config_path))
-
-
 def read_cached_file(filename, cache_info, reload_func=None):
     """Read from a file if it has been modified.
 

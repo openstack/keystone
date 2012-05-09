@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2011 Red Hat, Inc.
+# Copyright 2012 Red Hat, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -325,6 +325,52 @@ class ConfigFileValueError(Error):
     pass
 
 
+def _get_config_dirs(project=None):
+    """Return a list of directors where config files may be located.
+
+    :param project: an optional project name
+
+    If a project is specified, following directories are returned::
+
+      ~/.${project}/
+      ~/
+      /etc/${project}/
+      /etc/
+
+    Otherwise, these directories::
+
+      ~/
+      /etc/
+    """
+    fix_path = lambda p: os.path.abspath(os.path.expanduser(p))
+
+    cfg_dirs = [
+        fix_path(os.path.join('~', '.' + project)) if project else None,
+        fix_path('~'),
+        os.path.join('/etc', project) if project else None,
+        '/etc'
+        ]
+
+    return filter(bool, cfg_dirs)
+
+
+def _search_dirs(dirs, basename, extension=""):
+    """Search a list of directories for a given filename.
+
+    Iterator over the supplied directories, returning the first file
+    found with the supplied name and extension.
+
+    :param dirs: a list of directories
+    :param basename: the filename, e.g. 'glance-api'
+    :param extension: the file extension, e.g. '.conf'
+    :returns: the path to a matching file, or None
+    """
+    for d in dirs:
+        path = os.path.join(d, '%s%s' % (basename, extension))
+        if os.path.exists(path):
+            return path
+
+
 def find_config_files(project=None, prog=None, extension='.conf'):
     """Return a list of default configuration files.
 
@@ -353,26 +399,12 @@ def find_config_files(project=None, prog=None, extension='.conf'):
     if prog is None:
         prog = os.path.basename(sys.argv[0])
 
-    fix_path = lambda p: os.path.abspath(os.path.expanduser(p))
-
-    cfg_dirs = [
-        fix_path(os.path.join('~', '.' + project)) if project else None,
-        fix_path('~'),
-        os.path.join('/etc', project) if project else None,
-        '/etc'
-        ]
-    cfg_dirs = filter(bool, cfg_dirs)
-
-    def search_dirs(dirs, basename, extension):
-        for d in dirs:
-            path = os.path.join(d, '%s%s' % (basename, extension))
-            if os.path.exists(path):
-                return path
+    cfg_dirs = _get_config_dirs(project)
 
     config_files = []
     if project:
-        config_files.append(search_dirs(cfg_dirs, project, extension))
-    config_files.append(search_dirs(cfg_dirs, prog, extension))
+        config_files.append(_search_dirs(cfg_dirs, project, extension))
+    config_files.append(_search_dirs(cfg_dirs, prog, extension))
 
     return filter(bool, config_files)
 
@@ -1059,6 +1091,34 @@ class ConfigOpts(collections.Mapping):
 
         This it the default behaviour."""
         self._oparser.enable_interspersed_args()
+
+    def find_file(self, name):
+        """Locate a file located alongside the config files.
+
+        Search for a file with the supplied basename in the directories
+        which we have already loaded config files from and other known
+        configuration directories.
+
+        The directory, if any, supplied by the config_dir option is
+        searched first. Then the config_file option is iterated over
+        and each of the base directories of the config_files values
+        are searched. Failing both of these, the standard directories
+        searched by the module level find_config_files() function is
+        used. The first matching file is returned.
+
+        :param basename: the filename, e.g. 'policy.json'
+        :returns: the path to a matching file, or None
+        """
+        dirs = []
+        if self.config_dir:
+            dirs.append(self.config_dir)
+
+        for cf in reversed(self.config_file):
+            dirs.append(os.path.dirname(cf))
+
+        dirs.extend(_get_config_dirs(self.project))
+
+        return _search_dirs(dirs, name)
 
     def log_opt_values(self, logger, lvl):
         """Log the value of all registered opts.

@@ -140,41 +140,49 @@ CONF = CommonConfig(project='keystone')
 
 register_str('admin_token', default='ADMIN')
 register_str('bind_host', default='0.0.0.0')
-register_str('compute_port')
-register_str('admin_port')
-register_str('public_port')
+register_str('compute_port', default=8774)
+register_str('admin_port', default=35357)
+register_str('public_port', default=5000)
 
 
 # sql options
-register_str('connection', group='sql')
-register_int('idle_timeout', group='sql')
+register_str('connection', group='sql', default='sqlite:///keystone.db')
+register_int('idle_timeout', group='sql', default=200)
 
 
-register_str('driver', group='catalog')
-register_str('driver', group='identity')
-register_str('driver', group='policy')
-register_str('driver', group='token')
-register_str('driver', group='ec2')
+register_str('driver', group='catalog',
+             default='keystone.catalog.backends.sql.Catalog')
+register_str('driver', group='identity',
+             default='keystone.identity.backends.sql.Identity')
+register_str('driver', group='policy',
+             default='keystone.policy.backends.rules.Policy')
+register_str('driver', group='token',
+             default='keystone.token.backends.kvs.Token')
+register_str('driver', group='ec2',
+             default='keystone.contrib.ec2.backends.kvs.Ec2')
 
 
 #ldap
-register_str('url', group='ldap')
-register_str('user', group='ldap')
-register_str('password', group='ldap')
-register_str('suffix', group='ldap')
-register_bool('use_dumb_member', group='ldap')
+register_str('url', group='ldap', default='ldap://localhost')
+register_str('user', group='ldap', default='dc=Manager,dc=example,dc=com')
+register_str('password', group='ldap', default='freeipa4all')
+register_str('suffix', group='ldap', default='cn=example,cn=com')
+register_bool('use_dumb_member', group='ldap', default=False)
 
-register_str('user_tree_dn', group='ldap')
-register_str('user_objectclass', group='ldap')
-register_str('user_id_attribute', group='ldap')
+register_str('user_tree_dn', group='ldap',
+             default='ou=Users,dc=example,dc=com')
+register_str('user_objectclass', group='ldap', default='inetOrgPerson')
+register_str('user_id_attribute', group='ldap', default='cn')
 
-register_str('tenant_tree_dn', group='ldap')
-register_str('tenant_objectclass', group='ldap')
-register_str('tenant_id_attribute', group='ldap')
-register_str('tenant_member_attribute', group='ldap')
+register_str('tenant_tree_dn', group='ldap',
+             default='ou=Groups,dc=example,dc=com')
+register_str('tenant_objectclass', group='ldap', default='groupOfNames')
+register_str('tenant_id_attribute', group='ldap', default='cn')
+register_str('tenant_member_attribute', group='ldap', default='member')
 
 
-register_str('role_tree_dn', group='ldap')
-register_str('role_objectclass', group='ldap')
-register_str('role_id_attribute', group='ldap')
-register_str('role_member_attribute', group='ldap')
+register_str('role_tree_dn', group='ldap',
+             default='ou=Roles,dc=example,dc=com')
+register_str('role_objectclass', group='ldap', default='organizationalRole')
+register_str('role_id_attribute', group='ldap', default='cn')
+register_str('role_member_attribute', group='ldap', default='roleOccupant')
