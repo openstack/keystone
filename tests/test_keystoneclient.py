@@ -309,6 +309,23 @@ class KeystoneClientTests(object):
                           client.tokens.authenticate,
                           token=token_id)
 
+    def test_disable_user_invalidates_token(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        admin_client = self.get_client(admin=True)
+        foo_client = self.get_client(self.user_foo)
+
+        admin_client.users.update_enabled(user=self.user_foo['id'],
+                                          enabled=False)
+
+        self.assertRaises(client_exceptions.Unauthorized,
+                          foo_client.tokens.authenticate,
+                          token=foo_client.auth_token)
+
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self.get_client,
+                          self.user_foo)
+
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
@@ -332,7 +349,7 @@ class KeystoneClientTests(object):
         user = client.users.get(user.id)
         self.assertFalse(user.enabled)
 
-        self.assertRaises(client_exceptions.AuthorizationFailure,
+        self.assertRaises(client_exceptions.Unauthorized,
                   self._client,
                   username=test_username,
                   password='password')
@@ -871,7 +888,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         user = client.users.get(user.id)
         self.assertFalse(user.enabled)
 
-        self.assertRaises(client_exceptions.AuthorizationFailure,
+        self.assertRaises(client_exceptions.Unauthorized,
                   self._client,
                   username=test_username,
                   password='password')

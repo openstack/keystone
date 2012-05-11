@@ -408,6 +408,17 @@ class UserController(wsgi.Application):
             raise exception.UserNotFound(user_id=user_id)
 
         user_ref = self.identity_api.update_user(context, user_id, user)
+
+        # If the password was changed or the user was disabled we clear tokens
+        if user.get('password') or user.get('enabled', True) == False:
+            try:
+                for token_id in self.token_api.list_tokens(context, user_id):
+                    self.token_api.delete_token(context, token_id)
+            except exception.NotImplemented:
+                # The users status has been changed but tokens remain valid for
+                # backends that can't list tokens for users
+                LOG.warning('User %s status has changed, but existing tokens '
+                            'remain valid' % user_id)
         return {'user': user_ref}
 
     def delete_user(self, context, user_id):
@@ -421,16 +432,7 @@ class UserController(wsgi.Application):
         return self.update_user(context, user_id, user)
 
     def set_user_password(self, context, user_id, user):
-        user_ref = self.update_user(context, user_id, user)
-        try:
-            for token_id in self.token_api.list_tokens(context, user_id):
-                self.token_api.delete_token(context, token_id)
-        except exception.NotImplemented:
-            # The password has been changed but tokens remain valid for
-            # backends that can't list tokens for users
-            LOG.warning('Password changed for %s, but existing tokens remain '
-                        'valid' % user_id)
-        return user_ref
+        return self.update_user(context, user_id, user)
 
     def update_user_tenant(self, context, user_id, user):
         """Update the default tenant."""
