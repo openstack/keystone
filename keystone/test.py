@@ -146,29 +146,15 @@ class TestCase(unittest.TestCase):
                 if path in sys.path:
                     sys.path.remove(path)
             kvs.INMEMDB.clear()
-            self.reset_opts()
+            CONF.reset()
 
     def opt_in_group(self, group, **kw):
         for k, v in kw.iteritems():
             CONF.set_override(k, v, group)
-        if group not in self._group_overrides:
-            self._group_overrides[group] = []
-        self._group_overrides[group].append(k)
 
     def opt(self, **kw):
         for k, v in kw.iteritems():
             CONF.set_override(k, v)
-        self._overrides.append(k)
-
-    def reset_opts(self):
-        for group, opt_list in self._group_overrides.iteritems():
-            for k in opt_list:
-                CONF.set_override(k, None, group)
-        for k in self._overrides:
-            CONF.set_override(k, None)
-        self._overrides = []
-        self._group_overrides = {}
-        CONF.reset()
 
     def load_backends(self):
         """Hacky shortcut to load the backends for data manipulation."""
