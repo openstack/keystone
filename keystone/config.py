@@ -94,45 +94,38 @@ def setup_logging(conf):
 
 def register_str(*args, **kw):
     conf = kw.pop('conf', CONF)
-    group = _ensure_group(kw, conf)
+    group = kw.pop('group', None)
     return conf.register_opt(cfg.StrOpt(*args, **kw), group=group)
 
 
 def register_cli_str(*args, **kw):
     conf = kw.pop('conf', CONF)
-    group = _ensure_group(kw, conf)
+    group = kw.pop('group', None)
     return conf.register_cli_opt(cfg.StrOpt(*args, **kw), group=group)
 
 
 def register_bool(*args, **kw):
     conf = kw.pop('conf', CONF)
-    group = _ensure_group(kw, conf)
+    group = kw.pop('group', None)
     return conf.register_opt(cfg.BoolOpt(*args, **kw), group=group)
 
 
 def register_cli_bool(*args, **kw):
     conf = kw.pop('conf', CONF)
-    group = _ensure_group(kw, conf)
+    group = kw.pop('group', None)
     return conf.register_cli_opt(cfg.BoolOpt(*args, **kw), group=group)
 
 
 def register_int(*args, **kw):
     conf = kw.pop('conf', CONF)
-    group = _ensure_group(kw, conf)
+    group = kw.pop('group', None)
     return conf.register_opt(cfg.IntOpt(*args, **kw), group=group)
 
 
 def register_cli_int(*args, **kw):
     conf = kw.pop('conf', CONF)
-    group = _ensure_group(kw, conf)
-    return conf.register_cli_opt(cfg.IntOpt(*args, **kw), group=group)
-
-
-def _ensure_group(kw, conf):
     group = kw.pop('group', None)
-    if group:
-        conf.register_group(cfg.OptGroup(name=group))
-    return group
+    return conf.register_cli_opt(cfg.IntOpt(*args, **kw), group=group)
 
 
 CONF = CommonConfig(project='keystone')
