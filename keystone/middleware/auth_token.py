@@ -120,7 +120,8 @@ class AuthProtocol(object):
 
         # delay_auth_decision means we still allow unauthenticated requests
         # through and we let the downstream service make the final decision
-        self.delay_auth_decision = int(conf.get('delay_auth_decision', 0))
+        self.delay_auth_decision = (conf.get('delay_auth_decision', False)
+                                    in ('true', 't', '1', 'on', 'yes', 'y'))
 
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
