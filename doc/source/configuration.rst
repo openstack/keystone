@@ -56,6 +56,7 @@ values are organized into the following sections:
 * ``[DEFAULT]`` - general configuration
 * ``[sql]`` - optional storage backend configuration
 * ``[ec2]`` - Amazon EC2 authentication driver configuration
+* ``[s3]`` - Amazon S3 authentication driver configuration.
 * ``[identity]`` - identity system driver configuration
 * ``[catalog]`` - service catalog driver configuration
 * ``[token]`` - token driver configuration
