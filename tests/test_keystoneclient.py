@@ -235,6 +235,13 @@ class KeystoneClientTests(object):
         self.assertFalse([t for t in client.tenants.list()
                            if t.id == tenant.id])
 
+    def test_tenant_create_no_name(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.tenants.create,
+                          tenant_name="")
+
     def test_tenant_delete_404(self):
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
@@ -359,6 +366,15 @@ class KeystoneClientTests(object):
                                     tenant_id='bar')
         self.assertEquals(user2.name, test_username)
 
+    def test_user_create_no_name(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.users.create,
+                          name="",
+                          password=uuid.uuid4().hex,
+                          email=uuid.uuid4().hex)
+
     def test_user_create_404(self):
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
@@ -450,6 +466,13 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.get,
                           role=role.id)
+
+    def test_role_create_no_name(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.roles.create,
+                          name="")
 
     def test_role_get_404(self):
         from keystoneclient import exceptions as client_exceptions
