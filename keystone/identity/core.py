@@ -232,7 +232,7 @@ class AdminRouter(wsgi.ComposableRouter):
                        action='get_user_roles',
                        conditions=dict(method=['GET']))
         mapper.connect('/users/{user_id}/roles',
-                       controller=user_controller,
+                       controller=roles_controller,
                        action='get_user_roles',
                        conditions=dict(method=['GET']))
 
