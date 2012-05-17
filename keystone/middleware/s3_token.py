@@ -76,9 +76,10 @@ class S3Token(object):
         resp = webob.Response(content_type='text/xml')
         resp.status = error_table[code][0]
         resp.body = error_table[code][1]
-        resp.body = '<?xml version="1.0" encoding="UTF-8"?>\r\n<Error>\r\n  ' \
-            '<Code>%s</Code>\r\n  <Message>%s</Message>\r\n</Error>\r\n' \
-            % (code, error_table[code][1])
+        resp.body = ('<?xml version="1.0" encoding="UTF-8"?>\r\n'
+                     '<Error>\r\n  <Code>%s</Code>\r\n  '
+                     '<Message>%s</Message>\r\n</Error>\r\n' %
+                     (code, error_table[code][1]))
         return resp
 
     def _json_request(self, creds_json):
