@@ -22,7 +22,7 @@ httplib2
 -e git+https://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
 
 # for python-novaclient
-prettytable
+prettytable==0.5.0
 iso8601>=0.1.4
 
 # swift_auth test dependencies
