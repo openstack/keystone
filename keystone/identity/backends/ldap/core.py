@@ -19,6 +19,7 @@ import uuid
 import ldap
 from ldap import filter as ldap_filter
 
+from keystone import clean
 from keystone import config
 from keystone import exception
 from keystone import identity
@@ -166,12 +167,15 @@ class Identity(identity.Driver):
         return self.user.update(user_id, user)
 
     def create_tenant(self, tenant_id, tenant):
+        tenant['name'] = clean.tenant_name(tenant['name'])
         data = tenant.copy()
         if 'id' not in data or data['id'] is None:
             data['id'] = str(uuid.uuid4().hex)
         return self.tenant.create(tenant)
 
     def update_tenant(self, tenant_id, tenant):
+        if 'name' in tenant:
+            tenant['name'] = clean.tenant_name(tenant['name'])
         return self.tenant.update(tenant_id, tenant)
 
     def create_metadata(self, user_id, tenant_id, metadata):
