@@ -148,3 +148,17 @@ class XmlBodyMiddleware(wsgi.Middleware):
             except:
                 raise exception.Error(message=response.body)
         return response
+
+
+class NormalizingFilter(wsgi.Middleware):
+    """Middleware filter to handle URL normalization."""
+
+    def process_request(self, request):
+        """Normalizes URLs."""
+        # Removes a trailing slash from the given path, if any.
+        if len(request.environ['PATH_INFO']) > 1 and \
+               request.environ['PATH_INFO'][-1] == '/':
+            request.environ['PATH_INFO'] = request.environ['PATH_INFO'][:-1]
+        # Rewrites path to root if no path is given.
+        elif not request.environ['PATH_INFO']:
+            request.environ['PATH_INFO'] = '/'
