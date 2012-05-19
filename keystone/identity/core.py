@@ -295,6 +295,11 @@ class TenantController(wsgi.Application):
     # CRUD Extension
     def create_tenant(self, context, tenant):
         tenant_ref = self._normalize_dict(tenant)
+
+        if not 'name' in tenant_ref or not tenant_ref['name']:
+            msg = 'Name field is required and cannot be empty'
+            raise exception.ValidationError(message=msg)
+
         self.assert_admin(context)
         tenant_id = (tenant_ref.get('id')
                      and tenant_ref.get('id')
@@ -388,6 +393,11 @@ class UserController(wsgi.Application):
     def create_user(self, context, user):
         user = self._normalize_dict(user)
         self.assert_admin(context)
+
+        if not 'name' in user or not user['name']:
+            msg = 'Name field is required and cannot be empty'
+            raise exception.ValidationError(message=msg)
+
         tenant_id = user.get('tenantId', None)
         if (tenant_id is not None
                 and self.identity_api.get_tenant(context, tenant_id) is None):
@@ -482,6 +492,11 @@ class RoleController(wsgi.Application):
     def create_role(self, context, role):
         role = self._normalize_dict(role)
         self.assert_admin(context)
+
+        if not 'name' in role or not role['name']:
+            msg = 'Name field is required and cannot be empty'
+            raise exception.ValidationError(message=msg)
+
         role_id = uuid.uuid4().hex
         role['id'] = role_id
         role_ref = self.identity_api.create_role(context, role_id, role)
