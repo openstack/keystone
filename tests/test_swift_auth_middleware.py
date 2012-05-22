@@ -212,11 +212,15 @@ class TestAuthorize(unittest.TestCase):
         identity = self._get_identity(roles=[acl])
         self._check_authenticate(identity=identity, acl=acl)
 
-    def test_authorize_succeeds_for_tenant_user_in_roles(self):
+    def test_authorize_succeeds_for_tenant_name_user_in_roles(self):
         identity = self._get_identity()
         acl = '%s:%s' % (identity['tenant'][1], identity['user'])
         self._check_authenticate(identity=identity, acl=acl)
 
+    def test_authorize_succeeds_for_tenant_id_user_in_roles(self):
+        identity = self._get_identity()
+        acl = '%s:%s' % (identity['tenant'][0], identity['user'])
+        self._check_authenticate(identity=identity, acl=acl)
 
 if __name__ == '__main__':
     unittest.main()
