@@ -313,6 +313,19 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(len(self.middleware._cache.set_value), 2)
 
+    def test_nomemcache(self):
+        self.disable_module('memcache')
+
+        conf = {
+            'admin_token': 'admin_token1',
+            'auth_host': 'keystone.example.com',
+            'auth_port': 1234,
+            'memcache_servers': 'localhost:11211',
+        }
+
+        auth_token.AuthProtocol(FakeApp(), conf)
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()
