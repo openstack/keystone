@@ -28,7 +28,11 @@ CONF = config.CONF
 
 def create_server(conf, name, host, port):
     app = deploy.loadapp('config:%s' % conf, name=name)
-    return wsgi.Server(app, host=host, port=port)
+    server = wsgi.Server(app, host=host, port=port)
+    if CONF.ssl.enable:
+        server.set_ssl(CONF.ssl.certfile, CONF.ssl.keyfile,
+                       CONF.ssl.ca_certs, CONF.ssl.cert_required)
+    return server
 
 
 def serve(*servers):

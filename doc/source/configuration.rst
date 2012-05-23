@@ -60,6 +60,7 @@ values are organized into the following sections:
 * ``[catalog]`` - service catalog driver configuration
 * ``[token]`` - token driver configuration
 * ``[policy]`` - policy system driver configuration for RBAC
+* ``[ssl]`` - SSL configuration
 
 The Keystone configuration file is expected to be named ``keystone.conf``.
 When starting keystone, you can specify a different configuration file to
@@ -148,6 +149,58 @@ choosing the output levels and formats.
 
 .. _Paste: http://pythonpaste.org/
 .. _`python logging module`: http://docs.python.org/library/logging.html
+
+SSL
+---
+
+Keystone may be configured to support 2-way SSL out-of-the-box.  The x509
+certificates used by Keystone must be obtained externally and configured for use
+with Keystone as described in this section.  However, a set of sample certficates
+is provided in the examples/ssl directory with the Keystone distribution for testing.
+Here is the description of each of them and their purpose:
+
+Types of certificates
+^^^^^^^^^^^^^^^^^^^^^
+
+ca.pem
+    Certificate Authority chain to validate against.
+
+keystone.pem
+    Public certificate for Keystone server.
+
+middleware.pem
+    Public and private certificate for Keystone middleware/client.
+
+cakey.pem
+    Private key for the CA.
+
+keystonekey.pem
+    Private key for the Keystone server.
+
+Note that you may choose whatever names you want for these certificates, or combine
+the public/private keys in the same file if you wish.  These certificates are just
+provided as an example.
+
+Configuration
+^^^^^^^^^^^^^
+
+To enable SSL with client authentication, modify the etc/keystone.conf file accordingly
+under the [ssl] section.  SSL configuration example using the included sample
+certificates::
+
+    [ssl]
+    enable = True
+    certfile = <path to keystone.pem>
+    keyfile = <path to keystonekey.pem>
+    ca_certs = <path to ca.pem>
+    cert_required = True
+
+* ``enable``:  True enables SSL.  Defaults to False.
+* ``certfile``:  Path to Keystone public certificate file.
+* ``keyfile``:  Path to Keystone private certificate file.  If the private key is included in the certfile, the keyfile maybe omitted.
+* ``ca_certs``:  Path to CA trust chain.
+* ``cert_required``:  Requires client certificate.  Defaults to False.
+
 
 Sample Configuration Files
 --------------------------

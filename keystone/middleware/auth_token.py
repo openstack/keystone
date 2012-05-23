@@ -125,16 +125,20 @@ class AuthProtocol(object):
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port', 35357))
-        auth_protocol = conf.get('auth_protocol', 'https')
-        if auth_protocol == 'http':
+        self.auth_protocol = conf.get('auth_protocol', 'https')
+        if self.auth_protocol == 'http':
             self.http_client_class = httplib.HTTPConnection
         else:
             self.http_client_class = httplib.HTTPSConnection
 
-        default_auth_uri = '%s://%s:%s' % (auth_protocol,
+        default_auth_uri = '%s://%s:%s' % (self.auth_protocol,
                                            self.auth_host,
                                            self.auth_port)
         self.auth_uri = conf.get('auth_uri', default_auth_uri)
+
+        # SSL
+        self.cert_file = conf.get('certfile')
+        self.key_file = conf.get('keyfile')
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
@@ -252,7 +256,11 @@ class AuthProtocol(object):
         return self.admin_token
 
     def _get_http_connection(self):
-        return self.http_client_class(self.auth_host, self.auth_port)
+        if self.auth_protocol == 'http':
+            return self.http_client_class(self.auth_host, self.auth_port)
+        else:
+            return self.http_client_class(self.auth_host, self.auth_port,
+                self.key_file, self.cert_file)
 
     def _json_request(self, method, path, body=None, additional_headers=None):
         """HTTP request helper used to make json requests.

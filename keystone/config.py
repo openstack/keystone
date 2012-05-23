@@ -145,6 +145,12 @@ register_str('admin_port', default=35357)
 register_str('public_port', default=5000)
 register_str('onready')
 
+#ssl options
+register_bool('enable', group='ssl', default=False)
+register_str('certfile', group='ssl', default=None)
+register_str('keyfile', group='ssl', default=None)
+register_str('ca_certs', group='ssl', default=None)
+register_bool('cert_required', group='ssl', default=False)
 
 # sql options
 register_str('connection', group='sql', default='sqlite:///keystone.db')

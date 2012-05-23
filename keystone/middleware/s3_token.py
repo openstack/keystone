@@ -60,11 +60,14 @@ class S3Token(object):
         # where to find the auth service (we use this to validate tokens)
         self.auth_host = conf.get('auth_host')
         self.auth_port = int(conf.get('auth_port', 35357))
-        auth_protocol = conf.get('auth_protocol', 'https')
-        if auth_protocol == 'http':
+        self.auth_protocol = conf.get('auth_protocol', 'https')
+        if self.auth_protocol == 'http':
             self.http_client_class = httplib.HTTPConnection
         else:
             self.http_client_class = httplib.HTTPSConnection
+        # SSL
+        self.cert_file = conf.get('certfile')
+        self.key_file = conf.get('keyfile')
 
     def deny_request(self, code):
         error_table = {
@@ -86,7 +89,11 @@ class S3Token(object):
         headers = {'Content-Type': 'application/json'}
 
         try:
-            conn = self.http_client_class(self.auth_host, self.auth_port)
+            if self.auth_protocol == 'http':
+                conn = self.http_client_class(self.auth_host, self.auth_port)
+            else:
+                conn = self.http_client_class(self.auth_host, self.auth_port,
+                    self.key_file, self.cert_file)
             conn.request('POST', '/v2.0/s3tokens',
                          body=creds_json,
                          headers=headers)
