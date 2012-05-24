@@ -178,4 +178,4 @@ class EndpointController(wsgi.Application):
 
     def delete_endpoint(self, context, endpoint_id):
         self.assert_admin(context)
-        endpoint_ref = self.catalog_api.delete_endpoint(context, endpoint_id)
+        self.catalog_api.delete_endpoint(context, endpoint_id)

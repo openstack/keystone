@@ -14,8 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import nose.exc
-
 from keystone import config
 from keystone import test
 from keystone.common.ldap import fakeldap

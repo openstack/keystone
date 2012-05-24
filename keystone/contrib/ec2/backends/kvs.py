@@ -37,7 +37,8 @@ class Ec2(kvs.Base):
         return credential
 
     def delete_credential(self, credential_id):
-        old_credential = self.db.get('credential-%s' % credential_id)
+        # This will ensure credential-%s is here before deleting
+        self.db.get('credential-%s' % credential_id)
         self.db.delete('credential-%s' % credential_id)
         credential_list = set(self.db.get('credential_list', []))
         credential_list.remove(credential_id)

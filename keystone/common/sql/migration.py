@@ -20,7 +20,6 @@
 import os
 import sys
 
-import sqlalchemy
 from migrate.versioning import api as versioning_api
 
 from keystone import config

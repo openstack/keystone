@@ -581,7 +581,8 @@ class RoleController(wsgi.Application):
 
         """
         self.assert_admin(context)
-        user_ref = self.identity_api.get_user(context, user_id)
+        # Ensure user exists by getting it first.
+        self.identity_api.get_user(context, user_id)
         tenant_ids = self.identity_api.get_tenants_for_user(context, user_id)
         o = []
         for tenant_id in tenant_ids:

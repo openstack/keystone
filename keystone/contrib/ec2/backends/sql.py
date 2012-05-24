@@ -15,7 +15,6 @@
 # under the License.
 
 from keystone.common import sql
-from keystone.common.sql import migration
 
 
 class Ec2Credential(sql.ModelBase, sql.DictBase):

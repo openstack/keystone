@@ -56,9 +56,7 @@ To run a single test module:
 
 """
 
-import gettext
 import heapq
-import logging
 import os
 import unittest
 import sys

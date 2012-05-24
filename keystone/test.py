@@ -80,7 +80,7 @@ def checkout_vendor(repo, rev):
         # write out a modified time
         with open(modcheck, 'w') as fd:
             fd.write('1')
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         LOG.warning('Failed to checkout %s', repo)
     cd(working_dir)
     return revdir

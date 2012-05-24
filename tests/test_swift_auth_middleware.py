@@ -26,6 +26,7 @@ from keystone.middleware import swift_auth
 
 def setUpModule(self):
     self.stubs = stubout.StubOutForTesting()
+
     # Stub out swift_utils.get_logger.  get_logger tries to configure
     # syslogging to '/dev/log', which will fail on OS X.
     def fake_get_logger(config, log_route=None):
@@ -156,7 +157,7 @@ class TestAuthorize(unittest.TestCase):
                                  exception=webob.exc.HTTPForbidden)
 
     def test_authorize_succeeds_for_reseller_admin(self):
-        roles =[self.test_auth.reseller_admin_role]
+        roles = [self.test_auth.reseller_admin_role]
         identity = self._get_identity(roles=roles)
         req = self._check_authenticate(identity=identity)
         self.assertTrue(req.environ.get('swift_owner'))

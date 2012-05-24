@@ -15,9 +15,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy.exc
-import webob.exc
-
 from keystone import catalog
 from keystone import config
 from keystone import exception

@@ -19,7 +19,6 @@
 
 import json
 
-import eventlet.db_pool
 import sqlalchemy as sql
 from sqlalchemy import types as sql_types
 from sqlalchemy.exc import DisconnectionError

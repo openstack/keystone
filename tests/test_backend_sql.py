@@ -114,7 +114,8 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                                           self.tenant_bar['id'],
                                           {'extra': 'extra'})
         self.identity_api.delete_user(user['id'])
-        metadata = self.identity_api.get_metadata(user['id'], self.tenant_bar['id'])
+        metadata = self.identity_api.get_metadata(user['id'],
+                                                  self.tenant_bar['id'])
         self.assertEquals(metadata, {})
 
     def test_delete_tenant_with_metadata(self):
@@ -126,8 +127,10 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                                           self.tenant_bar['id'],
                                           {'extra': 'extra'})
         self.identity_api.delete_tenant(self.tenant_bar['id'])
-        metadata = self.identity_api.get_metadata(user['id'], self.tenant_bar['id'])
+        metadata = self.identity_api.get_metadata(user['id'],
+                                                  self.tenant_bar['id'])
         self.assertEquals(metadata, {})
+
 
 class SqlToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):

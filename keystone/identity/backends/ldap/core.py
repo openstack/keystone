@@ -100,7 +100,7 @@ class Identity(identity.Driver):
         else:
             metadata_ref = {}
 
-        return  (_filter_user(user_ref), tenant_ref, metadata_ref)
+        return (_filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         return self.tenant.get(tenant_id)

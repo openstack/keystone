@@ -30,25 +30,25 @@ class SetupTest(unittest.TestCase):
     def test_str_dict_replace(self):
         string = 'Johnnie T. Hozer'
         mapping = {'T.': 'The'}
-        self.assertEqual('Johnnie The Hozer', 
+        self.assertEqual('Johnnie The Hozer',
                          canonicalize_emails(string, mapping))
 
     def test_mailmap_with_fullname(self):
         with open(self.mailmap, 'w') as mm_fh:
             mm_fh.write("Foo Bar <email@foo.com> Foo Bar <email@bar.com>\n")
-        self.assertEqual({'<email@bar.com>' : '<email@foo.com>'},
+        self.assertEqual({'<email@bar.com>': '<email@foo.com>'},
                         parse_mailmap(self.mailmap))
 
     def test_mailmap_with_firstname(self):
         with open(self.mailmap, 'w') as mm_fh:
             mm_fh.write("Foo <email@foo.com> Foo <email@bar.com>\n")
-        self.assertEqual({'<email@bar.com>' : '<email@foo.com>'},
+        self.assertEqual({'<email@bar.com>': '<email@foo.com>'},
                         parse_mailmap(self.mailmap))
 
     def test_mailmap_with_noname(self):
         with open(self.mailmap, 'w') as mm_fh:
             mm_fh.write("<email@foo.com> <email@bar.com>\n")
-        self.assertEqual({'<email@bar.com>' : '<email@foo.com>'},
+        self.assertEqual({'<email@bar.com>': '<email@foo.com>'},
                         parse_mailmap(self.mailmap))
 
     def tearDown(self):

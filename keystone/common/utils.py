@@ -198,7 +198,6 @@ def ldap_check_password(password, hashed):
     if password is None:
         return False
     password_utf8 = trunc_password(password).encode('utf-8')
-    h = passlib.hash.ldap_salted_sha1.encrypt(password_utf8)
     return passlib.hash.ldap_salted_sha1.verify(password_utf8, hashed)
 
 

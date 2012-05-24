@@ -444,7 +444,7 @@ class AuthProtocol(object):
         :return wsgi env variable name (ex. 'HTTP_X_AUTH_TOKEN')
 
         """
-        return  'HTTP_%s' % key.replace('-', '_').upper()
+        return 'HTTP_%s' % key.replace('-', '_').upper()
 
     def _add_headers(self, env, headers):
         """Add http headers to environment."""
