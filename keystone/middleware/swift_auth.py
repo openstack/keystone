@@ -207,9 +207,11 @@ class SwiftAuth(object):
             return self.denied_response(req)
 
         # Allow ACL at individual user level (tenant:user format)
-        if '%s:%s' % (tenant_name, user) in roles:
-            log_msg = 'user %s:%s allowed in ACL authorizing'
-            self.logger.debug(log_msg % (tenant_name, user))
+        # For backward compatibility, check for ACL in tenant_id:user format
+        if ('%s:%s' % (tenant_name, user) in roles
+             or '%s:%s' % (tenant_id, user) in roles):
+            log_msg = 'user %s:%s or %s:%s allowed in ACL authorizing'
+            self.logger.debug(log_msg % (tenant_name, user, tenant_id, user))
             return
 
         # Check if we have the role in the userroles and allow it
