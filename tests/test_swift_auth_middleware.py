@@ -109,6 +109,28 @@ class SwiftAuth(unittest.TestCase):
         account = tenant_id = 'foo'
         self.assertTrue(test_auth._reseller_check(account, tenant_id))
 
+    def test_override_asked_for_but_not_allowed(self):
+        conf = {'allow_overrides': 'false'}
+        self.test_auth = swift_auth.filter_factory(conf)(FakeApp())
+        req = self._make_request('/v1/AUTH_account',
+                                 environ={'swift.authorize_override': True})
+        resp = req.get_response(self.test_auth)
+        self.assertEquals(resp.status_int, 401)
+
+    def test_override_asked_for_and_allowed(self):
+        conf = {'allow_overrides': 'true'}
+        self.test_auth = swift_auth.filter_factory(conf)(FakeApp())
+        req = self._make_request('/v1/AUTH_account',
+                                 environ={'swift.authorize_override': True})
+        resp = req.get_response(self.test_auth)
+        self.assertEquals(resp.status_int, 404)
+
+    def test_override_default_allowed(self):
+        req = self._make_request('/v1/AUTH_account',
+                                 environ={'swift.authorize_override': True})
+        resp = req.get_response(self.test_auth)
+        self.assertEquals(resp.status_int, 404)
+
 
 class TestAuthorize(unittest.TestCase):
     def setUp(self):

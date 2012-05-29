@@ -46,10 +46,10 @@ class SwiftAuth(object):
     Make sure you have the authtoken middleware before the swiftauth
     middleware.  authtoken will take care of validating the user and
     swiftauth will authorize access.  If support is required for
-    unvalidated users (as with anonymous access), authtoken will need
-    to be configured with delay_auth_decision set to true.  See the
-    documentation for more detail on how to configure the authtoken
-    middleware.
+    unvalidated users (as with anonymous access) or for
+    tempurl/formpost middleware, authtoken will need to be configured with
+    delay_auth_decision set to 1.  See the documentation for more
+    detail on how to configure the authtoken middleware.
 
     Set account auto creation to true::
 
@@ -99,13 +99,24 @@ class SwiftAuth(object):
         self.reseller_admin_role = conf.get('reseller_admin_role',
                                             'ResellerAdmin')
         config_is_admin = conf.get('is_admin', "false").lower()
-        self.is_admin = config_is_admin in ('true', 't', '1', 'on', 'yes', 'y')
+        self.is_admin = config_is_admin in swift_utils.TRUE_VALUES
         cfg_synchosts = conf.get('allowed_sync_hosts', '127.0.0.1')
         self.allowed_sync_hosts = [h.strip() for h in cfg_synchosts.split(',')
                                    if h.strip()]
+        config_overrides = conf.get('allow_overrides', 't').lower()
+        self.allow_overrides = config_overrides in swift_utils.TRUE_VALUES
 
     def __call__(self, environ, start_response):
         identity = self._keystone_identity(environ)
+
+        # Check if one of the middleware like tempurl or formpost have
+        # set the swift.authorize_override environ and want to control the
+        # authentication
+        if (self.allow_overrides and
+            environ.get('swift.authorize_override', False)):
+            msg = 'Authorizing from an overriding middleware (i.e: tempurl)'
+            self.logger.debug(msg)
+            return self.app(environ, start_response)
 
         if identity:
             self.logger.debug('Using identity: %r' % (identity))
