@@ -41,7 +41,7 @@ class SwiftAuth(object):
     In Swift's proxy-server.conf add this middleware to your pipeline::
 
         [pipeline:main]
-        pipeline = catch_errors cache authtoken swiftauth proxy-server
+        pipeline = catch_errors cache authtoken keystone proxy-server
 
     Make sure you have the authtoken middleware before the swiftauth
     middleware.  authtoken will take care of validating the user and
@@ -58,10 +58,9 @@ class SwiftAuth(object):
 
     And add a swift authorization filter section, such as::
 
-        [filter:swiftauth]
-        use = egg:keystone#swiftauth
+        [filter:keystone]
+        paste.filter_factory = keystone.middleware.auth_token:filter_factory
         operator_roles = admin, swiftoperator
-        is_admin = false
 
     This maps tenants to account in Swift.
 
