@@ -120,16 +120,16 @@ NETADMIN_ROLE=$(get_id keystone role-create --name=netadmin)
 
 
 # Add Roles to Users in Tenants
-keystone user-role-add --user $ADMIN_USER --role $ADMIN_ROLE --tenant_id $ADMIN_TENANT
-keystone user-role-add --user $DEMO_USER --role $MEMBER_ROLE --tenant_id $DEMO_TENANT
-keystone user-role-add --user $DEMO_USER --role $SYSADMIN_ROLE --tenant_id $DEMO_TENANT
-keystone user-role-add --user $DEMO_USER --role $NETADMIN_ROLE --tenant_id $DEMO_TENANT
-keystone user-role-add --user $DEMO_USER --role $MEMBER_ROLE --tenant_id $INVIS_TENANT
-keystone user-role-add --user $ADMIN_USER --role $ADMIN_ROLE --tenant_id $DEMO_TENANT
+keystone user-role-add --user_id $ADMIN_USER --role_id $ADMIN_ROLE --tenant_id $ADMIN_TENANT
+keystone user-role-add --user_id $DEMO_USER --role_id $MEMBER_ROLE --tenant_id $DEMO_TENANT
+keystone user-role-add --user_id $DEMO_USER --role_id $SYSADMIN_ROLE --tenant_id $DEMO_TENANT
+keystone user-role-add --user_id $DEMO_USER --role_id $NETADMIN_ROLE --tenant_id $DEMO_TENANT
+keystone user-role-add --user_id $DEMO_USER --role_id $MEMBER_ROLE --tenant_id $INVIS_TENANT
+keystone user-role-add --user_id $ADMIN_USER --role_id $ADMIN_ROLE --tenant_id $DEMO_TENANT
 
 # TODO(termie): these two might be dubious
-keystone user-role-add --user $ADMIN_USER --role $KEYSTONEADMIN_ROLE --tenant_id $ADMIN_TENANT
-keystone user-role-add --user $ADMIN_USER --role $KEYSTONESERVICE_ROLE --tenant_id $ADMIN_TENANT
+keystone user-role-add --user_id $ADMIN_USER --role_id $KEYSTONEADMIN_ROLE --tenant_id $ADMIN_TENANT
+keystone user-role-add --user_id $ADMIN_USER --role_id $KEYSTONESERVICE_ROLE --tenant_id $ADMIN_TENANT
 
 
 # Services
@@ -142,8 +142,8 @@ NOVA_USER=$(get_id keystone user-create --name=nova \
                                         --tenant_id $SERVICE_TENANT \
                                         --email=nova@example.com)
 keystone user-role-add --tenant_id $SERVICE_TENANT \
-                       --user $NOVA_USER \
-                       --role $ADMIN_ROLE
+                       --user_id $NOVA_USER \
+                       --role_id $ADMIN_ROLE
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service_id $NOVA_SERVICE \
         --publicurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s' \
@@ -171,8 +171,8 @@ GLANCE_USER=$(get_id keystone user-create --name=glance \
                                           --tenant_id $SERVICE_TENANT \
                                           --email=glance@example.com)
 keystone user-role-add --tenant_id $SERVICE_TENANT \
-                       --user $GLANCE_USER \
-                       --role $ADMIN_ROLE
+                       --user_id $GLANCE_USER \
+                       --role_id $ADMIN_ROLE
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service_id $GLANCE_SERVICE \
         --publicurl http://localhost:9292/v1 \
@@ -215,8 +215,8 @@ if [[ -n "$ENABLE_SWIFT" ]]; then
                                              --tenant_id $SERVICE_TENANT \
                                              --email=swift@example.com)
     keystone user-role-add --tenant_id $SERVICE_TENANT \
-                           --user $SWIFT_USER \
-                           --role $ADMIN_ROLE
+                           --user_id $SWIFT_USER \
+                           --role_id $ADMIN_ROLE
 fi
 
 if [[ -n "$ENABLE_QUANTUM" ]]; then
@@ -228,17 +228,17 @@ if [[ -n "$ENABLE_QUANTUM" ]]; then
                                                --tenant_id $SERVICE_TENANT \
                                                --email=quantum@example.com)
     keystone user-role-add --tenant_id $SERVICE_TENANT \
-                           --user $QUANTUM_USER \
-                           --role $ADMIN_ROLE
+                           --user_id $QUANTUM_USER \
+                           --role_id $ADMIN_ROLE
 fi
 
 
 # create ec2 creds and parse the secret and access key returned
-RESULT=$(keystone ec2-credentials-create --tenant_id=$ADMIN_TENANT --user=$ADMIN_USER)
+RESULT=$(keystone ec2-credentials-create --tenant_id=$ADMIN_TENANT --user_id=$ADMIN_USER)
 ADMIN_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
 ADMIN_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
 
-RESULT=$(keystone ec2-credentials-create --tenant_id=$DEMO_TENANT --user=$DEMO_USER)
+RESULT=$(keystone ec2-credentials-create --tenant_id=$DEMO_TENANT --user_id=$DEMO_USER)
 DEMO_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
 DEMO_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
 
