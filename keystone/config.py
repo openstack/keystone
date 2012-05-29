@@ -25,24 +25,7 @@ from keystone.openstack.common import cfg
 gettext.install('keystone', unicode=1)
 
 
-class ConfigMixin(object):
-    def __call__(self, config_files=None, *args, **kw):
-        if config_files is not None:
-            self._opts['config_file']['opt'].default = config_files
-        kw.setdefault('args', [])
-        return super(ConfigMixin, self).__call__(*args, **kw)
-
-    def set_usage(self, usage):
-        self.usage = usage
-        self._oparser.usage = usage
-
-
-class Config(ConfigMixin, cfg.ConfigOpts):
-    pass
-
-
-class CommonConfig(ConfigMixin, cfg.CommonConfigOpts):
-    pass
+CONF = cfg.CONF
 
 
 def setup_logging(conf):
@@ -126,9 +109,6 @@ def register_cli_int(*args, **kw):
     conf = kw.pop('conf', CONF)
     group = kw.pop('group', None)
     return conf.register_cli_opt(cfg.IntOpt(*args, **kw), group=group)
-
-
-CONF = CommonConfig(project='keystone')
 
 
 register_str('admin_token', default='ADMIN')

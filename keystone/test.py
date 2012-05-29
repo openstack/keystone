@@ -165,13 +165,13 @@ class TestCase(NoModule, unittest.TestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
-        self.config()
+        self.config([etcdir('keystone.conf.sample'),
+                     testsdir('test_overrides.conf')])
         self.mox = mox.Mox()
         self.stubs = stubout.StubOutForTesting()
 
-    def config(self):
-        CONF(config_files=[etcdir('keystone.conf.sample'),
-                           testsdir('test_overrides.conf')])
+    def config(self, config_files):
+        CONF(args=[], project='keystone', default_config_files=config_files)
 
     def tearDown(self):
         try:
