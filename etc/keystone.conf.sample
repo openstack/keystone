@@ -81,6 +81,14 @@
 [ec2]
 # driver = keystone.contrib.ec2.backends.kvs.Ec2
 
+[ssl]
+#enable = True
+#certfile = /etc/keystone/ssl/certs/keystone.pem
+#keyfile = /etc/keystone/ssl/private/keystonekey.pem
+#ca_certs = /etc/keystone/ssl/certs/ca.pem
+#cert_required = True
+
+
 [ldap]
 # url = ldap://localhost
 # user = dc=Manager,dc=example,dc=com

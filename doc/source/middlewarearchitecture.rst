@@ -133,6 +133,9 @@ a WSGI component. Example for the auth_token middleware::
     admin_tenant_name = service
     ;Uncomment next line and check ip:port to use memcached to cache tokens
     ;memcache_servers = 127.0.0.1:11211
+    ;Uncomment next 2 lines if Keystone server is validating client cert
+    certfile = <path to middleware public cert>
+    keyfile = <path to middleware private cert>
 
 Configuration Options
 ---------------------
@@ -153,6 +156,9 @@ Configuration Options
 * ``auth_port``: (optional, default `35357`) the port used to validate tokens
 * ``auth_protocol``: (optional, default `https`)
 * ``auth_uri``: (optional, defaults to `auth_protocol`://`auth_host`:`auth_port`)
+* ``certfile``: (required, if Keystone server requires client cert)
+* ``keyfile``: (required, if Keystone server requires client cert)  This can be
+  the same as the certfile if the certfile includes the private key.
 
 Caching for improved response
 -----------------------------

@@ -23,12 +23,10 @@
 import json
 import sys
 
-import eventlet
 import eventlet.wsgi
 eventlet.patcher.monkey_patch(all=False, socket=True, time=True)
-import routes
 import routes.middleware
-import webob
+import ssl
 import webob.dec
 import webob.exc
 
@@ -61,6 +59,8 @@ class Server(object):
         self.pool = eventlet.GreenPool(threads)
         self.socket_info = {}
         self.greenthread = None
+        self.do_ssl = False
+        self.cert_required = False
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
@@ -69,9 +69,30 @@ class Server(object):
                        'host': self.host,
                        'port': self.port})
         socket = eventlet.listen((self.host, self.port), backlog=backlog)
-        self.greenthread = self.pool.spawn(self._run, self.application, socket)
         if key:
             self.socket_info[key] = socket.getsockname()
+        # SSL is enabled
+        if self.do_ssl:
+            if self.cert_required:
+                cert_reqs = ssl.CERT_REQUIRED
+            else:
+                cert_reqs = ssl.CERT_NONE
+            sslsocket = eventlet.wrap_ssl(socket, certfile=self.certfile,
+                                          keyfile=self.keyfile,
+                                          server_side=True,
+                                          cert_reqs=cert_reqs,
+                                          ca_certs=self.ca_certs)
+            socket = sslsocket
+
+        self.greenthread = self.pool.spawn(self._run, self.application, socket)
+
+    def set_ssl(self, certfile, keyfile=None, ca_certs=None,
+              cert_required=True):
+        self.certfile = certfile
+        self.keyfile = keyfile
+        self.ca_certs = ca_certs
+        self.cert_required = cert_required
+        self.do_ssl = True
 
     def kill(self):
         if self.greenthread:
