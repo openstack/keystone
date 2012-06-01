@@ -420,7 +420,7 @@ class UserController(wsgi.Application):
         user_ref = self.identity_api.update_user(context, user_id, user)
 
         # If the password was changed or the user was disabled we clear tokens
-        if user.get('password') or user.get('enabled', True) == False:
+        if user.get('password') or not user.get('enabled', True):
             try:
                 for token_id in self.token_api.list_tokens(context, user_id):
                     self.token_api.delete_token(context, token_id)

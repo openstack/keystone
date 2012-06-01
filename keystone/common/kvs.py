@@ -17,7 +17,7 @@
 
 class DictKvs(dict):
     def set(self, key, value):
-        if type(value) is type({}):
+        if isinstance(value, dict):
             self[key] = value.copy()
         else:
             self[key] = value[:]
@@ -33,6 +33,6 @@ class Base(object):
     def __init__(self, db=None):
         if db is None:
             db = INMEMDB
-        elif type(db) is type({}):
+        elif isinstance(db, dict):
             db = DictKvs(db)
         self.db = db

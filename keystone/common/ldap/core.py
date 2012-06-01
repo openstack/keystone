@@ -79,7 +79,7 @@ class BaseLdap(object):
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
-            if (self.suffix == None):
+            if self.suffix is None:
                 self.suffix = self.DEFAULT_SUFFIX
             dn = '%s_tree_dn' % self.options_name
             self.tree_dn = (getattr(conf.ldap, dn)
