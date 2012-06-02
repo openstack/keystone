@@ -15,41 +15,13 @@
 # under the License.
 
 from setuptools import find_packages
-from setuptools.command.sdist import sdist
 from setuptools import setup
 import subprocess
 
-from keystone.openstack.common.setup import generate_authors
+from keystone.openstack.common.setup import get_cmdclass
 from keystone.openstack.common.setup import parse_requirements
 from keystone.openstack.common.setup import parse_dependency_links
 from keystone.openstack.common.setup import write_requirements
-from keystone.openstack.common.setup import write_git_changelog
-
-
-class local_sdist(sdist):
-    """Customized sdist hook - builds the ChangeLog file from VC first"""
-    def run(self):
-        write_git_changelog()
-        generate_authors()
-        sdist.run(self)
-cmdclass = {'sdist': local_sdist}
-
-
-try:
-    from sphinx.setup_command import BuildDoc
-
-    class local_BuildDoc(BuildDoc):
-        def run(self):
-            subprocess.call('sphinx-apidoc -f -o doc/source keystone',
-                            shell=True)
-            for builder in ['html', 'man']:
-                self.builder = builder
-                self.finalize_options()
-                BuildDoc.run(self)
-    cmdclass['build_sphinx'] = local_BuildDoc
-
-except:
-    pass
 
 
 requires = parse_requirements()
@@ -64,7 +36,7 @@ setup(name='keystone',
       author='OpenStack, LLC.',
       author_email='openstack@lists.launchpad.net',
       url='http://www.openstack.org',
-      cmdclass=cmdclass,
+      cmdclass=get_cmdclass(),
       packages=find_packages(exclude=['test', 'bin']),
       include_package_data=True,
       scripts=['bin/keystone-all', 'bin/keystone-manage'],

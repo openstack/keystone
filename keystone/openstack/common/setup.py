@@ -23,6 +23,8 @@ import os
 import re
 import subprocess
 
+from setuptools.command import sdist
+
 
 def parse_mailmap(mailmap='.mailmap'):
     mapping = {}
@@ -48,6 +50,7 @@ def canonicalize_emails(changelog, mapping):
 
 # Get requirements from the first file that exists
 def get_reqs_from_files(requirements_files):
+    reqs_in = []
     for requirements_file in requirements_files:
         if os.path.exists(requirements_file):
             return open(requirements_file, 'r').read().split('\n')
@@ -143,3 +146,38 @@ def generate_authors():
             if os.path.exists(old_authors):
                 with open(old_authors, "r") as old_authors_fh:
                     new_authors_fh.write('\n' + old_authors_fh.read())
+
+
+def get_cmdclass():
+    """Return dict of commands to run from setup.py."""
+
+    cmdclass = dict()
+
+    class LocalSDist(sdist.sdist):
+        """Builds the ChangeLog and Authors files from VC first."""
+
+        def run(self):
+            write_git_changelog()
+            generate_authors()
+            # sdist.sdist is an old style class, can't use super()
+            sdist.sdist.run(self)
+
+    cmdclass['sdist'] = LocalSDist
+
+    # If Sphinx is installed on the box running setup.py,
+    # enable setup.py to build the documentation, otherwise,
+    # just ignore it
+    try:
+        from sphinx.setup_command import BuildDoc
+
+        class LocalBuildDoc(BuildDoc):
+            def run(self):
+                for builder in ['html', 'man']:
+                    self.builder = builder
+                    self.finalize_options()
+                    BuildDoc.run(self)
+        cmdclass['build_sphinx'] = LocalBuildDoc
+    except ImportError:
+        pass
+
+    return cmdclass
