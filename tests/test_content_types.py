@@ -16,6 +16,7 @@
 
 import httplib
 import json
+import uuid
 
 from lxml import etree
 import nose.exc
@@ -553,6 +554,38 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
 
     def assertValidVersionResponse(self, r):
         self.assertValidVersion(r.body.get('version'))
+
+    def test_service_crud_requires_auth(self):
+        """Service CRUD should 401 without an X-Auth-Token (bug 1006822)."""
+        # values here don't matter because we should 401 before they're checked
+        service_path = '/v2.0/OS-KSADM/services/%s' % uuid.uuid4().hex
+        service_body = {
+                'OS-KSADM:service': {
+                    'name': uuid.uuid4().hex,
+                    'type': uuid.uuid4().hex,
+                    },
+                }
+
+        r = self.admin_request(method='GET',
+                               path='/v2.0/OS-KSADM/services',
+                               expected_status=401)
+        self.assertValidErrorResponse(r)
+
+        r = self.admin_request(method='POST',
+                               path='/v2.0/OS-KSADM/services',
+                               body=service_body,
+                               expected_status=401)
+        self.assertValidErrorResponse(r)
+
+        r = self.admin_request(method='GET',
+                               path=service_path,
+                               expected_status=401)
+        self.assertValidErrorResponse(r)
+
+        r = self.admin_request(method='DELETE',
+                               path=service_path,
+                               expected_status=401)
+        self.assertValidErrorResponse(r)
 
 
 class XmlTestCase(RestfulTestCase, CoreApiTests):
