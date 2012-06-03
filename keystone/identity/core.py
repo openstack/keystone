@@ -202,7 +202,7 @@ class PublicRouter(wsgi.ComposableRouter):
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_tenants_for_token',
-                       conditions=dict(methods=['GET']))
+                       conditions=dict(method=['GET']))
 
 
 class AdminRouter(wsgi.ComposableRouter):
