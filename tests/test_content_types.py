@@ -587,6 +587,17 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
                                expected_status=401)
         self.assertValidErrorResponse(r)
 
+    def test_user_role_list_requires_auth(self):
+        """User role list should 401 without an X-Auth-Token (bug 1006815)."""
+        # values here don't matter because we should 401 before they're checked
+        path = '/v2.0/tenants/%(tenant_id)s/users/%(user_id)s/roles' % {
+                'tenant_id': uuid.uuid4().hex,
+                'user_id': uuid.uuid4().hex,
+        }
+
+        r = self.admin_request(path=path, expected_status=401)
+        self.assertValidErrorResponse(r)
+
 
 class XmlTestCase(RestfulTestCase, CoreApiTests):
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'

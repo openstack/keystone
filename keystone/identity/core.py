@@ -457,6 +457,7 @@ class RoleController(wsgi.Application):
         not implementing them in hopes that the idea will die off.
 
         """
+        self.assert_admin(context)
         if tenant_id is None:
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant ID required')
