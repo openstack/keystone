@@ -16,7 +16,7 @@
 
 import functools
 
-from keystone.common import utils
+from keystone.openstack.common import importutils
 
 
 class Manager(object):
@@ -33,7 +33,7 @@ class Manager(object):
     """
 
     def __init__(self, driver_name):
-        self.driver = utils.import_object(driver_name)
+        self.driver = importutils.import_object(driver_name)
 
     def __getattr__(self, name):
         """Forward calls to the underlying driver."""

@@ -29,6 +29,7 @@ from keystone.common import kvs
 from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
+from keystone.openstack.common import importutils
 
 
 LOG = logging.getLogger(__name__)
@@ -172,9 +173,9 @@ class TestCase(unittest.TestCase):
 
     def load_backends(self):
         """Hacky shortcut to load the backends for data manipulation."""
-        self.identity_api = utils.import_object(CONF.identity.driver)
-        self.token_api = utils.import_object(CONF.token.driver)
-        self.catalog_api = utils.import_object(CONF.catalog.driver)
+        self.identity_api = importutils.import_object(CONF.identity.driver)
+        self.token_api = importutils.import_object(CONF.token.driver)
+        self.catalog_api = importutils.import_object(CONF.catalog.driver)
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.

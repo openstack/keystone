@@ -21,7 +21,7 @@ import sys
 import textwrap
 
 from keystone import config
-from keystone.common import utils
+from keystone.openstack.common import importutils
 
 
 CONF = config.CONF
@@ -52,7 +52,7 @@ class DbSync(BaseApp):
 
     def main(self):
         for k in ['identity', 'catalog', 'policy', 'token']:
-            driver = utils.import_object(getattr(CONF, k).driver)
+            driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
                 driver.db_sync()
 
