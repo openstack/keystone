@@ -351,7 +351,8 @@ class TokenController(wsgi.Application):
                     context, token_id, dict(id=token_id,
                                             user=user_ref,
                                             tenant=tenant_ref,
-                                            metadata=metadata_ref))
+                                            metadata=metadata_ref,
+                                            expires=old_token_ref['expires']))
 
         # TODO(termie): optimize this call at some point and put it into the
         #               the return for metadata
