@@ -39,7 +39,6 @@ config.register_int('crypt_strength', default=40000)
 
 LOG = logging.getLogger(__name__)
 
-ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 MAX_PASSWORD_LENGTH = 4096
 
 
@@ -230,16 +229,6 @@ def check_output(*popenargs, **kwargs):
 
 def git(*args):
     return check_output(['git'] + list(args))
-
-
-def isotime(dt_obj):
-    """Format datetime object as ISO compliant string.
-
-    :param dt_obj: datetime.datetime object
-    :returns: string representation of datetime object
-
-    """
-    return dt_obj.strftime(ISO_TIME_FORMAT)
 
 
 def unixtime(dt_obj):

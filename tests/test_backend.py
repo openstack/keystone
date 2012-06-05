@@ -18,6 +18,7 @@ import datetime
 import uuid
 
 from keystone import exception
+from keystone.openstack.common import timeutils
 
 
 class IdentityTests(object):
@@ -553,8 +554,7 @@ class TokenTests(object):
 
     def test_expired_token(self):
         token_id = uuid.uuid4().hex
-        expire_time = datetime.datetime.utcnow() - datetime.timedelta(
-                        minutes=1)
+        expire_time = timeutils.utcnow() - datetime.timedelta(minutes=1)
         data = {'id': token_id, 'a': 'b', 'expires': expire_time}
         data_ref = self.token_api.create_token(token_id, data)
         self.assertDictEqual(data_ref, data)
