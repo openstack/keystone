@@ -116,29 +116,36 @@ class Driver(object):
 class ServiceController(wsgi.Application):
     def __init__(self):
         self.catalog_api = Manager()
+        self.identity_api = identity.Manager()
+        self.policy_api = policy.Manager()
+        self.token_api = token.Manager()
         super(ServiceController, self).__init__()
 
     # CRUD extensions
     # NOTE(termie): this OS-KSADM stuff is not very consistent
     def get_services(self, context):
+        self.assert_admin(context)
         service_list = self.catalog_api.list_services(context)
         service_refs = [self.catalog_api.get_service(context, x)
                         for x in service_list]
         return {'OS-KSADM:services': service_refs}
 
     def get_service(self, context, service_id):
+        self.assert_admin(context)
         service_ref = self.catalog_api.get_service(context, service_id)
         if not service_ref:
             raise exception.ServiceNotFound(service_id=service_id)
         return {'OS-KSADM:service': service_ref}
 
     def delete_service(self, context, service_id):
+        self.assert_admin(context)
         service_ref = self.catalog_api.get_service(context, service_id)
         if not service_ref:
             raise exception.ServiceNotFound(service_id=service_id)
         self.catalog_api.delete_service(context, service_id)
 
     def create_service(self, context, OS_KSADM_service):
+        self.assert_admin(context)
         service_id = uuid.uuid4().hex
         service_ref = OS_KSADM_service.copy()
         service_ref['id'] = service_id
