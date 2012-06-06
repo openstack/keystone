@@ -135,6 +135,20 @@ class Identity(sql.Base, identity.Driver):
     def db_sync(self):
         migration.db_sync()
 
+    def _check_password(self, password, user_ref):
+        """Check the specified password against the data store.
+
+        This is modeled on ldap/core.py.  The idea is to make it easier to
+        subclass Identity so that you can still use it to store all the data,
+        but use some other means to check the password.
+        Note that we'll pass in the entire user_ref in case the subclass
+        needs things like user_ref.get('name')
+        For further justification, please see the follow up suggestion at
+        https://blueprints.launchpad.net/keystone/+spec/sql-identiy-pam
+
+        """
+        return utils.check_password(password, user_ref.get('password'))
+
     # Identity interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate based on a user, tenant and password.
@@ -145,7 +159,7 @@ class Identity(sql.Base, identity.Driver):
         """
         user_ref = self._get_user(user_id)
         if (not user_ref
-            or not utils.check_password(password, user_ref.get('password'))):
+            or not self._check_password(password, user_ref)):
             raise AssertionError('Invalid user / password')
 
         tenants = self.get_tenants_for_user(user_id)
