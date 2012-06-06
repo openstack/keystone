@@ -135,9 +135,9 @@ class SwiftAuth(object):
         if environ.get('HTTP_X_IDENTITY_STATUS') != 'Confirmed':
             return
         roles = []
-        if 'HTTP_X_ROLE' in environ:
-            roles = environ['HTTP_X_ROLE'].split(',')
-        identity = {'user': environ.get('HTTP_X_USER'),
+        if 'HTTP_X_ROLES' in environ:
+            roles = environ['HTTP_X_ROLES'].split(',')
+        identity = {'user': environ.get('HTTP_X_USER_NAME'),
                     'tenant': (environ.get('HTTP_X_TENANT_ID'),
                                environ.get('HTTP_X_TENANT_NAME')),
                     'roles': roles}

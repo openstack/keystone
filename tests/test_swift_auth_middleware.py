@@ -71,8 +71,8 @@ class SwiftAuth(unittest.TestCase):
         return dict(X_IDENTITY_STATUS=status,
                     X_TENANT_ID=tenant_id,
                     X_TENANT_NAME=tenant_name,
-                    X_ROLE=role,
-                    X_USER=user)
+                    X_ROLES=role,
+                    X_USER_NAME=user)
 
     def _get_successful_middleware(self):
         response_iter = iter([('200 OK', {}, '')])
