@@ -375,6 +375,13 @@ class CoreApiTests(object):
         self.assertValidAuthenticationResponse(r,
                                                require_service_catalog=True)
 
+    def test_validate_token_no_belongs_to_still_returns_catalog(self):
+        token = self.get_scoped_token()
+        path = ('/v2.0/tokens/%s' % token)
+        r = self.admin_request(path=path, token=token)
+        self.assertValidAuthenticationResponse(r,
+                                               require_service_catalog=True)
+
     def test_validate_token_head(self):
         """The same call as above, except using HEAD.
 

@@ -76,6 +76,9 @@ HTTP_X_USER_NAME
 HTTP_X_ROLES
     Comma delimited list of case-sensitive Roles
 
+HTTP_X_SERVICE_CATALOG
+    json encoded keystone service catalog (optional).
+
 HTTP_X_TENANT
     *Deprecated* in favor of HTTP_X_TENANT_ID and HTTP_X_TENANT_NAME
     Keystone-assigned unique identifier, deprecated
@@ -394,6 +397,7 @@ class AuthProtocol(object):
          * X_USER_ID: id of user
          * X_USER_NAME: name of user
          * X_ROLES: list of roles
+         * X_SERVICE_CATALOG: service catalog
 
         Additional (deprecated) headers include:
          * X_USER: name of user
@@ -435,7 +439,7 @@ class AuthProtocol(object):
         user_id = user['id']
         user_name = user['name']
 
-        return {
+        rval = {
             'X-Identity-Status': 'Confirmed',
             'X-Tenant-Id': tenant_id,
             'X-Tenant-Name': tenant_name,
@@ -447,6 +451,14 @@ class AuthProtocol(object):
             'X-Tenant': tenant_name,
             'X-Role': roles,
         }
+
+        try:
+            catalog = token_info['access']['serviceCatalog']
+            rval['X-Service-Catalog'] = json.dumps(catalog)
+        except KeyError:
+            pass
+
+        return rval
 
     def _header_to_env_var(self, key):
         """Convert header to wsgi env variable.

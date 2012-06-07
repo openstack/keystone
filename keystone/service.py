@@ -414,10 +414,10 @@ class TokenController(wsgi.Application):
         for role_id in metadata_ref.get('roles', []):
             roles_ref.append(self.identity_api.get_role(context, role_id))
 
-        # Get a service catalog if belongs_to is not none
+        # Get a service catalog if possible
         # This is needed for on-behalf-of requests
         catalog_ref = None
-        if belongs_to is not None:
+        if token_ref.get('tenant'):
             catalog_ref = self.catalog_api.get_catalog(
                 context=context,
                 user_id=token_ref['user']['id'],

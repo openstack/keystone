@@ -43,6 +43,7 @@ TOKEN_RESPONSES = {
                     {'name': 'role2'},
                 ],
             },
+            'serviceCatalog': {}
         },
     },
     'default-tenant-token': {
@@ -244,6 +245,7 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         req.headers['X-Auth-Token'] = 'valid-token'
         body = self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
+        self.assertTrue(req.headers.get('X-Service-Catalog'))
         self.assertEqual(body, ['SUCCESS'])
 
     def test_default_tenant_token(self):
