@@ -14,13 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 import webob
 import datetime
 import iso8601
 
 from keystone.middleware import auth_token
+from keystone.openstack.common import jsonutils
 from keystone import test
 
 
@@ -147,7 +146,7 @@ class FakeHTTPConnection(object):
         """
         if method == 'POST':
             status = 200
-            body = json.dumps({
+            body = jsonutils.dumps({
                 'access': {
                     'token': {'id': 'admin_token2'},
                 },
@@ -157,7 +156,7 @@ class FakeHTTPConnection(object):
             token_id = path.rsplit('/', 1)[1]
             if token_id in TOKEN_RESPONSES.keys():
                 status = 200
-                body = json.dumps(TOKEN_RESPONSES[token_id])
+                body = jsonutils.dumps(TOKEN_RESPONSES[token_id])
             else:
                 status = 404
                 body = str()

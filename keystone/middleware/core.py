@@ -14,12 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 from keystone.common import serializer
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
@@ -110,7 +109,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
         params_parsed = {}
         try:
-            params_parsed = json.loads(params_json)
+            params_parsed = jsonutils.loads(params_json)
         except ValueError:
             e = exception.ValidationError(attribute='valid JSON',
                                           target='request body')
@@ -138,7 +137,7 @@ class XmlBodyMiddleware(wsgi.Middleware):
         incoming_xml = 'application/xml' in str(request.content_type)
         if incoming_xml and request.body:
             request.content_type = 'application/json'
-            request.body = json.dumps(serializer.from_xml(request.body))
+            request.body = jsonutils.dumps(serializer.from_xml(request.body))
 
     def process_response(self, request, response):
         """Transform the response from JSON to XML."""
@@ -146,7 +145,8 @@ class XmlBodyMiddleware(wsgi.Middleware):
         if outgoing_xml and response.body:
             response.content_type = 'application/xml'
             try:
-                response.body = serializer.to_xml(json.loads(response.body))
+                body_obj = jsonutils.loads(response.body)
+                response.body = serializer.to_xml(body_obj)
             except:
                 raise exception.Error(message=response.body)
         return response

@@ -13,11 +13,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import uuid
-import json
 
 from keystone.common import wsgi
 from keystone import exception
+from keystone.openstack.common import jsonutils
 from keystone import test
 
 
@@ -33,7 +34,7 @@ class ExceptionTestCase(test.TestCase):
         self.assertEqual(resp.status_int, e.code)
         self.assertEqual(resp.status, '%s %s' % (e.code, e.title))
 
-        j = json.loads(resp.body)
+        j = jsonutils.loads(resp.body)
         self.assertIsNotNone(j.get('error'))
         self.assertIsNotNone(j['error'].get('code'))
         self.assertIsNotNone(j['error'].get('title'))

@@ -16,19 +16,17 @@
 
 """SQL backends for the various services."""
 
-
-import json
-
 import sqlalchemy as sql
-from sqlalchemy import types as sql_types
+import sqlalchemy.engine.url
 from sqlalchemy.exc import DisconnectionError
 from sqlalchemy.ext import declarative
 import sqlalchemy.orm
 import sqlalchemy.pool
-import sqlalchemy.engine.url
+from sqlalchemy import types as sql_types
 
-from keystone import config
 from keystone.common import logging
+from keystone import config
+from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
@@ -51,10 +49,10 @@ class JsonBlob(sql_types.TypeDecorator):
     impl = sql.Text
 
     def process_bind_param(self, value, dialect):
-        return json.dumps(value)
+        return jsonutils.dumps(value)
 
     def process_result_value(self, value, dialect):
-        return json.loads(value)
+        return jsonutils.loads(value)
 
 
 class DictBase(object):

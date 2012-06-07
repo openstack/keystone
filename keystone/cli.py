@@ -16,12 +16,12 @@
 
 from __future__ import absolute_import
 
-import json
 import sys
 import textwrap
 
 from keystone import config
 from keystone.openstack.common import importutils
+from keystone.openstack.common import jsonutils
 
 CONF = config.CONF
 
@@ -102,7 +102,7 @@ class ImportNovaAuth(BaseApp):
         if len(self.argv) < 2:
             return self.missing_param('dump_file')
         dump_file = self.argv[1]
-        dump_data = json.loads(open(dump_file).read())
+        dump_data = jsonutils.loads(open(dump_file).read())
         nova.import_auth(dump_data)
 
 

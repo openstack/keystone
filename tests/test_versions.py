@@ -15,10 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-
-from keystone import test
 from keystone import config
+from keystone import test
+from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
@@ -38,7 +37,7 @@ class VersionTestCase(test.TestCase):
         client = self.client(self.public_app)
         resp = client.get('/')
         self.assertEqual(resp.status_int, 300)
-        data = json.loads(resp.body)
+        data = jsonutils.loads(resp.body)
         expected = {
             "versions": {
                 "values": [
@@ -86,7 +85,7 @@ class VersionTestCase(test.TestCase):
         client = self.client(self.admin_app)
         resp = client.get('/')
         self.assertEqual(resp.status_int, 300)
-        data = json.loads(resp.body)
+        data = jsonutils.loads(resp.body)
         expected = {
             "versions": {
                 "values": [

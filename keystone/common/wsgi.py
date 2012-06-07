@@ -20,7 +20,6 @@
 
 """Utility methods for working with WSGI servers."""
 
-import json
 import sys
 
 import eventlet.wsgi
@@ -33,6 +32,7 @@ import webob.exc
 from keystone.common import logging
 from keystone.common import utils
 from keystone import exception
+from keystone.openstack.common import jsonutils
 
 
 LOG = logging.getLogger(__name__)
@@ -499,7 +499,7 @@ def render_response(body=None, status=(200, 'OK'), headers=None):
                                   ('Vary', 'X-Auth-Token')]
 
     if body is not None:
-        resp.body = json.dumps(body, cls=utils.SmarterEncoder)
+        resp.body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
 
     return resp
 
