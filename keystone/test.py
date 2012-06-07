@@ -117,7 +117,45 @@ class TestClient(object):
         return self.request('PUT', path=path, headers=headers, body=body)
 
 
-class TestCase(unittest.TestCase):
+class NoModule(object):
+    """A mixin class to provide support for unloading/disabling modules."""
+
+    def __init__(self, *args, **kw):
+        super(NoModule, self).__init__(*args, **kw)
+        self._finders = []
+        self._cleared_modules = {}
+
+    def tearDown(self):
+        super(NoModule, self).tearDown()
+        for finder in self._finders:
+            sys.meta_path.remove(finder)
+        sys.modules.update(self._cleared_modules)
+
+    def clear_module(self, module):
+        cleared_modules = {}
+        for fullname in sys.modules.keys():
+            if fullname == module or fullname.startswith(module + '.'):
+                cleared_modules[fullname] = sys.modules.pop(fullname)
+        return cleared_modules
+
+    def disable_module(self, module):
+        """Ensure ImportError for the specified module."""
+
+        # Clear 'module' references in sys.modules
+        self._cleared_modules.update(self.clear_module(module))
+
+        # Disallow further imports of 'module'
+        class NoModule(object):
+            def find_module(self, fullname, path):
+                if fullname == module or fullname.startswith(module + '.'):
+                    raise ImportError
+
+        finder = NoModule()
+        self._finders.append(finder)
+        sys.meta_path.insert(0, finder)
+
+
+class TestCase(NoModule, unittest.TestCase):
     def __init__(self, *args, **kw):
         super(TestCase, self).__init__(*args, **kw)
         self._paths = []
@@ -243,8 +281,3 @@ class TestCase(unittest.TestCase):
     def add_path(self, path):
         sys.path.insert(0, path)
         self._paths.append(path)
-
-    def clear_module(self, module):
-        for x in sys.modules.keys():
-            if x.startswith(module):
-                del sys.modules[x]
