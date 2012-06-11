@@ -151,6 +151,39 @@ choosing the output levels and formats.
 .. _Paste: http://pythonpaste.org/
 .. _`python logging module`: http://docs.python.org/library/logging.html
 
+Monitoring
+----------
+
+Keystone provides some basic request/response monitoring statistics out of the
+box.
+
+Enable data collection by defining a ``stats_monitoring`` filter and including
+it at the beginning of any desired WSGI pipelines::
+
+    [filter:stats_monitoring]
+    paste.filter_factory = keystone.contrib.stats:StatsMiddleware.factory
+
+    [pipeline:public_api]
+    pipeline = stats_monitoring [...] public_service
+
+Enable the reporting of collected data by defining a ``stats_reporting`` filter
+and including it near the end of your ``admin_api`` WSGI pipeline (After
+``*_body`` middleware and before ``*_extension`` filters is recommended)::
+
+    [filter:stats_reporting]
+    paste.filter_factory = keystone.contrib.stats:StatsExtension.factory
+
+    [pipeline:admin_api]
+    pipeline = [...] json_body stats_reporting ec2_extension [...] admin_service
+
+Query the admin API for statistics using::
+
+    $ curl -H 'X-Auth-Token: ADMIN' http://localhost:35357/v2.0/OS-STATS/stats
+
+Reset collected data using::
+
+    $ curl -H 'X-Auth-Token: ADMIN' -X DELETE http://localhost:35357/v2.0/OS-STATS/stats
+
 SSL
 ---
 
