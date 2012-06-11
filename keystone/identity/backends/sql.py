@@ -335,6 +335,7 @@ class Identity(sql.Base, identity.Driver):
             if membership_refs:
                 for membership_ref in membership_refs:
                     session.delete(membership_ref)
+                    session.flush()
 
             session.delete(user_ref)
             session.flush()
