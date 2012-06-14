@@ -108,4 +108,4 @@ class ImportLegacy(test.TestCase):
         catalog = catalog_templated.parse_templates(catalog_lines)
         self.assert_('RegionOne' in catalog)
         self.assert_('compute' in catalog['RegionOne'])
-        self.assert_('adminUrl' in catalog['RegionOne']['compute'])
+        self.assert_('adminURL' in catalog['RegionOne']['compute'])
