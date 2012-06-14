@@ -98,21 +98,25 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
     """
     def process_request(self, request):
-        # Ignore unrecognized content types. Empty string indicates
-        # the client did not explicitly set the header
-        if not request.content_type in ('application/json', ''):
-            return
-
+        # Abort early if we don't have any work to do
         params_json = request.body
         if not params_json:
             return
+
+        # Reject unrecognized content types. Empty string indicates
+        # the client did not explicitly set the header
+        if not request.content_type in ('application/json', ''):
+            e = exception.ValidationError(attribute='application/json',
+                                          target='Content-Type header')
+            return wsgi.render_exception(e)
 
         params_parsed = {}
         try:
             params_parsed = json.loads(params_json)
         except ValueError:
-            msg = 'Malformed json in request body'
-            raise webob.exc.HTTPBadRequest(explanation=msg)
+            e = exception.ValidationError(attribute='valid JSON',
+                                          target='request body')
+            return wsgi.render_exception(e)
         finally:
             if not params_parsed:
                 params_parsed = {}
