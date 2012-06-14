@@ -24,11 +24,14 @@ from keystone import config
 from keystone import exception
 from keystone import policy
 from keystone import token
+from keystone.common import logging
 from keystone.common import manager
 from keystone.common import wsgi
 
 
 CONF = config.CONF
+
+LOG = logging.getLogger(__name__)
 
 
 class Manager(manager.Manager):
@@ -418,7 +421,16 @@ class UserController(wsgi.Application):
         return self.update_user(context, user_id, user)
 
     def set_user_password(self, context, user_id, user):
-        return self.update_user(context, user_id, user)
+        user_ref = self.update_user(context, user_id, user)
+        try:
+            for token_id in self.token_api.list_tokens(context, user_id):
+                self.token_api.delete_token(context, token_id)
+        except exception.NotImplemented:
+            # The password has been changed but tokens remain valid for
+            # backends that can't list tokens for users
+            LOG.warning('Password changed for %s, but existing tokens remain '
+                        'valid' % user_id)
+        return user_ref
 
     def update_user_tenant(self, context, user_id, user):
         """Update the default tenant."""

@@ -286,6 +286,29 @@ class KeystoneClientTests(object):
                           username='blah',
                           password='blah')
 
+    def test_change_password_invalidates_token(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        client = self.get_client(admin=True)
+
+        username = uuid.uuid4().hex
+        passwd = uuid.uuid4().hex
+        user = client.users.create(name=username, password=passwd,
+                                   email=uuid.uuid4().hex)
+
+        token_id = client.tokens.authenticate(username=username,
+                                              password=passwd).id
+
+        # authenticate with a token should work before a password change
+        client.tokens.authenticate(token=token_id)
+
+        client.users.update_password(user=user.id, password=uuid.uuid4().hex)
+
+        # authenticate with a token should not work after a password change
+        self.assertRaises(client_exceptions.Unauthorized,
+                          client.tokens.authenticate,
+                          token=token_id)
+
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
 
