@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
 import uuid
 
 import nose.exc
@@ -332,6 +333,17 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.Unauthorized,
                           self.get_client,
                           self.user_foo)
+
+    def test_token_expiry_maintained(self):
+        foo_client = self.get_client(self.user_foo)
+        orig_token = foo_client.service_catalog.catalog['token']
+
+        time.sleep(1.01)
+        reauthenticated_token = foo_client.tokens.authenticate(
+                                    token=foo_client.auth_token)
+
+        self.assertEquals(orig_token['expires'],
+                          reauthenticated_token.expires)
 
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
