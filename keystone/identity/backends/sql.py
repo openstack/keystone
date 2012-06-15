@@ -18,11 +18,11 @@ import copy
 import functools
 
 from keystone import clean
+from keystone.common import sql
+from keystone.common.sql import migration
+from keystone.common import utils
 from keystone import exception
 from keystone import identity
-from keystone.common import sql
-from keystone.common import utils
-from keystone.common.sql import migration
 
 
 def _filter_user(user_ref):

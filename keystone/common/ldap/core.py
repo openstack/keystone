@@ -16,9 +16,9 @@
 
 import ldap
 
-from keystone import exception
-from keystone.common import logging
 from keystone.common.ldap import fakeldap
+from keystone.common import logging
+from keystone import exception
 
 
 LOG = logging.getLogger(__name__)

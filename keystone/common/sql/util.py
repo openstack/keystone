@@ -17,8 +17,8 @@
 import os
 import shutil
 
-from keystone import config
 from keystone.common.sql import migration
+from keystone import config
 
 
 CONF = config.CONF

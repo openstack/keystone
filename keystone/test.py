@@ -24,11 +24,11 @@ from paste import deploy
 import stubout
 import unittest2 as unittest
 
-from keystone import config
 from keystone.common import kvs
 from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
+from keystone import config
 from keystone.openstack.common import importutils
 
 

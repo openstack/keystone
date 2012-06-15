@@ -18,10 +18,10 @@ import json
 
 import webob.exc
 
-from keystone import config
-from keystone import exception
 from keystone.common import serializer
 from keystone.common import wsgi
+from keystone import config
+from keystone import exception
 
 
 CONF = config.CONF

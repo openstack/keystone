@@ -16,9 +16,9 @@
 
 import os.path
 
-from keystone import config
-from keystone.common import logging
 from keystone.catalog.backends import kvs
+from keystone.common import logging
+from keystone import config
 
 
 LOG = logging.getLogger(__name__)

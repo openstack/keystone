@@ -18,9 +18,9 @@
 
 import datetime
 
+from keystone.common import manager
 from keystone import config
 from keystone import exception
-from keystone.common import manager
 
 
 CONF = config.CONF

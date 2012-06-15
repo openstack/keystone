@@ -16,17 +16,17 @@
 
 """Main entry point into the Identity service."""
 
-import uuid
 import urllib
 import urlparse
+import uuid
 
+from keystone.common import logging
+from keystone.common import manager
+from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone import policy
 from keystone import token
-from keystone.common import logging
-from keystone.common import manager
-from keystone.common import wsgi
 
 
 CONF = config.CONF

@@ -19,10 +19,10 @@ import copy
 
 import memcache
 
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone import token
-from keystone.common import utils
 
 
 CONF = config.CONF

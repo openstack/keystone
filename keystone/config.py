@@ -15,8 +15,8 @@
 # under the License.
 
 import gettext
-import sys
 import os
+import sys
 
 from keystone.common import logging
 from keystone.openstack.common import cfg

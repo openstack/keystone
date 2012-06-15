@@ -20,12 +20,12 @@ import ldap
 from ldap import filter as ldap_filter
 
 from keystone import clean
+from keystone.common import ldap as common_ldap
+from keystone.common.ldap import fakeldap
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone.common import ldap as common_ldap
-from keystone.common import utils
-from keystone.common.ldap import fakeldap
 from keystone.identity import models
 
 

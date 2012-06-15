@@ -28,8 +28,8 @@ BufferedHTTPResponse.
     make all calls through httplib.
 """
 
-from urllib import quote
 import time
+from urllib import quote
 
 from eventlet.green.httplib import (CONTINUE, HTTPConnection, HTTPMessage,
                                     HTTPResponse, HTTPSConnection, _UNKNOWN)

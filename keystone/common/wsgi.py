@@ -30,9 +30,9 @@ import ssl
 import webob.dec
 import webob.exc
 
-from keystone import exception
 from keystone.common import logging
 from keystone.common import utils
+from keystone import exception
 
 
 LOG = logging.getLogger(__name__)

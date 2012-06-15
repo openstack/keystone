@@ -28,11 +28,11 @@ import hmac
 
 from hashlib import sha1
 
-from keystone import config
-from keystone import exception
 from keystone.common import utils
 from keystone.common import wsgi
+from keystone import config
 from keystone.contrib import ec2
+from keystone import exception
 
 CONF = config.CONF
 

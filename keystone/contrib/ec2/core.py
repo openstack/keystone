@@ -37,15 +37,15 @@ glance to list images needed to perform the requested task.
 import uuid
 
 from keystone import catalog
+from keystone.common import manager
+from keystone.common import utils
+from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import service
 from keystone import token
-from keystone.common import manager
-from keystone.common import utils
-from keystone.common import wsgi
 
 
 CONF = config.CONF

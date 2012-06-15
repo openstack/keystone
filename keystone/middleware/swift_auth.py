@@ -31,8 +31,8 @@
 
 import webob
 
-from swift.common import utils as swift_utils
 from swift.common.middleware import acl as swift_acl
+from swift.common import utils as swift_utils
 
 
 class SwiftAuth(object):

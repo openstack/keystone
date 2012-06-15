@@ -14,16 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from sqlalchemy import *
 from migrate import *
+from sqlalchemy import *
 
 from keystone.common import sql
 
 # these are to make sure all the models we care about are defined
+import keystone.catalog.backends.sql
+import keystone.contrib.ec2.backends.sql
 import keystone.identity.backends.sql
 import keystone.token.backends.sql
-import keystone.contrib.ec2.backends.sql
-import keystone.catalog.backends.sql
 
 
 def upgrade(migrate_engine):

@@ -15,10 +15,10 @@
 # under the License.
 
 from keystone import clean
-from keystone import exception
-from keystone import identity
 from keystone.common import kvs
 from keystone.common import utils
+from keystone import exception
+from keystone import identity
 
 
 def _filter_user(user_ref):

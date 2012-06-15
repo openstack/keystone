@@ -30,8 +30,8 @@ import urllib
 
 import passlib.hash
 
-from keystone import config
 from keystone.common import logging
+from keystone import config
 
 
 CONF = config.CONF

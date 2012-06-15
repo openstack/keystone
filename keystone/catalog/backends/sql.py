@@ -16,10 +16,10 @@
 # under the License.
 
 from keystone import catalog
-from keystone import config
-from keystone import exception
 from keystone.common import sql
 from keystone.common.sql import migration
+from keystone import config
+from keystone import exception
 
 
 CONF = config.CONF

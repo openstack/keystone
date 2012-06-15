@@ -15,8 +15,8 @@
 # under the License.
 
 from keystone import catalog
-from keystone import identity
 from keystone.common import wsgi
+from keystone import identity
 
 
 class CrudExtension(wsgi.ExtensionRouter):
