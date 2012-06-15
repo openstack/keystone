@@ -11,20 +11,17 @@ nose # for test discovery and console feedback
 nosexcover
 openstack.nose_plugin
 pylint # static code analysis
-pep8==0.6.1 # checks for PEP8 code style compliance
+pep8==1.1 # checks for PEP8 code style compliance
 Sphinx>=1.1.2 # required to build documentation
 unittest2 # backport of unittest lib in python 2.7
 webtest # test wsgi apps without starting an http server
 distribute>=0.6.24
+iso8601>=0.1.4
 
 # for python-keystoneclient
 httplib2
--e git+https://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
-
-# for python-novaclient
-prettytable==0.5.0
-iso8601>=0.1.4
+https://github.com/openstack/python-keystoneclient/zipball/master#egg=python-keystoneclient
 
 # swift_auth test dependencies
--e git+https://github.com/openstack/swift.git#egg=swift
+https://github.com/openstack/swift/zipball/master#egg=swift
 netifaces
