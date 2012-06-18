@@ -141,10 +141,9 @@ class VersionController(wsgi.Application):
         super(VersionController, self).__init__()
 
     def _get_identity_url(self, context):
-        catalog_ref = self.catalog_api.get_catalog(
-                context=context,
-                user_id=None,
-                tenant_id=None)
+        catalog_ref = self.catalog_api.get_catalog(context=context,
+                                                   user_id=None,
+                                                   tenant_id=None)
         for region, region_ref in catalog_ref.iteritems():
             for service, service_ref in region_ref.iteritems():
                 if service == 'identity':
@@ -171,24 +170,24 @@ class VersionController(wsgi.Application):
                     "rel": "describedby",
                     "type": "text/html",
                     "href": "http://docs.openstack.org/api/openstack-"
-                                "identity-service/2.0/content/"
+                            "identity-service/2.0/content/"
                 }, {
                     "rel": "describedby",
                     "type": "application/pdf",
                     "href": "http://docs.openstack.org/api/openstack-"
-                                "identity-service/2.0/identity-dev-guide-"
-                                "2.0.pdf"
+                            "identity-service/2.0/identity-dev-guide-"
+                            "2.0.pdf"
                 }
             ],
             "media-types": [
                 {
                     "base": "application/json",
                     "type": "application/vnd.openstack.identity-v2.0"
-                                "+json"
+                            "+json"
                 }, {
                     "base": "application/xml",
                     "type": "application/vnd.openstack.identity-v2.0"
-                                "+xml"
+                            "+xml"
                 }
             ]
         }
@@ -257,7 +256,8 @@ class TokenController(wsgi.Application):
             user_id = auth['passwordCredentials'].get('userId', None)
             if username:
                 user_ref = self.identity_api.get_user_by_name(
-                        context=context, user_name=username)
+                    context=context,
+                    user_name=username)
                 if user_ref:
                     user_id = user_ref['id']
 
@@ -265,7 +265,7 @@ class TokenController(wsgi.Application):
             tenant_id = auth.get('tenantId', None)
             if tenant_name:
                 tenant_ref = self.identity_api.get_tenant_by_name(
-                        context=context, tenant_name=tenant_name)
+                    context=context, tenant_name=tenant_name)
                 if tenant_ref:
                     tenant_id = tenant_ref['id']
 
@@ -284,16 +284,18 @@ class TokenController(wsgi.Application):
                 raise exception.Unauthorized(e.message)
 
             token_ref = self.token_api.create_token(
-                    context, token_id, dict(id=token_id,
-                                            user=user_ref,
-                                            tenant=tenant_ref,
-                                            metadata=metadata_ref))
+                context,
+                token_id,
+                dict(id=token_id,
+                     user=user_ref,
+                     tenant=tenant_ref,
+                     metadata=metadata_ref))
             if tenant_ref:
                 catalog_ref = self.catalog_api.get_catalog(
-                        context=context,
-                        user_id=user_ref['id'],
-                        tenant_id=tenant_ref['id'],
-                        metadata=metadata_ref)
+                    context=context,
+                    user_id=user_ref['id'],
+                    tenant_id=tenant_ref['id'],
+                    metadata=metadata_ref)
             else:
                 catalog_ref = {}
 
@@ -305,7 +307,7 @@ class TokenController(wsgi.Application):
             # more compat
             if tenant_name:
                 tenant_ref = self.identity_api.get_tenant_by_name(
-                        context=context, tenant_name=tenant_name)
+                    context=context, tenant_name=tenant_name)
                 tenant_id = tenant_ref['id']
             else:
                 tenant_id = auth.get('tenantId', None)
@@ -320,8 +322,8 @@ class TokenController(wsgi.Application):
 
             # If the user is disabled don't allow them to authenticate
             current_user_ref = self.identity_api.get_user(
-                                                    context=context,
-                                                    user_id=user_ref['id'])
+                context=context,
+                user_id=user_ref['id'])
             if not current_user_ref.get('enabled', True):
                 LOG.warning('User %s is disabled' % user_ref['id'])
                 raise exception.Unauthorized()
@@ -335,24 +337,24 @@ class TokenController(wsgi.Application):
                                                       tenant_id=tenant_id)
             if tenant_ref:
                 metadata_ref = self.identity_api.get_metadata(
-                        context=context,
-                        user_id=user_ref['id'],
-                        tenant_id=tenant_ref['id'])
+                    context=context,
+                    user_id=user_ref['id'],
+                    tenant_id=tenant_ref['id'])
                 catalog_ref = self.catalog_api.get_catalog(
-                        context=context,
-                        user_id=user_ref['id'],
-                        tenant_id=tenant_ref['id'],
-                        metadata=metadata_ref)
+                    context=context,
+                    user_id=user_ref['id'],
+                    tenant_id=tenant_ref['id'],
+                    metadata=metadata_ref)
             else:
                 metadata_ref = {}
                 catalog_ref = {}
 
             token_ref = self.token_api.create_token(
-                    context, token_id, dict(id=token_id,
-                                            user=user_ref,
-                                            tenant=tenant_ref,
-                                            metadata=metadata_ref,
-                                            expires=old_token_ref['expires']))
+                context, token_id, dict(id=token_id,
+                                        user=user_ref,
+                                        tenant=tenant_ref,
+                                        metadata=metadata_ref,
+                                        expires=old_token_ref['expires']))
 
         # TODO(termie): optimize this call at some point and put it into the
         #               the return for metadata
@@ -453,7 +455,7 @@ class TokenController(wsgi.Application):
                                  'username': user_ref['name'],
                                  'roles': roles_ref,
                                  'roles_links': metadata_ref.get('roles_links',
-                                                               [])
+                                                                 [])
                                  }
                         }
              }
@@ -553,8 +555,7 @@ class AdminExtensionsController(ExtensionsController):
                     # TODO(dolph): link needs to be revised after
                     #              bug 928059 merges
                     'type': 'text/html',
-                    'href': ('https://github.com/openstack/'
-                        'identity-api'),
+                    'href': 'https://github.com/openstack/identity-api',
                 }
             ]
         }

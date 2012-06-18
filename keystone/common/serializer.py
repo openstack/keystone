@@ -106,7 +106,7 @@ class XmlSerializer(object):
                 d.pop(key)
 
         assert len(d.keys()) == 1, ('Cannot encode more than one root '
-            'element: %s' % d.keys())
+                                    'element: %s' % d.keys())
 
         # name the root dom element
         name = d.keys()[0]

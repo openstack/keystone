@@ -156,8 +156,8 @@ class NormalizingFilter(wsgi.Middleware):
     def process_request(self, request):
         """Normalizes URLs."""
         # Removes a trailing slash from the given path, if any.
-        if len(request.environ['PATH_INFO']) > 1 and \
-               request.environ['PATH_INFO'][-1] == '/':
+        if (len(request.environ['PATH_INFO']) > 1 and
+                request.environ['PATH_INFO'][-1] == '/'):
             request.environ['PATH_INFO'] = request.environ['PATH_INFO'][:-1]
         # Rewrites path to root if no path is given.
         elif not request.environ['PATH_INFO']:

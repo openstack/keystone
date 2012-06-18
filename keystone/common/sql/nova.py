@@ -106,7 +106,7 @@ def _assign_roles(api, assignments, role_map, user_map, tenant_map):
         user_id = user_map[assignment['user_id']]
         tenant_id = tenant_map[assignment['tenant_id']]
         LOG.debug('Assign role %s to user %s on tenant %s' %
-                     (role_id, user_id, tenant_id))
+                  (role_id, user_id, tenant_id))
         api.add_role_to_user_and_tenant(user_id, tenant_id, role_id)
 
 
@@ -121,5 +121,5 @@ def _create_ec2_creds(ec2_api, identity_api, ec2_creds, user_map):
                 'tenant_id': tenant_id,
             }
             LOG.debug('Creating ec2 cred for user %s and tenant %s' %
-                          (user_id, tenant_id))
+                      (user_id, tenant_id))
             ec2_api.create_credential(None, cred_dict)

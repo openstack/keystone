@@ -35,7 +35,7 @@ policy_opts = [
     cfg.StrOpt('policy_default_rule',
                default='default',
                help=_('Rule checked when requested rule is not found')),
-    ]
+]
 
 
 CONF = config.CONF
@@ -71,8 +71,8 @@ def init():
 
 def _set_brain(data):
     default_rule = CONF.policy_default_rule
-    common_policy.set_brain(
-            common_policy.HttpBrain.load_json(data, default_rule))
+    common_policy.set_brain(common_policy.HttpBrain.load_json(data,
+                                                              default_rule))
 
 
 def enforce(credentials, action, target):

@@ -159,7 +159,7 @@ class Identity(sql.Base, identity.Driver):
         """
         user_ref = self._get_user(user_id)
         if (not user_ref
-            or not self._check_password(password, user_ref)):
+                or not self._check_password(password, user_ref)):
             raise AssertionError('Invalid user / password')
 
         tenants = self.get_tenants_for_user(user_id)
@@ -190,10 +190,10 @@ class Identity(sql.Base, identity.Driver):
     def get_tenant_users(self, tenant_id):
         session = self.get_session()
         user_refs = session.query(User)\
-                           .join(UserTenantMembership)\
-                           .filter(UserTenantMembership.tenant_id ==
-                                   tenant_id)\
-                           .all()
+            .join(UserTenantMembership)\
+            .filter(UserTenantMembership.tenant_id ==
+                    tenant_id)\
+            .all()
         return [_filter_user(user_ref.to_dict()) for user_ref in user_refs]
 
     def _get_user(self, user_id):

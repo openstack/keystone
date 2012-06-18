@@ -391,7 +391,7 @@ def _get_config_dirs(project=None):
         fix_path('~'),
         os.path.join('/etc', project) if project else None,
         '/etc'
-        ]
+    ]
 
     return filter(bool, cfg_dirs)
 
@@ -592,10 +592,10 @@ class Opt(object):
         if group is not None:
             dest = group.name + '_' + dest
         kwargs.update({
-                'dest': dest,
-                'metavar': self.metavar,
-                'help': self.help,
-                })
+            'dest': dest,
+            'metavar': self.metavar,
+            'help': self.help,
+        })
         return kwargs
 
     def _get_optparse_prefix(self, prefix, group):
@@ -905,13 +905,13 @@ class ConfigOpts(collections.Mapping):
             self._oparser.disable_interspersed_args()
 
         self._config_opts = [
-             MultiStrOpt('config-file',
-                         default=default_config_files,
-                         metavar='PATH',
-                         help='Path to a config file to use. Multiple config '
-                              'files can be specified, with values in later '
-                              'files taking precedence. The default files '
-                              ' used are: %s' % (default_config_files, )),
+            MultiStrOpt('config-file',
+                        default=default_config_files,
+                        metavar='PATH',
+                        help='Path to a config file to use. Multiple config '
+                             'files can be specified, with values in later '
+                             'files taking precedence. The default files '
+                             ' used are: %s' % (default_config_files, )),
             StrOpt('config-dir',
                    metavar='DIR',
                    help='Path to a config directory to pull *.conf '
@@ -921,7 +921,7 @@ class ConfigOpts(collections.Mapping):
                         'the file(s), if any, specified via --config-file, '
                         'hence over-ridden options in the directory take '
                         'precedence.'),
-            ]
+        ]
         self.register_cli_opts(self._config_opts)
 
         self.project = project
@@ -1411,8 +1411,7 @@ class ConfigOpts(collections.Mapping):
             default, opt, override = [info[k] for k in sorted(info.keys())]
 
             if opt.required:
-                if (default is not None or
-                    override is not None):
+                if (default is not None or override is not None):
                     continue
 
                 if self._get(opt.name, group) is None:
@@ -1516,7 +1515,7 @@ class CommonConfigOpts(ConfigOpts):
                 short='v',
                 default=False,
                 help='Print more verbose output'),
-        ]
+    ]
 
     logging_cli_opts = [
         StrOpt('log-config',
@@ -1550,7 +1549,7 @@ class CommonConfigOpts(ConfigOpts):
         StrOpt('syslog-log-facility',
                default='LOG_USER',
                help='syslog facility to receive log lines')
-        ]
+    ]
 
     def __init__(self):
         super(CommonConfigOpts, self).__init__()

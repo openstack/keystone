@@ -150,7 +150,7 @@ class ServiceController(wsgi.Application):
         service_ref = OS_KSADM_service.copy()
         service_ref['id'] = service_id
         new_service_ref = self.catalog_api.create_service(
-                context, service_id, service_ref)
+            context, service_id, service_ref)
         return {'OS-KSADM:service': new_service_ref}
 
 
@@ -180,7 +180,7 @@ class EndpointController(wsgi.Application):
             raise exception.ServiceNotFound(service_id=service_id)
 
         new_endpoint_ref = self.catalog_api.create_endpoint(
-                                context, endpoint_id, endpoint_ref)
+            context, endpoint_id, endpoint_ref)
         return {'endpoint': new_endpoint_ref}
 
     def delete_endpoint(self, context, endpoint_id):

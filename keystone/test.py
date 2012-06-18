@@ -224,7 +224,7 @@ class TestCase(NoModule, unittest.TestCase):
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
                 rv = self.identity_api.create_user(user['id'],
-                        user_copy.copy())
+                                                   user_copy.copy())
                 for tenant_id in tenants:
                     self.identity_api.add_user_to_tenant(tenant_id, user['id'])
                 setattr(self, 'user_%s' % user['id'], user_copy)
@@ -262,12 +262,12 @@ class TestCase(NoModule, unittest.TestCase):
         return deploy.appconfig(self._paste_config(config))
 
     def serveapp(self, config, name=None, cert=None, key=None, ca=None,
-        cert_required=None):
+                 cert_required=None):
         app = self.loadapp(config, name=name)
         server = wsgi.Server(app, host="127.0.0.1", port=0)
         if cert is not None and ca is not None and key is not None:
             server.set_ssl(certfile=cert, keyfile=key, ca_certs=ca,
-                cert_required=cert_required)
+                           cert_required=cert_required)
         server.start(key='socket')
 
         # Service catalog tests need to know the port we ran on.

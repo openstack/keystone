@@ -32,7 +32,7 @@ def parse_mailmap(mailmap='.mailmap'):
             l = l.strip()
             if not l.startswith('#') and ' ' in l:
                 canonical_email, alias = [x for x in l.split(' ')
-                                         if x.startswith('<')]
+                                          if x.startswith('<')]
                 mapping[alias] = canonical_email
     return mapping
 

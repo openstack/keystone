@@ -136,8 +136,8 @@ class LegacyMigration(object):
         for x in self._data['user_roles']:
             # map
             if (not x.get('user_id')
-                or not x.get('tenant_id')
-                or not x.get('role_id')):
+                    or not x.get('tenant_id')
+                    or not x.get('role_id')):
                 continue
             user_id = self._user_map[x['user_id']]
             tenant_id = self._tenant_map[x['tenant_id']]
@@ -149,7 +149,7 @@ class LegacyMigration(object):
                 pass
 
             self.identity_driver.add_role_to_user_and_tenant(
-                    user_id, tenant_id, role_id)
+                user_id, tenant_id, role_id)
 
     def _migrate_tokens(self):
         pass

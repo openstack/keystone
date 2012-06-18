@@ -49,7 +49,8 @@ class Identity(kvs.Base, identity.Driver):
         tenant_ref = None
         metadata_ref = None
         if (not user_ref
-            or not utils.check_password(password, user_ref.get('password'))):
+                or not utils.check_password(password,
+                                            user_ref.get('password'))):
             raise AssertionError('Invalid user / password')
 
         tenants = self.get_tenants_for_user(user_id)

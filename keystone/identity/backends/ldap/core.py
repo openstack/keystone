@@ -358,10 +358,10 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
                               limit,
                               self.tenant_api.get_users(tenant_id, role_id))
 
-    def users_get_by_tenant_get_page_markers(self, tenant_id,
-        role_id, marker, limit):
+    def users_get_by_tenant_get_page_markers(self, tenant_id, role_id, marker,
+                                             limit):
         return self._get_page_markers(
-                marker, limit, self.tenant_api.get_users(tenant_id, role_id))
+            marker, limit, self.tenant_api.get_users(tenant_id, role_id))
 
     def check_password(self, user_id, password):
         user = self.get(user_id)
@@ -418,7 +418,7 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def list_for_user_get_page_markers(self, user, marker, limit):
         return self._get_page_markers(
-                marker, limit, self.get_user_tenants(user['id']))
+            marker, limit, self.get_user_tenants(user['id']))
 
     def is_empty(self, id):
         tenant = self._ldap_get(id)
@@ -588,10 +588,10 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                     raise inst
 
         return UserRoleAssociation(
-                id=self._create_ref(role_id, tenant_id, user_id),
-                role_id=role_id,
-                user_id=user_id,
-                tenant_id=tenant_id)
+            id=self._create_ref(role_id, tenant_id, user_id),
+            role_id=role_id,
+            user_id=user_id,
+            tenant_id=tenant_id)
 
     def get_by_service(self, service_id):
         roles = self.get_all('(service_id=%s)' %
@@ -626,10 +626,10 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 user_id = self.user_api._dn_to_id(user_dn)
                 role_id = self._dn_to_id(role_dn)
                 res.append(UserRoleAssociation(
-                        id=self._create_ref(role_id, tenant_id, user_id),
-                        user_id=user_id,
-                        role_id=role_id,
-                        tenant_id=tenant_id))
+                    id=self._create_ref(role_id, tenant_id, user_id),
+                    user_id=user_id,
+                    role_id=role_id,
+                    tenant_id=tenant_id))
 
         return res
 
@@ -637,10 +637,9 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         user_dn = self.user_api._id_to_dn(user_id)
         roles = self.get_all('(%s=%s)' % (self.member_attribute, user_dn))
         return [UserRoleAssociation(
-                    id=self._create_ref(role.id, None, user_id),
-                    role_id=role.id,
-                    user_id=user_id)
-                for role in roles]
+                id=self._create_ref(role.id, None, user_id),
+                role_id=role.id,
+                user_id=user_id) for role in roles]
 
     def list_tenant_roles_for_user(self, user_id, tenant_id=None):
         conn = self.get_connection()
@@ -659,10 +658,10 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             for role_dn, _ in roles:
                 role_id = self._dn_to_id(role_dn)
                 res.append(UserRoleAssociation(
-                        id=self._create_ref(role_id, tenant_id, user_id),
-                        user_id=user_id,
-                        role_id=role_id,
-                        tenant_id=tenant_id))
+                    id=self._create_ref(role_id, tenant_id, user_id),
+                    user_id=user_id,
+                    role_id=role_id,
+                    tenant_id=tenant_id))
         else:
             try:
                 roles = conn.search_s(self.tenant_api.tree_dn,
@@ -676,10 +675,10 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 role_id = self._dn_to_id(role_dn)
                 tenant_id = ldap.dn.str2dn(role_dn)[1][0][1]
                 res.append(UserRoleAssociation(
-                        id=self._create_ref(role_id, tenant_id, user_id),
-                        user_id=user_id,
-                        role_id=role_id,
-                        tenant_id=tenant_id))
+                    id=self._create_ref(role_id, tenant_id, user_id),
+                    user_id=user_id,
+                    role_id=role_id,
+                    tenant_id=tenant_id))
         return res
 
     def rolegrant_get(self, id):
@@ -791,10 +790,10 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 ldap_role_id = self._dn_to_id(role_dn)
                 if role_id == ldap_role_id:
                     res = UserRoleAssociation(
-                            id=self._create_ref(role_id, tenant_id, user_id),
-                            user_id=user_id,
-                            role_id=role_id,
-                            tenant_id=tenant_id)
+                        id=self._create_ref(role_id, tenant_id, user_id),
+                        user_id=user_id,
+                        role_id=role_id,
+                        tenant_id=tenant_id)
                     return res
         else:
             try:
@@ -809,7 +808,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             for role in roles:
                 if role.id == role_id:
                     return UserRoleAssociation(
-                            id=self._create_ref(role.id, None, user_id),
-                            role_id=role.id,
-                            user_id=user_id)
+                        id=self._create_ref(role.id, None, user_id),
+                        role_id=role.id,
+                        user_id=user_id)
         return None

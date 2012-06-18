@@ -213,7 +213,7 @@ class AuthProtocol(object):
             'X-Role',
         )
         LOG.debug('Removing headers from request environment: %s' %
-                     ','.join(auth_headers))
+                  ','.join(auth_headers))
         self._remove_headers(env, auth_headers)
 
     def _get_user_token_from_header(self, env):
@@ -260,8 +260,10 @@ class AuthProtocol(object):
         if self.auth_protocol == 'http':
             return self.http_client_class(self.auth_host, self.auth_port)
         else:
-            return self.http_client_class(self.auth_host, self.auth_port,
-                self.key_file, self.cert_file)
+            return self.http_client_class(self.auth_host,
+                                          self.auth_port,
+                                          self.key_file,
+                                          self.cert_file)
 
     def _json_request(self, method, path, body=None, additional_headers=None):
         """HTTP request helper used to make json requests.
@@ -372,7 +374,7 @@ class AuthProtocol(object):
             self.admin_token = None
         else:
             LOG.error('Bad response code while validating token: %s' %
-                         response.status)
+                      response.status)
         if retry:
             LOG.info('Retrying validation')
             return self._validate_user_token(user_token, False)

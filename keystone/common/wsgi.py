@@ -65,9 +65,9 @@ class Server(object):
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
         LOG.debug('Starting %(arg0)s on %(host)s:%(port)s' %
-                      {'arg0': sys.argv[0],
-                       'host': self.host,
-                       'port': self.port})
+                  {'arg0': sys.argv[0],
+                   'host': self.host,
+                   'port': self.port})
         socket = eventlet.listen((self.host, self.port), backlog=backlog)
         if key:
             self.socket_info[key] = socket.getsockname()
@@ -87,7 +87,7 @@ class Server(object):
         self.greenthread = self.pool.spawn(self._run, self.application, socket)
 
     def set_ssl(self, certfile, keyfile=None, ca_certs=None,
-              cert_required=True):
+                cert_required=True):
         self.certfile = certfile
         self.keyfile = keyfile
         self.ca_certs = ca_certs
@@ -231,7 +231,7 @@ class Application(BaseApplication):
         if not context['is_admin']:
             try:
                 user_token_ref = self.token_api.get_token(
-                        context=context, token_id=context['token_id'])
+                    context=context, token_id=context['token_id'])
             except exception.TokenNotFound:
                 raise exception.Unauthorized()
 

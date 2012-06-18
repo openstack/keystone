@@ -271,12 +271,12 @@ class TenantController(wsgi.Application):
 
         user_ref = token_ref['user']
         tenant_ids = self.identity_api.get_tenants_for_user(
-                context, user_ref['id'])
+            context, user_ref['id'])
         tenant_refs = []
         for tenant_id in tenant_ids:
             tenant_refs.append(self.identity_api.get_tenant(
-                    context=context,
-                    tenant_id=tenant_id))
+                context=context,
+                tenant_id=tenant_id))
         params = {
             'limit': context['query_string'].get('limit'),
             'marker': context['query_string'].get('marker'),
@@ -307,7 +307,7 @@ class TenantController(wsgi.Application):
         tenant_ref['id'] = tenant_id
 
         tenant = self.identity_api.create_tenant(
-                context, tenant_id, tenant_ref)
+            context, tenant_id, tenant_ref)
         return {'tenant': tenant}
 
     def update_tenant(self, context, tenant_id, tenant):
@@ -316,7 +316,7 @@ class TenantController(wsgi.Application):
             raise exception.TenantNotFound(tenant_id=tenant_id)
 
         tenant_ref = self.identity_api.update_tenant(
-                context, tenant_id, tenant)
+            context, tenant_id, tenant)
         return {'tenant': tenant_ref}
 
     def delete_tenant(self, context, tenant_id, **kw):
@@ -406,7 +406,7 @@ class UserController(wsgi.Application):
         user_ref = user.copy()
         user_ref['id'] = user_id
         new_user_ref = self.identity_api.create_user(
-                context, user_id, user_ref)
+            context, user_id, user_ref)
         if tenant_id:
             self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         return {'user': new_user_ref}
@@ -480,7 +480,7 @@ class RoleController(wsgi.Application):
             raise exception.TenantNotFound(tenant_id=tenant_id)
 
         roles = self.identity_api.get_roles_for_user_and_tenant(
-                context, user_id, tenant_id)
+            context, user_id, tenant_id)
         return {'roles': [self.identity_api.get_role(context, x)
                           for x in roles]}
 
@@ -538,7 +538,7 @@ class RoleController(wsgi.Application):
         # a user also adds them to a tenant
         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         self.identity_api.add_role_to_user_and_tenant(
-                context, user_id, tenant_id, role_id)
+            context, user_id, tenant_id, role_id)
         role_ref = self.identity_api.get_role(context, role_id)
         return {'role': role_ref}
 
@@ -563,12 +563,12 @@ class RoleController(wsgi.Application):
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant, so we must follow up on that
         self.identity_api.remove_role_from_user_and_tenant(
-                context, user_id, tenant_id, role_id)
+            context, user_id, tenant_id, role_id)
         roles = self.identity_api.get_roles_for_user_and_tenant(
-                context, user_id, tenant_id)
+            context, user_id, tenant_id)
         if not roles:
             self.identity_api.remove_user_from_tenant(
-                    context, tenant_id, user_id)
+                context, tenant_id, user_id)
         return
 
     # COMPAT(diablo): CRUD extension
@@ -588,7 +588,7 @@ class RoleController(wsgi.Application):
         o = []
         for tenant_id in tenant_ids:
             role_ids = self.identity_api.get_roles_for_user_and_tenant(
-                    context, user_id, tenant_id)
+                context, user_id, tenant_id)
             for role_id in role_ids:
                 ref = {'roleId': role_id,
                        'tenantId': tenant_id,
@@ -611,7 +611,7 @@ class RoleController(wsgi.Application):
         role_id = role.get('roleId')
         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         self.identity_api.add_role_to_user_and_tenant(
-                context, user_id, tenant_id, role_id)
+            context, user_id, tenant_id, role_id)
         role_ref = self.identity_api.get_role(context, role_id)
         return {'role': role_ref}
 
@@ -633,9 +633,9 @@ class RoleController(wsgi.Application):
         tenant_id = role_ref_ref.get('tenantId')[0]
         role_id = role_ref_ref.get('roleId')[0]
         self.identity_api.remove_role_from_user_and_tenant(
-                context, user_id, tenant_id, role_id)
+            context, user_id, tenant_id, role_id)
         roles = self.identity_api.get_roles_for_user_and_tenant(
-                context, user_id, tenant_id)
+            context, user_id, tenant_id)
         if not roles:
             self.identity_api.remove_user_from_tenant(
-                    context, tenant_id, user_id)
+                context, tenant_id, user_id)
