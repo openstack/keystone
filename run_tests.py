@@ -66,6 +66,8 @@ from nose import config
 from nose import core
 from nose import result
 
+from keystone.common.sql import util
+
 
 class _AnsiColorizer(object):
     """
@@ -357,4 +359,7 @@ if __name__ == '__main__':
                             verbosity=c.verbosity,
                             config=c,
                             show_elapsed=show_elapsed)
+    if os.path.exists('tests/test.db.pristine'):
+        os.unlink('tests/test.db.pristine')
+
     sys.exit(not core.run(config=c, testRunner=runner, argv=argv))

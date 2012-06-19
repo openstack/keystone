@@ -21,3 +21,4 @@ AUTHORS
 build/
 dist/
 etc/keystone.conf
+tests/test.db.pristine
