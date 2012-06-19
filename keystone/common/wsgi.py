@@ -24,7 +24,7 @@ import json
 import sys
 
 import eventlet.wsgi
-eventlet.patcher.monkey_patch(all=False, socket=True, time=True)
+eventlet.patcher.monkey_patch(all=False, socket=True, time=True, thread=True)
 import routes.middleware
 import ssl
 import webob.dec
