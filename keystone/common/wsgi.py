@@ -25,7 +25,7 @@ import sys
 
 import eventlet
 import eventlet.wsgi
-eventlet.patcher.monkey_patch(all=False, socket=True, time=True)
+eventlet.patcher.monkey_patch(all=False, socket=True, time=True, thread=True)
 import routes
 import routes.middleware
 import webob
