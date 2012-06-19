@@ -90,9 +90,8 @@ class JsonBodyMiddlewareTest(test.TestCase):
         req = make_request(body='{"arg1": "on',
                            content_type='application/json',
                            method='POST')
-        _middleware = middleware.JsonBodyMiddleware(None)
-        self.assertRaises(webob.exc.HTTPBadRequest,
-                          _middleware.process_request, req)
+        resp = middleware.JsonBodyMiddleware(None).process_request(req)
+        self.assertEqual(resp.status_int, 400)
 
     def test_no_content_type(self):
         req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
@@ -105,6 +104,12 @@ class JsonBodyMiddlewareTest(test.TestCase):
         req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
                            content_type='text/plain',
                            method='POST')
+        resp = middleware.JsonBodyMiddleware(None).process_request(req)
+        self.assertEqual(resp.status_int, 400)
+
+    def test_unrecognized_content_type_without_body(self):
+        req = make_request(content_type='text/plain',
+                           method='GET')
         middleware.JsonBodyMiddleware(None).process_request(req)
         params = req.environ.get(middleware.PARAMS_ENV, {})
         self.assertEqual(params, {})
