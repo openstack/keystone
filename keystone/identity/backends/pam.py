@@ -69,7 +69,7 @@ class PamIdentity(identity.Driver):
 
             user = {'id': user_id, 'name': user_id}
 
-            return (tenant, user, metadata)
+            return (user, tenant, metadata)
 
     def get_tenant(self, tenant_id):
         return {'id': tenant_id, 'name': tenant_id}
