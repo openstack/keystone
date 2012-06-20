@@ -16,8 +16,6 @@
 
 import json
 
-import webob.exc
-
 from keystone.common import serializer
 from keystone.common import wsgi
 from keystone import config
