@@ -490,17 +490,22 @@ class ExtensionRouter(Router):
         return _factory
 
 
-def render_response(body=None, status=(200, 'OK'), headers=None):
+def render_response(body=None, status=None, headers=None):
     """Forms a WSGI response."""
-    resp = webob.Response()
-    resp.status = '%s %s' % status
-    resp.headerlist = headers or [('Content-Type', 'application/json'),
-                                  ('Vary', 'X-Auth-Token')]
+    headers = headers or []
+    headers.append(('Vary', 'X-Auth-Token'))
 
-    if body is not None:
-        resp.body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
+    if body is None:
+        body = ''
+        status = status or (204, 'No Content')
+    else:
+        body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
+        headers.append(('Content-Type', 'application/json'))
+        status = status or (200, 'OK')
 
-    return resp
+    return webob.Response(body=body,
+                          status='%s %s' % status,
+                          headerlist=headers)
 
 
 def render_exception(error):
