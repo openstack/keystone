@@ -25,3 +25,6 @@ https://github.com/openstack/python-keystoneclient/zipball/master#egg=python-key
 # swift_auth test dependencies
 https://github.com/openstack/swift/zipball/master#egg=swift
 netifaces
+
+# For translations processing
+Babel
