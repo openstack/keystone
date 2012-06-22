@@ -20,6 +20,7 @@ import sys
 import textwrap
 
 from keystone import config
+from keystone.common import openssl
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 
@@ -53,6 +54,19 @@ class DbSync(BaseApp):
             driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
                 driver.db_sync()
+
+
+class PKISetup(BaseApp):
+    """Set up Key pairs and certificates for token signing and verification."""
+
+    name = 'pki_setup'
+
+    def __init__(self, *args, **kw):
+        super(PKISetup, self).__init__(*args, **kw)
+
+    def main(self):
+        conf_ssl = openssl.ConfigurePKI()
+        conf_ssl.run()
 
 
 class ImportLegacy(BaseApp):
@@ -110,6 +124,7 @@ CMDS = {'db_sync': DbSync,
         'import_legacy': ImportLegacy,
         'export_legacy_catalog': ExportLegacyCatalog,
         'import_nova_auth': ImportNovaAuth,
+        'pki_setup': PKISetup,
         }
 
 

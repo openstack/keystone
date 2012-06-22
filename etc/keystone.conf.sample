@@ -88,11 +88,18 @@
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 #cert_required = True
 
+[signing]
+#certfile = /etc/keystone/ssl/certs/signing_cert.pem
+#keyfile = /etc/keystone/ssl/private/signing_key.pem
+#ca_certs = /etc/keystone/ssl/certs/ca.pem
+#key_size = 2048
+#valid_days = 3650
+#ca_password = None
 
 [ldap]
 # url = ldap://localhost
 # user = dc=Manager,dc=example,dc=com
-# password = freeipa4all
+# password = None
 # suffix = cn=example,cn=com
 # use_dumb_member = False
 

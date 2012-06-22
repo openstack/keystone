@@ -124,6 +124,16 @@ register_str('certfile', group='ssl', default=None)
 register_str('keyfile', group='ssl', default=None)
 register_str('ca_certs', group='ssl', default=None)
 register_bool('cert_required', group='ssl', default=False)
+#signing options
+register_str('certfile', group='signing',
+             default="/etc/keystone/ssl/certs/signing_cert.pem")
+register_str('keyfile', group='signing',
+             default="/etc/keystone/ssl/private/signing_key.pem")
+register_str('ca_certs', group='signing',
+             default="/etc/keystone/ssl/certs/ca.pem")
+register_int('key_size', group='signing', default=2048)
+register_int('valid_days', group='signing', default=3650)
+register_str('ca_password', group='signing', default=None)
 
 # sql options
 register_str('connection', group='sql', default='sqlite:///keystone.db')
