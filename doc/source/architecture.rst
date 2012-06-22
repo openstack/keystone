@@ -86,18 +86,22 @@ which are thin wrapper classes which load the appropriate service driver based
 on the keystone configuration.
 
 * Identity
+
  * :mod:`keystone.identity.core.TenantController`
  * :mod:`keystone.identity.core.UserController`
  * :mod:`keystone.identity.core.RoleController`
 
 * Catalog
+
  * :mod:`keystone.catalog.core.ServiceController`
  * :mod:`keystone.service.VersionController`
 
 * Token
+
  * :mod:`keystone.service.TokenController`
 
 * Misc
+
  * :mod:`keystone.service.ExtensionsController`
 
 At this time, the policy service and associated manager is not exposed as a URL
