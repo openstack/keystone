@@ -6,10 +6,10 @@ keystone-manage
 Keystone Management Utility
 ---------------------------
 
-:Author: keystone@lists.launchpad.net
+:Author: openstack@lists.launchpad.net
 :Date:   2010-11-16
 :Copyright: OpenStack LLC
-:Version: 0.1.2
+:Version: 2012.1
 :Manual section: 1
 :Manual group: cloud computing
 
@@ -95,4 +95,4 @@ SOURCE
 ======
 
 * Keystone is sourced in GitHub `Keystone <http://github.com/openstack/keystone>`__
-* Keystone bugs are managed at Launchpad `Launchpad Keystone <https://bugs.launchpad.net/keystone>`__
+* Keystone bugs are managed at Launchpad `Keystone <https://bugs.launchpad.net/keystone>`__
