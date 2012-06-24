@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Model descriptions.
+"""Base model for keystone internal services
 
 Unless marked otherwise, all fields are strings.
 
@@ -27,6 +27,56 @@ class Model(dict):
     @property
     def known_keys(cls):
         return cls.required_keys + cls.optional_keys
+
+
+class Token(Model):
+    """Token object.
+
+    Required keys:
+        id
+        expires (datetime)
+
+    Optional keys:
+        user
+        tenant
+        metadata
+    """
+
+    required_keys = ('id', 'expires')
+    optional_keys = ('extra',)
+
+
+class Service(Model):
+    """Service object.
+
+    Required keys:
+        id
+        type
+        name
+
+    Optional keys:
+    """
+
+    required_keys = ('id', 'type', 'name')
+    optional_keys = tuple()
+
+
+class Endpoint(Model):
+    """Endpoint object
+
+    Required keys:
+        id
+        region
+        service_id
+
+    Optional keys:
+        internalurl
+        publicurl
+        adminurl
+    """
+
+    required_keys = ('id', 'region', 'service_id')
+    optional_keys = ('interalurl', 'publicurl', 'adminurl')
 
 
 class User(Model):
