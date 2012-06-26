@@ -289,6 +289,18 @@ class IdentityTests(object):
                           self.identity_api.get_tenant,
                           'fake2')
 
+    def test_add_duplicate_role_grant(self):
+        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+            self.user_foo['id'], self.tenant_bar['id'])
+        self.assertNotIn('keystone_admin', roles_ref)
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
+        self.assertRaises(exception.Conflict,
+                          self.identity_api.add_role_to_user_and_tenant,
+                          self.user_foo['id'],
+                          self.tenant_bar['id'],
+                          'keystone_admin')
+
     def test_get_role_by_user_and_tenant(self):
         roles_ref = self.identity_api.get_roles_for_user_and_tenant(
             self.user_foo['id'], self.tenant_bar['id'])

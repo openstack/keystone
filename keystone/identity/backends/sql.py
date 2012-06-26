@@ -319,6 +319,10 @@ class Identity(sql.Base, identity.Driver):
             metadata_ref = {}
             is_new = True
         roles = set(metadata_ref.get('roles', []))
+        if role_id in roles:
+            msg = ('User %s already has role %s in tenant %s'
+                   % (user_id, role_id, tenant_id))
+            raise exception.Conflict(type='role grant', details=msg)
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
         if is_new:

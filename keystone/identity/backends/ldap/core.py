@@ -153,6 +153,8 @@ class Identity(identity.Driver):
             raise exception.RoleNotFound(role_id=role_id)
 
     # These should probably be part of the high-level API
+    # When this happens, then change TenantAPI.add_user to not ignore
+    # ldap.TYPE_OR_VALUE_EXISTS
     def add_user_to_tenant(self, tenant_id, user_id):
         self.get_tenant(tenant_id)
         self.get_user(user_id)
@@ -485,11 +487,17 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def add_user(self, tenant_id, user_id):
         conn = self.get_connection()
-        conn.modify_s(
-            self._id_to_dn(tenant_id),
-            [(ldap.MOD_ADD,
-              self.member_attribute,
-              self.user_api._id_to_dn(user_id))])
+        try:
+            conn.modify_s(
+                self._id_to_dn(tenant_id),
+                [(ldap.MOD_ADD,
+                  self.member_attribute,
+                  self.user_api._id_to_dn(user_id))])
+        except ldap.TYPE_OR_VALUE_EXISTS:
+            # As adding a user to a tenant is done implicitly in several
+            # places, and is not part of the exposed API, it's easier for us to
+            # just ignore this instead of raising exception.Conflict.
+            pass
 
     def remove_user(self, tenant_id, user_id):
         conn = self.get_connection()
@@ -624,8 +632,9 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             conn.modify_s(role_dn, [(ldap.MOD_ADD,
                                      self.member_attribute, user_dn)])
         except ldap.TYPE_OR_VALUE_EXISTS:
-            raise exception.Error('User %s already has role %s in tenant %s'
-                                  % (user_id, role_id, tenant_id))
+            msg = ('User %s already has role %s in tenant %s'
+                   % (user_id, role_id, tenant_id))
+            raise exception.Conflict(type='role grant', details=msg)
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
                 raise Exception("Role %s not found" % (role_id,))
