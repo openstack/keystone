@@ -123,7 +123,7 @@ class CrudExtension(wsgi.ExtensionRouter):
         mapper.connect(
             '/users/{user_id}/roles/OS-KSADM/{role_id}',
             controller=role_controller,
-            action='delete_role_from_user',
+            action='remove_role_from_user',
             conditions=dict(method=['DELETE']))
 
         # COMPAT(diablo): User Roles
