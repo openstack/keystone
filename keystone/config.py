@@ -151,20 +151,17 @@ register_str('password', group='ldap', default='freeipa4all')
 register_str('suffix', group='ldap', default='cn=example,cn=com')
 register_bool('use_dumb_member', group='ldap', default=False)
 
-register_str('user_tree_dn', group='ldap',
-             default='ou=Users,dc=example,dc=com')
+register_str('user_tree_dn', group='ldap', default=None)
 register_str('user_objectclass', group='ldap', default='inetOrgPerson')
 register_str('user_id_attribute', group='ldap', default='cn')
 
-register_str('tenant_tree_dn', group='ldap',
-             default='ou=Groups,dc=example,dc=com')
+register_str('tenant_tree_dn', group='ldap', default=None)
 register_str('tenant_objectclass', group='ldap', default='groupOfNames')
 register_str('tenant_id_attribute', group='ldap', default='cn')
 register_str('tenant_member_attribute', group='ldap', default='member')
 
 
-register_str('role_tree_dn', group='ldap',
-             default='ou=Roles,dc=example,dc=com')
+register_str('role_tree_dn', group='ldap', default=None)
 register_str('role_objectclass', group='ldap', default='organizationalRole')
 register_str('role_id_attribute', group='ldap', default='cn')
 register_str('role_member_attribute', group='ldap', default='roleOccupant')

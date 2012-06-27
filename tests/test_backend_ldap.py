@@ -135,3 +135,15 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertRaises(exception.NotImplemented,
                           self.identity_api.get_tenant_users,
                           tenant_id=uuid.uuid4().hex)
+
+    def test_build_tree(self):
+        """Regression test for building the tree names
+        """
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+
+        user_api = identity_ldap.UserApi(CONF)
+        self.assertTrue(user_api)
+        self.assertEquals(user_api.tree_dn, "ou=Users,%s" % CONF.ldap.suffix)
+

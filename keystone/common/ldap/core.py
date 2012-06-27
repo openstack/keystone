@@ -83,7 +83,7 @@ class BaseLdap(object):
                 self.suffix = self.DEFAULT_SUFFIX
             dn = '%s_tree_dn' % self.options_name
             self.tree_dn = (getattr(conf.ldap, dn)
-                            or '%s,%s' % (self.suffix, self.DEFAULT_OU))
+                            or '%s,%s' % (self.DEFAULT_OU, self.suffix))
 
             idatt = '%s_id_attribute' % self.options_name
             self.id_attr = getattr(conf.ldap, idatt) or self.DEFAULT_ID_ATTR
