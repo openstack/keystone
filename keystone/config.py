@@ -140,6 +140,8 @@ register_str('driver', group='token',
              default='keystone.token.backends.kvs.Token')
 register_str('driver', group='ec2',
              default='keystone.contrib.ec2.backends.kvs.Ec2')
+register_str('driver', group='stats',
+             default='keystone.contrib.stats.backends.kvs.Stats')
 
 
 #ldap

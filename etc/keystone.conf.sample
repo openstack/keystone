@@ -137,6 +137,12 @@ paste.filter_factory = keystone.contrib.s3:S3Extension.factory
 [filter:url_normalize]
 paste.filter_factory = keystone.middleware:NormalizingFilter.factory
 
+[filter:stats_monitoring]
+paste.filter_factory = keystone.contrib.stats:StatsMiddleware.factory
+
+[filter:stats_reporting]
+paste.filter_factory = keystone.contrib.stats:StatsExtension.factory
+
 [app:public_service]
 paste.app_factory = keystone.service:public_app_factory
 
@@ -144,10 +150,10 @@ paste.app_factory = keystone.service:public_app_factory
 paste.app_factory = keystone.service:admin_app_factory
 
 [pipeline:public_api]
-pipeline = url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension public_service
+pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension public_service
 
 [pipeline:admin_api]
-pipeline = url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension s3_extension crud_extension admin_service
+pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service
 
 [app:public_version_service]
 paste.app_factory = keystone.service:public_version_app_factory
@@ -156,10 +162,10 @@ paste.app_factory = keystone.service:public_version_app_factory
 paste.app_factory = keystone.service:admin_version_app_factory
 
 [pipeline:public_version_api]
-pipeline = url_normalize xml_body public_version_service
+pipeline = stats_monitoring url_normalize xml_body public_version_service
 
 [pipeline:admin_version_api]
-pipeline = url_normalize xml_body admin_version_service
+pipeline = stats_monitoring url_normalize xml_body admin_version_service
 
 [composite:main]
 use = egg:Paste#urlmap
