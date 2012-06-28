@@ -15,14 +15,14 @@
 # under the License.
 
 import httplib
-import json
 import uuid
 
 from lxml import etree
 import nose.exc
 
-from keystone import test
 from keystone.common import serializer
+from keystone.openstack.common import jsonutils
+from keystone import test
 
 import default_fixtures
 
@@ -153,7 +153,7 @@ class RestfulTestCase(test.TestCase):
             headers['Accept'] = 'application/json'
             if body:
                 headers['Content-Type'] = 'application/json'
-                return json.dumps(body)
+                return jsonutils.dumps(body)
         elif content_type == 'xml':
             headers['Accept'] = 'application/xml'
             if body:
@@ -173,7 +173,7 @@ class RestfulTestCase(test.TestCase):
             self.assertIn(self.content_type, header)
 
             if self.content_type == 'json':
-                response.body = json.loads(response.body)
+                response.body = jsonutils.loads(response.body)
             elif self.content_type == 'xml':
                 response.body = etree.fromstring(response.body)
 

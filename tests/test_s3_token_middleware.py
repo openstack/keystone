@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import logging
 
 import stubout
@@ -24,6 +23,7 @@ import webob
 from swift.common import utils as swift_utils
 
 from keystone.middleware import s3_token
+from keystone.openstack.common import jsonutils
 
 
 def denied_request(code):
@@ -74,7 +74,7 @@ class FakeHTTPConnection(object):
             raise Exception
         ret = {'access': {'token': {'id': 'TOKEN_ID',
                                     'tenant': {'id':  'TENANT_ID'}}}}
-        body = json.dumps(ret)
+        body = jsonutils.dumps(ret)
         status = self.status
         self.resp = FakeHTTPResponse(status, body)
 

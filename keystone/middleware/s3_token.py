@@ -34,10 +34,10 @@ This WSGI component:
 """
 
 import httplib
-import json
 
 import webob
 
+from keystone.openstack.common import jsonutils
 from swift.common import utils as swift_utils
 
 
@@ -167,7 +167,7 @@ class S3Token(object):
         creds = {'credentials': {'access': access,
                                  'token': token,
                                  'signature': signature}}
-        creds_json = json.dumps(creds)
+        creds_json = jsonutils.dumps(creds)
         self.logger.debug('Connecting to Keystone sending this JSON: %s' %
                           creds_json)
         # NOTE(vish): We could save a call to keystone by having
@@ -190,7 +190,7 @@ class S3Token(object):
                           resp.status, output))
 
         try:
-            identity_info = json.loads(output)
+            identity_info = jsonutils.loads(output)
             token_id = str(identity_info['access']['token']['id'])
             tenant = identity_info['access']['token']['tenant']
         except (ValueError, KeyError):

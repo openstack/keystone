@@ -14,12 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 import webob
 
 from keystone import test
 from keystone.common import wsgi
+from keystone.openstack.common import jsonutils
 
 
 class ApplicationTest(test.TestCase):
@@ -47,4 +46,4 @@ class ApplicationTest(test.TestCase):
         app = FakeApp()
         req = self._make_request(url='/?1=2')
         resp = req.get_response(app)
-        self.assertEqual(json.loads(resp.body), {'1': '2'})
+        self.assertEqual(jsonutils.loads(resp.body), {'1': '2'})

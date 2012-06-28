@@ -17,9 +17,10 @@
 
 """Common Policy Engine Implementation"""
 
-import json
 import urllib
 import urllib2
+
+from keystone.openstack.common import jsonutils
 
 
 class NotAuthorized(Exception):
@@ -109,7 +110,7 @@ class Brain(object):
     @classmethod
     def load_json(cls, data, default_rule=None):
         """Init a brain using json instead of a rules dictionary."""
-        rules_dict = json.loads(data)
+        rules_dict = jsonutils.loads(data)
         return cls(rules=rules_dict, default_rule=default_rule)
 
     def __init__(self, rules=None, default_rule=None):
@@ -203,8 +204,8 @@ class HttpBrain(Brain):
 
         """
         url = match % target_dict
-        data = {'target': json.dumps(target_dict),
-                'credentials': json.dumps(cred_dict)}
+        data = {'target': jsonutils.dumps(target_dict),
+                'credentials': jsonutils.dumps(cred_dict)}
         post_data = urllib.urlencode(data)
         f = urllib2.urlopen(url, post_data)
         return f.read() == "True"

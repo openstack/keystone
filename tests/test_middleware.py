@@ -14,13 +14,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 import webob
 
 from keystone import config
 from keystone import middleware
 from keystone import test
+from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
@@ -151,7 +150,7 @@ class XmlBodyMiddlewareTest(test.TestCase):
                 method='POST')
         middleware.XmlBodyMiddleware(None).process_request(req)
         self.assertTrue(req.content_type, 'application/json')
-        self.assertTrue(json.loads(req.body))
+        self.assertTrue(jsonutils.loads(req.body))
 
     def test_json_unnaffected(self):
         """JSON-only requests should be unnaffected by the XML middleware."""
