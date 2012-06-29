@@ -62,12 +62,16 @@ class StatsExtension(wsgi.ExtensionRouter):
     def add_routes(self, mapper):
         stats_controller = StatsController()
 
-        mapper.connect('/OS-STATS/stats', controller=stats_controller,
-                action='get_stats',
-                conditions=dict(method=['GET']))
-        mapper.connect('/OS-STATS/stats', controller=stats_controller,
-                action='reset_stats',
-                conditions=dict(method=['DELETE']))
+        mapper.connect(
+            '/OS-STATS/stats',
+            controller=stats_controller,
+            action='get_stats',
+            conditions=dict(method=['GET']))
+        mapper.connect(
+            '/OS-STATS/stats',
+            controller=stats_controller,
+            action='reset_stats',
+            conditions=dict(method=['DELETE']))
 
 
 class StatsController(wsgi.Application):
@@ -80,7 +84,8 @@ class StatsController(wsgi.Application):
 
     def get_stats(self, context):
         self.assert_admin(context)
-        return {'OS-STATS:stats': [
+        return {
+            'OS-STATS:stats': [
                 {
                     'type': 'identity',
                     'api': 'admin',
