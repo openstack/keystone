@@ -1,0 +1,23 @@
+# Format is:
+# <preferred e-mail> <other e-mail 1>
+# <preferred e-mail> <other e-mail 2>
+<adam.gandelman@canonical.com> <adamg@canonical.com>
+<brian.waldon@rackspace.com> <bcwaldon@gmail.com>
+<brian.lamar@rackspace.com> <brian.lamar@gmail.com>
+<dolph.mathews@rackspace.com> <dolph.mathews@gmail.com>
+<jeblair@hp.com> <james.blair@rackspace.com>
+<jeblair@hp.com> <corvus@gnu.org>
+<jaypipes@gmail.com> <jpipes@uberbox.gateway.2wire.net>
+<john.eo@rackspace.com> <john.eo@gmail.com>
+<khaled.hussein@rackspace.com> <khaled.hussein@gmail.com>
+<liem_m_nguyen@hp.com> <liem.m.nguyen@gmail.com>
+<liem_m_nguyen@hp.com> <liem.m.nguyen@hp.com>
+<rjuvvadi@hcl.com> <ramana@venus.lekha.org>
+<rjuvvadi@hcl.com> <rrjuvvadi@gmail.com>
+<xtoddx@gmail.com> <todd@rubidine.com>
+<github@highbridgellc.com> <gihub@highbridgellc.com>
+<github@highbridgellc.com> <ziad.sawalha@rackspace.com>
+Sirish Bitra <sirish.bitra@gmail.com> sirish.bitra <sirish.bitra@gmail.com>
+Sirish Bitra <sirish.bitra@gmail.com> sirishbitra <sirish.bitra@gmail.com>
+Sirish Bitra <sirish.bitra@gmail.com> root <root@bsirish.(none)>
+
