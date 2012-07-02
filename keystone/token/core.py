@@ -21,6 +21,7 @@ import datetime
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF
@@ -104,4 +105,4 @@ class Driver(object):
 
         """
         expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
-        return datetime.datetime.utcnow() + expire_delta
+        return timeutils.utcnow() + expire_delta

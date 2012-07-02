@@ -14,13 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-import time
 import uuid
 
 import memcache
 
+from keystone.common import utils
 from keystone import exception
+from keystone.openstack.common import timeutils
 from keystone import test
 from keystone.token.backends import memcache as token_memcache
 
@@ -42,7 +42,7 @@ class MemcacheClient(object):
         """Retrieves the value for a key or None."""
         self.check_key(key)
         obj = self.cache.get(key)
-        now = time.mktime(datetime.datetime.utcnow().utctimetuple())
+        now = utils.unixtime(timeutils.utcnow())
         if obj and (obj[1] == 0 or obj[1] > now):
             return obj[0]
         else:

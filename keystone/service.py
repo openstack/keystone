@@ -24,6 +24,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common import timeutils
 from keystone import policy
 from keystone import token
 
@@ -451,7 +452,7 @@ class TokenController(wsgi.Application):
         metadata_ref = token_ref['metadata']
         expires = token_ref['expires']
         if expires is not None:
-            expires = utils.isotime(expires)
+            expires = timeutils.isotime(expires)
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,
                                   },

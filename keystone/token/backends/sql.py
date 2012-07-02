@@ -15,10 +15,10 @@
 # under the License.
 
 import copy
-import datetime
 
 from keystone.common import sql
 from keystone import exception
+from keystone.openstack.common import timeutils
 from keystone import token
 
 
@@ -50,7 +50,7 @@ class Token(sql.Base, token.Driver):
     def get_token(self, token_id):
         session = self.get_session()
         token_ref = session.query(TokenModel).filter_by(id=token_id).first()
-        now = datetime.datetime.utcnow()
+        now = timeutils.utcnow()
         if token_ref and (not token_ref.expires or now < token_ref.expires):
             return token_ref.to_dict()
         else:
@@ -80,7 +80,7 @@ class Token(sql.Base, token.Driver):
     def list_tokens(self, user_id):
         session = self.get_session()
         tokens = []
-        now = datetime.datetime.utcnow()
+        now = timeutils.utcnow()
         for token_ref in session.query(TokenModel)\
                                 .filter(TokenModel.expires > now):
             token_ref_dict = token_ref.to_dict()
