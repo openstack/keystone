@@ -46,9 +46,11 @@
 # Format string for %(asctime)s in log records.
 # log_date_format = %Y-%m-%d %H:%M:%S
 
-# onready allows you to run a command when the process is ready to serve
-# for example to have it notify using systemd, one could set
+# onready allows you to send a notification when the process is ready to serve
+# For example, to have it notify using systemd, one could set shell command:
 # onready = systemd-notify --ready
+# or a module with notify() method:
+# onready = keystone.common.systemd
 
 [sql]
 # The SQLAlchemy connection string used to connect to the database
