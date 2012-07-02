@@ -20,7 +20,7 @@ iso8601>=0.1.4
 
 # for python-keystoneclient
 httplib2
-https://github.com/openstack/python-keystoneclient/zipball/master#egg=python-keystoneclient
+python-keystoneclient>=0.1,<0.2
 
 # swift_auth test dependencies
 https://github.com/openstack/swift/zipball/master#egg=swift
