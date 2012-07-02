@@ -17,8 +17,8 @@
 import subprocess
 
 from keystone import config
-from keystone import test
 from keystone.identity.backends import ldap as identity_ldap
+from keystone import test
 
 import default_fixtures
 import test_backend

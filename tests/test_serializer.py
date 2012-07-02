@@ -16,8 +16,8 @@
 
 import re
 
-from keystone import test
 from keystone.common import serializer
+from keystone import test
 
 
 class XmlSerializerTestCase(test.TestCase):

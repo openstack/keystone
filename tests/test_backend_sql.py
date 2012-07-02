@@ -16,15 +16,15 @@
 
 import uuid
 
+from keystone.common.sql import util as sql_util
 from keystone import config
 from keystone import exception
-from keystone import test
-from keystone.common.sql import util as sql_util
 from keystone.identity.backends import sql as identity_sql
+from keystone import test
 from keystone.token.backends import sql as token_sql
 
-import test_backend
 import default_fixtures
+import test_backend
 
 
 CONF = config.CONF

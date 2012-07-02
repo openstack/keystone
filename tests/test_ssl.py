@@ -15,12 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import httplib
+import os
 import ssl
 
-from keystone import test
 from keystone import config
+from keystone import test
 
 
 CONF = config.CONF

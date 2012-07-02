@@ -17,13 +17,13 @@
 import os
 import uuid
 
+from keystone import catalog
+from keystone.catalog.backends import templated as catalog_templated
 from keystone import exception
 from keystone import test
-from keystone.catalog.backends import templated as catalog_templated
-from keystone import catalog
 
-import test_backend
 import default_fixtures
+import test_backend
 
 DEFAULT_CATALOG_TEMPLATES = os.path.abspath(os.path.join(
                                 os.path.dirname(__file__),

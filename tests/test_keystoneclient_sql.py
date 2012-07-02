@@ -16,9 +16,9 @@
 
 import uuid
 
+from keystone.common.sql import util as sql_util
 from keystone import config
 from keystone import test
-from keystone.common.sql import util as sql_util
 
 import test_keystoneclient
 
