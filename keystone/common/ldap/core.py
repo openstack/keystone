@@ -107,7 +107,11 @@ class BaseLdap(object):
         if password is None:
             password = self.LDAP_PASSWORD
 
-        conn.simple_bind_s(user, password)
+        # not all LDAP servers require authentication, so we don't bind
+        # if we don't have any user/pass
+        if user and password:
+            conn.simple_bind_s(user, password)
+
         return conn
 
     def _id_to_dn(self, id):
