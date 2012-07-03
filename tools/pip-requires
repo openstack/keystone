@@ -1,4 +1,4 @@
-# keystonelight dependencies
+# keystone dependencies
 pam==0.1.4
 WebOb==1.0.8
 eventlet
@@ -10,3 +10,4 @@ sqlalchemy
 sqlalchemy-migrate
 passlib
 lxml
+iso8601>=0.1.4
