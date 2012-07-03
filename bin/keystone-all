@@ -2,6 +2,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 import greenlet
+import eventlet
 import logging
 import os
 import signal
@@ -16,6 +17,8 @@ if os.path.exists(os.path.join(possible_topdir,
                                'keystone',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
+
+eventlet.patcher.monkey_patch(all=False, socket=True, time=True, thread=True)
 
 from paste import deploy
 
