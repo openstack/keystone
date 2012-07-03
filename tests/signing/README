@@ -1,0 +1,4 @@
+auth_token.pem was constructed using the following command
+
+openssl cms  -sign -in auth_token.json  -nosmimecap  -signer signing_cert.pem -inkey private_key.pem -outform PEM -nodetach -nocerts  -noattr -out auth_token.pem
+

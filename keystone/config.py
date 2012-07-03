@@ -110,7 +110,6 @@ def register_cli_int(*args, **kw):
     group = kw.pop('group', None)
     return conf.register_cli_opt(cfg.IntOpt(*args, **kw), group=group)
 
-
 register_str('admin_token', default='ADMIN')
 register_str('bind_host', default='0.0.0.0')
 register_str('compute_port', default=8774)
@@ -126,6 +125,8 @@ register_str('keyfile', group='ssl', default=None)
 register_str('ca_certs', group='ssl', default=None)
 register_bool('cert_required', group='ssl', default=False)
 #signing options
+register_bool('disable_pki', group='signing',
+              default=True)
 register_str('certfile', group='signing',
              default="/etc/keystone/ssl/certs/signing_cert.pem")
 register_str('keyfile', group='signing',
@@ -135,6 +136,7 @@ register_str('ca_certs', group='signing',
 register_int('key_size', group='signing', default=2048)
 register_int('valid_days', group='signing', default=3650)
 register_str('ca_password', group='signing', default=None)
+
 
 # sql options
 register_str('connection', group='sql', default='sqlite:///keystone.db')
@@ -153,7 +155,6 @@ register_str('driver', group='ec2',
              default='keystone.contrib.ec2.backends.kvs.Ec2')
 register_str('driver', group='stats',
              default='keystone.contrib.stats.backends.kvs.Stats')
-
 
 #ldap
 register_str('url', group='ldap', default='ldap://localhost')
