@@ -21,7 +21,7 @@ Configuring Services to work with Keystone
 .. toctree::
    :maxdepth: 1
 
-    middleware_architecture
+   middlewarearchitecture
 
 Once Keystone is installed and running (see :doc:`configuration`), services
 need to be configured to work with it. To do this, we primarily install and
