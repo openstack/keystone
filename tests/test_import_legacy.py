@@ -19,12 +19,12 @@ import os
 import sqlite3
 #import sqlalchemy
 
-from keystone import config
-from keystone import test
+from keystone.catalog.backends import templated as catalog_templated
 from keystone.common.sql import legacy
 from keystone.common.sql import util as sql_util
+from keystone import config
 from keystone.identity.backends import sql as identity_sql
-from keystone.catalog.backends import templated as catalog_templated
+from keystone import test
 
 
 CONF = config.CONF

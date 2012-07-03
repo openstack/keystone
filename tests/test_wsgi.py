@@ -16,9 +16,9 @@
 
 import webob
 
-from keystone import test
 from keystone.common import wsgi
 from keystone.openstack.common import jsonutils
+from keystone import test
 
 
 class ApplicationTest(test.TestCase):

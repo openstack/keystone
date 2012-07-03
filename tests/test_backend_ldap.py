@@ -16,11 +16,11 @@
 
 import uuid
 
+from keystone.common.ldap import fakeldap
 from keystone import config
 from keystone import exception
-from keystone import test
-from keystone.common.ldap import fakeldap
 from keystone.identity.backends import ldap as identity_ldap
+from keystone import test
 
 import default_fixtures
 import test_backend

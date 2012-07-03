@@ -14,9 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import webob
 import datetime
 import iso8601
+import webob
 
 from keystone.middleware import auth_token
 from keystone.openstack.common import jsonutils
