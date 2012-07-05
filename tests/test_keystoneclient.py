@@ -16,10 +16,13 @@
 
 import time
 import uuid
+import webob
 
 import nose.exc
 
 from keystone import test
+from keystone.openstack.common import jsonutils
+
 
 import default_fixtures
 
@@ -856,6 +859,92 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         roles = client.roles.roles_for_user(user=self.user_foo['id'],
                                             tenant=self.tenant_bar['id'])
         self.assertTrue(len(roles) > 0)
+
+    def test_user_can_update_passwd(self):
+        client = self.get_client(self.user_two)
+
+        token_id = client.auth_token
+        new_password = uuid.uuid4().hex
+
+        # TODO(derekh) : Update to use keystoneclient when available
+        class FakeResponse(object):
+            def start_fake_response(self, status, headers):
+                self.response_status = int(status.split(' ', 1)[0])
+                self.response_headers = dict(headers)
+        responseobject = FakeResponse()
+
+        req = webob.Request.blank(
+            '/v2.0/OS-KSCRUD/users/%s' % self.user_two['id'],
+            headers={'X-Auth-Token': token_id})
+        req.method = 'PATCH'
+        req.body = '{"user":{"password":"%s","original_password":"%s"}}' % \
+            (new_password, self.user_two['password'])
+        self.public_server.application(req.environ,
+                                       responseobject.start_fake_response)
+
+        self.user_two['password'] = new_password
+        self.get_client(self.user_two)
+
+    def test_user_cant_update_other_users_passwd(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        client = self.get_client(self.user_two)
+
+        token_id = client.auth_token
+        new_password = uuid.uuid4().hex
+
+        # TODO(derekh) : Update to use keystoneclient when available
+        class FakeResponse(object):
+            def start_fake_response(self, status, headers):
+                self.response_status = int(status.split(' ', 1)[0])
+                self.response_headers = dict(headers)
+        responseobject = FakeResponse()
+
+        req = webob.Request.blank(
+            '/v2.0/OS-KSCRUD/users/%s' % self.user_foo['id'],
+            headers={'X-Auth-Token': token_id})
+        req.method = 'PATCH'
+        req.body = '{"user":{"password":"%s","original_password":"%s"}}' % \
+            (new_password, self.user_two['password'])
+        self.public_server.application(req.environ,
+                                       responseobject.start_fake_response)
+        self.assertEquals(403, responseobject.response_status)
+
+        self.user_two['password'] = new_password
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self.get_client, self.user_two)
+
+    def test_tokens_after_user_update_passwd(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        client = self.get_client(self.user_two)
+
+        token_id = client.auth_token
+        new_password = uuid.uuid4().hex
+
+        # TODO(derekh) : Update to use keystoneclient when available
+        class FakeResponse(object):
+            def start_fake_response(self, status, headers):
+                self.response_status = int(status.split(' ', 1)[0])
+                self.response_headers = dict(headers)
+        responseobject = FakeResponse()
+
+        req = webob.Request.blank(
+            '/v2.0/OS-KSCRUD/users/%s' % self.user_two['id'],
+            headers={'X-Auth-Token': token_id})
+        req.method = 'PATCH'
+        req.body = '{"user":{"password":"%s","original_password":"%s"}}' % \
+            (new_password, self.user_two['password'])
+
+        rv = self.public_server.application(
+            req.environ,
+            responseobject.start_fake_response)
+        responce_json = jsonutils.loads(rv.next())
+        new_token_id = responce_json['access']['token']['id']
+
+        self.assertRaises(client_exceptions.Unauthorized, client.tenants.list)
+        client.auth_token = new_token_id
+        client.tenants.list()
 
 
 class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):

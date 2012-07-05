@@ -134,6 +134,9 @@ paste.filter_factory = keystone.middleware:XmlBodyMiddleware.factory
 [filter:json_body]
 paste.filter_factory = keystone.middleware:JsonBodyMiddleware.factory
 
+[filter:user_crud_extension]
+paste.filter_factory = keystone.contrib.user_crud:CrudExtension.factory
+
 [filter:crud_extension]
 paste.filter_factory = keystone.contrib.admin_crud:CrudExtension.factory
 
@@ -159,7 +162,7 @@ paste.app_factory = keystone.service:public_app_factory
 paste.app_factory = keystone.service:admin_app_factory
 
 [pipeline:public_api]
-pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension public_service
+pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
 
 [pipeline:admin_api]
 pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service

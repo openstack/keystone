@@ -235,6 +235,30 @@ certificates::
 * ``ca_certs``:  Path to CA trust chain.
 * ``cert_required``:  Requires client certificate.  Defaults to False.
 
+User CRUD
+---------
+
+Keystone provides a user CRUD filter that can be added to the public_api
+pipeline. This user crud filter allows users to use a HTTP PATCH to change
+their own password. To enable this extension you should define a
+user_crud_extension filter, insert it after the ``*_body`` middleware
+and before the ``public_service`` app in the public_api WSGI pipeline in
+keystone.conf e.g.::
+
+    [filter:user_crud_extension]
+    paste.filter_factory = keystone.contrib.user_crud:CrudExtension.factory
+
+    [pipeline:public_api]
+    pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
+
+Each user can then change their own password with a HTTP PATCH ::
+
+    > curl -X PATCH http://localhost:5000/v2.0/OS-KSCRUD/users/<userid> -H "Content-type: application/json"  \
+    -H "X_Auth_Token: <authtokenid>" -d '{"user": {"password": "ABCD", "original_password": "DCBA"}}'
+
+In addition to changing their password all of the users current tokens will be
+deleted (if the backend used is kvs or sql)
+
 
 Sample Configuration Files
 --------------------------
