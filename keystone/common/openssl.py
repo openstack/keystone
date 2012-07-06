@@ -60,21 +60,18 @@ class ConfigurePKI(object):
         self.ssl_config_file_name = os.path.join(self.conf_dir, "openssl.conf")
         self.ca_key_file = os.path.join(self.conf_dir, "cakey.pem")
         self.request_file_name = os.path.join(self.conf_dir, "req.pem")
-        self.ssl_dictionary = \
-            {
-             'conf_dir': self.conf_dir,
-             "ca_cert": CONF.signing.ca_certs,
-             "ssl_config": self.ssl_config_file_name,
-             "ca_private_key": self.ca_key_file,
-             "ca_cert_cn": "hostname",
-             "request_file": self.request_file_name,
-             "signing_key": CONF.signing.keyfile,
-             "signing_cert": CONF.signing.certfile,
-             "default_subject": DEFAULT_SUBJECT,
-             "key_size": int(CONF.signing.key_size),
-             "valid_days": int(CONF.signing.valid_days),
-             "ca_password": CONF.signing.ca_password
-             }
+        self.ssl_dictionary = {'conf_dir': self.conf_dir,
+                               "ca_cert": CONF.signing.ca_certs,
+                               "ssl_config": self.ssl_config_file_name,
+                               "ca_private_key": self.ca_key_file,
+                               "ca_cert_cn": "hostname",
+                               "request_file": self.request_file_name,
+                               "signing_key": CONF.signing.keyfile,
+                               "signing_cert": CONF.signing.certfile,
+                               "default_subject": DEFAULT_SUBJECT,
+                               "key_size": int(CONF.signing.key_size),
+                               "valid_days": int(CONF.signing.valid_days),
+                               "ca_password": CONF.signing.ca_password}
 
     def exec_command(self, command):
         to_exec = command % self.ssl_dictionary
@@ -107,15 +104,15 @@ class ConfigurePKI(object):
         if not file_exists(CONF.signing.ca_certs):
             if not os.path.exists(self.ca_key_file):
                 make_dirs(self.ca_key_file)
-                self.exec_command("openssl genrsa -out %(ca_private_key)s "\
+                self.exec_command("openssl genrsa -out %(ca_private_key)s "
                                   "%(key_size)d -config %(ssl_config)s")
                 os.chmod(self.ssl_dictionary["ca_private_key"], stat.S_IRUSR)
             print("Generating CA certificate")
-            self.exec_command('openssl req -new -x509 -extensions v3_ca ' \
-                              '-passin pass:%(ca_password)s ' \
-                              '-key %(ca_private_key)s -out %(ca_cert)s '\
-                              '-days %(valid_days)d ' \
-                              '-config %(ssl_config)s ' \
+            self.exec_command('openssl req -new -x509 -extensions v3_ca '
+                              '-passin pass:%(ca_password)s '
+                              '-key %(ca_private_key)s -out %(ca_cert)s '
+                              '-days %(valid_days)d '
+                              '-config %(ssl_config)s '
                               '-subj %(default_subject)s')
             os.chmod(self.ssl_dictionary["ca_cert"], CERT_PERMS)
 
@@ -123,8 +120,8 @@ class ConfigurePKI(object):
         if not file_exists(CONF.signing.keyfile):
             make_dirs(CONF.signing.keyfile)
 
-            self.exec_command("openssl genrsa -out %(signing_key)s "\
-                              "%(key_size)d "\
+            self.exec_command("openssl genrsa -out %(signing_key)s "
+                              "%(key_size)d "
                               "-config %(ssl_config)s")
         os.chmod(os.path.dirname(self.ssl_dictionary["signing_key"]),
                  PRIV_PERMS)
@@ -133,11 +130,11 @@ class ConfigurePKI(object):
     def build_signing_cert(self):
         if not file_exists(CONF.signing.certfile):
             make_dirs(CONF.signing.certfile)
-            self.exec_command("openssl req -key %(signing_key)s -new -nodes "\
-                              "-out %(request_file)s -config %(ssl_config)s "\
-                         "-subj %(default_subject)s")
-            self.exec_command("openssl ca -batch -out %(signing_cert)s "\
-                              "-config %(ssl_config)s "\
+            self.exec_command("openssl req -key %(signing_key)s -new -nodes "
+                              "-out %(request_file)s -config %(ssl_config)s "
+                              "-subj %(default_subject)s")
+            self.exec_command("openssl ca -batch -out %(signing_cert)s "
+                              "-config %(ssl_config)s "
                               "-infiles %(request_file)s")
 
     def run(self):
