@@ -108,7 +108,7 @@ function run_pep8 {
   ignore_dirs="*ajaxterm*"
   GLOBIGNORE="$ignore_scripts:$ignore_files:$ignore_dirs"
   srcfiles=`find bin -type f ! -name .*.swp`
-  srcfiles+=" keystone"
+  srcfiles+=" keystone tests"
   # Just run PEP8 in current environment
   ${wrapper} pep8 --repeat --show-pep8 --show-source \
     --exclude=vcsversion.py ${srcfiles} | tee pep8.txt

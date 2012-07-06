@@ -146,4 +146,3 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         user_api = identity_ldap.UserApi(CONF)
         self.assertTrue(user_api)
         self.assertEquals(user_api.tree_dn, "ou=Users,%s" % CONF.ldap.suffix)
-
