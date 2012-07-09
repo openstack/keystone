@@ -45,8 +45,8 @@ class IdentityTests(object):
 
     def test_authenticate_no_tenant(self):
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-                user_id=self.user_foo['id'],
-                password=self.user_foo['password'])
+            user_id=self.user_foo['id'],
+            password=self.user_foo['password'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
@@ -57,9 +57,9 @@ class IdentityTests(object):
 
     def test_authenticate(self):
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-                user_id=self.user_foo['id'],
-                tenant_id=self.tenant_bar['id'],
-                password=self.user_foo['password'])
+            user_id=self.user_foo['id'],
+            tenant_id=self.tenant_bar['id'],
+            password=self.user_foo['password'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
@@ -72,9 +72,9 @@ class IdentityTests(object):
         user = self.user_no_meta
         tenant = self.tenant_baz
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-                user_id=user['id'],
-                tenant_id=tenant['id'],
-                password=user['password'])
+            user_id=user['id'],
+            tenant_id=tenant['id'],
+            password=user['password'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
@@ -99,7 +99,7 @@ class IdentityTests(object):
 
     def test_get_tenant_by_name(self):
         tenant_ref = self.identity_api.get_tenant_by_name(
-                tenant_name=self.tenant_bar['name'])
+            tenant_name=self.tenant_bar['name'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_tenant_by_name_404(self):
@@ -127,7 +127,7 @@ class IdentityTests(object):
 
     def test_get_user_by_name(self):
         user_ref = self.identity_api.get_user_by_name(
-                user_name=self.user_foo['name'])
+            user_name=self.user_foo['name'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
@@ -141,8 +141,8 @@ class IdentityTests(object):
 
     def test_get_metadata(self):
         metadata_ref = self.identity_api.get_metadata(
-                user_id=self.user_foo['id'],
-                tenant_id=self.tenant_bar['id'])
+            user_id=self.user_foo['id'],
+            tenant_id=self.tenant_bar['id'])
         self.assertDictEqual(metadata_ref, self.metadata_foobar)
 
     def test_get_metadata_404(self):
@@ -159,7 +159,7 @@ class IdentityTests(object):
 
     def test_get_role(self):
         role_ref = self.identity_api.get_role(
-                role_id=self.role_keystone_admin['id'])
+            role_id=self.role_keystone_admin['id'])
         role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
         self.assertDictEqual(role_ref_dict, self.role_keystone_admin)
 
@@ -179,10 +179,14 @@ class IdentityTests(object):
                           role)
 
     def test_rename_duplicate_role_name_fails(self):
-        role1 = {'id': 'fake1',
-                'name': 'fake1name'}
-        role2 = {'id': 'fake2',
-                'name': 'fake2name'}
+        role1 = {
+            'id': 'fake1',
+            'name': 'fake1name'
+        }
+        role2 = {
+            'id': 'fake2',
+            'name': 'fake2name'
+        }
         self.identity_api.create_role('fake1', role1)
         self.identity_api.create_role('fake2', role2)
         role1['name'] = 'fake2name'
@@ -538,9 +542,9 @@ class TokenTests(object):
 
         self.token_api.delete_token(token_id)
         self.assertRaises(exception.TokenNotFound,
-                self.token_api.get_token, token_id)
+                          self.token_api.get_token, token_id)
         self.assertRaises(exception.TokenNotFound,
-                self.token_api.delete_token, token_id)
+                          self.token_api.delete_token, token_id)
 
     def test_get_token_404(self):
         self.assertRaises(exception.TokenNotFound,
@@ -559,7 +563,7 @@ class TokenTests(object):
         data_ref = self.token_api.create_token(token_id, data)
         self.assertDictEqual(data_ref, data)
         self.assertRaises(exception.TokenNotFound,
-                self.token_api.get_token, token_id)
+                          self.token_api.get_token, token_id)
 
     def test_null_expires_token(self):
         token_id = uuid.uuid4().hex
@@ -572,17 +576,21 @@ class TokenTests(object):
 
 class CatalogTests(object):
     def test_service_crud(self):
-        new_service = {'id': 'MY_SERVICE', 'type': 'myservice',
-            'name': 'My Service', 'description': 'My description'}
+        new_service = {
+            'id': 'MY_SERVICE',
+            'type': 'myservice',
+            'name': 'My Service',
+            'description': 'My description'
+        }
         res = self.catalog_api.create_service(new_service['id'], new_service)
         self.assertDictEqual(res, new_service)
 
         service_id = new_service['id']
         self.catalog_api.delete_service(service_id)
         self.assertRaises(exception.ServiceNotFound,
-                self.catalog_man.delete_service, {}, service_id)
+                          self.catalog_man.delete_service, {}, service_id)
         self.assertRaises(exception.ServiceNotFound,
-                self.catalog_man.get_service, {}, service_id)
+                          self.catalog_man.get_service, {}, service_id)
 
     def test_get_service_404(self):
         self.assertRaises(exception.ServiceNotFound,
@@ -598,8 +606,8 @@ class CatalogTests(object):
 
     def test_create_endpoint_404(self):
         endpoint = {
-                'id': uuid.uuid4().hex,
-                'service_id': uuid.uuid4().hex,
+            'id': uuid.uuid4().hex,
+            'service_id': uuid.uuid4().hex,
         }
         self.assertRaises(exception.ServiceNotFound,
                           self.catalog_api.create_endpoint,

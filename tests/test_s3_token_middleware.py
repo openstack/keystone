@@ -28,11 +28,9 @@ from keystone.openstack.common import jsonutils
 
 def denied_request(code):
     error_table = {
-        'AccessDenied':
-            (401, 'Access denied'),
-        'InvalidURI':
-            (400, 'Could not parse the specified URI'),
-        }
+        'AccessDenied': (401, 'Access denied'),
+        'InvalidURI': (400, 'Could not parse the specified URI'),
+    }
     xml = '<?xml version="1.0" encoding="UTF-8"?>\r\n<Error>\r\n  ' \
         '<Code>%s</Code>\r\n  <Message>%s</Message>\r\n</Error>\r\n' \
         % (code, error_table[code][1])

@@ -145,9 +145,9 @@ class XmlBodyMiddlewareTest(test.TestCase):
     def test_xml_replaced_by_json(self):
         """XML requests should be replaced by JSON requests."""
         req = make_request(
-                body='<container><element attribute="value" /></container>',
-                content_type='application/xml',
-                method='POST')
+            body='<container><element attribute="value" /></container>',
+            content_type='application/xml',
+            method='POST')
         middleware.XmlBodyMiddleware(None).process_request(req)
         self.assertTrue(req.content_type, 'application/json')
         self.assertTrue(jsonutils.loads(req.body))

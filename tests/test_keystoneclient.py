@@ -235,7 +235,7 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.NotFound, client.tenants.get,
                           tenant.id)
         self.assertFalse([t for t in client.tenants.list()
-                           if t.id == tenant.id])
+                         if t.id == tenant.id])
 
     def test_tenant_create_no_name(self):
         from keystoneclient import exceptions as client_exceptions
@@ -341,7 +341,7 @@ class KeystoneClientTests(object):
 
         time.sleep(1.01)
         reauthenticated_token = foo_client.tokens.authenticate(
-                                    token=foo_client.auth_token)
+            token=foo_client.auth_token)
 
         self.assertEquals(orig_token['expires'],
                           reauthenticated_token.expires)
@@ -370,9 +370,9 @@ class KeystoneClientTests(object):
         self.assertFalse(user.enabled)
 
         self.assertRaises(client_exceptions.Unauthorized,
-                  self._client,
-                  username=test_username,
-                  password='password')
+                          self._client,
+                          username=test_username,
+                          password='password')
         client.users.update_enabled(user, True)
 
         user = client.users.update_password(user=user, password='password2')
@@ -868,16 +868,16 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
                                         user_id=self.user_foo['id'],
                                         role_id=self.role_useless['id'])
         role_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
+            user_id=self.user_foo['id'])
         self.assert_(self.tenant_baz['id'] in [x.tenantId for x in role_refs])
 
         # get the "role_refs" so we get the proper id, this is how the clients
         # do it
         roleref_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
+            user_id=self.user_foo['id'])
         for roleref_ref in roleref_refs:
             if (roleref_ref.roleId == self.role_useless['id']
-                and roleref_ref.tenantId == self.tenant_baz['id']):
+                    and roleref_ref.tenantId == self.tenant_baz['id']):
                 # use python's scope fall through to leave roleref_ref set
                 break
 
@@ -886,7 +886,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
                                              role_id=roleref_ref.id)
 
         role_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
+            user_id=self.user_foo['id'])
         self.assert_(self.tenant_baz['id'] not in
                      [x.tenantId for x in role_refs])
 
@@ -923,9 +923,9 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         self.assertFalse(user.enabled)
 
         self.assertRaises(client_exceptions.Unauthorized,
-                  self._client,
-                  username=test_username,
-                  password='password')
+                          self._client,
+                          username=test_username,
+                          password='password')
         client.users.update_enabled(user, True)
 
         user = client.users.update_password(user=user, password='password2')
