@@ -359,7 +359,7 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='user')
     def update_user(self, user_id, user):
         session = self.get_session()
-        if user_id != user['id']:
+        if 'id' in user and user_id != user['id']:
             raise exception.ValidationError('Cannot change user ID')
         with session.begin():
             user_ref = session.query(User).filter_by(id=user_id).first()
