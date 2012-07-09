@@ -233,6 +233,8 @@ class FakeLdap(object):
         for cmd, k, v in attrs:
             values = entry.setdefault(k, [])
             if cmd == ldap.MOD_ADD:
+                if v in values:
+                    raise ldap.TYPE_OR_VALUE_EXISTS
                 if isinstance(v, list):
                     values += v
                 else:
