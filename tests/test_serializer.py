@@ -40,11 +40,11 @@ class XmlSerializerTestCase(test.TestCase):
 
         # operations should be invertable
         self.assertEqual(
-                serializer.from_xml(serializer.to_xml(d, xmlns)),
-                d)
+            serializer.from_xml(serializer.to_xml(d, xmlns)),
+            d)
         self.assertEqualIgnoreWhitespace(
-                serializer.to_xml(serializer.from_xml(xml), xmlns),
-                xml)
+            serializer.to_xml(serializer.from_xml(xml), xmlns),
+            xml)
 
     def test_none(self):
         d = None

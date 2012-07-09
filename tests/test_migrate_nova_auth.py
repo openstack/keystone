@@ -138,7 +138,7 @@ class MigrateNovaAuth(test.TestCase):
                 user = users[old_user]
                 tenant = tenants[tenant_name]
                 roles = self.identity_api.get_roles_for_user_and_tenant(
-                        user['id'], tenant['id'])
+                    user['id'], tenant['id'])
                 actual = [self.identity_api.get_role(role_id)['name']
                           for role_id in roles]
                 expected = old_tenant_map.get(tenant_name, [])

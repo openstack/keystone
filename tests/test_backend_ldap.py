@@ -55,10 +55,14 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           uuid.uuid4().hex)
 
     def test_rename_duplicate_role_name_fails(self):
-        role1 = {'id': 'fake1',
-                'name': 'fake1name'}
-        role2 = {'id': 'fake2',
-                'name': 'fake2name'}
+        role1 = {
+            'id': 'fake1',
+            'name': 'fake1name'
+        }
+        role2 = {
+            'id': 'fake2',
+            'name': 'fake2name'
+        }
         self.identity_api.create_role('fake1', role1)
         self.identity_api.create_role('fake2', role2)
         role1['name'] = 'fake2name'

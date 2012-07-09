@@ -67,7 +67,7 @@ class SwiftAuth(unittest.TestCase):
         return webob.Request.blank(path, headers=headers, **kwargs)
 
     def _get_identity_headers(self, status='Confirmed', tenant_id='1',
-                          tenant_name='acct', user='usr', role=''):
+                              tenant_name='acct', user='usr', role=''):
         return dict(X_IDENTITY_STATUS=status,
                     X_TENANT_ID=tenant_id,
                     X_TENANT_NAME=tenant_name,

@@ -43,9 +43,9 @@ class SSLTestCase(test.TestCase):
         Make sure both public and admin API work with 1-way SSL.
         """
         self.public_server = self.serveapp('keystone', name='main',
-            cert=CERT, key=KEY, ca=CA)
+                                           cert=CERT, key=KEY, ca=CA)
         self.admin_server = self.serveapp('keystone', name='admin',
-            cert=CERT, key=KEY, ca=CA)
+                                          cert=CERT, key=KEY, ca=CA)
         # Verify Admin
         conn = httplib.HTTPSConnection('127.0.0.1', CONF.admin_port)
         conn.request('GET', '/')
@@ -62,10 +62,12 @@ class SSLTestCase(test.TestCase):
         Make sure both public and admin API work with 2-way SSL.  Requires
         client certificate.
         """
-        self.public_server = self.serveapp('keystone', name='main',
-            cert=CERT, key=KEY, ca=CA, cert_required=True)
-        self.admin_server = self.serveapp('keystone', name='admin',
-            cert=CERT, key=KEY, ca=CA, cert_required=True)
+        self.public_server = self.serveapp(
+            'keystone', name='main', cert=CERT,
+            key=KEY, ca=CA, cert_required=True)
+        self.admin_server = self.serveapp(
+            'keystone', name='admin', cert=CERT,
+            key=KEY, ca=CA, cert_required=True)
         # Verify Admin
         conn = httplib.HTTPSConnection(
             '127.0.0.1', CONF.admin_port, CLIENT, CLIENT)
@@ -83,10 +85,12 @@ class SSLTestCase(test.TestCase):
         """
         Expect to fail when client does not present proper certificate.
         """
-        self.public_server = self.serveapp('keystone', name='main',
-            cert=CERT, key=KEY, ca=CA, cert_required=True)
-        self.admin_server = self.serveapp('keystone', name='admin',
-            cert=CERT, key=KEY, ca=CA, cert_required=True)
+        self.public_server = self.serveapp(
+            'keystone', name='main', cert=CERT,
+            key=KEY, ca=CA, cert_required=True)
+        self.admin_server = self.serveapp(
+            'keystone', name='admin', cert=CERT,
+            key=KEY, ca=CA, cert_required=True)
         # Verify Admin
         conn = httplib.HTTPSConnection('127.0.0.1', CONF.admin_port)
         try:
