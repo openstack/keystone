@@ -50,9 +50,6 @@ def serve(*servers):
     signal.signal(signal.SIGINT, sigint_handler)
 
     for server in servers:
-        logging.debug("starting server %s on port %s",
-                      server.application,
-                      server.port)
         server.start()
 
     # notify calling process we are ready to serve
