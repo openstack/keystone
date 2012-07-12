@@ -211,6 +211,7 @@ class AuthProtocol(object):
             'X-User-Id',
             'X-User-Name',
             'X-Roles',
+            'X-Service-Catalog',
             # Deprecated
             'X-User',
             'X-Tenant',

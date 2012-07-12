@@ -92,7 +92,26 @@ TOKEN_RESPONSES = {
                 ],
             },
         },
-    }
+    },
+    'valid-token-no-service-catalog': {
+        'access': {
+            'token': {
+                'id': 'valid-token',
+                'tenant': {
+                    'id': 'tenant_id1',
+                    'name': 'tenant_name1',
+                },
+            },
+            'user': {
+                'id': 'user_id1',
+                'name': 'user_name1',
+                'roles': [
+                    {'name': 'role1'},
+                    {'name': 'role2'},
+                ],
+            }
+        },
+    },
 }
 
 
@@ -325,6 +344,15 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         }
 
         auth_token.AuthProtocol(FakeApp(), conf)
+
+    def test_request_prevent_service_catalog_injection(self):
+        req = webob.Request.blank('/')
+        req.headers['X-Service-Catalog'] = '[]'
+        req.headers['X-Auth-Token'] = 'valid-token-no-service-catalog'
+        body = self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.response_status, 200)
+        self.assertFalse(req.headers.get('X-Service-Catalog'))
+        self.assertEqual(body, ['SUCCESS'])
 
 
 if __name__ == '__main__':
