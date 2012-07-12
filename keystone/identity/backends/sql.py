@@ -330,12 +330,19 @@ class Identity(sql.Base, identity.Driver):
         membership_refs = session.query(UserTenantMembership)\
                           .filter_by(user_id=user_id)\
                           .all()
+        metadata_refs = session.query(Metadata)\
+                        .filter_by(user_id=user_id)\
+                        .all()
 
         with session.begin():
             if membership_refs:
                 for membership_ref in membership_refs:
                     session.delete(membership_ref)
                     session.flush()
+
+            if metadata_refs:
+                for metadata_ref in metadata_refs:
+                    session.delete(metadata_ref)
 
             session.delete(user_ref)
             session.flush()
@@ -367,7 +374,21 @@ class Identity(sql.Base, identity.Driver):
     def delete_tenant(self, tenant_id):
         session = self.get_session()
         tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
+        membership_refs = session.query(UserTenantMembership)\
+                          .filter_by(tenant_id=tenant_id)\
+                          .all()
+        metadata_refs = session.query(Metadata)\
+                        .filter_by(tenant_id=tenant_id)\
+                        .all()
+
         with session.begin():
+            if membership_refs:
+                for membership_ref in membership_refs:
+                    session.delete(membership_ref)
+            if metadata_refs:
+                for metadata_ref in metadata_refs:
+                    session.delete(metadata_ref)
+
             session.delete(tenant_ref)
             session.flush()
 
