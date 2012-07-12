@@ -773,8 +773,8 @@ example::
 Configuring the LDAP Identity Provider
 ===========================================================
 
-As an alternative to the SQL Databse backing store, Keystone can Use a
-Directory server to provide the Identity service.  An example Schema
+As an alternative to the SQL Databse backing store, Keystone can use a
+directory server to provide the Identity service.  An example Schema
 for openstack would look like this::
 
   dn: cn=openstack,cn=org

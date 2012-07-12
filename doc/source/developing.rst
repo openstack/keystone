@@ -90,8 +90,14 @@ Test Structure
 ``./run_test.sh`` uses its python cohort (``run_tests.py``) to iterate
 through the ``tests`` directory, using Nosetest to collect the tests and
 invoke them using an OpenStack custom test running that displays the tests
-as well as the time taken to
-run those tests.
+as well as the time taken to run those tests.
+
+Not all of the tests in the tests directory are strictly unit tests. Keystone
+intentionally includes tests that run the service locally and drives the
+entire configuration to achieve basic functional testing.
+
+For the functional tests, an in-memory key-value store is used to keep the
+tests fast.
 
 Within the tests directory, the general structure of the tests is a basic
 set of tests represented under a test class, and then subclasses of those
@@ -104,9 +110,13 @@ this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests,
 changing the configuration by overriding with configuration files stored in
 the tests directory aimed at enabling the SQL backend for the Identity module.
 
-Likewise, ``test_cli.py`` takes advantage of the tests written aainst
-``test_keystoneclient`` to verify the same tests function through different
-drivers.
+Likewise, ``test_keystoneclient.py`` takes advantage of the tests written
+against ``KeystoneClientTests`` to verify the same tests function through
+different drivers and releases of the Keystone client.
+
+The class ``CompatTestCase`` does the work of checking out a specific version
+of python-keystoneclient, and then verifying it against a temporarily running
+local instance to explicitly verify basic functional testing across the API.
 
 Testing Schema Migrations
 -------------------------
@@ -134,7 +144,7 @@ of your data during migration.
 Writing Tests
 -------------
 
-To add tests covering all drivers, update the base test class
+To add tests covering all drivers, update the relevant base test class
 (``test_backend.py``, ``test_legacy_compat.py``, and
 ``test_keystoneclient.py``).
 
