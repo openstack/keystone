@@ -22,6 +22,7 @@ from keystone import test
 
 import default_fixtures
 import test_backend
+import test_backend_ldap
 
 
 CONF = config.CONF
@@ -40,10 +41,9 @@ def delete_object(name):
 
 
 def clear_live_database():
-    roles = ['keystone_admin']
+    roles = ['keystone_admin', 'fake1', 'fake2', 'useless']
     groups = ['baz', 'bar', 'tenent4add', 'fake1', 'fake2']
     users = ['foo', 'two', 'fake1', 'fake2', 'no_meta']
-    roles = ['keystone_admin', 'useless']
 
     for group in groups:
         for role in roles:
@@ -57,9 +57,9 @@ def clear_live_database():
         delete_object('cn=%s,ou=Roles' % role)
 
 
-class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
+class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
     def setUp(self):
-        super(LDAPIdentity, self).setUp()
+        super(LiveLDAPIdentity, self).setUp()
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_liveldap.conf')])
