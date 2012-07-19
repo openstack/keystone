@@ -537,6 +537,67 @@ class IdentityTests(object):
                           tenant['id'],
                           tenant)
 
+    def test_create_user_long_name_fails(self):
+        user = {'id': 'fake1', 'name': 'a' * 65}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_user,
+                          'fake1',
+                          user)
+
+    def test_create_user_blank_name_fails(self):
+        user = {'id': 'fake1', 'name': ''}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_user,
+                          'fake1',
+                          user)
+
+    def test_create_user_invalid_name_fails(self):
+        user = {'id': 'fake1', 'name': None}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_user,
+                          'fake1',
+                          user)
+
+        user = {'id': 'fake1', 'name': 123}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_user,
+                          'fake1',
+                          user)
+
+    def test_update_user_long_name_fails(self):
+        user = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_user('fake1', user)
+        user['name'] = 'a' * 65
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_user,
+                          'fake1',
+                          user)
+
+    def test_update_user_blank_name_fails(self):
+        user = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_user('fake1', user)
+        user['name'] = ''
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_user,
+                          'fake1',
+                          user)
+
+    def test_update_user_invalid_name_fails(self):
+        user = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_user('fake1', user)
+
+        user['name'] = None
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_user,
+                          'fake1',
+                          user)
+
+        user['name'] = 123
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_user,
+                          'fake1',
+                          user)
+
 
 class TokenTests(object):
     def test_token_crud(self):

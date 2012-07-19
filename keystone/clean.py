@@ -42,3 +42,10 @@ def tenant_name(name):
     name = name.strip()
     check_length("Tenant name", name)
     return name
+
+
+def user_name(name):
+    check_type("User name", name, basestring, "string or unicode")
+    name = name.strip()
+    check_length("User name", name)
+    return name

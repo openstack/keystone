@@ -56,7 +56,7 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
         user = {'id': uuid.uuid4().hex,
                 'name': None,
                 'password': uuid.uuid4().hex}
-        self.assertRaises(exception.Conflict,
+        self.assertRaises(exception.ValidationError,
                           self.identity_api.create_user,
                           user['id'],
                           user)

@@ -352,6 +352,7 @@ class Identity(sql.Base, identity.Driver):
     # CRUD
     @handle_conflicts(type='user')
     def create_user(self, user_id, user):
+        user['name'] = clean.user_name(user['name'])
         user = _ensure_hashed_password(user)
         session = self.get_session()
         with session.begin():
@@ -362,6 +363,8 @@ class Identity(sql.Base, identity.Driver):
 
     @handle_conflicts(type='user')
     def update_user(self, user_id, user):
+        if 'name' in user:
+            user['name'] = clean.user_name(user['name'])
         session = self.get_session()
         if 'id' in user and user_id != user['id']:
             raise exception.ValidationError('Cannot change user ID')
