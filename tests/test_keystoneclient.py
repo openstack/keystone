@@ -180,6 +180,53 @@ class KeystoneClientTests(object):
                           self.get_client,
                           user_ref)
 
+    def test_authenticate_disabled_tenant(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        admin_client = self.get_client(admin=True)
+
+        tenant = {
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'enabled': False,
+        }
+        tenant_ref = admin_client.tenants.create(
+            tenant_name=tenant['name'],
+            description=tenant['description'],
+            enabled=tenant['enabled'])
+        tenant['id'] = tenant_ref.id
+
+        user = {
+            'name': uuid.uuid4().hex,
+            'password': uuid.uuid4().hex,
+            'email': uuid.uuid4().hex,
+            'tenant_id': tenant['id'],
+        }
+        user_ref = admin_client.users.create(
+            name=user['name'],
+            password=user['password'],
+            email=user['email'],
+            tenant_id=user['tenant_id'])
+        user['id'] = user_ref.id
+
+        # password authentication
+        self.assertRaises(
+            client_exceptions.Unauthorized,
+            self._client,
+            username=user['name'],
+            password=user['password'],
+            tenant_id=tenant['id'])
+
+        # token authentication
+        client = self._client(
+            username=user['name'],
+            password=user['password'])
+        self.assertRaises(
+            client_exceptions.Unauthorized,
+            self._client,
+            token=client.auth_token,
+            tenant_id=tenant['id'])
+
     # FIXME(ja): this test should require the "keystone:admin" roled
     #            (probably the role set via --keystone_admin_role flag)
     # FIXME(ja): add a test that admin endpoint is only sent to admin user
