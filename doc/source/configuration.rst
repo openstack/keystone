@@ -805,3 +805,16 @@ The corresponding entries in the Keystone configuration file are::
   suffix = dc=openstack,dc=org
   user = dc=Manager,dc=openstack,dc=org
   password = badpassword
+
+The default object classes and attributes are intentionally simplistic.  They
+reflect the common standard objects according to the LDAP RFCs.  However,
+in a live deployment,  the correct attributes can be overridden to support a
+preexisting, more complex schema.  For example,  in the user object,  the
+objectClass posixAccount from RFC2307 is very common.  If this is the
+underlying objectclass, then the *uid* field should probably be *uidNumber* and
+*username* field either *uid* or *cn*.  To change these two fields,  the
+corresponding entries in the Keystone configuration file are::
+
+  [ldap]
+  user_id_attribute = uidNumber
+  user_name_attribute = cn
