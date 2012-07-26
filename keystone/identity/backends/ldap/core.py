@@ -260,6 +260,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def __init__(self, conf):
         super(UserApi, self).__init__(conf)
+        self.attribute_mapping['name'] = conf.ldap.user_name_attribute
         self.api = ApiShim(conf)
 
     def get_by_name(self, name, filter=None):
@@ -376,6 +377,7 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
     def __init__(self, conf):
         super(TenantApi, self).__init__(conf)
         self.api = ApiShim(conf)
+        self.attribute_mapping['name'] = conf.ldap.tenant_name_attribute
         self.member_attribute = (getattr(conf.ldap, 'tenant_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 

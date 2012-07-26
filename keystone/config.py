@@ -167,11 +167,13 @@ register_bool('use_dumb_member', group='ldap')
 register_str('user_tree_dn', group='ldap')
 register_str('user_objectclass', group='ldap')
 register_str('user_id_attribute', group='ldap')
+register_str('user_name_attribute', group='ldap', default='sn')
 
 register_str('tenant_tree_dn', group='ldap')
 register_str('tenant_objectclass', group='ldap')
 register_str('tenant_id_attribute', group='ldap')
 register_str('tenant_member_attribute', group='ldap')
+register_str('tenant_name_attribute', group='ldap', default='ou')
 
 
 register_str('role_tree_dn', group='ldap')
