@@ -36,8 +36,6 @@ or::
 
 See the `Admin API Examples Using Curl`_ for more info.
 
-.. _`Admin API Examples Using Curl`: adminAPI_curl_examples.html
-
 GET /extensions
 ===============
 
