@@ -150,7 +150,8 @@ class AuthProtocol(object):
         self.key_file = conf.get('keyfile')
 
         #signing
-        self.signing_dirname = conf.get('signing_dir', '/tmp/keystone-signing')
+        default_signing_dir = '/tmp/keystone-signing-%s' % os.environ['USER']
+        self.signing_dirname = conf.get('signing_dir', default_signing_dir)
         if (os.path.exists(self.signing_dirname) and
                 not os.access(self.signing_dirname, os.W_OK)):
                 raise "TODO: Need to find an Exception to raise here."
