@@ -61,7 +61,7 @@ class Identity(identity.Driver):
         if self.LDAP_URL.startswith('fake://'):
             conn = fakeldap.FakeLdap(self.LDAP_URL)
         else:
-            conn = common_ldap.LDAPWrapper(self.LDAP_URL)
+            conn = common_ldap.LdapWrapper(self.LDAP_URL)
         if user is None:
             user = self.LDAP_USER
         if password is None:
@@ -243,7 +243,7 @@ class ApiShimMixin(object):
 class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_OU = 'ou=Users'
     DEFAULT_STRUCTURAL_CLASSES = ['person']
-    DEFAULT_ID_ATTRIBUTE = 'cn'
+    DEFAULT_ID_ATTR = 'cn'
     DEFAULT_OBJECTCLASS = 'inetOrgPerson'
     options_name = 'user'
     attribute_mapping = {'password': 'userPassword',
@@ -367,7 +367,7 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_OU = 'ou=Groups'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'
-    DEFAULT_ID_ATTRIBUTE = 'cn'
+    DEFAULT_ID_ATTR = 'cn'
     DEFAULT_MEMBER_ATTRIBUTE = 'member'
     options_name = 'tenant'
     attribute_mapping = {'description': 'desc', 'name': 'ou'}
