@@ -565,8 +565,8 @@ class AuthProtocol(object):
                             time=self.token_cache_time)
 
     def cert_file_missing(self, called_proc_err, file_name):
-        return (called_proc_err.output.find(self.signing_cert_file_name)
-                and not os.path.exists(self.signing_cert_file_name))
+        return (called_proc_err.output.find(file_name)
+                and not os.path.exists(file_name))
 
     def verify_uuid_token(self, user_token, retry=True):
         """Authenticate user token with keystone.
