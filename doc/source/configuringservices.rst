@@ -49,7 +49,7 @@ Admin Token
 For a default installation of Keystone, before you can use the REST API, you
 need to define an authorization token. This is configured in ``keystone.conf``
 file under the section ``[DEFAULT]``. In the sample file provided with the
-keystone project, the line defining this token is
+keystone project, the line defining this token is::
 
     [DEFAULT]
     admin_token = ADMIN
@@ -70,7 +70,7 @@ be able to use to authenticate users against keystone. The ``auth_token``
 middleware supports using either the shared secret described above as
 `admin_token` or users for each service.
 
-See doc:`configuration` for a walk through on how to create tenants, users,
+See :doc:`configuration` for a walk through on how to create tenants, users,
 and roles.
 
 Setting up services
@@ -169,7 +169,8 @@ Configuring Nova to use Keystone
 
 When configuring Nova, it is important to create a admin service token for
 the service (from the Configuration step above) and include that as the key
-'admin_token' in Nova's api-paste.ini.
+'admin_token' in Nova's api-paste.ini [filter:authtoken] section or in
+nova.conf [keystone_authtoken] section.
 
 Configuring Swift to use Keystone
 ---------------------------------
@@ -344,3 +345,22 @@ Here is an example paste config filter that makes use of the 'admin_user' and
 It should be noted that when using this option an admin tenant/role
 relationship is required. The admin user is granted access to to the 'Admin'
 role to the 'admin' tenant.
+
+The auth_token middleware can also be configured in nova.conf
+[keystone_authtoken] section to keep paste config clean of site-specific
+parameters::
+
+    [filter:authtoken]
+    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+
+and in nova.conf::
+
+    [DEFAULT]
+    ...
+    auth_strategy=keystone
+
+    [keystone_authtoken]
+    auth_port = 35357
+    auth_host = 127.0.0.1
+    admin_user = admin
+    admin_password = keystone123

@@ -137,6 +137,32 @@ a WSGI component. Example for the auth_token middleware::
     certfile = <path to middleware public cert>
     keyfile = <path to middleware private cert>
 
+For services which have separate paste-deploy ini file, auth_token middleware
+can be alternatively configured in [keystone_authtoken] section in the main
+config file. For example in Nova, all middleware parameters can be removed
+from api-paste.ini::
+
+    [filter:authtoken]
+    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+
+and set in nova.conf::
+
+    [DEFAULT]
+    ...
+    auth_strategy=keystone
+
+    [keystone_authtoken]
+    auth_host = 127.0.0.1
+    auth_port = 35357
+    auth_protocol = http
+    auth_uri = http://127.0.0.1:5000/
+    admin_user = admin
+    admin_password = SuperSekretPassword
+    admin_tenant_name = service
+
+Note that middleware parameters in paste config take priority, they must be
+removed to use values in [keystone_authtoken] section.
+
 Configuration Options
 ---------------------
 
