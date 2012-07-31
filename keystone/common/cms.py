@@ -2,13 +2,16 @@ import os
 import stat
 import subprocess
 
+from keystone.common import logging
 
+
+LOG = logging.getLogger(__name__)
 UUID_TOKEN_LENGTH = 32
 
 
 def cms_verify(formatted, signing_cert_file_name, ca_file_name):
     """
-        verifies the signature of the contensts IAW CMS syntax
+        verifies the signature of the contents IAW CMS syntax
     """
     process = subprocess.Popen(["openssl", "cms", "-verify",
                                 "-certfile", signing_cert_file_name,
@@ -22,6 +25,7 @@ def cms_verify(formatted, signing_cert_file_name, ca_file_name):
     output, err = process.communicate(formatted)
     retcode = process.poll()
     if retcode:
+        LOG.error('Verify error: %s' % err)
         raise subprocess.CalledProcessError(retcode, "openssl", output=err)
     return output
 
@@ -64,10 +68,12 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
                                 "-nosmimecap", "-nodetach",
                                 "-nocerts", "-noattr"],
                                stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE)
-    output, unused_err = process.communicate(text)
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    output, err = process.communicate(text)
     retcode = process.poll()
     if retcode:
+        LOG.error('Signing error: %s' % err)
         raise subprocess.CalledProcessError(retcode,
                                             "openssl", output=output)
     return cms_to_token(output)
