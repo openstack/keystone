@@ -20,6 +20,7 @@ import json
 
 from keystone import config
 from keystone import catalog
+from keystone.common import cms
 from keystone.common import logging
 from keystone.common import wsgi
 from keystone import exception
@@ -27,11 +28,6 @@ from keystone import identity
 from keystone.openstack.common import timeutils
 from keystone import policy
 from keystone import token
-
-from keystone.common import cms
-from keystone.common import logging
-from keystone.common import utils
-from keystone.common import wsgi
 
 
 LOG = logging.getLogger(__name__)
@@ -328,7 +324,7 @@ class TokenController(wsgi.Application):
                     raise exception.Unauthorized()
             except AssertionError as e:
                 raise exception.Unauthorized(e.message)
-            auth_token_data = dict(zip(["user", "tenant", "metadata"],
+            auth_token_data = dict(zip(['user', 'tenant', 'metadata'],
                                        auth_info))
             expiry = self.token_api._get_default_expire_time(context=context)
 
@@ -340,9 +336,7 @@ class TokenController(wsgi.Application):
                     metadata=metadata_ref)
             else:
                 catalog_ref = {}
-
         elif 'token' in auth:
-
             old_token = auth['token'].get('id', None)
             tenant_name = auth.get('tenantName')
 
@@ -351,19 +345,22 @@ class TokenController(wsgi.Application):
                                                          token_id=old_token)
             except exception.NotFound:
                 raise exception.Unauthorized()
+
             user_ref = old_token_ref['user']
             user_id = user_ref['id']
 
             current_user_ref = self.identity_api.get_user(context=context,
                                                           user_id=user_id)
+
+            # If the user is disabled don't allow them to authenticate
             if not current_user_ref.get('enabled', True):
                 LOG.warning('User %s is disabled' % user_id)
                 raise exception.Unauthorized()
 
             if tenant_name:
-                tenant_ref = self.identity_api.\
-                    get_tenant_by_name(context=context,
-                                       tenant_name=tenant_name)
+                tenant_ref = self.identity_api.get_tenant_by_name(
+                    context=context,
+                    tenant_name=tenant_name)
                 tenant_id = tenant_ref['id']
             else:
                 tenant_id = auth.get('tenantId', None)
@@ -375,17 +372,17 @@ class TokenController(wsgi.Application):
                                 % (user_id, tenant_id))
                     raise exception.Unauthorized()
 
-                #if the old token is sufficient unpack and return it.
-                if (old_token_ref['tenant']) and \
-                    (tenant_id == old_token_ref['tenant']['id']) and\
-                        len(old_token) > cms.UUID_TOKEN_LENGTH:
-                        return_data = \
-                            json.loads(cms.verify_token
-                                       (old_token,
-                                        config.CONF.signing.certfile,
-                                        config.CONF.signing.ca_certs))
-                        return_data['access']['token']['id'] = old_token
-                        return return_data
+                # if the old token is sufficient unpack and return it
+                if (old_token_ref['tenant']
+                        and tenant_id == old_token_ref['tenant']['id']
+                        and len(old_token) > cms.UUID_TOKEN_LENGTH):
+                    json_data = cms.verify_token(
+                        old_token,
+                        config.CONF.signing.certfile,
+                        config.CONF.signing.ca_certs)
+                    return_data = json.loads(json_data)
+                    return_data['access']['token']['id'] = old_token
+                    return return_data
 
             expiry = old_token_ref['expires']
             try:
@@ -395,7 +392,6 @@ class TokenController(wsgi.Application):
                 tenant_ref = None
                 metadata_ref = {}
                 catalog_ref = {}
-
             except exception.MetadataNotFound:
                 metadata_ref = {}
                 catalog_ref = {}
@@ -435,29 +431,28 @@ class TokenController(wsgi.Application):
 
         if config.CONF.signing.disable_pki:
             token_id = uuid.uuid4().hex
-            signed = token_id
         else:
-            signed = cms.cms_sign_text(json.dumps(token_data),
-                                       config.CONF.signing.certfile,
-                                       config.CONF.signing.keyfile)
-            token_id = signed
+            token_id = cms.cms_sign_text(json.dumps(token_data),
+                                         config.CONF.signing.certfile,
+                                         config.CONF.signing.keyfile)
+
         try:
-            token_ref = self.token_api.create_token(
+            self.token_api.create_token(
                 context, token_id, dict(key=token_id,
-                                        id=signed,
+                                        id=token_id,
                                         user=user_ref,
                                         tenant=tenant_ref,
                                         metadata=metadata_ref))
-        except Exception as ex:
-            #an identical token may have been created already.
-            #if so,  return the token_data as it is also identical
+        except Exception as e:
+            # an identical token may have been created already.
+            # if so, return the token_data as it is also identical
             try:
-                exist_token = self.token_api.get_token(context=context,
-                                                       token_id=token_id)
+                self.token_api.get_token(context=context,
+                                         token_id=token_id)
             except exception.TokenNotFound:
-                raise ex
+                raise e
 
-        token_data['access']['token']['id'] = signed
+        token_data['access']['token']['id'] = token_id
 
         return token_data
 
@@ -468,19 +463,17 @@ class TokenController(wsgi.Application):
 
         """
         # TODO(termie): this stuff should probably be moved to middleware
+        self.assert_admin(context)
+
         if len(token_id) > cms.UUID_TOKEN_LENGTH:
-            self.assert_admin(context)
             data = json.loads(cms.cms_verify(cms.token_to_cms(token_id),
                                              config.CONF.signing.certfile,
                                              config.CONF.signing.ca_certs))
-            access_data = data['access']
-            token_ref = access_data['token']
-            user_data = access_data['user']
-            token_ref['metadata'] = access_data['metadata']
-            token_ref['user'] = user_data
+            data['access']['token']['user'] = data['access']['user']
+            data['access']['token']['metadata'] = data['access']['metadata']
             if belongs_to:
-                assert token_ref['tenant']['id'] == belongs_to
-            token_ref['expires']
+                assert data['access']['token']['tenant']['id'] == belongs_to
+            token_ref = data['access']['token']
         else:
             token_ref = self.token_api.get_token(context=context,
                                                  token_id=token_id)
@@ -495,7 +488,7 @@ class TokenController(wsgi.Application):
         Identical to ``validate_token``, except does not return a response.
 
         """
-        belongs_to = context['query_string'].get("belongsTo")
+        belongs_to = context['query_string'].get('belongsTo')
         assert self._get_token_ref(context, token_id, belongs_to)
 
     # admin only

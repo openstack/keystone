@@ -17,9 +17,9 @@
 import copy
 import datetime
 import hashlib
-import uuid
 
-from keystone.common import sql, cms
+from keystone.common import cms
+from keystone.common import sql
 from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import token
