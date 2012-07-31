@@ -280,6 +280,11 @@ class TokenController(wsgi.Application):
                 if not user_ref.get('enabled', True):
                     LOG.warning('User %s is disabled' % user_id)
                     raise exception.Unauthorized()
+
+                # If the tenant is disabled don't allow them to authenticate
+                if tenant_ref and not tenant_ref.get('enabled', True):
+                    LOG.warning('Tenant %s is disabled' % tenant_id)
+                    raise exception.Unauthorized()
             except AssertionError as e:
                 raise exception.Unauthorized(e.message)
 
@@ -333,6 +338,12 @@ class TokenController(wsgi.Application):
 
             tenant_ref = self.identity_api.get_tenant(context=context,
                                                       tenant_id=tenant_id)
+
+            # If the tenant is disabled don't allow them to authenticate
+            if tenant_ref and not tenant_ref.get('enabled', True):
+                LOG.warning('Tenant %s is disabled' % tenant_id)
+                raise exception.Unauthorized()
+
             if tenant_ref:
                 metadata_ref = self.identity_api.get_metadata(
                         context=context,
