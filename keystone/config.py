@@ -133,7 +133,7 @@ register_str('keyfile', group='signing',
              default="/etc/keystone/ssl/private/signing_key.pem")
 register_str('ca_certs', group='signing',
              default="/etc/keystone/ssl/certs/ca.pem")
-register_int('key_size', group='signing', default=2048)
+register_int('key_size', group='signing', default=1024)
 register_int('valid_days', group='signing', default=3650)
 register_str('ca_password', group='signing', default=None)
 
