@@ -127,6 +127,8 @@ class Catalog(sql.Base, catalog.Driver):
         session = self.get_session()
         endpoint_ref = session.query(Endpoint)
         endpoint_ref = endpoint_ref.filter_by(id=endpoint_id).first()
+        if not endpoint_ref:
+            raise exception.EndpointNotFound(endpoint_id=endpoint_id)
         return endpoint_ref.to_dict()
 
     def list_endpoints(self):

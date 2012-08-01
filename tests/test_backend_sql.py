@@ -16,6 +16,8 @@
 
 import uuid
 
+from keystone import catalog
+from keystone.catalog.backends import sql as catalog_sql
 from keystone.common.sql import util as sql_util
 from keystone import config
 from keystone import exception
@@ -142,25 +144,13 @@ class SqlToken(test.TestCase, test_backend.TokenTests):
         self.token_api = token_sql.Token()
 
 
-#class SqlCatalog(test_backend_kvs.KvsCatalog):
-#  def setUp(self):
-#    super(SqlCatalog, self).setUp()
-#    self.catalog_api = sql.SqlCatalog()
-#    self._load_fixtures()
-
-#  def _load_fixtures(self):
-#    self.catalog_foobar = self.catalog_api._create_catalog(
-#        'foo', 'bar',
-#        {'RegionFoo': {'service_bar': {'foo': 'bar'}}})
-
-#  def test_get_catalog_bad_user(self):
-#    catalog_ref = self.catalog_api.get_catalog('foo' + 'WRONG', 'bar')
-#    self.assert_(catalog_ref is None)
-
-#  def test_get_catalog_bad_tenant(self):
-#    catalog_ref = self.catalog_api.get_catalog('foo', 'bar' + 'WRONG')
-#    self.assert_(catalog_ref is None)
-
-#  def test_get_catalog(self):
-#    catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
-#    self.assertDictEqual(catalog_ref, self.catalog_foobar)
+class SqlCatalog(test.TestCase, test_backend.CatalogTests):
+    def setUp(self):
+        super(SqlCatalog, self).setUp()
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_sql.conf')])
+        sql_util.setup_test_database()
+        self.catalog_api = catalog_sql.Catalog()
+        self.catalog_man = catalog.Manager()
+        self.load_fixtures(default_fixtures)

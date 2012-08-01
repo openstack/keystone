@@ -651,12 +651,14 @@ class TokenTests(object):
 class CatalogTests(object):
     def test_service_crud(self):
         new_service = {
-            'id': 'MY_SERVICE',
-            'type': 'myservice',
-            'name': 'My Service',
-            'description': 'My description'
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
         }
-        res = self.catalog_api.create_service(new_service['id'], new_service)
+        res = self.catalog_api.create_service(
+            new_service['id'],
+            new_service.copy())
         self.assertDictEqual(res, new_service)
 
         service_id = new_service['id']
