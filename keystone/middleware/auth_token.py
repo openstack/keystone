@@ -117,6 +117,10 @@ class ServiceError(Exception):
     pass
 
 
+class ConfigurationError(Exception):
+    pass
+
+
 class AuthProtocol(object):
     """Auth Middleware that handles authenticating client calls."""
 
@@ -150,11 +154,14 @@ class AuthProtocol(object):
         self.key_file = conf.get('keyfile')
 
         #signing
-        default_signing_dir = '/tmp/keystone-signing-%s' % os.environ['USER']
+        default_signing_dir = '%s/keystone-signing' % os.environ['HOME']
         self.signing_dirname = conf.get('signing_dir', default_signing_dir)
+        LOG.info('Using %s as cache directory for signing certificate' %
+                 self.signing_dirname)
         if (os.path.exists(self.signing_dirname) and
                 not os.access(self.signing_dirname, os.W_OK)):
-                raise "TODO: Need to find an Exception to raise here."
+                raise ConfigurationError("unable to access signing dir %s" %
+                                         self.signing_dirname)
 
         if not os.path.exists(self.signing_dirname):
             os.makedirs(self.signing_dirname)
