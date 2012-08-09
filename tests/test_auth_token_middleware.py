@@ -15,21 +15,110 @@
 # under the License.
 
 import datetime
+import hashlib
 import iso8601
+import os
+import string
+import tempfile
+
 import webob
 
+from keystone.common import cms
+from keystone.common import utils
 from keystone.middleware import auth_token
 from keystone.openstack.common import jsonutils
+from keystone.openstack.common import timeutils
 from keystone import config
 from keystone import test
 
 
-# JSON responses keyed by token ID
-TOKEN_RESPONSES = {
-    'valid-token': {
+#The data for these tests are signed using openssl and are stored in files
+# in the signing subdirectory.  IN order to keep the values consistent between
+# the tests and the signed documents, we read them in for use in the tests.
+def setUpModule(self):
+    signing_path = os.path.join(os.path.dirname(__file__), 'signing')
+    with open(os.path.join(signing_path, 'auth_token_scoped.pem')) as f:
+        self.SIGNED_TOKEN_SCOPED = cms.cms_to_token(f.read())
+    with open(os.path.join(signing_path, 'auth_token_unscoped.pem')) as f:
+        self.SIGNED_TOKEN_UNSCOPED = cms.cms_to_token(f.read())
+    with open(os.path.join(signing_path, 'auth_token_revoked.pem')) as f:
+        self.REVOKED_TOKEN = cms.cms_to_token(f.read())
+    self.REVOKED_TOKEN_HASH = utils.hash_signed_token(self.REVOKED_TOKEN)
+    with open(os.path.join(signing_path, 'revocation_list.json')) as f:
+        self.REVOCATION_LIST = jsonutils.loads(f.read())
+    with open(os.path.join(signing_path, 'revocation_list.pem')) as f:
+        self.SIGNED_REVOCATION_LIST = f.read()
+
+    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_SCOPED] = {
         'access': {
             'token': {
-                'id': 'valid-token',
+                'id': SIGNED_TOKEN_SCOPED,
+            },
+            'user': {
+                'id': 'user_id1',
+                'name': 'user_name1',
+                'tenantId': 'tenant_id1',
+                'tenantName': 'tenant_name1',
+                'roles': [
+                    {'name': 'role1'},
+                    {'name': 'role2'},
+                ],
+            },
+        },
+    }
+
+    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_UNSCOPED] = {
+        'access': {
+            'token': {
+                'id': self.SIGNED_TOKEN_UNSCOPED,
+            },
+            'user': {
+                'id': 'user_id1',
+                'name': 'user_name1',
+                'roles': [
+                    {'name': 'role1'},
+                    {'name': 'role2'},
+                ],
+            },
+        },
+    },
+
+
+INVALID_SIGNED_TOKEN = string.replace(
+    """AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+0000000000000000000000000000000000000000000000000000000000000000
+1111111111111111111111111111111111111111111111111111111111111111
+2222222222222222222222222222222222222222222222222222222222222222
+3333333333333333333333333333333333333333333333333333333333333333
+4444444444444444444444444444444444444444444444444444444444444444
+5555555555555555555555555555555555555555555555555555555555555555
+6666666666666666666666666666666666666666666666666666666666666666
+7777777777777777777777777777777777777777777777777777777777777777
+8888888888888888888888888888888888888888888888888888888888888888
+9999999999999999999999999999999999999999999999999999999999999999
+0000000000000000000000000000000000000000000000000000000000000000
+xg==""", "\n", "")
+
+UUID_TOKEN_DEFAULT = "ec6c0710ec2f471498484c1b53ab4f9d"
+
+VALID_DIABLO_TOKEN = 'b0cf19b55dbb4f20a6ee18e6c6cf1726'
+
+UUID_TOKEN_UNSCOPED = '731f903721c14827be7b2dc912af7776'
+
+UUID_TOKEN_NO_SERVICE_CATALOG = '8286720fbe4941e69fa8241723bb02df'
+
+# JSON responses keyed by token ID
+
+TOKEN_RESPONSES = {
+    UUID_TOKEN_DEFAULT: {
+        'access': {
+            'token': {
+                'id': UUID_TOKEN_DEFAULT,
                 'tenant': {
                     'id': 'tenant_id1',
                     'name': 'tenant_name1',
@@ -46,27 +135,10 @@ TOKEN_RESPONSES = {
             'serviceCatalog': {}
         },
     },
-    'default-tenant-token': {
+    VALID_DIABLO_TOKEN: {
         'access': {
             'token': {
-                'id': 'default-tenant-token',
-            },
-            'user': {
-                'id': 'user_id1',
-                'name': 'user_name1',
-                'tenantId': 'tenant_id1',
-                'tenantName': 'tenant_name1',
-                'roles': [
-                    {'name': 'role1'},
-                    {'name': 'role2'},
-                ],
-            },
-        },
-    },
-    'valid-diablo-token': {
-        'access': {
-            'token': {
-                'id': 'valid-diablo-token',
+                'id': VALID_DIABLO_TOKEN,
                 'tenantId': 'tenant_id1',
             },
             'user': {
@@ -79,10 +151,10 @@ TOKEN_RESPONSES = {
             },
         },
     },
-    'unscoped-token': {
+    UUID_TOKEN_UNSCOPED: {
         'access': {
             'token': {
-                'id': 'unscoped-token',
+                'id': UUID_TOKEN_UNSCOPED,
             },
             'user': {
                 'id': 'user_id1',
@@ -94,7 +166,7 @@ TOKEN_RESPONSES = {
             },
         },
     },
-    'valid-token-no-service-catalog': {
+    UUID_TOKEN_NO_SERVICE_CATALOG: {
         'access': {
             'token': {
                 'id': 'valid-token',
@@ -123,7 +195,7 @@ class FakeMemcache(object):
         self.token_expiration = None
 
     def get(self, key):
-        data = TOKEN_RESPONSES['valid-token'].copy()
+        data = TOKEN_RESPONSES[SIGNED_TOKEN_SCOPED].copy()
         if not data or key != "tokens/%s" % (data['access']['token']['id']):
             return
         if not self.token_expiration:
@@ -180,6 +252,9 @@ class FakeHTTPConnection(object):
             if token_id in TOKEN_RESPONSES.keys():
                 status = 200
                 body = jsonutils.dumps(TOKEN_RESPONSES[token_id])
+            elif token_id == "revoked":
+                status = 200
+                body = SIGNED_REVOCATION_LIST
             else:
                 status = 404
                 body = str()
@@ -220,6 +295,7 @@ class FakeApp(object):
 
 
 class BaseAuthTokenMiddlewareTest(test.TestCase):
+
     def setUp(self, expected_env=None):
         expected_env = expected_env or {}
 
@@ -228,6 +304,7 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
             'auth_host': 'keystone.example.com',
             'auth_port': 1234,
             'auth_admin_prefix': '/testadmin',
+            'signing_dir': 'signing',
         }
 
         self.middleware = auth_token.AuthProtocol(FakeApp(expected_env), conf)
@@ -236,7 +313,20 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
 
         self.response_status = None
         self.response_headers = None
+        self.middleware.revoked_file_name = tempfile.mkstemp()[1]
+        self.middleware.token_revocation_list_cache_timeout =\
+            datetime.timedelta(days=1)
+        self.middleware.token_revocation_list = jsonutils.dumps(
+            {"revoked": [], "extra": "success"})
+
         super(BaseAuthTokenMiddlewareTest, self).setUp()
+
+    def tearDown(self):
+        super(BaseAuthTokenMiddlewareTest, self).tearDown()
+        try:
+            os.remove(self.middleware.revoked_file_name)
+        except OSError:
+            pass
 
     def start_fake_response(self, status, headers):
         self.response_status = int(status.split(' ', 1)[0])
@@ -250,55 +340,159 @@ class DiabloAuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         expected_env = {
             'HTTP_X_TENANT_ID': 'tenant_id1',
             'HTTP_X_TENANT_NAME': 'tenant_id1',
-            'HTTP_X_TENANT': 'tenant_id1',  # now deprecated (diablo-compat)
+            # now deprecated (diablo-compat)
+            'HTTP_X_TENANT': 'tenant_id1',
         }
         super(DiabloAuthTokenMiddlewareTest, self).setUp(expected_env)
 
-    def test_diablo_response(self):
+    def test_valid_diablo_response(self):
         req = webob.Request.blank('/')
-        req.headers['X-Auth-Token'] = 'valid-diablo-token'
+        req.headers['X-Auth-Token'] = VALID_DIABLO_TOKEN
         body = self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
-        self.assertEqual(body, ['SUCCESS'])
 
 
 class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
-    def test_valid_request(self):
+
+    def assert_valid_request_200(self, token):
+
         req = webob.Request.blank('/')
-        req.headers['X-Auth-Token'] = 'valid-token'
+        req.headers['X-Auth-Token'] = token
         body = self.middleware(req.environ, self.start_fake_response)
-        self.assertEqual(self.middleware.conf['auth_admin_prefix'],
-                         "/testadmin")
-        self.assertEqual("/testadmin/v2.0/tokens/valid-token",
-                         FakeHTTPConnection.last_requested_url)
         self.assertEqual(self.response_status, 200)
+        catalog = req.headers.get('X-Service-Catalog')
         self.assertTrue(req.headers.get('X-Service-Catalog'))
         self.assertEqual(body, ['SUCCESS'])
 
-    def test_default_tenant_token(self):
+    def test_valid_uuid_request(self):
+        self.assert_valid_request_200(UUID_TOKEN_DEFAULT)
+        self.assertEqual("/testadmin/v2.0/tokens/%s" % UUID_TOKEN_DEFAULT,
+                         FakeHTTPConnection.last_requested_url)
+
+    def test_valid_signed_request(self):
+        FakeHTTPConnection.last_requested_url = ''
+        self.assert_valid_request_200(SIGNED_TOKEN_SCOPED)
+        self.assertEqual(self.middleware.conf['auth_admin_prefix'],
+                         "/testadmin")
+        #ensure that signed requests do not generate HTTP traffic
+        self.assertEqual('', FakeHTTPConnection.last_requested_url)
+
+    def assert_unscoped_default_tenant_auto_scopes(self, token):
         """Unscoped requests with a default tenant should "auto-scope."
 
         The implied scope is the user's tenant ID.
 
         """
         req = webob.Request.blank('/')
-        req.headers['X-Auth-Token'] = 'default-tenant-token'
+        req.headers['X-Auth-Token'] = token
         body = self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
         self.assertEqual(body, ['SUCCESS'])
 
-    def test_unscoped_token(self):
+    def test_default_tenant_uuid_token(self):
+        self.assert_unscoped_default_tenant_auto_scopes(UUID_TOKEN_SCOPED)
+
+    def test_default_tenant_uuid_token(self):
+        self.assert_unscoped_default_tenant_auto_scopes(SIGNED_TOKEN_SCOPED)
+
+    def assert_unscoped_token_receives_401(self, token):
         """Unscoped requests with no default tenant ID should be rejected."""
         req = webob.Request.blank('/')
-        req.headers['X-Auth-Token'] = 'unscoped-token'
+        req.headers['X-Auth-Token'] = token
         self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 401)
         self.assertEqual(self.response_headers['WWW-Authenticate'],
                          'Keystone uri=\'https://keystone.example.com:1234\'')
 
-    def test_request_invalid_token(self):
+    def test_unscoped_uuid_token_receives_401(self):
+        self.assert_unscoped_token_receives_401(UUID_TOKEN_UNSCOPED)
+
+    def test_unscoped_pki_token_receives_401(self):
+        self.assert_unscoped_token_receives_401(SIGNED_TOKEN_UNSCOPED)
+
+    def test_revoked_token_receives_401(self):
+        self.middleware.token_revocation_list = self.get_revocation_list_json()
+        req = webob.Request.blank('/')
+        req.headers['X-Auth-Token'] = REVOKED_TOKEN
+        self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.response_status, 401)
+
+    def get_revocation_list_json(self, token_ids=None):
+        if token_ids is None:
+            token_ids = [REVOKED_TOKEN_HASH]
+        revocation_list = {'revoked': [{'id': x, 'expires': timeutils.utcnow()}
+                                       for x in token_ids]}
+        return jsonutils.dumps(revocation_list)
+
+    def test_is_signed_token_revoked_returns_false(self):
+        #explicitly setting an empty revocation list here to document intent
+        self.middleware.token_revocation_list = jsonutils.dumps(
+            {"revoked": [], "extra": "success"})
+        result = self.middleware.is_signed_token_revoked(REVOKED_TOKEN)
+        self.assertFalse(result)
+
+    def test_is_signed_token_revoked_returns_true(self):
+        self.middleware.token_revocation_list = self.get_revocation_list_json()
+        result = self.middleware.is_signed_token_revoked(REVOKED_TOKEN)
+        self.assertTrue(result)
+
+    def test_verify_signed_token_raises_exception_for_revoked_token(self):
+        self.middleware.token_revocation_list = self.get_revocation_list_json()
+        with self.assertRaises(auth_token.InvalidUserToken):
+            self.middleware.verify_signed_token(REVOKED_TOKEN)
+
+    def test_verify_signed_token_succeeds_for_unrevoked_token(self):
+        self.middleware.token_revocation_list = self.get_revocation_list_json()
+        self.middleware.verify_signed_token(SIGNED_TOKEN_SCOPED)
+
+    def test_get_token_revocation_list_fetched_time_returns_min(self):
+        self.middleware.token_revocation_list_fetched_time = None
+        self.middleware.revoked_file_name = ''
+        self.assertEqual(self.middleware.token_revocation_list_fetched_time,
+                         datetime.datetime.min)
+
+    def test_get_token_revocation_list_fetched_time_returns_mtime(self):
+        self.middleware.token_revocation_list_fetched_time = None
+        mtime = os.path.getmtime(self.middleware.revoked_file_name)
+        fetched_time = datetime.datetime.fromtimestamp(mtime)
+        self.assertEqual(self.middleware.token_revocation_list_fetched_time,
+                         fetched_time)
+
+    def test_get_token_revocation_list_fetched_time_returns_value(self):
+        expected = self.middleware._token_revocation_list_fetched_time
+        self.assertEqual(self.middleware.token_revocation_list_fetched_time,
+                         expected)
+
+    def test_get_revocation_list_returns_fetched_list(self):
+        self.middleware.token_revocation_list_fetched_time = None
+        os.remove(self.middleware.revoked_file_name)
+        self.assertEqual(self.middleware.token_revocation_list,
+                         REVOCATION_LIST)
+
+    def test_get_revocation_list_returns_current_list_from_memory(self):
+        self.assertEqual(self.middleware.token_revocation_list,
+                         self.middleware._token_revocation_list)
+
+    def test_get_revocation_list_returns_current_list_from_disk(self):
+        in_memory_list = self.middleware.token_revocation_list
+        self.middleware._token_revocation_list = None
+        self.assertEqual(self.middleware.token_revocation_list, in_memory_list)
+
+    def test_fetch_revocation_list(self):
+        fetched_list = jsonutils.loads(self.middleware.fetch_revocation_list())
+        self.assertEqual(fetched_list, REVOCATION_LIST)
+
+    def test_request_invalid_uuid_token(self):
         req = webob.Request.blank('/')
         req.headers['X-Auth-Token'] = 'invalid-token'
+        self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.response_status, 401)
+        self.assertEqual(self.response_headers['WWW-Authenticate'],
+                         'Keystone uri=\'https://keystone.example.com:1234\'')
+
+    def test_request_invalid_signed_token(self):
+        req = webob.Request.blank('/')
+        req.headers['X-Auth-Token'] = INVALID_SIGNED_TOKEN
         self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 401)
         self.assertEqual(self.response_headers['WWW-Authenticate'],
@@ -321,7 +515,7 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
 
     def test_memcache(self):
         req = webob.Request.blank('/')
-        req.headers['X-Auth-Token'] = 'valid-token'
+        req.headers['X-Auth-Token'] = SIGNED_TOKEN_SCOPED
         self.middleware._cache = FakeMemcache()
         self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.middleware._cache.set_value, None)
@@ -335,7 +529,7 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
 
     def test_memcache_set_expired(self):
         req = webob.Request.blank('/')
-        req.headers['X-Auth-Token'] = 'valid-token'
+        req.headers['X-Auth-Token'] = SIGNED_TOKEN_SCOPED
         self.middleware._cache = FakeMemcache()
         expired = datetime.datetime.now() - datetime.timedelta(minutes=1)
         self.middleware._cache.token_expiration = float(expired.strftime("%s"))
@@ -357,7 +551,7 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
     def test_request_prevent_service_catalog_injection(self):
         req = webob.Request.blank('/')
         req.headers['X-Service-Catalog'] = '[]'
-        req.headers['X-Auth-Token'] = 'valid-token-no-service-catalog'
+        req.headers['X-Auth-Token'] = UUID_TOKEN_NO_SERVICE_CATALOG
         body = self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
         self.assertFalse(req.headers.get('X-Service-Catalog'))

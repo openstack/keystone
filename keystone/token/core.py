@@ -98,6 +98,14 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    def list_revoked_tokens(self):
+        """Returns a list of all revoked tokens
+
+        :returns: list of token_id's
+
+        """
+        raise exception.NotImplemented()
+
     def _get_default_expire_time(self):
         """Determine when a token should expire based on the config.
 
