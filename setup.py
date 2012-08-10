@@ -56,7 +56,7 @@ depend_links = parse_dependency_links()
 write_requirements()
 
 setup(name='keystone',
-      version='2012.1.2',
+      version='2012.1.3',
       description="Authentication service for OpenStack",
       license='Apache License (2.0)',
       author='OpenStack, LLC.',
