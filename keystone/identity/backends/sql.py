@@ -385,27 +385,13 @@ class Identity(sql.Base, identity.Driver):
 
     def delete_user(self, user_id):
         session = self.get_session()
-        user_ref = session.query(User).filter_by(id=user_id).first()
-        if not user_ref:
-            raise exception.UserNotFound(user_id=user_id)
-        membership_refs = session.query(UserTenantMembership)\
-                                 .filter_by(user_id=user_id)\
-                                 .all()
-        metadata_refs = session.query(Metadata)\
-                               .filter_by(user_id=user_id)\
-                               .all()
-
         with session.begin():
-            if membership_refs:
-                for membership_ref in membership_refs:
-                    session.delete(membership_ref)
-                    session.flush()
-            if metadata_refs:
-                for metadata_ref in metadata_refs:
-                    session.delete(metadata_ref)
-
-            session.delete(user_ref)
-            session.flush()
+            session.query(UserTenantMembership)\
+                   .filter_by(user_id=user_id).delete(False)
+            session.query(Metadata)\
+                   .filter_by(user_id=user_id).delete(False)
+            if not session.query(User).filter_by(id=user_id).delete(False):
+                raise exception.UserNotFound(user_id=user_id)
 
     @handle_conflicts(type='tenant')
     def create_tenant(self, tenant_id, tenant):
@@ -438,26 +424,13 @@ class Identity(sql.Base, identity.Driver):
 
     def delete_tenant(self, tenant_id):
         session = self.get_session()
-        tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
-        if not tenant_ref:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
-        membership_refs = session.query(UserTenantMembership)\
-                                 .filter_by(tenant_id=tenant_id)\
-                                 .all()
-        metadata_refs = session.query(Metadata)\
-                               .filter_by(tenant_id=tenant_id)\
-                               .all()
-
         with session.begin():
-            if membership_refs:
-                for membership_ref in membership_refs:
-                    session.delete(membership_ref)
-            if metadata_refs:
-                for metadata_ref in metadata_refs:
-                    session.delete(metadata_ref)
-
-            session.delete(tenant_ref)
-            session.flush()
+            session.query(UserTenantMembership)\
+                   .filter_by(tenant_id=tenant_id).delete(False)
+            session.query(Metadata)\
+                   .filter_by(tenant_id=tenant_id).delete(False)
+            if not session.query(Tenant).filter_by(id=tenant_id).delete(False):
+                raise exception.TenantNotFound(tenant_id=tenant_id)
 
     @handle_conflicts(type='metadata')
     def create_metadata(self, user_id, tenant_id, metadata):
