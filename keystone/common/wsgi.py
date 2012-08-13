@@ -202,6 +202,10 @@ class Application(BaseApplication):
 
         try:
             result = method(context, **params)
+        except exception.Unauthorized as e:
+            LOG.warning("Authorization failed. %s from %s"
+                        % (e, req.environ['REMOTE_ADDR']))
+            return render_exception(e)
         except exception.Error as e:
             LOG.warning(e)
             return render_exception(e)
