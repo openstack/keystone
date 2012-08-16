@@ -1,5 +1,3 @@
-import os
-import stat
 import subprocess
 
 from keystone.common import logging
