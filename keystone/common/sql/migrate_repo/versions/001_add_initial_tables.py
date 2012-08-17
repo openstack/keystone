@@ -31,7 +31,6 @@ def upgrade(migrate_engine):
     # migrate_engine to your metadata
     meta = MetaData()
     meta.bind = migrate_engine
-    dialect = migrate_engine.url.get_dialect().name
 
     sql.ModelBase.metadata.create_all(migrate_engine)
 
