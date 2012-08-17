@@ -48,6 +48,10 @@ class AdminRouter(wsgi.ComposingRouter):
                        controller=auth_controller,
                        action='authenticate',
                        conditions=dict(method=['POST']))
+        mapper.connect('/tokens/revoked',
+                       controller=auth_controller,
+                       action='revocation_list',
+                       conditions=dict(method=['GET']))
         mapper.connect('/tokens/{token_id}',
                        controller=auth_controller,
                        action='validate_token',
@@ -429,13 +433,18 @@ class TokenController(wsgi.Application):
         service_catalog = self._format_catalog(catalog_ref)
         token_data['access']['serviceCatalog'] = service_catalog
 
-        if config.CONF.signing.disable_pki:
+        if config.CONF.signing.token_format == "UUID":
             token_id = uuid.uuid4().hex
-        else:
-            token_id = cms.cms_sign_text(json.dumps(token_data),
-                                         config.CONF.signing.certfile,
-                                         config.CONF.signing.keyfile)
+        elif config.CONF.signing.token_format == "PKI":
 
+            token_id = cms.cms_sign_token(json.dumps(token_data),
+                                          config.CONF.signing.certfile,
+                                          config.CONF.signing.keyfile)
+        else:
+            raise exception.UnexpectedError(
+                "Invalid value for token_format: %s."
+                "  Allowed values are PKI or UUID." %
+                config.CONF.signing.token_format)
         try:
             self.token_api.create_token(
                 context, token_id, dict(key=token_id,
@@ -526,8 +535,23 @@ class TokenController(wsgi.Application):
         """Delete a token, effectively invalidating it for authz."""
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-
         self.token_api.delete_token(context=context, token_id=token_id)
+
+    def revocation_list(self, context, auth=None):
+        self.assert_admin(context)
+        tokens = self.token_api.list_revoked_tokens(context)
+
+        for t in tokens:
+            expires = t['expires']
+            if not (expires and isinstance(expires, unicode)):
+                    t['expires'] = timeutils.isotime(expires)
+        data = {'revoked': tokens}
+        json_data = json.dumps(data)
+        signed_text = cms.cms_sign_text(json_data,
+                                        config.CONF.signing.certfile,
+                                        config.CONF.signing.keyfile)
+
+        return signed_text
 
     def endpoints(self, context, token_id):
         """Return a list of endpoints available to the token."""

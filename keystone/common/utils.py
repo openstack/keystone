@@ -262,3 +262,9 @@ def auth_str_equal(provided, known):
         b = ord(known[i]) if i < k_len else 0
         result |= a ^ b
     return (p_len == k_len) & (result == 0)
+
+
+def hash_signed_token(signed_text):
+    hash_ = hashlib.md5()
+    hash_.update(signed_text)
+    return hash_.hexdigest()

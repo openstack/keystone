@@ -22,6 +22,7 @@ import memcache
 from keystone.common import utils
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import jsonutils
 from keystone import token
 
 
@@ -30,6 +31,9 @@ config.register_str('servers', group='memcache', default='localhost:11211')
 
 
 class Token(token.Driver):
+
+    revocation_key = 'revocation-list'
+
     def __init__(self, client=None):
         self._memcache_client = client
 
@@ -65,8 +69,25 @@ class Token(token.Driver):
         self.client.set(ptk, data_copy, **kwargs)
         return copy.deepcopy(data_copy)
 
+    def _add_to_revocation_list(self, data):
+        data_json = jsonutils.dumps(data)
+        if not self.client.append(self.revocation_key, ',%s' % data_json):
+            if not self.client.add(self.revocation_key, data_json):
+                if not self.client.append(self.revocation_key,
+                                          ',%s' % data_json):
+                    msg = _('Unable to add token to revocation list.')
+                    raise exception.UnexpectedError(msg)
+
     def delete_token(self, token_id):
         # Test for existence
-        self.get_token(token_id)
+        data = self.get_token(token_id)
         ptk = self._prefix_token_id(token_id)
-        return self.client.delete(ptk)
+        result = self.client.delete(ptk)
+        self._add_to_revocation_list(data)
+        return result
+
+    def list_revoked_tokens(self):
+        list_json = self.client.get(self.revocation_key)
+        if list_json:
+            return jsonutils.loads('[%s]' % list_json)
+        return []

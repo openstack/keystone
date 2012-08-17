@@ -34,6 +34,18 @@ class MemcacheClient(object):
         """Ignores the passed in args."""
         self.cache = {}
 
+    def add(self, key, value):
+        if self.get(key):
+            return False
+        self.set(key, value)
+
+    def append(self, key, value):
+        existing_value = self.get(key)
+        if existing_value:
+            self.set(key, existing_value + value)
+            return True
+        return False
+
     def check_key(self, key):
         if not isinstance(key, str):
             raise memcache.Client.MemcachedStringEncodingError()
@@ -45,8 +57,6 @@ class MemcacheClient(object):
         now = utils.unixtime(timeutils.utcnow())
         if obj and (obj[1] == 0 or obj[1] > now):
             return obj[0]
-        else:
-            raise exception.TokenNotFound(token_id=key)
 
     def set(self, key, value, time=0):
         """Sets the value for a key."""

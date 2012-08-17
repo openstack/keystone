@@ -41,6 +41,7 @@ String = sql.String
 ForeignKey = sql.ForeignKey
 DateTime = sql.DateTime
 IntegrityError = sql.exc.IntegrityError
+Boolean = sql.Boolean
 
 
 # Special Fields

@@ -93,6 +93,7 @@ HTTP_X_ROLE
 
 """
 
+import datetime
 import httplib
 import json
 import logging
@@ -105,6 +106,8 @@ import webob.exc
 
 from keystone.openstack.common import jsonutils
 from keystone.common import cms
+from keystone.common import utils
+from keystone.openstack.common import timeutils
 
 LOG = logging.getLogger(__name__)
 
@@ -172,6 +175,8 @@ class AuthProtocol(object):
         self.signing_cert_file_name = val
         val = '%s/cacert.pem' % self.signing_dirname
         self.ca_file_name = val
+        val = '%s/revoked.pem' % self.signing_dirname
+        self.revoked_file_name = val
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
@@ -186,6 +191,10 @@ class AuthProtocol(object):
         memcache_servers = conf.get('memcache_servers')
         # By default the token will be cached for 5 minutes
         self.token_cache_time = conf.get('token_cache_time', 300)
+        self._token_revocation_list = None
+        self._token_revocation_list_fetched_time = None
+        self.token_revocation_list_cache_timeout = \
+            datetime.timedelta(seconds=0)
         if memcache_servers:
             try:
                 import memcache
@@ -418,6 +427,7 @@ class AuthProtocol(object):
             self._cache_put(user_token, data)
             return data
         except Exception as e:
+            LOG.debug('Token validation failure.', exc_info=True)
             self._cache_store_invalid(user_token)
             LOG.warn("Authorization failed for token %s", user_token)
             raise InvalidUserToken('Token authorization failed')
@@ -618,19 +628,30 @@ class AuthProtocol(object):
 
             raise InvalidUserToken()
 
-    def verify_signed_token(self, signed_text):
-        """
-            Converts a block of Base64 encoding to strict PEM format
-            and verifies the signature of the contensts IAW CMS syntax
-            If either of the certificate files are missing, fetch them
-            and retry
-        """
+    def is_signed_token_revoked(self, signed_text):
+        """Indicate whether the token appears in the revocation list."""
+        revocation_list = self.token_revocation_list
+        revoked_tokens = revocation_list.get('revoked', [])
+        if not revoked_tokens:
+            return
+        revoked_ids = (x['id'] for x in revoked_tokens)
+        token_id = utils.hash_signed_token(signed_text)
+        for revoked_id in revoked_ids:
+            if token_id == revoked_id:
+                LOG.debug('Token %s is marked as having been revoked',
+                          token_id)
+                return True
+        return False
 
-        formatted = cms.token_to_cms(signed_text)
+    def cms_verify(self, data):
+        """Verifies the signature of the provided data's IAW CMS syntax.
 
+        If either of the certificate files are missing, fetch them and
+        retry.
+        """
         while True:
             try:
-                output = cms.cms_verify(formatted, self.signing_cert_file_name,
+                output = cms.cms_verify(data, self.signing_cert_file_name,
                                         self.ca_file_name)
             except subprocess.CalledProcessError as err:
                 if self.cert_file_missing(err, self.signing_cert_file_name):
@@ -641,6 +662,64 @@ class AuthProtocol(object):
                     continue
                 raise err
             return output
+
+    def verify_signed_token(self, signed_text):
+        """Check that the token is unrevoked and has a valid signature."""
+        if self.is_signed_token_revoked(signed_text):
+            raise InvalidUserToken('Token has been revoked')
+
+        formatted = cms.token_to_cms(signed_text)
+        return self.cms_verify(formatted)
+
+    @property
+    def token_revocation_list_fetched_time(self):
+        if not self._token_revocation_list_fetched_time:
+            # If the fetched list has been written to disk, use its
+            # modification time.
+            if os.path.exists(self.revoked_file_name):
+                mtime = os.path.getmtime(self.revoked_file_name)
+                fetched_time = datetime.datetime.fromtimestamp(mtime)
+            # Otherwise the list will need to be fetched.
+            else:
+                fetched_time = datetime.datetime.min
+            self._token_revocation_list_fetched_time = fetched_time
+        return self._token_revocation_list_fetched_time
+
+    @token_revocation_list_fetched_time.setter
+    def token_revocation_list_fetched_time(self, value):
+        self._token_revocation_list_fetched_time = value
+
+    @property
+    def token_revocation_list(self):
+        timeout = self.token_revocation_list_fetched_time +\
+            self.token_revocation_list_cache_timeout
+        list_is_current = timeutils.utcnow() < timeout
+        if list_is_current:
+            # Load the list from disk if required
+            if not self._token_revocation_list:
+                with open(self.revoked_file_name, 'r') as f:
+                    self._token_revocation_list = jsonutils.loads(f.read())
+        else:
+            self.token_revocation_list = self.fetch_revocation_list()
+        return self._token_revocation_list
+
+    @token_revocation_list.setter
+    def token_revocation_list(self, value):
+        """Save a revocation list to memory and to disk.
+
+        :param value: A json-encoded revocation list
+
+        """
+        self._token_revocation_list = jsonutils.loads(value)
+        self.token_revocation_list_fetched_time = timeutils.utcnow()
+        with open(self.revoked_file_name, 'w') as f:
+            f.write(value)
+
+    def fetch_revocation_list(self):
+        response, data = self._http_request('GET', '/v2.0/tokens/revoked')
+        if response.status != 200:
+            raise ServiceError('Unable to fetch token revocation list.')
+        return self.cms_verify(data)
 
     def fetch_signing_cert(self):
         response, data = self._http_request('GET',
