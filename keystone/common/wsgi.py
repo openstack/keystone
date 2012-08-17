@@ -355,11 +355,8 @@ class Debug(Middleware):
         """Iterator that prints the contents of a wrapper string."""
         LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE BODY', ('*' * 20))
         for part in app_iter:
-            #sys.stdout.write(part)
             LOG.debug(part)
-            #sys.stdout.flush()
             yield part
-        print
 
 
 class Router(object):
