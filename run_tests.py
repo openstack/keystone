@@ -350,9 +350,8 @@ if __name__ == '__main__':
             do_monkeypatch = False
         else:
             argv.append(x)
-    if do_monkeypatch:
-        eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
-                                       thread=True)
+    eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
+                                  thread=do_monkeypatch)
     testdir = os.path.abspath(os.path.join("tests"))
     c = config.Config(stream=sys.stdout,
                       env=os.environ,
