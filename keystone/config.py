@@ -179,3 +179,8 @@ register_str('role_tree_dn', group='ldap', default=None)
 register_str('role_objectclass', group='ldap', default='organizationalRole')
 register_str('role_id_attribute', group='ldap', default='cn')
 register_str('role_member_attribute', group='ldap', default='roleOccupant')
+
+#pam
+register_str('url', group='pam', default=None)
+register_str('userid', group='pam', default=None)
+register_str('password', group='pam', default=None)
