@@ -92,6 +92,7 @@
 #cert_required = True
 
 [signing]
+#token_format = UUID
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
