@@ -43,7 +43,7 @@ class PamIdentity(test.TestCase):
 
     def test_get_tenant_by_name(self):
         tenant_out = self.identity_api.\
-                          get_tenant_by_name(self.tenant_in['name'])
+            get_tenant_by_name(self.tenant_in['name'])
         self.assertDictEqual(self.tenant_in, tenant_out)
 
     def test_get_user(self):
