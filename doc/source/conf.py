@@ -20,8 +20,7 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../..'))
 
-# -- General configuration
-# -- -----------------------------------------------------
+# -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
@@ -115,7 +114,7 @@ man_pages = [
  ]
 
 
-# -- Options for HTML output
+# -- Options for HTML output --------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -198,7 +197,7 @@ html_last_updated_fmt = os.popen(git_cmd).read()
 htmlhelp_basename = 'keystonedoc'
 
 
-# -- Options for LaTeX output
+# -- Options for LaTeX output -------------------------------------------------
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
@@ -215,8 +214,8 @@ latex_elements = {
 # start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-  ('index', 'keystone.tex', u'Keystone Documentation',
-   u'OpenStack', 'manual'),
+    ('index', 'keystone.tex', u'Keystone Documentation',
+     u'OpenStack', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -240,15 +239,15 @@ latex_documents = [
 #latex_domain_indices = True
 
 
-# -- Options for Texinfo output
+# -- Options for Texinfo output -----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'keystone', u'Keystone Documentation',
-   u'OpenStack', 'keystone', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'keystone', u'Keystone Documentation',
+     u'OpenStack', 'keystone', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
