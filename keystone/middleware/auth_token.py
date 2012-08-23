@@ -109,7 +109,54 @@ from keystone.common import cms
 from keystone.common import utils
 from keystone.openstack.common import timeutils
 
+CONF = None
+try:
+    from openstack.common import cfg
+    CONF = cfg.CONF
+except ImportError:
+    # cfg is not a library yet, try application copies
+    for app in 'nova', 'glance', 'quantum', 'cinder':
+        try:
+            cfg = __import__('%s.openstack.common.cfg' % app,
+                             fromlist=['%s.openstack.common' % app])
+            # test which application middleware is running in
+            if 'config_file' in cfg.CONF:
+                CONF = cfg.CONF
+                break
+        except ImportError:
+            pass
+if not CONF:
+    from keystone.openstack.common import cfg
+    CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
+
+# alternative middleware configuration in the main application's
+# configuration file e.g. in nova.conf
+# [keystone_authtoken]
+# auth_host = 127.0.0.1
+# auth_port = 35357
+# auth_protocol = http
+# admin_tenant_name = admin
+# admin_user = admin
+# admin_password = badpassword
+opts = [
+    cfg.StrOpt('auth_admin_prefix', default=''),
+    cfg.StrOpt('auth_host', default='127.0.0.1'),
+    cfg.IntOpt('auth_port', default=35357),
+    cfg.StrOpt('auth_protocol', default='https'),
+    cfg.StrOpt('auth_uri', default=None),
+    cfg.BoolOpt('delay_auth_decision', default=False),
+    cfg.StrOpt('admin_token'),
+    cfg.StrOpt('admin_user'),
+    cfg.StrOpt('admin_password'),
+    cfg.StrOpt('admin_tenant_name', default='admin'),
+    cfg.StrOpt('certfile'),
+    cfg.StrOpt('keyfile'),
+    cfg.StrOpt('signing_dir'),
+    cfg.ListOpt('memcache_servers'),
+    cfg.IntOpt('token_cache_time', default=300),
+]
+CONF.register_opts(opts, group='keystone_authtoken')
 
 
 class InvalidUserToken(Exception):
@@ -134,31 +181,33 @@ class AuthProtocol(object):
 
         # delay_auth_decision means we still allow unauthenticated requests
         # through and we let the downstream service make the final decision
-        self.delay_auth_decision = (conf.get('delay_auth_decision', False)
-                                    in ('true', 't', '1', 'on', 'yes', 'y'))
+        self.delay_auth_decision = (self._conf_get('delay_auth_decision') in
+                                    (True, 'true', 't', '1', 'on', 'yes', 'y'))
 
         # where to find the auth service (we use this to validate tokens)
-        self.auth_host = conf.get('auth_host')
-        self.auth_port = int(conf.get('auth_port', 35357))
-        self.auth_protocol = conf.get('auth_protocol', 'https')
+        self.auth_host = self._conf_get('auth_host')
+        self.auth_port = int(self._conf_get('auth_port'))
+        self.auth_protocol = self._conf_get('auth_protocol')
         if self.auth_protocol == 'http':
             self.http_client_class = httplib.HTTPConnection
         else:
             self.http_client_class = httplib.HTTPSConnection
 
-        default_auth_uri = '%s://%s:%s' % (self.auth_protocol,
-                                           self.auth_host,
-                                           self.auth_port)
-        self.auth_admin_prefix = conf.get('auth_admin_prefix', '')
-        self.auth_uri = conf.get('auth_uri', default_auth_uri)
+        self.auth_admin_prefix = self._conf_get('auth_admin_prefix')
+        self.auth_uri = self._conf_get('auth_uri')
+        if self.auth_uri is None:
+            self.auth_uri = '%s://%s:%s' % (self.auth_protocol,
+                                            self.auth_host,
+                                            self.auth_port)
 
         # SSL
-        self.cert_file = conf.get('certfile')
-        self.key_file = conf.get('keyfile')
+        self.cert_file = self._conf_get('certfile')
+        self.key_file = self._conf_get('keyfile')
 
         #signing
-        default_signing_dir = '%s/keystone-signing' % os.environ['HOME']
-        self.signing_dirname = conf.get('signing_dir', default_signing_dir)
+        self.signing_dirname = self._conf_get('signing_dir')
+        if self.signing_dirname is None:
+            self.signing_dirname = '%s/keystone-signing' % os.environ['HOME']
         LOG.info('Using %s as cache directory for signing certificate' %
                  self.signing_dirname)
         if (os.path.exists(self.signing_dirname) and
@@ -180,17 +229,17 @@ class AuthProtocol(object):
 
         # Credentials used to verify this component with the Auth service since
         # validating tokens is a privileged call
-        self.admin_token = conf.get('admin_token')
-        self.admin_user = conf.get('admin_user')
-        self.admin_password = conf.get('admin_password')
-        self.admin_tenant_name = conf.get('admin_tenant_name', 'admin')
+        self.admin_token = self._conf_get('admin_token')
+        self.admin_user = self._conf_get('admin_user')
+        self.admin_password = self._conf_get('admin_password')
+        self.admin_tenant_name = self._conf_get('admin_tenant_name')
 
         # Token caching via memcache
         self._cache = None
         self._iso8601 = None
-        memcache_servers = conf.get('memcache_servers')
+        memcache_servers = self._conf_get('memcache_servers')
         # By default the token will be cached for 5 minutes
-        self.token_cache_time = conf.get('token_cache_time', 300)
+        self.token_cache_time = int(self._conf_get('token_cache_time'))
         self._token_revocation_list = None
         self._token_revocation_list_fetched_time = None
         self.token_revocation_list_cache_timeout = \
@@ -204,6 +253,13 @@ class AuthProtocol(object):
                 self._iso8601 = iso8601
             except ImportError as e:
                 LOG.warn('disabled caching due to missing libraries %s', e)
+
+    def _conf_get(self, name):
+        # try config from paste-deploy first
+        if name in self.conf:
+            return self.conf[name]
+        else:
+            return CONF.keystone_authtoken[name]
 
     def __call__(self, env, start_response):
         """Handle incoming request.
