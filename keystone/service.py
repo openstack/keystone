@@ -551,7 +551,7 @@ class TokenController(wsgi.Application):
                                         config.CONF.signing.certfile,
                                         config.CONF.signing.keyfile)
 
-        return signed_text
+        return {'signed': signed_text}
 
     def endpoints(self, context, token_id):
         """Return a list of endpoints available to the token."""

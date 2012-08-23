@@ -32,8 +32,8 @@ from keystone import config
 from keystone import test
 
 
-#The data for these tests are signed using openssl and are stored in files
-# in the signing subdirectory.  IN order to keep the values consistent between
+# The data for these tests are signed using openssl and are stored in files
+# in the signing subdirectory.  In order to keep the values consistent between
 # the tests and the signed documents, we read them in for use in the tests.
 def setUpModule(self):
     signing_path = os.path.join(os.path.dirname(__file__), 'signing')
@@ -47,7 +47,8 @@ def setUpModule(self):
     with open(os.path.join(signing_path, 'revocation_list.json')) as f:
         self.REVOCATION_LIST = jsonutils.loads(f.read())
     with open(os.path.join(signing_path, 'revocation_list.pem')) as f:
-        self.SIGNED_REVOCATION_LIST = f.read()
+        self.VALID_SIGNED_REVOCATION_LIST =\
+            jsonutils.dumps({'signed': f.read()})
 
     self.TOKEN_RESPONSES[self.SIGNED_TOKEN_SCOPED] = {
         'access': {
@@ -225,7 +226,7 @@ class FakeHTTPConnection(object):
     last_requested_url = ''
 
     def __init__(self, *args):
-        pass
+        self.send_valid_revocation_list = True
 
     def request(self, method, path, **kwargs):
         """Fakes out several http responses.
@@ -318,6 +319,9 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
             datetime.timedelta(days=1)
         self.middleware.token_revocation_list = jsonutils.dumps(
             {"revoked": [], "extra": "success"})
+
+        globals()['SIGNED_REVOCATION_LIST'] =\
+            globals()['VALID_SIGNED_REVOCATION_LIST']
 
         super(BaseAuthTokenMiddlewareTest, self).setUp()
 
@@ -477,6 +481,11 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         in_memory_list = self.middleware.token_revocation_list
         self.middleware._token_revocation_list = None
         self.assertEqual(self.middleware.token_revocation_list, in_memory_list)
+
+    def test_invalid_revocation_list_raises_service_error(self):
+        globals()['SIGNED_REVOCATION_LIST'] = "{}"
+        with self.assertRaises(auth_token.ServiceError):
+            self.middleware.fetch_revocation_list()
 
     def test_fetch_revocation_list(self):
         fetched_list = jsonutils.loads(self.middleware.fetch_revocation_list())

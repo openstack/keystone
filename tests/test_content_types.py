@@ -220,11 +220,15 @@ class RestfulTestCase(test.TestCase):
 
     def public_request(self, port=None, **kwargs):
         kwargs['port'] = port or self._public_port()
-        return self.restful_request(**kwargs)
+        response = self.restful_request(**kwargs)
+        self.assertValidResponseHeaders(response)
+        return response
 
     def admin_request(self, port=None, **kwargs):
         kwargs['port'] = port or self._admin_port()
-        return self.restful_request(**kwargs)
+        response = self.restful_request(**kwargs)
+        self.assertValidResponseHeaders(response)
+        return response
 
     def get_scoped_token(self):
         """Convenience method so that we can test authenticated requests."""
@@ -620,6 +624,25 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
 
         r = self.admin_request(path=path, expected_status=401)
         self.assertValidErrorResponse(r)
+
+    def test_fetch_revocation_list_nonadmin_fails(self):
+        r = self.admin_request(
+            method='GET',
+            path='/v2.0/tokens/revoked',
+            expected_status=401)
+
+    def test_fetch_revocation_list_admin_200(self):
+        token = self.get_scoped_token()
+        r = self.restful_request(
+            method='GET',
+            path='/v2.0/tokens/revoked',
+            token=token,
+            expected_status=200,
+            port=self._admin_port())
+        self.assertValidRevocationListResponse(r)
+
+    def assertValidRevocationListResponse(self, response):
+        self.assertIsNotNone(response.body['signed'])
 
 
 class XmlTestCase(RestfulTestCase, CoreApiTests):
