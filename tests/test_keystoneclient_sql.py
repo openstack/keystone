@@ -49,7 +49,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         endpoint_internalurl = uuid.uuid4().hex
         endpoint_adminurl = uuid.uuid4().hex
 
-        # a non-existant service ID should trigger a 404
+        # a non-existent service ID should trigger a 404
         self.assertRaises(client_exceptions.NotFound,
                           client.endpoints.create,
                           region=endpoint_region,
