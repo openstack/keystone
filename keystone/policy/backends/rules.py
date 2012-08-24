@@ -86,7 +86,7 @@ def enforce(credentials, action, target):
                 compute:attach_volume
                 volume:attach_volume
 
-       :param object: dictionary representing the object of the action
+       :param target: dictionary representing the object of the action
                       for object creation this should be a dictionary
                       representing the location of the object e.g.
                       {'tenant_id': object.tenant_id}
