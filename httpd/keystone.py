@@ -4,8 +4,6 @@ from paste import deploy
 
 from keystone import config
 from keystone.common import logging
-from keystone.common import utils
-from keystone.common import wsgi
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
