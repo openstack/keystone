@@ -68,6 +68,16 @@ class IdentityTests(object):
         self.assertDictEqual(tenant_ref, self.tenant_bar)
         self.assertDictEqual(metadata_ref, self.metadata_foobar)
 
+    def test_authenticate_role_return(self):
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+                user_id=self.user_foo['id'],
+                tenant_id=self.tenant_bar['id'],
+                password=self.user_foo['password'])
+        self.assertIn('roles', metadata_ref)
+        self.assertIn('keystone_admin', metadata_ref['roles'])
+
     def test_authenticate_no_metadata(self):
         user = self.user_no_meta
         tenant = self.tenant_baz
