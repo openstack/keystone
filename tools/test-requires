@@ -10,6 +10,7 @@ mox # mock object framework
 nose # for test discovery and console feedback
 nosexcover
 openstack.nose_plugin
+nosehtmloutput
 pylint # static code analysis
 pep8==1.3.3 # checks for PEP8 code style compliance
 Sphinx>=1.1.2 # required to build documentation
