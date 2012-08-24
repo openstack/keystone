@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 #              'sphinx.ext.todo', 'sphinx.ext.coverage']
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
-#              'sphinx.ect.intersphinx',
+              # 'sphinx.ect.intersphinx',
               'sphinx.ext.coverage']
 
 todo_include_todos = True
@@ -111,7 +111,7 @@ man_pages = [
      [u'OpenStack'], 1),
     ('man/keystone-all', 'keystone-all', u'Keystone Startup Command',
      [u'OpenStack'], 1),
- ]
+]
 
 
 # -- Options for HTML output --------------------------------------------------
@@ -200,14 +200,14 @@ htmlhelp_basename = 'keystonedoc'
 # -- Options for LaTeX output -------------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples (source
