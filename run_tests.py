@@ -66,8 +66,6 @@ from nose import config
 from nose import core
 from nose import result
 
-from keystone.common.sql import util
-
 
 class _AnsiColorizer(object):
     """

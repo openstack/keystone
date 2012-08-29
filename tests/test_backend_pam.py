@@ -20,8 +20,6 @@ from keystone import config
 from keystone.identity.backends import pam as identity_pam
 from keystone import test
 
-import default_fixtures
-
 
 CONF = config.CONF
 
