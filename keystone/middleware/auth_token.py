@@ -120,7 +120,7 @@ except ImportError:
             cfg = __import__('%s.openstack.common.cfg' % app,
                              fromlist=['%s.openstack.common' % app])
             # test which application middleware is running in
-            if 'config_file' in cfg.CONF:
+            if hasattr(cfg, 'CONF') and 'config_file' in cfg.CONF:
                 CONF = cfg.CONF
                 break
         except ImportError:
