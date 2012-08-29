@@ -69,7 +69,7 @@ class AdminRouter(wsgi.ComposingRouter):
                        action='endpoints',
                        conditions=dict(method=['GET']))
 
-        #Certificates used for veritfy auth toekns
+        # Certificates used to verify auth tokens
         mapper.connect('/certificates/ca',
                        controller=auth_controller,
                        action='ca_cert',
