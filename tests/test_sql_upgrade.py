@@ -50,8 +50,7 @@ class SqlUpgradeTests(test.TestCase):
         super(SqlUpgradeTests, self).tearDown()
 
     def test_blank_db_to_start(self):
-        self.assertFalse(self.is_user_table_created(),
-                         "User should not be defined yet")
+        self.assertTableDoesNotExist('user')
 
     def test_start_version_0(self):
         version = migration.db_version()
@@ -66,7 +65,7 @@ class SqlUpgradeTests(test.TestCase):
     def test_upgrade_0_to_1(self):
         self.assertEqual(self.schema.version, 0, "DB is at version 0")
         self._migrate(self.repo_path, 1)
-        self.assertEqual(self.schema.version, 1, "DB is at version 0")
+        self.assertEqual(self.schema.version, 1, "DB is at version 1")
         self.assertTableColumns("user", ["id", "name", "extra"])
         self.assertTableColumns("tenant", ["id", "name", "extra"])
         self.assertTableColumns("role", ["id", "name"])
@@ -74,6 +73,16 @@ class SqlUpgradeTests(test.TestCase):
                                 ["user_id", "tenant_id"])
         self.assertTableColumns("metadata", ["user_id", "tenant_id", "data"])
         self.populate_user_table()
+
+    def test_upgrade_5_to_6(self):
+        self._migrate(self.repo_path, 5)
+        self.assertEqual(self.schema.version, 5)
+        self.assertTableDoesNotExist('policy')
+
+        self._migrate(self.repo_path, 6)
+        self.assertEqual(self.schema.version, 6)
+        self.assertTableExists('policy')
+        self.assertTableColumns('policy', ['id', 'type', 'blob', 'extra'])
 
     def populate_user_table(self):
         for user in default_fixtures.USERS:
@@ -92,12 +101,21 @@ class SqlUpgradeTests(test.TestCase):
         s = sqlalchemy.select([table])
         return s
 
-    def is_user_table_created(self):
+    def assertTableExists(self, table_name):
+        """Asserts that a given table exists can be selected by name."""
         try:
-            self.select_table("user")
-            return True
+            self.select_table(table_name)
         except sqlalchemy.exc.NoSuchTableError:
-            return False
+            raise AssertionError('Table "%s" does not exist' % table_name)
+
+    def assertTableDoesNotExist(self, table_name):
+        """Asserts that a given table exists cannot be selected by name."""
+        try:
+            self.assertTableExists(table_name)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError('Table "%s" already exists' % table_name)
 
     def _migrate(self, repository, version):
         upgrade = True

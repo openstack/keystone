@@ -21,6 +21,7 @@ from keystone import catalog
 from keystone import config
 from keystone import exception
 from keystone import identity
+from keystone import policy
 from keystone import test
 from keystone import token
 
@@ -42,11 +43,13 @@ class SqlTests(test.TestCase):
         self.catalog_man = catalog.Manager()
         self.identity_man = identity.Manager()
         self.token_man = token.Manager()
+        self.policy_man = policy.Manager()
 
         # create shortcut references to each driver
         self.catalog_api = self.catalog_man.driver
         self.identity_api = self.identity_man.driver
         self.token_api = self.token_man.driver
+        self.policy_api = self.policy_man.driver
 
         # populate the engine with tables & fixtures
         self.load_fixtures(default_fixtures)
@@ -272,3 +275,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
                           self.catalog_man.delete_service, {}, "c")
         self.assertRaises(exception.EndpointNotFound,
                           self.catalog_man.delete_endpoint, {}, "d")
+
+
+class SqlPolicy(SqlTests, test_backend.PolicyTests):
+    pass
