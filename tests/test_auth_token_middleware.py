@@ -352,19 +352,16 @@ class DiabloAuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
     def test_valid_diablo_response(self):
         req = webob.Request.blank('/')
         req.headers['X-Auth-Token'] = VALID_DIABLO_TOKEN
-        body = self.middleware(req.environ, self.start_fake_response)
+        self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
 
 
 class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
-
     def assert_valid_request_200(self, token):
-
         req = webob.Request.blank('/')
         req.headers['X-Auth-Token'] = token
         body = self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.response_status, 200)
-        catalog = req.headers.get('X-Service-Catalog')
         self.assertTrue(req.headers.get('X-Service-Catalog'))
         self.assertEqual(body, ['SUCCESS'])
 
@@ -565,8 +562,3 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         self.assertEqual(self.response_status, 200)
         self.assertFalse(req.headers.get('X-Service-Catalog'))
         self.assertEqual(body, ['SUCCESS'])
-
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()

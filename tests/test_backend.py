@@ -667,6 +667,14 @@ class TokenTests(object):
         data = {'id_hash': token_id, 'id': token_id, 'a': 'b'}
         data_ref = self.token_api.create_token(token_id, data)
         self.token_api.delete_token(token_id)
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.token_api.get_token,
+            data_ref['id'])
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.token_api.delete_token,
+            data_ref['id'])
         return token_id
 
     def test_list_revoked_tokens_returns_empty_list(self):
