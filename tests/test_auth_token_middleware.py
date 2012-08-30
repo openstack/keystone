@@ -32,58 +32,18 @@ from keystone import config
 from keystone import test
 
 
-# The data for these tests are signed using openssl and are stored in files
-# in the signing subdirectory.  In order to keep the values consistent between
-# the tests and the signed documents, we read them in for use in the tests.
-def setUpModule(self):
-    signing_path = os.path.join(os.path.dirname(__file__), 'signing')
-    with open(os.path.join(signing_path, 'auth_token_scoped.pem')) as f:
-        self.SIGNED_TOKEN_SCOPED = cms.cms_to_token(f.read())
-    with open(os.path.join(signing_path, 'auth_token_unscoped.pem')) as f:
-        self.SIGNED_TOKEN_UNSCOPED = cms.cms_to_token(f.read())
-    with open(os.path.join(signing_path, 'auth_token_revoked.pem')) as f:
-        self.REVOKED_TOKEN = cms.cms_to_token(f.read())
-    self.REVOKED_TOKEN_HASH = utils.hash_signed_token(self.REVOKED_TOKEN)
-    with open(os.path.join(signing_path, 'revocation_list.json')) as f:
-        self.REVOCATION_LIST = jsonutils.loads(f.read())
-    with open(os.path.join(signing_path, 'revocation_list.pem')) as f:
-        self.VALID_SIGNED_REVOCATION_LIST =\
-            jsonutils.dumps({'signed': f.read()})
+REVOCATION_LIST = None
+REVOKED_TOKEN = None
+REVOKED_TOKEN_HASH = None
+SIGNED_REVOCATION_LIST = None
+SIGNED_TOKEN_SCOPED = None
+SIGNED_TOKEN_UNSCOPED = None
+VALID_SIGNED_REVOCATION_LIST = None
 
-    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_SCOPED] = {
-        'access': {
-            'token': {
-                'id': SIGNED_TOKEN_SCOPED,
-            },
-            'user': {
-                'id': 'user_id1',
-                'name': 'user_name1',
-                'tenantId': 'tenant_id1',
-                'tenantName': 'tenant_name1',
-                'roles': [
-                    {'name': 'role1'},
-                    {'name': 'role2'},
-                ],
-            },
-        },
-    }
-
-    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_UNSCOPED] = {
-        'access': {
-            'token': {
-                'id': self.SIGNED_TOKEN_UNSCOPED,
-            },
-            'user': {
-                'id': 'user_id1',
-                'name': 'user_name1',
-                'roles': [
-                    {'name': 'role1'},
-                    {'name': 'role2'},
-                ],
-            },
-        },
-    },
-
+UUID_TOKEN_DEFAULT = "ec6c0710ec2f471498484c1b53ab4f9d"
+UUID_TOKEN_NO_SERVICE_CATALOG = '8286720fbe4941e69fa8241723bb02df'
+UUID_TOKEN_UNSCOPED = '731f903721c14827be7b2dc912af7776'
+VALID_DIABLO_TOKEN = 'b0cf19b55dbb4f20a6ee18e6c6cf1726'
 
 INVALID_SIGNED_TOKEN = string.replace(
     """AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -105,16 +65,7 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 0000000000000000000000000000000000000000000000000000000000000000
 xg==""", "\n", "")
 
-UUID_TOKEN_DEFAULT = "ec6c0710ec2f471498484c1b53ab4f9d"
-
-VALID_DIABLO_TOKEN = 'b0cf19b55dbb4f20a6ee18e6c6cf1726'
-
-UUID_TOKEN_UNSCOPED = '731f903721c14827be7b2dc912af7776'
-
-UUID_TOKEN_NO_SERVICE_CATALOG = '8286720fbe4941e69fa8241723bb02df'
-
 # JSON responses keyed by token ID
-
 TOKEN_RESPONSES = {
     UUID_TOKEN_DEFAULT: {
         'access': {
@@ -187,6 +138,59 @@ TOKEN_RESPONSES = {
         },
     },
 }
+
+
+# The data for these tests are signed using openssl and are stored in files
+# in the signing subdirectory.  In order to keep the values consistent between
+# the tests and the signed documents, we read them in for use in the tests.
+def setUpModule(self):
+    signing_path = os.path.join(os.path.dirname(__file__), 'signing')
+    with open(os.path.join(signing_path, 'auth_token_scoped.pem')) as f:
+        self.SIGNED_TOKEN_SCOPED = cms.cms_to_token(f.read())
+    with open(os.path.join(signing_path, 'auth_token_unscoped.pem')) as f:
+        self.SIGNED_TOKEN_UNSCOPED = cms.cms_to_token(f.read())
+    with open(os.path.join(signing_path, 'auth_token_revoked.pem')) as f:
+        self.REVOKED_TOKEN = cms.cms_to_token(f.read())
+    self.REVOKED_TOKEN_HASH = utils.hash_signed_token(self.REVOKED_TOKEN)
+    with open(os.path.join(signing_path, 'revocation_list.json')) as f:
+        self.REVOCATION_LIST = jsonutils.loads(f.read())
+    with open(os.path.join(signing_path, 'revocation_list.pem')) as f:
+        self.VALID_SIGNED_REVOCATION_LIST = jsonutils.dumps(
+            {'signed': f.read()})
+
+    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_SCOPED] = {
+        'access': {
+            'token': {
+                'id': self.SIGNED_TOKEN_SCOPED,
+            },
+            'user': {
+                'id': 'user_id1',
+                'name': 'user_name1',
+                'tenantId': 'tenant_id1',
+                'tenantName': 'tenant_name1',
+                'roles': [
+                    {'name': 'role1'},
+                    {'name': 'role2'},
+                ],
+            },
+        },
+    }
+
+    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_UNSCOPED] = {
+        'access': {
+            'token': {
+                'id': self.SIGNED_TOKEN_UNSCOPED,
+            },
+            'user': {
+                'id': 'user_id1',
+                'name': 'user_name1',
+                'roles': [
+                    {'name': 'role1'},
+                    {'name': 'role2'},
+                ],
+            },
+        },
+    },
 
 
 class FakeMemcache(object):
