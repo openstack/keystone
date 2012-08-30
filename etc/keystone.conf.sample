@@ -14,6 +14,14 @@
 # The port number which the OpenStack Compute service listens on
 # compute_port = 8774
 
+# Path to your policy definition containing identity actions
+# TODO(dolph): This config method will probably be deprecated during grizzly
+# policy_file = policy.json
+
+# Rule to check if no matching policy definition is found
+# FIXME(dolph): This should really be defined as [policy] default_rule
+# policy_default_rule = admin_required
+
 # === Logging Options ===
 # Print debugging output
 # verbose = False
