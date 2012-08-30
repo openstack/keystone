@@ -72,9 +72,9 @@ class IdentityTests(object):
         self.identity_api.add_role_to_user_and_tenant(
             self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-                user_id=self.user_foo['id'],
-                tenant_id=self.tenant_bar['id'],
-                password=self.user_foo['password'])
+            user_id=self.user_foo['id'],
+            tenant_id=self.tenant_bar['id'],
+            password=self.user_foo['password'])
         self.assertIn('roles', metadata_ref)
         self.assertIn('keystone_admin', metadata_ref['roles'])
 
