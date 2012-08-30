@@ -1,7 +1,58 @@
 import uuid
+import functools
 
+from keystone.common import logging
 from keystone.common import wsgi
 from keystone import exception
+
+
+LOG = logging.getLogger(__name__)
+
+
+def protected(f):
+    """Wraps API calls with role based access controls (RBAC)."""
+
+    @functools.wraps(f)
+    def wrapper(self, context, **kwargs):
+        if not context['is_admin']:
+            action = 'identity:%s' % f.__name__
+
+            LOG.debug('RBAC: Authorizing %s(%s)' % (
+                action,
+                ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])))
+
+            try:
+                token_ref = self.token_api.get_token(
+                    context=context, token_id=context['token_id'])
+            except exception.TokenNotFound:
+                LOG.warning('RBAC: Invalid token')
+                raise exception.Unauthorized()
+
+            creds = token_ref['metadata'].copy()
+
+            try:
+                creds['user_id'] = token_ref['user'].get('id')
+            except AttributeError:
+                LOG.warning('RBAC: Invalid user')
+                raise exception.Unauthorized()
+
+            try:
+                creds['tenant_id'] = token_ref['tenant'].get('id')
+            except AttributeError:
+                LOG.debug('RBAC: Proceeding without tenant')
+
+            # NOTE(vish): this is pretty inefficient
+            creds['roles'] = [self.identity_api.get_role(context, role)['name']
+                              for role in creds.get('roles', [])]
+
+            self.policy_api.enforce(context, creds, action, kwargs)
+
+            LOG.debug('RBAC: Authorization granted')
+        else:
+            LOG.warning('RBAC: Bypassing authorization')
+
+        return f(self, context, **kwargs)
+    return wrapper
 
 
 class V3Controller(wsgi.Application):

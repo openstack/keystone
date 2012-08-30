@@ -105,9 +105,8 @@ class Driver(object):
 
 
 class PolicyControllerV3(controller.V3Controller):
+    @controller.protected
     def create_policy(self, context, policy):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(policy))
         self._require_attribute(ref, 'blob')
         self._require_attribute(ref, 'type')
@@ -115,22 +114,22 @@ class PolicyControllerV3(controller.V3Controller):
         ref = self.policy_api.create_policy(context, ref['id'], ref)
         return {'policy': ref}
 
+    @controller.protected
     def list_policies(self, context):
-        self.assert_admin(context)
         refs = self.policy_api.list_policies(context)
         refs = self._filter_by_attribute(context, refs, 'type')
         return {'policies': self._paginate(context, refs)}
 
+    @controller.protected
     def get_policy(self, context, policy_id):
-        self.assert_admin(context)
         ref = self.policy_api.get_policy(context, policy_id)
         return {'policy': ref}
 
+    @controller.protected
     def update_policy(self, context, policy_id, policy):
-        self.assert_admin(context)
         ref = self.policy_api.update_policy(context, policy_id, policy)
         return {'policy': ref}
 
+    @controller.protected
     def delete_policy(self, context, policy_id):
-        self.assert_admin(context)
         return self.policy_api.delete_policy(context, policy_id)

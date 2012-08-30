@@ -278,46 +278,40 @@ class EndpointController(wsgi.Application):
 
 
 class ServiceControllerV3(controller.V3Controller):
+    @controller.protected
     def create_service(self, context, service):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(service))
         self._require_attribute(ref, 'type')
 
         ref = self.catalog_api.create_service(context, ref['id'], ref)
         return {'service': ref}
 
+    @controller.protected
     def list_services(self, context):
-        self.assert_admin(context)
-
         refs = self.catalog_api.list_services(context)
         refs = self._filter_by_attribute(context, refs, 'type')
         return {'services': self._paginate(context, refs)}
 
+    @controller.protected
     def get_service(self, context, service_id):
-        self.assert_admin(context)
-
         ref = self.catalog_api.get_service(context, service_id)
         return {'service': ref}
 
+    @controller.protected
     def update_service(self, context, service_id, service):
-        self.assert_admin(context)
-
         self._require_matching_id(service_id, service)
 
         ref = self.catalog_api.update_service(context, service_id, service)
         return {'service': ref}
 
+    @controller.protected
     def delete_service(self, context, service_id):
-        self.assert_admin(context)
-
         return self.catalog_api.delete_service(context, service_id)
 
 
 class EndpointControllerV3(controller.V3Controller):
+    @controller.protected
     def create_endpoint(self, context, endpoint):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         self._require_attribute(ref, 'service_id')
         self._require_attribute(ref, 'interface')
@@ -326,23 +320,20 @@ class EndpointControllerV3(controller.V3Controller):
         ref = self.catalog_api.create_endpoint(context, ref['id'], ref)
         return {'endpoint': ref}
 
+    @controller.protected
     def list_endpoints(self, context):
-        self.assert_admin(context)
-
         refs = self.catalog_api.list_endpoints(context)
         refs = self._filter_by_attribute(context, refs, 'service_id')
         refs = self._filter_by_attribute(context, refs, 'interface')
         return {'endpoints': self._paginate(context, refs)}
 
+    @controller.protected
     def get_endpoint(self, context, endpoint_id):
-        self.assert_admin(context)
-
         ref = self.catalog_api.get_endpoint(context, endpoint_id)
         return {'endpoint': ref}
 
+    @controller.protected
     def update_endpoint(self, context, endpoint_id, endpoint):
-        self.assert_admin(context)
-
         self._require_matching_id(endpoint_id, endpoint)
 
         if 'service_id' in endpoint:
@@ -351,6 +342,6 @@ class EndpointControllerV3(controller.V3Controller):
         ref = self.catalog_api.update_endpoint(context, endpoint_id, endpoint)
         return {'endpoint': ref}
 
+    @controller.protected
     def delete_endpoint(self, context, endpoint_id):
-        self.assert_admin(context)
         return self.catalog_api.delete_endpoint(context, endpoint_id)
