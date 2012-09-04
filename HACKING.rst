@@ -48,18 +48,18 @@ Imports
 Example::
 
   # vim: tabstop=4 shiftwidth=4 softtabstop=4
-  {{stdlib imports in human alphabetical order}}
+  {{stdlib imports ordered by full module path}}
   \n
-  {{third-party lib imports in human alphabetical order}}
+  {{third-party lib imports ordered by full module path}}
   \n
-  {{nova imports in human alphabetical order}}
+  {{nova imports ordered by full module path}}
   \n
   \n
   {{begin your code}}
 
 
-Human Alphabetical Order Examples
----------------------------------
+Import by Full Module Path Examples
+-----------------------------------
 
 Example::
 
@@ -73,14 +73,14 @@ Example::
   import eventlet
   import webob.exc
 
-  from nova import test
-  from nova import utils
+  import nova.api.ec2
   from nova.api import openstack
   from nova.auth import ldap
   from nova.auth import users
   from nova.endpoint import cloud
   import nova.flags
-  import nova.api.ec2
+  from nova import test
+  from nova import utils
 
 
 Docstrings
