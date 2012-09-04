@@ -163,7 +163,7 @@ class AdminVersionRouter(wsgi.ComposingRouter):
 class VersionController(wsgi.Application):
     def __init__(self, version_type):
         self.catalog_api = catalog.Manager()
-        self.url_key = "%sURL" % version_type
+        self.url_key = '%sURL' % version_type
 
         super(VersionController, self).__init__()
 
@@ -186,35 +186,35 @@ class VersionController(wsgi.Application):
 
         versions = {}
         versions['v2.0'] = {
-            "id": "v2.0",
-            "status": "beta",
-            "updated": "2011-11-19T00:00:00Z",
-            "links": [
+            'id': 'v2.0',
+            'status': 'beta',
+            'updated': '2011-11-19T00:00:00Z',
+            'links': [
                 {
-                    "rel": "self",
-                    "href": identity_url,
+                    'rel': 'self',
+                    'href': identity_url,
                 }, {
-                    "rel": "describedby",
-                    "type": "text/html",
-                    "href": "http://docs.openstack.org/api/openstack-"
-                            "identity-service/2.0/content/"
+                    'rel': 'describedby',
+                    'type': 'text/html',
+                    'href': 'http://docs.openstack.org/api/openstack-'
+                            'identity-service/2.0/content/'
                 }, {
-                    "rel": "describedby",
-                    "type": "application/pdf",
-                    "href": "http://docs.openstack.org/api/openstack-"
-                            "identity-service/2.0/identity-dev-guide-"
-                            "2.0.pdf"
+                    'rel': 'describedby',
+                    'type': 'application/pdf',
+                    'href': 'http://docs.openstack.org/api/openstack-'
+                            'identity-service/2.0/identity-dev-guide-'
+                            '2.0.pdf'
                 }
             ],
-            "media-types": [
+            'media-types': [
                 {
-                    "base": "application/json",
-                    "type": "application/vnd.openstack.identity-v2.0"
-                            "+json"
+                    'base': 'application/json',
+                    'type': 'application/vnd.openstack.identity-v2.0'
+                            '+json'
                 }, {
-                    "base": "application/xml",
-                    "type": "application/vnd.openstack.identity-v2.0"
-                            "+xml"
+                    'base': 'application/xml',
+                    'type': 'application/vnd.openstack.identity-v2.0'
+                            '+xml'
                 }
             ]
         }
@@ -224,15 +224,15 @@ class VersionController(wsgi.Application):
     def get_versions(self, context):
         versions = self._get_versions_list(context)
         return wsgi.render_response(status=(300, 'Multiple Choices'), body={
-            "versions": {
-                "values": versions.values()
+            'versions': {
+                'values': versions.values()
             }
         })
 
     def get_version(self, context):
         versions = self._get_versions_list(context)
         return wsgi.render_response(body={
-            "version": versions['v2.0']
+            'version': versions['v2.0']
         })
 
 
@@ -433,17 +433,17 @@ class TokenController(wsgi.Application):
         service_catalog = self._format_catalog(catalog_ref)
         token_data['access']['serviceCatalog'] = service_catalog
 
-        if config.CONF.signing.token_format == "UUID":
+        if config.CONF.signing.token_format == 'UUID':
             token_id = uuid.uuid4().hex
-        elif config.CONF.signing.token_format == "PKI":
+        elif config.CONF.signing.token_format == 'PKI':
 
             token_id = cms.cms_sign_token(json.dumps(token_data),
                                           config.CONF.signing.certfile,
                                           config.CONF.signing.keyfile)
         else:
             raise exception.UnexpectedError(
-                "Invalid value for token_format: %s."
-                "  Allowed values are PKI or UUID." %
+                'Invalid value for token_format: %s.'
+                '  Allowed values are PKI or UUID.' %
                 config.CONF.signing.token_format)
         try:
             self.token_api.create_token(
@@ -509,7 +509,7 @@ class TokenController(wsgi.Application):
         Returns metadata about the token along any associated roles.
 
         """
-        belongs_to = context['query_string'].get("belongsTo")
+        belongs_to = context['query_string'].get('belongsTo')
         token_ref = self._get_token_ref(context, token_id, belongs_to)
 
         # TODO(termie): optimize this call at some point and put it into the

@@ -15,6 +15,7 @@ General
 - Include your name with TODOs as in "#TODO(termie)"
 - Do not name anything the same name as a built-in or reserved word
 - When defining global constants, define them before functions and classes
+- Avoid using "double quotes" where you can reasonably use 'single quotes'
 
 
 TODO vs FIXME
@@ -24,6 +25,7 @@ TODO vs FIXME
   etc), but is expected to be functional.
 - FIXME(name): implies that the method/function/etc shouldn't be used until
   that code is resolved and bug fixed.
+
 
 Logging
 -------
@@ -35,6 +37,7 @@ Use the built-in logging module, and ensure you ``getLogger``::
     LOG = logging.getLogger(__name__)
 
     LOG.debug('Foobar')
+
 
 Imports
 -------
