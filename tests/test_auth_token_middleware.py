@@ -15,7 +15,6 @@
 # under the License.
 
 import datetime
-import hashlib
 import iso8601
 import os
 import string
@@ -28,7 +27,6 @@ from keystone.common import utils
 from keystone.middleware import auth_token
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
-from keystone import config
 from keystone import test
 
 
