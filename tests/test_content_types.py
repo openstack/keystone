@@ -626,7 +626,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         self.assertValidErrorResponse(r)
 
     def test_fetch_revocation_list_nonadmin_fails(self):
-        r = self.admin_request(
+        self.admin_request(
             method='GET',
             path='/v2.0/tokens/revoked',
             expected_status=401)

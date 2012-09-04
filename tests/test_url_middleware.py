@@ -46,13 +46,13 @@ class UrlMiddlewareTest(test.TestCase):
         """Tests /v2.0/tokens and /v2.0/tokens/ normalized URLs match."""
         req1 = webob.Request.blank('/v2.0/tokens')
         req2 = webob.Request.blank('/v2.0/tokens/')
-        _ = self.middleware(req1.environ, self.start_fake_response)
-        _ = self.middleware(req2.environ, self.start_fake_response)
+        self.middleware(req1.environ, self.start_fake_response)
+        self.middleware(req2.environ, self.start_fake_response)
         self.assertEqual(req1.path_url, req2.path_url)
         self.assertEqual(req1.path_url, 'http://localhost/v2.0/tokens')
 
     def test_rewrite_empty_path(self):
         """Tests empty path is rewritten to root."""
         req = webob.Request.blank('')
-        _ = self.middleware(req.environ, self.start_fake_response)
+        self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(req.path_url, 'http://localhost/')
