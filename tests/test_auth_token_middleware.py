@@ -398,9 +398,9 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         self.assertEqual(body, ['SUCCESS'])
 
     def test_default_tenant_uuid_token(self):
-        self.assert_unscoped_default_tenant_auto_scopes(UUID_TOKEN_SCOPED)
+        self.assert_unscoped_default_tenant_auto_scopes(UUID_TOKEN_DEFAULT)
 
-    def test_default_tenant_uuid_token(self):
+    def test_default_tenant_signed_token(self):
         self.assert_unscoped_default_tenant_auto_scopes(SIGNED_TOKEN_SCOPED)
 
     def assert_unscoped_token_receives_401(self, token):
