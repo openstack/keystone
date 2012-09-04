@@ -376,18 +376,6 @@ class TokenController(wsgi.Application):
                                 % (user_id, tenant_id))
                     raise exception.Unauthorized()
 
-                # if the old token is sufficient unpack and return it
-                if (old_token_ref['tenant']
-                        and tenant_id == old_token_ref['tenant']['id']
-                        and len(old_token) > cms.UUID_TOKEN_LENGTH):
-                    json_data = cms.verify_token(
-                        old_token,
-                        config.CONF.signing.certfile,
-                        config.CONF.signing.ca_certs)
-                    return_data = json.loads(json_data)
-                    return_data['access']['token']['id'] = old_token
-                    return return_data
-
             expiry = old_token_ref['expires']
             try:
                 tenant_ref = self.identity_api.get_tenant(context=context,

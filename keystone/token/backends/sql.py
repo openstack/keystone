@@ -27,8 +27,7 @@ from keystone import token
 
 class TokenModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'token'
-    id_hash = sql.Column(sql.String(64), primary_key=True)
-    id = sql.Column(sql.String(1024))
+    id = sql.Column(sql.String(64), primary_key=True)
     expires = sql.Column(sql.DateTime(), default=None)
     extra = sql.Column(sql.JsonBlob())
     valid = sql.Column(sql.Boolean(), default=True)
@@ -38,14 +37,13 @@ class TokenModel(sql.ModelBase, sql.DictBase):
         # shove any non-indexed properties into extra
         extra = copy.deepcopy(token_dict)
         data = {}
-        for k in ('id_hash', 'id', 'expires'):
+        for k in ('id', 'expires'):
             data[k] = extra.pop(k, None)
         data['extra'] = extra
         return cls(**data)
 
     def to_dict(self):
         out = copy.deepcopy(self.extra)
-        out['id_hash'] = self.id
         out['id'] = self.id
         out['expires'] = self.expires
         return out
@@ -56,7 +54,7 @@ class Token(sql.Base, token.Driver):
     def get_token(self, token_id):
         session = self.get_session()
         token_ref = session.query(TokenModel)\
-            .filter_by(id_hash=self.token_to_key(token_id),
+            .filter_by(id=self.token_to_key(token_id),
                        valid=True).first()
         now = datetime.datetime.utcnow()
         if token_ref and (not token_ref.expires or now < token_ref.expires):
@@ -78,7 +76,7 @@ class Token(sql.Base, token.Driver):
             data_copy['expires'] = self._get_default_expire_time()
 
         token_ref = TokenModel.from_dict(data_copy)
-        token_ref.id_hash = self.token_to_key(token_id)
+        token_ref.id = self.token_to_key(token_id)
         token_ref.valid = True
         session = self.get_session()
         with session.begin():
