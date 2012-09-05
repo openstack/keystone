@@ -163,6 +163,9 @@ paste.filter_factory = keystone.contrib.stats:StatsExtension.factory
 [app:public_service]
 paste.app_factory = keystone.service:public_app_factory
 
+[app:service_v3]
+paste.app_factory = keystone.service:v3_app_factory
+
 [app:admin_service]
 paste.app_factory = keystone.service:admin_app_factory
 
@@ -171,6 +174,9 @@ pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body j
 
 [pipeline:admin_api]
 pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service
+
+[pipeline:api_v3]
+pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension service_v3
 
 [app:public_version_service]
 paste.app_factory = keystone.service:public_version_app_factory
@@ -187,9 +193,11 @@ pipeline = stats_monitoring url_normalize xml_body admin_version_service
 [composite:main]
 use = egg:Paste#urlmap
 /v2.0 = public_api
+/v3 = api_v3
 / = public_version_api
 
 [composite:admin]
 use = egg:Paste#urlmap
 /v2.0 = admin_api
+/v3 = api_v3
 / = admin_version_api

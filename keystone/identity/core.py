@@ -20,6 +20,7 @@ import urllib
 import urlparse
 import uuid
 
+from keystone.common import controller
 from keystone.common import logging
 from keystone.common import manager
 from keystone.common import wsgi
@@ -76,15 +77,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_user(self, user_id):
-        """Get a user by id.
-
-        :returns: user_ref
-        :raises: keystone.exception.UserNotFound
-
-        """
-        raise exception.NotImplemented()
-
     def get_user_by_name(self, user_name):
         """Get a user by name.
 
@@ -94,36 +86,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_role(self, role_id):
-        """Get a role by id.
-
-        :returns: role_ref
-        :raises: keystone.exception.RoleNotFound
-
-        """
-        raise exception.NotImplemented()
-
-    def list_users(self):
-        """List all users in the system.
-
-        NOTE(termie): I'd prefer if this listed only the users for a given
-                      tenant.
-
-        :returns: a list of user_refs or an empty list
-
-        """
-        raise exception.NotImplemented()
-
-    def list_roles(self):
-        """List all roles in the system.
-
-        :returns: a list of role_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()
-
-    # NOTE(termie): seven calls below should probably be exposed by the api
-    #               more clearly when the api redesign happens
     def add_user_to_tenant(self, tenant_id, user_id):
         """Add user to a tenant without an explicit role relationship.
 
@@ -202,31 +164,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    # user crud
-    def create_user(self, user_id, user):
-        """Creates a new user.
-
-        :raises: keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()
-
-    def update_user(self, user_id, user):
-        """Updates an existing user.
-
-        :raises: keystone.exception.UserNotFound, keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()
-
-    def delete_user(self, user_id):
-        """Deletes an existing user.
-
-        :raises: keystone.exception.UserNotFound
-
-        """
-        raise exception.NotImplemented()
-
     # tenant crud
     def create_tenant(self, tenant_id, tenant):
         """Creates a new tenant.
@@ -265,7 +202,182 @@ class Driver(object):
     def delete_metadata(self, user_id, tenant_id):
         raise exception.NotImplemented()
 
+    # domain crud
+    def create_domain(self, domain_id, domain):
+        """Creates a new domain.
+
+        :raises: keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def list_domains(self):
+        """List all domains in the system.
+
+        :returns: a list of domain_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_domain(self, domain_id):
+        """Get a domain by ID.
+
+        :returns: user_ref
+        :raises: keystone.exception.DomainNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def update_domain(self, domain_id, domain):
+        """Updates an existing domain.
+
+        :raises: keystone.exception.DomainNotFound,
+                 keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_domain(self, domain_id):
+        """Deletes an existing domain.
+
+        :raises: keystone.exception.DomainNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    # project crud
+    def create_project(self, project_id, project):
+        """Creates a new project.
+
+        :raises: keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def list_projects(self):
+        """List all projects in the system.
+
+        :returns: a list of project_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_project(self):
+        """Get a project by ID.
+
+        :returns: user_ref
+        :raises: keystone.exception.ProjectNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def update_project(self, project_id, project):
+        """Updates an existing project.
+
+        :raises: keystone.exception.ProjectNotFound,
+                 keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_project(self, project_id):
+        """Deletes an existing project.
+
+        :raises: keystone.exception.ProjectNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    # user crud
+
+    def create_user(self, user_id, user):
+        """Creates a new user.
+
+        :raises: keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def list_users(self):
+        """List all users in the system.
+
+        :returns: a list of user_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_user(self, user_id):
+        """Get a user by ID.
+
+        :returns: user_ref
+        :raises: keystone.exception.UserNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def update_user(self, user_id, user):
+        """Updates an existing user.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_user(self, user_id):
+        """Deletes an existing user.
+
+        :raises: keystone.exception.UserNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    # credential crud
+
+    def create_credential(self, credential_id, credential):
+        """Creates a new credential.
+
+        :raises: keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def list_credentials(self):
+        """List all credentials in the system.
+
+        :returns: a list of credential_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_credential(self, credential_id):
+        """Get a credential by ID.
+
+        :returns: credential_ref
+        :raises: keystone.exception.CredentialNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def update_credential(self, credential_id, credential):
+        """Updates an existing credential.
+
+        :raises: keystone.exception.CredentialNotFound,
+                 keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_credential(self, credential_id):
+        """Deletes an existing credential.
+
+        :raises: keystone.exception.CredentialNotFound
+
+        """
+        raise exception.NotImplemented()
+
     # role crud
+
     def create_role(self, role_id, role):
         """Creates a new role.
 
@@ -274,10 +386,28 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    def list_roles(self):
+        """List all roles in the system.
+
+        :returns: a list of role_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    def get_role(self, role_id):
+        """Get a role by ID.
+
+        :returns: role_ref
+        :raises: keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()
+
     def update_role(self, role_id, role):
         """Updates an existing role.
 
-        :raises: keystone.exception.RoleNotFound, keystone.exception.Conflict
+        :raises: keystone.exception.RoleNotFound,
+                 keystone.exception.Conflict
 
         """
         raise exception.NotImplemented()
@@ -684,3 +814,223 @@ class RoleController(wsgi.Application):
         if not roles:
             self.identity_api.remove_user_from_tenant(
                 context, tenant_id, user_id)
+
+
+class DomainControllerV3(controller.V3Controller):
+    def create_domain(self, context, domain):
+        self.assert_admin(context)
+
+        ref = self._assign_unique_id(self._normalize_dict(domain))
+        ref = self.identity_api.create_domain(context, ref['id'], ref)
+        return {'domain': ref}
+
+    def list_domains(self, context):
+        self.assert_admin(context)
+
+        refs = self.identity_api.list_domains(context)
+        return {'domains': self._paginate(context, refs)}
+
+    def get_domain(self, context, domain_id):
+        self.assert_admin(context)
+
+        ref = self.identity_api.get_domain(context, domain_id)
+        return {'domain': ref}
+
+    def update_domain(self, context, domain_id, domain):
+        self.assert_admin(context)
+
+        self._require_matching_id(domain_id, domain)
+
+        ref = self.identity_api.update_domain(context, domain_id, domain)
+        return {'domain': ref}
+
+    def delete_domain(self, context, domain_id):
+        self.assert_admin(context)
+        return self.identity_api.delete_domain(context, domain_id)
+
+
+class ProjectControllerV3(controller.V3Controller):
+    def create_project(self, context, project):
+        self.assert_admin(context)
+
+        ref = self._assign_unique_id(self._normalize_dict(project))
+        ref = self.identity_api.create_project(context, ref['id'], ref)
+        return {'project': ref}
+
+    def list_projects(self, context):
+        self.assert_admin(context)
+
+        refs = self.identity_api.list_projects(context)
+        return {'projects': self._paginate(context, refs)}
+
+    def list_user_projects(self, context, user_id):
+        # FIXME(dolph): this should also be callable by user_id themselves
+        self.assert_admin(context)
+
+        refs = self.identity_api.list_user_projects(context, user_id)
+        return {'projects': self._paginate(context, refs)}
+
+    def get_project(self, context, project_id):
+        self.assert_admin(context)
+
+        ref = self.identity_api.get_project(context, project_id)
+        return {'project': ref}
+
+    def update_project(self, context, project_id, project):
+        self.assert_admin(context)
+
+        self._require_matching_id(project_id, project)
+
+        ref = self.identity_api.update_project(context, project_id, project)
+        return {'project': ref}
+
+    def delete_project(self, context, project_id):
+        self.assert_admin(context)
+        return self.identity_api.delete_project(context, project_id)
+
+
+class UserControllerV3(controller.V3Controller):
+    def create_user(self, context, user):
+        self.assert_admin(context)
+
+        ref = self._assign_unique_id(self._normalize_dict(user))
+        ref = self.identity_api.create_user(context, ref['id'], ref)
+        return {'user': ref}
+
+    def list_users(self, context):
+        self.assert_admin(context)
+
+        refs = self.identity_api.list_users(context)
+        return {'users': self._paginate(context, refs)}
+
+    def get_user(self, context, user_id):
+        self.assert_admin(context)
+
+        ref = self.identity_api.get_user(context, user_id)
+        return {'user': ref}
+
+    def update_user(self, context, user_id, user):
+        self.assert_admin(context)
+
+        self._require_matching_id(user_id, user)
+
+        ref = self.identity_api.update_user(context, user_id, user)
+        return {'user': ref}
+
+    def delete_user(self, context, user_id):
+        self.assert_admin(context)
+        return self.identity_api.delete_user(context, user_id)
+
+
+class CredentialControllerV3(controller.V3Controller):
+    def create_credential(self, context, credential):
+        self.assert_admin(context)
+
+        ref = self._assign_unique_id(self._normalize_dict(credential))
+        ref = self.identity_api.create_credential(context, ref['id'], ref)
+        return {'credential': ref}
+
+    def list_credentials(self, context):
+        self.assert_admin(context)
+
+        refs = self.identity_api.list_credentials(context)
+        return {'credentials': self._paginate(context, refs)}
+
+    def get_credential(self, context, credential_id):
+        self.assert_admin(context)
+
+        ref = self.identity_api.get_credential(context, credential_id)
+        return {'credential': ref}
+
+    def update_credential(self, context, credential_id, credential):
+        self.assert_admin(context)
+
+        self._require_matching_id(credential_id, credential)
+
+        ref = self.identity_api.update_credential(
+            context,
+            credential_id,
+            credential)
+        return {'credential': ref}
+
+    def delete_credential(self, context, credential_id):
+        self.assert_admin(context)
+        return self.identity_api.delete_credential(context, credential_id)
+
+
+class RoleControllerV3(controller.V3Controller):
+    def create_role(self, context, role):
+        self.assert_admin(context)
+
+        ref = self._assign_unique_id(self._normalize_dict(role))
+        ref = self.identity_api.create_role(context, ref['id'], ref)
+        return {'role': ref}
+
+    def list_roles(self, context):
+        self.assert_admin(context)
+
+        refs = self.identity_api.list_roles(context)
+        return {'roles': self._paginate(context, refs)}
+
+    def get_role(self, context, role_id):
+        self.assert_admin(context)
+
+        ref = self.identity_api.get_role(context, role_id)
+        return {'role': ref}
+
+    def update_role(self, context, role_id, role):
+        self.assert_admin(context)
+
+        self._require_matching_id(role_id, role)
+
+        ref = self.identity_api.update_role(context, role_id, role)
+        return {'role': ref}
+
+    def delete_role(self, context, role_id):
+        self.assert_admin(context)
+        return self.identity_api.delete_role(context, role_id)
+
+    def _require_domain_or_project(self, domain_id, project_id):
+        if (domain_id and project_id) or (not domain_id and not project_id):
+            msg = 'Specify a domain or project, not both'
+            raise exception.ValidationError(msg)
+
+    def create_grant(self, context, role_id, user_id, domain_id=None,
+                     project_id=None):
+        """Grants a role to a user on either a domain or project."""
+        self.assert_admin(context)
+
+        self._require_domain_or_project(domain_id, project_id)
+
+        return self.identity_api.create_grant(
+            context, role_id, user_id, domain_id, project_id)
+
+    def list_grants(self, context, user_id, domain_id=None,
+                    project_id=None):
+        """Lists roles granted to a user on either a domain or project."""
+        self.assert_admin(context)
+
+        self._require_domain_or_project(domain_id, project_id)
+
+        return self.identity_api.list_grants(
+            context, user_id, domain_id, project_id)
+
+    def check_grant(self, context, role_id, user_id, domain_id=None,
+                    project_id=None):
+        """Checks if a role has been granted on either a domain or project."""
+        self.assert_admin(context)
+
+        self._require_domain_or_project(domain_id, project_id)
+
+        self.identity_api.get_grant(
+            context, role_id, user_id, domain_id, project_id)
+
+    def revoke_grant(self, context, role_id, user_id, domain_id=None,
+                     project_id=None):
+        """Revokes a role from a user on either a domain or project."""
+        self.assert_admin(context)
+
+        self._require_domain_or_project(domain_id, project_id)
+
+        self.identity_api.delete_grant(
+            context, role_id, user_id, domain_id, project_id)
