@@ -67,6 +67,15 @@ class Token(token.Driver):
             expires_ts = utils.unixtime(data_copy['expires'])
             kwargs['time'] = expires_ts
         self.client.set(ptk, data_copy, **kwargs)
+        if 'id' in data['user']:
+            token_data = jsonutils.dumps(token_id)
+            user_id = data['user']['id']
+            user_key = 'usertokens-%s' % user_id
+            if not self.client.append(user_key, ',%s' % token_data):
+                if not self.client.add(user_key, token_data):
+                    if not self.client.append(user_key, ',%s' % token_data):
+                        msg = _('Unable to add token user list.')
+                        raise exception.UnexpectedError(msg)
         return copy.deepcopy(data_copy)
 
     def _add_to_revocation_list(self, data):
@@ -85,6 +94,17 @@ class Token(token.Driver):
         result = self.client.delete(ptk)
         self._add_to_revocation_list(data)
         return result
+
+    def list_tokens(self, user_id):
+        tokens = []
+        user_record = self.client.get('usertokens-%s' % user_id) or ""
+        token_list = jsonutils.loads('[%s]' % user_record)
+        for token_id in token_list:
+            ptk = self._prefix_token_id(token_id)
+            token = self.client.get(ptk)
+            if token:
+                tokens.append(token_id)
+        return tokens
 
     def list_revoked_tokens(self):
         list_json = self.client.get(self.revocation_key)
