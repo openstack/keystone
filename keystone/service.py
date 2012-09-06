@@ -543,7 +543,19 @@ class TokenController(wsgi.Application):
 
     def endpoints(self, context, token_id):
         """Return a list of endpoints available to the token."""
-        raise exception.NotImplemented()
+        self.assert_admin(context)
+
+        token_ref = self._get_token_ref(context, token_id)
+
+        catalog_ref = None
+        if token_ref.get('tenant'):
+            catalog_ref = self.catalog_api.get_catalog(
+                context=context,
+                user_id=token_ref['user']['id'],
+                tenant_id=token_ref['tenant']['id'],
+                metadata=token_ref['metadata'])
+
+        return self._format_endpoint_list(catalog_ref)
 
     def _format_authenticate(self, token_ref, roles_ref, catalog_ref):
         o = self._format_token(token_ref, roles_ref)
@@ -628,6 +640,43 @@ class TokenController(wsgi.Application):
                 services[service] = new_service_ref
 
         return services.values()
+
+    def _format_endpoint_list(self, catalog_ref):
+        """Formats a list of endpoints according to Identity API v2.
+
+        The v2.0 API wants an endpoint list to look like::
+
+            {
+                'endpoints': [
+                    {
+                        'id': $endpoint_id,
+                        'name': $SERVICE[name],
+                        'type': $SERVICE,
+                        'tenantId': $tenant_id,
+                        'region': $REGION,
+                    }
+                ],
+                'endpoints_links': [],
+            }
+
+        """
+        if not catalog_ref:
+            return {}
+
+        endpoints = []
+        for region_name, region_ref in catalog_ref.iteritems():
+            for service_type, service_ref in region_ref.iteritems():
+                endpoints.append({
+                    'id': service_ref.get('id'),
+                    'name': service_ref.get('name'),
+                    'type': service_type,
+                    'region': region_name,
+                    'publicURL': service_ref.get('publicURL'),
+                    'internalURL': service_ref.get('internalURL'),
+                    'adminURL': service_ref.get('adminURL'),
+                })
+
+        return {'endpoints': endpoints, 'endpoints_links': []}
 
 
 class ExtensionsController(wsgi.Application):

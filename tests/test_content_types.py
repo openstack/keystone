@@ -413,15 +413,13 @@ class CoreApiTests(object):
             expected_status=204)
 
     def test_endpoints(self):
-        raise nose.exc.SkipTest('Blocked by bug 933555')
-
         token = self.get_scoped_token()
         r = self.admin_request(
             path='/v2.0/tokens/%(token_id)s/endpoints' % {
                 'token_id': token,
             },
             token=token)
-        self.assertValidTokenCatalogResponse(r)
+        self.assertValidEndpointListResponse(r)
 
     def test_get_tenant(self):
         token = self.get_scoped_token()
@@ -582,6 +580,17 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
     def assertValidVersionResponse(self, r):
         self.assertValidVersion(r.body.get('version'))
 
+    def assertValidEndpointListResponse(self, r):
+        self.assertIsNotNone(r.body.get('endpoints'))
+        self.assertTrue(len(r.body['endpoints']))
+        for endpoint in r.body['endpoints']:
+            self.assertIsNotNone(endpoint.get('id'))
+            self.assertIsNotNone(endpoint.get('name'))
+            self.assertIsNotNone(endpoint.get('type'))
+            self.assertIsNotNone(endpoint.get('publicURL'))
+            self.assertIsNotNone(endpoint.get('internalURL'))
+            self.assertIsNotNone(endpoint.get('adminURL'))
+
     def test_service_crud_requires_auth(self):
         """Service CRUD should 401 without an X-Auth-Token (bug 1006822)."""
         # values here don't matter because we should 401 before they're checked
@@ -715,13 +724,18 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
 
         self.assertValidVersion(xml)
 
-    def assertValidTokenCatalogResponse(self, r):
+    def assertValidEndpointListResponse(self, r):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('endpoints'))
 
         self.assertTrue(len(xml.findall(self._tag('endpoint'))))
         for endpoint in xml.findall(self._tag('endpoint')):
-            self.assertIsNotNone(endpoint.get('publicUrl'))
+            self.assertIsNotNone(endpoint.get('id'))
+            self.assertIsNotNone(endpoint.get('name'))
+            self.assertIsNotNone(endpoint.get('type'))
+            self.assertIsNotNone(endpoint.get('publicURL'))
+            self.assertIsNotNone(endpoint.get('internalURL'))
+            self.assertIsNotNone(endpoint.get('adminURL'))
 
     def assertValidTenantResponse(self, r):
         xml = r.body
