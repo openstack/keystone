@@ -63,10 +63,31 @@ class Token(token.Driver):
             expires_ts = utils.unixtime(data_copy['expires'])
             kwargs['time'] = expires_ts
         self.client.set(ptk, data_copy, **kwargs)
+        if 'id' in data['user']:
+            token_data = token_id
+            user_id = data['user']['id']
+            user_key = 'usertokens-%s' % user_id
+            if not self.client.append(user_key, ',%s' % token_data):
+                if not self.client.add(user_key, token_data):
+                    if not self.client.append(user_key, ',%s' % token_data):
+                        msg = _('Unable to add token user list.')
+                        raise exception.UnexpectedError(msg)
         return copy.deepcopy(data_copy)
 
     def delete_token(self, token_id):
         # Test for existence
         self.get_token(token_id)
         ptk = self._prefix_token_id(token_id)
-        return self.client.delete(ptk)
+        result = self.client.delete(ptk)
+        return result
+
+    def list_tokens(self, user_id):
+        tokens = []
+        user_record = self.client.get('usertokens-%s' % user_id) or ""
+        token_list = user_record.split(',')
+        for token_id in token_list:
+            ptk = self._prefix_token_id(token_id)
+            token = self.client.get(ptk)
+            if token:
+                tokens.append(token_id)
+        return tokens

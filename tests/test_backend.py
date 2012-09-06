@@ -316,7 +316,8 @@ class IdentityTests(object):
 class TokenTests(object):
     def test_token_crud(self):
         token_id = uuid.uuid4().hex
-        data = {'id': token_id, 'a': 'b'}
+        data = {'id': token_id, 'a': 'b',
+                'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
         expires = data_ref.pop('expires')
         self.assertTrue(isinstance(expires, datetime.datetime))
@@ -329,22 +330,52 @@ class TokenTests(object):
 
         self.token_api.delete_token(token_id)
         self.assertRaises(exception.TokenNotFound,
-                self.token_api.delete_token, token_id)
+                          self.token_api.get_token, token_id)
         self.assertRaises(exception.TokenNotFound,
-                self.token_api.get_token, token_id)
+                          self.token_api.delete_token, token_id)
 
     def test_expired_token(self):
         token_id = uuid.uuid4().hex
         expire_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
-        data = {'id': token_id, 'a': 'b', 'expires': expire_time}
+        data = {'id': token_id, 'a': 'b', 'expires': expire_time,
+                'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
         self.assertDictEquals(data_ref, data)
         self.assertRaises(exception.TokenNotFound,
                 self.token_api.get_token, token_id)
 
+    def create_token_sample_data(self):
+        token_id = uuid.uuid4().hex
+        data = {'id': token_id, 'a': 'b',
+                'user': {'id': 'testuserid'}}
+        self.token_api.create_token(token_id, data)
+        return token_id
+
+    def test_token_list(self):
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertEquals(len(tokens), 0)
+        token_id1 = self.create_token_sample_data()
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertEquals(len(tokens), 1)
+        self.assertIn(token_id1, tokens)
+        token_id2 = self.create_token_sample_data()
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertEquals(len(tokens), 2)
+        self.assertIn(token_id2, tokens)
+        self.assertIn(token_id1, tokens)
+        self.token_api.delete_token(token_id1)
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertIn(token_id2, tokens)
+        self.assertNotIn(token_id1, tokens)
+        self.token_api.delete_token(token_id2)
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertNotIn(token_id2, tokens)
+        self.assertNotIn(token_id1, tokens)
+
     def test_null_expires_token(self):
         token_id = uuid.uuid4().hex
-        data = {'id': token_id, 'a': 'b', 'expires': None}
+        data = {'id': token_id, 'id_hash': token_id, 'a': 'b', 'expires': None,
+                'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
         self.assertDictEquals(data_ref, data)
         new_data_ref = self.token_api.get_token(token_id)
