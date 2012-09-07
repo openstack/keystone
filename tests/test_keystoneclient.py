@@ -769,15 +769,15 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
     def test_tenant_add_and_remove_user(self):
         client = self.get_client(admin=True)
         client.roles.add_user_role(tenant=self.tenant_baz['id'],
-                                   user=self.user_foo['id'],
+                                   user=self.user_two['id'],
                                    role=self.role_useless['id'])
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
-        self.assert_(self.user_foo['id'] in [x.id for x in user_refs])
+        self.assert_(self.user_two['id'] in [x.id for x in user_refs])
         client.roles.remove_user_role(tenant=self.tenant_baz['id'],
-                                      user=self.user_foo['id'],
+                                      user=self.user_two['id'],
                                       role=self.role_useless['id'])
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
-        self.assert_(self.user_foo['id'] not in [x.id for x in user_refs])
+        self.assert_(self.user_two['id'] not in [x.id for x in user_refs])
 
     def test_user_role_add_404(self):
         from keystoneclient import exceptions as client_exceptions
@@ -890,16 +890,16 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
     def test_tenant_add_and_remove_user(self):
         client = self.get_client(admin=True)
         client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
-                                        user_id=self.user_foo['id'],
+                                        user_id=self.user_two['id'],
                                         role_id=self.role_useless['id'])
         role_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
+                user_id=self.user_two['id'])
         self.assert_(self.tenant_baz['id'] in [x.tenantId for x in role_refs])
 
         # get the "role_refs" so we get the proper id, this is how the clients
         # do it
         roleref_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
+                user_id=self.user_two['id'])
         for roleref_ref in roleref_refs:
             if (roleref_ref.roleId == self.role_useless['id']
                 and roleref_ref.tenantId == self.tenant_baz['id']):
@@ -907,11 +907,11 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
                 break
 
         client.roles.remove_user_from_tenant(tenant_id=self.tenant_baz['id'],
-                                             user_id=self.user_foo['id'],
+                                             user_id=self.user_two['id'],
                                              role_id=roleref_ref.id)
 
         role_refs = client.roles.get_user_role_refs(
-                user_id=self.user_foo['id'])
+                user_id=self.user_two['id'])
         self.assert_(self.tenant_baz['id'] not in
                      [x.tenantId for x in role_refs])
 
