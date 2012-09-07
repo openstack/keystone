@@ -39,6 +39,10 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.token.driver)
 
+    def revoke_tokens(self, context, user_id):
+        for token_id in self.list_tokens(context, user_id):
+            self.delete_token(context, token_id)
+
 
 class Driver(object):
     """Interface description for a Token driver."""
@@ -103,6 +107,13 @@ class Driver(object):
 
         :returns: list of token_id's
 
+        """
+        raise exception.NotImplemented()
+
+    def revoke_tokens(self, user_id):
+        """Invalidates all tokens held by a user.
+
+        :raises: keystone.exception.UserNotFound
         """
         raise exception.NotImplemented()
 

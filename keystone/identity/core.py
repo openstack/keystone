@@ -590,6 +590,8 @@ class RoleController(wsgi.Application):
         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         self.identity_api.add_role_to_user_and_tenant(
             context, user_id, tenant_id, role_id)
+        self.token_api.revoke_tokens(context, user_id)
+
         role_ref = self.identity_api.get_role(context, role_id)
         return {'role': role_ref}
 
@@ -614,7 +616,7 @@ class RoleController(wsgi.Application):
         if not roles:
             self.identity_api.remove_user_from_tenant(
                 context, tenant_id, user_id)
-        return
+        self.token_api.revoke_tokens(context, user_id)
 
     # COMPAT(diablo): CRUD extension
     def get_role_refs(self, context, user_id):
@@ -657,6 +659,8 @@ class RoleController(wsgi.Application):
         self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
         self.identity_api.add_role_to_user_and_tenant(
             context, user_id, tenant_id, role_id)
+        self.token_api.revoke_tokens(context, user_id)
+
         role_ref = self.identity_api.get_role(context, role_id)
         return {'role': role_ref}
 
@@ -684,3 +688,4 @@ class RoleController(wsgi.Application):
         if not roles:
             self.identity_api.remove_user_from_tenant(
                 context, tenant_id, user_id)
+        self.token_api.revoke_tokens(context, user_id)
