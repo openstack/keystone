@@ -45,6 +45,18 @@ Stop the process using ``Control-C``.
 
     If you have not already configured Keystone, it may not start as expected.
 
+Memcached and System Time
+=========================
+
+If using `memcached`_ with Keystone - e.g. using the memcache token
+driver or the ``auth_token`` middleware - ensure that the system time
+of memcached hosts is set to UTC.  Memcached uses the host's system
+time in determining whether a key has expired, whereas Keystone sets
+key expiry in UTC.  The timezone used by Keystone and memcached must
+match if key expiry is to behave as expected.
+
+.. _`memcached`: http://memcached.org/
+
 Configuration Files
 ===================
 
