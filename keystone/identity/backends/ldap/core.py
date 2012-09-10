@@ -78,7 +78,7 @@ class Identity(identity.Driver):
         in the list of tenants on the user.
         """
         tenant_ref = None
-        metadata_ref = None
+        metadata_ref = {}
 
         try:
             user_ref = self._get_user(user_id)
