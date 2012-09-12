@@ -242,8 +242,8 @@ class AuthProtocol(object):
         self.token_cache_time = int(self._conf_get('token_cache_time'))
         self._token_revocation_list = None
         self._token_revocation_list_fetched_time = None
-        self.token_revocation_list_cache_timeout = \
-            datetime.timedelta(seconds=0)
+        cache_timeout = datetime.timedelta(seconds=0)
+        self.token_revocation_list_cache_timeout = cache_timeout
         if memcache_servers:
             try:
                 import memcache
@@ -747,8 +747,8 @@ class AuthProtocol(object):
 
     @property
     def token_revocation_list(self):
-        timeout = self.token_revocation_list_fetched_time +\
-            self.token_revocation_list_cache_timeout
+        timeout = (self.token_revocation_list_fetched_time +
+                   self.token_revocation_list_cache_timeout)
         list_is_current = timeutils.utcnow() < timeout
         if list_is_current:
             # Load the list from disk if required

@@ -317,13 +317,14 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
         self.response_status = None
         self.response_headers = None
         self.middleware.revoked_file_name = tempfile.mkstemp()[1]
-        self.middleware.token_revocation_list_cache_timeout =\
-            datetime.timedelta(days=1)
+        cache_timeout = datetime.timedelta(days=1)
+        self.middleware.token_revocation_list_cache_timeout = cache_timeout
         self.middleware.token_revocation_list = jsonutils.dumps(
             {"revoked": [], "extra": "success"})
 
-        globals()['SIGNED_REVOCATION_LIST'] =\
-            globals()['VALID_SIGNED_REVOCATION_LIST']
+        signed_list = 'SIGNED_REVOCATION_LIST'
+        valid_signed_list = 'VALID_SIGNED_REVOCATION_LIST'
+        globals()[signed_list] = globals()[valid_signed_list]
 
         super(BaseAuthTokenMiddlewareTest, self).setUp()
 

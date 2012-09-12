@@ -924,8 +924,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             '/v2.0/OS-KSCRUD/users/%s' % self.user_two['id'],
             headers={'X-Auth-Token': token_id})
         req.method = 'PATCH'
-        req.body = '{"user":{"password":"%s","original_password":"%s"}}' % \
-            (new_password, self.user_two['password'])
+        req.body = ('{"user":{"password":"%s","original_password":"%s"}}' %
+                    (new_password, self.user_two['password']))
         self.public_server.application(req.environ,
                                        responseobject.start_fake_response)
 
@@ -951,8 +951,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             '/v2.0/OS-KSCRUD/users/%s' % self.user_foo['id'],
             headers={'X-Auth-Token': token_id})
         req.method = 'PATCH'
-        req.body = '{"user":{"password":"%s","original_password":"%s"}}' % \
-            (new_password, self.user_two['password'])
+        req.body = ('{"user":{"password":"%s","original_password":"%s"}}' %
+                    (new_password, self.user_two['password']))
         self.public_server.application(req.environ,
                                        responseobject.start_fake_response)
         self.assertEquals(403, responseobject.response_status)
@@ -980,8 +980,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             '/v2.0/OS-KSCRUD/users/%s' % self.user_two['id'],
             headers={'X-Auth-Token': token_id})
         req.method = 'PATCH'
-        req.body = '{"user":{"password":"%s","original_password":"%s"}}' % \
-            (new_password, self.user_two['password'])
+        req.body = ('{"user":{"password":"%s","original_password":"%s"}}' %
+                    (new_password, self.user_two['password']))
 
         rv = self.public_server.application(
             req.environ,
