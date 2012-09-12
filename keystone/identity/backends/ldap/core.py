@@ -333,7 +333,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_OBJECTCLASS = 'inetOrgPerson'
     options_name = 'user'
     attribute_mapping = {'password': 'userPassword',
-                         #'email': 'mail',
+                         'email': 'mail',
                          'name': 'sn'}
 
     # NOTE(ayoung): The RFC based schemas don't have a way to indicate
@@ -341,7 +341,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     # be part of any objectclass.
     # in the future, we need to provide a way for the end user to
     # indicate the field to use and what it indicates
-    attribute_ignore = ['tenant_id', 'enabled', 'tenants']
+    attribute_ignore = ['tenantId', 'enabled', 'tenants']
     model = models.User
 
     def __init__(self, conf):
@@ -466,7 +466,8 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_ID_ATTR = 'cn'
     DEFAULT_MEMBER_ATTRIBUTE = 'member'
     options_name = 'tenant'
-    attribute_mapping = {'description': 'desc', 'name': 'ou'}
+    attribute_mapping = {'name': 'ou', 'tenantId': 'cn'}
+    attribute_ignore = ['enabled']
     model = models.Tenant
 
     def __init__(self, conf):
