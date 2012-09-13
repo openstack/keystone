@@ -158,6 +158,7 @@ class Catalog(sql.Base, catalog.Driver):
             internal_url = ep['internalurl'].replace('$(', '%(')
             public_url = ep['publicurl'].replace('$(', '%(')
             admin_url = ep['adminurl'].replace('$(', '%(')
+            catalog[region][srv_type]['id'] = ep['id']
             catalog[region][srv_type]['name'] = srv_name
             catalog[region][srv_type]['publicURL'] = public_url % d
             catalog[region][srv_type]['adminURL'] = admin_url % d
