@@ -31,7 +31,6 @@ config.register_str('servers', group='memcache', default='localhost:11211')
 
 
 class Token(token.Driver):
-
     revocation_key = 'revocation-list'
 
     def __init__(self, client=None):
@@ -95,14 +94,19 @@ class Token(token.Driver):
         self._add_to_revocation_list(data)
         return result
 
-    def list_tokens(self, user_id):
+    def list_tokens(self, user_id, tenant_id=None):
         tokens = []
         user_record = self.client.get('usertokens-%s' % user_id) or ""
         token_list = jsonutils.loads('[%s]' % user_record)
         for token_id in token_list:
             ptk = self._prefix_token_id(token_id)
-            token = self.client.get(ptk)
-            if token:
+            token_ref = self.client.get(ptk)
+            if token_ref:
+                if tenant_id is not None:
+                    if 'tenant' not in token_ref:
+                        continue
+                    if token_ref['tenant'].get('id') != tenant_id:
+                        continue
                 tokens.append(token_id)
         return tokens
 

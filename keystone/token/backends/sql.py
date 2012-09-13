@@ -95,7 +95,7 @@ class Token(sql.Base, token.Driver):
             token_ref.valid = False
             session.flush()
 
-    def list_tokens(self, user_id):
+    def list_tokens(self, user_id, tenant_id=None):
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
@@ -107,6 +107,11 @@ class Token(sql.Base, token.Driver):
                 continue
             if token_ref_dict['user'].get('id') != user_id:
                 continue
+            if tenant_id is not None:
+                if 'tenant' not in token_ref_dict:
+                    continue
+                if token_ref_dict['tenant'].get('id') != tenant_id:
+                    continue
             tokens.append(token_ref['id'])
         return tokens
 
@@ -117,7 +122,6 @@ class Token(sql.Base, token.Driver):
         for token_ref in session.query(TokenModel)\
                                 .filter(TokenModel.expires > now)\
                                 .filter_by(valid=False):
-            token_ref_dict = token_ref.to_dict()
             record = {
                 'id': token_ref['id'],
                 'expires': token_ref['expires'],
