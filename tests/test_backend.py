@@ -612,32 +612,17 @@ class IdentityTests(object):
     def test_list_users(self):
         users = self.identity_api.list_users()
         for test_user in default_fixtures.USERS:
-            user_id = test_user['id']
-            found = False
-            for user in users:
-                if user['id'] == user_id:
-                    found = True
-            self.assertTrue('found')
+            self.assertTrue(x for x in users if x['id'] == test_user['id'])
 
     def test_list_roles(self):
         roles = self.identity_api.list_roles()
         for test_role in default_fixtures.ROLES:
-            role_id = test_role['id']
-            found = False
-            for role in roles:
-                if role['id'] == role_id:
-                    found = True
-            self.assertTrue('found')
+            self.assertTrue(x for x in roles if x['id'] == test_role['id'])
 
     def test_get_tenants(self):
         tenants = self.identity_api.get_tenants()
         for test_tenant in default_fixtures.TENANTS:
-            tenant_id = test_tenant['id']
-            found = False
-            for tenant in tenants:
-                if tenant['id'] == tenant_id:
-                    found = True
-            self.assertTrue('found')
+            self.assertTrue(x for x in tenants if x['id'] == test_tenant['id'])
 
 
 class TokenTests(object):
