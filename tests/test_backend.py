@@ -661,10 +661,12 @@ class TokenTests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_api.delete_token, token_id)
 
-    def create_token_sample_data(self):
+    def create_token_sample_data(self, tenant_id=None):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': 'testuserid'}}
+        if tenant_id is not None:
+            data['tenant'] = {'id': tenant_id, 'name': tenant_id}
         self.token_api.create_token(token_id, data)
         return token_id
 
@@ -688,6 +690,24 @@ class TokenTests(object):
         tokens = self.token_api.list_tokens('testuserid')
         self.assertNotIn(token_id2, tokens)
         self.assertNotIn(token_id1, tokens)
+
+        # tenant-specific tokens
+        tenant1 = uuid.uuid4().hex
+        tenant2 = uuid.uuid4().hex
+        token_id3 = self.create_token_sample_data(tenant_id=tenant1)
+        token_id4 = self.create_token_sample_data(tenant_id=tenant2)
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertEquals(len(tokens), 2)
+        self.assertNotIn(token_id1, tokens)
+        self.assertNotIn(token_id2, tokens)
+        self.assertIn(token_id3, tokens)
+        self.assertIn(token_id4, tokens)
+        tokens = self.token_api.list_tokens('testuserid', tenant2)
+        self.assertEquals(len(tokens), 1)
+        self.assertNotIn(token_id1, tokens)
+        self.assertNotIn(token_id2, tokens)
+        self.assertNotIn(token_id3, tokens)
+        self.assertIn(token_id4, tokens)
 
     def test_get_token_404(self):
         self.assertRaises(exception.TokenNotFound,
