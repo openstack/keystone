@@ -82,7 +82,7 @@ class Token(sql.Base, token.Driver):
             session.delete(token_ref)
             session.flush()
 
-    def list_tokens(self, user_id):
+    def list_tokens(self, user_id, tenant_id=None):
         session = self.get_session()
         tokens = []
         now = datetime.datetime.utcnow()
@@ -93,5 +93,10 @@ class Token(sql.Base, token.Driver):
                 continue
             if token_ref_dict['user'].get('id') != user_id:
                 continue
+            if tenant_id is not None:
+                if 'tenant' not in token_ref_dict:
+                    continue
+                if token_ref_dict['tenant'].get('id') != tenant_id:
+                    continue
             tokens.append(token_ref['id'])
         return tokens

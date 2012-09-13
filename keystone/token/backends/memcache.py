@@ -81,13 +81,18 @@ class Token(token.Driver):
         result = self.client.delete(ptk)
         return result
 
-    def list_tokens(self, user_id):
+    def list_tokens(self, user_id, tenant_id=None):
         tokens = []
         user_record = self.client.get('usertokens-%s' % user_id) or ""
         token_list = user_record.split(',')
         for token_id in token_list:
             ptk = self._prefix_token_id(token_id)
-            token = self.client.get(ptk)
-            if token:
+            token_ref = self.client.get(ptk)
+            if token_ref:
+                if tenant_id is not None:
+                    if 'tenant' not in token_ref:
+                        continue
+                    if token_ref['tenant'].get('id') != tenant_id:
+                        continue
                 tokens.append(token_id)
         return tokens
