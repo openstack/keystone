@@ -27,6 +27,9 @@ def _sd_notify(msg):
     sysd = os.getenv('NOTIFY_SOCKET')
     if sysd:
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        if sysd.startswith('@'):
+            # abstract namespace socket
+            sysd = '\0%s' % sysd[1:]
         sock.connect(sysd)
         sock.sendall(msg)
         sock.close()
