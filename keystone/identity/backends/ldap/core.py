@@ -947,6 +947,6 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         except exception.NotFound:
             pass
         try:
-            super(RoleApi, self).update(id, role)
+            super(RoleApi, self).update(role_id, role)
         except exception.NotFound:
-            raise exception.UserNotFound(user_id=id)
+            raise exception.RoleNotFound(role_id=role_id)
