@@ -52,6 +52,8 @@ class TokenModel(sql.ModelBase, sql.DictBase):
 class Token(sql.Base, token.Driver):
     # Public interface
     def get_token(self, token_id):
+        if token_id is None:
+            raise exception.TokenNotFound(token_id=token_id)
         session = self.get_session()
         token_ref = session.query(TokenModel)\
             .filter_by(id=self.token_to_key(token_id),
