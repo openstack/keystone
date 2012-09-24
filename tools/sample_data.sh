@@ -220,9 +220,10 @@ if [[ -n "$ENABLE_SWIFT" ]]; then
 fi
 
 if [[ -n "$ENABLE_QUANTUM" ]]; then
+    QUANTUM_SERVICE=$(get_id \
     keystone service-create --name=quantum \
                             --type=network \
-                            --description="Quantum Service"
+                            --description="Quantum Service")
     QUANTUM_USER=$(get_id keystone user-create --name=quantum \
                                                --pass="$SERVICE_PASSWORD" \
                                                --tenant_id $SERVICE_TENANT \
@@ -230,6 +231,12 @@ if [[ -n "$ENABLE_QUANTUM" ]]; then
     keystone user-role-add --tenant_id $SERVICE_TENANT \
                            --user_id $QUANTUM_USER \
                            --role_id $ADMIN_ROLE
+    if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+        keystone endpoint-create --region RegionOne --service_id $QUANTUM_SERVICE \
+            --publicurl http://localhost:9696 \
+            --adminurl http://localhost:9696 \
+            --internalurl http://localhost:9696
+    fi
 fi
 
 
