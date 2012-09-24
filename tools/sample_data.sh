@@ -207,9 +207,10 @@ keystone service-create --name="horizon" \
 						--description="OpenStack Dashboard"
 
 if [[ -n "$ENABLE_SWIFT" ]]; then
+    SWIFT_SERVICE=$(get_id \
     keystone service-create --name=swift \
                             --type="object-store" \
-                            --description="Swift Service"
+                            --description="Swift Service")
     SWIFT_USER=$(get_id keystone user-create --name=swift \
                                              --pass="$SERVICE_PASSWORD" \
                                              --tenant_id $SERVICE_TENANT \
@@ -217,6 +218,12 @@ if [[ -n "$ENABLE_SWIFT" ]]; then
     keystone user-role-add --tenant_id $SERVICE_TENANT \
                            --user_id $SWIFT_USER \
                            --role_id $ADMIN_ROLE
+    if [[ -n "$ENABLE_ENDPOINTS" ]]; then
+        keystone endpoint-create --region RegionOne --service_id $SWIFT_SERVICE \
+            --publicurl   'http://localhost:8080/v1/AUTH_$(tenant_id)s' \
+            --adminurl    'http://localhost:8080/v1/AUTH_$(tenant_id)s' \
+            --internalurl 'http://localhost:8080/v1/AUTH_$(tenant_id)s'
+    fi
 fi
 
 if [[ -n "$ENABLE_QUANTUM" ]]; then
