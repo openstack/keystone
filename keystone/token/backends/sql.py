@@ -53,9 +53,9 @@ class Token(sql.Base, token.Driver):
     # Public interface
     def get_token(self, token_id):
         session = self.get_session()
-        token_ref = session.query(TokenModel)\
-            .filter_by(id=self.token_to_key(token_id),
-                       valid=True).first()
+        query = session.query(TokenModel)
+        query = query.filter_by(id=self.token_to_key(token_id), valid=True)
+        token_ref = query.first()
         now = datetime.datetime.utcnow()
         if token_ref and (not token_ref.expires or now < token_ref.expires):
             return token_ref.to_dict()
@@ -99,9 +99,10 @@ class Token(sql.Base, token.Driver):
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
-        for token_ref in session.query(TokenModel)\
-                                .filter(TokenModel.expires > now)\
-                                .filter_by(valid=True):
+        query = session.query(TokenModel)
+        query = query.filter(TokenModel.expires > now)
+        token_references = query.filter_by(valid=True)
+        for token_ref in token_references:
             token_ref_dict = token_ref.to_dict()
             if 'user' not in token_ref_dict:
                 continue
@@ -119,9 +120,10 @@ class Token(sql.Base, token.Driver):
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
-        for token_ref in session.query(TokenModel)\
-                                .filter(TokenModel.expires > now)\
-                                .filter_by(valid=False):
+        query = session.query(TokenModel)
+        query = query.filter(TokenModel.expires > now)
+        token_references = query.filter_by(valid=False)
+        for token_ref in token_references:
             record = {
                 'id': token_ref['id'],
                 'expires': token_ref['expires'],

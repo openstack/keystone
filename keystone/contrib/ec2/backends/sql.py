@@ -35,16 +35,17 @@ class Ec2Credential(sql.ModelBase, sql.DictBase):
 class Ec2(sql.Base):
     def get_credential(self, credential_id):
         session = self.get_session()
-        credential_ref = session.query(Ec2Credential)\
-                                .filter_by(access=credential_id).first()
+        query = session.query(Ec2Credential)
+        query = query.filter_by(access=credential_id)
+        credential_ref = query.first()
         if not credential_ref:
             return
         return credential_ref.to_dict()
 
     def list_credentials(self, user_id):
         session = self.get_session()
-        credential_refs = session.query(Ec2Credential)\
-                                 .filter_by(user_id=user_id)
+        query = session.query(Ec2Credential)
+        credential_refs = query.filter_by(user_id=user_id)
         return [x.to_dict() for x in credential_refs]
 
     # CRUD
@@ -58,8 +59,9 @@ class Ec2(sql.Base):
 
     def delete_credential(self, credential_id):
         session = self.get_session()
-        credential_ref = session.query(Ec2Credential)\
-                                .filter_by(access=credential_id).first()
+        query = session.query(Ec2Credential)
+        query = query.filter_by(access=credential_id)
+        credential_ref = query.first()
         with session.begin():
             session.delete(credential_ref)
             session.flush()

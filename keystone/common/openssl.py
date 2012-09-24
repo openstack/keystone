@@ -24,9 +24,9 @@ from keystone import config
 
 
 CONF = config.CONF
-DIR_PERMS = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | \
-    stat.S_IRGRP | stat.S_IXGRP | \
-    stat.S_IROTH | stat.S_IXOTH
+DIR_PERMS = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+             stat.S_IRGRP | stat.S_IXGRP |
+             stat.S_IROTH | stat.S_IXOTH)
 CERT_PERMS = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
 PRIV_PERMS = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
 DEFAULT_SUBJECT = "/C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com"
