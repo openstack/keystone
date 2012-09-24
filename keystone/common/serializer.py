@@ -28,6 +28,15 @@ import re
 
 DOCTYPE = '<?xml version="1.0" encoding="UTF-8"?>'
 XMLNS = 'http://docs.openstack.org/identity/api/v2.0'
+XMLNS_LIST = [
+    {
+        'value': 'http://docs.openstack.org/identity/api/v2.0'
+    },
+    {
+        'prefix': 'OS-KSADM',
+        'value': 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0',
+    },
+]
 
 
 def from_xml(xml):
@@ -52,22 +61,37 @@ class XmlDeserializer(object):
     def __call__(self, xml_str):
         """Returns a dictionary populated by decoding the given xml string."""
         dom = etree.fromstring(xml_str.strip())
-        return self.walk_element(dom)
+        return self.walk_element(dom, True)
 
     @staticmethod
-    def _tag_name(tag):
-        """Remove the namespace from the tagname.
+    def _tag_name(tag, namespace):
+        """Returns a tag name.
 
-        TODO(dolph): We might care about the namespace at some point.
-
-        >>> XmlDeserializer._tag_name('{xmlNamespace}tagName')
-        'tagName'
+        The tag name may contain the namespace prefix or not, which can
+        be determined by specifying the parameter namespace.
 
         """
         m = re.search('[^}]+$', tag)
-        return m.string[m.start():]
+        tag_name = m.string[m.start():]
+        if not namespace:
+            return tag_name
+        bracket = re.search('[^{]+$', tag)
+        ns = m.string[bracket.start():m.start() - 1]
+        #If the namespace is
+        #http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0
+        #for the root element, a prefix needs to add in front of the tag name.
+        prefix = None
+        for xmlns in XMLNS_LIST:
+            if xmlns['value'] == ns:
+                prefix = xmlns.get('prefix', None)
+                break
+        if prefix is not None:
+            return '%(PREFIX)s:%(tag_name)s' \
+                % {'PREFIX': prefix, 'tag_name': tag_name}
+        else:
+            return tag_name
 
-    def walk_element(self, element):
+    def walk_element(self, element, namespace=False):
         """Populates a dictionary by walking an etree element."""
         values = {}
         for k, v in element.attrib.iteritems():
@@ -90,7 +114,7 @@ class XmlDeserializer(object):
         for child in [self.walk_element(x) for x in element]:
             values = dict(values.items() + child.items())
 
-        return {XmlDeserializer._tag_name(element.tag): values}
+        return {XmlDeserializer._tag_name(element.tag, namespace): values}
 
 
 class XmlSerializer(object):
@@ -110,9 +134,15 @@ class XmlSerializer(object):
 
         # name the root dom element
         name = d.keys()[0]
-
+        m = re.search('[^:]+$', name)
+        root_name = m.string[m.start():]
+        prefix = m.string[0:m.start() - 1]
+        for ns in XMLNS_LIST:
+            if prefix == ns.get('prefix', None):
+                xmlns = ns['value']
+                break
         # only the root dom element gets an xlmns
-        root = etree.Element(name, xmlns=(xmlns or XMLNS))
+        root = etree.Element(root_name, xmlns=(xmlns or XMLNS))
 
         self.populate_element(root, d[name])
 

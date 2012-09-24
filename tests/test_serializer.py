@@ -100,9 +100,7 @@ class XmlSerializerTestCase(test.TestCase):
         xmlns = "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
 
         d = {
-            # FIXME(dolph): should be...
-            # "OS-KSADM:service": {
-            "service": {
+            "OS-KSADM:service": {
                 "id": "123",
                 "name": "nova",
                 "type": "compute",
