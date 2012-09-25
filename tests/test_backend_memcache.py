@@ -78,9 +78,21 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
         fake_client = MemcacheClient()
         self.token_api = token_memcache.Token(client=fake_client)
 
-    def test_get_unicode(self):
+    def test_create_unicode_token_id(self):
         token_id = unicode(uuid.uuid4().hex)
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': 'testuserid'}}
         self.token_api.create_token(token_id, data)
         self.token_api.get_token(token_id)
+
+    def test_create_unicode_user_id(self):
+        token_id = uuid.uuid4().hex
+        user_id = unicode(uuid.uuid4().hex)
+        data = {'id': token_id, 'a': 'b',
+                'user': {'id': user_id}}
+        self.token_api.create_token(token_id, data)
+        self.token_api.get_token(token_id)
+
+    def test_list_tokens_unicode_user_id(self):
+        user_id = unicode(uuid.uuid4().hex)
+        self.token_api.list_tokens(user_id)
