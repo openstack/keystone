@@ -45,6 +45,9 @@ class Token(token.Driver):
     def _prefix_token_id(self, token_id):
         return 'token-%s' % token_id.encode('utf-8')
 
+    def _prefix_user_id(self, user_id):
+        return 'usertokens-%s' % user_id.encode('utf-8')
+
     def get_token(self, token_id):
         ptk = self._prefix_token_id(token_id)
         token = self.client.get(ptk)
@@ -66,7 +69,7 @@ class Token(token.Driver):
         if 'id' in data['user']:
             token_data = token_id
             user_id = data['user']['id']
-            user_key = 'usertokens-%s' % user_id
+            user_key = self._prefix_user_id(user_id)
             if not self.client.append(user_key, ',%s' % token_data):
                 if not self.client.add(user_key, token_data):
                     if not self.client.append(user_key, ',%s' % token_data):
@@ -83,7 +86,8 @@ class Token(token.Driver):
 
     def list_tokens(self, user_id, tenant_id=None):
         tokens = []
-        user_record = self.client.get('usertokens-%s' % user_id) or ""
+        user_key = self._prefix_user_id(user_id)
+        user_record = self.client.get(user_key) or ""
         token_list = user_record.split(',')
         for token_id in token_list:
             ptk = self._prefix_token_id(token_id)
