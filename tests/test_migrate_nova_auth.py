@@ -75,6 +75,10 @@ class MigrateNovaAuth(test.TestCase):
         self.identity_api = identity_sql.Identity()
         self.ec2_api = ec2_sql.Ec2()
 
+    def tearDown(self):
+        sql_util.teardown_test_database()
+        super(MigrateNovaAuth, self).tearDown()
+
     def _create_role(self, role_name):
         role_id = uuid.uuid4().hex
         role_dict = {'id': role_id, 'name': role_name}

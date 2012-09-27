@@ -32,6 +32,7 @@ function usage {
   echo "  -h, --help               Print this usage message"
   echo "  -xintegration            Ignore all keystoneclient test cases (integration tests)"
   echo "  --hide-elapsed           Don't print the elapsed time for each test along with slow test list"
+  echo "  --standard-threads       Don't do the eventlet threading monkeypatch."
   echo ""
   echo "Note: with no options specified, the script will try to run the tests in a virtual environment,"
   echo "      If no virtualenv is found, the script will ask if you would like to create one.  If you "
@@ -51,6 +52,9 @@ function process_option {
     -P|--no-pep8) no_pep8=1;;
     -c|--coverage) coverage=1;;
 	-xintegration) nokeystoneclient=1;;
+    --standard-threads)
+        export STANDARD_THREADS=1
+        ;;
     -*) noseopts="$noseopts $1";;
     *) noseargs="$noseargs $1"
   esac
@@ -114,7 +118,7 @@ function run_pep8 {
     --exclude=vcsversion.py ${srcfiles} | tee pep8.txt
 }
 
-NOSETESTS="python run_tests.py $noseopts $noseargs"
+NOSETESTS="nosetests $noseopts $noseargs"
 
 if [ $never_venv -eq 0 ]
 then

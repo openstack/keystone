@@ -34,6 +34,10 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
             test.testsdir('backend_sql.conf')])
         sql_util.setup_test_database()
 
+    def tearDown(self):
+        sql_util.teardown_test_database()
+        super(KcMasterSqlTestCase, self).tearDown()
+
     def test_endpoint_crud(self):
         from keystoneclient import exceptions as client_exceptions
 

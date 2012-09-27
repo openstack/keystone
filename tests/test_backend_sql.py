@@ -42,6 +42,10 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api = identity_sql.Identity()
         self.load_fixtures(default_fixtures)
 
+    def tearDown(self):
+        sql_util.teardown_test_database()
+        super(SqlIdentity, self).tearDown()
+
     def test_delete_user_with_tenant_association(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
@@ -143,6 +147,10 @@ class SqlToken(test.TestCase, test_backend.TokenTests):
         sql_util.setup_test_database()
         self.token_api = token_sql.Token()
 
+    def tearDown(self):
+        sql_util.teardown_test_database()
+        super(SqlToken, self).tearDown()
+
 
 class SqlCatalog(test.TestCase, test_backend.CatalogTests):
     def setUp(self):
@@ -154,3 +162,7 @@ class SqlCatalog(test.TestCase, test_backend.CatalogTests):
         self.catalog_api = catalog_sql.Catalog()
         self.catalog_man = catalog.Manager()
         self.load_fixtures(default_fixtures)
+
+    def tearDown(self):
+        sql_util.teardown_test_database()
+        super(SqlCatalog, self).tearDown()
