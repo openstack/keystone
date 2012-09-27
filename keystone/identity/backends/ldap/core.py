@@ -572,7 +572,11 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
         return list(res)
 
     def delete(self, id):
-        super(TenantApi, self).delete(id)
+        if self.subtree_delete_enabled:
+            super(TenantApi, self).deleteTree(id)
+        else:
+            self.role_api.roles_delete_subtree_by_tenant(id)
+            super(TenantApi, self).delete(id)
 
     def update(self, id, values):
         try:
@@ -893,6 +897,20 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                     role_id=role_id,
                     tenant_id=tenant_id))
         return res
+
+    def roles_delete_subtree_by_tenant(self, tenant_id):
+        conn = self.get_connection()
+        query = '(objectClass=%s)' % self.object_class
+        tenant_dn = self.tenant_api._id_to_dn(tenant_id)
+        try:
+            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
+            for role_dn, _ in roles:
+                try:
+                    conn.delete_s(role_dn)
+                except Exception as inst:
+                    raise inst
+        except ldap.NO_SUCH_OBJECT:
+            pass
 
     def rolegrant_get_by_ids(self, user_id, role_id, tenant_id):
         conn = self.get_connection()
