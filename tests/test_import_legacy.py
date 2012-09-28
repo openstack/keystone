@@ -39,6 +39,10 @@ class ImportLegacy(test.TestCase):
         sql_util.setup_test_database()
         self.identity_api = identity_sql.Identity()
 
+    def tearDown(self):
+        sql_util.teardown_test_database()
+        super(ImportLegacy, self).tearDown()
+
     def setup_old_database(self, sql_dump):
         sql_path = test.testsdir(sql_dump)
         db_path = test.testsdir('%s.db' % sql_dump)

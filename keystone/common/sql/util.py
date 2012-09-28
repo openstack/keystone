@@ -35,3 +35,8 @@ def setup_test_database():
             shutil.copyfile('test.db.pristine', 'test.db')
     except Exception:
         pass
+
+
+def teardown_test_database():
+    if os.path.exists('test.db.pristine'):
+        os.unlink('test.db.pristine')
