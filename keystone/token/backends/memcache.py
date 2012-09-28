@@ -52,6 +52,8 @@ class Token(token.Driver):
         return 'usertokens-%s' % user_id.encode('utf-8')
 
     def get_token(self, token_id):
+        if token_id is None:
+            raise exception.TokenNotFound(token_id=token_id)
         ptk = self._prefix_token_id(token_id)
         token = self.client.get(ptk)
         if token is None:

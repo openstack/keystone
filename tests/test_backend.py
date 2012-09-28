@@ -698,6 +698,9 @@ class TokenTests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_api.get_token,
                           uuid.uuid4().hex)
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_api.get_token,
+                          None)
 
     def test_delete_token_404(self):
         self.assertRaises(exception.TokenNotFound,
