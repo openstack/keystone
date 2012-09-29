@@ -90,7 +90,7 @@ fi
 
 function run_tests {
   # Just run the test suites in current environment
-  ${wrapper} $NOSETESTS 2> run_tests.log
+  ${wrapper} $NOSETESTS
   # If we get some short import error right away, print the error log directly
   RESULT=$?
   if [ "$RESULT" -ne "0" ];
