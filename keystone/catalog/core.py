@@ -36,7 +36,9 @@ LOG = logging.getLogger(__name__)
 def format_url(url, data):
     """Helper Method for all Backend Catalog's to Deal with URLS"""
     try:
-        result = url % data
+        result = url.replace('$(', '%(') % data
+    except AttributeError:
+        return None
     except KeyError as e:
         LOG.error("Malformed endpoint %s - unknown key %s" %
                   (url, str(e)))
