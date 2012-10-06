@@ -62,6 +62,12 @@ class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertDictEqual(catalog_ref, self.DEFAULT_FIXTURE)
 
+    def test_malformed_catalog_throws_error(self):
+        self.catalog_api.templates['RegionOne']['compute']['adminURL'] = \
+            'http://localhost:$(compute_port)s/v1.1/$(tenant)s'
+        with self.assertRaises(exception.MalformedEndpoint):
+            self.catalog_api.get_catalog('fake-user', 'fake-tenant')
+
     def test_create_endpoint_404(self):
         self.assertRaises(exception.NotImplemented,
                           self.catalog_api.create_endpoint,
