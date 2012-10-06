@@ -16,6 +16,7 @@
 # under the License.
 
 from keystone import catalog
+from keystone.catalog import core
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import config
@@ -158,10 +159,11 @@ class Catalog(sql.Base, catalog.Driver):
             internal_url = ep['internalurl'].replace('$(', '%(')
             public_url = ep['publicurl'].replace('$(', '%(')
             admin_url = ep['adminurl'].replace('$(', '%(')
-            catalog[region][srv_type]['id'] = ep['id']
-            catalog[region][srv_type]['name'] = srv_name
-            catalog[region][srv_type]['publicURL'] = public_url % d
-            catalog[region][srv_type]['adminURL'] = admin_url % d
-            catalog[region][srv_type]['internalURL'] = internal_url % d
+            srv_type = catalog[region][srv_type]
+            srv_type['id'] = ep['id']
+            srv_type['name'] = srv_name
+            srv_type['publicURL'] = core.format_url(public_url, d)
+            srv_type['adminURL'] = core.format_url(admin_url, d)
+            srv_type['internalURL'] = core.format_url(internal_url, d)
 
         return catalog
