@@ -18,7 +18,6 @@ if os.path.exists(os.path.join(possible_topdir,
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-eventlet.patcher.monkey_patch(all=False, socket=True, time=True, thread=True)
 
 from paste import deploy
 
@@ -90,6 +89,10 @@ if __name__ == '__main__':
         print "No config files could be found."
         CONF.print_help()
         sys.exit(1)
+
+    monkeypatch_thread = not CONF._cli_values['standard_threads']
+    eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
+                                  thread=monkeypatch_thread)
 
     options = deploy.appconfig('config:%s' % CONF.config_file[0])
 
