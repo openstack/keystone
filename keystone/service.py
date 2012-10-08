@@ -567,11 +567,13 @@ class TokenController(wsgi.Application):
         user_ref = token_ref['user']
         metadata_ref = token_ref['metadata']
         expires = token_ref['expires']
+        issue_time = timeutils.utcnow().time().isoformat()
         if expires is not None:
             if not isinstance(expires, unicode):
                 expires = timeutils.isotime(expires)
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,
+                                  'issued_at': issue_time
                                   },
                         'user': {'id': user_ref['id'],
                                  'name': user_ref['name'],
