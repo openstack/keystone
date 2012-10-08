@@ -17,6 +17,7 @@
 import os.path
 
 from keystone.catalog.backends import kvs
+from keystone.catalog import core
 from keystone.common import logging
 from keystone import config
 
@@ -120,6 +121,6 @@ class TemplatedCatalog(kvs.Catalog):
                 o[region][service] = {}
                 for k, v in service_ref.iteritems():
                     v = v.replace('$(', '%(')
-                    o[region][service][k] = v % d
+                    o[region][service][k] = core.format_url(v, d)
 
         return o

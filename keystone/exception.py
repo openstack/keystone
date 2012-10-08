@@ -123,6 +123,10 @@ class UnexpectedError(Error):
     title = 'Internal Server Error'
 
 
+class MalformedEndpoint(UnexpectedError):
+    """Malformed endpoint URL (see ERROR log for details): %(endpoint)s"""
+
+
 class NotImplemented(Error):
     """The action you have requested has not been implemented."""
     code = 501

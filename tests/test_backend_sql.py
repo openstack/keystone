@@ -166,3 +166,14 @@ class SqlCatalog(test.TestCase, test_backend.CatalogTests):
     def tearDown(self):
         sql_util.teardown_test_database()
         super(SqlCatalog, self).tearDown()
+
+    def test_malformed_catalog_throws_error(self):
+        self.catalog_api.create_service('a', {"id": "a", "desc": "a1",
+                                        "name": "b"})
+        badurl = "http://192.168.1.104:$(compute_port)s/v2/$(tenant)s"
+        self.catalog_api.create_endpoint('b', {"id": "b", "region": "b1",
+                                         "service_id": "a", "adminurl": badurl,
+                                         "internalurl": badurl,
+                                         "publicurl": badurl})
+        with self.assertRaises(exception.MalformedEndpoint):
+            self.catalog_api.get_catalog('fake-user', 'fake-tenant')
