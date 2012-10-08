@@ -63,7 +63,7 @@ class Token(sql.Base, token.Driver):
             raise exception.TokenNotFound(token_id=token_id)
 
     def token_to_key(self, token_id):
-        if len(token_id) > cms.UUID_TOKEN_LENGTH:
+        if cms.is_ans1_token(token_id):
             hash = hashlib.md5()
             hash.update(token_id)
             return hash.hexdigest()

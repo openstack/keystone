@@ -463,7 +463,7 @@ class TokenController(wsgi.Application):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
 
-        if len(token_id) > cms.UUID_TOKEN_LENGTH:
+        if cms.is_ans1_token(token_id):
             data = json.loads(cms.cms_verify(cms.token_to_cms(token_id),
                                              config.CONF.signing.certfile,
                                              config.CONF.signing.ca_certs))

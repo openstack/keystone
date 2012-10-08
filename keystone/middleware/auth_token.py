@@ -475,7 +475,7 @@ class AuthProtocol(object):
             cached = self._cache_get(user_token)
             if cached:
                 return cached
-            if (len(user_token) > cms.UUID_TOKEN_LENGTH):
+            if cms.is_ans1_token(user_token):
                 verified = self.verify_signed_token(user_token)
                 data = json.loads(verified)
             else:
