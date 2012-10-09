@@ -104,6 +104,12 @@ def install_dependencies(venv=VENV):
                 PIP_REQUIRES, '-r', TEST_REQUIRES], redirect_output=False)
 
 
+def install_self():
+    print 'Installing project code into virtualenv so that paths work'
+    run_command(['tools/with_venv.sh', 'python', 'setup.py', 'develop'],
+                redirect_output=True)
+
+
 def print_help():
     help = """
     Virtual environment configuration complete.
@@ -127,6 +133,7 @@ def main(argv):
     check_dependencies()
     create_virtualenv()
     install_dependencies()
+    install_self()
     print_help()
 
 if __name__ == '__main__':
