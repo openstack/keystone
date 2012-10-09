@@ -626,6 +626,16 @@ class IdentityTests(object):
         for test_tenant in default_fixtures.TENANTS:
             self.assertTrue(x for x in tenants if x['id'] == test_tenant['id'])
 
+    def test_delete_tenant_with_role_assignments(self):
+        tenant = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'], tenant['id'], 'useless')
+        self.identity_api.delete_tenant(tenant['id'])
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.get_tenant,
+                          tenant['id'])
+
 
 class TokenTests(object):
     def test_token_crud(self):

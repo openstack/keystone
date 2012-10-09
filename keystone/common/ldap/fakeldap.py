@@ -212,6 +212,20 @@ class FakeLdap(object):
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
+    def delete_ext_s(self, dn, serverctrls):
+        """Remove the ldap object at specified dn."""
+        if server_fail:
+            raise ldap.SERVER_DOWN
+
+        key = '%s%s' % (self.__prefix, dn)
+        LOG.debug('FakeLdap delete item: dn=%s', dn)
+        try:
+            del self.db[key]
+        except KeyError:
+            LOG.error('FakeLdap delete item failed: dn=%s not found.', dn)
+            raise ldap.NO_SUCH_OBJECT
+        self.db.sync()
+
     def modify_s(self, dn, attrs):
         """Modify the object at dn using the attribute list.
 
