@@ -65,3 +65,140 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         user_api = identity_ldap.UserApi(CONF)
         self.assertTrue(user_api)
         self.assertEquals(user_api.tree_dn, "ou=Users,%s" % CONF.ldap.suffix)
+
+    def test_configurable_allowed_user_actions(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        self.identity_api = identity_ldap.Identity()
+
+        user = {'id': 'fake1',
+                'name': 'fake1',
+                'password': 'fakepass1',
+                'tenants': ['bar']}
+        self.identity_api.create_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['id'], 'fake1')
+
+        user['password'] = 'fakepass2'
+        self.identity_api.update_user('fake1', user)
+
+        self.identity_api.delete_user('fake1')
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          'fake1')
+
+    def test_configurable_forbidden_user_actions(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.user_allow_create = False
+        CONF.ldap.user_allow_update = False
+        CONF.ldap.user_allow_delete = False
+        self.identity_api = identity_ldap.Identity()
+
+        user = {'id': 'fake1',
+                'name': 'fake1',
+                'password': 'fakepass1',
+                'tenants': ['bar']}
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.create_user,
+                          'fake1',
+                          user)
+
+        self.user_foo['password'] = 'fakepass2'
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.update_user,
+                          self.user_foo['id'],
+                          self.user_foo)
+
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.delete_user,
+                          self.user_foo['id'])
+
+    def test_configurable_allowed_tenant_actions(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        self.identity_api = identity_ldap.Identity()
+
+        tenant = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_tenant('fake1', tenant)
+        tenant_ref = self.identity_api.get_tenant('fake1')
+        self.assertEqual(tenant_ref['id'], 'fake1')
+
+        tenant['enabled'] = 'False'
+        self.identity_api.update_tenant('fake1', tenant)
+
+        self.identity_api.delete_tenant('fake1')
+        self.assertRaises(exception.TenantNotFound,
+                          self.identity_api.get_tenant,
+                          'fake1')
+
+    def test_configurable_forbidden_tenant_actions(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.tenant_allow_create = False
+        CONF.ldap.tenant_allow_update = False
+        CONF.ldap.tenant_allow_delete = False
+        self.identity_api = identity_ldap.Identity()
+
+        tenant = {'id': 'fake1', 'name': 'fake1'}
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.create_tenant,
+                          'fake1',
+                          tenant)
+
+        self.tenant_bar['enabled'] = 'False'
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.update_tenant,
+                          self.tenant_bar['id'],
+                          self.tenant_bar)
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.delete_tenant,
+                          self.tenant_bar['id'])
+
+    def test_configurable_allowed_role_actions(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        self.identity_api = identity_ldap.Identity()
+
+        role = {'id': 'fake1', 'name': 'fake1'}
+        self.identity_api.create_role('fake1', role)
+        role_ref = self.identity_api.get_role('fake1')
+        self.assertEqual(role_ref['id'], 'fake1')
+
+        role['name'] = 'fake2'
+        self.identity_api.update_role('fake1', role)
+
+        self.identity_api.delete_role('fake1')
+        self.assertRaises(exception.RoleNotFound,
+                          self.identity_api.get_role,
+                          'fake1')
+
+    def test_configurable_forbidden_role_actions(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.role_allow_create = False
+        CONF.ldap.role_allow_update = False
+        CONF.ldap.role_allow_delete = False
+        self.identity_api = identity_ldap.Identity()
+
+        role = {'id': 'fake1', 'name': 'fake1'}
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.create_role,
+                          'fake1',
+                          role)
+
+        self.role_useless['name'] = 'useful'
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.update_role,
+                          self.role_useless['id'],
+                          self.role_useless)
+
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.delete_role,
+                          self.role_useless['id'])

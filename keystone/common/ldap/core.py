@@ -92,6 +92,15 @@ class BaseLdap(object):
             self.object_class = (getattr(conf.ldap, objclass)
                                  or self.DEFAULT_OBJECTCLASS)
 
+            allow_create = '%s_allow_create' % self.options_name
+            self.allow_create = getattr(conf.ldap, allow_create)
+
+            allow_update = '%s_allow_update' % self.options_name
+            self.allow_update = getattr(conf.ldap, allow_update)
+
+            allow_delete = '%s_allow_delete' % self.options_name
+            self.allow_delete = getattr(conf.ldap, allow_delete)
+
             self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
         self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member') or True
 
@@ -163,6 +172,10 @@ class BaseLdap(object):
                                                  values['id'])
 
     def create(self, values):
+        if not self.allow_create:
+            msg = 'LDAP backend does not allow %s create' % self.options_name
+            raise exception.ForbiddenAction(msg)
+
         conn = self.get_connection()
         object_classes = self.structural_classes + [self.object_class]
         attrs = [('objectClass', object_classes)]
@@ -262,6 +275,10 @@ class BaseLdap(object):
         return (prv, nxt)
 
     def update(self, id, values, old_obj=None):
+        if not self.allow_update:
+            msg = 'LDAP backend does not allow %s update' % self.options_name
+            raise exception.ForbiddenAction(msg)
+
         if old_obj is None:
             old_obj = self.get(id)
 
@@ -285,6 +302,10 @@ class BaseLdap(object):
         conn.modify_s(self._id_to_dn(id), modlist)
 
     def delete(self, id):
+        if not self.allow_delete:
+            msg = 'LDAP backend does not allow %s delete' % self.options_name
+            raise exception.ForbiddenAction(msg)
+
         conn = self.get_connection()
         conn.delete_s(self._id_to_dn(id))
 

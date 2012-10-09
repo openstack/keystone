@@ -165,21 +165,29 @@ register_str('suffix', group='ldap', default='cn=example,cn=com')
 register_bool('use_dumb_member', group='ldap', default=False)
 register_str('user_name_attribute', group='ldap', default='sn')
 
-
 register_str('user_tree_dn', group='ldap', default=None)
 register_str('user_objectclass', group='ldap', default='inetOrgPerson')
 register_str('user_id_attribute', group='ldap', default='cn')
+register_bool('user_allow_create', group='ldap', default=True)
+register_bool('user_allow_update', group='ldap', default=True)
+register_bool('user_allow_delete', group='ldap', default=True)
 
 register_str('tenant_tree_dn', group='ldap', default=None)
 register_str('tenant_objectclass', group='ldap', default='groupOfNames')
 register_str('tenant_id_attribute', group='ldap', default='cn')
 register_str('tenant_member_attribute', group='ldap', default='member')
 register_str('tenant_name_attribute', group='ldap', default='ou')
+register_bool('tenant_allow_create', group='ldap', default=True)
+register_bool('tenant_allow_update', group='ldap', default=True)
+register_bool('tenant_allow_delete', group='ldap', default=True)
 
 register_str('role_tree_dn', group='ldap', default=None)
 register_str('role_objectclass', group='ldap', default='organizationalRole')
 register_str('role_id_attribute', group='ldap', default='cn')
 register_str('role_member_attribute', group='ldap', default='roleOccupant')
+register_bool('role_allow_create', group='ldap', default=True)
+register_bool('role_allow_update', group='ldap', default=True)
+register_bool('role_allow_delete', group='ldap', default=True)
 
 #pam
 register_str('url', group='pam', default=None)

@@ -112,17 +112,26 @@
 # user_objectclass = inetOrgPerson
 # user_id_attribute = cn
 # user_name_attribute = sn
+# user_allow_create = True
+# user_allow_update = True
+# user_allow_delete = True
 
 # tenant_tree_dn = ou=Groups,dc=example,dc=com
 # tenant_objectclass = groupOfNames
 # tenant_id_attribute = cn
 # tenant_member_attribute = member
 # tenant_name_attribute = ou
+# tenant_allow_create = True
+# tenant_allow_update = True
+# tenant_allow_delete = True
 
 # role_tree_dn = ou=Roles,dc=example,dc=com
 # role_objectclass = organizationalRole
 # role_id_attribute = cn
 # role_member_attribute = roleOccupant
+# role_allow_create = True
+# role_allow_update = True
+# role_allow_delete = True
 
 [filter:debug]
 paste.filter_factory = keystone.common.wsgi:Debug.factory
