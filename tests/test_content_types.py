@@ -430,6 +430,15 @@ class CoreApiTests(object):
             token=token)
         self.assertValidTenantResponse(r)
 
+    def test_get_tenant_by_name(self):
+        token = self.get_scoped_token()
+        r = self.admin_request(
+            path='/v2.0/tenants?name=%(tenant_name)s' % {
+                'tenant_name': self.tenant_bar['name'],
+            },
+            token=token)
+        self.assertValidTenantResponse(r)
+
     def test_get_user_roles(self):
         raise nose.exc.SkipTest('Blocked by bug 933565')
 
@@ -456,6 +465,15 @@ class CoreApiTests(object):
         r = self.admin_request(
             path='/v2.0/users/%(user_id)s' % {
                 'user_id': self.user_foo['id'],
+            },
+            token=token)
+        self.assertValidUserResponse(r)
+
+    def test_get_user_by_name(self):
+        token = self.get_scoped_token()
+        r = self.admin_request(
+            path='/v2.0/users?name=%(user_name)s' % {
+                'user_name': self.user_foo['name'],
             },
             token=token)
         self.assertValidUserResponse(r)
