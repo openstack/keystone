@@ -357,9 +357,9 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
             raise exception.UserNotFound(user_id=id)
 
     def get_by_name(self, name, filter=None):
-        users = self.get_all('(%s=%s)' %
-                             (self.attribute_mapping['name'],
+        query = ('(%s=%s)' % (self.attribute_mapping['name'],
                               ldap_filter.escape_filter_chars(name)))
+        users = self.get_all(query)
         try:
             return users[0]
         except IndexError:
@@ -411,8 +411,9 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
             self.role_api.rolegrant_delete(ref.id)
 
     def get_by_email(self, email):
-        users = self.get_all('(mail=%s)' %
-                             (ldap_filter.escape_filter_chars(email),))
+        query = ('(%s=%s)' % (self.attribute_mapping['mail'],
+                              ldap_filter.escape_filter_chars(email)))
+        users = self.get_all(query)
         try:
             return users[0]
         except IndexError:
