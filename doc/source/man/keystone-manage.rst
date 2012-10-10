@@ -47,6 +47,8 @@ Available commands:
 * ``export_legacy_catalog``: Export the service catalog from a legacy database.
 * ``import_legacy``: Import a legacy database.
 * ``import_nova_auth``: Import a dump of nova auth data into keystone.
+* ``pki_setup``: Initialize the certificates used to sign tokens.
+
 
 OPTIONS
 =======
