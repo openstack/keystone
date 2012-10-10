@@ -110,6 +110,7 @@
 # allow_subtree_delete = False
 
 # user_tree_dn = ou=Users,dc=example,dc=com
+# user_filter =
 # user_objectclass = inetOrgPerson
 # user_id_attribute = cn
 # user_name_attribute = sn
@@ -118,6 +119,7 @@
 # user_allow_delete = True
 
 # tenant_tree_dn = ou=Groups,dc=example,dc=com
+# tenant_filter =
 # tenant_objectclass = groupOfNames
 # tenant_id_attribute = cn
 # tenant_member_attribute = member
@@ -127,6 +129,7 @@
 # tenant_allow_delete = True
 
 # role_tree_dn = ou=Roles,dc=example,dc=com
+# role_filter =
 # role_objectclass = organizationalRole
 # role_id_attribute = cn
 # role_member_attribute = roleOccupant
