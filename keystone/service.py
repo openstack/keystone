@@ -285,6 +285,9 @@ class TokenController(wsgi.Application):
         Alternatively, this call accepts auth with only a token and tenant
         that will return a token that is scoped to that tenant.
         """
+        if not auth:
+            raise exception.ValidationError(attribute='auth',
+                                            target='request body')
 
         if 'passwordCredentials' in auth:
             user_id = auth['passwordCredentials'].get('userId', None)
