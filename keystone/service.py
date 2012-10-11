@@ -292,6 +292,11 @@ class TokenController(wsgi.Application):
             password = auth['passwordCredentials'].get('password', '')
             tenant_name = auth.get('tenantName', None)
 
+            if not user_id and not username:
+                raise exception.ValidationError(
+                    attribute='username or userId',
+                    target='passwordCredentials')
+
             if username:
                 try:
                     user_ref = self.identity_api.get_user_by_name(
@@ -299,6 +304,11 @@ class TokenController(wsgi.Application):
                     user_id = user_ref['id']
                 except exception.UserNotFound:
                     raise exception.Unauthorized()
+
+            if not password:
+                raise exception.ValidationError(
+                    attribute='password',
+                    target='passwordCredentials')
 
             # more compat
             tenant_id = auth.get('tenantId', None)
