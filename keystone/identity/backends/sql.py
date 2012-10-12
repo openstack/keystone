@@ -487,6 +487,17 @@ class Identity(sql.Base, identity.Driver):
     def delete_role(self, role_id):
         session = self.get_session()
         with session.begin():
+            metadata_refs = session.query(Metadata)
+            for metadata_ref in metadata_refs:
+                metadata = metadata_ref.to_dict()
+                user_id = metadata['user_id']
+                tenant_id = metadata['tenant_id']
+                try:
+                    self.remove_role_from_user_and_tenant(user_id,
+                                                          tenant_id,
+                                                          role_id)
+                except exception.RoleNotFound:
+                    pass
             if not session.query(Role).filter_by(id=role_id).delete():
                 raise exception.RoleNotFound(role_id=role_id)
             session.flush()

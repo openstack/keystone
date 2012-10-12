@@ -969,3 +969,16 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             super(RoleApi, self).update(role_id, role)
         except exception.NotFound:
             raise exception.RoleNotFound(role_id=role_id)
+
+    def delete(self, id):
+        conn = self.get_connection()
+        query = '(objectClass=%s)' % self.object_class
+        tenant_dn = self.tenant_api.tree_dn
+        try:
+            for role_dn, _ in conn.search_s(tenant_dn,
+                                            ldap.SCOPE_SUBTREE,
+                                            query):
+                conn.delete_s(role_dn)
+        except ldap.NO_SUCH_OBJECT:
+            pass
+        super(RoleApi, self).delete(id)

@@ -636,6 +636,16 @@ class IdentityTests(object):
                           self.identity_api.get_tenant,
                           tenant['id'])
 
+    def test_delete_role_check_role_grant(self):
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_role(role['id'], role)
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'], self.tenant_bar['id'], role['id'])
+        self.identity_api.delete_role(role['id'])
+        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+            self.user_foo['id'], self.tenant_bar['id'])
+        self.assertNotIn(role['id'], roles_ref)
+
 
 class TokenTests(object):
     def test_token_crud(self):
