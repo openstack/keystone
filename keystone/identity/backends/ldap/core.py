@@ -22,20 +22,15 @@ from ldap import filter as ldap_filter
 from keystone import clean
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import fakeldap
+from keystone.common import models
 from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone.common import models
+from keystone.identity import filter_user
 
 
 CONF = config.CONF
-
-
-def _filter_user(user_ref):
-    if user_ref:
-        user_ref.pop('password', None)
-    return user_ref
 
 
 def _ensure_hashed_password(user_ref):
@@ -108,7 +103,7 @@ class Identity(identity.Driver):
             except exception.MetadataNotFound:
                 metadata_ref = {}
 
-        return (_filter_user(user_ref), tenant_ref, metadata_ref)
+        return (filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         try:
@@ -132,14 +127,14 @@ class Identity(identity.Driver):
             raise exception.UserNotFound(user_id=user_id)
 
     def get_user(self, user_id):
-        return _filter_user(self._get_user(user_id))
+        return filter_user(self._get_user(user_id))
 
     def list_users(self):
         return self.user.get_all()
 
     def get_user_by_name(self, user_name):
         try:
-            return _filter_user(self.user.get_by_name(user_name))
+            return filter_user(self.user.get_by_name(user_name))
         except exception.NotFound:
             raise exception.UserNotFound(user_id=user_name)
 
