@@ -205,7 +205,7 @@ class Identity(kvs.Base, identity.Driver):
         user_list = set(self.db.get('user_list', []))
         user_list.add(user_id)
         self.db.set('user_list', list(user_list))
-        return user
+        return identity.filter_user(user)
 
     def update_user(self, user_id, user):
         if 'name' in user:

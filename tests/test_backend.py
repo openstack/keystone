@@ -646,6 +646,19 @@ class IdentityTests(object):
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(role['id'], roles_ref)
 
+    def test_create_tenant_doesnt_modify_passed_in_dict(self):
+        new_tenant = {'id': 'tenant_id', 'name': 'new_tenant'}
+        original_tenant = new_tenant.copy()
+        self.identity_api.create_tenant('tenant_id', new_tenant)
+        self.assertDictEqual(original_tenant, new_tenant)
+
+    def test_create_user_doesnt_modify_passed_in_dict(self):
+        new_user = {'id': 'user_id', 'name': 'new_user',
+                    'password': 'secret'}
+        original_user = new_user.copy()
+        self.identity_api.create_user('user_id', new_user)
+        self.assertDictEqual(original_user, new_user)
+
 
 class TokenTests(object):
     def test_token_crud(self):
