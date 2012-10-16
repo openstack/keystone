@@ -87,6 +87,18 @@ def register_cli_str(*args, **kw):
     return conf.register_cli_opt(cfg.StrOpt(*args, **kw), group=group)
 
 
+def register_list(*args, **kw):
+    conf = kw.pop('conf', CONF)
+    group = kw.pop('group', None)
+    return conf.register_opt(cfg.ListOpt(*args, **kw), group=group)
+
+
+def register_cli_list(*args, **kw):
+    conf = kw.pop('conf', CONF)
+    group = kw.pop('group', None)
+    return conf.register_cli_opt(cfg.ListOpt(*args, **kw), group=group)
+
+
 def register_bool(*args, **kw):
     conf = kw.pop('conf', CONF)
     group = kw.pop('group', None)
@@ -157,19 +169,25 @@ register_str('driver', group='ec2',
 register_str('driver', group='stats',
              default='keystone.contrib.stats.backends.kvs.Stats')
 
+
 #ldap
 register_str('url', group='ldap', default='ldap://localhost')
 register_str('user', group='ldap', default='dc=Manager,dc=example,dc=com')
 register_str('password', group='ldap', default='freeipa4all')
 register_str('suffix', group='ldap', default='cn=example,cn=com')
 register_bool('use_dumb_member', group='ldap', default=False)
-register_str('user_name_attribute', group='ldap', default='sn')
+register_str('dumb_member', group='ldap', default='cn=dumb,dc=nonexistent')
 register_bool('allow_subtree_delete', group='ldap', default=False)
 
 register_str('user_tree_dn', group='ldap', default=None)
 register_str('user_filter', group='ldap', default=None)
 register_str('user_objectclass', group='ldap', default='inetOrgPerson')
 register_str('user_id_attribute', group='ldap', default='cn')
+register_str('user_name_attribute', group='ldap', default='sn')
+register_str('user_mail_attribute', group='ldap', default='email')
+register_str('user_pass_attribute', group='ldap', default='userPassword')
+register_list('user_attribute_ignore', group='ldap',
+              default='tenant_id,enable,tenants')
 register_bool('user_allow_create', group='ldap', default=True)
 register_bool('user_allow_update', group='ldap', default=True)
 register_bool('user_allow_delete', group='ldap', default=True)
@@ -180,6 +198,8 @@ register_str('tenant_objectclass', group='ldap', default='groupOfNames')
 register_str('tenant_id_attribute', group='ldap', default='cn')
 register_str('tenant_member_attribute', group='ldap', default='member')
 register_str('tenant_name_attribute', group='ldap', default='ou')
+register_str('tenant_desc_attribute', group='ldap', default='desc')
+register_list('tenant_attribute_ignore', group='ldap', default='enabled')
 register_bool('tenant_allow_create', group='ldap', default=True)
 register_bool('tenant_allow_update', group='ldap', default=True)
 register_bool('tenant_allow_delete', group='ldap', default=True)
@@ -188,7 +208,9 @@ register_str('role_tree_dn', group='ldap', default=None)
 register_str('role_filter', group='ldap', default=None)
 register_str('role_objectclass', group='ldap', default='organizationalRole')
 register_str('role_id_attribute', group='ldap', default='cn')
+register_str('role_name_attribute', group='ldap', default='ou')
 register_str('role_member_attribute', group='ldap', default='roleOccupant')
+register_list('role_attribute_ignore', group='ldap', default='')
 register_bool('role_allow_create', group='ldap', default=True)
 register_bool('role_allow_update', group='ldap', default=True)
 register_bool('role_allow_delete', group='ldap', default=True)

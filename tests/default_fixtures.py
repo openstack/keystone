@@ -18,6 +18,10 @@ TENANTS = [
     {'id': 'bar', 'name': 'BAR'},
     {'id': 'baz', 'name': 'BAZ'},
     {'id': 'tenent4add', 'name': 'tenant4add'},
+    {'id': 'attr',
+     'name': 'attr_name',
+     'description': 'description',
+     'enabled': True},
 ]
 
 # NOTE(ja): a role of keystone_admin and attribute "is_admin" is done in setUp
@@ -27,6 +31,13 @@ USERS = [
     {'id': 'no_meta',
      'name': 'NO_META',
      'password': 'no_meta2',
+     'tenants': ['baz']},
+    {'id': 'attr',
+     'name': 'attr',
+     'email': 'attr@example.com',
+     'enabled': True,
+     'tenant_id': 'baz',
+     'password': 'attr_passwd',
      'tenants': ['baz']},
 ]
 
@@ -38,6 +49,7 @@ METADATA = [
 ROLES = [
     {'id': 'keystone_admin', 'name': 'Keystone Admin'},
     {'id': 'useless', 'name': 'Useless'},
+    {'id': 'attr', 'name': 'attr'},
 ]
 
 SERVICES = [

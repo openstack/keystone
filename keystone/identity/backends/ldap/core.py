@@ -331,6 +331,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_STRUCTURAL_CLASSES = ['person']
     DEFAULT_ID_ATTR = 'cn'
     DEFAULT_OBJECTCLASS = 'inetOrgPerson'
+    DEFAULT_ATTRIBUTE_IGNORE = ['tenant_id', 'enabled', 'tenants']
     options_name = 'user'
     attribute_mapping = {'password': 'userPassword',
                          'email': 'mail',
@@ -341,12 +342,15 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     # be part of any objectclass.
     # in the future, we need to provide a way for the end user to
     # indicate the field to use and what it indicates
-    attribute_ignore = ['tenantId', 'enabled', 'tenants']
     model = models.User
 
     def __init__(self, conf):
         super(UserApi, self).__init__(conf)
         self.attribute_mapping['name'] = conf.ldap.user_name_attribute
+        self.attribute_mapping['email'] = conf.ldap.user_mail_attribute
+        self.attribute_mapping['password'] = conf.ldap.user_pass_attribute
+        self.attribute_ignore = (getattr(conf.ldap, 'user_attribute_ignore')
+                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
         self.api = ApiShim(conf)
 
     def get(self, id, filter=None):
@@ -466,17 +470,20 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_OBJECTCLASS = 'groupOfNames'
     DEFAULT_ID_ATTR = 'cn'
     DEFAULT_MEMBER_ATTRIBUTE = 'member'
+    DEFAULT_ATTRIBUTE_IGNORE = ['enabled']
     options_name = 'tenant'
-    attribute_mapping = {'name': 'ou', 'tenantId': 'cn'}
-    attribute_ignore = ['enabled']
+    attribute_mapping = {'name': 'ou', 'description': 'desc', 'tenantId': 'cn'}
     model = models.Tenant
 
     def __init__(self, conf):
         super(TenantApi, self).__init__(conf)
         self.api = ApiShim(conf)
         self.attribute_mapping['name'] = conf.ldap.tenant_name_attribute
+        self.attribute_mapping['description'] = conf.ldap.tenant_desc_attribute
         self.member_attribute = (getattr(conf.ldap, 'tenant_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
+        self.attribute_ignore = (getattr(conf.ldap, 'tenant_attribute_ignore')
+                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
 
     def get(self, id, filter=None):
         """Replaces exception.NotFound with exception.TenantNotFound."""
@@ -523,7 +530,7 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
         tenant = self._ldap_get(id)
         members = tenant[1].get(self.member_attribute, [])
         if self.use_dumb_member:
-            empty = members == [self.DUMB_MEMBER_DN]
+            empty = members == [self.dumb_member]
         else:
             empty = len(members) == 0
         return empty and len(self.role_api.get_role_assignments(id)) == 0
@@ -561,7 +568,7 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
         if not role_id:
             # Get users who have default tenant mapping
             for user_dn in tenant[1].get(self.member_attribute, []):
-                if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
+                if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
                 res.add(self.user_api.get(self.user_api._dn_to_id(user_dn)))
 
@@ -607,6 +614,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     options_name = 'role'
     DEFAULT_OBJECTCLASS = 'organizationalRole'
     DEFAULT_MEMBER_ATTRIBUTE = 'roleOccupant'
+    DEFAULT_ATTRIBUTE_IGNORE = []
     attribute_mapping = {'name': 'cn',
                          #'serviceId': 'service_id',
                          }
@@ -615,8 +623,11 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     def __init__(self, conf):
         super(RoleApi, self).__init__(conf)
         self.api = ApiShim(conf)
+        self.attribute_mapping['name'] = conf.ldap.role_name_attribute
         self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
+        self.attribute_ignore = (getattr(conf.ldap, 'role_attribute_ignore')
+                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
 
     @staticmethod
     def _create_ref(role_id, tenant_id, user_id):
@@ -688,7 +699,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                      (self.member_attribute, [user_dn])]
 
             if self.use_dumb_member:
-                attrs[1][1].append(self.DUMB_MEMBER_DN)
+                attrs[1][1].append(self.dumb_member)
             try:
                 conn.add_s(role_dn, attrs)
             except Exception as inst:
@@ -714,7 +725,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                      (self.member_attribute, [user_dn])]
 
             if self.use_dumb_member:
-                attrs[1][1].append(self.DUMB_MEMBER_DN)
+                attrs[1][1].append(self.dumb_member)
             try:
                 conn.add_s(role_dn, attrs)
             except Exception as inst:
@@ -751,7 +762,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             except KeyError:
                 continue
             for user_dn in user_dns:
-                if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
+                if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
                 user_id = self.user_api._dn_to_id(user_dn)
                 role_id = self._dn_to_id(role_dn)
@@ -884,7 +895,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 continue
 
             for user_dn in user_dns:
-                if self.use_dumb_member and user_dn == self.DUMB_MEMBER_DN:
+                if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
                 user_id = self.user_api._dn_to_id(user_dn)
                 tenant_id = None

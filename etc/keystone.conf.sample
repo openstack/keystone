@@ -108,12 +108,16 @@
 # suffix = cn=example,cn=com
 # use_dumb_member = False
 # allow_subtree_delete = False
+# dumb_member = cn=dumb,dc=example,dc=com
 
 # user_tree_dn = ou=Users,dc=example,dc=com
 # user_filter =
 # user_objectclass = inetOrgPerson
 # user_id_attribute = cn
 # user_name_attribute = sn
+# user_mail_attribute = email
+# user_pass_attribute = userPassword
+# user_attribute_ignore = tenant_id,enabled,tenants
 # user_allow_create = True
 # user_allow_update = True
 # user_allow_delete = True
@@ -124,6 +128,8 @@
 # tenant_id_attribute = cn
 # tenant_member_attribute = member
 # tenant_name_attribute = ou
+# tenant_desc_attribute = desc
+# tenant_attribute_ignore = enabled
 # tenant_allow_create = True
 # tenant_allow_update = True
 # tenant_allow_delete = True
@@ -132,7 +138,9 @@
 # role_filter =
 # role_objectclass = organizationalRole
 # role_id_attribute = cn
+# role_name_attribute = ou
 # role_member_attribute = roleOccupant
+# role_attribute_ignore =
 # role_allow_create = True
 # role_allow_update = True
 # role_allow_delete = True

@@ -107,7 +107,10 @@ class BaseLdap(object):
             self.allow_delete = getattr(conf.ldap, allow_delete)
 
             self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
-        self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member') or True
+        self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member')
+        self.dumb_member = (getattr(conf.ldap, 'dumb_member') or
+                            self.DUMB_MEMBER_DN)
+
         self.subtree_delete_enabled = getattr(conf.ldap,
                                               'allow_subtree_delete')
 
@@ -194,7 +197,7 @@ class BaseLdap(object):
                 attrs.append((attr_type, [v]))
 
         if 'groupOfNames' in object_classes and self.use_dumb_member:
-            attrs.append(('member', [self.DUMB_MEMBER_DN]))
+            attrs.append(('member', [self.dumb_member]))
 
         conn.add_s(self._id_to_dn(values['id']), attrs)
         return values
