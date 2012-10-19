@@ -166,7 +166,7 @@ class Identity(sql.Base, identity.Driver):
         except exception.UserNotFound:
             raise AssertionError('Invalid user / password')
 
-        if not utils.check_password(password, user_ref.get('password')):
+        if not self._check_password(password, user_ref):
             raise AssertionError('Invalid user / password')
 
         if tenant_id is not None:
