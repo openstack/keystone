@@ -16,14 +16,13 @@
 
 import uuid
 
+from keystone.common import sql
 from keystone import catalog
-from keystone.catalog.backends import sql as catalog_sql
-from keystone.common.sql import util as sql_util
 from keystone import config
 from keystone import exception
-from keystone.identity.backends import sql as identity_sql
+from keystone import identity
 from keystone import test
-from keystone.token.backends import sql as token_sql
+from keystone import token
 
 import default_fixtures
 import test_backend
@@ -32,20 +31,39 @@ import test_backend
 CONF = config.CONF
 
 
-class SqlIdentity(test.TestCase, test_backend.IdentityTests):
+class SqlTests(test.TestCase):
     def setUp(self):
-        super(SqlIdentity, self).setUp()
+        super(SqlTests, self).setUp()
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_sql.conf')])
-        sql_util.setup_test_database()
-        self.identity_api = identity_sql.Identity()
+
+        # initialize managers and override drivers
+        self.catalog_man = catalog.Manager()
+        self.identity_man = identity.Manager()
+        self.token_man = token.Manager()
+
+        # create shortcut references to each driver
+        self.catalog_api = self.catalog_man.driver
+        self.identity_api = self.identity_man.driver
+        self.token_api = self.token_man.driver
+
+        # create and share a single sqlalchemy engine for testing
+        engine = sql.Base().get_engine()
+        self.identity_api._engine = engine
+        self.catalog_api._engine = engine
+        self.token_api._engine = engine
+
+        # populate the engine with tables & fixtures
+        sql.ModelBase.metadata.bind = engine
+        sql.ModelBase.metadata.create_all(engine)
         self.load_fixtures(default_fixtures)
 
     def tearDown(self):
-        sql_util.teardown_test_database()
-        super(SqlIdentity, self).tearDown()
+        super(SqlTests, self).tearDown()
 
+
+class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_delete_user_with_tenant_association(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
@@ -138,35 +156,11 @@ class SqlIdentity(test.TestCase, test_backend.IdentityTests):
                           self.tenant_bar['id'])
 
 
-class SqlToken(test.TestCase, test_backend.TokenTests):
-    def setUp(self):
-        super(SqlToken, self).setUp()
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_sql.conf')])
-        sql_util.setup_test_database()
-        self.token_api = token_sql.Token()
-
-    def tearDown(self):
-        sql_util.teardown_test_database()
-        super(SqlToken, self).tearDown()
+class SqlToken(SqlTests, test_backend.TokenTests):
+    pass
 
 
-class SqlCatalog(test.TestCase, test_backend.CatalogTests):
-    def setUp(self):
-        super(SqlCatalog, self).setUp()
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_sql.conf')])
-        sql_util.setup_test_database()
-        self.catalog_api = catalog_sql.Catalog()
-        self.catalog_man = catalog.Manager()
-        self.load_fixtures(default_fixtures)
-
-    def tearDown(self):
-        sql_util.teardown_test_database()
-        super(SqlCatalog, self).tearDown()
-
+class SqlCatalog(SqlTests, test_backend.CatalogTests):
     def test_malformed_catalog_throws_error(self):
         self.catalog_api.create_service('a', {"id": "a", "desc": "a1",
                                         "name": "b"})

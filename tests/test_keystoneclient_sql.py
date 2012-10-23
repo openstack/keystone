@@ -31,7 +31,8 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         super(KcMasterSqlTestCase, self).config([
             test.etcdir('keystone.conf.sample'),
             test.testsdir('test_overrides.conf'),
-            test.testsdir('backend_sql.conf')])
+            test.testsdir('backend_sql.conf'),
+            test.testsdir('backend_sql_disk.conf')])
         sql_util.setup_test_database()
 
     def tearDown(self):

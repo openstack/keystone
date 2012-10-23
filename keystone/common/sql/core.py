@@ -129,40 +129,37 @@ class MySQLPingListener(object):
 
 # Backends
 class Base(object):
-
-    _MAKER = None
-    _ENGINE = None
+    _engine = None
+    _sessionmaker = None
 
     def get_session(self, autocommit=True, expire_on_commit=False):
         """Return a SQLAlchemy session."""
-        if self._MAKER is None or self._ENGINE is None:
-            self._ENGINE = self.get_engine()
-            self._MAKER = self.get_maker(self._ENGINE,
-                                         autocommit,
-                                         expire_on_commit)
-
-        session = self._MAKER()
-        return session
+        self._engine = self._engine or self.get_engine()
+        self._sessionmaker = self._sessionmaker or self.get_sessionmaker(
+            self._engine)
+        return self._sessionmaker()
 
     def get_engine(self):
         """Return a SQLAlchemy engine."""
         connection_dict = sql.engine.url.make_url(CONF.sql.connection)
 
-        engine_args = {'pool_recycle': CONF.sql.idle_timeout,
-                       'echo': False,
-                       'convert_unicode': True
-                       }
+        engine_config = {
+            'convert_unicode': True,
+            'echo': CONF.debug and CONF.verbose,
+            'pool_recycle': CONF.sql.idle_timeout,
+        }
 
         if 'sqlite' in connection_dict.drivername:
-            engine_args['poolclass'] = sqlalchemy.pool.NullPool
+            engine_config['poolclass'] = sqlalchemy.pool.StaticPool
+        elif 'mysql' in connection_dict.drivername:
+            engine_config['listeners'] = [MySQLPingListener()]
 
-        if 'mysql' in connection_dict.drivername:
-            engine_args['listeners'] = [MySQLPingListener()]
+        return sql.create_engine(CONF.sql.connection, **engine_config)
 
-        return sql.create_engine(CONF.sql.connection, **engine_args)
-
-    def get_maker(self, engine, autocommit=True, expire_on_commit=False):
+    def get_sessionmaker(self, engine, autocommit=True,
+                         expire_on_commit=False):
         """Return a SQLAlchemy sessionmaker using the given engine."""
-        return sqlalchemy.orm.sessionmaker(bind=engine,
-                                           autocommit=autocommit,
-                                           expire_on_commit=expire_on_commit)
+        return sqlalchemy.orm.sessionmaker(
+            bind=engine,
+            autocommit=autocommit,
+            expire_on_commit=expire_on_commit)
