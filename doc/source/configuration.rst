@@ -73,6 +73,7 @@ values are organized into the following sections:
 * ``[catalog]`` - service catalog driver configuration
 * ``[token]`` - token driver configuration
 * ``[policy]`` - policy system driver configuration for RBAC
+* ``[signing]`` - cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL configuration
 
 The Keystone configuration file is expected to be named ``keystone.conf``.
@@ -85,6 +86,32 @@ order:
 * ``~/``
 * ``/etc/keystone/``
 * ``/etc/``
+
+
+Certificates for PKI
+--------------------
+
+PKI stands for Public Key Infrastructure.  Tokens are documents,
+cryptographically signed using the X509 standard.  In order to work correctly
+token generation requires a public/private key pair.  The public key must be
+signed in an X509 certificate, and the certificate used to sign it must be
+available as Certificate Authority (CA) certificate.  These files can be
+generated either using the keystone-manage utility, or externally generated.
+The files need to be in the locations specified by the top level Keystone
+configuration file as specified in the above section.  Additionally, the
+private key should only be readable by the system user that will run Keystone.
+The values that specify where to read the certificates are under the
+``[signing]`` section of the configuration file.  The configuration values are:
+
+* ``token_format`` - Determines the algorithm used to generate tokens.  Can be either ``UUID`` or ``PKI``. Defaults to ``PKI``
+* ``certfile`` - Location of certificate used to verify tokens.  Default is ``/etc/keystone/ssl/certs/signing_cert.pem``
+* ``keyfile`` - Location of private key used to sign tokens.  Default is ``/etc/keystone/ssl/private/signing_key.pem``
+* ``ca_certs`` - Location of certificate for the authority that issued the above certificate. Default is ``/etc/keystone/ssl/certs/ca.pem``
+* ``key_size`` - Default is ``1024``
+* ``valid_days`` - Default is ``3650``
+* ``ca_password``  - Password required to read the ca_file. Default is None
+
+
 
 Service Catalog
 ---------------
@@ -459,9 +486,16 @@ through the normal REST API. At the moment, the following calls are supported:
 * ``import_legacy``: Import data from a legacy (pre-Essex) database.
 * ``export_legacy_catalog``: Export service catalog from a legacy (pre-Essex) database.
 * ``import_nova_auth``: Load auth data from a dump created with ``nova-manage``.
+* ``pki_setup``: Initialize the certificates for PKI based tokens.
 
 Invoking ``keystone-manage`` by itself will give you additional usage
 information.
+
+The private key used for token signing can only be read by its owner.  This
+prevents unauthorized users from spuriously signing tokens.
+``keystone-manage pki_setup`` Should be run as the same system user that will
+be running the Keystone service to ensure proper ownership for the private key
+file and the associated certificates.
 
 Adding Users, Tenants, and Roles with python-keystoneclient
 ===========================================================
