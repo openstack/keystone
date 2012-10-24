@@ -95,6 +95,7 @@ class Catalog(sql.Base, catalog.Driver):
     def delete_service(self, service_id):
         session = self.get_session()
         with session.begin():
+            session.query(Endpoint).filter_by(service_id=service_id).delete()
             if not session.query(Service).filter_by(id=service_id).delete():
                 raise exception.ServiceNotFound(service_id=service_id)
             session.flush()
