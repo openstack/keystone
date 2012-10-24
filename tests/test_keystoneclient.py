@@ -392,9 +392,11 @@ class KeystoneClientTests(object):
         time.sleep(1.01)
         reauthenticated_token = foo_client.tokens.authenticate(
             token=foo_client.auth_token)
+        #Don't compare seconds, as there is rounding error
+        original = orig_token['expires'][:-3]
+        reissued = reauthenticated_token.expires[:-3]
 
-        self.assertEquals(orig_token['expires'],
-                          reauthenticated_token.expires)
+        self.assertEquals(original, reissued)
 
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions
