@@ -41,7 +41,7 @@ def handle_conflicts(type='object'):
             try:
                 return method(*args, **kwargs)
             except sql.IntegrityError as e:
-                raise exception.Conflict(type=type, details=e.message)
+                raise exception.Conflict(type=type, details=str(e.orig))
         return wrapper
     return decorator
 

@@ -337,7 +337,7 @@ class TokenController(wsgi.Application):
                     LOG.warning('Tenant %s is disabled' % tenant_id)
                     raise exception.Unauthorized()
             except AssertionError as e:
-                raise exception.Unauthorized(e.message)
+                raise exception.Unauthorized(str(e))
             auth_token_data = dict(zip(['user', 'tenant', 'metadata'],
                                        auth_info))
             expiry = self.token_api._get_default_expire_time(context=context)
