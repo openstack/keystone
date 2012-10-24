@@ -139,7 +139,7 @@ register_str('ca_certs', group='ssl', default=None)
 register_bool('cert_required', group='ssl', default=False)
 #signing options
 register_str('token_format', group='signing',
-             default="UUID")
+             default="PKI")
 register_str('certfile', group='signing',
              default="/etc/keystone/ssl/certs/signing_cert.pem")
 register_str('keyfile', group='signing',
