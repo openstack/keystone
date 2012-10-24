@@ -341,6 +341,10 @@ class TenantController(wsgi.Application):
 
     def get_all_tenants(self, context, **kw):
         """Gets a list of all tenants for an admin user."""
+        if 'name' in context['query_string']:
+            return self.get_tenant_by_name(
+                context, context['query_string'].get('name'))
+
         self.assert_admin(context)
         tenant_refs = self.identity_api.get_tenants(context)
         params = {
@@ -384,6 +388,11 @@ class TenantController(wsgi.Application):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
         return {'tenant': self.identity_api.get_tenant(context, tenant_id)}
+
+    def get_tenant_by_name(self, context, tenant_name):
+        self.assert_admin(context)
+        return {'tenant': self.identity_api.get_tenant_by_name(
+            context, tenant_name)}
 
     # CRUD Extension
     def create_tenant(self, context, tenant):
@@ -463,8 +472,16 @@ class UserController(wsgi.Application):
     def get_users(self, context):
         # NOTE(termie): i can't imagine that this really wants all the data
         #               about every single user in the system...
+        if 'name' in context['query_string']:
+            return self.get_user_by_name(
+                context, context['query_string'].get('name'))
+
         self.assert_admin(context)
         return {'users': self.identity_api.list_users(context)}
+
+    def get_user_by_name(self, context, user_name):
+        self.assert_admin(context)
+        return {'user': self.identity_api.get_user_by_name(context, user_name)}
 
     # CRUD extension
     def create_user(self, context, user):
