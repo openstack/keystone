@@ -408,6 +408,9 @@ class TokenController(wsgi.Application):
             auth_token_data = dict(dict(user=current_user_ref,
                                         tenant=tenant_ref,
                                         metadata=metadata_ref))
+        else:
+            raise exception.ValidationError(
+                attribute='passwordCredentials or token', target='auth')
 
         auth_token_data['expires'] = expiry
         auth_token_data['id'] = 'placeholder'
