@@ -242,3 +242,125 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.get_role,
                           self.role_useless['id'])
+
+    def test_dumb_member(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.use_dumb_member = True
+        CONF.ldap.dumb_member = 'cn=dumb,cn=example,cn=com'
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          'dumb')
+
+    def test_user_attribute_mapping(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.user_name_attribute = 'sn'
+        CONF.ldap.user_mail_attribute = 'email'
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        user_ref = self.identity_api.get_user(self.user_attr['id'])
+        self.assertEqual(user_ref['id'], self.user_attr['id'])
+        self.assertEqual(user_ref['name'], self.user_attr['name'])
+        self.assertEqual(user_ref['email'], self.user_attr['email'])
+
+        CONF.ldap.user_name_attribute = 'email'
+        CONF.ldap.user_mail_attribute = 'sn'
+        self.identity_api = identity_ldap.Identity()
+        user_ref = self.identity_api.get_user(self.user_attr['id'])
+        self.assertEqual(user_ref['id'], self.user_attr['id'])
+        self.assertEqual(user_ref['name'], self.user_attr['email'])
+        self.assertEqual(user_ref['email'], self.user_attr['name'])
+
+    def test_user_attribute_ignore(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.user_attribute_ignore = ['name', 'email', 'password',
+                                           'tenant_id', 'enabled', 'tenants']
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        user_ref = self.identity_api.get_user(self.user_attr['id'])
+        self.assertEqual(user_ref['id'], self.user_attr['id'])
+        self.assertNotIn('name', user_ref)
+        self.assertNotIn('email', user_ref)
+        self.assertNotIn('password', user_ref)
+        self.assertNotIn('tenant_id', user_ref)
+        self.assertNotIn('enabled', user_ref)
+        self.assertNotIn('tenants', user_ref)
+
+    def test_tenant_attribute_mapping(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.tenant_name_attribute = 'ou'
+        CONF.ldap.tenant_desc_attribute = 'desc'
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        tenant_ref = self.identity_api.get_tenant(self.tenant_attr['id'])
+        self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
+        self.assertEqual(tenant_ref['name'], self.tenant_attr['name'])
+        self.assertEqual(tenant_ref['description'],
+                         self.tenant_attr['description'])
+
+        CONF.ldap.tenant_name_attribute = 'desc'
+        CONF.ldap.tenant_desc_attribute = 'ou'
+        self.identity_api = identity_ldap.Identity()
+        tenant_ref = self.identity_api.get_tenant(self.tenant_attr['id'])
+        self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
+        self.assertEqual(tenant_ref['name'], self.tenant_attr['description'])
+        self.assertEqual(tenant_ref['description'], self.tenant_attr['name'])
+
+    def test_tenant_attribute_ignore(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.tenant_attribute_ignore = ['name',
+                                             'description',
+                                             'enabled']
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        tenant_ref = self.identity_api.get_tenant(self.tenant_attr['id'])
+        self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
+        self.assertNotIn('name', tenant_ref)
+        self.assertNotIn('description', tenant_ref)
+        self.assertNotIn('enabled', tenant_ref)
+
+    def test_role_attribute_mapping(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.role_name_attribute = 'ou'
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        role_ref = self.identity_api.get_role(self.role_attr['id'])
+        self.assertEqual(role_ref['id'], self.role_attr['id'])
+        self.assertEqual(role_ref['name'], self.role_attr['name'])
+
+        CONF.ldap.role_name_attribute = 'sn'
+        self.identity_api = identity_ldap.Identity()
+        role_ref = self.identity_api.get_role(self.role_attr['id'])
+        self.assertEqual(role_ref['id'], self.role_attr['id'])
+        self.assertNotIn('name', role_ref)
+
+    def test_role_attribute_ignore(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.role_attribute_ignore = ['name']
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        role_ref = self.identity_api.get_role(self.role_attr['id'])
+        self.assertEqual(role_ref['id'], self.role_attr['id'])
+        self.assertNotIn('name', role_ref)
