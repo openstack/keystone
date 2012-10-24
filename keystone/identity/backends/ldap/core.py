@@ -197,7 +197,7 @@ class Identity(identity.Driver):
     # CRUD
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
-        return self.user.create(user)
+        return filter_user(self.user.create(user))
 
     def update_user(self, user_id, user):
         if 'name' in user:
