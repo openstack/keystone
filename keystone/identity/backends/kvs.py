@@ -19,14 +19,7 @@ from keystone.common import kvs
 from keystone.common import utils
 from keystone import exception
 from keystone import identity
-
-
-def _filter_user(user_ref):
-    if user_ref:
-        user_ref = user_ref.copy()
-        user_ref.pop('password', None)
-        user_ref.pop('tenants', None)
-    return user_ref
+from keystone.identity import filter_user
 
 
 def _ensure_hashed_password(user_ref):
@@ -70,7 +63,7 @@ class Identity(kvs.Base, identity.Driver):
             except exception.MetadataNotFound:
                 metadata_ref = {}
 
-        return (_filter_user(user_ref), tenant_ref, metadata_ref)
+        return (filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         try:
@@ -107,10 +100,10 @@ class Identity(kvs.Base, identity.Driver):
             raise exception.UserNotFound(user_id=user_name)
 
     def get_user(self, user_id):
-        return _filter_user(self._get_user(user_id))
+        return filter_user(self._get_user(user_id))
 
     def get_user_by_name(self, user_name):
-        return _filter_user(self._get_user_by_name(user_name))
+        return filter_user(self._get_user_by_name(user_name))
 
     def get_metadata(self, user_id, tenant_id):
         try:
