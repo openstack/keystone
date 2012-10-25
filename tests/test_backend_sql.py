@@ -209,3 +209,16 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
                          None)
         self.assertEqual(catalog[region][service_type]['internalURL'],
                          None)
+
+    def test_delete_service_with_endpoints(self):
+        self.catalog_api.create_service('c', {"id": "c", "desc": "a1",
+                                        "name": "d"})
+        self.catalog_api.create_endpoint('d', {"id": "d", "region": None,
+                                         "service_id": "c", "adminurl": None,
+                                         "internalurl": None,
+                                         "publicurl": None})
+        self.catalog_api.delete_service("c")
+        self.assertRaises(exception.ServiceNotFound,
+                          self.catalog_man.delete_service, {}, "c")
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_man.delete_endpoint, {}, "d")
