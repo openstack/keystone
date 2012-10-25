@@ -49,3 +49,18 @@ class TokenControllerTest(test.TestCase):
                      'tenantName': 'demo'}
         self.assertRaises(exception.ValidationError, self.api.authenticate,
                           None, body_dict)
+
+    def test_authenticate_blank_request_body(self):
+        """Verify sending empty json dict raises the right exception."""
+        self.assertRaises(exception.ValidationError, self.api.authenticate,
+                          None, {})
+
+    def test_authenticate_blank_auth(self):
+        """Verify sending blank 'auth' raises the right exception."""
+        self.assertRaises(exception.ValidationError, self.api.authenticate,
+                          None, {'auth': {}})
+
+    def test_authenticate_invalid_auth_content(self):
+        """Verify sending invalid 'auth' raises the right exception."""
+        self.assertRaises(exception.ValidationError, self.api.authenticate,
+                          None, {'auth': 'abcd'})
