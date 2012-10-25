@@ -383,7 +383,7 @@ class TokenController(wsgi.Application):
 
             if tenant_id:
                 if not tenant_id in tenants:
-                    LOG.warning('User %s is authorized for tenant %s'
+                    LOG.warning('User %s is unauthorized for tenant %s'
                                 % (user_id, tenant_id))
                     raise exception.Unauthorized()
 
