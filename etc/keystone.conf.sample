@@ -92,14 +92,13 @@
 #cert_required = True
 
 [signing]
-#token_format = UUID
+#token_format = PKI
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 #key_size = 1024
 #valid_days = 3650
 #ca_password = None
-#token_format = PKI
 
 [ldap]
 # url = ldap://localhost
