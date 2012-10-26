@@ -107,15 +107,14 @@ function run_tests {
 function run_pep8 {
   echo "Running pep8 ..."
   # Opt-out files from pep8
-  ignore_scripts="*.sh:"
-  ignore_files="*eventlet-patch:*pip-requires"
-  ignore_dirs="*ajaxterm*"
-  GLOBIGNORE="$ignore_scripts:$ignore_files:$ignore_dirs"
-  srcfiles=`find bin -type f ! -name .*.swp`
-  srcfiles+=" keystone tests"
+  ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
+  ignore_files="*pip-requires"
+  ignore_dirs=".venv,openstack,vendor"
+  ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
+  srcfiles="."
   # Just run PEP8 in current environment
   ${wrapper} pep8 --repeat --show-pep8 --show-source \
-    --exclude=vcsversion.py ${srcfiles} | tee pep8.txt
+    --exclude=${ignore} ${srcfiles} | tee pep8.txt
 }
 
 NOSETESTS="nosetests $noseopts $noseargs"
