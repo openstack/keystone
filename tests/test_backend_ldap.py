@@ -122,7 +122,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                      test.testsdir('backend_ldap.conf')])
         self.identity_api = identity_ldap.Identity()
 
-        tenant = {'id': 'fake1', 'name': 'fake1'}
+        tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
         self.identity_api.create_tenant('fake1', tenant)
         tenant_ref = self.identity_api.get_tenant('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
@@ -262,6 +262,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                      test.testsdir('backend_ldap.conf')])
         CONF.ldap.user_name_attribute = 'sn'
         CONF.ldap.user_mail_attribute = 'email'
+        CONF.ldap.user_enabled_attribute = 'enabled'
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
@@ -269,6 +270,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(user_ref['id'], self.user_attr['id'])
         self.assertEqual(user_ref['name'], self.user_attr['name'])
         self.assertEqual(user_ref['email'], self.user_attr['email'])
+        self.assertEqual(user_ref['enabled'], self.user_attr['enabled'])
 
         CONF.ldap.user_name_attribute = 'email'
         CONF.ldap.user_mail_attribute = 'sn'
@@ -277,6 +279,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(user_ref['id'], self.user_attr['id'])
         self.assertEqual(user_ref['name'], self.user_attr['email'])
         self.assertEqual(user_ref['email'], self.user_attr['name'])
+        self.assertEqual(user_ref['enabled'], self.user_attr['enabled'])
 
     def test_user_attribute_ignore(self):
         self.config([test.etcdir('keystone.conf.sample'),
@@ -302,6 +305,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                      test.testsdir('backend_ldap.conf')])
         CONF.ldap.tenant_name_attribute = 'ou'
         CONF.ldap.tenant_desc_attribute = 'desc'
+        CONF.ldap.tenant_enabled_attribute = 'enabled'
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
@@ -310,6 +314,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(tenant_ref['name'], self.tenant_attr['name'])
         self.assertEqual(tenant_ref['description'],
                          self.tenant_attr['description'])
+        self.assertEqual(tenant_ref['enabled'], self.tenant_attr['enabled'])
 
         CONF.ldap.tenant_name_attribute = 'desc'
         CONF.ldap.tenant_desc_attribute = 'ou'
@@ -318,6 +323,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
         self.assertEqual(tenant_ref['name'], self.tenant_attr['description'])
         self.assertEqual(tenant_ref['description'], self.tenant_attr['name'])
+        self.assertEqual(tenant_ref['enabled'], self.tenant_attr['enabled'])
 
     def test_tenant_attribute_ignore(self):
         self.config([test.etcdir('keystone.conf.sample'),
@@ -364,3 +370,27 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         role_ref = self.identity_api.get_role(self.role_attr['id'])
         self.assertEqual(role_ref['id'], self.role_attr['id'])
         self.assertNotIn('name', role_ref)
+
+    def test_user_enable_attribute_mask(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.user_enabled_attribute = 'enabled'
+        CONF.ldap.user_enabled_mask = 2
+        CONF.ldap.user_enabled_default = 512
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        user = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
+        self.identity_api.create_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], True)
+
+        user['enabled'] = False
+        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], False)
+
+        user['enabled'] = True
+        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], True)

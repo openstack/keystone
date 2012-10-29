@@ -921,15 +921,26 @@ for openstack would look like this::
   dn: ou=Roles,cn=openstack,cn=org
   objectClass: top
   objectClass: organizationalUnit
-  ou: users
+  ou: roles
 
 The corresponding entries in the Keystone configuration file are::
 
   [ldap]
   url = ldap://localhost
-  suffix = dc=openstack,dc=org
   user = dc=Manager,dc=openstack,dc=org
   password = badpassword
+  suffix = dc=openstack,dc=org
+  use_dumb_member = False
+  allow_subtree_delete = False
+
+  user_tree_dn = ou=Users,dc=openstack,dc=com
+  user_objectclass = inetOrgPerson
+
+  tenant_tree_dn = ou=Groups,dc=openstack,dc=com
+  tenant_objectclass = groupOfNames
+
+  role_tree_dn = ou=Roles,dc=example,dc=com
+  role_objectclass = organizationalRole
 
 The default object classes and attributes are intentionally simplistic.  They
 reflect the common standard objects according to the LDAP RFCs.  However,
@@ -943,3 +954,77 @@ corresponding entries in the Keystone configuration file are::
   [ldap]
   user_id_attribute = uidNumber
   user_name_attribute = cn
+
+
+There is a set of allowed actions per object type that you can modify
+depending on your specific deployment. For example, the users are managed by
+another tool and you have only read access, in such case the configuration
+is::
+
+  [ldap]
+  user_allow_create = False
+  user_allow_update = False
+  user_allow_delete = False
+
+  tenant_allow_create = True
+  tenant_allow_update = True
+  tenant_allow_delete = True
+
+  role_allow_create = True
+  role_allow_update = True
+  role_allow_delete = True
+
+There are some configuration options for filtering users, tenants and roles,
+if the backend is providing too much output, in such case the configuration
+will look like::
+  
+  [ldap]
+  user_filter = (memberof=CN=openstack-users,OU=workgroups,DC=openstack,DC=com)
+  tenant_filter =
+  role_filter =
+
+In case that the directory server does not have an attribute enabled of type
+boolean for the user, there is several configuration parameters that can be used
+to extract the value from an integer attribute like in Active Directory::
+
+  [ldap]
+  user_enabled_attribute = userAccountControl
+  user_enabled_mask      = 2
+  user_enabled_default   = 512
+
+In this case the attribute is an integer and the enabled attribute is listed
+in bit 1, so the if the mask configured *user_enabled_mask* is different from 0,
+it gets the value from the field *user_enabled_attribute* and it makes an ADD
+operation with the value indicated on *user_enabled_mask* and if the value matches
+the mask then the account is disabled.
+
+It also saves the value without mask to the user identity in the attribute
+*enabled_nomask*. This is needed in order to set it back in case that we need to
+change it to enable/disable a user because it contains more information than the 
+status like password expiration. Last setting *user_enabled_mask* is needed in order
+to create a default value on the integer attribute (512 = NORMAL ACCOUNT on AD)
+
+In case of Active Directory the classes and attributes could not match the
+specified classes in the LDAP module so you can configure them like::
+
+  [ldap]
+  user_objectclass         = person
+  user_id_attribute        = cn
+  user_name_attribute      = cn
+  user_mail_attribute      = mail
+  user_enabled_attribute   = userAccountControl
+  user_enabled_mask        = 2
+  user_enabled_default     = 512
+  user_attribute_ignore    = tenant_id,tenants
+  tenant_objectclass       = groupOfNames
+  tenant_id_attribute      = cn
+  tenant_member_attribute  = member
+  tenant_name_attribute    = ou
+  tenant_desc_attribute    = description
+  tenant_enabled_attribute = extensionName
+  tenant_attribute_ignore  =
+  role_objectclass         = organizationalRole
+  role_id_attribute        = cn
+  role_name_attribute      = ou
+  role_member_attribute    = roleOccupant
+  role_attribute_ignore    =
