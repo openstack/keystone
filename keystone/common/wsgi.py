@@ -36,6 +36,13 @@ from keystone.openstack.common import jsonutils
 
 LOG = logging.getLogger(__name__)
 
+# Environment variable used to pass the request context
+CONTEXT_ENV = 'openstack.context'
+
+
+# Environment variable used to pass the request params
+PARAMS_ENV = 'openstack.params'
+
 
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
@@ -189,9 +196,9 @@ class Application(BaseApplication):
         LOG.debug('arg_dict: %s', arg_dict)
 
         # allow middleware up the stack to provide context & params
-        context = req.environ.get('openstack.context', {})
+        context = req.environ.get(CONTEXT_ENV, {})
         context['query_string'] = dict(req.params.iteritems())
-        params = req.environ.get('openstack.params', {})
+        params = req.environ.get(PARAMS_ENV, {})
         params.update(arg_dict)
 
         # TODO(termie): do some basic normalization on methods
