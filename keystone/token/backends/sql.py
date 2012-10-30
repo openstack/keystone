@@ -16,7 +16,7 @@
 
 import copy
 import datetime
-import hashlib
+
 
 from keystone.common import cms
 from keystone.common import sql
@@ -61,14 +61,6 @@ class Token(sql.Base, token.Driver):
             return token_ref.to_dict()
         else:
             raise exception.TokenNotFound(token_id=token_id)
-
-    def token_to_key(self, token_id):
-        if cms.is_ans1_token(token_id):
-            hash = hashlib.md5()
-            hash.update(token_id)
-            return hash.hexdigest()
-        else:
-            return token_id
 
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
