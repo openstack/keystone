@@ -154,6 +154,26 @@ def trunc_password(password):
         return password
 
 
+def hash_user_password(user):
+    """Hash a user dict's password without modifying the passed-in dict"""
+    try:
+        password = user['password']
+    except KeyError:
+        return user
+    else:
+        return dict(user, password=hash_password(password))
+
+
+def hash_ldap_user_password(user):
+    """Hash a user dict's password without modifying the passed-in dict"""
+    try:
+        password = user['password']
+    except KeyError:
+        return user
+    else:
+        return dict(user, password=ldap_hash_password(password))
+
+
 def hash_password(password):
     """Hash a password. Hard."""
     password_utf8 = trunc_password(password).encode('utf-8')

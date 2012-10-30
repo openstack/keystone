@@ -26,13 +26,6 @@ from keystone import identity
 from keystone.identity import filter_user
 
 
-def _ensure_hashed_password(user_ref):
-    pw = user_ref.get('password', None)
-    if pw is not None:
-        user_ref['password'] = utils.hash_password(pw)
-    return user_ref
-
-
 def handle_conflicts(type='object'):
     """Converts IntegrityError into HTTP 409 Conflict."""
     def decorator(method):
@@ -347,7 +340,7 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
-        user = _ensure_hashed_password(user)
+        user = utils.hash_user_password(user)
         session = self.get_session()
         with session.begin():
             user_ref = User.from_dict(user)
@@ -367,7 +360,7 @@ class Identity(sql.Base, identity.Driver):
             if user_ref is None:
                 raise exception.UserNotFound(user_id=user_id)
             old_user_dict = user_ref.to_dict()
-            user = _ensure_hashed_password(user)
+            user = utils.hash_user_password(user)
             for k in user:
                 old_user_dict[k] = user[k]
             new_user = User.from_dict(old_user_dict)

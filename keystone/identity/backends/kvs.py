@@ -22,13 +22,6 @@ from keystone import identity
 from keystone.identity import filter_user
 
 
-def _ensure_hashed_password(user_ref):
-    pw = user_ref.get('password', None)
-    if pw is not None:
-        user_ref['password'] = utils.hash_password(pw)
-    return user_ref
-
-
 class Identity(kvs.Base, identity.Driver):
     # Public interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
@@ -206,7 +199,7 @@ class Identity(kvs.Base, identity.Driver):
             msg = 'Duplicate name, %s.' % user['name']
             raise exception.Conflict(type='user', details=msg)
 
-        user = _ensure_hashed_password(user)
+        user = utils.hash_user_password(user)
         self.db.set('user-%s' % user_id, user)
         self.db.set('user_name-%s' % user['name'], user)
         user_list = set(self.db.get('user_list', []))
@@ -227,7 +220,7 @@ class Identity(kvs.Base, identity.Driver):
         except exception.NotFound:
             raise exception.UserNotFound(user_id=user_id)
         new_user = old_user.copy()
-        user = _ensure_hashed_password(user)
+        user = utils.hash_user_password(user)
         new_user.update(user)
         if new_user['id'] != user_id:
             raise exception.ValidationError('Cannot change user ID')
