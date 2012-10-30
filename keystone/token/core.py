@@ -19,6 +19,7 @@
 import datetime
 
 from keystone.common import manager
+from keystone.common import cms
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
@@ -51,6 +52,15 @@ class Manager(manager.Manager):
 
 class Driver(object):
     """Interface description for a Token driver."""
+
+    def token_to_key(self, token_id):
+        """ Converts PKI tokens to their short form used for keys in
+        Database tables, memcached, and other lookup tables.
+        returns: if given a  PKI token, returns its hashed value
+                 Otherwise, returns the passed-in value if given a UUID or
+                 hash of a token.
+        """
+        return cms.cms_hash_token(token_id)
 
     def get_token(self, token_id):
         """Get a token by id.
