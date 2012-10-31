@@ -6,8 +6,8 @@ greenlet
 PasteDeploy
 paste
 routes
-sqlalchemy
-sqlalchemy-migrate
+sqlalchemy>=0.7.8,<=0.7.9
+sqlalchemy-migrate>=0.7.2
 passlib
 lxml
 iso8601>=0.1.4
