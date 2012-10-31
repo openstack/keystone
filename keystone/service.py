@@ -289,6 +289,18 @@ class TokenController(wsgi.Application):
             raise exception.ValidationError(attribute='auth',
                                             target='request body')
 
+        if auth is None:
+            auth = {}
+        remote_auth = False
+        if 'REMOTE_USER' in context and not 'token' in auth:
+            # authenticated external request
+            remote_auth = True
+
+            if 'passwordCredentials' not in auth:
+                auth['passwordCredentials'] = {}
+            auth['passwordCredentials']['username'] = context.get(
+                'REMOTE_USER', None)
+
         if 'passwordCredentials' in auth:
             user_id = auth['passwordCredentials'].get('userId', None)
             username = auth['passwordCredentials'].get('username', '')
@@ -300,6 +312,10 @@ class TokenController(wsgi.Application):
                     attribute='username or userId',
                     target='passwordCredentials')
 
+            tenant_ref = None
+            user_ref = None
+            metadata_ref = {}
+
             if username:
                 try:
                     user_ref = self.identity_api.get_user_by_name(
@@ -308,7 +324,7 @@ class TokenController(wsgi.Application):
                 except exception.UserNotFound:
                     raise exception.Unauthorized()
 
-            if not password:
+            if not password and not remote_auth:
                 raise exception.ValidationError(
                     attribute='password',
                     target='passwordCredentials')
@@ -324,11 +340,30 @@ class TokenController(wsgi.Application):
                     raise exception.Unauthorized()
 
             try:
-                auth_info = self.identity_api.authenticate(context=context,
-                                                           user_id=user_id,
-                                                           password=password,
-                                                           tenant_id=tenant_id)
-                (user_ref, tenant_ref, metadata_ref) = auth_info
+                if not remote_auth:
+                    # local identity authentication required
+                    auth_info = self.identity_api.authenticate(
+                        context=context,
+                        user_id=user_id,
+                        password=password,
+                        tenant_id=tenant_id)
+                    (user_ref, tenant_ref, metadata_ref) = auth_info
+                else:
+                    # remote authentication already performed
+                    if not user_ref:
+                        user_ref = self.identity_api.get_user(
+                            self.identity_api,
+                            user_id)
+                    if tenant_id:
+                        if not tenant_ref:
+                            tenant_ref = self.identity_api.get_tenant(
+                                self.identity_api,
+                                tenant_id)
+                        metadata_ref = self.identity_api.get_metadata(
+                            self.identity_api,
+                            user_id,
+                            tenant_id)
+                    auth_info = (user_ref, tenant_ref, metadata_ref)
 
                 # If the user is disabled don't allow them to authenticate
                 if not user_ref.get('enabled', True):
