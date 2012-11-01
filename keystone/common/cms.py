@@ -1,3 +1,4 @@
+import hashlib
 import subprocess
 
 from keystone.common import logging
@@ -134,3 +135,18 @@ def cms_to_token(cms_text):
     signed_text = signed_text.replace('\n', '')
 
     return signed_text
+
+
+def cms_hash_token(token_id):
+    """
+    return: for ans1_token, returns the hash of the passed in token
+            otherwise, returns what it was passed in.
+    """
+    if token_id is None:
+        return None
+    if is_ans1_token(token_id):
+        hasher = hashlib.md5()
+        hasher.update(token_id)
+        return hasher.hexdigest()
+    else:
+        return token_id
