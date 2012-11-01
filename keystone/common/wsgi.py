@@ -199,6 +199,10 @@ class Application(BaseApplication):
         context = req.environ.get(CONTEXT_ENV, {})
         context['query_string'] = dict(req.params.iteritems())
         params = req.environ.get(PARAMS_ENV, {})
+        if 'REMOTE_USER' in req.environ:
+            context['REMOTE_USER'] = req.environ['REMOTE_USER']
+        elif context.get('REMOTE_USER', None) is not None:
+            del context['REMOTE_USER']
         params.update(arg_dict)
 
         # TODO(termie): do some basic normalization on methods

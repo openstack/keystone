@@ -12,10 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import default_fixtures
+
 from keystone import exception
 from keystone import identity
 from keystone import service
 from keystone import test
+from keystone.identity.backends import kvs as kvs_identity
 
 
 class FakeIdentityManager(object):
@@ -34,33 +37,95 @@ class TokenControllerTest(test.TestCase):
         right exception."""
         body_dict = {'passwordCredentials': {}, 'tenantName': 'demo'}
         self.assertRaises(exception.ValidationError, self.api.authenticate,
-                          None, body_dict)
+                          {}, body_dict)
 
     def test_authenticate_no_username(self):
         """Verify skipping username raises the right exception."""
         body_dict = {'passwordCredentials': {'password': 'pass'},
                      'tenantName': 'demo'}
         self.assertRaises(exception.ValidationError, self.api.authenticate,
-                          None, body_dict)
+                          {}, body_dict)
 
     def test_authenticate_no_password(self):
         """Verify skipping password raises the right exception."""
         body_dict = {'passwordCredentials': {'username': 'user1'},
                      'tenantName': 'demo'}
         self.assertRaises(exception.ValidationError, self.api.authenticate,
-                          None, body_dict)
+                          {}, body_dict)
 
     def test_authenticate_blank_request_body(self):
         """Verify sending empty json dict raises the right exception."""
         self.assertRaises(exception.ValidationError, self.api.authenticate,
-                          None, {})
+                          {}, {})
 
     def test_authenticate_blank_auth(self):
         """Verify sending blank 'auth' raises the right exception."""
         self.assertRaises(exception.ValidationError, self.api.authenticate,
-                          None, {'auth': {}})
+                          {}, {'auth': {}})
 
     def test_authenticate_invalid_auth_content(self):
         """Verify sending invalid 'auth' raises the right exception."""
         self.assertRaises(exception.ValidationError, self.api.authenticate,
-                          None, {'auth': 'abcd'})
+                          {}, {'auth': 'abcd'})
+
+
+class RemoteUserTest(test.TestCase):
+    def setUp(self):
+        super(RemoteUserTest, self).setUp()
+        self.identity_api = kvs_identity.Identity()
+        self.load_fixtures(default_fixtures)
+        self.api = service.TokenController()
+
+    def _build_user_auth(self, username, passwd, tenant):
+        auth_json = {'passwordCredentials': {}}
+        if username is not None:
+            auth_json['passwordCredentials']['username'] = username
+        if passwd is not None:
+            auth_json['passwordCredentials']['password'] = passwd
+        if tenant is not None:
+            auth_json['tenantName'] = tenant
+        return auth_json
+
+    def assertEqualTokens(self, a, b):
+        def normalize(token):
+            token['access']['token']['id'] = 'dummy'
+            # truncate to eliminate timing problems
+            issued = token['access']['token']['issued_at']
+            token['access']['token']['issued_at'] = issued[:-8]
+            # truncate to eliminate timing problems
+            expires = token['access']['token']['expires']
+            token['access']['token']['expires'] = expires[:-3]
+            return token
+        return self.assertDictEqual(normalize(a), normalize(b))
+
+    def test_unscoped_remote_authn(self):
+        local_token = self.api.authenticate(
+            {},
+            self._build_user_auth('FOO', 'foo2', None))
+        remote_token = self.api.authenticate(
+            {'REMOTE_USER': 'FOO'},
+            self._build_user_auth('FOO', 'nosir', None))
+        self.assertEqualTokens(local_token, remote_token)
+
+    def test_unscoped_remote_authn_jsonless(self):
+        self.assertRaises(
+            exception.ValidationError,
+            self.api.authenticate,
+            {'REMOTE_USER': 'FOO'},
+            None)
+
+    def test_scoped_remote_authn(self):
+        local_token = self.api.authenticate(
+            {},
+            self._build_user_auth('FOO', 'foo2', 'BAR'))
+        remote_token = self.api.authenticate(
+            {'REMOTE_USER': 'FOO'},
+            self._build_user_auth('FOO', 'nosir', 'BAR'))
+        self.assertEqualTokens(local_token, remote_token)
+
+    def test_scoped_remote_authn_invalid_user(self):
+        self.assertRaises(
+            exception.Unauthorized,
+            self.api.authenticate,
+            {'REMOTE_USER': 'FOOZBALL'},
+            self._build_user_auth('FOO', 'nosir', 'BAR'))
