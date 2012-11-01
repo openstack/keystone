@@ -23,7 +23,6 @@ from keystone.common.sql import migration
 from keystone.common import utils
 from keystone import exception
 from keystone import identity
-from keystone.identity import filter_user
 
 
 def handle_conflicts(type='object'):
@@ -170,7 +169,7 @@ class Identity(sql.Base, identity.Driver):
             except exception.MetadataNotFound:
                 metadata_ref = {}
 
-        return (filter_user(user_ref), tenant_ref, metadata_ref)
+        return (identity.filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_tenant(self, tenant_id):
         session = self.get_session()
@@ -193,7 +192,8 @@ class Identity(sql.Base, identity.Driver):
         query = query.join(UserTenantMembership)
         query = query.filter(UserTenantMembership.tenant_id == tenant_id)
         user_refs = query.all()
-        return [filter_user(user_ref.to_dict()) for user_ref in user_refs]
+        return [identity.filter_user(user_ref.to_dict())
+                for user_ref in user_refs]
 
     def _get_user(self, user_id):
         session = self.get_session()
@@ -210,10 +210,10 @@ class Identity(sql.Base, identity.Driver):
         return user_ref.to_dict()
 
     def get_user(self, user_id):
-        return filter_user(self._get_user(user_id))
+        return identity.filter_user(self._get_user(user_id))
 
     def get_user_by_name(self, user_name):
-        return filter_user(self._get_user_by_name(user_name))
+        return identity.filter_user(self._get_user_by_name(user_name))
 
     def get_metadata(self, user_id, tenant_id):
         session = self.get_session()
@@ -235,7 +235,7 @@ class Identity(sql.Base, identity.Driver):
     def list_users(self):
         session = self.get_session()
         user_refs = session.query(User)
-        return [filter_user(x.to_dict()) for x in user_refs]
+        return [identity.filter_user(x.to_dict()) for x in user_refs]
 
     def list_roles(self):
         session = self.get_session()
