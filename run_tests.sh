@@ -51,7 +51,7 @@ function process_option {
     -p|--pep8) just_pep8=1;;
     -P|--no-pep8) no_pep8=1;;
     -c|--coverage) coverage=1;;
-	-xintegration) nokeystoneclient=1;;
+    -xintegration) nokeystoneclient=1;;
     --standard-threads)
         export STANDARD_THREADS=1
         ;;
@@ -84,7 +84,7 @@ if [ $coverage -eq 1 ]; then
 fi
 
 if [ $nokeystoneclient -eq 1 ]; then
-	# disable the integration tests
+    # disable the integration tests
     noseopts="$noseopts -I test_keystoneclient*"
 fi
 
@@ -109,7 +109,7 @@ function run_pep8 {
   # Opt-out files from pep8
   ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
   ignore_files="*pip-requires"
-  ignore_dirs=".venv,openstack,vendor"
+  ignore_dirs=".venv,openstack,vendor,.tox"
   ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
   srcfiles="."
   # Just run PEP8 in current environment
