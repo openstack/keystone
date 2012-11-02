@@ -472,7 +472,8 @@ class AuthProtocol(object):
 
         """
         try:
-            cached = self._cache_get(user_token)
+            token_id = cms.cms_hash_token(user_token)
+            cached = self._cache_get(token_id)
             if cached:
                 return cached
             if cms.is_ans1_token(user_token):
@@ -480,7 +481,7 @@ class AuthProtocol(object):
                 data = json.loads(verified)
             else:
                 data = self.verify_uuid_token(user_token, retry)
-            self._cache_put(user_token, data)
+            self._cache_put(token_id, data)
             return data
         except Exception as e:
             LOG.debug('Token validation failure.', exc_info=True)
