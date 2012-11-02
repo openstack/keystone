@@ -83,6 +83,10 @@ class MetadataNotFound(NotFound):
     #          so this exception should not be exposed
 
 
+class PolicyNotFound(NotFound):
+    """Could not find policy: %(policy_id)s"""
+
+
 class RoleNotFound(NotFound):
     """Could not find role: %(role_id)s"""
 
