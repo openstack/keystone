@@ -1,5 +1,9 @@
 import hashlib
 import subprocess
+#Importing Popen directly knowingly goes against the coding standard
+#It is required due to the need to Monkeypatch the cms use of Popen when
+#running in eventlet.
+from subprocess import Popen
 
 from keystone.common import logging
 
@@ -12,15 +16,15 @@ def cms_verify(formatted, signing_cert_file_name, ca_file_name):
     """
         verifies the signature of the contents IAW CMS syntax
     """
-    process = subprocess.Popen(["openssl", "cms", "-verify",
-                                "-certfile", signing_cert_file_name,
-                                "-CAfile", ca_file_name,
-                                "-inform", "PEM",
-                                "-nosmimecap", "-nodetach",
-                                "-nocerts", "-noattr"],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+    process = Popen(["openssl", "cms", "-verify",
+                    "-certfile", signing_cert_file_name,
+                    "-CAfile", ca_file_name,
+                    "-inform", "PEM",
+                    "-nosmimecap", "-nodetach",
+                    "-nocerts", "-noattr"],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
     output, err = process.communicate(formatted)
     retcode = process.poll()
     if retcode:
@@ -102,15 +106,15 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
     http://en.wikipedia.org/wiki/Cryptographic_Message_Syntax
     """
 
-    process = subprocess.Popen(["openssl", "cms", "-sign",
-                                "-signer", signing_cert_file_name,
-                                "-inkey", signing_key_file_name,
-                                "-outform", "PEM",
-                                "-nosmimecap", "-nodetach",
-                                "-nocerts", "-noattr"],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+    process = Popen(["openssl", "cms", "-sign",
+                    "-signer", signing_cert_file_name,
+                    "-inkey", signing_key_file_name,
+                    "-outform", "PEM",
+                    "-nosmimecap", "-nodetach",
+                    "-nocerts", "-noattr"],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
     output, err = process.communicate(text)
     retcode = process.poll()
     if retcode or "Error" in err:
