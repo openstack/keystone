@@ -20,6 +20,7 @@ DIR=`dirname "$0"`
 CURRENT_DIR=`cd "$DIR" && pwd`
 CERTS_DIR=$CURRENT_DIR/certs
 PRIVATE_DIR=$CURRENT_DIR/private
+CMS_DIR=$CURRENT_DIR/cms
 
 
 function rm_old {
@@ -63,7 +64,7 @@ basicConstraints        = critical,CA:true
 ' > ca.conf
 }
 
-function generate_req_conf {
+function generate_ssl_req_conf {
   echo '
 [ req ]
 default_bits            = 1024
@@ -81,7 +82,28 @@ organizationName        = OpenStack
 organizationalUnitName  = Keystone
 commonName              = localhost
 emailAddress            = keystone@openstack.org
-' > req.conf
+' > ssl_req.conf
+}
+
+function generate_cms_signing_req_conf {
+  echo '
+[ req ]
+default_bits            = 1024
+default_keyfile         = keystonekey.pem
+default_md              = sha1
+
+prompt                  = no
+distinguished_name      = distinguished_name
+
+[ distinguished_name ]
+countryName             = US
+stateOrProvinceName     = CA
+localityName            = Sunnyvale
+organizationName        = OpenStack
+organizationalUnitName  = Keystone
+commonName              = Keystone
+emailAddress            = keystone@openstack.org
+' > cms_signing_req.conf
 }
 
 function generate_signing_conf {
@@ -94,7 +116,7 @@ dir             = .
 database        = $dir/index.txt
 new_certs_dir   = $dir/newcerts
 
-certificate     = $dir/certs/ca.pem
+certificate     = $dir/certs/cacert.pem
 serial          = $dir/serial
 private_key     = $dir/private/cakey.pem
 
@@ -104,8 +126,6 @@ default_md              = sha1
 
 policy                  = policy_any
 
-x509_extensions         = ca_extensions
-
 [ policy_any ]
 countryName             = supplied
 stateOrProvinceName     = supplied
@@ -114,9 +134,6 @@ organizationName        = supplied
 organizationalUnitName  = supplied
 emailAddress            = supplied
 commonName              = supplied
-
-[ ca_extensions ]
-basicConstraints        = critical,CA:true
 ' > signing.conf
 }
 
@@ -140,40 +157,66 @@ function check_error {
 
 function generate_ca {
   echo 'Generating New CA Certificate ...'
-  openssl req -x509 -newkey rsa:1024 -days 21360 -out $CERTS_DIR/ca.pem -keyout $PRIVATE_DIR/cakey.pem -outform PEM -config ca.conf -nodes
+  openssl req -x509 -newkey rsa:1024 -days 21360 -out $CERTS_DIR/cacert.pem -keyout $PRIVATE_DIR/cakey.pem -outform PEM -config ca.conf -nodes
   check_error $?
 }
 
-function cert_req {
-  echo 'Generating Certificate Request ...'
-  generate_req_conf
-  openssl req -newkey rsa:1024 -keyout $PRIVATE_DIR/keystonekey.pem -keyform PEM -out req.pem -outform PEM -config req.conf -nodes
+function ssl_cert_req {
+  echo 'Generating SSL Certificate Request ...'
+  generate_ssl_req_conf
+  openssl req -newkey rsa:1024 -keyout $PRIVATE_DIR/ssl_key.pem -keyform PEM -out ssl_req.pem -outform PEM -config ssl_req.conf -nodes
   check_error $?
   #openssl req -in req.pem -text -noout
 }
 
-
-function issue_cert {
-  echo 'Issuing SSL Certificate ...'
-  generate_signing_conf
-  openssl ca -in req.pem -config signing.conf -batch
+function cms_signing_cert_req {
+  echo 'Generating CMS Signing Certificate Request ...'
+  generate_cms_signing_req_conf
+  openssl req -newkey rsa:1024 -keyout $PRIVATE_DIR/signing_key.pem -keyform PEM -out cms_signing_req.pem -outform PEM -config cms_signing_req.conf -nodes
   check_error $?
-  openssl x509 -in $CURRENT_DIR/newcerts/10.pem -out $CERTS_DIR/keystone.pem
+  #openssl req -in req.pem -text -noout
+}
+
+function issue_certs {
+  generate_signing_conf
+  echo 'Issuing SSL Certificate ...'
+  openssl ca -in ssl_req.pem -config signing.conf -batch
+  check_error $?
+  openssl x509 -in $CURRENT_DIR/newcerts/10.pem -out $CERTS_DIR/ssl_cert.pem
+  check_error $?
+  echo 'Issuing CMS Signing Certificate ...'
+  openssl ca -in cms_signing_req.pem -config signing.conf -batch
+  check_error $?
+  openssl x509 -in $CURRENT_DIR/newcerts/11.pem -out $CERTS_DIR/signing_cert.pem
   check_error $?
 }
 
 function create_middleware_cert {
-  cp $CERTS_DIR/keystone.pem $CERTS_DIR/middleware.pem
-  cat $PRIVATE_DIR/keystonekey.pem >> $CERTS_DIR/middleware.pem
+  cp $CERTS_DIR/ssl_cert.pem $CERTS_DIR/middleware.pem
+  cat $PRIVATE_DIR/ssl_key.pem >> $CERTS_DIR/middleware.pem
 }
 
+function check_openssl {
+  echo 'Checking openssl availability ...'
+  which openssl
+  check_error $?
+}
 
-echo $CURRENT_DIR
+function gen_sample_cms {
+  for json_file in "${CMS_DIR}/auth_token_revoked.json" "${CMS_DIR}/auth_token_unscoped.json" "${CMS_DIR}/auth_token_scoped.json" "${CMS_DIR}/revocation_list.json"
+  do
+    openssl cms -sign -in $json_file -nosmimecap -signer $CERTS_DIR/signing_cert.pem -inkey $PRIVATE_DIR/signing_key.pem -outform PEM -nodetach -nocerts -noattr -out ${json_file/.json/.pem}
+  done
+}
+
+check_openssl
 rm_old
 cleanup
 setup
 generate_ca
-cert_req
-issue_cert
+ssl_cert_req
+cms_signing_cert_req
+issue_certs
 create_middleware_cert
+gen_sample_cms
 cleanup

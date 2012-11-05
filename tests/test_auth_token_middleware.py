@@ -30,6 +30,13 @@ from keystone.openstack.common import timeutils
 from keystone import test
 
 
+CERTDIR = test.rootdir("examples/pki/certs")
+KEYDIR = test.rootdir("examples/pki/private")
+CMSDIR = test.rootdir("examples/pki/cms")
+SIGNING_CERT = os.path.join(CERTDIR, 'signing_cert.pem')
+SIGNING_KEY = os.path.join(KEYDIR, 'signing_key.pem')
+CA = os.path.join(CERTDIR, 'ca.pem')
+
 REVOCATION_LIST = None
 REVOKED_TOKEN = None
 REVOKED_TOKEN_HASH = None
@@ -145,7 +152,7 @@ TOKEN_RESPONSES = {
 # in the signing subdirectory.  In order to keep the values consistent between
 # the tests and the signed documents, we read them in for use in the tests.
 def setUpModule(self):
-    signing_path = os.path.join(os.path.dirname(__file__), 'signing')
+    signing_path = CMSDIR
     with open(os.path.join(signing_path, 'auth_token_scoped.pem')) as f:
         self.SIGNED_TOKEN_SCOPED = cms.cms_to_token(f.read())
     with open(os.path.join(signing_path, 'auth_token_unscoped.pem')) as f:
@@ -314,7 +321,7 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
             'auth_host': 'keystone.example.com',
             'auth_port': 1234,
             'auth_admin_prefix': '/testadmin',
-            'signing_dir': 'signing',
+            'signing_dir': CERTDIR,
         }
 
         self.middleware = auth_token.AuthProtocol(FakeApp(expected_env), conf)
