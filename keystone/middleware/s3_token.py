@@ -99,7 +99,7 @@ class S3Token(object):
                          headers=headers)
             response = conn.getresponse()
             output = response.read()
-        except Exception, e:
+        except Exception as e:
             self.logger.info('HTTP connection exception: %s' % e)
             resp = self.deny_request('InvalidURI')
             raise ServiceError(resp)
@@ -143,7 +143,7 @@ class S3Token(object):
         auth_header = req.headers['Authorization']
         try:
             access, signature = auth_header.split(' ')[-1].rsplit(':', 1)
-        except(ValueError):
+        except ValueError:
             msg = 'You have an invalid Authorization header: %s'
             self.logger.debug(msg % (auth_header))
             return self.deny_request('InvalidURI')(environ, start_response)

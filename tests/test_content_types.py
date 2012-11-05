@@ -258,10 +258,6 @@ class RestfulTestCase(test.TestCase):
 class CoreApiTests(object):
     def assertValidError(self, error):
         """Applicable to XML and JSON."""
-        try:
-            print error.attrib
-        except:
-            pass
         self.assertIsNotNone(error.get('code'))
         self.assertIsNotNone(error.get('title'))
         self.assertIsNotNone(error.get('message'))

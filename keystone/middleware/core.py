@@ -147,7 +147,7 @@ class XmlBodyMiddleware(wsgi.Middleware):
             try:
                 body_obj = jsonutils.loads(response.body)
                 response.body = serializer.to_xml(body_obj)
-            except:
+            except Exception:
                 raise exception.Error(message=response.body)
         return response
 
