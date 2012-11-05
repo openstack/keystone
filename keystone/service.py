@@ -414,6 +414,10 @@ class NoopController(wsgi.Application):
         return {}
 
 
+class ExternalAuthNotApplicable(Exception):
+    """External authentication is not applicable"""
+
+
 class TokenController(wsgi.Application):
     def __init__(self):
         self.catalog_api = catalog.Manager()
@@ -455,182 +459,48 @@ class TokenController(wsgi.Application):
         Alternatively, this call accepts auth with only a token and tenant
         that will return a token that is scoped to that tenant.
         """
-        if not auth:
+
+        if auth is None:
             raise exception.ValidationError(attribute='auth',
                                             target='request body')
 
-        if auth is None:
-            auth = {}
-        remote_auth = False
-        if 'REMOTE_USER' in context and not 'token' in auth:
-            # authenticated external request
-            remote_auth = True
+        auth_token_data = None
 
-            if 'passwordCredentials' not in auth:
-                auth['passwordCredentials'] = {}
-            auth['passwordCredentials']['username'] = context.get(
-                'REMOTE_USER', None)
-
-        if 'passwordCredentials' in auth:
-            user_id = auth['passwordCredentials'].get('userId', None)
-            username = auth['passwordCredentials'].get('username', '')
-            password = auth['passwordCredentials'].get('password', '')
-            tenant_name = auth.get('tenantName', None)
-
-            if not user_id and not username:
-                raise exception.ValidationError(
-                    attribute='username or userId',
-                    target='passwordCredentials')
-
-            tenant_ref = None
-            user_ref = None
-            metadata_ref = {}
-
-            if username:
-                try:
-                    user_ref = self.identity_api.get_user_by_name(
-                        context=context, user_name=username)
-                    user_id = user_ref['id']
-                except exception.UserNotFound:
-                    raise exception.Unauthorized()
-
-            if not password and not remote_auth:
-                raise exception.ValidationError(
-                    attribute='password',
-                    target='passwordCredentials')
-
-            # more compat
-            tenant_id = auth.get('tenantId', None)
-            if tenant_name:
-                try:
-                    tenant_ref = self.identity_api.get_tenant_by_name(
-                        context=context, tenant_name=tenant_name)
-                    tenant_id = tenant_ref['id']
-                except exception.TenantNotFound:
-                    raise exception.Unauthorized()
-
-            try:
-                if not remote_auth:
-                    # local identity authentication required
-                    auth_info = self.identity_api.authenticate(
-                        context=context,
-                        user_id=user_id,
-                        password=password,
-                        tenant_id=tenant_id)
-                    (user_ref, tenant_ref, metadata_ref) = auth_info
-                else:
-                    # remote authentication already performed
-                    if not user_ref:
-                        user_ref = self.identity_api.get_user(
-                            self.identity_api,
-                            user_id)
-                    if tenant_id:
-                        if not tenant_ref:
-                            tenant_ref = self.identity_api.get_tenant(
-                                self.identity_api,
-                                tenant_id)
-                        metadata_ref = self.identity_api.get_metadata(
-                            self.identity_api,
-                            user_id,
-                            tenant_id)
-                    auth_info = (user_ref, tenant_ref, metadata_ref)
-
-                # If the user is disabled don't allow them to authenticate
-                if not user_ref.get('enabled', True):
-                    LOG.warning('User %s is disabled' % user_id)
-                    raise exception.Unauthorized()
-
-                # If the tenant is disabled don't allow them to authenticate
-                if tenant_ref and not tenant_ref.get('enabled', True):
-                    LOG.warning('Tenant %s is disabled' % tenant_id)
-                    raise exception.Unauthorized()
-            except AssertionError as e:
-                raise exception.Unauthorized(str(e))
-            auth_token_data = dict(zip(['user', 'tenant', 'metadata'],
-                                       auth_info))
-            expiry = self.token_api._get_default_expire_time(context=context)
-
-            if tenant_ref:
-                catalog_ref = self.catalog_api.get_catalog(
-                    context=context,
-                    user_id=user_ref['id'],
-                    tenant_id=tenant_ref['id'],
-                    metadata=metadata_ref)
-            else:
-                catalog_ref = {}
-        elif 'token' in auth:
-            old_token = auth['token'].get('id', None)
-            tenant_name = auth.get('tenantName')
-
-            try:
-                old_token_ref = self.token_api.get_token(context=context,
-                                                         token_id=old_token)
-            except exception.NotFound:
-                LOG.warning("Token not found: " + str(old_token))
-                raise exception.Unauthorized()
-
-            user_ref = old_token_ref['user']
-            user_id = user_ref['id']
-
-            current_user_ref = self.identity_api.get_user(context=context,
-                                                          user_id=user_id)
-
-            # If the user is disabled don't allow them to authenticate
-            if not current_user_ref.get('enabled', True):
-                LOG.warning('User %s is disabled' % user_id)
-                raise exception.Unauthorized()
-
-            if tenant_name:
-                tenant_ref = self.identity_api.get_tenant_by_name(
-                    context=context,
-                    tenant_name=tenant_name)
-                tenant_id = tenant_ref['id']
-            else:
-                tenant_id = auth.get('tenantId', None)
-            tenants = self.identity_api.get_tenants_for_user(context, user_id)
-
-            if tenant_id:
-                if not tenant_id in tenants:
-                    LOG.warning('User %s is unauthorized for tenant %s'
-                                % (user_id, tenant_id))
-                    raise exception.Unauthorized()
-
-            expiry = old_token_ref['expires']
-            try:
-                tenant_ref = self.identity_api.get_tenant(context=context,
-                                                          tenant_id=tenant_id)
-            except exception.TenantNotFound:
-                tenant_ref = None
-                metadata_ref = {}
-                catalog_ref = {}
-            except exception.MetadataNotFound:
-                metadata_ref = {}
-                catalog_ref = {}
-
-            # If the tenant is disabled don't allow them to authenticate
-            if tenant_ref and not tenant_ref.get('enabled', True):
-                LOG.warning('Tenant %s is disabled' % tenant_id)
-                raise exception.Unauthorized()
-
-            if tenant_ref:
-                metadata_ref = self.identity_api.get_metadata(
-                    context=context,
-                    user_id=user_ref['id'],
-                    tenant_id=tenant_ref['id'])
-                catalog_ref = self.catalog_api.get_catalog(
-                    context=context,
-                    user_id=user_ref['id'],
-                    tenant_id=tenant_ref['id'],
-                    metadata=metadata_ref)
-
-            auth_token_data = dict(dict(user=current_user_ref,
-                                        tenant=tenant_ref,
-                                        metadata=metadata_ref))
+        if "token" in auth:
+            # Try to authenticate using a token
+            auth_token_data, auth_info = self._authenticate_token(
+                context, auth)
         else:
-            raise exception.ValidationError(
-                attribute='passwordCredentials or token', target='auth')
+            # Try external authentication
+            try:
+                auth_token_data, auth_info = self._authenticate_external(
+                    context, auth)
+            except ExternalAuthNotApplicable:
+                # Try local authentication
+                auth_token_data, auth_info = self._authenticate_local(
+                    context, auth)
 
-        auth_token_data['expires'] = expiry
+        user_ref, tenant_ref, metadata_ref = auth_info
+
+        # If the user is disabled don't allow them to authenticate
+        if not user_ref.get('enabled', True):
+            LOG.warning('User %s is disabled' % user_ref["id"])
+            raise exception.Unauthorized()
+
+        # If the tenant is disabled don't allow them to authenticate
+        if tenant_ref and not tenant_ref.get('enabled', True):
+            LOG.warning('Tenant %s is disabled' % tenant_ref["id"])
+            raise exception.Unauthorized()
+
+        if tenant_ref:
+            catalog_ref = self.catalog_api.get_catalog(
+                context=context,
+                user_id=user_ref['id'],
+                tenant_id=tenant_ref['id'],
+                metadata=metadata_ref)
+        else:
+            catalog_ref = {}
+
         auth_token_data['id'] = 'placeholder'
 
         roles_ref = []
@@ -646,7 +516,6 @@ class TokenController(wsgi.Application):
         if config.CONF.signing.token_format == 'UUID':
             token_id = uuid.uuid4().hex
         elif config.CONF.signing.token_format == 'PKI':
-
             token_id = cms.cms_sign_token(json.dumps(token_data),
                                           config.CONF.signing.certfile,
                                           config.CONF.signing.keyfile)
@@ -674,6 +543,183 @@ class TokenController(wsgi.Application):
         token_data['access']['token']['id'] = token_id
 
         return token_data
+
+    def _authenticate_token(self, context, auth):
+        """Try to authenticate using an already existing token.
+
+        Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
+        """
+        if 'token' not in auth:
+            raise exception.ValidationError(
+                attribute='token', target='auth')
+
+        if "id" not in auth['token']:
+            raise exception.ValidationError(
+                attribute="id", target="token")
+
+        old_token = auth['token']['id']
+
+        try:
+            old_token_ref = self.token_api.get_token(context=context,
+                                                     token_id=old_token)
+        except exception.NotFound:
+            LOG.warning("Token not found: " + str(old_token))
+            raise exception.Unauthorized()
+
+        user_ref = old_token_ref['user']
+        user_id = user_ref['id']
+
+        current_user_ref = self.identity_api.get_user(context=context,
+                                                      user_id=user_id)
+
+        tenant_id = self._get_tenant_id_from_auth(context, auth)
+
+        tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
+        metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
+
+        expiry = old_token_ref['expires']
+        auth_token_data = self._get_auth_token_data(current_user_ref,
+                                                    tenant_ref,
+                                                    metadata_ref,
+                                                    expiry)
+
+        return auth_token_data, (current_user_ref, tenant_ref, metadata_ref)
+
+    def _authenticate_local(self, context, auth):
+        """Try to authenticate against the identity backend.
+
+        Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
+        """
+        if 'passwordCredentials' not in auth:
+            raise exception.ValidationError(
+                attribute='passwordCredentials', target='auth')
+
+        if "password" not in auth['passwordCredentials']:
+            raise exception.ValidationError(
+                attribute='password', target='passwordCredentials')
+
+        password = auth['passwordCredentials']['password']
+
+        if ("userId" not in auth['passwordCredentials'] and
+                "username" not in auth['passwordCredentials']):
+            raise exception.ValidationError(
+                attribute='username or userId',
+                target='passwordCredentials')
+
+        user_id = auth['passwordCredentials'].get('userId', None)
+        username = auth['passwordCredentials'].get('username', '')
+
+        if username:
+            try:
+                user_ref = self.identity_api.get_user_by_name(
+                    context=context, user_name=username)
+                user_id = user_ref['id']
+            except exception.UserNotFound:
+                LOG.warn("User not found: %s" % user_id)
+                raise exception.Unauthorized()
+
+        tenant_id = self._get_tenant_id_from_auth(context, auth)
+
+        try:
+            auth_info = self.identity_api.authenticate(
+                context=context,
+                user_id=user_id,
+                password=password,
+                tenant_id=tenant_id)
+        except AssertionError as e:
+            raise exception.Unauthorized(str(e))
+        (user_ref, tenant_ref, metadata_ref) = auth_info
+
+        expiry = self.token_api._get_default_expire_time(context=context)
+        auth_token_data = self._get_auth_token_data(user_ref,
+                                                    tenant_ref,
+                                                    metadata_ref,
+                                                    expiry)
+
+        return auth_token_data, (user_ref, tenant_ref, metadata_ref)
+
+    def _authenticate_external(self, context, auth):
+        """Try to authenticate an external user via REMOTE_USER variable.
+
+        Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
+        """
+        if 'REMOTE_USER' not in context:
+            raise ExternalAuthNotApplicable()
+
+        username = context['REMOTE_USER']
+        try:
+            user_ref = self.identity_api.get_user_by_name(
+                context=context, user_name=username)
+            user_id = user_ref['id']
+        except exception.UserNotFound:
+            LOG.warn("User not found: %s" % username)
+            raise exception.Unauthorized()
+
+        tenant_id = self._get_tenant_id_from_auth(context, auth)
+
+        tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
+        metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
+
+        expiry = self.token_api._get_default_expire_time(context=context)
+        auth_token_data = self._get_auth_token_data(user_ref,
+                                                    tenant_ref,
+                                                    metadata_ref,
+                                                    expiry)
+
+        return auth_token_data, (user_ref, tenant_ref, metadata_ref)
+
+    def _get_auth_token_data(self, user, tenant, metadata, expiry):
+        return dict(dict(user=user,
+                         tenant=tenant,
+                         metadata=metadata,
+                         expires=expiry))
+
+    def _get_tenant_id_from_auth(self, context, auth):
+        """Extract tenant information from auth dict.
+
+        Returns a valid tenant_id if it exists, or None if not specified.
+        """
+        tenant_id = auth.get('tenantId', None)
+        tenant_name = auth.get('tenantName', None)
+        if tenant_name:
+            try:
+                tenant_ref = self.identity_api.get_tenant_by_name(
+                    context=context, tenant_name=tenant_name)
+                tenant_id = tenant_ref['id']
+            except exception.TenantNotFound:
+                raise exception.Unauthorized()
+        return tenant_id
+
+    def _get_tenant_ref(self, context, user_id, tenant_id):
+        """Returns the tenant_ref for the user's tenant"""
+        tenant_ref = None
+        if tenant_id:
+            tenants = self.identity_api.get_tenants_for_user(context, user_id)
+            if tenant_id not in tenants:
+                LOG.warning('User %s is unauthorized for tenant %s'
+                            % (user_id, tenant_id))
+                raise exception.Unauthorized()
+
+            try:
+                tenant_ref = self.identity_api.get_tenant(context=context,
+                                                          tenant_id=tenant_id)
+            except exception.TenantNotFound:
+                exception.Unauthorized()
+        return tenant_ref
+
+    def _get_metadata_ref(self, context, user_id, tenant_id):
+        """Returns the metadata_ref for a user in a tenant"""
+        metadata_ref = {}
+        if tenant_id:
+            try:
+                metadata_ref = self.identity_api.get_metadata(
+                    context=context,
+                    user_id=user_id,
+                    tenant_id=tenant_id)
+            except exception.MetadataNotFound:
+                metadata_ref = {}
+
+        return metadata_ref
 
     def _get_token_ref(self, context, token_id, belongs_to=None):
         """Returns a token if a valid one exists.

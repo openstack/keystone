@@ -141,6 +141,14 @@ class KeystoneClientTests(object):
                           self._client, token=token,
                           tenant_id=uuid.uuid4().hex)
 
+    def test_authenticate_token_invalid_tenant_name(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client()
+        token = client.auth_token
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client, token=token,
+                          tenant_name=uuid.uuid4().hex)
+
     def test_authenticate_token_tenant_name(self):
         client = self.get_client()
         token = client.auth_token
