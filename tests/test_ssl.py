@@ -25,11 +25,11 @@ from keystone import test
 
 CONF = config.CONF
 
-CERTDIR = test.rootdir("examples/ssl/certs")
-KEYDIR = test.rootdir("examples/ssl/private")
-CERT = os.path.join(CERTDIR, 'keystone.pem')
-KEY = os.path.join(KEYDIR, 'keystonekey.pem')
-CA = os.path.join(CERTDIR, 'ca.pem')
+CERTDIR = test.rootdir("examples/pki/certs")
+KEYDIR = test.rootdir("examples/pki/private")
+CERT = os.path.join(CERTDIR, 'ssl_cert.pem')
+KEY = os.path.join(KEYDIR, 'ssl_key.pem')
+CA = os.path.join(CERTDIR, 'cacert.pem')
 CLIENT = os.path.join(CERTDIR, 'middleware.pem')
 
 

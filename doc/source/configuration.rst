@@ -111,6 +111,85 @@ The values that specify where to read the certificates are under the
 * ``valid_days`` - Default is ``3650``
 * ``ca_password``  - Password required to read the ca_file. Default is None
 
+Signing Certificate Issued by External CA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You may use a signing certificate issued by an external CA instead of generated
+by keystone-manage. However, certificate issued by external CA must satisfy
+the following conditions:
+
+* all certificate and key files must be in Privacy Enhanced Mail (PEM) format
+* private key files must not be protected by a password
+
+When using signing certificate issued by an external CA, you do not need to
+specify ``key_size``, ``valid_days``, and ``ca_password`` as they will be
+ignored.
+
+The basic workflow for using a signing certificate issed by an external CA involves:
+
+1. `Request Signing Certificate from External CA`_
+2. convert certificate and private key to PEM if needed
+3. `Install External Signing Certificate`_
+
+
+Request Signing Certificate from External CA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One way to request a signing certificate from an external CA is to first
+generate a PKCS #10 Certificate Request Syntax (CRS) using OpenSSL CLI.
+
+First create a certificate request configuration file (e.g. ``cert_req.conf``)::
+
+    [ req ]
+    default_bits            = 1024
+    default_keyfile         = keystonekey.pem
+    default_md              = sha1
+
+    prompt                  = no
+    distinguished_name      = distinguished_name
+
+    [ distinguished_name ]
+    countryName             = US
+    stateOrProvinceName     = CA
+    localityName            = Sunnyvale
+    organizationName        = OpenStack
+    organizationalUnitName  = Keystone
+    commonName              = Keystone Signing
+    emailAddress            = keystone@openstack.org
+
+Then generate a CRS with OpenSSL CLI. **Do not encrypt the generated private
+key. Must use the -nodes option.**
+
+For example::
+
+    openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out signing_cert_req.pem -outform PEM -config cert_req.conf -nodes
+
+
+If everything is successfully, you should end up with ``signing_cert_req.pem``
+and ``signing_key.pem``. Send ``signing_cert_req.pem`` to your CA to request a token signing certificate and make sure to ask the certificate to be in PEM format. Also, make sure your trusted CA certificate chain is also in PEM format.
+
+
+Install External Signing Certificate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Assuming you have the following already:
+
+* ``signing_cert.pem`` - (Keystone token) signing certificate in PEM format
+* ``signing_key.pem`` - corresponding (non-encrypted) private key in PEM format
+* ``cacert.pem`` - trust CA certificate chain in PEM format
+
+Copy the above to your certificate directory. For example::
+
+    mkdir -p /etc/keystone/ssl/certs
+    cp signing_cert.pem /etc/keystone/ssl/certs/
+    cp signing_key.pem /etc/keystone/ssl/certs/
+    cp cacert.pem /etc/keystone/ssl/certs/
+    chmod -R 700 /etc/keystone/ssl/certs
+
+**Make sure the certificate directory is root-protected.**
+
+If your certificate directory path is different from the default ``/etc/keystone/ssl/certs``, make sure it is reflected in the ``[signing]`` section of the
+configuration file.
 
 
 Service Catalog
@@ -229,16 +308,16 @@ SSL
 Keystone may be configured to support 2-way SSL out-of-the-box.  The x509
 certificates used by Keystone must be obtained externally and configured for use
 with Keystone as described in this section.  However, a set of sample certficates
-is provided in the examples/ssl directory with the Keystone distribution for testing.
+is provided in the examples/pki/certs and examples/pki/private directories with the Keystone distribution for testing.
 Here is the description of each of them and their purpose:
 
 Types of certificates
 ^^^^^^^^^^^^^^^^^^^^^
 
-ca.pem
+cacert.pem
     Certificate Authority chain to validate against.
 
-keystone.pem
+ssl_cert.pem
     Public certificate for Keystone server.
 
 middleware.pem
@@ -247,7 +326,7 @@ middleware.pem
 cakey.pem
     Private key for the CA.
 
-keystonekey.pem
+ssl_key.pem
     Private key for the Keystone server.
 
 Note that you may choose whatever names you want for these certificates, or combine
