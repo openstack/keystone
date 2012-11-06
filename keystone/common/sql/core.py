@@ -46,6 +46,7 @@ DateTime = sql.DateTime
 IntegrityError = sql.exc.IntegrityError
 NotFound = sql.orm.exc.NoResultFound
 Boolean = sql.Boolean
+Text = sql.Text
 
 
 def set_global_engine(engine):

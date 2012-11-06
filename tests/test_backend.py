@@ -659,39 +659,39 @@ class IdentityTests(object):
 
     def test_create_user_doesnt_modify_passed_in_dict(self):
         new_user = {'id': 'user_id', 'name': 'new_user',
-                    'password': 'secret'}
+                    'password': 'secret', 'enabled': True}
         original_user = new_user.copy()
         self.identity_api.create_user('user_id', new_user)
         self.assertDictEqual(original_user, new_user)
 
     def test_update_user_enable(self):
-        user = {'id': 'fake1', 'name': 'fake1', 'enabled': 'True'}
+        user = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
         self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual(user_ref['enabled'], 'True')
+        self.assertEqual(user_ref['enabled'], True)
 
-        user['enabled'] = 'False'
+        user['enabled'] = False
         self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
-        user['enabled'] = 'True'
+        user['enabled'] = True
         self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
     def test_update_tenant_enable(self):
-        tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': 'True'}
+        tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
         self.identity_api.create_tenant('fake1', tenant)
         tenant_ref = self.identity_api.get_tenant('fake1')
-        self.assertEqual(tenant_ref['enabled'], 'True')
+        self.assertEqual(tenant_ref['enabled'], True)
 
-        tenant['enabled'] = 'False'
+        tenant['enabled'] = False
         self.identity_api.update_tenant('fake1', tenant)
         tenant_ref = self.identity_api.get_tenant('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])
 
-        tenant['enabled'] = 'True'
+        tenant['enabled'] = True
         self.identity_api.update_tenant('fake1', tenant)
         tenant_ref = self.identity_api.get_tenant('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])

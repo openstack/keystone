@@ -44,6 +44,14 @@ USERS = [
         'enabled': True,
         'tenant_id': 'baz',
         'tenants': ['baz'],
+    }, {
+        'id': 'badguy',
+        'name': 'BadGuy',
+        'password': 'bad',
+        'email': 'bad@guy.com',
+        'enabled': False,
+        'tenant_id': 'baz',
+        'tenants': ['baz'],
     }
 ]
 
