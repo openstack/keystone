@@ -28,51 +28,21 @@ CONF = config.CONF
 
 class Service(sql.ModelBase, sql.DictBase):
     __tablename__ = 'service'
+    attributes = ['id', 'type']
     id = sql.Column(sql.String(64), primary_key=True)
     type = sql.Column(sql.String(255))
     extra = sql.Column(sql.JsonBlob())
 
-    @classmethod
-    def from_dict(cls, service_dict):
-        extra = {}
-        for k, v in service_dict.copy().iteritems():
-            if k not in ['id', 'type', 'extra']:
-                extra[k] = service_dict.pop(k)
-
-        service_dict['extra'] = extra
-        return cls(**service_dict)
-
-    def to_dict(self):
-        extra_copy = self.extra.copy()
-        extra_copy['id'] = self.id
-        extra_copy['type'] = self.type
-        return extra_copy
-
 
 class Endpoint(sql.ModelBase, sql.DictBase):
     __tablename__ = 'endpoint'
+    attributes = ['id', 'region', 'service_id']
     id = sql.Column(sql.String(64), primary_key=True)
     region = sql.Column('region', sql.String(255))
     service_id = sql.Column(sql.String(64),
                             sql.ForeignKey('service.id'),
                             nullable=False)
     extra = sql.Column(sql.JsonBlob())
-
-    @classmethod
-    def from_dict(cls, endpoint_dict):
-        extra = {}
-        for k, v in endpoint_dict.copy().iteritems():
-            if k not in ['id', 'region', 'service_id', 'extra']:
-                extra[k] = endpoint_dict.pop(k)
-        endpoint_dict['extra'] = extra
-        return cls(**endpoint_dict)
-
-    def to_dict(self):
-        extra_copy = self.extra.copy()
-        extra_copy['id'] = self.id
-        extra_copy['region'] = self.region
-        extra_copy['service_id'] = self.service_id
-        return extra_copy
 
 
 class Catalog(sql.Base, catalog.Driver):

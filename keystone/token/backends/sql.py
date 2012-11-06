@@ -18,7 +18,6 @@ import copy
 import datetime
 
 
-from keystone.common import cms
 from keystone.common import sql
 from keystone import exception
 from keystone.openstack.common import timeutils
@@ -27,26 +26,11 @@ from keystone import token
 
 class TokenModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'token'
+    attributes = ['id', 'expires']
     id = sql.Column(sql.String(64), primary_key=True)
     expires = sql.Column(sql.DateTime(), default=None)
     extra = sql.Column(sql.JsonBlob())
     valid = sql.Column(sql.Boolean(), default=True)
-
-    @classmethod
-    def from_dict(cls, token_dict):
-        # shove any non-indexed properties into extra
-        extra = copy.deepcopy(token_dict)
-        data = {}
-        for k in ('id', 'expires'):
-            data[k] = extra.pop(k, None)
-        data['extra'] = extra
-        return cls(**data)
-
-    def to_dict(self):
-        out = copy.deepcopy(self.extra)
-        out['id'] = self.id
-        out['expires'] = self.expires
-        return out
 
 
 class Token(sql.Base, token.Driver):

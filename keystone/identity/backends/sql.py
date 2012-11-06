@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import functools
 
 from keystone import clean
@@ -40,71 +39,40 @@ def handle_conflicts(type='object'):
 
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
+    attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
-    #password = sql.Column(sql.String(64))
     extra = sql.Column(sql.JsonBlob())
-
-    @classmethod
-    def from_dict(cls, user_dict):
-        # shove any non-indexed properties into extra
-        extra = {}
-        user = {}
-        for k, v in user_dict.iteritems():
-            # TODO(termie): infer this somehow
-            if k in ['id', 'name', 'extra']:
-                user[k] = v
-            else:
-                extra[k] = v
-
-        return cls(extra=extra, **user)
-
-    def to_dict(self):
-        extra_copy = self.extra.copy()
-        extra_copy['id'] = self.id
-        extra_copy['name'] = self.name
-        return extra_copy
 
 
 class Tenant(sql.ModelBase, sql.DictBase):
     __tablename__ = 'tenant'
+    attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
     extra = sql.Column(sql.JsonBlob())
 
-    @classmethod
-    def from_dict(cls, tenant_dict):
-        # shove any non-indexed properties into extra
-        extra = {}
-        for k, v in tenant_dict.copy().iteritems():
-            # TODO(termie): infer this somehow
-            if k not in ['id', 'name', 'extra']:
-                extra[k] = tenant_dict.pop(k)
-
-        return cls(extra=extra, **tenant_dict)
-
-    def to_dict(self):
-        extra_copy = copy.deepcopy(self.extra)
-        extra_copy['id'] = self.id
-        extra_copy['name'] = self.name
-        return extra_copy
-
 
 class Role(sql.ModelBase, sql.DictBase):
     __tablename__ = 'role'
+    attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
 
 
 class Metadata(sql.ModelBase, sql.DictBase):
     __tablename__ = 'metadata'
-    #__table_args__ = (
-    #    sql.Index('idx_metadata_usertenant', 'user', 'tenant'),
-    #    )
-
     user_id = sql.Column(sql.String(64), primary_key=True)
     tenant_id = sql.Column(sql.String(64), primary_key=True)
     data = sql.Column(sql.JsonBlob())
+
+    def to_dict(self):
+        """Override parent to_dict() method with a simpler implementation.
+
+        Metadata doesn't have non-indexed 'extra' attributes, so the parent
+        implementation is not applicable.
+        """
+        return dict(self.iteritems())
 
 
 class UserTenantMembership(sql.ModelBase, sql.DictBase):
@@ -369,7 +337,7 @@ class Identity(sql.Base, identity.Driver):
             user_ref.name = new_user.name
             user_ref.extra = new_user.extra
             session.flush()
-        return user_ref
+        return identity.filter_user(user_ref.to_dict())
 
     def delete_user(self, user_id):
         session = self.get_session()
@@ -410,7 +378,7 @@ class Identity(sql.Base, identity.Driver):
             tenant_ref.name = new_tenant.name
             tenant_ref.extra = new_tenant.extra
             session.flush()
-        return tenant_ref
+        return tenant_ref.to_dict()
 
     def delete_tenant(self, tenant_id):
         session = self.get_session()
