@@ -155,6 +155,63 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           user['id'],
                           self.tenant_bar['id'])
 
+    def test_update_tenant_returns_extra(self):
+        """This tests for backwards-compatibility with an essex/folsom bug.
+
+        Non-indexed attributes were returned in an 'extra' attribute, instead
+        of on the entity itself; for consistency and backwards compatibility,
+        those attributes should be included twice.
+
+        This behavior is specific to the SQL driver.
+
+        """
+        tenant_id = uuid.uuid4().hex
+        arbitrary_key = uuid.uuid4().hex
+        arbitrary_value = uuid.uuid4().hex
+        tenant = {
+            'id': tenant_id,
+            'name': uuid.uuid4().hex,
+            arbitrary_key: arbitrary_value}
+        ref = self.identity_api.create_tenant(tenant_id, tenant)
+        self.assertEqual(arbitrary_value, ref[arbitrary_key])
+        self.assertIsNone(ref.get('extra'))
+
+        tenant['name'] = uuid.uuid4().hex
+        ref = self.identity_api.update_tenant(tenant_id, tenant)
+        self.assertEqual(arbitrary_value, ref[arbitrary_key])
+        self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
+
+    def test_update_user_returns_extra(self):
+        """This tests for backwards-compatibility with an essex/folsom bug.
+
+        Non-indexed attributes were returned in an 'extra' attribute, instead
+        of on the entity itself; for consistency and backwards compatibility,
+        those attributes should be included twice.
+
+        This behavior is specific to the SQL driver.
+
+        """
+        user_id = uuid.uuid4().hex
+        arbitrary_key = uuid.uuid4().hex
+        arbitrary_value = uuid.uuid4().hex
+        user = {
+            'id': user_id,
+            'name': uuid.uuid4().hex,
+            'password': uuid.uuid4().hex,
+            arbitrary_key: arbitrary_value}
+        ref = self.identity_api.create_user(user_id, user)
+        self.assertEqual(arbitrary_value, ref[arbitrary_key])
+        self.assertIsNone(ref.get('password'))
+        self.assertIsNone(ref.get('extra'))
+
+        user['name'] = uuid.uuid4().hex
+        user['password'] = uuid.uuid4().hex
+        ref = self.identity_api.update_user(user_id, user)
+        self.assertIsNone(ref.get('password'))
+        self.assertIsNone(ref['extra'].get('password'))
+        self.assertEqual(arbitrary_value, ref[arbitrary_key])
+        self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
+
 
 class SqlToken(SqlTests, test_backend.TokenTests):
     pass

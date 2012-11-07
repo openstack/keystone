@@ -337,7 +337,7 @@ class Identity(sql.Base, identity.Driver):
             user_ref.name = new_user.name
             user_ref.extra = new_user.extra
             session.flush()
-        return identity.filter_user(user_ref.to_dict())
+        return identity.filter_user(user_ref.to_dict(include_extra_dict=True))
 
     def delete_user(self, user_id):
         session = self.get_session()
@@ -378,7 +378,7 @@ class Identity(sql.Base, identity.Driver):
             tenant_ref.name = new_tenant.name
             tenant_ref.extra = new_tenant.extra
             session.flush()
-        return tenant_ref.to_dict()
+        return tenant_ref.to_dict(include_extra_dict=True)
 
     def delete_tenant(self, tenant_id):
         session = self.get_session()
