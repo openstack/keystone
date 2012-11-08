@@ -3,6 +3,7 @@
 
 import greenlet
 import eventlet
+from eventlet.green import subprocess
 import logging
 import os
 import signal
@@ -22,6 +23,7 @@ if os.path.exists(os.path.join(possible_topdir,
 from paste import deploy
 
 from keystone import config
+from keystone.common import cms
 from keystone.common import wsgi
 from keystone.common import utils
 from keystone.openstack.common import importutils
@@ -68,6 +70,9 @@ def serve(*servers):
         except greenlet.GreenletExit:
             pass
 
+def monkeypatch_cms():
+    cms.Popen = subprocess.Popen
+
 
 if __name__ == '__main__':
     dev_conf = os.path.join(possible_topdir,
@@ -93,6 +98,7 @@ if __name__ == '__main__':
     monkeypatch_thread = not CONF._cli_values['standard_threads']
     eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
                                   thread=monkeypatch_thread)
+    monkeypatch_cms()
 
     options = deploy.appconfig('config:%s' % CONF.config_file[0])
 
