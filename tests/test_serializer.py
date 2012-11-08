@@ -29,7 +29,7 @@ class XmlSerializerTestCase(test.TestCase):
         """
         try:
             self.assertEqual(a, b)
-        except:
+        except AssertionError:
             a = re.sub('[ \n]+', ' ', a).strip().split()
             b = re.sub('[ \n]+', ' ', b).strip().split()
             self.assertEqual(a, b)

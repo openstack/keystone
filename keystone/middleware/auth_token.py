@@ -286,7 +286,7 @@ class AuthProtocol(object):
                 LOG.info('Invalid user token - rejecting request')
                 return self._reject_request(env, start_response)
 
-        except ServiceError, e:
+        except ServiceError as e:
             LOG.critical('Unable to obtain admin token: %s' % e)
             resp = webob.exc.HTTPServiceUnavailable()
             return resp(env, start_response)
@@ -378,7 +378,7 @@ class AuthProtocol(object):
             conn.request(method, path)
             response = conn.getresponse()
             body = response.read()
-        except Exception, e:
+        except Exception as e:
             LOG.error('HTTP connection exception: %s' % e)
             raise ServiceError('Unable to communicate with keystone')
         finally:
@@ -418,7 +418,7 @@ class AuthProtocol(object):
             conn.request(method, full_path, **kwargs)
             response = conn.getresponse()
             body = response.read()
-        except Exception, e:
+        except Exception as e:
             LOG.error('HTTP connection exception: %s' % e)
             raise ServiceError('Unable to communicate with keystone')
         finally:
