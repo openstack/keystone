@@ -79,6 +79,7 @@ TOKEN_RESPONSES = {
         'access': {
             'token': {
                 'id': UUID_TOKEN_DEFAULT,
+                'expires': '2999-01-01T00:00:10Z',
                 'tenant': {
                     'id': 'tenant_id1',
                     'name': 'tenant_name1',
@@ -99,6 +100,7 @@ TOKEN_RESPONSES = {
         'access': {
             'token': {
                 'id': VALID_DIABLO_TOKEN,
+                'expires': '2999-01-01T00:00:10',
                 'tenantId': 'tenant_id1',
             },
             'user': {
@@ -115,6 +117,7 @@ TOKEN_RESPONSES = {
         'access': {
             'token': {
                 'id': UUID_TOKEN_UNSCOPED,
+                'expires': '2999-01-01T00:00:10Z',
             },
             'user': {
                 'id': 'user_id1',
@@ -130,6 +133,7 @@ TOKEN_RESPONSES = {
         'access': {
             'token': {
                 'id': 'valid-token',
+                'expires': '2999-01-01T00:00:10Z',
                 'tenant': {
                     'id': 'tenant_id1',
                     'name': 'tenant_name1',
@@ -146,6 +150,8 @@ TOKEN_RESPONSES = {
         },
     },
 }
+
+FAKE_RESPONSE_STACK = []
 
 
 # The data for these tests are signed using openssl and are stored in files
@@ -235,6 +241,23 @@ class FakeHTTPResponse(object):
 
     def read(self):
         return self.body
+
+
+class FakeStackHTTPConnection(object):
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def getresponse(self):
+        if len(FAKE_RESPONSE_STACK):
+            return FAKE_RESPONSE_STACK.pop()
+        return FakeHTTPResponse(500, jsonutils.dumps('UNEXPECTED RESPONSE'))
+
+    def request(self, *_args, **_kwargs):
+        pass
+
+    def close(self):
+        pass
 
 
 class FakeHTTPConnection(object):
@@ -352,6 +375,60 @@ class BaseAuthTokenMiddlewareTest(test.TestCase):
     def start_fake_response(self, status, headers):
         self.response_status = int(status.split(' ', 1)[0])
         self.response_headers = dict(headers)
+
+
+class StackResponseAuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
+    """Auth Token middleware test setup that allows the tests to define
+    a stack of responses to HTTP requests in the test and get those
+    responses back in sequence for testing.
+
+    Example::
+
+        resp1 = FakeHTTPResponse(401, jsonutils.dumps(''))
+        resp2 = FakeHTTPResponse(200, jsonutils.dumps({
+            'access': {
+                'token': {'id': 'admin_token2'},
+            },
+            })
+        FAKE_RESPONSE_STACK.append(resp1)
+        FAKE_RESPONSE_STACK.append(resp2)
+
+        ... do your testing code here ...
+
+    """
+
+    def setUp(self, expected_env=None):
+        super(StackResponseAuthTokenMiddlewareTest, self).setUp(expected_env)
+        self.middleware.http_client_class = FakeStackHTTPConnection
+
+    def test_fetch_revocation_list_with_expire(self):
+        # first response to revocation list should return 401 Unauthorized
+        # to pretend to be an expired token
+        resp1 = FakeHTTPResponse(200, jsonutils.dumps({
+            'access': {
+                'token': {'id': 'admin_token2'},
+            },
+        }))
+        resp2 = FakeHTTPResponse(401, jsonutils.dumps(''))
+        resp3 = FakeHTTPResponse(200, jsonutils.dumps({
+            'access': {
+                'token': {'id': 'admin_token2'},
+            },
+        }))
+        resp4 = FakeHTTPResponse(200, SIGNED_REVOCATION_LIST)
+
+        # first get_admin_token() call
+        FAKE_RESPONSE_STACK.append(resp1)
+        # request revocation list, get "unauthorized" due to simulated expired
+        # token
+        FAKE_RESPONSE_STACK.append(resp2)
+        # request a new admin_token
+        FAKE_RESPONSE_STACK.append(resp3)
+        # request revocation list, get the revocation list properly
+        FAKE_RESPONSE_STACK.append(resp4)
+
+        fetched_list = jsonutils.loads(self.middleware.fetch_revocation_list())
+        self.assertEqual(fetched_list, REVOCATION_LIST)
 
 
 class DiabloAuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
@@ -579,3 +656,11 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         self.assertEqual(self.response_status, 200)
         self.assertFalse(req.headers.get('X-Service-Catalog'))
         self.assertEqual(body, ['SUCCESS'])
+
+    def test_will_expire_soon(self):
+        tenseconds = datetime.datetime.utcnow() + datetime.timedelta(
+            seconds=10)
+        self.assertTrue(auth_token.will_expire_soon(tenseconds))
+        fortyseconds = datetime.datetime.utcnow() + datetime.timedelta(
+            seconds=40)
+        self.assertFalse(auth_token.will_expire_soon(fortyseconds))
