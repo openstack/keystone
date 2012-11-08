@@ -47,25 +47,17 @@ class SqlUpgradeTests(test.TestCase):
 
     def test_blank_db_to_start(self):
         self.assertFalse(self.is_user_table_created(),
-                         "User should not be  defined yet")
+                         "User should not be defined yet")
 
     def test_start_version_0(self):
         version = migration.db_version()
         self.assertEqual(version, 0, "DB is at version 0")
 
-    def assertTableColumns(self, name, expected_cols):
-        """
-        Confirms that the set of columns expected match the actual based on
-        name and number of columns
-        """
-        table = self.select_table(name)
-        self.assertEqual(len(table.columns), len(expected_cols))
-        col_names = []
-        for col in table.columns:
-            col_names.append(col.name)
-        for expected_col in expected_cols:
-            self.assertIn(expected_col, col_names,
-                          "column %s not defined" % expected_col)
+    def assertTableColumns(self, table_name, expected_cols):
+        """Asserts that the table contains the expected set of columns."""
+        table = self.select_table(table_name)
+        actual_cols = [col.name for col in table.columns]
+        self.assertEqual(expected_cols, actual_cols, '%s table' % table_name)
 
     def test_upgrade_0_to_1(self):
         self.assertEqual(self.schema.version, 0, "DB is at version 0")
