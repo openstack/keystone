@@ -188,7 +188,7 @@ if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $KEYSTONE_SERVICE \
         --publicurl 'http://localhost:$(public_port)s/v2.0' \
         --adminurl 'http://localhost:$(admin_port)s/v2.0' \
-        --internalurl 'http://localhost:$(admin_port)s/v2.0'
+        --internalurl 'http://localhost:$(public_port)s/v2.0'
 fi
 
 VOLUME_SERVICE=$(get_id \
