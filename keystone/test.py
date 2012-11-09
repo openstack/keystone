@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import os
 import subprocess
 import sys
@@ -286,3 +287,7 @@ class TestCase(NoModule, unittest.TestCase):
     def add_path(self, path):
         sys.path.insert(0, path)
         self._paths.append(path)
+
+    def assertCloseEnoughForGovernmentWork(self, a, b):
+        """Asserts that two datetimes are nearly equal within a small delta."""
+        self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=1))

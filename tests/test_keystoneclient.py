@@ -22,6 +22,7 @@ import nose.exc
 
 from keystone import test
 from keystone.openstack.common import jsonutils
+from keystone.openstack.common import timeutils
 
 
 import default_fixtures
@@ -387,16 +388,15 @@ class KeystoneClientTests(object):
 
     def test_token_expiry_maintained(self):
         foo_client = self.get_client(self.user_foo)
-        orig_token = foo_client.service_catalog.catalog['token']
 
-        time.sleep(1.01)
+        orig_token = foo_client.service_catalog.catalog['token']
+        time.sleep(.5)
         reauthenticated_token = foo_client.tokens.authenticate(
             token=foo_client.auth_token)
-        #Don't compare seconds, as there is rounding error
-        original = orig_token['expires'][:-3]
-        reissued = reauthenticated_token.expires[:-3]
 
-        self.assertEquals(original, reissued)
+        self.assertCloseEnoughForGovernmentWork(
+            timeutils.parse_isotime(orig_token['expires']),
+            timeutils.parse_isotime(reauthenticated_token.expires))
 
     def test_user_create_update_delete(self):
         from keystoneclient import exceptions as client_exceptions

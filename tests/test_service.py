@@ -19,6 +19,7 @@ from keystone import identity
 from keystone import service
 from keystone import test
 from keystone.identity.backends import kvs as kvs_identity
+from keystone.openstack.common import timeutils
 
 
 class FakeIdentityManager(object):
@@ -89,13 +90,16 @@ class RemoteUserTest(test.TestCase):
     def assertEqualTokens(self, a, b):
         def normalize(token):
             token['access']['token']['id'] = 'dummy'
-            # truncate to eliminate timing problems
-            issued = token['access']['token']['issued_at']
-            token['access']['token']['issued_at'] = issued[:-8]
-            # truncate to eliminate timing problems
-            expires = token['access']['token']['expires']
-            token['access']['token']['expires'] = expires[:-3]
+            del token['access']['token']['expires']
+            del token['access']['token']['issued_at']
             return token
+
+        self.assertCloseEnoughForGovernmentWork(
+            timeutils.parse_isotime(a['access']['token']['expires']),
+            timeutils.parse_isotime(b['access']['token']['expires']))
+        self.assertCloseEnoughForGovernmentWork(
+            timeutils.parse_isotime(a['access']['token']['issued_at']),
+            timeutils.parse_isotime(b['access']['token']['issued_at']))
         return self.assertDictEqual(normalize(a), normalize(b))
 
     def test_unscoped_remote_authn(self):
