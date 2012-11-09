@@ -14,32 +14,104 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from migrate import *
-from sqlalchemy import *
-
-from keystone.common import sql
-
-# these are to make sure all the models we care about are defined
-import keystone.catalog.backends.sql
-import keystone.contrib.ec2.backends.sql
-import keystone.identity.backends.sql
-#inentionally leave off token.  We bring it up to V1 here manually
+import migrate
+import sqlalchemy as sql
 
 
 def upgrade(migrate_engine):
     # Upgrade operations go here. Don't create your own engine; bind
     # migrate_engine to your metadata
-    meta = MetaData()
+    meta = sql.MetaData()
     meta.bind = migrate_engine
 
-    sql.ModelBase.metadata.create_all(migrate_engine)
+    # catalog
 
-    token = Table('token', meta,
-                  Column('id', sql.String(64), primary_key=True),
-                  Column('expires', sql.DateTime()),
-                  Column('extra', sql.JsonBlob()))
+    service_table = sql.Table(
+        'service',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('type', sql.String(255)),
+        sql.Column('extra', sql.Text()))
+    service_table.create(migrate_engine, checkfirst=True)
 
-    token.create(migrate_engine, checkfirst=True)
+    endpoint_table = sql.Table(
+        'endpoint',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('region', sql.String(255)),
+        sql.Column('service_id',
+                   sql.String(64),
+                   sql.ForeignKey('service.id'),
+                   nullable=False),
+        sql.Column('extra', sql.Text()))
+    endpoint_table.create(migrate_engine, checkfirst=True)
+
+    # identity
+
+    role_table = sql.Table(
+        'role',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('name', sql.String(255), unique=True, nullable=False))
+    role_table.create(migrate_engine, checkfirst=True)
+
+    tenant_table = sql.Table(
+        'tenant',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('name', sql.String(64), unique=True, nullable=False),
+        sql.Column('extra', sql.Text()))
+    tenant_table.create(migrate_engine, checkfirst=True)
+
+    metadata_table = sql.Table(
+        'metadata',
+        meta,
+        sql.Column('user_id', sql.String(64), primary_key=True),
+        sql.Column('tenant_id', sql.String(64), primary_key=True),
+        sql.Column('data', sql.Text()))
+    metadata_table.create(migrate_engine, checkfirst=True)
+
+    ec2_credential_table = sql.Table(
+        'ec2_credential',
+        meta,
+        sql.Column('access', sql.String(64), primary_key=True),
+        sql.Column('secret', sql.String(64)),
+        sql.Column('user_id', sql.String(64)),
+        sql.Column('tenant_id', sql.String(64)))
+    ec2_credential_table.create(migrate_engine, checkfirst=True)
+
+    user_table = sql.Table(
+        'user',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('name', sql.String(64), unique=True, nullable=False),
+        sql.Column('extra', sql.Text()))
+    user_table.create(migrate_engine, checkfirst=True)
+
+    user_tenant_membership_table = sql.Table(
+        'user_tenant_membership',
+        meta,
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            sql.ForeignKey('user.id'),
+            primary_key=True),
+        sql.Column(
+            'tenant_id',
+            sql.String(64),
+            sql.ForeignKey('tenant.id'),
+            primary_key=True))
+    user_tenant_membership_table.create(migrate_engine, checkfirst=True)
+
+    # token
+
+    token_table = sql.Table(
+        'token',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('expires', sql.DateTime()),
+        sql.Column('extra', sql.Text()))
+    token_table.create(migrate_engine, checkfirst=True)
 
 
 def downgrade(migrate_engine):
