@@ -8,7 +8,7 @@ from keystone.common import logging
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
 config_files = ['/etc/keystone/keystone.conf']
-CONF(project='keystone',  default_config_files=config_files)
+CONF(project='keystone', default_config_files=config_files)
 
 conf = CONF.config_file[0]
 name = os.path.basename(__file__)

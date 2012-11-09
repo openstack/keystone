@@ -71,7 +71,7 @@ class FakeHTTPConnection(object):
         if self.status == 503:
             raise Exception
         ret = {'access': {'token': {'id': 'TOKEN_ID',
-                                    'tenant': {'id':  'TENANT_ID'}}}}
+                                    'tenant': {'id': 'TENANT_ID'}}}}
         body = jsonutils.dumps(ret)
         status = self.status
         self.resp = FakeHTTPResponse(status, body)

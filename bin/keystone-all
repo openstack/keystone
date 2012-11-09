@@ -69,7 +69,6 @@ def serve(*servers):
             pass
 
 
-
 if __name__ == '__main__':
     dev_conf = os.path.join(possible_topdir,
                             'etc',

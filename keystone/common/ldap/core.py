@@ -74,7 +74,7 @@ class BaseLdap(object):
     model = None
     tree_dn = None
 
-    def __init__(self,  conf):
+    def __init__(self, conf):
         self.LDAP_URL = conf.ldap.url
         self.LDAP_USER = conf.ldap.user
         self.LDAP_PASSWORD = conf.ldap.password
