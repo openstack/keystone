@@ -357,3 +357,28 @@ class Identity(kvs.Base, identity.Driver):
         role_list = set(self.db.get('role_list', []))
         role_list.remove(role_id)
         self.db.set('role_list', list(role_list))
+
+    # domain crud
+
+    def create_domain(self, domain_id, domain):
+        self.db.set('domain-%s' % domain_id, domain)
+        domain_list = set(self.db.get('domain_list', []))
+        domain_list.add(domain_id)
+        self.db.set('domain_list', list(domain_list))
+        return domain
+
+    def list_domains(self):
+        return self.db.get('domain_list', [])
+
+    def get_domain(self, domain_id):
+        return self.db.get('domain-%s' % domain_id)
+
+    def update_domain(self, domain_id, domain):
+        self.db.set('domain-%s' % domain_id, domain)
+        return domain
+
+    def delete_domain(self, domain_id):
+        self.db.delete('domain-%s' % domain_id)
+        domain_list = set(self.db.get('domain_list', []))
+        domain_list.remove(domain_id)
+        self.db.set('domain_list', list(domain_list))

@@ -45,7 +45,30 @@ class User(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
+class Credential(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'credential'
+    attributes = ['id', 'user_id', 'project_id', 'blob', 'type']
+    id = sql.Column(sql.String(64), primary_key=True)
+    user_id = sql.Column(sql.String(64),
+                         sql.ForeignKey('user.id'),
+                         nullable=False)
+    project_id = sql.Column(sql.String(64), sql.ForeignKey('tenant.id'))
+    blob = sql.Column(sql.JsonBlob(), nullable=False)
+    type = sql.Column(sql.String(255), nullable=False)
+    extra = sql.Column(sql.JsonBlob())
+
+
+class Domain(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'domain'
+    attributes = ['id', 'name']
+    id = sql.Column(sql.String(64), primary_key=True)
+    name = sql.Column(sql.String(64), unique=True, nullable=False)
+    extra = sql.Column(sql.JsonBlob())
+
+
+# TODO(dolph): rename to Project
 class Tenant(sql.ModelBase, sql.DictBase):
+    # TODO(dolph): rename to project
     __tablename__ = 'tenant'
     attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
@@ -58,11 +81,14 @@ class Role(sql.ModelBase, sql.DictBase):
     attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
+    extra = sql.Column(sql.JsonBlob())
 
 
-class Metadata(sql.ModelBase, sql.DictBase):
+class UserProjectMetadata(sql.ModelBase, sql.DictBase):
+    # TODO(dolph): rename to user_project_metadata (needs a migration)
     __tablename__ = 'metadata'
     user_id = sql.Column(sql.String(64), primary_key=True)
+    # TODO(dolph): rename to project_id (needs a migration)
     tenant_id = sql.Column(sql.String(64), primary_key=True)
     data = sql.Column(sql.JsonBlob())
 
@@ -75,6 +101,14 @@ class Metadata(sql.ModelBase, sql.DictBase):
         return dict(self.iteritems())
 
 
+class UserDomainMetadata(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'user_domain_metadata'
+    user_id = sql.Column(sql.String(64), primary_key=True)
+    domain_id = sql.Column(sql.String(64), primary_key=True)
+    data = sql.Column(sql.JsonBlob())
+
+
+# TODO(dolph): ... do we need this table?
 class UserTenantMembership(sql.ModelBase, sql.DictBase):
     """Tenant membership join table."""
     __tablename__ = 'user_tenant_membership'
@@ -164,52 +198,79 @@ class Identity(sql.Base, identity.Driver):
         return [identity.filter_user(user_ref.to_dict())
                 for user_ref in user_refs]
 
-    def _get_user(self, user_id):
+    def get_metadata(self, user_id, tenant_id=None, domain_id=None):
         session = self.get_session()
-        user_ref = session.query(User).filter_by(id=user_id).first()
-        if not user_ref:
-            raise exception.UserNotFound(user_id=user_id)
-        return user_ref.to_dict()
 
-    def _get_user_by_name(self, user_name):
-        session = self.get_session()
-        user_ref = session.query(User).filter_by(name=user_name).first()
-        if not user_ref:
-            raise exception.UserNotFound(user_id=user_name)
-        return user_ref.to_dict()
+        if tenant_id:
+            q = session.query(UserProjectMetadata)
+            q = q.filter_by(tenant_id=tenant_id)
+        elif domain_id:
+            q = session.query(UserDomainMetadata)
+            q = q.filter_by(domain_id=domain_id)
+        q = q.filter_by(user_id=user_id)
 
-    def get_user(self, user_id):
-        return identity.filter_user(self._get_user(user_id))
-
-    def get_user_by_name(self, user_name):
-        return identity.filter_user(self._get_user_by_name(user_name))
-
-    def get_metadata(self, user_id, tenant_id):
-        session = self.get_session()
-        query = session.query(Metadata)
-        query = query.filter_by(user_id=user_id)
-        query = query.filter_by(tenant_id=tenant_id)
-        metadata_ref = query.first()
-        if metadata_ref is None:
+        try:
+            return q.one().data
+        except sql.NotFound:
             raise exception.MetadataNotFound()
-        return metadata_ref.data
 
-    def get_role(self, role_id):
-        session = self.get_session()
-        role_ref = session.query(Role).filter_by(id=role_id).first()
-        if role_ref is None:
+    def create_grant(self, role_id, user_id, domain_id, project_id):
+        self.get_role(role_id)
+        self.get_user(user_id)
+        if domain_id:
+            self.get_domain(domain_id)
+        if project_id:
+            self.get_tenant(project_id)
+
+        try:
+            metadata_ref = self.get_metadata(user_id, project_id, domain_id)
+            is_new = False
+        except exception.MetadataNotFound:
+            metadata_ref = {}
+            is_new = True
+        roles = set(metadata_ref.get('roles', []))
+        roles.add(role_id)
+        metadata_ref['roles'] = list(roles)
+        if is_new:
+            self.create_metadata(user_id, project_id, metadata_ref, domain_id)
+        else:
+            self.update_metadata(user_id, project_id, metadata_ref, domain_id)
+
+    def list_grants(self, user_id, domain_id, project_id):
+        metadata_ref = self.get_metadata(user_id, project_id, domain_id)
+        return [self.get_role(x) for x in metadata_ref.get('roles', [])]
+
+    def get_grant(self, role_id, user_id, domain_id, project_id):
+        metadata_ref = self.get_metadata(user_id, project_id, domain_id)
+        role_ids = set(metadata_ref.get('roles', []))
+        if role_id not in role_ids:
             raise exception.RoleNotFound(role_id=role_id)
-        return role_ref
+        return self.get_role(role_id)
 
-    def list_users(self):
-        session = self.get_session()
-        user_refs = session.query(User)
-        return [identity.filter_user(x.to_dict()) for x in user_refs]
+    def delete_grant(self, role_id, user_id, domain_id, project_id):
+        self.get_role(role_id)
+        self.get_user(user_id)
+        if domain_id:
+            self.get_domain(domain_id)
+        if project_id:
+            self.get_tenant(project_id)
 
-    def list_roles(self):
-        session = self.get_session()
-        role_refs = session.query(Role)
-        return list(role_refs)
+        try:
+            metadata_ref = self.get_metadata(user_id, project_id, domain_id)
+            is_new = False
+        except exception.MetadataNotFound:
+            metadata_ref = {}
+            is_new = True
+        roles = set(metadata_ref.get('roles', []))
+        try:
+            roles.remove(role_id)
+        except KeyError:
+            raise exception.RoleNotFound(role_id=role_id)
+        metadata_ref['roles'] = list(roles)
+        if is_new:
+            self.create_metadata(user_id, project_id, metadata_ref, domain_id)
+        else:
+            self.update_metadata(user_id, project_id, metadata_ref, domain_id)
 
     # These should probably be part of the high-level API
     def add_user_to_tenant(self, tenant_id, user_id):
@@ -306,6 +367,198 @@ class Identity(sql.Base, identity.Driver):
             self.update_metadata(user_id, tenant_id, metadata_ref)
 
     # CRUD
+    @handle_conflicts(type='tenant')
+    def create_tenant(self, tenant_id, tenant):
+        tenant['name'] = clean.tenant_name(tenant['name'])
+        session = self.get_session()
+        with session.begin():
+            tenant_ref = Tenant.from_dict(tenant)
+            session.add(tenant_ref)
+            session.flush()
+        return tenant_ref.to_dict()
+
+    @handle_conflicts(type='tenant')
+    def update_tenant(self, tenant_id, tenant):
+        session = self.get_session()
+
+        if 'name' in tenant:
+            tenant['name'] = clean.tenant_name(tenant['name'])
+
+        try:
+            tenant_ref = session.query(Tenant).filter_by(id=tenant_id).one()
+        except sql.NotFound:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+
+        with session.begin():
+            old_tenant_dict = tenant_ref.to_dict()
+            for k in tenant:
+                old_tenant_dict[k] = tenant[k]
+            new_tenant = Tenant.from_dict(old_tenant_dict)
+            tenant_ref.name = new_tenant.name
+            tenant_ref.extra = new_tenant.extra
+            session.flush()
+        return tenant_ref.to_dict(include_extra_dict=True)
+
+    def delete_tenant(self, tenant_id):
+        session = self.get_session()
+
+        try:
+            tenant_ref = session.query(Tenant).filter_by(id=tenant_id).one()
+        except sql.NotFound:
+            raise exception.TenantNotFound(tenant_id=tenant_id)
+
+        with session.begin():
+            q = session.query(UserTenantMembership)
+            q = q.filter_by(tenant_id=tenant_id)
+            q.delete(False)
+
+            q = session.query(UserProjectMetadata)
+            q = q.filter_by(tenant_id=tenant_id)
+            q.delete(False)
+
+            if not session.query(Tenant).filter_by(id=tenant_id).delete(False):
+                raise exception.TenantNotFound(tenant_id=tenant_id)
+
+            session.delete(tenant_ref)
+            session.flush()
+
+    @handle_conflicts(type='metadata')
+    def create_metadata(self, user_id, tenant_id, metadata, domain_id=None):
+        session = self.get_session()
+        with session.begin():
+            if tenant_id:
+                session.add(UserProjectMetadata(user_id=user_id,
+                                                tenant_id=tenant_id,
+                                                data=metadata))
+            elif domain_id:
+                session.add(UserDomainMetadata(user_id=user_id,
+                                               domain_id=domain_id,
+                                               data=metadata))
+            session.flush()
+        return metadata
+
+    @handle_conflicts(type='metadata')
+    def update_metadata(self, user_id, tenant_id, metadata, domain_id=None):
+        session = self.get_session()
+        with session.begin():
+            if tenant_id:
+                metadata_ref = session.query(UserProjectMetadata)\
+                                      .filter_by(user_id=user_id)\
+                                      .filter_by(tenant_id=tenant_id)\
+                                      .first()
+            elif domain_id:
+                metadata_ref = session.query(UserDomainMetadata)\
+                                      .filter_by(user_id=user_id)\
+                                      .filter_by(domain_id=domain_id)\
+                                      .first()
+            data = metadata_ref.data.copy()
+            data.update(metadata)
+            metadata_ref.data = data
+            session.flush()
+        return metadata_ref
+
+    # domain crud
+
+    @handle_conflicts(type='domain')
+    def create_domain(self, domain_id, domain):
+        session = self.get_session()
+        with session.begin():
+            ref = Domain.from_dict(domain)
+            session.add(ref)
+            session.flush()
+        return ref.to_dict()
+
+    def list_domains(self):
+        session = self.get_session()
+        refs = session.query(Domain).all()
+        return [ref.to_dict() for ref in refs]
+
+    def get_domain(self, domain_id):
+        session = self.get_session()
+        ref = session.query(Domain).filter_by(id=domain_id).first()
+        if ref is None:
+            raise exception.DomainNotFound(domain_id=domain_id)
+        return ref.to_dict()
+
+    @handle_conflicts(type='domain')
+    def update_domain(self, domain_id, domain):
+        session = self.get_session()
+        with session.begin():
+            ref = session.query(Domain).filter_by(id=domain_id).first()
+            if ref is None:
+                raise exception.DomainNotFound(domain_id=domain_id)
+            old_dict = ref.to_dict()
+            for k in domain:
+                old_dict[k] = domain[k]
+            new_domain = Domain.from_dict(old_dict)
+            for attr in Domain.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_domain, attr))
+            ref.extra = new_domain.extra
+            session.flush()
+        return ref.to_dict()
+
+    def delete_domain(self, domain_id):
+        session = self.get_session()
+        ref = session.query(Domain).filter_by(id=domain_id).first()
+        if not ref:
+            raise exception.DomainNotFound(domain_id=domain_id)
+        with session.begin():
+            session.delete(ref)
+            session.flush()
+
+    # project crud
+
+    @handle_conflicts(type='project')
+    def create_project(self, project_id, project):
+        return self.create_tenant(project_id, project)
+
+    def get_project(self, project_id):
+        return self.get_tenant(project_id)
+
+    def list_projects(self):
+        return self.get_tenants()
+
+    @handle_conflicts(type='project')
+    def update_project(self, project_id, project):
+        session = self.get_session()
+        with session.begin():
+            ref = session.query(Tenant).filter_by(id=project_id).first()
+            if ref is None:
+                raise exception.TenantNotFound(project_id=project_id)
+            old_dict = ref.to_dict()
+            for k in project:
+                old_dict[k] = project[k]
+            new_project = Tenant.from_dict(old_dict)
+            for attr in Tenant.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_project, attr))
+            ref.extra = new_project.extra
+            session.flush()
+        return ref.to_dict()
+
+    def delete_project(self, project_id):
+        return self.delete_tenant(project_id)
+
+    def list_user_projects(self, user_id):
+        session = self.get_session()
+        user = self.get_user(user_id)
+        metadata_refs = session\
+            .query(UserProjectMetadata)\
+            .filter_by(user_id=user_id)
+        project_ids = set([x.tenant_id for x in metadata_refs
+                           if x.data.get('roles')])
+        if user.get('project_id'):
+            project_ids.add(user['project_id'])
+
+        # FIXME(dolph): this should be removed with proper migrations
+        if user.get('tenant_id'):
+            project_ids.add(user['tenant_id'])
+
+        return [self.get_project(x) for x in project_ids]
+
+    # user crud
+
     @handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
@@ -316,6 +569,31 @@ class Identity(sql.Base, identity.Driver):
             session.add(user_ref)
             session.flush()
         return identity.filter_user(user_ref.to_dict())
+
+    def list_users(self):
+        session = self.get_session()
+        user_refs = session.query(User)
+        return [identity.filter_user(x.to_dict()) for x in user_refs]
+
+    def _get_user(self, user_id):
+        session = self.get_session()
+        user_ref = session.query(User).filter_by(id=user_id).first()
+        if not user_ref:
+            raise exception.UserNotFound(user_id=user_id)
+        return user_ref.to_dict()
+
+    def _get_user_by_name(self, user_name):
+        session = self.get_session()
+        user_ref = session.query(User).filter_by(name=user_name).first()
+        if not user_ref:
+            raise exception.UserNotFound(user_id=user_name)
+        return user_ref.to_dict()
+
+    def get_user(self, user_id):
+        return identity.filter_user(self._get_user(user_id))
+
+    def get_user_by_name(self, user_name):
+        return identity.filter_user(self._get_user_by_name(user_name))
 
     @handle_conflicts(type='user')
     def update_user(self, user_id, user):
@@ -333,128 +611,151 @@ class Identity(sql.Base, identity.Driver):
             for k in user:
                 old_user_dict[k] = user[k]
             new_user = User.from_dict(old_user_dict)
-
-            user_ref.name = new_user.name
+            for attr in User.attributes:
+                if attr != 'id':
+                    setattr(user_ref, attr, getattr(new_user, attr))
             user_ref.extra = new_user.extra
             session.flush()
         return identity.filter_user(user_ref.to_dict(include_extra_dict=True))
 
     def delete_user(self, user_id):
         session = self.get_session()
+
+        try:
+            ref = session.query(User).filter_by(id=user_id).one()
+        except sql.NotFound:
+            raise exception.UserNotFound(user_id=user_id)
+
         with session.begin():
-            query = session.query(UserTenantMembership)
-            query = query.filter_by(user_id=user_id)
-            query.delete(False)
-            query = session.query(Metadata)
-            query = query.filter_by(user_id=user_id)
-            query.delete(False)
+            q = session.query(UserTenantMembership)
+            q = q.filter_by(user_id=user_id)
+            q.delete(False)
+
+            q = session.query(UserProjectMetadata)
+            q = q.filter_by(user_id=user_id)
+            q.delete(False)
+
             if not session.query(User).filter_by(id=user_id).delete(False):
                 raise exception.UserNotFound(user_id=user_id)
 
-    @handle_conflicts(type='tenant')
-    def create_tenant(self, tenant_id, tenant):
-        tenant['name'] = clean.tenant_name(tenant['name'])
-        session = self.get_session()
-        with session.begin():
-            tenant_ref = Tenant.from_dict(tenant)
-            session.add(tenant_ref)
+            session.delete(ref)
             session.flush()
-        return tenant_ref.to_dict()
 
-    @handle_conflicts(type='tenant')
-    def update_tenant(self, tenant_id, tenant):
-        if 'name' in tenant:
-            tenant['name'] = clean.tenant_name(tenant['name'])
+    # credential crud
+
+    @handle_conflicts(type='credential')
+    def create_credential(self, credential_id, credential):
         session = self.get_session()
         with session.begin():
-            tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
-            if tenant_ref is None:
-                raise exception.TenantNotFound(tenant_id=tenant_id)
-            old_tenant_dict = tenant_ref.to_dict()
-            for k in tenant:
-                old_tenant_dict[k] = tenant[k]
-            new_tenant = Tenant.from_dict(old_tenant_dict)
-
-            tenant_ref.name = new_tenant.name
-            tenant_ref.extra = new_tenant.extra
+            ref = Credential.from_dict(credential)
+            session.add(ref)
             session.flush()
-        return tenant_ref.to_dict(include_extra_dict=True)
+        return ref.to_dict()
 
-    def delete_tenant(self, tenant_id):
+    def list_credentials(self):
+        session = self.get_session()
+        refs = session.query(Credential).all()
+        return [ref.to_dict() for ref in refs]
+
+    def get_credential(self, credential_id):
+        session = self.get_session()
+        ref = session.query(Credential).filter_by(id=credential_id).first()
+        if ref is None:
+            raise exception.CredentialNotFound(credential_id=credential_id)
+        return ref.to_dict()
+
+    @handle_conflicts(type='credential')
+    def update_credential(self, credential_id, credential):
         session = self.get_session()
         with session.begin():
-            query = session.query(UserTenantMembership)
-            query = query.filter_by(tenant_id=tenant_id)
-            query.delete(False)
-            query = session.query(Metadata)
-            query = query.filter_by(tenant_id=tenant_id)
-            query.delete(False)
-            if not session.query(Tenant).filter_by(id=tenant_id).delete(False):
-                raise exception.TenantNotFound(tenant_id=tenant_id)
-
-    @handle_conflicts(type='metadata')
-    def create_metadata(self, user_id, tenant_id, metadata):
-        session = self.get_session()
-        with session.begin():
-            session.add(Metadata(user_id=user_id,
-                                 tenant_id=tenant_id,
-                                 data=metadata))
+            ref = session.query(Credential).filter_by(id=credential_id).first()
+            if ref is None:
+                raise exception.CredentialNotFound(credential_id=credential_id)
+            old_dict = ref.to_dict()
+            for k in credential:
+                old_dict[k] = credential[k]
+            new_credential = Credential.from_dict(old_dict)
+            for attr in Credential.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_credential, attr))
+            ref.extra = new_credential.extra
             session.flush()
-        return metadata
+        return ref.to_dict()
 
-    @handle_conflicts(type='metadata')
-    def update_metadata(self, user_id, tenant_id, metadata):
+    def delete_credential(self, credential_id):
         session = self.get_session()
-        with session.begin():
-            query = session.query(Metadata)
-            query = query.filter_by(user_id=user_id)
-            query = query.filter_by(tenant_id=tenant_id)
-            metadata_ref = query.first()
-            data = metadata_ref.data.copy()
-            for k in metadata:
-                data[k] = metadata[k]
-            metadata_ref.data = data
-            session.flush()
-        return metadata_ref
 
-    def delete_metadata(self, user_id, tenant_id):
-        self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
-        return None
+        try:
+            ref = session.query(Credential).filter_by(id=credential_id).one()
+        except sql.NotFound:
+            raise exception.CredentialNotFound(credential_id=credential_id)
+
+        with session.begin():
+            session.delete(ref)
+            session.flush()
+
+    # role crud
 
     @handle_conflicts(type='role')
     def create_role(self, role_id, role):
         session = self.get_session()
         with session.begin():
-            session.add(Role(**role))
+            ref = Role.from_dict(role)
+            session.add(ref)
             session.flush()
-        return role
+        return ref.to_dict()
+
+    def list_roles(self):
+        session = self.get_session()
+        refs = session.query(Role).all()
+        return [ref.to_dict() for ref in refs]
+
+    def get_role(self, role_id):
+        session = self.get_session()
+        ref = session.query(Role).filter_by(id=role_id).first()
+        if ref is None:
+            raise exception.RoleNotFound(role_id=role_id)
+        return ref.to_dict()
 
     @handle_conflicts(type='role')
     def update_role(self, role_id, role):
         session = self.get_session()
         with session.begin():
-            role_ref = session.query(Role).filter_by(id=role_id).first()
-            if role_ref is None:
+            ref = session.query(Role).filter_by(id=role_id).first()
+            if ref is None:
                 raise exception.RoleNotFound(role_id=role_id)
+            old_dict = ref.to_dict()
             for k in role:
-                role_ref[k] = role[k]
+                old_dict[k] = role[k]
+            new_role = Role.from_dict(old_dict)
+            for attr in Role.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_role, attr))
+            ref.extra = new_role.extra
             session.flush()
-        return role_ref
+        return ref.to_dict()
 
     def delete_role(self, role_id):
         session = self.get_session()
+
+        try:
+            ref = session.query(Role).filter_by(id=role_id).one()
+        except sql.NotFound:
+            raise exception.RoleNotFound(role_id=role_id)
+
         with session.begin():
-            metadata_refs = session.query(Metadata)
-            for metadata_ref in metadata_refs:
+            for metadata_ref in session.query(UserProjectMetadata):
                 metadata = metadata_ref.to_dict()
-                user_id = metadata['user_id']
-                tenant_id = metadata['tenant_id']
                 try:
-                    self.remove_role_from_user_and_tenant(user_id,
-                                                          tenant_id,
-                                                          role_id)
+                    self.remove_role_from_user_and_tenant(
+                        metadata['user_id'], metadata['tenant_id'], role_id)
                 except exception.RoleNotFound:
                     pass
+
+            # FIXME(dolph): user-domain metadata needs to be updated
+
             if not session.query(Role).filter_by(id=role_id).delete():
                 raise exception.RoleNotFound(role_id=role_id)
+
+            session.delete(ref)
             session.flush()
