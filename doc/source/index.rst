@@ -48,7 +48,7 @@ Getting Started
     community
 
 Man Pages
----------
+=========
 
 .. toctree::
     :maxdepth: 1
@@ -72,7 +72,7 @@ Code Documentation
 .. toctree::
    :maxdepth: 1
 
-   modules
+   api/autoindex
 
 Indices and tables
 ==================
