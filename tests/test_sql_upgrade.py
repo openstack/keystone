@@ -34,8 +34,9 @@ class SqlUpgradeTests(test.TestCase):
                      test.testsdir('backend_sql.conf')])
 
         # create and share a single sqlalchemy engine for testing
-        self.engine = sql.Base().get_engine()
+        self.engine = sql.Base().get_engine(allow_global_engine=False)
         self.metadata = sqlalchemy.MetaData()
+
         # populate the engine with tables & fixtures
         self.metadata.bind = self.engine
         self.repo_path = migration._find_migrate_repo()

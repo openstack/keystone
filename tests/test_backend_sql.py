@@ -48,18 +48,11 @@ class SqlTests(test.TestCase):
         self.identity_api = self.identity_man.driver
         self.token_api = self.token_man.driver
 
-        # create and share a single sqlalchemy engine for testing
-        engine = sql.Base().get_engine()
-        self.identity_api._engine = engine
-        self.catalog_api._engine = engine
-        self.token_api._engine = engine
-
         # populate the engine with tables & fixtures
-        sql.ModelBase.metadata.bind = engine
-        sql.ModelBase.metadata.create_all(engine)
         self.load_fixtures(default_fixtures)
 
     def tearDown(self):
+        sql.set_global_engine(None)
         super(SqlTests, self).tearDown()
 
 
