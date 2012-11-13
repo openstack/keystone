@@ -187,21 +187,21 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.role_allow_delete = False
         self.identity_api = identity_ldap.Identity()
 
-        role = {'id': 'fake1', 'name': 'fake1'}
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assertRaises(exception.ForbiddenAction,
                           self.identity_api.create_role,
-                          'fake1',
+                          role['id'],
                           role)
 
-        self.role_useless['name'] = 'useful'
+        self.role_member['name'] = uuid.uuid4().hex
         self.assertRaises(exception.ForbiddenAction,
                           self.identity_api.update_role,
-                          self.role_useless['id'],
-                          self.role_useless)
+                          self.role_member['id'],
+                          self.role_member)
 
         self.assertRaises(exception.ForbiddenAction,
                           self.identity_api.delete_role,
-                          self.role_useless['id'])
+                          self.role_member['id'])
 
     def test_user_filter(self):
         self.config([test.etcdir('keystone.conf.sample'),
@@ -234,14 +234,14 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
-        role_ref = self.identity_api.get_role(self.role_useless['id'])
-        self.assertDictEqual(role_ref, self.role_useless)
+        role_ref = self.identity_api.get_role(self.role_member['id'])
+        self.assertDictEqual(role_ref, self.role_member)
 
         CONF.ldap.role_filter = '(CN=DOES_NOT_MATCH)'
         self.identity_api = identity_ldap.Identity()
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.get_role,
-                          self.role_useless['id'])
+                          self.role_member['id'])
 
     def test_dumb_member(self):
         self.config([test.etcdir('keystone.conf.sample'),
@@ -266,20 +266,20 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        user_ref = self.identity_api.get_user(self.user_attr['id'])
-        self.assertEqual(user_ref['id'], self.user_attr['id'])
-        self.assertEqual(user_ref['name'], self.user_attr['name'])
-        self.assertEqual(user_ref['email'], self.user_attr['email'])
-        self.assertEqual(user_ref['enabled'], self.user_attr['enabled'])
+        user_ref = self.identity_api.get_user(self.user_two['id'])
+        self.assertEqual(user_ref['id'], self.user_two['id'])
+        self.assertEqual(user_ref['name'], self.user_two['name'])
+        self.assertEqual(user_ref['email'], self.user_two['email'])
+        self.assertEqual(user_ref['enabled'], self.user_two['enabled'])
 
         CONF.ldap.user_name_attribute = 'email'
         CONF.ldap.user_mail_attribute = 'sn'
         self.identity_api = identity_ldap.Identity()
-        user_ref = self.identity_api.get_user(self.user_attr['id'])
-        self.assertEqual(user_ref['id'], self.user_attr['id'])
-        self.assertEqual(user_ref['name'], self.user_attr['email'])
-        self.assertEqual(user_ref['email'], self.user_attr['name'])
-        self.assertEqual(user_ref['enabled'], self.user_attr['enabled'])
+        user_ref = self.identity_api.get_user(self.user_two['id'])
+        self.assertEqual(user_ref['id'], self.user_two['id'])
+        self.assertEqual(user_ref['name'], self.user_two['email'])
+        self.assertEqual(user_ref['email'], self.user_two['name'])
+        self.assertEqual(user_ref['enabled'], self.user_two['enabled'])
 
     def test_user_attribute_ignore(self):
         self.config([test.etcdir('keystone.conf.sample'),
@@ -290,8 +290,8 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        user_ref = self.identity_api.get_user(self.user_attr['id'])
-        self.assertEqual(user_ref['id'], self.user_attr['id'])
+        user_ref = self.identity_api.get_user(self.user_two['id'])
+        self.assertEqual(user_ref['id'], self.user_two['id'])
         self.assertNotIn('name', user_ref)
         self.assertNotIn('email', user_ref)
         self.assertNotIn('password', user_ref)
@@ -309,21 +309,22 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        tenant_ref = self.identity_api.get_tenant(self.tenant_attr['id'])
-        self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
-        self.assertEqual(tenant_ref['name'], self.tenant_attr['name'])
-        self.assertEqual(tenant_ref['description'],
-                         self.tenant_attr['description'])
-        self.assertEqual(tenant_ref['enabled'], self.tenant_attr['enabled'])
+        tenant_ref = self.identity_api.get_tenant(self.tenant_baz['id'])
+        self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
+        self.assertEqual(tenant_ref['name'], self.tenant_baz['name'])
+        self.assertEqual(
+            tenant_ref['description'],
+            self.tenant_baz['description'])
+        self.assertEqual(tenant_ref['enabled'], self.tenant_baz['enabled'])
 
         CONF.ldap.tenant_name_attribute = 'desc'
         CONF.ldap.tenant_desc_attribute = 'ou'
         self.identity_api = identity_ldap.Identity()
-        tenant_ref = self.identity_api.get_tenant(self.tenant_attr['id'])
-        self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
-        self.assertEqual(tenant_ref['name'], self.tenant_attr['description'])
-        self.assertEqual(tenant_ref['description'], self.tenant_attr['name'])
-        self.assertEqual(tenant_ref['enabled'], self.tenant_attr['enabled'])
+        tenant_ref = self.identity_api.get_tenant(self.tenant_baz['id'])
+        self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
+        self.assertEqual(tenant_ref['name'], self.tenant_baz['description'])
+        self.assertEqual(tenant_ref['description'], self.tenant_baz['name'])
+        self.assertEqual(tenant_ref['enabled'], self.tenant_baz['enabled'])
 
     def test_tenant_attribute_ignore(self):
         self.config([test.etcdir('keystone.conf.sample'),
@@ -335,8 +336,8 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        tenant_ref = self.identity_api.get_tenant(self.tenant_attr['id'])
-        self.assertEqual(tenant_ref['id'], self.tenant_attr['id'])
+        tenant_ref = self.identity_api.get_tenant(self.tenant_baz['id'])
+        self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertNotIn('name', tenant_ref)
         self.assertNotIn('description', tenant_ref)
         self.assertNotIn('enabled', tenant_ref)
@@ -349,14 +350,14 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        role_ref = self.identity_api.get_role(self.role_attr['id'])
-        self.assertEqual(role_ref['id'], self.role_attr['id'])
-        self.assertEqual(role_ref['name'], self.role_attr['name'])
+        role_ref = self.identity_api.get_role(self.role_member['id'])
+        self.assertEqual(role_ref['id'], self.role_member['id'])
+        self.assertEqual(role_ref['name'], self.role_member['name'])
 
         CONF.ldap.role_name_attribute = 'sn'
         self.identity_api = identity_ldap.Identity()
-        role_ref = self.identity_api.get_role(self.role_attr['id'])
-        self.assertEqual(role_ref['id'], self.role_attr['id'])
+        role_ref = self.identity_api.get_role(self.role_member['id'])
+        self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertNotIn('name', role_ref)
 
     def test_role_attribute_ignore(self):
@@ -367,8 +368,8 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        role_ref = self.identity_api.get_role(self.role_attr['id'])
-        self.assertEqual(role_ref['id'], self.role_attr['id'])
+        role_ref = self.identity_api.get_role(self.role_member['id'])
+        self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertNotIn('name', role_ref)
 
     def test_user_enable_attribute_mask(self):
