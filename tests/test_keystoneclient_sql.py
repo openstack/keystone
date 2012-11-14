@@ -16,7 +16,7 @@
 
 import uuid
 
-from keystone.common.sql import util as sql_util
+from keystone.common import sql
 from keystone import config
 from keystone import test
 
@@ -31,12 +31,10 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         super(KcMasterSqlTestCase, self).config([
             test.etcdir('keystone.conf.sample'),
             test.testsdir('test_overrides.conf'),
-            test.testsdir('backend_sql.conf'),
-            test.testsdir('backend_sql_disk.conf')])
-        sql_util.setup_test_database()
+            test.testsdir('backend_sql.conf')])
 
     def tearDown(self):
-        sql_util.teardown_test_database()
+        sql.set_global_engine(None)
         super(KcMasterSqlTestCase, self).tearDown()
 
     def test_endpoint_crud(self):
