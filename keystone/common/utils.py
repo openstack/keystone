@@ -121,7 +121,7 @@ class Ec2Signer(object):
 
     def _calc_signature_2(self, params, verb, server_string, path):
         """Generate AWS signature version 2 string."""
-        LOG.debug('using _calc_signature_2')
+        LOG.debug(_('using _calc_signature_2'))
         string_to_sign = '%s\n%s\n%s\n' % (verb, server_string, path)
         if self.hmac_256:
             current_hmac = self.hmac_256
@@ -137,13 +137,13 @@ class Ec2Signer(object):
             val = urllib.quote(val, safe='-_~')
             pairs.append(urllib.quote(key, safe='') + '=' + val)
         qs = '&'.join(pairs)
-        LOG.debug('query string: %s', qs)
+        LOG.debug(_('query string: %s'), qs)
         string_to_sign += qs
-        LOG.debug('string_to_sign: %s', string_to_sign)
+        LOG.debug(_('string_to_sign: %s'), string_to_sign)
         current_hmac.update(string_to_sign)
         b64 = base64.b64encode(current_hmac.digest())
-        LOG.debug('len(b64)=%d', len(b64))
-        LOG.debug('base64 encoded digest: %s', b64)
+        LOG.debug(_('len(b64)=%d'), len(b64))
+        LOG.debug(_('base64 encoded digest: %s'), b64)
         return b64
 
 

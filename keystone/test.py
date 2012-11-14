@@ -88,7 +88,7 @@ def checkout_vendor(repo, rev):
         with open(modcheck, 'w') as fd:
             fd.write('1')
     except subprocess.CalledProcessError:
-        LOG.warning('Failed to checkout %s', repo)
+        LOG.warning(_('Failed to checkout %s'), repo)
     cd(working_dir)
     return revdir
 
