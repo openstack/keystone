@@ -797,12 +797,12 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         client = self.get_client(admin=True)
         client.roles.add_user_role(tenant=self.tenant_baz['id'],
                                    user=self.user_two['id'],
-                                   role=self.role_useless['id'])
+                                   role=self.role_member['id'])
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
         self.assert_(self.user_two['id'] in [x.id for x in user_refs])
         client.roles.remove_user_role(tenant=self.tenant_baz['id'],
                                       user=self.user_two['id'],
-                                      role=self.role_useless['id'])
+                                      role=self.role_member['id'])
         user_refs = client.tenants.list_users(tenant=self.tenant_baz['id'])
         self.assert_(self.user_two['id'] not in [x.id for x in user_refs])
 
@@ -813,12 +813,12 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
                           client.roles.add_user_role,
                           tenant=uuid.uuid4().hex,
                           user=self.user_foo['id'],
-                          role=self.role_useless['id'])
+                          role=self.role_member['id'])
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.add_user_role,
                           tenant=self.tenant_baz['id'],
                           user=uuid.uuid4().hex,
-                          role=self.role_useless['id'])
+                          role=self.role_member['id'])
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.add_user_role,
                           tenant=self.tenant_baz['id'],
@@ -832,12 +832,12 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
                           client.roles.remove_user_role,
                           tenant=uuid.uuid4().hex,
                           user=self.user_foo['id'],
-                          role=self.role_useless['id'])
+                          role=self.role_member['id'])
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.remove_user_role,
                           tenant=self.tenant_baz['id'],
                           user=uuid.uuid4().hex,
-                          role=self.role_useless['id'])
+                          role=self.role_member['id'])
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.remove_user_role,
                           tenant=self.tenant_baz['id'],
@@ -847,7 +847,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
                           client.roles.remove_user_role,
                           tenant=self.tenant_baz['id'],
                           user=self.user_foo['id'],
-                          role=self.role_useless['id'])
+                          role=self.role_member['id'])
 
     def test_tenant_list_marker(self):
         client = self.get_client()
@@ -1004,7 +1004,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         client = self.get_client(admin=True)
         client.roles.add_user_to_tenant(tenant_id=self.tenant_baz['id'],
                                         user_id=self.user_two['id'],
-                                        role_id=self.role_useless['id'])
+                                        role_id=self.role_member['id'])
         role_refs = client.roles.get_user_role_refs(
             user_id=self.user_two['id'])
         self.assert_(self.tenant_baz['id'] in [x.tenantId for x in role_refs])
@@ -1014,7 +1014,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         roleref_refs = client.roles.get_user_role_refs(
             user_id=self.user_two['id'])
         for roleref_ref in roleref_refs:
-            if (roleref_ref.roleId == self.role_useless['id']
+            if (roleref_ref.roleId == self.role_member['id']
                     and roleref_ref.tenantId == self.tenant_baz['id']):
                 # use python's scope fall through to leave roleref_ref set
                 break

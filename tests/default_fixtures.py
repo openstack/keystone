@@ -14,61 +14,54 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# NOTE(dolph): please try to avoid additional fixtures if possible; test suite
+#              performance may be negatively affected.
+
 TENANTS = [
-    {'id': 'bar', 'name': 'BAR'},
-    {'id': 'baz', 'name': 'BAZ'},
-    {'id': 'tenent4add', 'name': 'tenant4add'},
-    {'id': 'attr',
-     'name': 'attr_name',
-     'description': 'description',
-     'enabled': True},
+    {
+        'id': 'bar',
+        'name': 'BAR',
+    }, {
+        'id': 'baz',
+        'name': 'BAZ',
+        'description': 'description',
+        'enabled': True,
+    }
 ]
 
 # NOTE(ja): a role of keystone_admin and attribute "is_admin" is done in setUp
 USERS = [
-    {'id': 'foo', 'name': 'FOO', 'password': 'foo2', 'tenants': ['bar']},
-    {'id': 'two', 'name': 'TWO', 'password': 'two2', 'tenants': ['baz']},
-    {'id': 'no_meta',
-     'name': 'NO_META',
-     'password': 'no_meta2',
-     'tenants': ['baz']},
-    {'id': 'attr',
-     'name': 'attr',
-     'email': 'attr@example.com',
-     'enabled': True,
-     'tenant_id': 'baz',
-     'password': 'attr_passwd',
-     'tenants': ['baz']},
+    {
+        'id': 'foo',
+        'name': 'FOO',
+        'password': 'foo2',
+        'tenants': ['bar']
+    }, {
+        'id': 'two',
+        'name': 'TWO',
+        'password': 'two2',
+        'email': 'attr@example.com',
+        'enabled': True,
+        'tenant_id': 'baz',
+        'password': 'attr_passwd',
+        'tenants': ['baz'],
+    }
 ]
 
 METADATA = [
-    {'user_id': 'foo', 'tenant_id': 'bar', 'extra': 'extra'},
-    {'user_id': 'two', 'tenant_id': 'baz', 'extra': 'extra'},
+    {
+        'user_id': 'foo',
+        'tenant_id': 'bar',
+        'extra': 'extra',
+    }
 ]
 
 ROLES = [
-    {'id': 'keystone_admin', 'name': 'Keystone Admin'},
-    {'id': 'useless', 'name': 'Useless'},
-    {'id': 'attr', 'name': 'attr'},
-]
-
-SERVICES = [
     {
-        'id': 'COMPUTE_ID',
-        'type': 'compute',
-        'name': 'Nova',
-        'description': 'OpenStack Compute service'
-    },
-    {
-        'id': 'IDENTITY_ID',
-        'type': 'identity',
-        'name': 'Keystone',
-        'description': 'OpenStack Identity service'
-    },
-    {
-        'id': 'IMAGE_ID',
-        'type': 'image',
-        'name': 'Glance',
-        'description': 'OpenStack Image service'
-    },
+        'id': 'keystone_admin',
+        'name': 'Keystone Admin',
+    }, {
+        'id': 'member',
+        'name': 'Member',
+    }
 ]

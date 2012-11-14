@@ -216,11 +216,6 @@ class TestCase(NoModule, unittest.TestCase):
         """
         # TODO(termie): doing something from json, probably based on Django's
         #               loaddata will be much preferred.
-        if hasattr(self, 'catalog_api'):
-            for service in fixtures.SERVICES:
-                rv = self.catalog_api.create_service(service['id'], service)
-                setattr(self, 'service_%s' % service['id'], rv)
-
         if hasattr(self, 'identity_api'):
             for tenant in fixtures.TENANTS:
                 rv = self.identity_api.create_tenant(tenant['id'], tenant)
