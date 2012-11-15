@@ -40,10 +40,9 @@ USERS = [
         'id': 'two',
         'name': 'TWO',
         'password': 'two2',
-        'email': 'attr@example.com',
+        'email': 'two@example.com',
         'enabled': True,
         'tenant_id': 'baz',
-        'password': 'attr_passwd',
         'tenants': ['baz'],
     }
 ]
