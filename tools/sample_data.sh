@@ -49,6 +49,10 @@
 # demo                 demo      Member,sysadmin,netadmin
 # invisible_to_admin   demo      Member
 
+CONTROLLER_PUBLIC_ADDRESS=${CONTROLLER_PUBLIC_ADDRESS:-localhost}
+CONTROLLER_ADMIN_ADDRESS=${CONTROLLER_ADMIN_ADDRESS:-localhost}
+CONTROLLER_INTERNAL_ADDRESS=${CONTROLLER_INTERNAL_ADDRESS:-localhost}
+
 TOOLS_DIR=$(cd $(dirname "$0") && pwd)
 KEYSTONE_CONF=${KEYSTONE_CONF:-/etc/keystone/keystone.conf}
 if [[ -r "$KEYSTONE_CONF" ]]; then
@@ -87,7 +91,7 @@ if [[ -z "$SERVICE_TOKEN" ]]; then
     exit 1
 fi
 
-export SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-http://127.0.0.1:${CONFIG_ADMIN_PORT:-35357}/v2.0}
+export SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-35357}/v2.0}
 
 function get_id () {
     echo `"$@" | grep ' id ' | awk '{print $4}'`
@@ -146,9 +150,9 @@ keystone user-role-add --tenant-id $SERVICE_TENANT \
                        --role-id $ADMIN_ROLE
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $NOVA_SERVICE \
-        --publicurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s' \
-        --adminurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s' \
-        --internalurl 'http://localhost:$(compute_port)s/v1.1/$(tenant_id)s'
+        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:\$(compute_port)s/v1.1/\$(tenant_id)s" \
+        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:\$(compute_port)s/v1.1/\$(tenant_id)s" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(compute_port)s/v1.1/\$(tenant_id)s"
 fi
 
 EC2_SERVICE=$(get_id \
@@ -157,9 +161,9 @@ keystone service-create --name=ec2 \
                         --description="EC2 Compatibility Layer")
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $EC2_SERVICE \
-        --publicurl http://localhost:8773/services/Cloud \
-        --adminurl http://localhost:8773/services/Admin \
-        --internalurl http://localhost:8773/services/Cloud
+        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8773/services/Cloud" \
+        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8773/services/Admin" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8773/services/Cloud"
 fi
 
 GLANCE_SERVICE=$(get_id \
@@ -175,9 +179,9 @@ keystone user-role-add --tenant-id $SERVICE_TENANT \
                        --role-id $ADMIN_ROLE
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $GLANCE_SERVICE \
-        --publicurl http://localhost:9292/v1 \
-        --adminurl http://localhost:9292/v1 \
-        --internalurl http://localhost:9292/v1
+        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:9292/v1" \
+        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:9292/v1" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9292/v1"
 fi
 
 KEYSTONE_SERVICE=$(get_id \
@@ -186,9 +190,9 @@ keystone service-create --name=keystone \
                         --description="Keystone Identity Service")
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $KEYSTONE_SERVICE \
-        --publicurl 'http://localhost:$(public_port)s/v2.0' \
-        --adminurl 'http://localhost:$(admin_port)s/v2.0' \
-        --internalurl 'http://localhost:$(public_port)s/v2.0'
+        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:\$(public_port)s/v2.0" \
+        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:\$(admin_port)s/v2.0" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(public_port)s/v2.0"
 fi
 
 VOLUME_SERVICE=$(get_id \
@@ -197,14 +201,14 @@ keystone service-create --name="nova-volume" \
                         --description="Nova Volume Service")
 if [[ -n "$ENABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $VOLUME_SERVICE \
-        --publicurl 'http://localhost:8776/v1/$(tenant_id)s' \
-        --adminurl 'http://localhost:8776/v1/$(tenant_id)s' \
-        --internalurl 'http://localhost:8776/v1/$(tenant_id)s'
+        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v1/\$(tenant_id)s" \
+        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8776/v1/\$(tenant_id)s" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v1/\$(tenant_id)s"
 fi
 
 keystone service-create --name="horizon" \
-						--type=dashboard \
-						--description="OpenStack Dashboard"
+                        --type=dashboard \
+                        --description="OpenStack Dashboard"
 
 if [[ -n "$ENABLE_SWIFT" ]]; then
     SWIFT_SERVICE=$(get_id \
@@ -220,9 +224,9 @@ if [[ -n "$ENABLE_SWIFT" ]]; then
                            --role-id $ADMIN_ROLE
     if [[ -n "$ENABLE_ENDPOINTS" ]]; then
         keystone endpoint-create --region RegionOne --service-id $SWIFT_SERVICE \
-            --publicurl   'http://localhost:8080/v1/AUTH_$(tenant_id)s' \
-            --adminurl    'http://localhost:8080/v1/AUTH_$(tenant_id)s' \
-            --internalurl 'http://localhost:8080/v1/AUTH_$(tenant_id)s'
+            --publicurl   "http://$CONTROLLER_PUBLIC_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
+            --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
+            --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s"
     fi
 fi
 
@@ -240,9 +244,9 @@ if [[ -n "$ENABLE_QUANTUM" ]]; then
                            --role-id $ADMIN_ROLE
     if [[ -n "$ENABLE_ENDPOINTS" ]]; then
         keystone endpoint-create --region RegionOne --service-id $QUANTUM_SERVICE \
-            --publicurl http://localhost:9696 \
-            --adminurl http://localhost:9696 \
-            --internalurl http://localhost:9696
+            --publicurl   "http://$CONTROLLER_PUBLIC_ADDRESS:9696" \
+            --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:9696" \
+            --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9696"
     fi
 fi
 
