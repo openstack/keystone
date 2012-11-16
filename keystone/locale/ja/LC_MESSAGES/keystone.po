@@ -1,0 +1,40 @@
+Translations template for OpenStack Keystone.
+# Copyright (C) 2012 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+#
+# Translators:
+# Tomoyuki KATO <tomo@dream.daynight.jp>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: Keystone\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2012-11-15 23:10+0000\n"
+"PO-Revision-Date: 2012-11-03 01:25+0000\n"
+"Last-Translator: Tomoyuki KATO <tomo@dream.daynight.jp>\n"
+"Language-Team: Japanese (http://www.transifex.com/projects/p/openstack/language/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: keystone/config.py:62
+msgid "Invalid syslog facility"
+msgstr "無効な syslog ファシリティ"
+
+#: keystone/policy/backends/rules.py:34
+msgid "JSON file representing policy"
+msgstr "\t\nJSON ファイル表現ポリシー"
+
+#: keystone/policy/backends/rules.py:37
+msgid "Rule checked when requested rule is not found"
+msgstr "要求されたルールが見つからないときにチェックされるルール"
+
+#: keystone/token/backends/memcache.py:81
+msgid "Unable to add token user list."
+msgstr "ユーザーリストにトークンを追加できません。"
+
+#: keystone/token/backends/memcache.py:91
+msgid "Unable to add token to revocation list."
+msgstr "失効リストにトークンを追加できません。"
