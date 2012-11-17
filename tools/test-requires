@@ -20,7 +20,6 @@ distribute>=0.6.24
 
 # for python-keystoneclient
 httplib2
-python-keystoneclient>=0.1,<0.2
 
 # swift_auth test dependencies
 http://tarballs.openstack.org/swift/swift-master.tar.gz#egg=swift

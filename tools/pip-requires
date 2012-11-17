@@ -11,3 +11,4 @@ sqlalchemy-migrate>=0.7.2
 passlib
 lxml
 iso8601>=0.1.4
+python-keystoneclient>=0.2,<0.3
