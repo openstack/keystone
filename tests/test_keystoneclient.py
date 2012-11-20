@@ -1097,7 +1097,14 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
     def test_endpoint_delete_404(self):
         raise nose.exc.SkipTest('N/A')
 
+    def test_policy_crud(self):
+        """Due to lack of endpoint CRUD"""
+        raise nose.exc.SkipTest('N/A')
+
 
 class Kc11TestCase(CompatTestCase, KeystoneClientTests):
     def get_checkout(self):
         return KEYSTONECLIENT_REPO, '0.1.1'
+
+    def test_policy_crud(self):
+        raise nose.exc.SkipTest('N/A')

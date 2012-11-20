@@ -68,10 +68,9 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def create_policy(self, policy_id, policy):
-        """Store a policy blob for a particular endpoint.
+        """Store a policy blob.
 
-        :raises: keystone.exception.EndpointNotFound,
-                 keystone.exception.Conflict
+        :raises: keystone.exception.Conflict
 
         """
         raise exception.NotImplemented()
@@ -91,8 +90,7 @@ class Driver(object):
     def update_policy(self, policy_id, policy):
         """Update a policy blob.
 
-        :raises: keystone.exception.PolicyNotFound,
-                 keystone.exception.EndpointNotFound
+        :raises: keystone.exception.PolicyNotFound
 
         """
         raise exception.NotImplemented()
@@ -113,9 +111,6 @@ class PolicyControllerV3(controller.V3Controller):
         ref = self._assign_unique_id(self._normalize_dict(policy))
         self._require_attribute(ref, 'blob')
         self._require_attribute(ref, 'type')
-        self._require_attribute(ref, 'endpoint_id')
-
-        self.catalog_api.get_endpoint(context, ref['endpoint_id'])
 
         ref = self.policy_api.create_policy(context, ref['id'], ref)
         return {'policy': ref}
@@ -123,7 +118,6 @@ class PolicyControllerV3(controller.V3Controller):
     def list_policies(self, context):
         self.assert_admin(context)
         refs = self.policy_api.list_policies(context)
-        refs = self._filter_by_attribute(context, refs, 'endpoint_id')
         refs = self._filter_by_attribute(context, refs, 'type')
         return {'policies': self._paginate(context, refs)}
 
@@ -134,10 +128,6 @@ class PolicyControllerV3(controller.V3Controller):
 
     def update_policy(self, context, policy_id, policy):
         self.assert_admin(context)
-
-        if 'endpoint_id' in policy:
-            self.catalog_api.get_endpoint(context, policy['endpoint_id'])
-
         ref = self.policy_api.update_policy(context, policy_id, policy)
         return {'policy': ref}
 

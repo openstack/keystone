@@ -16,6 +16,8 @@
 
 import uuid
 
+import nose.exc
+
 from keystone.common import sql
 from keystone import config
 from keystone import test
@@ -94,3 +96,76 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         self.assertRaises(client_exceptions.NotFound,
                           client.endpoints.delete,
                           id=uuid.uuid4().hex)
+
+    def test_policy_crud(self):
+        # FIXME(dolph): this test was written prior to the v3 implementation of
+        #               the client and essentially refers to a non-existent
+        #               policy manager in the v2 client. this test needs to be
+        #               moved to a test suite running against the v3 api
+        raise nose.exc.SkipTest('Written prior to v3 client; needs refactor')
+
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+
+        policy_blob = uuid.uuid4().hex
+        policy_type = uuid.uuid4().hex
+        service = client.services.create(
+            name=uuid.uuid4().hex,
+            service_type=uuid.uuid4().hex,
+            description=uuid.uuid4().hex)
+        endpoint = client.endpoints.create(
+            service_id=service.id,
+            region=uuid.uuid4().hex,
+            adminurl=uuid.uuid4().hex,
+            internalurl=uuid.uuid4().hex,
+            publicurl=uuid.uuid4().hex)
+
+        # create
+        policy = client.policies.create(
+            blob=policy_blob,
+            type=policy_type,
+            endpoint=endpoint.id)
+        self.assertEquals(policy_blob, policy.policy)
+        self.assertEquals(policy_type, policy.type)
+        self.assertEquals(endpoint.id, policy.endpoint_id)
+
+        policy = client.policies.get(policy=policy.id)
+        self.assertEquals(policy_blob, policy.policy)
+        self.assertEquals(policy_type, policy.type)
+        self.assertEquals(endpoint.id, policy.endpoint_id)
+
+        endpoints = [x for x in client.endpoints.list() if x.id == endpoint.id]
+        endpoint = endpoints[0]
+        self.assertEquals(policy_blob, policy.policy)
+        self.assertEquals(policy_type, policy.type)
+        self.assertEquals(endpoint.id, policy.endpoint_id)
+
+        # update
+        policy_blob = uuid.uuid4().hex
+        policy_type = uuid.uuid4().hex
+        endpoint = client.endpoints.create(
+            service_id=service.id,
+            region=uuid.uuid4().hex,
+            adminurl=uuid.uuid4().hex,
+            internalurl=uuid.uuid4().hex,
+            publicurl=uuid.uuid4().hex)
+
+        policy = client.policies.update(
+            policy=policy.id,
+            blob=policy_blob,
+            type=policy_type,
+            endpoint=endpoint.id)
+
+        policy = client.policies.get(policy=policy.id)
+        self.assertEquals(policy_blob, policy.policy)
+        self.assertEquals(policy_type, policy.type)
+        self.assertEquals(endpoint.id, policy.endpoint_id)
+
+        # delete
+        client.policies.delete(policy=policy.id)
+        self.assertRaises(
+            client_exceptions.NotFound,
+            client.policies.get,
+            policy=policy.id)
+        policies = [x for x in client.policies.list() if x.id == policy.id]
+        self.assertEquals(len(policies), 0)
