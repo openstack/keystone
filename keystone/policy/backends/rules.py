@@ -24,24 +24,10 @@ from keystone.common import policy as common_policy
 from keystone.common import utils
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import cfg
 from keystone import policy
 
 
-policy_opts = [
-    cfg.StrOpt('policy_file',
-               default='policy.json',
-               help=_('JSON file representing policy')),
-    cfg.StrOpt('policy_default_rule',
-               default='default',
-               help=_('Rule checked when requested rule is not found')),
-]
-
-
 CONF = config.CONF
-CONF.register_opts(policy_opts)
-
-
 LOG = logging.getLogger(__name__)
 
 

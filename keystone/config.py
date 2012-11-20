@@ -130,6 +130,8 @@ register_str('public_port', default=5000)
 register_str('onready')
 register_str('auth_admin_prefix', default='')
 register_bool('standard-threads', default=False)
+register_str('policy_file', default='policy.json')
+register_str('policy_default_rule', default=None)
 
 #ssl options
 register_bool('enable', group='ssl', default=False)
