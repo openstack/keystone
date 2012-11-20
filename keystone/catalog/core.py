@@ -116,14 +116,6 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def list_services(self):
-        """List all service ids in catalog.
-
-        :returns: list of service_ids or an empty list.
-
-        """
-        raise exception.NotImplemented()
-
-    def get_all_services(self):
         """List all services.
 
         :returns: list of service_refs or an empty list.
@@ -176,14 +168,6 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def list_endpoints(self):
-        """List all endpoint ids in catalog.
-
-        :returns: list of endpoint_ids or an empty list.
-
-        """
-        raise exception.NotImplemented()
-
-    def get_all_endpoints(self):
         """List all endpoints.
 
         :returns: list of endpoint_refs or an empty list.
@@ -242,14 +226,10 @@ class ServiceController(wsgi.Application):
         self.token_api = token.Manager()
         super(ServiceController, self).__init__()
 
-    # CRUD extensions
-    # NOTE(termie): this OS-KSADM stuff is not very consistent
     def get_services(self, context):
         self.assert_admin(context)
         service_list = self.catalog_api.list_services(context)
-        service_refs = [self.catalog_api.get_service(context, x)
-                        for x in service_list]
-        return {'OS-KSADM:services': service_refs}
+        return {'OS-KSADM:services': service_list}
 
     def get_service(self, context, service_id):
         self.assert_admin(context)
@@ -281,9 +261,7 @@ class EndpointController(wsgi.Application):
     def get_endpoints(self, context):
         self.assert_admin(context)
         endpoint_list = self.catalog_api.list_endpoints(context)
-        endpoint_refs = [self.catalog_api.get_endpoint(context, e)
-                         for e in endpoint_list]
-        return {'endpoints': endpoint_refs}
+        return {'endpoints': endpoint_list}
 
     def create_endpoint(self, context, endpoint):
         self.assert_admin(context)
@@ -312,7 +290,7 @@ class ServiceControllerV3(controller.V3Controller):
     def list_services(self, context):
         self.assert_admin(context)
 
-        refs = self.catalog_api.get_all_services(context)
+        refs = self.catalog_api.list_services(context)
         refs = self._filter_by_attribute(context, refs, 'type')
         return {'services': self._paginate(context, refs)}
 
@@ -351,7 +329,7 @@ class EndpointControllerV3(controller.V3Controller):
     def list_endpoints(self, context):
         self.assert_admin(context)
 
-        refs = self.catalog_api.get_all_endpoints(context)
+        refs = self.catalog_api.list_endpoints(context)
         refs = self._filter_by_attribute(context, refs, 'service_id')
         refs = self._filter_by_attribute(context, refs, 'interface')
         return {'endpoints': self._paginate(context, refs)}

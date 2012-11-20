@@ -15,7 +15,6 @@
 # under the License.
 
 import os
-import uuid
 
 from keystone import catalog
 from keystone.catalog.backends import templated as catalog_templated
@@ -67,19 +66,3 @@ class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
             'http://localhost:$(compute_port)s/v1.1/$(tenant)s'
         with self.assertRaises(exception.MalformedEndpoint):
             self.catalog_api.get_catalog('fake-user', 'fake-tenant')
-
-    def test_create_endpoint_404(self):
-        self.assertRaises(exception.NotImplemented,
-                          self.catalog_api.create_endpoint,
-                          uuid.uuid4().hex,
-                          {})
-
-    def test_get_endpoint_404(self):
-        self.assertRaises(exception.NotImplemented,
-                          self.catalog_api.get_endpoint,
-                          uuid.uuid4().hex)
-
-    def test_delete_endpoint_404(self):
-        self.assertRaises(exception.NotImplemented,
-                          self.catalog_api.delete_endpoint,
-                          uuid.uuid4().hex)

@@ -52,22 +52,25 @@ class Catalog(sql.Base, catalog.Driver):
     # Services
     def list_services(self):
         session = self.get_session()
-        services = session.query(Service)
-        return [s['id'] for s in list(services)]
+        services = session.query(Service).all()
+        return [s.to_dict() for s in list(services)]
+
+    def _get_service(self, session, service_id):
+        try:
+            return session.query(Service).filter_by(id=service_id).one()
+        except sql.NotFound:
+            raise exception.ServiceNotFound(service_id=service_id)
 
     def get_service(self, service_id):
         session = self.get_session()
-        service_ref = session.query(Service).filter_by(id=service_id).first()
-        if not service_ref:
-            raise exception.ServiceNotFound(service_id=service_id)
-        return service_ref.to_dict()
+        return self._get_service(session, service_id).to_dict()
 
     def delete_service(self, service_id):
         session = self.get_session()
         with session.begin():
+            ref = self._get_service(session, service_id)
             session.query(Endpoint).filter_by(service_id=service_id).delete()
-            if not session.query(Service).filter_by(id=service_id).delete():
-                raise exception.ServiceNotFound(service_id=service_id)
+            session.delete(ref)
             session.flush()
 
     def create_service(self, service_id, service_ref):
@@ -77,6 +80,18 @@ class Catalog(sql.Base, catalog.Driver):
             session.add(service)
             session.flush()
         return service.to_dict()
+
+    def update_service(self, service_id, service_ref):
+        session = self.get_session()
+        with session.begin():
+            ref = self._get_service(session, service_id)
+            old_dict = ref.to_dict()
+            old_dict.update(service_ref)
+            new_service = Service.from_dict(old_dict)
+            ref.type = new_service.type
+            ref.extra = new_service.extra
+            session.flush()
+        return ref.to_dict()
 
     # Endpoints
     def create_endpoint(self, endpoint_id, endpoint_ref):
@@ -95,18 +110,33 @@ class Catalog(sql.Base, catalog.Driver):
                 raise exception.EndpointNotFound(endpoint_id=endpoint_id)
             session.flush()
 
+    def _get_endpoint(self, session, endpoint_id):
+        try:
+            return session.query(Endpoint).filter_by(id=endpoint_id).one()
+        except sql.NotFound:
+            raise exception.EndpointNotFound(endpoint_id=endpoint_id)
+
     def get_endpoint(self, endpoint_id):
         session = self.get_session()
-        endpoint_ref = session.query(Endpoint)
-        endpoint_ref = endpoint_ref.filter_by(id=endpoint_id).first()
-        if not endpoint_ref:
-            raise exception.EndpointNotFound(endpoint_id=endpoint_id)
-        return endpoint_ref.to_dict()
+        return self._get_endpoint(session, endpoint_id).to_dict()
 
     def list_endpoints(self):
         session = self.get_session()
         endpoints = session.query(Endpoint)
-        return [e['id'] for e in list(endpoints)]
+        return [e.to_dict() for e in list(endpoints)]
+
+    def update_endpoint(self, endpoint_id, endpoint_ref):
+        session = self.get_session()
+        with session.begin():
+            ref = self._get_endpoint(session, endpoint_id)
+            old_dict = ref.to_dict()
+            old_dict.update(endpoint_ref)
+            new_endpoint = Endpoint.from_dict(old_dict)
+            ref.service_id = new_endpoint.service_id
+            ref.region = new_endpoint.region
+            ref.extra = new_endpoint.extra
+            session.flush()
+        return ref.to_dict()
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
         d = dict(CONF.iteritems())
@@ -114,8 +144,7 @@ class Catalog(sql.Base, catalog.Driver):
                   'user_id': user_id})
         catalog = {}
 
-        endpoints = [self.get_endpoint(e)
-                     for e in self.list_endpoints()]
+        endpoints = self.list_endpoints()
         for ep in endpoints:
             service = self.get_service(ep['service_id'])
             srv_type = service['type']
