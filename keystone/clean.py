@@ -37,15 +37,20 @@ def check_type(property_name, value, expected_type, display_expected_type):
         raise exception.ValidationError(msg)
 
 
-def tenant_name(name):
-    check_type("Tenant name", name, basestring, "string or unicode")
+def check_name(property_name, name):
+    check_type('%s name' % property_name, name, basestring, 'str or unicode')
     name = name.strip()
-    check_length("Tenant name", name)
+    check_length('%s name' % property_name, name)
     return name
+
+
+def domain_name(name):
+    return check_name('Domain', name)
+
+
+def tenant_name(name):
+    return check_name('Tenant', name)
 
 
 def user_name(name):
-    check_type("User name", name, basestring, "string or unicode")
-    name = name.strip()
-    check_length("User name", name)
-    return name
+    return check_name('User', name)

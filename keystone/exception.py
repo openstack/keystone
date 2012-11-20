@@ -95,8 +95,16 @@ class ServiceNotFound(NotFound):
     """Could not find service: %(service_id)s"""
 
 
+class DomainNotFound(NotFound):
+    """Could not find domain: %(domain_id)s"""
+
+
 class TenantNotFound(NotFound):
     """Could not find tenant: %(tenant_id)s"""
+
+
+class ProjectNotFound(TenantNotFound):
+    """Could not find project: %(project_id)s"""
 
 
 class TokenNotFound(NotFound):
