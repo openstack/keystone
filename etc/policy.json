@@ -1,3 +1,57 @@
 {
-    "admin_required": [["role:admin"], ["is_admin:1"]]
+    "admin_required": [["role:admin"], ["is_admin:1"]],
+
+    "identity:get_service": [["rule:admin_required"]],
+    "identity:list_services": [["rule:admin_required"]],
+    "identity:create_service": [["rule:admin_required"]],
+    "identity:update_service": [["rule:admin_required"]],
+    "identity:delete_service": [["rule:admin_required"]],
+
+    "identity:get_endpoint": [["rule:admin_required"]],
+    "identity:list_endpoints": [["rule:admin_required"]],
+    "identity:create_endpoint": [["rule:admin_required"]],
+    "identity:update_endpoint": [["rule:admin_required"]],
+    "identity:delete_endpoint": [["rule:admin_required"]],
+
+    "identity:get_domain": [["rule:admin_required"]],
+    "identity:list_domains": [["rule:admin_required"]],
+    "identity:create_domain": [["rule:admin_required"]],
+    "identity:update_domain": [["rule:admin_required"]],
+    "identity:delete_domain": [["rule:admin_required"]],
+
+    "identity:get_project": [["rule:admin_required"]],
+    "identity:list_projects": [["rule:admin_required"]],
+    "identity:list_user_projects": [["rule:admin_required"], ["user_id:%(user_id)s"]],
+    "identity:create_project": [["rule:admin_required"]],
+    "identity:update_project": [["rule:admin_required"]],
+    "identity:delete_project": [["rule:admin_required"]],
+
+    "identity:get_user": [["rule:admin_required"]],
+    "identity:list_users": [["rule:admin_required"]],
+    "identity:create_user": [["rule:admin_required"]],
+    "identity:update_user": [["rule:admin_required"]],
+    "identity:delete_user": [["rule:admin_required"]],
+
+    "identity:get_credential": [["rule:admin_required"]],
+    "identity:list_credentials": [["rule:admin_required"]],
+    "identity:create_credential": [["rule:admin_required"]],
+    "identity:update_credential": [["rule:admin_required"]],
+    "identity:delete_credential": [["rule:admin_required"]],
+
+    "identity:get_role": [["rule:admin_required"]],
+    "identity:list_roles": [["rule:admin_required"]],
+    "identity:create_role": [["rule:admin_required"]],
+    "identity:update_roles": [["rule:admin_required"]],
+    "identity:delete_roles": [["rule:admin_required"]],
+
+    "identity:check_grant": [["rule:admin_required"]],
+    "identity:list_grants": [["rule:admin_required"]],
+    "identity:create_grant": [["rule:admin_required"]],
+    "identity:revoke_grant": [["rule:admin_required"]],
+
+    "identity:get_policy": [["rule:admin_required"]],
+    "identity:list_policies": [["rule:admin_required"]],
+    "identity:create_policy": [["rule:admin_required"]],
+    "identity:update_policy": [["rule:admin_required"]],
+    "identity:delete_policy": [["rule:admin_required"]]
 }

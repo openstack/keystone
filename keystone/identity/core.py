@@ -859,134 +859,116 @@ class RoleController(wsgi.Application):
 
 
 class DomainControllerV3(controller.V3Controller):
+    @controller.protected
     def create_domain(self, context, domain):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(domain))
         ref = self.identity_api.create_domain(context, ref['id'], ref)
         return {'domain': ref}
 
+    @controller.protected
     def list_domains(self, context):
-        self.assert_admin(context)
-
         refs = self.identity_api.list_domains(context)
         return {'domains': self._paginate(context, refs)}
 
+    @controller.protected
     def get_domain(self, context, domain_id):
-        self.assert_admin(context)
-
         ref = self.identity_api.get_domain(context, domain_id)
         return {'domain': ref}
 
+    @controller.protected
     def update_domain(self, context, domain_id, domain):
-        self.assert_admin(context)
-
         self._require_matching_id(domain_id, domain)
 
         ref = self.identity_api.update_domain(context, domain_id, domain)
         return {'domain': ref}
 
+    @controller.protected
     def delete_domain(self, context, domain_id):
-        self.assert_admin(context)
         return self.identity_api.delete_domain(context, domain_id)
 
 
 class ProjectControllerV3(controller.V3Controller):
+    @controller.protected
     def create_project(self, context, project):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(project))
         ref = self.identity_api.create_project(context, ref['id'], ref)
         return {'project': ref}
 
+    @controller.protected
     def list_projects(self, context):
-        self.assert_admin(context)
-
         refs = self.identity_api.list_projects(context)
         return {'projects': self._paginate(context, refs)}
 
+    @controller.protected
     def list_user_projects(self, context, user_id):
-        # FIXME(dolph): this should also be callable by user_id themselves
-        self.assert_admin(context)
-
         refs = self.identity_api.list_user_projects(context, user_id)
         return {'projects': self._paginate(context, refs)}
 
+    @controller.protected
     def get_project(self, context, project_id):
-        self.assert_admin(context)
-
         ref = self.identity_api.get_project(context, project_id)
         return {'project': ref}
 
+    @controller.protected
     def update_project(self, context, project_id, project):
-        self.assert_admin(context)
-
         self._require_matching_id(project_id, project)
 
         ref = self.identity_api.update_project(context, project_id, project)
         return {'project': ref}
 
+    @controller.protected
     def delete_project(self, context, project_id):
-        self.assert_admin(context)
         return self.identity_api.delete_project(context, project_id)
 
 
 class UserControllerV3(controller.V3Controller):
+    @controller.protected
     def create_user(self, context, user):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(user))
         ref = self.identity_api.create_user(context, ref['id'], ref)
         return {'user': ref}
 
+    @controller.protected
     def list_users(self, context):
-        self.assert_admin(context)
-
         refs = self.identity_api.list_users(context)
         return {'users': self._paginate(context, refs)}
 
+    @controller.protected
     def get_user(self, context, user_id):
-        self.assert_admin(context)
-
         ref = self.identity_api.get_user(context, user_id)
         return {'user': ref}
 
+    @controller.protected
     def update_user(self, context, user_id, user):
-        self.assert_admin(context)
-
         self._require_matching_id(user_id, user)
 
         ref = self.identity_api.update_user(context, user_id, user)
         return {'user': ref}
 
+    @controller.protected
     def delete_user(self, context, user_id):
-        self.assert_admin(context)
         return self.identity_api.delete_user(context, user_id)
 
 
 class CredentialControllerV3(controller.V3Controller):
+    @controller.protected
     def create_credential(self, context, credential):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(credential))
         ref = self.identity_api.create_credential(context, ref['id'], ref)
         return {'credential': ref}
 
+    @controller.protected
     def list_credentials(self, context):
-        self.assert_admin(context)
-
         refs = self.identity_api.list_credentials(context)
         return {'credentials': self._paginate(context, refs)}
 
+    @controller.protected
     def get_credential(self, context, credential_id):
-        self.assert_admin(context)
-
         ref = self.identity_api.get_credential(context, credential_id)
         return {'credential': ref}
 
+    @controller.protected
     def update_credential(self, context, credential_id, credential):
-        self.assert_admin(context)
-
         self._require_matching_id(credential_id, credential)
 
         ref = self.identity_api.update_credential(
@@ -995,41 +977,37 @@ class CredentialControllerV3(controller.V3Controller):
             credential)
         return {'credential': ref}
 
+    @controller.protected
     def delete_credential(self, context, credential_id):
-        self.assert_admin(context)
         return self.identity_api.delete_credential(context, credential_id)
 
 
 class RoleControllerV3(controller.V3Controller):
+    @controller.protected
     def create_role(self, context, role):
-        self.assert_admin(context)
-
         ref = self._assign_unique_id(self._normalize_dict(role))
         ref = self.identity_api.create_role(context, ref['id'], ref)
         return {'role': ref}
 
+    @controller.protected
     def list_roles(self, context):
-        self.assert_admin(context)
-
         refs = self.identity_api.list_roles(context)
         return {'roles': self._paginate(context, refs)}
 
+    @controller.protected
     def get_role(self, context, role_id):
-        self.assert_admin(context)
-
         ref = self.identity_api.get_role(context, role_id)
         return {'role': ref}
 
+    @controller.protected
     def update_role(self, context, role_id, role):
-        self.assert_admin(context)
-
         self._require_matching_id(role_id, role)
 
         ref = self.identity_api.update_role(context, role_id, role)
         return {'role': ref}
 
+    @controller.protected
     def delete_role(self, context, role_id):
-        self.assert_admin(context)
         return self.identity_api.delete_role(context, role_id)
 
     def _require_domain_or_project(self, domain_id, project_id):
@@ -1037,41 +1015,37 @@ class RoleControllerV3(controller.V3Controller):
             msg = 'Specify a domain or project, not both'
             raise exception.ValidationError(msg)
 
+    @controller.protected
     def create_grant(self, context, role_id, user_id, domain_id=None,
                      project_id=None):
         """Grants a role to a user on either a domain or project."""
-        self.assert_admin(context)
-
         self._require_domain_or_project(domain_id, project_id)
 
         return self.identity_api.create_grant(
             context, role_id, user_id, domain_id, project_id)
 
+    @controller.protected
     def list_grants(self, context, user_id, domain_id=None,
                     project_id=None):
         """Lists roles granted to a user on either a domain or project."""
-        self.assert_admin(context)
-
         self._require_domain_or_project(domain_id, project_id)
 
         return self.identity_api.list_grants(
             context, user_id, domain_id, project_id)
 
+    @controller.protected
     def check_grant(self, context, role_id, user_id, domain_id=None,
                     project_id=None):
         """Checks if a role has been granted on either a domain or project."""
-        self.assert_admin(context)
-
         self._require_domain_or_project(domain_id, project_id)
 
         self.identity_api.get_grant(
             context, role_id, user_id, domain_id, project_id)
 
+    @controller.protected
     def revoke_grant(self, context, role_id, user_id, domain_id=None,
                      project_id=None):
         """Revokes a role from a user on either a domain or project."""
-        self.assert_admin(context)
-
         self._require_domain_or_project(domain_id, project_id)
 
         self.identity_api.delete_grant(
