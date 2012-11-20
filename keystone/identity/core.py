@@ -513,10 +513,9 @@ class TenantController(wsgi.Application):
         try:
             token_ref = self.token_api.get_token(context=context,
                                                  token_id=context['token_id'])
-        except exception.NotFound:
-            LOG.warning("Authentication failed. Could not find token " +
-                        str(context['token_id']))
-            raise exception.Unauthorized()
+        except exception.NotFound as e:
+            LOG.warning('Authentication failed: %s' % e)
+            raise exception.Unauthorized(e)
 
         user_ref = token_ref['user']
         tenant_ids = self.identity_api.get_tenants_for_user(

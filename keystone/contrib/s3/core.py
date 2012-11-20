@@ -54,4 +54,4 @@ class S3Controller(ec2.Ec2Controller):
         signed = base64.encodestring(hmac.new(key, msg, sha1).digest()).strip()
 
         if not utils.auth_str_equal(credentials['signature'], signed):
-            raise exception.Unauthorized()
+            raise exception.Unauthorized('Credential signature mismatch')

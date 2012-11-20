@@ -246,8 +246,8 @@ class Application(BaseApplication):
             try:
                 user_token_ref = self.token_api.get_token(
                     context=context, token_id=context['token_id'])
-            except exception.TokenNotFound:
-                raise exception.Unauthorized()
+            except exception.TokenNotFound as e:
+                raise exception.Unauthorized(e)
 
             creds = user_token_ref['metadata'].copy()
 

@@ -484,13 +484,15 @@ class TokenController(wsgi.Application):
 
         # If the user is disabled don't allow them to authenticate
         if not user_ref.get('enabled', True):
-            LOG.warning('User %s is disabled' % user_ref["id"])
-            raise exception.Unauthorized()
+            msg = 'User is disabled: %s' % user_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
 
         # If the tenant is disabled don't allow them to authenticate
         if tenant_ref and not tenant_ref.get('enabled', True):
-            LOG.warning('Tenant %s is disabled' % tenant_ref["id"])
-            raise exception.Unauthorized()
+            msg = 'Tenant is disabled: %s' % tenant_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
 
         if tenant_ref:
             catalog_ref = self.catalog_api.get_catalog(
@@ -562,9 +564,8 @@ class TokenController(wsgi.Application):
         try:
             old_token_ref = self.token_api.get_token(context=context,
                                                      token_id=old_token)
-        except exception.NotFound:
-            LOG.warning("Token not found: " + str(old_token))
-            raise exception.Unauthorized()
+        except exception.NotFound as e:
+            raise exception.Unauthorized(e)
 
         user_ref = old_token_ref['user']
         user_id = user_ref['id']
@@ -614,9 +615,8 @@ class TokenController(wsgi.Application):
                 user_ref = self.identity_api.get_user_by_name(
                     context=context, user_name=username)
                 user_id = user_ref['id']
-            except exception.UserNotFound:
-                LOG.warn("User not found: %s" % user_id)
-                raise exception.Unauthorized()
+            except exception.UserNotFound as e:
+                raise exception.Unauthorized(e)
 
         tenant_id = self._get_tenant_id_from_auth(context, auth)
 
@@ -627,7 +627,7 @@ class TokenController(wsgi.Application):
                 password=password,
                 tenant_id=tenant_id)
         except AssertionError as e:
-            raise exception.Unauthorized(str(e))
+            raise exception.Unauthorized(e)
         (user_ref, tenant_ref, metadata_ref) = auth_info
 
         expiry = self.token_api._get_default_expire_time(context=context)
@@ -651,9 +651,8 @@ class TokenController(wsgi.Application):
             user_ref = self.identity_api.get_user_by_name(
                 context=context, user_name=username)
             user_id = user_ref['id']
-        except exception.UserNotFound:
-            LOG.warn("User not found: %s" % username)
-            raise exception.Unauthorized()
+        except exception.UserNotFound as e:
+            raise exception.Unauthorized(e)
 
         tenant_id = self._get_tenant_id_from_auth(context, auth)
 
@@ -686,8 +685,8 @@ class TokenController(wsgi.Application):
                 tenant_ref = self.identity_api.get_tenant_by_name(
                     context=context, tenant_name=tenant_name)
                 tenant_id = tenant_ref['id']
-            except exception.TenantNotFound:
-                raise exception.Unauthorized()
+            except exception.TenantNotFound as e:
+                raise exception.Unauthorized(e)
         return tenant_id
 
     def _get_tenant_ref(self, context, user_id, tenant_id):
@@ -696,15 +695,16 @@ class TokenController(wsgi.Application):
         if tenant_id:
             tenants = self.identity_api.get_tenants_for_user(context, user_id)
             if tenant_id not in tenants:
-                LOG.warning('User %s is unauthorized for tenant %s'
-                            % (user_id, tenant_id))
-                raise exception.Unauthorized()
+                msg = 'User %s is unauthorized for tenant %s' % (
+                    user_id, tenant_id)
+                LOG.warning(msg)
+                raise exception.Unauthorized(msg)
 
             try:
                 tenant_ref = self.identity_api.get_tenant(context=context,
                                                           tenant_id=tenant_id)
-            except exception.TenantNotFound:
-                exception.Unauthorized()
+            except exception.TenantNotFound as e:
+                exception.Unauthorized(e)
         return tenant_ref
 
     def _get_metadata_ref(self, context, user_id, tenant_id):
