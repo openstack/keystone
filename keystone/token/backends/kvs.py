@@ -56,16 +56,18 @@ class Token(kvs.Base, token.Driver):
         for token, ref in self.db.items():
             if not token.startswith('token-'):
                 continue
-            if 'user' not in ref:
+            user = ref.get('user')
+            if not user:
                 continue
-            if ref['user'].get('id') != user_id:
+            if user.get('id') != user_id:
                 continue
             if ref.get('expires') and ref.get('expires') < now:
                 continue
             if tenant_id is not None:
-                if 'tenant' not in ref:
+                tenant = ref.get('tenant')
+                if not tenant:
                     continue
-                if ref['tenant'].get('id') != tenant_id:
+                if tenant.get('id') != tenant_id:
                     continue
             tokens.append(token.split('-', 1)[1])
         return tokens

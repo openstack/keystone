@@ -107,9 +107,10 @@ class Token(token.Driver):
             token_ref = self.client.get(ptk)
             if token_ref:
                 if tenant_id is not None:
-                    if 'tenant' not in token_ref:
+                    tenant = token_ref.get('tenant')
+                    if not tenant:
                         continue
-                    if token_ref['tenant'].get('id') != tenant_id:
+                    if tenant.get('id') != tenant_id:
                         continue
                 tokens.append(token_id)
         return tokens

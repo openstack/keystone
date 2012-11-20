@@ -103,14 +103,16 @@ class Token(sql.Base, token.Driver):
                                 .filter(TokenModel.expires > now)\
                                 .filter_by(valid=True):
             token_ref_dict = token_ref.to_dict()
-            if 'user' not in token_ref_dict:
+            user = token_ref_dict.get('user')
+            if not user:
                 continue
-            if token_ref_dict['user'].get('id') != user_id:
+            if user.get('id') != user_id:
                 continue
             if tenant_id is not None:
-                if 'tenant' not in token_ref_dict:
+                tenant = token_ref_dict.get('tenant')
+                if not tenant:
                     continue
-                if token_ref_dict['tenant'].get('id') != tenant_id:
+                if tenant.get('id') != tenant_id:
                     continue
             tokens.append(token_ref['id'])
         return tokens
