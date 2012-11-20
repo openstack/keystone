@@ -42,8 +42,11 @@ class UserController(wsgi.Application):
                                              token_id=token_id)
         user_id_from_token = token_ref['user']['id']
 
-        if user_id_from_token != user_id or original_password is None:
-            raise exception.Forbidden()
+        if user_id_from_token != user_id:
+            raise exception.Forbidden('Token belongs to another user')
+        if original_password is None:
+            raise exception.ValidationError(target='user',
+                                            attribute='original password')
 
         try:
             user_ref = self.identity_api.authenticate(
@@ -51,7 +54,8 @@ class UserController(wsgi.Application):
                 user_id=user_id_from_token,
                 password=original_password)[0]
             if not user_ref.get('enabled', True):
-                raise exception.Unauthorized()
+                # NOTE(dolph): why can't you set a disabled user's password?
+                raise exception.Unauthorized('User is disabled')
         except AssertionError:
             raise exception.Unauthorized()
 

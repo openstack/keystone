@@ -294,11 +294,11 @@ class Ec2Controller(wsgi.Application):
             token_ref = self.token_api.get_token(
                 context=context,
                 token_id=context['token_id'])
-        except exception.TokenNotFound:
-            raise exception.Unauthorized()
-        token_user_id = token_ref['user'].get('id')
-        if not token_user_id == user_id:
-            raise exception.Forbidden()
+        except exception.TokenNotFound as e:
+            raise exception.Unauthorized(e)
+
+        if token_ref['user'].get('id') != user_id:
+            raise exception.Forbidden('Token belongs to another user')
 
     def _is_admin(self, context):
         """Wrap admin assertion error return statement.
@@ -324,7 +324,7 @@ class Ec2Controller(wsgi.Application):
         """
         cred_ref = self.ec2_api.get_credential(context, credential_id)
         if not user_id == cred_ref['user_id']:
-            raise exception.Forbidden()
+            raise exception.Forbidden('Credential belongs to another user')
 
     def _assert_valid_user_id(self, context, user_id):
         """Ensure a valid user id.
