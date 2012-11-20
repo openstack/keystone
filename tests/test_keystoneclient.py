@@ -711,7 +711,7 @@ class KeystoneClientTests(object):
         self.assertEquals(service_type, service.type)
         self.assertEquals(service_desc, service.description)
 
-        # update is not supported...
+        # update is not supported in API v2...
 
         # delete & read
         client.services.delete(id=service.id)
@@ -736,10 +736,9 @@ class KeystoneClientTests(object):
                           id=uuid.uuid4().hex)
 
     def test_endpoint_delete_404(self):
-        # the catalog backend is expected to return Not Implemented
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
-        self.assertRaises(client_exceptions.HTTPNotImplemented,
+        self.assertRaises(client_exceptions.NotFound,
                           client.endpoints.delete,
                           id=uuid.uuid4().hex)
 
