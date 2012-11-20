@@ -56,9 +56,10 @@ class Driver(object):
     def token_to_key(self, token_id):
         """ Converts PKI tokens to their short form used for keys in
         Database tables, memcached, and other lookup tables.
-        returns: if given a  PKI token, returns its hashed value
-                 Otherwise, returns the passed-in value if given a UUID or
-                 hash of a token.
+
+        :returns: if given a  PKI token, returns its hashed value
+                  Otherwise, returns the passed-in value if given a UUID or
+                  hash of a token.
         """
         return cms.cms_hash_token(token_id)
 

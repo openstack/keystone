@@ -56,7 +56,7 @@ blueprint, or collaborate with others.
 
 `OpenStack Wiki <http://wiki.openstack.org/>`_
 
-* `useful keystone project links <http://wiki.openstack.org/keystone>`_
+* `useful keystone project links <http://wiki.openstack.org/Keystone>`_
 
 Keystone on Launchpad
 ---------------------
@@ -67,6 +67,13 @@ code is hosted on GitHub
 
 * `Keystone Project Page on Launchpad <http://launchpad.net/keystone>`_
 * `Keystone Source Repository on GitHub <http://github.com/openstack/keystone>`_
+
+Within launchpad, we use
+`blueprints <https://blueprints.launchpad.net/keystone>`_, to track feature
+work, and track `bugs <https://bugs.launchpad.net/keystone>`_ as well. If
+you are looking for a place to get started contributing to keystone, please
+look at any bugs for keystone that are tagged as `low-hanging-fruit
+<https://bugs.launchpad.net/keystone/+bugs?field.tag=low-hanging-fruit>`_.
 
 OpenStack Blog
 --------------

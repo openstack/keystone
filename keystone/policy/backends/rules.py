@@ -79,19 +79,19 @@ def enforce(credentials, action, target):
     """Verifies that the action is valid on the target in this context.
 
        :param credentials: user credentials
-       :param action: string representing the action to be checked
-
-           this should be colon separated for clarity.
-           i.e. compute:create_instance
-                compute:attach_volume
-                volume:attach_volume
-
+       :param action: string representing the action to be checked, which
+                      should be colon separated for clarity.
        :param target: dictionary representing the object of the action
                       for object creation this should be a dictionary
                       representing the location of the object e.g.
                       {'tenant_id': object.tenant_id}
-
        :raises: `exception.Forbidden` if verification fails.
+
+       Actions should be colon separated for clarity. For example:
+
+        * compute:create_instance
+        * compute:attach_volume
+        * volume:attach_volume
 
     """
     init()
