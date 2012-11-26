@@ -90,7 +90,7 @@ if __name__ == '__main__':
         CONF.print_help()
         sys.exit(1)
 
-    monkeypatch_thread = not CONF._cli_values['standard_threads']
+    monkeypatch_thread = not CONF.standard_threads
     eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
                                   thread=monkeypatch_thread)
 
