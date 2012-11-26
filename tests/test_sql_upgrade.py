@@ -124,6 +124,30 @@ class SqlUpgradeTests(test.TestCase):
         self._migrate(self.repo_path, 9)
         self._migrate(self.repo_path, 7, False)
 
+    def test_downgrade_to_0(self):
+        self._migrate(self.repo_path, 9)
+        self._migrate(self.repo_path, 0, False)
+        for table_name in ["user", "token", "role", "user_tenant_membership",
+                           "metadata"]:
+            self.assertTableDoesNotExist(table_name)
+
+    def test_upgrade_6_to_7(self):
+        self._migrate(self.repo_path, 6)
+        self.assertEqual(self.schema.version, 6, "DB is at version 6")
+        self.assertTableDoesNotExist('credential')
+        self.assertTableDoesNotExist('domain')
+        self.assertTableDoesNotExist('user_domain_metadata')
+        self._migrate(self.repo_path, 7)
+        self.assertEqual(self.schema.version, 7, "DB is at version 7")
+        self.assertTableExists('credential')
+        self.assertTableColumns('credential', ['id', 'user_id', 'project_id',
+                                               'blob', 'type', 'extra'])
+        self.assertTableExists('domain')
+        self.assertTableColumns('domain', ['id', 'name', 'extra'])
+        self.assertTableExists('user_domain_metadata')
+        self.assertTableColumns('user_domain_metadata',
+                                ['user_id', 'domain_id', 'data'])
+
     def populate_user_table(self):
         for user in default_fixtures.USERS:
             extra = copy.deepcopy(user)
