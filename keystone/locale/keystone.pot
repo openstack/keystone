@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone 2013.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-11-16 00:01+0000\n"
+"POT-Creation-Date: 2012-11-27 00:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,14 +19,6 @@ msgstr ""
 
 #: keystone/config.py:62
 msgid "Invalid syslog facility"
-msgstr ""
-
-#: keystone/policy/backends/rules.py:34
-msgid "JSON file representing policy"
-msgstr ""
-
-#: keystone/policy/backends/rules.py:37
-msgid "Rule checked when requested rule is not found"
 msgstr ""
 
 #: keystone/token/backends/memcache.py:81
