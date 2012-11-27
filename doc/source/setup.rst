@@ -70,7 +70,7 @@ Keystone maintains two lists of dependencies::
 
 The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of keystone itself.
 
-These depdendencies can be installed from PyPi_ using the python tool pip_.
+These dependencies can be installed from PyPi_ using the python tool pip_.
 
 .. _PyPi: http://pypi.python.org/
 .. _pip: http://pypi.python.org/pypi/pip
