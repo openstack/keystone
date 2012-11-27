@@ -53,6 +53,8 @@ class SqlTests(test.TestCase):
 
         # populate the engine with tables & fixtures
         self.load_fixtures(default_fixtures)
+        #defaulted by the data load
+        self.user_foo['enabled'] = True
 
     def tearDown(self):
         sql.set_global_engine(None)

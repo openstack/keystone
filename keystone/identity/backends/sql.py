@@ -39,9 +39,11 @@ def handle_conflicts(type='object'):
 
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
-    attributes = ['id', 'name']
+    attributes = ['id', 'name', 'password', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
+    password = sql.Column(sql.String(128))
+    enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
 
 
@@ -73,6 +75,8 @@ class Tenant(sql.ModelBase, sql.DictBase):
     attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
+    description = sql.Column(sql.Text())
+    enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
 
 
@@ -562,6 +566,8 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
+        if not 'enabled' in user:
+            user['enabled'] = True
         user = utils.hash_user_password(user)
         session = self.get_session()
         with session.begin():

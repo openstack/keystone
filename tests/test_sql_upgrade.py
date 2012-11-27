@@ -19,6 +19,7 @@ import json
 
 from migrate.versioning import api as versioning_api
 import sqlalchemy
+from sqlalchemy.orm import sessionmaker
 
 from keystone.common import sql
 from keystone import config
@@ -84,6 +85,45 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableExists('policy')
         self.assertTableColumns('policy', ['id', 'type', 'blob', 'extra'])
 
+    def test_upgrade_7_to_9(self):
+
+        self.assertEqual(self.schema.version, 0)
+        self._migrate(self.repo_path, 7)
+        self.populate_user_table()
+        self.populate_tenant_table()
+        self._migrate(self.repo_path, 9)
+        self.assertEqual(self.schema.version, 9)
+        self.assertTableColumns("user",
+                                ["id", "name", "extra", "password",
+                                 "enabled"])
+        self.assertTableColumns("tenant",
+                                ["id", "name", "extra", "description",
+                                 "enabled"])
+        self.assertTableColumns("role", ["id", "name", "extra"])
+        self.assertTableColumns("user_tenant_membership",
+                                ["user_id", "tenant_id"])
+        self.assertTableColumns("metadata", ["user_id", "tenant_id", "data"])
+        maker = sessionmaker(bind=self.engine)
+        session = maker()
+        user_table = sqlalchemy.Table("user",
+                                      self.metadata,
+                                      autoload=True)
+        a_user = session.query(user_table).filter("id='foo'").one()
+        self.assertTrue(a_user.enabled)
+        a_user = session.query(user_table).filter("id='badguy'").one()
+        self.assertFalse(a_user.enabled)
+        tenant_table = sqlalchemy.Table("tenant",
+                                        self.metadata,
+                                        autoload=True)
+        a_tenant = session.query(tenant_table).filter("id='baz'").one()
+        self.assertEqual(a_tenant.description, 'description')
+        session.commit()
+
+    def test_downgrade_9_to_7(self):
+        self.assertEqual(self.schema.version, 0)
+        self._migrate(self.repo_path, 9)
+        self._migrate(self.repo_path, 7, False)
+
     def populate_user_table(self):
         for user in default_fixtures.USERS:
             extra = copy.deepcopy(user)
@@ -92,6 +132,16 @@ class SqlUpgradeTests(test.TestCase):
             self.engine.execute("insert into user values ('%s', '%s', '%s')"
                                 % (user['id'],
                                    user['name'],
+                                   json.dumps(extra)))
+
+    def populate_tenant_table(self):
+        for tenant in default_fixtures.TENANTS:
+            extra = copy.deepcopy(tenant)
+            extra.pop('id')
+            extra.pop('name')
+            self.engine.execute("insert into tenant values ('%s', '%s', '%s')"
+                                % (tenant['id'],
+                                   tenant['name'],
                                    json.dumps(extra)))
 
     def select_table(self, name):
@@ -117,8 +167,7 @@ class SqlUpgradeTests(test.TestCase):
         else:
             raise AssertionError('Table "%s" already exists' % table_name)
 
-    def _migrate(self, repository, version):
-        upgrade = True
+    def _migrate(self, repository, version, upgrade=True):
         err = ""
         version = versioning_api._migrate_version(self.schema,
                                                   version,
