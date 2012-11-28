@@ -15,3 +15,5 @@
 # under the License.
 
 from keystone.identity.core import *
+from keystone.identity.controllers import *
+from keystone.identity.routers import *
