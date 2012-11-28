@@ -438,6 +438,7 @@ class TokenController(wsgi.Application):
             self.token_api.create_token(
                 context, token_id, dict(key=token_id,
                                         id=token_id,
+                                        expires=auth_token_data['expires'],
                                         user=user_ref,
                                         tenant=tenant_ref,
                                         metadata=metadata_ref))
