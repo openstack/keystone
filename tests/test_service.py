@@ -12,16 +12,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
 import uuid
 
 import default_fixtures
 
+from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import service
 from keystone import test
 from keystone.identity.backends import kvs as kvs_identity
 from keystone.openstack.common import timeutils
+
+
+CONF = config.CONF
 
 
 def _build_user_auth(token=None, username=None,
@@ -296,3 +301,55 @@ class AuthWithRemoteUser(TokenControllerTest):
             self.api.authenticate,
             {'REMOTE_USER': uuid.uuid4().hex},
             body_dict)
+
+
+class TokenExpirationTest(test.TestCase):
+    def setUp(self):
+        super(TokenExpirationTest, self).setUp()
+        self.identity_api = kvs_identity.Identity()
+        self.load_fixtures(default_fixtures)
+        self.api = service.TokenController()
+
+    def _maintain_token_expiration(self):
+        """Token expiration should be maintained after re-auth & validation."""
+        r = self.api.authenticate(
+            {},
+            auth={
+                'passwordCredentials': {
+                    'username': self.user_foo['name'],
+                    'password': self.user_foo['password']
+                }
+            })
+        unscoped_token_id = r['access']['token']['id']
+        original_expiration = r['access']['token']['expires']
+
+        time.sleep(0.5)
+
+        r = self.api.validate_token(
+            dict(is_admin=True, query_string={}),
+            token_id=unscoped_token_id)
+        self.assertEqual(original_expiration, r['access']['token']['expires'])
+
+        time.sleep(0.5)
+
+        r = self.api.authenticate(
+            {},
+            auth={
+                'token': {
+                    'id': unscoped_token_id,
+                },
+                'tenantId': self.tenant_bar['id'],
+            })
+        scoped_token_id = r['access']['token']['id']
+        self.assertEqual(original_expiration, r['access']['token']['expires'])
+
+        time.sleep(0.5)
+
+        r = self.api.validate_token(
+            dict(is_admin=True, query_string={}),
+            token_id=scoped_token_id)
+        self.assertEqual(original_expiration, r['access']['token']['expires'])
+
+    def test_maintain_uuid_token_expiration(self):
+        self.opt_in_group('signing', token_format='UUID')
+        self._maintain_token_expiration()
