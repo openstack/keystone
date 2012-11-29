@@ -31,6 +31,7 @@ import passlib.hash
 
 from keystone.common import logging
 from keystone import config
+from keystone import exception
 
 
 CONF = config.CONF
@@ -148,10 +149,13 @@ class Ec2Signer(object):
 
 def trunc_password(password):
     """Truncate passwords to the MAX_PASSWORD_LENGTH."""
-    if len(password) > MAX_PASSWORD_LENGTH:
-        return password[:MAX_PASSWORD_LENGTH]
-    else:
-        return password
+    try:
+        if len(password) > MAX_PASSWORD_LENGTH:
+            return password[:MAX_PASSWORD_LENGTH]
+        else:
+            return password
+    except TypeError:
+        raise exception.ValidationError(attribute='string', target='password')
 
 
 def hash_user_password(user):
