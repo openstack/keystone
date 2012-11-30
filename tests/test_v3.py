@@ -44,6 +44,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         ref = self.new_ref()
         ref['interface'] = uuid.uuid4().hex
         ref['service_id'] = service_id
+        ref['url'] = uuid.uuid4().hex
         return ref
 
     def new_domain_ref(self):

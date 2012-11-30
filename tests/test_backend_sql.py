@@ -217,66 +217,52 @@ class SqlToken(SqlTests, test_backend.TokenTests):
 
 class SqlCatalog(SqlTests, test_backend.CatalogTests):
     def test_malformed_catalog_throws_error(self):
-        self.catalog_api.create_service('a', {"id": "a", "desc": "a1",
-                                        "name": "b"})
-        badurl = "http://192.168.1.104:$(compute_port)s/v2/$(tenant)s"
-        self.catalog_api.create_endpoint('b', {"id": "b", "region": "b1",
-                                         "service_id": "a", "adminurl": badurl,
-                                         "internalurl": badurl,
-                                         "publicurl": badurl})
-        with self.assertRaises(exception.MalformedEndpoint):
-            self.catalog_api.get_catalog('fake-user', 'fake-tenant')
-
-    def test_get_catalog_without_endpoint(self):
-        new_service = {
+        service = {
             'id': uuid.uuid4().hex,
             'type': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
             'description': uuid.uuid4().hex,
         }
-        self.catalog_api.create_service(
-            new_service['id'],
-            new_service.copy())
-        service_id = new_service['id']
+        self.catalog_api.create_service(service['id'], service.copy())
 
-        new_endpoint = {
+        malformed_url = "http://192.168.1.104:$(compute_port)s/v2/$(tenant)s"
+        endpoint = {
             'id': uuid.uuid4().hex,
             'region': uuid.uuid4().hex,
-            'service_id': service_id,
+            'service_id': service['id'],
+            'interface': 'public',
+            'url': malformed_url,
         }
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
-        self.catalog_api.create_endpoint(
-            new_endpoint['id'],
-            new_endpoint.copy())
+        with self.assertRaises(exception.MalformedEndpoint):
+            self.catalog_api.get_catalog('fake-user', 'fake-tenant')
+
+    def test_get_catalog_with_empty_public_url(self):
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service.copy())
+
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'region': uuid.uuid4().hex,
+            'interface': 'public',
+            'url': '',
+            'service_id': service['id'],
+        }
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
         catalog = self.catalog_api.get_catalog('user', 'tenant')
-
-        service_type = new_service['type']
-        region = new_endpoint['region']
-
-        self.assertEqual(catalog[region][service_type]['name'],
-                         new_service['name'])
-        self.assertEqual(catalog[region][service_type]['id'],
-                         new_endpoint['id'])
-        self.assertEqual(catalog[region][service_type]['publicURL'],
-                         "")
-        self.assertEqual(catalog[region][service_type]['adminURL'],
-                         None)
-        self.assertEqual(catalog[region][service_type]['internalURL'],
-                         None)
-
-    def test_delete_service_with_endpoints(self):
-        self.catalog_api.create_service('c', {"id": "c", "desc": "a1",
-                                        "name": "d"})
-        self.catalog_api.create_endpoint('d', {"id": "d", "region": None,
-                                         "service_id": "c", "adminurl": None,
-                                         "internalurl": None,
-                                         "publicurl": None})
-        self.catalog_api.delete_service("c")
-        self.assertRaises(exception.ServiceNotFound,
-                          self.catalog_man.delete_service, {}, "c")
-        self.assertRaises(exception.EndpointNotFound,
-                          self.catalog_man.delete_endpoint, {}, "d")
+        catalog_endpoint = catalog[endpoint['region']][service['type']]
+        self.assertEqual(catalog_endpoint['name'], service['name'])
+        self.assertEqual(catalog_endpoint['id'], endpoint['id'])
+        self.assertEqual(catalog_endpoint['publicURL'], '')
+        self.assertIsNone(catalog_endpoint.get('adminURL'))
+        self.assertIsNone(catalog_endpoint.get('internalURL'))
 
 
 class SqlPolicy(SqlTests, test_backend.PolicyTests):
