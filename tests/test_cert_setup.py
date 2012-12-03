@@ -16,15 +16,14 @@
 # limitations under the License.
 
 import os
-import unittest2 as test
 import shutil
 
-from keystone import config
 from keystone.common import openssl
+from keystone import test
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SSLDIR = "%s/tests/ssl/" % ROOTDIR
-CONF = config.CONF
+CONF = test.CONF
 
 
 def rootdir(*p):
@@ -34,12 +33,14 @@ def rootdir(*p):
 CERTDIR = rootdir("certs")
 KEYDIR = rootdir("private")
 
-CONF.signing.certfile = os.path.join(CERTDIR, 'signing_cert.pem')
-CONF.signing.ca_certs = os.path.join(CERTDIR, "ca.pem")
-CONF.signing.keyfile = os.path.join(KEYDIR, "signing_key.pem")
-
 
 class CertSetupTestCase(test.TestCase):
+
+    def setUp(self):
+        super(CertSetupTestCase, self).setUp()
+        CONF.signing.certfile = os.path.join(CERTDIR, 'signing_cert.pem')
+        CONF.signing.ca_certs = os.path.join(CERTDIR, "ca.pem")
+        CONF.signing.keyfile = os.path.join(KEYDIR, "signing_key.pem")
 
     def test_create_certs(self):
         ssl = openssl.ConfigurePKI()
@@ -50,3 +51,4 @@ class CertSetupTestCase(test.TestCase):
 
     def tearDown(self):
         shutil.rmtree(rootdir(SSLDIR))
+        super(CertSetupTestCase, self).tearDown()
