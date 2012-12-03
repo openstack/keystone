@@ -66,6 +66,7 @@ Developers Documentation
    middlewarearchitecture
    api_curl_examples
    apache-httpd
+   external-auth
 
 Code Documentation
 ==================
