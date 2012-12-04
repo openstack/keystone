@@ -388,10 +388,10 @@ files for each Server application.
 * ``etc/logging.conf.sample``
 * ``etc/default_catalog.templates``
 
-.. _`prepare your Essex deployment`:
+.. _`prepare your deployment`:
 
-Preparing your Essex deployment
-===============================
+Preparing your deployment
+=========================
 
 Step 1: Configure keystone.conf
 -------------------------------
@@ -450,9 +450,9 @@ Migration support is provided for the following legacy Keystone versions:
 .. NOTE::
 
     Before you can import your legacy data, you must first
-    `prepare your Essex deployment`_.
+    `prepare your deployment`_.
 
-Step 1: Ensure your Essex deployment can access your legacy database
+Step 1: Ensure your deployment can access your legacy database
 --------------------------------------------------------------------
 
 Your legacy ``keystone.conf`` contains a SQL configuration section called
@@ -461,7 +461,7 @@ looks like::
 
     sql_connection = sqlite:///keystone.db
 
-This connection string needs to be accessible from your Essex deployment (e.g.
+This connection string needs to be accessible from your deployment (e.g.
 you may need to copy your SQLite ``*.db`` file to a new server, adjust the
 relative path as appropriate, or open a firewall for MySQL, etc).
 
@@ -474,7 +474,7 @@ Use the following command to import your old data using the value of
     $ keystone-manage import_legacy <sql_connection>
 
 You should now be able to run the same command you used to test your new
-database above, but now you'll see your legacy Keystone data in Essex::
+database above, but now you'll see your legacy Keystone data::
 
     $ keystone --token ADMIN --endpoint http://127.0.0.1:35357/v2.0/ tenant-list
     +----------------------------------+----------------+---------+
@@ -491,7 +491,7 @@ Migrating your Service Catalog from legacy versions of Keystone
 ===============================================================
 
 While legacy Keystone deployments stored the service catalog in the database,
-the service catalog in Essex is stored in a flat ``template_file``. An example
+the service catalog is stored in a flat ``template_file``. An example
 service catalog template file may be found in
 ``etc/default_catalog.templates``. You can change the path to your service
 catalog template in ``keystone.conf`` by changing the value of
@@ -510,13 +510,13 @@ Migrating from Nova Auth
 ========================
 
 Migration of users, projects (aka tenants), roles and EC2 credentials
-is supported for the Essex release of Nova. To migrate your auth
+is supported for the Essex and later releases of Nova. To migrate your auth
 data from Nova, use the following steps:
 
 .. NOTE::
 
     Before you can migrate from nova auth, you must first
-    `prepare your Essex deployment`_.
+    `prepare your deployment`_.
 
 Step 1: Export your data from Nova
 ----------------------------------
