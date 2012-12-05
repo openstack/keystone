@@ -18,7 +18,6 @@
 
 
 from keystone.common import manager
-from keystone.common import controller
 from keystone import config
 from keystone import exception
 
@@ -102,34 +101,3 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()
-
-
-class PolicyControllerV3(controller.V3Controller):
-    @controller.protected
-    def create_policy(self, context, policy):
-        ref = self._assign_unique_id(self._normalize_dict(policy))
-        self._require_attribute(ref, 'blob')
-        self._require_attribute(ref, 'type')
-
-        ref = self.policy_api.create_policy(context, ref['id'], ref)
-        return {'policy': ref}
-
-    @controller.protected
-    def list_policies(self, context):
-        refs = self.policy_api.list_policies(context)
-        refs = self._filter_by_attribute(context, refs, 'type')
-        return {'policies': self._paginate(context, refs)}
-
-    @controller.protected
-    def get_policy(self, context, policy_id):
-        ref = self.policy_api.get_policy(context, policy_id)
-        return {'policy': ref}
-
-    @controller.protected
-    def update_policy(self, context, policy_id, policy):
-        ref = self.policy_api.update_policy(context, policy_id, policy)
-        return {'policy': ref}
-
-    @controller.protected
-    def delete_policy(self, context, policy_id):
-        return self.policy_api.delete_policy(context, policy_id)

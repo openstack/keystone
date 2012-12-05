@@ -44,7 +44,7 @@ Use the built-in logging module, and ensure you ``getLogger``::
 Imports
 -------
 
-- Do not import objects, only modules
+- Import modules, not module attributes
 - Do not import more than one module per line
 - Do not make relative imports
 - Order your imports by the full module path

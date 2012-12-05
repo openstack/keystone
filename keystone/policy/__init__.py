@@ -15,3 +15,4 @@
 # under the License.
 
 from keystone.policy.core import *
+from keystone.policy import controllers
