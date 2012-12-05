@@ -20,20 +20,21 @@ from keystone import exception
 def check_length(property_name, value, min_length=1, max_length=64):
     if len(value) < min_length:
         if min_length == 1:
-            msg = "%s cannot be empty." % property_name
+            msg = _("%s cannot be empty.") % property_name
         else:
-            msg = ("%(property_name)s cannot be less than "
-                   "%(min_length)s characters.") % locals()
+            msg = (_("%(property_name)s cannot be less than "
+                   "%(min_length)s characters.")) % locals()
         raise exception.ValidationError(msg)
     if len(value) > max_length:
-        msg = ("%(property_name)s should not be greater than "
-               "%(max_length)s characters.") % locals()
+        msg = (_("%(property_name)s should not be greater than "
+               "%(max_length)s characters.")) % locals()
         raise exception.ValidationError(msg)
 
 
 def check_type(property_name, value, expected_type, display_expected_type):
     if not isinstance(value, expected_type):
-        msg = "%(property_name)s is not a %(display_expected_type)s" % locals()
+        msg = _("%(property_name)s is not a"
+                "%(display_expected_type)s") % locals()
         raise exception.ValidationError(msg)
 
 

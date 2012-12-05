@@ -168,8 +168,8 @@ class BaseLdap(object):
                 pass
             else:
                 raise exception.Conflict(type=self.options_name,
-                                         details='Duplicate name, %s.' %
-                                                 values['name'])
+                                         details=_('Duplicate name, %s.') %
+                                         values['name'])
 
         if values.get('id') is not None:
             try:
@@ -178,12 +178,13 @@ class BaseLdap(object):
                 pass
             else:
                 raise exception.Conflict(type=self.options_name,
-                                         details='Duplicate ID, %s.' %
-                                                 values['id'])
+                                         details=_('Duplicate ID, %s.') %
+                                         values['id'])
 
     def create(self, values):
         if not self.allow_create:
-            msg = 'LDAP backend does not allow %s create' % self.options_name
+            msg = _('LDAP backend does not allow %s create') \
+                % self.options_name
             raise exception.ForbiddenAction(msg)
 
         conn = self.get_connection()
@@ -289,7 +290,8 @@ class BaseLdap(object):
 
     def update(self, id, values, old_obj=None):
         if not self.allow_update:
-            msg = 'LDAP backend does not allow %s update' % self.options_name
+            msg = _('LDAP backend does not allow %s update') \
+                % self.options_name
             raise exception.ForbiddenAction(msg)
 
         if old_obj is None:
@@ -316,7 +318,8 @@ class BaseLdap(object):
 
     def delete(self, id):
         if not self.allow_delete:
-            msg = 'LDAP backend does not allow %s delete' % self.options_name
+            msg = _('LDAP backend does not allow %s delete') \
+                % self.options_name
             raise exception.ForbiddenAction(msg)
 
         conn = self.get_connection()

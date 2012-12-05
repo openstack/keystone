@@ -41,7 +41,7 @@ def cms_verify(formatted, signing_cert_file_name, ca_file_name):
     output, err = process.communicate(formatted)
     retcode = process.poll()
     if retcode:
-        LOG.error('Verify error: %s' % err)
+        LOG.error(_('Verify error: %s') % err)
         raise subprocess.CalledProcessError(retcode, "openssl", output=err)
     return output
 
@@ -131,7 +131,7 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
     output, err = process.communicate(text)
     retcode = process.poll()
     if retcode or "Error" in err:
-        LOG.error('Signing error: %s' % err)
+        LOG.error(_('Signing error: %s') % err)
         raise subprocess.CalledProcessError(retcode, "openssl")
     return output
 

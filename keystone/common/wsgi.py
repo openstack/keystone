@@ -70,7 +70,7 @@ class Server(object):
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
-        LOG.debug('Starting %(arg0)s on %(host)s:%(port)s' %
+        LOG.debug(_('Starting %(arg0)s on %(host)s:%(port)s') %
                   {'arg0': sys.argv[0],
                    'host': self.host,
                    'port': self.port})
@@ -193,7 +193,7 @@ class Application(BaseApplication):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
         action = arg_dict.pop('action')
         del arg_dict['controller']
-        LOG.debug('arg_dict: %s', arg_dict)
+        LOG.debug(_('arg_dict: %s'), arg_dict)
 
         # allow middleware up the stack to provide context & params
         context = req.environ.get(CONTEXT_ENV, {})
@@ -214,7 +214,7 @@ class Application(BaseApplication):
         try:
             result = method(context, **params)
         except exception.Unauthorized as e:
-            LOG.warning("Authorization failed. %s from %s"
+            LOG.warning(_("Authorization failed. %s from %s")
                         % (e, req.environ['REMOTE_ADDR']))
             return render_exception(e)
         except exception.Error as e:

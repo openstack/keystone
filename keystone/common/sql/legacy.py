@@ -171,4 +171,4 @@ class LegacyMigration(object):
             try:
                 self.ec2_driver.create_credential(None, new_dict)
             except exc.IntegrityError:
-                LOG.exception('Cannot migrate EC2 credential: %s' % x)
+                LOG.exception(_('Cannot migrate EC2 credential: %s') % x)
