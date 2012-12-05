@@ -16,34 +16,23 @@
 
 """WSGI Routers for the Identity service."""
 
-import urllib
-import urlparse
-import uuid
-
-from keystone.common import controller
-from keystone.common import logging
-from keystone.common import manager
 from keystone.common import wsgi
-from keystone import config
-from keystone import exception
-from keystone import policy
-from keystone import token
-from keystone.identity import core, controllers
+from keystone.identity import controllers
 
 
-class PublicRouter(wsgi.ComposableRouter):
+class Public(wsgi.ComposableRouter):
     def add_routes(self, mapper):
-        tenant_controller = controllers.TenantController()
+        tenant_controller = controllers.Tenant()
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_tenants_for_token',
                        conditions=dict(method=['GET']))
 
 
-class AdminRouter(wsgi.ComposableRouter):
+class Admin(wsgi.ComposableRouter):
     def add_routes(self, mapper):
         # Tenant Operations
-        tenant_controller = controllers.TenantController()
+        tenant_controller = controllers.Tenant()
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_all_tenants',
@@ -54,14 +43,14 @@ class AdminRouter(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
         # User Operations
-        user_controller = controllers.UserController()
+        user_controller = controllers.User()
         mapper.connect('/users/{user_id}',
                        controller=user_controller,
                        action='get_user',
                        conditions=dict(method=['GET']))
 
         # Role Operations
-        roles_controller = controllers.RoleController()
+        roles_controller = controllers.Role()
         mapper.connect('/tenants/{tenant_id}/users/{user_id}/roles',
                        controller=roles_controller,
                        action='get_user_roles',

@@ -22,26 +22,22 @@ import uuid
 
 from keystone.common import controller
 from keystone.common import logging
-from keystone.common import manager
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
+from keystone.identity import core
 from keystone import policy
 from keystone import token
-from keystone.identity import core
 
-
-CONF = config.CONF
 
 LOG = logging.getLogger(__name__)
 
 
-class TenantController(wsgi.Application):
+class Tenant(wsgi.Application):
     def __init__(self):
         self.identity_api = core.Manager()
         self.policy_api = policy.Manager()
         self.token_api = token.Manager()
-        super(TenantController, self).__init__()
+        super(Tenant, self).__init__()
 
     def get_all_tenants(self, context, **kw):
         """Gets a list of all tenants for an admin user."""
@@ -161,12 +157,12 @@ class TenantController(wsgi.Application):
         return o
 
 
-class UserController(wsgi.Application):
+class User(wsgi.Application):
     def __init__(self):
         self.identity_api = core.Manager()
         self.policy_api = policy.Manager()
         self.token_api = token.Manager()
-        super(UserController, self).__init__()
+        super(User, self).__init__()
 
     def get_user(self, context, user_id):
         self.assert_admin(context)
@@ -244,12 +240,12 @@ class UserController(wsgi.Application):
         return self.update_user(context, user_id, user)
 
 
-class RoleController(wsgi.Application):
+class Role(wsgi.Application):
     def __init__(self):
         self.identity_api = core.Manager()
         self.token_api = token.Manager()
         self.policy_api = policy.Manager()
-        super(RoleController, self).__init__()
+        super(Role, self).__init__()
 
     # COMPAT(essex-3)
     def get_user_roles(self, context, user_id, tenant_id=None):
@@ -413,7 +409,7 @@ class RoleController(wsgi.Application):
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 
 
-class DomainControllerV3(controller.V3Controller):
+class DomainV3(controller.V3Controller):
     @controller.protected
     def create_domain(self, context, domain):
         ref = self._assign_unique_id(self._normalize_dict(domain))
@@ -442,7 +438,7 @@ class DomainControllerV3(controller.V3Controller):
         return self.identity_api.delete_domain(context, domain_id)
 
 
-class ProjectControllerV3(controller.V3Controller):
+class ProjectV3(controller.V3Controller):
     @controller.protected
     def create_project(self, context, project):
         ref = self._assign_unique_id(self._normalize_dict(project))
@@ -476,7 +472,7 @@ class ProjectControllerV3(controller.V3Controller):
         return self.identity_api.delete_project(context, project_id)
 
 
-class UserControllerV3(controller.V3Controller):
+class UserV3(controller.V3Controller):
     @controller.protected
     def create_user(self, context, user):
         ref = self._assign_unique_id(self._normalize_dict(user))
@@ -505,7 +501,7 @@ class UserControllerV3(controller.V3Controller):
         return self.identity_api.delete_user(context, user_id)
 
 
-class CredentialControllerV3(controller.V3Controller):
+class CredentialV3(controller.V3Controller):
     @controller.protected
     def create_credential(self, context, credential):
         ref = self._assign_unique_id(self._normalize_dict(credential))
@@ -537,7 +533,7 @@ class CredentialControllerV3(controller.V3Controller):
         return self.identity_api.delete_credential(context, credential_id)
 
 
-class RoleControllerV3(controller.V3Controller):
+class RoleV3(controller.V3Controller):
     @controller.protected
     def create_role(self, context, role):
         ref = self._assign_unique_id(self._normalize_dict(role))

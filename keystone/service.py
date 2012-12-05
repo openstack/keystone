@@ -80,13 +80,13 @@ class V3Router(wsgi.ComposingRouter):
 
         self.crud_routes(
             mapper,
-            catalog.ServiceControllerV3(**apis),
+            catalog.controllers.ServiceV3(**apis),
             'services',
             'service')
 
         self.crud_routes(
             mapper,
-            catalog.EndpointControllerV3(**apis),
+            catalog.controllers.EndpointV3(**apis),
             'endpoints',
             'endpoint')
 
@@ -94,11 +94,11 @@ class V3Router(wsgi.ComposingRouter):
 
         self.crud_routes(
             mapper,
-            identity.DomainControllerV3(**apis),
+            identity.controllers.DomainV3(**apis),
             'domains',
             'domain')
 
-        project_controller = identity.ProjectControllerV3(**apis)
+        project_controller = identity.controllers.ProjectV3(**apis)
         self.crud_routes(
             mapper,
             project_controller,
@@ -112,17 +112,17 @@ class V3Router(wsgi.ComposingRouter):
 
         self.crud_routes(
             mapper,
-            identity.UserControllerV3(**apis),
+            identity.controllers.UserV3(**apis),
             'users',
             'user')
 
         self.crud_routes(
             mapper,
-            identity.CredentialControllerV3(**apis),
+            identity.controllers.CredentialV3(**apis),
             'credentials',
             'credential')
 
-        role_controller = identity.RoleControllerV3(**apis)
+        role_controller = identity.controllers.RoleV3(**apis)
         self.crud_routes(
             mapper,
             role_controller,
@@ -171,7 +171,7 @@ class V3Router(wsgi.ComposingRouter):
 
         # Policy
 
-        policy_controller = policy.PolicyControllerV3(**apis)
+        policy_controller = policy.controllers.PolicyV3(**apis)
         self.crud_routes(
             mapper,
             policy_controller,
@@ -260,7 +260,7 @@ class AdminRouter(wsgi.ComposingRouter):
                        controller=extensions_controller,
                        action='get_extension_info',
                        conditions=dict(method=['GET']))
-        identity_router = identity.AdminRouter()
+        identity_router = identity.routers.Admin()
         routers = [identity_router]
         super(AdminRouter, self).__init__(mapper, routers)
 
@@ -302,7 +302,7 @@ class PublicRouter(wsgi.ComposingRouter):
                        action='get_extension_info',
                        conditions=dict(method=['GET']))
 
-        identity_router = identity.PublicRouter()
+        identity_router = identity.routers.Public()
         routers = [identity_router]
 
         super(PublicRouter, self).__init__(mapper, routers)
