@@ -624,7 +624,7 @@ class TokenController(wsgi.Application):
 
         """
         if not catalog_ref:
-            return {}
+            return []
 
         services = {}
         for region, region_ref in catalog_ref.iteritems():

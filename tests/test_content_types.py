@@ -367,6 +367,22 @@ class CoreApiTests(object):
             expected_status=200)
         self.assertValidAuthenticationResponse(r)
 
+    def test_authenticate_unscoped(self):
+        r = self.public_request(
+            method='POST',
+            path='/v2.0/tokens',
+            body={
+                'auth': {
+                    'passwordCredentials': {
+                        'username': self.user_foo['name'],
+                        'password': self.user_foo['password'],
+                    },
+                },
+            },
+            # TODO(dolph): creating a token should result in a 201 Created
+            expected_status=200)
+        self.assertValidAuthenticationResponse(r)
+
     def test_get_tenants_for_token(self):
         r = self.public_request(path='/v2.0/tenants',
                                 token=self.get_scoped_token())
@@ -520,7 +536,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         if require_service_catalog:
             self.assertIsNotNone(serviceCatalog)
         if serviceCatalog is not None:
-            self.assertTrue(len(r.body['access']['serviceCatalog']))
+            self.assertTrue(isinstance(serviceCatalog, list))
             for service in r.body['access']['serviceCatalog']:
                 # validate service
                 self.assertIsNotNone(service.get('name'))
@@ -783,7 +799,6 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         if require_service_catalog:
             self.assertIsNotNone(serviceCatalog)
         if serviceCatalog is not None:
-            self.assertTrue(len(serviceCatalog.findall(self._tag('service'))))
             for service in serviceCatalog.findall(self._tag('service')):
                 # validate service
                 self.assertIsNotNone(service.get('name'))
