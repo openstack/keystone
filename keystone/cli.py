@@ -16,11 +16,13 @@
 
 from __future__ import absolute_import
 
+import argparse
 import sys
 import textwrap
 
 from keystone import config
 from keystone.common import openssl
+from keystone.openstack.common import cfg
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 
@@ -28,17 +30,14 @@ CONF = config.CONF
 
 
 class BaseApp(object):
-    def __init__(self, argv=None):
-        self.argv = argv
 
-    def run(self):
-        return self.main()
+    name = None
 
-    def missing_param(self, param):
-        print 'Missing parameter: %s' % param
-        CONF.print_help()
-        print_commands(CMDS)
-        sys.exit(1)
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = subparsers.add_parser(cls.name, help=cls.__doc__)
+        parser.set_defaults(cmd_class=cls)
+        return parser
 
 
 class DbSync(BaseApp):
@@ -46,10 +45,8 @@ class DbSync(BaseApp):
 
     name = 'db_sync'
 
-    def __init__(self, *args, **kw):
-        super(DbSync, self).__init__(*args, **kw)
-
-    def main(self):
+    @staticmethod
+    def main():
         for k in ['identity', 'catalog', 'policy', 'token']:
             driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
@@ -61,10 +58,8 @@ class PKISetup(BaseApp):
 
     name = 'pki_setup'
 
-    def __init__(self, *args, **kw):
-        super(PKISetup, self).__init__(*args, **kw)
-
-    def main(self):
+    @staticmethod
+    def main():
         conf_ssl = openssl.ConfigurePKI()
         conf_ssl.run()
 
@@ -74,15 +69,16 @@ class ImportLegacy(BaseApp):
 
     name = 'import_legacy'
 
-    def __init__(self, *args, **kw):
-        super(ImportLegacy, self).__init__(*args, **kw)
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(ImportLegacy, cls).add_argument_parser(subparsers)
+        parser.add_argument('old_db')
+        return parser
 
-    def main(self):
+    @staticmethod
+    def main():
         from keystone.common.sql import legacy
-        if len(self.argv) < 2:
-            return self.missing_param('old_db')
-        old_db = self.argv[1]
-        migration = legacy.LegacyMigration(old_db)
+        migration = legacy.LegacyMigration(CONF.command.old_db)
         migration.migrate_all()
 
 
@@ -91,15 +87,17 @@ class ExportLegacyCatalog(BaseApp):
 
     name = 'export_legacy_catalog'
 
-    def __init__(self, *args, **kw):
-        super(ExportLegacyCatalog, self).__init__(*args, **kw)
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(ExportLegacyCatalog,
+                       cls).add_argument_parser(subparsers)
+        parser.add_argument('old_db')
+        return parser
 
-    def main(self):
+    @staticmethod
+    def main():
         from keystone.common.sql import legacy
-        if len(self.argv) < 2:
-            return self.missing_param('old_db')
-        old_db = self.argv[1]
-        migration = legacy.LegacyMigration(old_db)
+        migration = legacy.LegacyMigration(CONF.command.old_db)
         print '\n'.join(migration.dump_catalog())
 
 
@@ -108,60 +106,43 @@ class ImportNovaAuth(BaseApp):
 
     name = 'import_nova_auth'
 
-    def __init__(self, *args, **kw):
-        super(ImportNovaAuth, self).__init__(*args, **kw)
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(ImportNovaAuth, cls).add_argument_parser(subparsers)
+        parser.add_argument('dump_file')
+        return parser
 
-    def main(self):
+    @staticmethod
+    def main():
         from keystone.common.sql import nova
-        if len(self.argv) < 2:
-            return self.missing_param('dump_file')
-        dump_file = self.argv[1]
-        dump_data = jsonutils.loads(open(dump_file).read())
+        dump_data = jsonutils.loads(open(CONF.command.dump_file).read())
         nova.import_auth(dump_data)
 
 
-CMDS = {'db_sync': DbSync,
-        'import_legacy': ImportLegacy,
-        'export_legacy_catalog': ExportLegacyCatalog,
-        'import_nova_auth': ImportNovaAuth,
-        'pki_setup': PKISetup,
-        }
+CMDS = [
+    DbSync,
+    ExportLegacyCatalog,
+    ImportLegacy,
+    ImportNovaAuth,
+    PKISetup,
+]
 
 
-def print_commands(cmds):
-    print
-    print 'Available commands:'
-    o = []
-    max_length = max([len(k) for k in cmds]) + 2
-    for k, cmd in sorted(cmds.iteritems()):
-        initial_indent = '%s%s: ' % (' ' * (max_length - len(k)), k)
-        tw = textwrap.TextWrapper(initial_indent=initial_indent,
-                                  subsequent_indent=' ' * (max_length + 2),
-                                  width=80)
-        o.extend(tw.wrap(
-            (cmd.__doc__ and cmd.__doc__ or 'no docs').strip().split('\n')[0]))
-    print '\n'.join(o)
+def add_command_parsers(subparsers):
+    for cmd in CMDS:
+        cmd.add_argument_parser(subparsers)
 
 
-def run(cmd, args):
-    return CMDS[cmd](argv=args).run()
+command_opt = cfg.SubCommandOpt('command',
+                                title='Commands',
+                                help='Available commands',
+                                handler=add_command_parsers)
 
 
 def main(argv=None, config_files=None):
-    CONF.reset()
-    args = CONF(args=argv,
-                project='keystone',
-                usage='%prog COMMAND',
-                default_config_files=config_files)
-
-    if len(args) < 2:
-        CONF.print_help()
-        print_commands(CMDS)
-        sys.exit(1)
-
-    cmd = args[1]
-    if cmd in CMDS:
-        return run(cmd, (args[:1] + args[2:]))
-    else:
-        print_commands(CMDS)
-        sys.exit("Unknown command: %s" % cmd)
+    CONF.register_cli_opt(command_opt)
+    CONF(args=argv[1:],
+         project='keystone',
+         usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
+         default_config_files=config_files)
+    CONF.command.cmd_class.main()
