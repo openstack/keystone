@@ -7,6 +7,7 @@ from keystone.common import controller
 from keystone.common import logging
 from keystone import exception
 from keystone.openstack.common import timeutils
+from keystone.token import core
 
 
 LOG = logging.getLogger(__name__)
@@ -223,7 +224,7 @@ class Auth(controller.V2Controller):
             raise exception.Unauthorized(e)
         (user_ref, tenant_ref, metadata_ref) = auth_info
 
-        expiry = self.token_api._get_default_expire_time(context=context)
+        expiry = core.default_expire_time()
         auth_token_data = self._get_auth_token_data(user_ref,
                                                     tenant_ref,
                                                     metadata_ref,
@@ -252,7 +253,7 @@ class Auth(controller.V2Controller):
         tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
 
-        expiry = self.token_api._get_default_expire_time(context=context)
+        expiry = core.default_expire_time()
         auth_token_data = self._get_auth_token_data(user_ref,
                                                     tenant_ref,
                                                     metadata_ref,
