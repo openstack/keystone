@@ -116,4 +116,11 @@ def upgrade(migrate_engine):
 
 def downgrade(migrate_engine):
     # Operations to reverse the above upgrade go here.
-    pass
+    meta = sql.MetaData()
+    meta.bind = migrate_engine
+
+    tables = ['user_tenant_membership', 'token', 'user', 'tenant', 'role',
+              'metadata', 'ec2_credential', 'endpoint', 'service']
+    for t in tables:
+        table = sql.Table(t, meta, autoload=True)
+        table.drop(migrate_engine, checkfirst=True)

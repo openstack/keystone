@@ -33,4 +33,8 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
-    pass
+    meta = sql.MetaData()
+    meta.bind = migrate_engine
+
+    policy_table = sql.Table('policy', meta, autoload=True)
+    policy_table.drop(migrate_engine, checkfirst=True)
