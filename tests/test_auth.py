@@ -17,13 +17,15 @@ import uuid
 
 import default_fixtures
 
+from keystone import catalog
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone import service
-from keystone import test
 from keystone.identity.backends import kvs as kvs_identity
 from keystone.openstack.common import timeutils
+from keystone import policy
+from keystone import test
+from keystone import token
 
 
 CONF = config.CONF
@@ -50,12 +52,19 @@ def _build_user_auth(token=None, username=None,
     return auth_json
 
 
-class TokenControllerTest(test.TestCase):
+class AuthTest(test.TestCase):
     def setUp(self):
-        super(TokenControllerTest, self).setUp()
+        super(AuthTest, self).setUp()
+
+        # load_fixtures checks for 'identity_api' to be defined
         self.identity_api = kvs_identity.Identity()
         self.load_fixtures(default_fixtures)
-        self.api = service.TokenController()
+
+        self.api = token.controllers.Auth(
+            catalog_api=catalog.Manager(),
+            identity_api=identity.Manager(),
+            policy_api=policy.Manager(),
+            token_api=token.Manager())
 
     def assertEqualTokens(self, a, b):
         """Assert that two tokens are equal.
@@ -78,7 +87,7 @@ class TokenControllerTest(test.TestCase):
         return self.assertDictEqual(normalize(a), normalize(b))
 
 
-class AuthBadRequests(TokenControllerTest):
+class AuthBadRequests(AuthTest):
     def setUp(self):
         super(AuthBadRequests, self).setUp()
 
@@ -86,7 +95,7 @@ class AuthBadRequests(TokenControllerTest):
         """Verify that _authenticate_external() raises exception if
         not applicable"""
         self.assertRaises(
-            service.ExternalAuthNotApplicable,
+            token.controllers.ExternalAuthNotApplicable,
             self.api._authenticate_external,
             {}, {})
 
@@ -121,7 +130,7 @@ class AuthBadRequests(TokenControllerTest):
                           {}, {'auth': 'abcd'})
 
 
-class AuthWithToken(TokenControllerTest):
+class AuthWithToken(AuthTest):
     def setUp(self):
         super(AuthWithToken, self).setUp()
 
@@ -179,7 +188,7 @@ class AuthWithToken(TokenControllerTest):
         self.assertEquals(tenant["id"], self.tenant_bar['id'])
 
 
-class AuthWithPasswordCredentials(TokenControllerTest):
+class AuthWithPasswordCredentials(AuthTest):
     def setUp(self):
         super(AuthWithPasswordCredentials, self).setUp()
 
@@ -236,7 +245,7 @@ class AuthWithPasswordCredentials(TokenControllerTest):
                           {}, body_dict)
 
 
-class AuthWithRemoteUser(TokenControllerTest):
+class AuthWithRemoteUser(AuthTest):
     def setUp(self):
         super(AuthWithRemoteUser, self).setUp()
 
@@ -303,13 +312,7 @@ class AuthWithRemoteUser(TokenControllerTest):
             body_dict)
 
 
-class TokenExpirationTest(test.TestCase):
-    def setUp(self):
-        super(TokenExpirationTest, self).setUp()
-        self.identity_api = kvs_identity.Identity()
-        self.load_fixtures(default_fixtures)
-        self.api = service.TokenController()
-
+class TokenExpirationTest(AuthTest):
     def _maintain_token_expiration(self):
         """Token expiration should be maintained after re-auth & validation."""
         r = self.api.authenticate(

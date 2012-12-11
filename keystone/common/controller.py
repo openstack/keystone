@@ -55,15 +55,19 @@ def protected(f):
     return wrapper
 
 
-class V3Controller(wsgi.Application):
-    """Base controller class for Identity API v3."""
+class V2Controller(wsgi.Application):
+    """Base controller class for Identity API v2."""
 
-    def __init__(self, catalog_api, identity_api, token_api, policy_api):
+    def __init__(self, catalog_api, identity_api, policy_api, token_api):
         self.catalog_api = catalog_api
         self.identity_api = identity_api
         self.policy_api = policy_api
         self.token_api = token_api
-        super(V3Controller, self).__init__()
+        super(V2Controller, self).__init__()
+
+
+class V3Controller(V2Controller):
+    """Base controller class for Identity API v3."""
 
     def _paginate(self, context, refs):
         """Paginates a list of references by page & per_page query strings."""

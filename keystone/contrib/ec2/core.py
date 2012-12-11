@@ -44,7 +44,6 @@ from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import policy
-from keystone import service
 from keystone import token
 
 
@@ -190,12 +189,10 @@ class Ec2Controller(wsgi.Application):
                                     tenant=tenant_ref,
                                     metadata=metadata_ref))
 
-        # TODO(termie): make this a util function or something
         # TODO(termie): i don't think the ec2 middleware currently expects a
         #               full return, but it contains a note saying that it
         #               would be better to expect a full return
-        token_controller = service.TokenController()
-        return token_controller._format_authenticate(
+        return token.controllers.Auth.format_authenticate(
             token_ref, roles_ref, catalog_ref)
 
     def create_credential(self, context, user_id, tenant_id):
