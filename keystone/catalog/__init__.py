@@ -16,3 +16,4 @@
 
 from keystone.catalog.core import *
 from keystone.catalog import controllers
+from keystone.catalog import routers

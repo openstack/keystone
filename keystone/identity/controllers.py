@@ -32,13 +32,7 @@ from keystone import token
 LOG = logging.getLogger(__name__)
 
 
-class Tenant(wsgi.Application):
-    def __init__(self):
-        self.identity_api = core.Manager()
-        self.policy_api = policy.Manager()
-        self.token_api = token.Manager()
-        super(Tenant, self).__init__()
-
+class Tenant(controller.V2Controller):
     def get_all_tenants(self, context, **kw):
         """Gets a list of all tenants for an admin user."""
         if 'name' in context['query_string']:
@@ -157,13 +151,7 @@ class Tenant(wsgi.Application):
         return o
 
 
-class User(wsgi.Application):
-    def __init__(self):
-        self.identity_api = core.Manager()
-        self.policy_api = policy.Manager()
-        self.token_api = token.Manager()
-        super(User, self).__init__()
-
+class User(controller.V2Controller):
     def get_user(self, context, user_id):
         self.assert_admin(context)
         return {'user': self.identity_api.get_user(context, user_id)}
@@ -240,13 +228,7 @@ class User(wsgi.Application):
         return self.update_user(context, user_id, user)
 
 
-class Role(wsgi.Application):
-    def __init__(self):
-        self.identity_api = core.Manager()
-        self.token_api = token.Manager()
-        self.policy_api = policy.Manager()
-        super(Role, self).__init__()
-
+class Role(controller.V2Controller):
     # COMPAT(essex-3)
     def get_user_roles(self, context, user_id, tenant_id=None):
         """Get the roles for a user and tenant pair.

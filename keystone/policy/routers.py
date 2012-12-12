@@ -13,7 +13,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-from keystone.policy.core import *
 from keystone.policy import controllers
-from keystone.policy import routers
+from keystone.common import router
+
+
+def append_v3_routers(mapper, routers, apis):
+    policy_controller = controllers.PolicyV3(**apis)
+    routers.append(router.Router(policy_controller, 'policies', 'policy'))
