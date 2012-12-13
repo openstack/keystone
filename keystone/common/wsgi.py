@@ -427,7 +427,7 @@ class Router(object):
         match = req.environ['wsgiorg.routing_args'][1]
         if not match:
             return render_exception(
-                exception.NotFound(message='The resource could not be found.'))
+                exception.NotFound(_('The resource could not be found.')))
         app = match['controller']
         return app
 
