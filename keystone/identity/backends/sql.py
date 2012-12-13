@@ -47,6 +47,16 @@ class User(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
+class Group(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'group'
+    attributes = ['id', 'name', 'domain_id']
+    id = sql.Column(sql.String(64), primary_key=True)
+    name = sql.Column(sql.String(64), unique=True, nullable=False)
+    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'))
+    description = sql.Column(sql.Text())
+    extra = sql.Column(sql.JsonBlob())
+
+
 class Credential(sql.ModelBase, sql.DictBase):
     __tablename__ = 'credential'
     attributes = ['id', 'user_id', 'project_id', 'blob', 'type']
@@ -88,7 +98,17 @@ class Role(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class UserProjectMetadata(sql.ModelBase, sql.DictBase):
+class BaseGrant(sql.DictBase):
+    def to_dict(self):
+        """Override parent to_dict() method with a simpler implementation.
+
+        Grant tables don't have non-indexed 'extra' attributes, so the
+        parent implementation is not applicable.
+        """
+        return dict(self.iteritems())
+
+
+class UserProjectGrant(sql.ModelBase, BaseGrant):
     # TODO(dolph): rename to user_project_metadata (needs a migration)
     __tablename__ = 'metadata'
     user_id = sql.Column(sql.String(64), primary_key=True)
@@ -96,18 +116,24 @@ class UserProjectMetadata(sql.ModelBase, sql.DictBase):
     tenant_id = sql.Column(sql.String(64), primary_key=True)
     data = sql.Column(sql.JsonBlob())
 
-    def to_dict(self):
-        """Override parent to_dict() method with a simpler implementation.
 
-        Metadata doesn't have non-indexed 'extra' attributes, so the parent
-        implementation is not applicable.
-        """
-        return dict(self.iteritems())
-
-
-class UserDomainMetadata(sql.ModelBase, sql.DictBase):
+class UserDomainGrant(sql.ModelBase, BaseGrant):
     __tablename__ = 'user_domain_metadata'
     user_id = sql.Column(sql.String(64), primary_key=True)
+    domain_id = sql.Column(sql.String(64), primary_key=True)
+    data = sql.Column(sql.JsonBlob())
+
+
+class GroupProjectGrant(sql.ModelBase, BaseGrant):
+    __tablename__ = 'group_project_metadata'
+    group_id = sql.Column(sql.String(64), primary_key=True)
+    project_id = sql.Column(sql.String(64), primary_key=True)
+    data = sql.Column(sql.JsonBlob())
+
+
+class GroupDomainGrant(sql.ModelBase, BaseGrant):
+    __tablename__ = 'group_domain_metadata'
+    group_id = sql.Column(sql.String(64), primary_key=True)
     domain_id = sql.Column(sql.String(64), primary_key=True)
     data = sql.Column(sql.JsonBlob())
 
@@ -122,6 +148,17 @@ class UserTenantMembership(sql.ModelBase, sql.DictBase):
     tenant_id = sql.Column(sql.String(64),
                            sql.ForeignKey('tenant.id'),
                            primary_key=True)
+
+
+class UserGroupMembership(sql.ModelBase, sql.DictBase):
+    """Group membership join table."""
+    __tablename__ = 'user_group_membership'
+    user_id = sql.Column(sql.String(64),
+                         sql.ForeignKey('user.id'),
+                         primary_key=True)
+    group_id = sql.Column(sql.String(64),
+                          sql.ForeignKey('group.id'),
+                          primary_key=True)
 
 
 class Identity(sql.Base, identity.Driver):
@@ -202,32 +239,47 @@ class Identity(sql.Base, identity.Driver):
         return [identity.filter_user(user_ref.to_dict())
                 for user_ref in user_refs]
 
-    def get_metadata(self, user_id, tenant_id=None, domain_id=None):
+    def get_metadata(self, user_id=None, tenant_id=None,
+                     domain_id=None, group_id=None):
         session = self.get_session()
 
-        if tenant_id:
-            q = session.query(UserProjectMetadata)
-            q = q.filter_by(tenant_id=tenant_id)
-        elif domain_id:
-            q = session.query(UserDomainMetadata)
-            q = q.filter_by(domain_id=domain_id)
-        q = q.filter_by(user_id=user_id)
-
+        if user_id:
+            if tenant_id:
+                q = session.query(UserProjectGrant)
+                q = q.filter_by(tenant_id=tenant_id)
+            elif domain_id:
+                q = session.query(UserDomainGrant)
+                q = q.filter_by(domain_id=domain_id)
+            q = q.filter_by(user_id=user_id)
+        elif group_id:
+            if tenant_id:
+                q = session.query(GroupProjectGrant)
+                q = q.filter_by(project_id=tenant_id)
+            elif domain_id:
+                q = session.query(GroupDomainGrant)
+                q = q.filter_by(domain_id=domain_id)
+            q = q.filter_by(group_id=group_id)
         try:
             return q.one().data
         except sql.NotFound:
             raise exception.MetadataNotFound()
 
-    def create_grant(self, role_id, user_id, domain_id, project_id):
+    def create_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None):
+
         self.get_role(role_id)
-        self.get_user(user_id)
+        if user_id:
+            self.get_user(user_id)
+        if group_id:
+            self.get_group(group_id)
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
             self.get_tenant(project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id, domain_id)
+            metadata_ref = self.get_metadata(user_id, project_id,
+                                             domain_id, group_id)
             is_new = False
         except exception.MetadataNotFound:
             metadata_ref = {}
@@ -236,31 +288,67 @@ class Identity(sql.Base, identity.Driver):
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
         if is_new:
-            self.create_metadata(user_id, project_id, metadata_ref, domain_id)
+            self.create_metadata(user_id, project_id, metadata_ref,
+                                 domain_id, group_id)
         else:
-            self.update_metadata(user_id, project_id, metadata_ref, domain_id)
+            self.update_metadata(user_id, project_id, metadata_ref,
+                                 domain_id, group_id)
 
-    def list_grants(self, user_id, domain_id, project_id):
-        metadata_ref = self.get_metadata(user_id, project_id, domain_id)
-        return [self.get_role(x) for x in metadata_ref.get('roles', [])]
-
-    def get_grant(self, role_id, user_id, domain_id, project_id):
-        metadata_ref = self.get_metadata(user_id, project_id, domain_id)
-        role_ids = set(metadata_ref.get('roles', []))
-        if role_id not in role_ids:
-            raise exception.RoleNotFound(role_id=role_id)
-        return self.get_role(role_id)
-
-    def delete_grant(self, role_id, user_id, domain_id, project_id):
-        self.get_role(role_id)
-        self.get_user(user_id)
+    def list_grants(self, user_id=None, group_id=None,
+                    domain_id=None, project_id=None):
+        if user_id:
+            self.get_user(user_id)
+        if group_id:
+            self.get_group(group_id)
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
             self.get_tenant(project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id, domain_id)
+            metadata_ref = self.get_metadata(user_id, project_id,
+                                             domain_id, group_id)
+        except exception.MetadataNotFound:
+            metadata_ref = {}
+        return [self.get_role(x) for x in metadata_ref.get('roles', [])]
+
+    def get_grant(self, role_id, user_id=None, group_id=None,
+                  domain_id=None, project_id=None):
+        self.get_role(role_id)
+        if user_id:
+            self.get_user(user_id)
+        if group_id:
+            self.get_group(group_id)
+        if domain_id:
+            self.get_domain(domain_id)
+        if project_id:
+            self.get_tenant(project_id)
+
+        try:
+            metadata_ref = self.get_metadata(user_id, project_id,
+                                             domain_id, group_id)
+        except exception.MetadataNotFound:
+            metadata_ref = {}
+        role_ids = set(metadata_ref.get('roles', []))
+        if role_id not in role_ids:
+            raise exception.RoleNotFound(role_id=role_id)
+        return self.get_role(role_id)
+
+    def delete_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None):
+        self.get_role(role_id)
+        if user_id:
+            self.get_user(user_id)
+        if group_id:
+            self.get_group(group_id)
+        if domain_id:
+            self.get_domain(domain_id)
+        if project_id:
+            self.get_tenant(project_id)
+
+        try:
+            metadata_ref = self.get_metadata(user_id, project_id,
+                                             domain_id, group_id)
             is_new = False
         except exception.MetadataNotFound:
             metadata_ref = {}
@@ -272,9 +360,11 @@ class Identity(sql.Base, identity.Driver):
             raise exception.RoleNotFound(role_id=role_id)
         metadata_ref['roles'] = list(roles)
         if is_new:
-            self.create_metadata(user_id, project_id, metadata_ref, domain_id)
+            self.create_metadata(user_id, project_id, metadata_ref,
+                                 domain_id, group_id)
         else:
-            self.update_metadata(user_id, project_id, metadata_ref, domain_id)
+            self.update_metadata(user_id, project_id, metadata_ref,
+                                 domain_id, group_id)
 
     # These should probably be part of the high-level API
     def add_user_to_tenant(self, tenant_id, user_id):
@@ -416,8 +506,12 @@ class Identity(sql.Base, identity.Driver):
             q = q.filter_by(tenant_id=tenant_id)
             q.delete(False)
 
-            q = session.query(UserProjectMetadata)
+            q = session.query(UserProjectGrant)
             q = q.filter_by(tenant_id=tenant_id)
+            q.delete(False)
+
+            q = session.query(GroupProjectGrant)
+            q = q.filter_by(project_id=tenant_id)
             q.delete(False)
 
             if not session.query(Tenant).filter_by(id=tenant_id).delete(False):
@@ -427,34 +521,55 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
 
     @handle_conflicts(type='metadata')
-    def create_metadata(self, user_id, tenant_id, metadata, domain_id=None):
+    def create_metadata(self, user_id, tenant_id, metadata,
+                        domain_id=None, group_id=None):
         session = self.get_session()
         with session.begin():
-            if tenant_id:
-                session.add(UserProjectMetadata(user_id=user_id,
-                                                tenant_id=tenant_id,
+            if user_id:
+                if tenant_id:
+                    session.add(UserProjectGrant(user_id=user_id,
+                                                 tenant_id=tenant_id,
+                                                 data=metadata))
+                elif domain_id:
+                    session.add(UserDomainGrant(user_id=user_id,
+                                                domain_id=domain_id,
                                                 data=metadata))
-            elif domain_id:
-                session.add(UserDomainMetadata(user_id=user_id,
-                                               domain_id=domain_id,
-                                               data=metadata))
+            elif group_id:
+                if tenant_id:
+                    session.add(GroupProjectGrant(group_id=group_id,
+                                                  project_id=tenant_id,
+                                                  data=metadata))
+                elif domain_id:
+                    session.add(GroupDomainGrant(group_id=group_id,
+                                                 domain_id=domain_id,
+                                                 data=metadata))
             session.flush()
         return metadata
 
     @handle_conflicts(type='metadata')
-    def update_metadata(self, user_id, tenant_id, metadata, domain_id=None):
+    def update_metadata(self, user_id, tenant_id, metadata,
+                        domain_id=None, group_id=None):
         session = self.get_session()
         with session.begin():
-            if tenant_id:
-                metadata_ref = session.query(UserProjectMetadata)\
-                                      .filter_by(user_id=user_id)\
-                                      .filter_by(tenant_id=tenant_id)\
-                                      .first()
-            elif domain_id:
-                metadata_ref = session.query(UserDomainMetadata)\
-                                      .filter_by(user_id=user_id)\
-                                      .filter_by(domain_id=domain_id)\
-                                      .first()
+            if user_id:
+                if tenant_id:
+                    q = session.query(UserProjectGrant)
+                    q = q.filter_by(user_id=user_id)
+                    q = q.filter_by(tenant_id=tenant_id)
+                elif domain_id:
+                    q = session.query(UserDomainGrant)
+                    q = q.filter_by(user_id=user_id)
+                    q = q.filter_by(domain_id=domain_id)
+            elif group_id:
+                if tenant_id:
+                    q = session.query(GroupProjectGrant)
+                    q = q.filter_by(group_id=group_id)
+                    q = q.filter_by(project_id=tenant_id)
+                elif domain_id:
+                    q = session.query(GroupDomainGrant)
+                    q = q.filter_by(group_id=group_id)
+                    q = q.filter_by(domain_id=domain_id)
+            metadata_ref = q.first()
             data = metadata_ref.data.copy()
             data.update(metadata)
             metadata_ref.data = data
@@ -548,7 +663,7 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         user = self.get_user(user_id)
         metadata_refs = session\
-            .query(UserProjectMetadata)\
+            .query(UserProjectGrant)\
             .filter_by(user_id=user_id)
         project_ids = set([x.tenant_id for x in metadata_refs
                            if x.data.get('roles')])
@@ -624,6 +739,62 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
         return identity.filter_user(user_ref.to_dict(include_extra_dict=True))
 
+    def add_user_to_group(self, user_id, group_id):
+        session = self.get_session()
+        self.get_group(group_id)
+        self.get_user(user_id)
+        query = session.query(UserGroupMembership)
+        query = query.filter_by(user_id=user_id)
+        query = query.filter_by(group_id=group_id)
+        rv = query.first()
+        if rv:
+            return
+
+        with session.begin():
+            session.add(UserGroupMembership(user_id=user_id,
+                                            group_id=group_id))
+            session.flush()
+
+    def check_user_in_group(self, user_id, group_id):
+        session = self.get_session()
+        self.get_group(group_id)
+        self.get_user(user_id)
+        query = session.query(UserGroupMembership)
+        query = query.filter_by(user_id=user_id)
+        query = query.filter_by(group_id=group_id)
+        if not query.first():
+            raise exception.NotFound('User not found in group')
+
+    def remove_user_from_group(self, user_id, group_id):
+        session = self.get_session()
+        # We don't check if user or group are still valid and let the remove
+        # be tried anyway - in case this is some kind of clean-up operation
+        query = session.query(UserGroupMembership)
+        query = query.filter_by(user_id=user_id)
+        query = query.filter_by(group_id=group_id)
+        membership_ref = query.first()
+        if membership_ref is None:
+            raise exception.NotFound('User not found in group')
+        with session.begin():
+            session.delete(membership_ref)
+            session.flush()
+
+    def list_groups_for_user(self, user_id):
+        session = self.get_session()
+        self.get_user(user_id)
+        query = session.query(UserGroupMembership)
+        query = query.filter_by(user_id=user_id)
+        membership_refs = query.all()
+        return [self.get_group(x.group_id) for x in membership_refs]
+
+    def list_users_in_group(self, group_id):
+        session = self.get_session()
+        self.get_group(group_id)
+        query = session.query(UserGroupMembership)
+        query = query.filter_by(group_id=group_id)
+        membership_refs = query.all()
+        return [self.get_user(x.user_id) for x in membership_refs]
+
     def delete_user(self, user_id):
         session = self.get_session()
 
@@ -637,12 +808,91 @@ class Identity(sql.Base, identity.Driver):
             q = q.filter_by(user_id=user_id)
             q.delete(False)
 
-            q = session.query(UserProjectMetadata)
+            q = session.query(UserProjectGrant)
+            q = q.filter_by(user_id=user_id)
+            q.delete(False)
+
+            q = session.query(UserDomainGrant)
+            q = q.filter_by(user_id=user_id)
+            q.delete(False)
+
+            q = session.query(UserGroupMembership)
             q = q.filter_by(user_id=user_id)
             q.delete(False)
 
             if not session.query(User).filter_by(id=user_id).delete(False):
                 raise exception.UserNotFound(user_id=user_id)
+
+            session.delete(ref)
+            session.flush()
+
+    # group crud
+
+    @handle_conflicts(type='group')
+    def create_group(self, group_id, group):
+        session = self.get_session()
+        with session.begin():
+            ref = Group.from_dict(group)
+            session.add(ref)
+            session.flush()
+        return ref.to_dict()
+
+    def list_groups(self):
+        session = self.get_session()
+        refs = session.query(Group).all()
+        return [ref.to_dict() for ref in refs]
+
+    def _get_group(self, group_id):
+        session = self.get_session()
+        ref = session.query(Group).filter_by(id=group_id).first()
+        if not ref:
+            raise exception.GroupNotFound(group_id=group_id)
+        return ref.to_dict()
+
+    def get_group(self, group_id):
+        return self._get_group(group_id)
+
+    @handle_conflicts(type='group')
+    def update_group(self, group_id, group):
+        session = self.get_session()
+        with session.begin():
+            ref = session.query(Group).filter_by(id=group_id).first()
+            if ref is None:
+                raise exception.GroupNotFound(group_id=group_id)
+            old_dict = ref.to_dict()
+            for k in group:
+                old_dict[k] = group[k]
+            new_group = Group.from_dict(old_dict)
+            for attr in Group.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_group, attr))
+            ref.extra = new_group.extra
+            session.flush()
+        return ref.to_dict()
+
+    def delete_group(self, group_id):
+        session = self.get_session()
+
+        try:
+            ref = session.query(Group).filter_by(id=group_id).one()
+        except sql.NotFound:
+            raise exception.GroupNotFound(group_id=group_id)
+
+        with session.begin():
+            q = session.query(GroupProjectGrant)
+            q = q.filter_by(group_id=group_id)
+            q.delete(False)
+
+            q = session.query(GroupDomainGrant)
+            q = q.filter_by(group_id=group_id)
+            q.delete(False)
+
+            q = session.query(UserGroupMembership)
+            q = q.filter_by(group_id=group_id)
+            q.delete(False)
+
+            if not session.query(Group).filter_by(id=group_id).delete(False):
+                raise exception.GroupNotFound(group_id=group_id)
 
             session.delete(ref)
             session.flush()
@@ -750,7 +1000,7 @@ class Identity(sql.Base, identity.Driver):
             raise exception.RoleNotFound(role_id=role_id)
 
         with session.begin():
-            for metadata_ref in session.query(UserProjectMetadata):
+            for metadata_ref in session.query(UserProjectGrant):
                 metadata = metadata_ref.to_dict()
                 try:
                     self.remove_role_from_user_and_tenant(

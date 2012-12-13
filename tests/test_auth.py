@@ -165,6 +165,11 @@ class AuthWithToken(AuthTest):
 
     def test_auth_unscoped_token_tenant(self):
         """Verify getting a token in a tenant with an unscoped token"""
+        # Add a role in so we can check we get this back
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            self.role_member['id'])
         # Get an unscoped tenant
         body_dict = _build_user_auth(
             username='FOO',
@@ -177,7 +182,41 @@ class AuthWithToken(AuthTest):
         scoped_token = self.api.authenticate({}, body_dict)
 
         tenant = scoped_token["access"]["token"]["tenant"]
+        roles = scoped_token["access"]["metadata"]["roles"]
         self.assertEquals(tenant["id"], self.tenant_bar['id'])
+        self.assertEquals(roles[0], self.role_member['id'])
+
+    def test_auth_token_tenant_group_role(self):
+        """Verify getting a token in a tenant with group roles"""
+        # Add a v2 style role in so we can check we get this back
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            self.role_member['id'])
+        # Now create a group role for this user as well
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        self.identity_api.add_user_to_group(self.user_foo['id'],
+                                            new_group['id'])
+        self.identity_api.create_grant(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'],
+            role_id=self.role_keystone_admin['id'])
+
+        # Get a scoped token for the tenant
+        body_dict = _build_user_auth(
+            username='FOO',
+            password='foo2',
+            tenant_name="BAR")
+
+        scoped_token = self.api.authenticate({}, body_dict)
+
+        tenant = scoped_token["access"]["token"]["tenant"]
+        roles = scoped_token["access"]["metadata"]["roles"]
+        self.assertEquals(tenant["id"], self.tenant_bar['id'])
+        self.assertIn(self.role_member['id'], roles)
+        self.assertIn(self.role_keystone_admin['id'], roles)
 
 
 class AuthWithPasswordCredentials(AuthTest):

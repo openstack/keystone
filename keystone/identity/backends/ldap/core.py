@@ -43,6 +43,7 @@ class Identity(identity.Driver):
         self.user = UserApi(CONF)
         self.tenant = TenantApi(CONF)
         self.role = RoleApi(CONF)
+        self.group = GroupApi(CONF)
 
     def get_connection(self, user=None, password=None):
         if self.LDAP_URL.startswith('fake://'):
@@ -259,6 +260,27 @@ class Identity(identity.Driver):
         self.get_role(role_id)
         self.role.update(role_id, role)
 
+    def create_group(self, group_id, group):
+        group['name'] = clean.group_name(group['name'])
+        return self.group.create(group)
+
+    def get_group(self, group_id):
+        try:
+            return self.group.get(group_id)
+        except exception.NotFound:
+            raise exception.GroupNotFound(group_id=group_id)
+
+    def update_group(self, group_id, group):
+        if 'name' in group:
+            group['name'] = clean.group_name(group['name'])
+        return self.group.update(group_id, group)
+
+    def delete_group(self, group_id):
+        try:
+            return self.group.delete(group_id)
+        except ldap.NO_SUCH_OBJECT:
+            raise exception.GroupNotFound(group_id=group_id)
+
 
 # TODO(termie): remove this and move cross-api calls into driver
 class ApiShim(object):
@@ -271,6 +293,7 @@ class ApiShim(object):
     _role = None
     _tenant = None
     _user = None
+    _group = None
 
     def __init__(self, conf):
         self.conf = conf
@@ -293,6 +316,12 @@ class ApiShim(object):
             self._user = UserApi(self.conf)
         return self._user
 
+    @property
+    def group(self):
+        if not self.group:
+            self.group = GroupApi(self.conf)
+        return self.group
+
 
 # TODO(termie): remove this and move cross-api calls into driver
 class ApiShimMixin(object):
@@ -309,6 +338,10 @@ class ApiShimMixin(object):
     @property
     def user_api(self):
         return self.api.user
+
+    @property
+    def group_api(self):
+        return self.api.group
 
 
 # TODO(termie): turn this into a data object and move logic to driver
@@ -614,6 +647,16 @@ class UserRoleAssociation(object):
     def __init__(self, user_id=None, role_id=None, tenant_id=None,
                  *args, **kw):
         self.user_id = str(user_id)
+        self.role_id = role_id
+        self.tenant_id = str(tenant_id)
+
+
+class GroupRoleAssociation(object):
+    """Role Grant model."""
+
+    def __init__(self, group_id=None, role_id=None, tenant_id=None,
+                 *args, **kw):
+        self.group_id = str(group_id)
         self.role_id = role_id
         self.tenant_id = str(tenant_id)
 
@@ -1005,3 +1048,69 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         except ldap.NO_SUCH_OBJECT:
             pass
         super(RoleApi, self).delete(id)
+
+
+# TODO (henry-nash) This is a placeholder for the full LDPA implementation
+# This needs to be completed (see Bug #1092187)
+class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
+    DEFAULT_OU = 'ou=UserGroups'
+    DEFAULT_STRUCTURAL_CLASSES = []
+    DEFAULT_OBJECTCLASS = 'groupOfNames'
+    DEFAULT_ID_ATTR = 'cn'
+    DEFAULT_MEMBER_ATTRIBUTE = 'member'
+    DEFAULT_ATTRIBUTE_IGNORE = []
+    options_name = 'group'
+    attribute_mapping = {'name': 'ou',
+                         'description': 'desc',
+                         'groupId': 'cn'}
+    model = models.Group
+
+    def __init__(self, conf):
+        super(GroupApi, self).__init__(conf)
+        self.api = ApiShim(conf)
+        self.attribute_mapping['name'] = conf.ldap.group_name_attribute
+        self.attribute_mapping['description'] = conf.ldap.group_desc_attribute
+        self.member_attribute = (getattr(conf.ldap, 'group_member_attribute')
+                                 or self.DEFAULT_MEMBER_ATTRIBUTE)
+        self.attribute_ignore = (getattr(conf.ldap, 'group_attribute_ignore')
+                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
+
+    def get(self, id, filter=None):
+        """Replaces exception.NotFound with exception.GroupNotFound."""
+        try:
+            return super(GroupApi, self).get(id, filter)
+        except exception.NotFound:
+            raise exception.GroupNotFound(group_id=id)
+
+    def get_by_name(self, name, filter=None):
+        query = ('(%s=%s)' % (self.attribute_mapping['name'],
+                              ldap_filter.escape_filter_chars(name)))
+        groups = self.get_all(query)
+        try:
+            return groups[0]
+        except IndexError:
+            raise exception.GroupNotFound(group_id=name)
+
+    def create(self, values):
+        self.affirm_unique(values)
+        data = values.copy()
+        if data.get('id') is None:
+            data['id'] = uuid.uuid4().hex
+        return super(GroupApi, self).create(data)
+
+    def delete(self, id):
+        if self.subtree_delete_enabled:
+            super(GroupApi, self).deleteTree(id)
+        else:
+            self.role_api.roles_delete_subtree_by_group(id)
+            super(GroupApi, self).delete(id)
+
+    def update(self, id, values):
+        try:
+            old_obj = self.get(id)
+        except exception.NotFound:
+            raise exception.GroupNotFound(group_id=id)
+        if old_obj['name'] != values['name']:
+            msg = _('Changing Name not supported by LDAP')
+            raise exception.NotImplemented(message=msg)
+        super(GroupApi, self).update(id, values, old_obj)

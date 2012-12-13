@@ -148,6 +148,10 @@ class UserNotFound(NotFound):
     """Could not find user: %(user_id)s"""
 
 
+class GroupNotFound(NotFound):
+    """Could not find group: %(group_id)s"""
+
+
 class Conflict(Error):
     """Conflict occurred attempting to store %(type)s.
 

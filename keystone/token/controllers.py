@@ -174,6 +174,14 @@ class Auth(controller.V2Controller):
         tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
 
+        self._append_roles(metadata_ref,
+                           self._get_group_metadata_ref(
+                               context, user_id, tenant_id))
+
+        self._append_roles(metadata_ref,
+                           self._get_domain_metadata_ref(
+                               context, user_id, tenant_id))
+
         expiry = old_token_ref['expires']
         auth_token_data = self._get_auth_token_data(current_user_ref,
                                                     tenant_ref,
@@ -226,6 +234,14 @@ class Auth(controller.V2Controller):
             raise exception.Unauthorized(e)
         (user_ref, tenant_ref, metadata_ref) = auth_info
 
+        self._append_roles(metadata_ref,
+                           self._get_group_metadata_ref(
+                               context, user_id, tenant_id))
+
+        self._append_roles(metadata_ref,
+                           self._get_domain_metadata_ref(
+                               context, user_id, tenant_id))
+
         expiry = core.default_expire_time()
         auth_token_data = self._get_auth_token_data(user_ref,
                                                     tenant_ref,
@@ -254,6 +270,14 @@ class Auth(controller.V2Controller):
 
         tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
+
+        self._append_roles(metadata_ref,
+                           self._get_group_metadata_ref(
+                               context, user_id, tenant_id))
+
+        self._append_roles(metadata_ref,
+                           self._get_domain_metadata_ref(
+                               context, user_id, tenant_id))
 
         expiry = core.default_expire_time()
         auth_token_data = self._get_auth_token_data(user_ref,
@@ -303,19 +327,53 @@ class Auth(controller.V2Controller):
                 exception.Unauthorized(e)
         return tenant_ref
 
-    def _get_metadata_ref(self, context, user_id, tenant_id):
-        """Returns the metadata_ref for a user in a tenant"""
+    def _get_metadata_ref(self, context, user_id=None, tenant_id=None,
+                          group_id=None):
+        """Returns the metadata_ref for a user or group in a tenant"""
         metadata_ref = {}
         if tenant_id:
             try:
-                metadata_ref = self.identity_api.get_metadata(
-                    context=context,
-                    user_id=user_id,
-                    tenant_id=tenant_id)
+                if user_id:
+                    metadata_ref = self.identity_api.get_metadata(
+                        context=context,
+                        user_id=user_id,
+                        tenant_id=tenant_id)
+                elif group_id:
+                    metadata_ref = self.identity_api.get_metadata(
+                        context=context,
+                        group_id=group_id,
+                        tenant_id=tenant_id)
             except exception.MetadataNotFound:
                 metadata_ref = {}
 
         return metadata_ref
+
+    def _get_group_metadata_ref(self, context, user_id, tenant_id):
+        """Return any metadata for this project due to group grants"""
+        group_refs = self.identity_api.list_groups_for_user(context=context,
+                                                            user_id=user_id)
+        metadata_ref = {}
+        for x in group_refs:
+            metadata_ref.update(self._get_metadata_ref(context,
+                                                       group_id=x['id'],
+                                                       tenant_id=tenant_id))
+        return metadata_ref
+
+    def _get_domain_metadata_ref(self, context, user_id, tenant_id):
+        """Return any metadata for this project due to domain grants"""
+        # TODO (henry-nashe) Get the domain for this tenant...and then see if
+        # any domain grants apply.  Bug #1093248
+        return {}
+
+    def _append_roles(self, metadata, additional_metadata):
+        """
+        Update the roles in metadata to be the union of the roles from
+        both of the passed metadatas
+        """
+
+        first = set(metadata.get('roles', []))
+        second = set(additional_metadata.get('roles', []))
+        metadata['roles'] = list(first.union(second))
 
     def _get_token_ref(self, context, token_id, belongs_to=None):
         """Returns a token if a valid one exists.

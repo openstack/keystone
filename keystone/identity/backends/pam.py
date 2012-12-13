@@ -143,9 +143,6 @@ class PamIdentity(identity.Driver):
     def update_metadata(self, user_id, tenant_id, metadata):
         raise NotImplementedError()
 
-    def delete_metadata(self, user_id, tenant_id, metadata):
-        raise NotImplementedError()
-
     def create_role(self, role_id, role):
         raise NotImplementedError()
 

@@ -64,6 +64,7 @@ def append_v3_routers(mapper, routers):
     routers.append(
         router.Router(controllers.DomainV3(),
                       'domains', 'domain'))
+
     project_controller = controllers.ProjectV3()
     routers.append(
         router.Router(project_controller,
@@ -72,19 +73,59 @@ def append_v3_routers(mapper, routers):
                    controller=project_controller,
                    action='list_user_projects',
                    conditions=dict(method=['GET']))
+
+    user_controller = controllers.UserV3()
     routers.append(
-        router.Router(controllers.UserV3(),
+        router.Router(user_controller,
                       'users', 'user'))
+    mapper.connect('/groups/{group_id}/users',
+                   controller=user_controller,
+                   action='list_users_in_group',
+                   conditions=dict(method=['GET']))
+
+    mapper.connect('/groups/{group_id}/users/{user_id}',
+                   controller=user_controller,
+                   action='add_user_to_group',
+                   conditions=dict(method=['PUT']))
+
+    mapper.connect('/groups/{group_id}/users/{user_id}',
+                   controller=user_controller,
+                   action='check_user_in_group',
+                   conditions=dict(method=['HEAD']))
+
+    mapper.connect('/groups/{group_id}/users/{user_id}',
+                   controller=user_controller,
+                   action='remove_user_from_group',
+                   conditions=dict(method=['DELETE']))
+
+    group_controller = controllers.GroupV3()
+    routers.append(
+        router.Router(group_controller,
+                      'groups', 'group'))
+    mapper.connect('/users/{user_id}/groups',
+                   controller=group_controller,
+                   action='list_groups_for_user',
+                   conditions=dict(method=['GET']))
+
     routers.append(
         router.Router(controllers.CredentialV3(),
                       'credentials', 'credential'))
+
     role_controller = controllers.RoleV3()
     routers.append(router.Router(role_controller, 'roles', 'role'))
     mapper.connect('/projects/{project_id}/users/{user_id}/roles/{role_id}',
                    controller=role_controller,
                    action='create_grant',
                    conditions=dict(method=['PUT']))
+    mapper.connect('/projects/{project_id}/groups/{group_id}/roles/{role_id}',
+                   controller=role_controller,
+                   action='create_grant',
+                   conditions=dict(method=['PUT']))
     mapper.connect('/projects/{project_id}/users/{user_id}/roles/{role_id}',
+                   controller=role_controller,
+                   action='check_grant',
+                   conditions=dict(method=['HEAD']))
+    mapper.connect('/projects/{project_id}/groups/{group_id}/roles/{role_id}',
                    controller=role_controller,
                    action='check_grant',
                    conditions=dict(method=['HEAD']))
@@ -92,7 +133,15 @@ def append_v3_routers(mapper, routers):
                    controller=role_controller,
                    action='list_grants',
                    conditions=dict(method=['GET']))
+    mapper.connect('/projects/{project_id}/groups/{group_id}/roles',
+                   controller=role_controller,
+                   action='list_grants',
+                   conditions=dict(method=['GET']))
     mapper.connect('/projects/{project_id}/users/{user_id}/roles/{role_id}',
+                   controller=role_controller,
+                   action='revoke_grant',
+                   conditions=dict(method=['DELETE']))
+    mapper.connect('/projects/{project_id}/groups/{group_id}/roles/{role_id}',
                    controller=role_controller,
                    action='revoke_grant',
                    conditions=dict(method=['DELETE']))
@@ -100,7 +149,15 @@ def append_v3_routers(mapper, routers):
                    controller=role_controller,
                    action='create_grant',
                    conditions=dict(method=['PUT']))
+    mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
+                   controller=role_controller,
+                   action='create_grant',
+                   conditions=dict(method=['PUT']))
     mapper.connect('/domains/{domain_id}/users/{user_id}/roles/{role_id}',
+                   controller=role_controller,
+                   action='check_grant',
+                   conditions=dict(method=['HEAD']))
+    mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
                    controller=role_controller,
                    action='check_grant',
                    conditions=dict(method=['HEAD']))
@@ -108,7 +165,15 @@ def append_v3_routers(mapper, routers):
                    controller=role_controller,
                    action='list_grants',
                    conditions=dict(method=['GET']))
+    mapper.connect('/domains/{domain_id}/groups/{group_id}/roles',
+                   controller=role_controller,
+                   action='list_grants',
+                   conditions=dict(method=['GET']))
     mapper.connect('/domains/{domain_id}/users/{user_id}/roles/{role_id}',
+                   controller=role_controller,
+                   action='revoke_grant',
+                   conditions=dict(method=['DELETE']))
+    mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
                    controller=role_controller,
                    action='revoke_grant',
                    conditions=dict(method=['DELETE']))

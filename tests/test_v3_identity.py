@@ -4,7 +4,7 @@ import test_v3
 
 
 class IdentityTestCase(test_v3.RestfulTestCase):
-    """Test domains, projects, users, credential & role CRUD"""
+    """Test domains, projects, users, groups, credential & role CRUD"""
 
     def setUp(self):
         super(IdentityTestCase, self).setUp()
@@ -32,6 +32,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.identity_api.create_user(
             self.user_id,
             self.user.copy())
+
+        self.group_id = uuid.uuid4().hex
+        self.group = self.new_group_ref(
+            domain_id=self.domain_id)
+        self.group['id'] = self.group_id
+        self.identity_api.create_group(
+            self.group_id,
+            self.group.copy())
 
         self.credential_id = uuid.uuid4().hex
         self.credential = self.new_credential_ref(
@@ -117,6 +125,28 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             self.assertEqual(ref['email'], entity['email'])
         return entity
 
+    # group validation
+
+    def assertValidGroupListResponse(self, resp, ref):
+        return self.assertValidListResponse(
+            resp,
+            'groups',
+            self.assertValidGroup,
+            ref)
+
+    def assertValidGroupResponse(self, resp, ref):
+        return self.assertValidResponse(
+            resp,
+            'group',
+            self.assertValidGroup,
+            ref)
+
+    def assertValidGroup(self, entity, ref=None):
+        self.assertIsNotNone(entity.get('name'))
+        if ref:
+            self.assertEqual(ref['name'], entity['name'])
+        return entity
+
     # credential validation
 
     def assertValidCredentialListResponse(self, resp, ref):
@@ -161,8 +191,31 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             ref)
 
     def assertValidRole(self, entity, ref=None):
+        self.assertIsNotNone(entity.get('name'))
         if ref:
-            pass
+            self.assertEqual(ref['name'], entity['name'])
+        return entity
+
+    # grant validation
+
+    def assertValidGrantListResponse(self, resp, ref):
+        entities = resp.body
+        self.assertIsNotNone(entities)
+        self.assertTrue(len(entities))
+        roles_ref_ids = []
+        for i, entity in enumerate(entities):
+            self.assertValidEntity(entity)
+            self.assertValidGrant(entity, ref)
+            if ref and entity['id'] == ref['id'][0]:
+                self.assertValidEntity(entity, ref)
+                self.assertValidGrant(entity, ref)
+
+    def assertValidGrant(self, entity, ref=None):
+        self.assertIsNotNone(entity.get('id'))
+        self.assertIsNotNone(entity.get('name'))
+        if ref:
+            self.assertEqual(ref['id'], entity['id'])
+            self.assertEqual(ref['name'], entity['name'])
         return entity
 
     # domain crud tests
@@ -259,6 +312,33 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             'user_id': self.user_id})
         self.assertValidUserResponse(r, self.user)
 
+    def test_add_user_to_group(self):
+        """PUT /groups/{group_id}/users/{user_id}"""
+        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user_id})
+
+    def test_check_user_in_group(self):
+        """HEAD /groups/{group_id}/users/{user_id}"""
+        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user_id})
+        r = self.head('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user_id})
+
+    def test_list_users_in_group(self):
+        """GET /groups/{group_id}/users"""
+        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user_id})
+        r = self.get('/groups/%(group_id)s/users' % {
+            'group_id': self.group_id})
+        self.assertValidUserListResponse(r, self.user)
+
+    def test_remove_user_from_group(self):
+        """DELETE /groups/{group_id}/users/{user_id}"""
+        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user_id})
+        r = self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user_id})
+
     def test_update_user(self):
         """PATCH /users/{user_id}"""
         user = self.new_user_ref(domain_id=self.domain_id)
@@ -272,6 +352,41 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """DELETE /users/{user_id}"""
         self.delete('/users/%(user_id)s' % {
             'user_id': self.user_id})
+
+    # group crud tests
+
+    def test_create_group(self):
+        """POST /groups"""
+        ref = self.new_group_ref(domain_id=self.domain_id)
+        r = self.post(
+            '/groups',
+            body={'group': ref})
+        return self.assertValidGroupResponse(r, ref)
+
+    def test_list_groups(self):
+        """GET /groups"""
+        r = self.get('/groups')
+        self.assertValidGroupListResponse(r, self.group)
+
+    def test_get_group(self):
+        """GET /groups/{group_id}"""
+        r = self.get('/groups/%(group_id)s' % {
+            'group_id': self.group_id})
+        self.assertValidGroupResponse(r, self.group)
+
+    def test_update_group(self):
+        """PATCH /groups/{group_id}"""
+        group = self.new_group_ref(domain_id=self.domain_id)
+        del group['id']
+        r = self.patch('/groups/%(group_id)s' % {
+            'group_id': self.group_id},
+            body={'group': group})
+        self.assertValidGroupResponse(r, group)
+
+    def test_delete_group(self):
+        """DELETE /groups/{group_id}"""
+        self.delete('/groups/%(group_id)s' % {
+            'group_id': self.group_id})
 
     # credential crud tests
 
@@ -347,3 +462,83 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """DELETE /roles/{role_id}"""
         self.delete('/roles/%(role_id)s' % {
             'role_id': self.role_id})
+
+    def test_create_user_project_grant(self):
+        """PUT /projects/{project_id}/users/{user_id}/roles/{role_id}"""
+        self.put('/projects/%(project_id)s/users/%(user_id)s/roles/'
+                 '%(role_id)s' % {
+                 'project_id': self.project_id,
+                 'user_id': self.user_id,
+                 'role_id': self.role_id})
+        self.head('/projects/%(project_id)s/users/%(user_id)s/roles/'
+                  '%(role_id)s' % {
+                  'project_id': self.project_id,
+                  'user_id': self.user_id,
+                  'role_id': self.role_id})
+
+    def test_create_group_project_grant(self):
+        """PUT /projects/{project_id}/groups/{group_id}/roles/{role_id}"""
+        self.put('/projects/%(project_id)s/groups/%(group_id)s/roles/'
+                 '%(role_id)s' % {
+                 'project_id': self.project_id,
+                 'group_id': self.group_id,
+                 'role_id': self.role_id})
+        self.head('/projects/%(project_id)s/groups/%(group_id)s/roles/'
+                  '%(role_id)s' % {
+                  'project_id': self.project_id,
+                  'group_id': self.group_id,
+                  'role_id': self.role_id})
+
+    def test_create_group_domain_grant(self):
+        """PUT /domains/{domain_id}/groups/{group_id}/roles/{role_id}"""
+        self.put('/domains/%(domain_id)s/groups/%(group_id)s/roles/'
+                 '%(role_id)s' % {
+                 'domain_id': self.domain_id,
+                 'group_id': self.group_id,
+                 'role_id': self.role_id})
+        self.head('/domains/%(domain_id)s/groups/%(group_id)s/roles/'
+                  '%(role_id)s' % {
+                  'domain_id': self.domain_id,
+                  'group_id': self.group_id,
+                  'role_id': self.role_id})
+
+    def test_list_user_project_grants(self):
+        """GET /projects/{project_id}/users/{user_id}/roles"""
+        self.put('/projects/%(project_id)s/users/%(user_id)s/roles/'
+                 '%(role_id)s' % {
+                 'project_id': self.project_id,
+                 'user_id': self.user_id,
+                 'role_id': self.role_id})
+        r = self.get('/projects/%(project_id)s/users/%(user_id)s/roles' % {
+                     'project_id': self.project_id,
+                     'user_id': self.user_id})
+        self.assertValidGrantListResponse(r, self.role)
+
+    def test_list_group_project_grants(self):
+        """GET /projects/{project_id}/groups/{group_id}/roles"""
+        self.put('/projects/%(project_id)s/groups/%(group_id)s/roles/'
+                 '%(role_id)s' % {
+                 'project_id': self.project_id,
+                 'group_id': self.group_id,
+                 'role_id': self.role_id})
+        r = self.get('/projects/%(project_id)s/groups/%(group_id)s/roles' % {
+                     'project_id': self.project_id,
+                     'group_id': self.group_id})
+        self.assertValidGrantListResponse(r, self.role)
+
+    def test_delete_group_project_grant(self):
+        """DELETE /projects/{project_id}/groups/{group_id}/roles/{role_id}"""
+        self.put('/projects/%(project_id)s/groups/%(group_id)s/roles/'
+                 '%(role_id)s' % {
+                 'project_id': self.project_id,
+                 'group_id': self.group_id,
+                 'role_id': self.role_id})
+        self.delete('/projects/%(project_id)s/groups/%(group_id)s/roles/'
+                    '%(role_id)s' % {
+                    'project_id': self.project_id,
+                    'group_id': self.group_id,
+                    'role_id': self.role_id})
+        r = self.get('/projects/%(project_id)s/groups/%(group_id)s/roles' % {
+                     'project_id': self.project_id,
+                     'group_id': self.group_id})
+        self.assertEquals(len(r.body), 0)

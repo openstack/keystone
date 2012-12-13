@@ -27,6 +27,7 @@ from keystone import token
 
 
 LOG = logging.getLogger(__name__)
+
 DRIVERS = dict(
     catalog_api=catalog.Manager(),
     ec2_api=ec2.Manager(),

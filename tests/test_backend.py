@@ -385,6 +385,185 @@ class IdentityTests(object):
                           self.tenant_bar['id'],
                           'member')
 
+    def test_get_role_grant_by_user_and_project(self):
+        roles_ref = self.identity_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.identity_api.create_grant(user_id=self.user_foo['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id='keystone_admin')
+        roles_ref = self.identity_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertDictEqual(roles_ref[0], self.role_keystone_admin)
+
+        self.identity_api.create_grant(user_id=self.user_foo['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_bar['id'])
+
+        roles_ref_ids = []
+        for i, ref in enumerate(roles_ref):
+            roles_ref_ids.append(ref['id'])
+        self.assertIn('keystone_admin', roles_ref_ids)
+        self.assertIn('member', roles_ref_ids)
+
+    def test_get_role_grants_for_user_and_project_404(self):
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.list_grants,
+                          user_id=uuid.uuid4().hex,
+                          project_id=self.tenant_bar['id'])
+
+        self.assertRaises(exception.TenantNotFound,
+                          self.identity_api.list_grants,
+                          user_id=self.user_foo['id'],
+                          project_id=uuid.uuid4().hex)
+
+    def test_add_role_grant_to_user_and_project_404(self):
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.create_grant,
+                          user_id=uuid.uuid4().hex,
+                          project_id=self.tenant_bar['id'],
+                          role_id='keystone_admin')
+
+        self.assertRaises(exception.TenantNotFound,
+                          self.identity_api.create_grant,
+                          user_id=self.user_foo['id'],
+                          project_id=uuid.uuid4().hex,
+                          role_id='keystone_admin')
+
+        self.assertRaises(exception.RoleNotFound,
+                          self.identity_api.create_grant,
+                          user_id=self.user_foo['id'],
+                          project_id=self.tenant_bar['id'],
+                          role_id=uuid.uuid4().hex)
+
+    def test_remove_role_grant_from_user_and_project(self):
+        self.identity_api.create_grant(user_id=self.user_foo['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.identity_api.delete_grant(user_id=self.user_foo['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.delete_grant,
+                          user_id=self.user_foo['id'],
+                          project_id=self.tenant_bar['id'],
+                          role_id='member')
+
+    def test_get_and_remove_role_grant_by_group_and_project(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+        roles_ref = self.identity_api.list_grants(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.identity_api.create_grant(group_id=new_group['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.identity_api.delete_grant(group_id=new_group['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.delete_grant,
+                          group_id=new_group['id'],
+                          project_id=self.tenant_bar['id'],
+                          role_id='member')
+
+    def test_get_and_remove_role_grant_by_group_and_domain(self):
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+        roles_ref = self.identity_api.list_grants(
+            group_id=new_group['id'],
+            domain_id=new_domain['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.identity_api.create_grant(group_id=new_group['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            group_id=new_group['id'],
+            domain_id=new_domain['id'])
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.identity_api.delete_grant(group_id=new_group['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            group_id=new_group['id'],
+            domain_id=new_domain['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.delete_grant,
+                          group_id=new_group['id'],
+                          domain_id=new_domain['id'],
+                          role_id='member')
+
+    def test_get_and_remove_role_grant_by_user_and_domain(self):
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        roles_ref = self.identity_api.list_grants(
+            user_id=new_user['id'],
+            domain_id=new_domain['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.identity_api.create_grant(user_id=new_user['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            user_id=new_user['id'],
+            domain_id=new_domain['id'])
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.identity_api.delete_grant(user_id=new_user['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        roles_ref = self.identity_api.list_grants(
+            user_id=new_user['id'],
+            domain_id=new_domain['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.delete_grant,
+                          user_id=new_user['id'],
+                          domain_id=new_domain['id'],
+                          role_id='member')
+
     def test_role_crud(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_role(role['id'], role)
@@ -695,6 +874,133 @@ class IdentityTests(object):
         self.identity_api.update_tenant('fake1', tenant)
         tenant_ref = self.identity_api.get_tenant('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])
+
+    def test_add_user_to_group(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+        groups = self.identity_api.list_groups_for_user(new_user['id'])
+
+        found = False
+        for x in groups:
+            if (x['id'] == new_group['id']):
+                found = True
+        self.assertTrue(found)
+
+    def test_add_user_to_group_404(self):
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.add_user_to_group,
+                          new_user['id'],
+                          uuid.uuid4().hex)
+
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.add_user_to_group,
+                          uuid.uuid4().hex,
+                          new_group['id'])
+
+    def test_check_user_in_group(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+        self.identity_api.check_user_in_group(new_user['id'], new_group['id'])
+
+    def test_check_user_not_in_group(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.check_user_in_group,
+                          uuid.uuid4().hex,
+                          new_group['id'])
+
+    def test_list_users_in_group(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+        user_refs = self.identity_api.list_users_in_group(new_group['id'])
+        found = False
+        for x in user_refs:
+            if (x['id'] == new_user['id']):
+                found = True
+        self.assertTrue(found)
+
+    def test_remove_user_from_group(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+        agroups = self.identity_api.list_groups_for_user(new_user['id'])
+        self.identity_api.remove_user_from_group(new_user['id'],
+                                                 new_group['id'])
+        groups = self.identity_api.list_groups_for_user(new_user['id'])
+        for x in groups:
+            self.assertFalse(x['id'] == new_group['id'])
+
+    def test_remove_user_from_group_404(self):
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': 'secret', 'enabled': True}
+        self.identity_api.create_user(new_user['id'], new_user)
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.remove_user_from_group,
+                          new_user['id'],
+                          uuid.uuid4().hex)
+
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.remove_user_from_group,
+                          uuid.uuid4().hex,
+                          new_group['id'])
+
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.remove_user_from_group,
+                          uuid.uuid4().hex,
+                          uuid.uuid4().hex)
+
+    def test_group_crud(self):
+        group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex}
+        self.identity_api.create_group(group['id'], group)
+        group_ref = self.identity_api.get_group(group['id'])
+        group_ref_dict = dict((x, group_ref[x]) for x in group_ref)
+        self.assertDictEqual(group_ref_dict, group)
+
+        group['name'] = uuid.uuid4().hex
+        self.identity_api.update_group(group['id'], group)
+        group_ref = self.identity_api.get_group(group['id'])
+        group_ref_dict = dict((x, group_ref[x]) for x in group_ref)
+        self.assertDictEqual(group_ref_dict, group)
+
+        self.identity_api.delete_group(group['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group,
+                          group['id'])
 
 
 class TokenTests(object):

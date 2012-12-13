@@ -463,6 +463,11 @@ class UserV3(controller.V3Controller):
         return {'users': self._paginate(context, refs)}
 
     @controller.protected
+    def list_users_in_group(self, context, group_id):
+        refs = self.identity_api.list_users_in_group(context, group_id)
+        return {'users': self._paginate(context, refs)}
+
+    @controller.protected
     def get_user(self, context, user_id):
         ref = self.identity_api.get_user(context, user_id)
         return {'user': ref}
@@ -475,8 +480,57 @@ class UserV3(controller.V3Controller):
         return {'user': ref}
 
     @controller.protected
+    def add_user_to_group(self, context, user_id, group_id):
+        return self.identity_api.add_user_to_group(context,
+                                                   user_id, group_id)
+
+    @controller.protected
+    def check_user_in_group(self, context, user_id, group_id):
+        return self.identity_api.check_user_in_group(context,
+                                                     user_id, group_id)
+
+    @controller.protected
+    def remove_user_from_group(self, context, user_id, group_id):
+        return self.identity_api.remove_user_from_group(context,
+                                                        user_id, group_id)
+
+    @controller.protected
     def delete_user(self, context, user_id):
         return self.identity_api.delete_user(context, user_id)
+
+
+class GroupV3(controller.V3Controller):
+    @controller.protected
+    def create_group(self, context, group):
+        ref = self._assign_unique_id(self._normalize_dict(group))
+        ref = self.identity_api.create_group(context, ref['id'], ref)
+        return {'group': ref}
+
+    @controller.protected
+    def list_groups(self, context):
+        refs = self.identity_api.list_groups(context)
+        return {'groups': self._paginate(context, refs)}
+
+    @controller.protected
+    def list_groups_for_user(self, context, user_id):
+        refs = self.identity_api.list_groups_for_user(context, user_id)
+        return {'groups': self._paginate(context, refs)}
+
+    @controller.protected
+    def get_group(self, context, group_id):
+        ref = self.identity_api.get_group(context, group_id)
+        return {'group': ref}
+
+    @controller.protected
+    def update_group(self, context, group_id, group):
+        self._require_matching_id(group_id, group)
+
+        ref = self.identity_api.update_group(context, group_id, group)
+        return {'group': ref}
+
+    @controller.protected
+    def delete_group(self, context, group_id):
+        return self.identity_api.delete_group(context, group_id)
 
 
 class CredentialV3(controller.V3Controller):
@@ -539,43 +593,52 @@ class RoleV3(controller.V3Controller):
     def delete_role(self, context, role_id):
         return self.identity_api.delete_role(context, role_id)
 
-    def _require_domain_or_project(self, domain_id, project_id):
+    def _require_domain_xor_project(self, domain_id, project_id):
         if (domain_id and project_id) or (not domain_id and not project_id):
             msg = 'Specify a domain or project, not both'
             raise exception.ValidationError(msg)
 
+    def _require_user_xor_group(self, user_id, group_id):
+        if (user_id and group_id) or (not user_id and not group_id):
+            msg = 'Specify a user or group, not both'
+            raise exception.ValidationError(msg)
+
     @controller.protected
-    def create_grant(self, context, role_id, user_id, domain_id=None,
-                     project_id=None):
-        """Grants a role to a user on either a domain or project."""
-        self._require_domain_or_project(domain_id, project_id)
+    def create_grant(self, context, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None):
+        """Grants a role to a user or group on either a domain or project."""
+        self._require_domain_xor_project(domain_id, project_id)
+        self._require_user_xor_group(user_id, group_id)
 
         return self.identity_api.create_grant(
-            context, role_id, user_id, domain_id, project_id)
+            context, role_id, user_id, group_id, domain_id, project_id)
 
     @controller.protected
-    def list_grants(self, context, user_id, domain_id=None,
-                    project_id=None):
-        """Lists roles granted to a user on either a domain or project."""
-        self._require_domain_or_project(domain_id, project_id)
+    def list_grants(self, context, user_id=None, group_id=None,
+                    domain_id=None, project_id=None):
+        """Lists roles granted to user/group on either a domain or project."""
+        self._require_domain_xor_project(domain_id, project_id)
+        self._require_user_xor_group(user_id, group_id)
 
         return self.identity_api.list_grants(
-            context, user_id, domain_id, project_id)
+            context, user_id, group_id, domain_id, project_id)
 
     @controller.protected
-    def check_grant(self, context, role_id, user_id, domain_id=None,
-                    project_id=None):
+    def check_grant(self, context, role_id, user_id=None, group_id=None,
+                    domain_id=None, project_id=None):
         """Checks if a role has been granted on either a domain or project."""
-        self._require_domain_or_project(domain_id, project_id)
+        self._require_domain_xor_project(domain_id, project_id)
+        self._require_user_xor_group(user_id, group_id)
 
         self.identity_api.get_grant(
-            context, role_id, user_id, domain_id, project_id)
+            context, role_id, user_id, group_id, domain_id, project_id)
 
     @controller.protected
-    def revoke_grant(self, context, role_id, user_id, domain_id=None,
-                     project_id=None):
-        """Revokes a role from a user on either a domain or project."""
-        self._require_domain_or_project(domain_id, project_id)
+    def revoke_grant(self, context, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None):
+        """Revokes a role from user/group on either a domain or project."""
+        self._require_domain_xor_project(domain_id, project_id)
+        self._require_user_xor_group(user_id, group_id)
 
         self.identity_api.delete_grant(
-            context, role_id, user_id, domain_id, project_id)
+            context, role_id, user_id, group_id, domain_id, project_id)

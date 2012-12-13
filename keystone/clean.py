@@ -55,3 +55,7 @@ def tenant_name(name):
 
 def user_name(name):
     return check_name('User', name)
+
+
+def group_name(name):
+    return check_name('Group', name)

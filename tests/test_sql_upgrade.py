@@ -176,6 +176,22 @@ class SqlUpgradeTests(test.TestCase):
             self.assertEqual(ref.url, endpoint_extra['%surl' % interface])
             self.assertEqual(ref.extra, '{}')
 
+    def test_upgrade_12_to_13(self):
+        self.upgrade(12)
+        self.upgrade(13)
+        self.assertTableExists('group')
+        self.assertTableExists('group_project_metadata')
+        self.assertTableExists('group_domain_metadata')
+        self.assertTableExists('user_group_membership')
+
+    def test_downgrade_13_to_12(self):
+        self.upgrade(13)
+        self.downgrade(12)
+        self.assertTableDoesNotExist('group')
+        self.assertTableDoesNotExist('group_project_metadata')
+        self.assertTableDoesNotExist('group_domain_metadata')
+        self.assertTableDoesNotExist('user_group_membership')
+
     def test_downgrade_12_to_9(self):
         self.upgrade(12)
 
@@ -253,7 +269,7 @@ class SqlUpgradeTests(test.TestCase):
                 ', '.join("'%s'" % v for v in d.values())))
 
     def test_downgrade_to_0(self):
-        self.upgrade(12)
+        self.upgrade(13)
         self.downgrade(0)
         for table_name in ["user", "token", "role", "user_tenant_membership",
                            "metadata"]:
