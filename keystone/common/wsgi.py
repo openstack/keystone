@@ -415,7 +415,8 @@ class Router(object):
         """
         match = req.environ['wsgiorg.routing_args'][1]
         if not match:
-            return webob.exc.HTTPNotFound()
+            return render_exception(
+                exception.NotFound('The resource could not be found.'))
         app = match['controller']
         return app
 
