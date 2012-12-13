@@ -212,3 +212,10 @@ to which capabilities are allowed for that role. For example::
 
 In the backend this would look up the policy for 'action:nova:add_network' and
 then do what is effectively a 'Simple Match' style match against the creds.
+
+
+----------------------------------
+Dependencies
+----------------------------------
+
+Ensure an OpenSSL version of 1.0+ is installed.
