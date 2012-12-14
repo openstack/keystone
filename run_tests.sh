@@ -109,7 +109,7 @@ function run_pep8 {
   # Opt-out files from pep8
   ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
   ignore_files="*pip-requires"
-  ignore_dirs=".venv,openstack,vendor,.tox"
+  ignore_dirs=".venv,.tox,dist,doc,openstack,vendor,*egg"
   ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
   srcfiles="."
   # Just run PEP8 in current environment
