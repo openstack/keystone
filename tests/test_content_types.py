@@ -308,6 +308,18 @@ class CoreApiTests(object):
         self.assertIsNotNone(tenant.get('id'))
         self.assertIsNotNone(tenant.get('name'))
 
+    def test_public_not_found(self):
+        r = self.public_request(
+            path='/%s' % uuid.uuid4().hex,
+            expected_status=404)
+        self.assertValidErrorResponse(r)
+
+    def test_admin_not_found(self):
+        r = self.admin_request(
+            path='/%s' % uuid.uuid4().hex,
+            expected_status=404)
+        self.assertValidErrorResponse(r)
+
     def test_public_multiple_choice(self):
         r = self.public_request(path='/', expected_status=300)
         self.assertValidMultipleChoiceResponse(r)
