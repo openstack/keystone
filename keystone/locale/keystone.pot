@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone 2013.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-11-27 00:01+0000\n"
+"POT-Creation-Date: 2012-12-14 00:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,282 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
+#: keystone/clean.py:23
+#, python-format
+msgid "%s cannot be empty."
+msgstr ""
+
+#: keystone/clean.py:25
+#, python-format
+msgid "%(property_name)s cannot be less than %(min_length)s characters."
+msgstr ""
+
+#: keystone/clean.py:29
+#, python-format
+msgid "%(property_name)s should not be greater than %(max_length)s characters."
+msgstr ""
+
+#: keystone/clean.py:36
+#, python-format
+msgid "%(property_name)s is not a%(display_expected_type)s"
+msgstr ""
+
+#: keystone/config.py:44
+#, python-format
+msgid "Unable to locate specified logging config file: %s"
+msgstr ""
+
 #: keystone/config.py:62
 msgid "Invalid syslog facility"
+msgstr ""
+
+#: keystone/test.py:91
+#, python-format
+msgid "Failed to checkout %s"
+msgstr ""
+
+#: keystone/catalog/core.py:37
+#, python-format
+msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
+msgstr ""
+
+#: keystone/catalog/core.py:42
+#, python-format
+msgid ""
+"Malformed endpoint %(url)s - unknown key %(keyerror)s(are you missing "
+"brackets ?)"
+msgstr ""
+
+#: keystone/catalog/core.py:48
+#, python-format
+msgid ""
+"Malformed endpoint %s - incomplete format                   (are you "
+"missing a type notifier ?)"
+msgstr ""
+
+#: keystone/catalog/backends/templated.py:109
+#, python-format
+msgid "Unable to open template file %s"
+msgstr ""
+
+#: keystone/common/bufferedhttp.py:102
+#, python-format
+msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
+msgstr ""
+
+#: keystone/common/cms.py:44
+#, python-format
+msgid "Verify error: %s"
+msgstr ""
+
+#: keystone/common/cms.py:134
+#, python-format
+msgid "Signing error: %s"
+msgstr ""
+
+#: keystone/common/utils.py:124
+msgid "using _calc_signature_2"
+msgstr ""
+
+#: keystone/common/utils.py:140
+#, python-format
+msgid "query string: %s"
+msgstr ""
+
+#: keystone/common/utils.py:142
+#, python-format
+msgid "string_to_sign: %s"
+msgstr ""
+
+#: keystone/common/utils.py:145
+#, python-format
+msgid "len(b64)=%d"
+msgstr ""
+
+#: keystone/common/utils.py:146
+#, python-format
+msgid "base64 encoded digest: %s"
+msgstr ""
+
+#: keystone/common/wsgi.py:73
+#, python-format
+msgid "Starting %(arg0)s on %(host)s:%(port)s"
+msgstr ""
+
+#: keystone/common/wsgi.py:196
+#, python-format
+msgid "arg_dict: %s"
+msgstr ""
+
+#: keystone/common/wsgi.py:217
+#, python-format
+msgid "Authorization failed. %s from %s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:171
+#, python-format
+msgid "Duplicate name, %s."
+msgstr ""
+
+#: keystone/common/ldap/core.py:181
+#, python-format
+msgid "Duplicate ID, %s."
+msgstr ""
+
+#: keystone/common/ldap/core.py:186
+#, python-format
+msgid "LDAP backend does not allow %s create"
+msgstr ""
+
+#: keystone/common/ldap/core.py:293
+#, python-format
+msgid "LDAP backend does not allow %s update"
+msgstr ""
+
+#: keystone/common/ldap/core.py:321
+#, python-format
+msgid "LDAP backend does not allow %s delete"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:148
+#, python-format
+msgid "FakeLdap initialize url=%s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:158
+#, python-format
+msgid "FakeLdap bind dn=%s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:165
+#, python-format
+msgid "FakeLdap bind fail: dn=%s not found"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:172
+#, python-format
+msgid "FakeLdap bind fail: password for dn=%s not found"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:177
+#, python-format
+msgid "FakeLdap bind fail: password for dn=%s does not match"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:192
+#, python-format
+msgid "FakeLdap add item: dn=%s, attrs=%s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:194
+#, python-format
+msgid "FakeLdap add item failed: dn=%s is already in store."
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:208 keystone/common/ldap/fakeldap.py:222
+#, python-format
+msgid "FakeLdap delete item: dn=%s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:212 keystone/common/ldap/fakeldap.py:226
+#, python-format
+msgid "FakeLdap delete item failed: dn=%s not found."
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:241
+#, python-format
+msgid "FakeLdap modify item: dn=%s attrs=%s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:245
+#, python-format
+msgid "FakeLdap modify item failed: dn=%s not found."
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:262
+#, python-format
+msgid "FakeLdap modify item failed: item has no attribute \"%s\" to delete"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:273
+#, python-format
+msgid ""
+"FakeLdap modify item failed: item has no attribute \"%s\" with value "
+"\"%s\" to delete"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:278
+#, python-format
+msgid "FakeLdap modify item failed: unknown command %s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:280
+#, python-format
+msgid "modify_s action %s not implemented"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:298
+#, python-format
+msgid "FakeLdap search at dn=%s scope=%s query=%s"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:304
+msgid "FakeLdap search fail: dn not found for SCOPE_BASE"
+msgstr ""
+
+#: keystone/common/ldap/fakeldap.py:318
+#, python-format
+msgid "Search scope %s not implemented."
+msgstr ""
+
+#: keystone/common/sql/core.py:163
+#, python-format
+msgid "Got mysql server has gone away: %s"
+msgstr ""
+
+#: keystone/common/sql/legacy.py:174
+#, python-format
+msgid "Cannot migrate EC2 credential: %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:58
+#, python-format
+msgid "Create tenant %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:74
+#, python-format
+msgid "Create user %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:83
+#, python-format
+msgid "Add user %s to tenant %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:91
+#, python-format
+msgid "Ignoring existing role %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:98
+#, python-format
+msgid "Create role %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:108
+#, python-format
+msgid "Assign role %s to user %s on tenant %s"
+msgstr ""
+
+#: keystone/common/sql/nova.py:123
+#, python-format
+msgid "Creating ec2 cred for user %s and tenant %s"
+msgstr ""
+
+#: keystone/policy/backends/rules.py:95
+#, python-format
+msgid "enforce %s: %s"
 msgstr ""
 
 #: keystone/token/backends/memcache.py:81
