@@ -78,7 +78,7 @@ class Endpoint(Model):
     """
 
     required_keys = ('id', 'region', 'service_id')
-    optional_keys = ('interalurl', 'publicurl', 'adminurl')
+    optional_keys = ('internalurl', 'publicurl', 'adminurl')
 
 
 class User(Model):
