@@ -63,9 +63,9 @@ class Token(token.Driver):
 
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
-        ptk = self._prefix_token_id(self.token_to_key(token_id))
+        ptk = self._prefix_token_id(token.unique_id(token_id))
         if 'expires' not in data_copy:
-            data_copy['expires'] = self._get_default_expire_time()
+            data_copy['expires'] = token.default_expire_time()
         kwargs = {}
         if data_copy['expires'] is not None:
             expires_ts = utils.unixtime(data_copy['expires'])
@@ -93,8 +93,8 @@ class Token(token.Driver):
 
     def delete_token(self, token_id):
         # Test for existence
-        data = self.get_token(self.token_to_key(token_id))
-        ptk = self._prefix_token_id(self.token_to_key(token_id))
+        data = self.get_token(token.unique_id(token_id))
+        ptk = self._prefix_token_id(token.unique_id(token_id))
         result = self.client.delete(ptk)
         self._add_to_revocation_list(data)
         return result

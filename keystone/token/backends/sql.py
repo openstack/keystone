@@ -40,7 +40,7 @@ class Token(sql.Base, token.Driver):
             raise exception.TokenNotFound(token_id=token_id)
         session = self.get_session()
         query = session.query(TokenModel)
-        query = query.filter_by(id=self.token_to_key(token_id), valid=True)
+        query = query.filter_by(id=token.unique_id(token_id), valid=True)
         token_ref = query.first()
         now = datetime.datetime.utcnow()
         if token_ref and (not token_ref.expires or now < token_ref.expires):
@@ -51,10 +51,10 @@ class Token(sql.Base, token.Driver):
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
         if 'expires' not in data_copy:
-            data_copy['expires'] = self._get_default_expire_time()
+            data_copy['expires'] = token.default_expire_time()
 
         token_ref = TokenModel.from_dict(data_copy)
-        token_ref.id = self.token_to_key(token_id)
+        token_ref.id = token.unique_id(token_id)
         token_ref.valid = True
         session = self.get_session()
         with session.begin():
@@ -64,7 +64,7 @@ class Token(sql.Base, token.Driver):
 
     def delete_token(self, token_id):
         session = self.get_session()
-        key = self.token_to_key(token_id)
+        key = token.unique_id(token_id)
         with session.begin():
             token_ref = session.query(TokenModel).filter_by(id=key,
                                                             valid=True).first()
