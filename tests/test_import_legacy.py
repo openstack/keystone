@@ -16,8 +16,10 @@
 
 import os
 
-import sqlite3
-#import sqlalchemy
+try:
+    import sqlite3 as dbapi
+except ImportError:
+    from pysqlite2 import dbapi2 as dbapi
 
 from keystone.catalog.backends import templated as catalog_templated
 from keystone.common.sql import legacy
@@ -52,7 +54,7 @@ class ImportLegacy(test.TestCase):
         except OSError:
             pass
         script_str = open(sql_path).read().strip()
-        conn = sqlite3.connect(db_path)
+        conn = dbapi.connect(db_path)
         conn.executescript(script_str)
         conn.commit()
         return db_path
