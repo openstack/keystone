@@ -668,7 +668,8 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         if tenant_id is None:
             return self._id_to_dn(role_id)
         else:
-            return 'cn=%s,%s' % (ldap.dn.escape_dn_chars(role_id),
+            return '%s=%s,%s' % (self.id_attr,
+                                 ldap.dn.escape_dn_chars(role_id),
                                  self.tenant_api._id_to_dn(tenant_id))
 
     def get(self, id, filter=None):
