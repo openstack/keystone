@@ -284,6 +284,9 @@ class TestCase(NoModule, unittest.TestCase):
         sys.path.insert(0, path)
         self._paths.append(path)
 
-    def assertCloseEnoughForGovernmentWork(self, a, b):
-        """Asserts that two datetimes are nearly equal within a small delta."""
-        self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=1))
+    def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
+        """Asserts that two datetimes are nearly equal within a small delta.
+
+        :param delta: Maximum allowable time delta, defined in seconds.
+        """
+        self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=delta))
