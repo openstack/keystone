@@ -20,18 +20,9 @@ import uuid
 from keystone.catalog import core
 from keystone.common import controller
 from keystone.common import wsgi
-from keystone import identity
-from keystone import policy
-from keystone import token
 
 
-class Service(wsgi.Application):
-    def __init__(self):
-        self.catalog_api = core.Manager()
-        self.identity_api = identity.Manager()
-        self.policy_api = policy.Manager()
-        self.token_api = token.Manager()
-        super(Service, self).__init__()
+class Service(controller.V2Controller):
 
     def get_services(self, context):
         self.assert_admin(context)
@@ -57,14 +48,7 @@ class Service(wsgi.Application):
         return {'OS-KSADM:service': new_service_ref}
 
 
-class Endpoint(wsgi.Application):
-    def __init__(self):
-        self.catalog_api = core.Manager()
-        self.identity_api = identity.Manager()
-        self.policy_api = policy.Manager()
-        self.token_api = token.Manager()
-        super(Endpoint, self).__init__()
-
+class Endpoint(controller.V2Controller):
     def get_endpoints(self, context):
         self.assert_admin(context)
         endpoint_list = self.catalog_api.list_endpoints(context)

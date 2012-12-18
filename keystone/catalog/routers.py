@@ -13,7 +13,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from keystone.catalog import controllers
+from keystone.common import router
+from keystone.common import wsgi
 
-from keystone.policy.core import *
-from keystone.policy import controllers
-from keystone.policy import routers
+
+def append_v3_routers(mapper, routers, apis):
+    routers.append(router.Router(controllers.ServiceV3(**apis),
+                                 'services', 'service'))
+    routers.append(router.Router(controllers.EndpointV3(**apis),
+                                 'endpoints', 'endpoint'))
