@@ -20,6 +20,13 @@ import uuid
 from keystone.catalog import core
 from keystone.common import controller
 from keystone.common import wsgi
+from keystone import exception
+from keystone import identity
+from keystone import policy
+from keystone import token
+
+
+INTERFACES = ['public', 'internal', 'admin']
 
 
 class Service(controller.V2Controller):
@@ -50,22 +57,62 @@ class Service(controller.V2Controller):
 
 class Endpoint(controller.V2Controller):
     def get_endpoints(self, context):
+        """Merge matching v3 endpoint refs into legacy refs."""
         self.assert_admin(context)
-        endpoint_list = self.catalog_api.list_endpoints(context)
-        return {'endpoints': endpoint_list}
+        legacy_endpoints = {}
+        for endpoint in self.catalog_api.list_endpoints(context):
+            if not endpoint['legacy_endpoint_id']:
+                # endpoints created in v3 should not appear on the v2 API
+                continue
+
+            # is this is a legacy endpoint we haven't indexed yet?
+            if endpoint['legacy_endpoint_id'] not in legacy_endpoints:
+                legacy_ep = endpoint.copy()
+                legacy_ep['id'] = legacy_ep.pop('legacy_endpoint_id')
+                legacy_ep.pop('interface')
+                legacy_ep.pop('url')
+
+                legacy_endpoints[endpoint['legacy_endpoint_id']] = legacy_ep
+            else:
+                legacy_ep = legacy_endpoints[endpoint['legacy_endpoint_id']]
+
+            # add the legacy endpoint with an interface url
+            legacy_ep['%surl' % endpoint['interface']] = endpoint['url']
+        return {'endpoints': legacy_endpoints.values()}
 
     def create_endpoint(self, context, endpoint):
+        """Create three v3 endpoint refs based on a legacy ref."""
         self.assert_admin(context)
-        endpoint_id = uuid.uuid4().hex
-        endpoint_ref = endpoint.copy()
-        endpoint_ref['id'] = endpoint_id
-        new_endpoint_ref = self.catalog_api.create_endpoint(
-            context, endpoint_id, endpoint_ref)
-        return {'endpoint': new_endpoint_ref}
+
+        legacy_endpoint_ref = endpoint.copy()
+
+        urls = dict((i, endpoint.pop('%surl' % i)) for i in INTERFACES)
+        legacy_endpoint_id = uuid.uuid4().hex
+        for interface, url in urls.iteritems():
+            endpoint_ref = endpoint.copy()
+            endpoint_ref['id'] = uuid.uuid4().hex
+            endpoint_ref['legacy_endpoint_id'] = legacy_endpoint_id
+            endpoint_ref['interface'] = interface
+            endpoint_ref['url'] = url
+
+            self.catalog_api.create_endpoint(
+                context, endpoint_ref['id'], endpoint_ref)
+
+        legacy_endpoint_ref['id'] = legacy_endpoint_id
+        return {'endpoint': legacy_endpoint_ref}
 
     def delete_endpoint(self, context, endpoint_id):
+        """Delete up to three v3 endpoint refs based on a legacy ref ID."""
         self.assert_admin(context)
-        self.catalog_api.delete_endpoint(context, endpoint_id)
+
+        deleted_at_least_one = False
+        for endpoint in self.catalog_api.list_endpoints(context):
+            if endpoint['legacy_endpoint_id'] == endpoint_id:
+                self.catalog_api.delete_endpoint(context, endpoint['id'])
+                deleted_at_least_one = True
+
+        if not deleted_at_least_one:
+            raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
 
 class ServiceV3(controller.V3Controller):

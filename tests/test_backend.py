@@ -885,6 +885,9 @@ class CatalogTests(object):
         # create an endpoint attached to the service
         endpoint = {
             'id': uuid.uuid4().hex,
+            'region': uuid.uuid4().hex,
+            'interface': uuid.uuid4().hex,
+            'url': uuid.uuid4().hex,
             'service_id': service['id'],
         }
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)

@@ -36,12 +36,14 @@ class Service(sql.ModelBase, sql.DictBase):
 
 class Endpoint(sql.ModelBase, sql.DictBase):
     __tablename__ = 'endpoint'
-    attributes = ['id', 'region', 'service_id']
+    attributes = ['id', 'interface', 'region', 'service_id', 'url']
     id = sql.Column(sql.String(64), primary_key=True)
+    interface = sql.Column(sql.String(8), primary_key=True)
     region = sql.Column('region', sql.String(255))
     service_id = sql.Column(sql.String(64),
                             sql.ForeignKey('service.id'),
                             nullable=False)
+    url = sql.Column(sql.Text())
     extra = sql.Column(sql.JsonBlob())
 
 
@@ -88,7 +90,9 @@ class Catalog(sql.Base, catalog.Driver):
             old_dict = ref.to_dict()
             old_dict.update(service_ref)
             new_service = Service.from_dict(old_dict)
-            ref.type = new_service.type
+            for attr in Service.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_service, attr))
             ref.extra = new_service.extra
             session.flush()
         return ref.to_dict()
@@ -132,8 +136,9 @@ class Catalog(sql.Base, catalog.Driver):
             old_dict = ref.to_dict()
             old_dict.update(endpoint_ref)
             new_endpoint = Endpoint.from_dict(old_dict)
-            ref.service_id = new_endpoint.service_id
-            ref.region = new_endpoint.region
+            for attr in Endpoint.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_endpoint, attr))
             ref.extra = new_endpoint.extra
             session.flush()
         return ref.to_dict()
@@ -142,25 +147,28 @@ class Catalog(sql.Base, catalog.Driver):
         d = dict(CONF.iteritems())
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
+
         catalog = {}
+        services = {}
+        for endpoint in self.list_endpoints():
+            # look up the service
+            services.setdefault(
+                endpoint['service_id'],
+                self.get_service(endpoint['service_id']))
+            service = services[endpoint['service_id']]
 
-        endpoints = self.list_endpoints()
-        for ep in endpoints:
-            service = self.get_service(ep['service_id'])
-            srv_type = service['type']
-            srv_name = service['name']
-            region = ep['region']
+            # add the endpoint to the catalog if it's not already there
+            catalog.setdefault(endpoint['region'], {})
+            catalog[endpoint['region']].setdefault(
+                service['type'], {
+                    'id': endpoint['id'],
+                    'name': service['name'],
+                    'publicURL': '',  # this may be overridden, but must exist
+                })
 
-            if region not in catalog:
-                catalog[region] = {}
-
-            catalog[region][srv_type] = {}
-
-            srv_type = catalog[region][srv_type]
-            srv_type['id'] = ep['id']
-            srv_type['name'] = srv_name
-            srv_type['publicURL'] = core.format_url(ep.get('publicurl', ''), d)
-            srv_type['internalURL'] = core.format_url(ep.get('internalurl'), d)
-            srv_type['adminURL'] = core.format_url(ep.get('adminurl'), d)
+            # add the interface's url
+            url = core.format_url(endpoint.get('url'), d)
+            interface_url = '%sURL' % endpoint['interface']
+            catalog[endpoint['region']][service['type']][interface_url] = url
 
         return catalog
