@@ -292,3 +292,22 @@ def hash_signed_token(signed_text):
     hash_ = hashlib.md5()
     hash_.update(signed_text)
     return hash_.hexdigest()
+
+
+def setup_remote_pydev_debug():
+    if CONF.pydev_debug_host and CONF.pydev_debug_port:
+        error_msg = ('Error setting up the debug environment.  Verify that the'
+                     ' option --debug-url has the format <host>:<port> and '
+                     'that a debugger processes is listening on that port.')
+
+        try:
+            from pydev import pydevd
+
+            pydevd.settrace(CONF.pydev_debug_host,
+                            port=CONF.pydev_debug_port,
+                            stdoutToServer=True,
+                            stderrToServer=True)
+            return True
+        except:
+            LOG.exception(_(error_msg))
+            raise
