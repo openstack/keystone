@@ -18,12 +18,8 @@ from keystone.token import controllers
 
 
 class Router(wsgi.ComposableRouter):
-    def __init__(self, apis):
-        self.apis = apis
-        super(Router, self).__init__()
-
     def add_routes(self, mapper):
-        token_controller = controllers.Auth(**self.apis)
+        token_controller = controllers.Auth()
         mapper.connect('/tokens',
                        controller=token_controller,
                        action='authenticate',

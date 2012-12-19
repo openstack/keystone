@@ -16,14 +16,9 @@
 
 """Main entry point into the Identity service."""
 
-import urllib
-import urlparse
-import uuid
-
-from keystone.common import controller
+from keystone.common import dependency
 from keystone.common import logging
 from keystone.common import manager
-from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 
@@ -51,6 +46,7 @@ def filter_user(user_ref):
     return user_ref
 
 
+@dependency.provider('identity_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 

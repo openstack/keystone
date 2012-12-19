@@ -18,13 +18,9 @@ import copy
 import uuid
 
 from keystone import exception
-from keystone.common import controller
 from keystone.common import logging
 from keystone.common import wsgi
-from keystone import catalog
 from keystone import identity
-from keystone import policy
-from keystone import token
 
 
 LOG = logging.getLogger(__name__)
@@ -81,12 +77,7 @@ class CrudExtension(wsgi.ExtensionRouter):
     """
 
     def add_routes(self, mapper):
-        apis = dict(catalog_api=catalog.Manager(),
-                    identity_api=identity.Manager(),
-                    policy_api=policy.Manager(),
-                    token_api=token.Manager())
-
-        user_controller = UserController(**apis)
+        user_controller = UserController()
 
         mapper.connect('/OS-KSCRUD/users/{user_id}',
                        controller=user_controller,

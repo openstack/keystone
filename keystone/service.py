@@ -17,22 +17,22 @@
 import routes
 
 from keystone import catalog
+from keystone.contrib import ec2
 from keystone.common import logging
 from keystone.common import wsgi
-from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import routers
 from keystone import token
 
+
 LOG = logging.getLogger(__name__)
-
-
-def _apis():
-    return dict(catalog_api=catalog.Manager(),
-                identity_api=identity.Manager(),
-                policy_api=policy.Manager(),
-                token_api=token.Manager())
+DRIVERS = dict(
+    catalog_api=catalog.Manager(),
+    ec2_api=ec2.Manager(),
+    identity_api=identity.Manager(),
+    policy_api=policy.Manager(),
+    token_api=token.Manager())
 
 
 @logging.fail_gracefully
@@ -40,10 +40,10 @@ def public_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
-                                [identity.routers.Public(_apis()),
-                                    token.routers.Router(_apis()),
-                                    routers.Version('public'),
-                                    routers.Extension(False)])
+                                [identity.routers.Public(),
+                                 token.routers.Router(),
+                                 routers.Version('public'),
+                                 routers.Extension(False)])
 
 
 @logging.fail_gracefully
@@ -51,8 +51,8 @@ def admin_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
-                                [identity.routers.Admin(_apis()),
-                                    token.routers.Router(_apis()),
+                                [identity.routers.Admin(),
+                                    token.routers.Router(),
                                     routers.Version('admin'),
                                     routers.Extension()])
 
@@ -80,6 +80,6 @@ def v3_app_factory(global_conf, **local_conf):
     mapper = routes.Mapper()
     v3routers = []
     for module in [catalog, identity, policy]:
-        module.routers.append_v3_routers(mapper, v3routers, _apis())
-    #TODO put token routes here
+        module.routers.append_v3_routers(mapper, v3routers)
+    # TODO(ayoung): put token routes here
     return wsgi.ComposingRouter(mapper, v3routers)

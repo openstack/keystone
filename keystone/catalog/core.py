@@ -17,6 +17,7 @@
 
 """Main entry point into the Catalog service."""
 
+from keystone.common import dependency
 from keystone.common import logging
 from keystone.common import manager
 from keystone import config
@@ -51,6 +52,7 @@ def format_url(url, data):
     return result
 
 
+@dependency.provider('catalog_api')
 class Manager(manager.Manager):
     """Default pivot point for the Catalog backend.
 

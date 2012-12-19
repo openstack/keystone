@@ -17,13 +17,9 @@ import uuid
 
 import default_fixtures
 
-from keystone import catalog
 from keystone import config
 from keystone import exception
-from keystone import identity
-from keystone.identity.backends import kvs as kvs_identity
 from keystone.openstack.common import timeutils
-from keystone import policy
 from keystone import test
 from keystone import token
 
@@ -56,15 +52,11 @@ class AuthTest(test.TestCase):
     def setUp(self):
         super(AuthTest, self).setUp()
 
-        # load_fixtures checks for 'identity_api' to be defined
-        self.identity_api = kvs_identity.Identity()
+        CONF.identity.driver = 'keystone.identity.backends.kvs.Identity'
+        self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        self.api = token.controllers.Auth(
-            catalog_api=catalog.Manager(),
-            identity_api=identity.Manager(),
-            policy_api=policy.Manager(),
-            token_api=token.Manager())
+        self.api = token.controllers.Auth()
 
     def assertEqualTokens(self, a, b):
         """Assert that two tokens are equal.

@@ -17,6 +17,6 @@ from keystone.policy import controllers
 from keystone.common import router
 
 
-def append_v3_routers(mapper, routers, apis):
-    policy_controller = controllers.PolicyV3(**apis)
+def append_v3_routers(mapper, routers):
+    policy_controller = controllers.PolicyV3()
     routers.append(router.Router(policy_controller, 'policies', 'policy'))

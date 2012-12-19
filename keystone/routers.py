@@ -14,17 +14,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 """
-The only types of routers in this file should be ComposingRouters.
-The routers for the submodules should be in the module specific router files
-for example, the Composable Router for identity belongs in
-keystone/identity/routers.py
+The only types of routers in this file should be ``ComposingRouters``.
+
+The routers for the backends should be in the backend-specific router modules.
+For example, the ``ComposableRouter`` for ``identity`` belongs in::
+
+    keystone.identity.routers
+
 """
 
 
 from keystone.common import wsgi
-from keystone import catalog
 from keystone import controllers
-from keystone import exception
 
 
 class Extension(wsgi.ComposableRouter):

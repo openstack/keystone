@@ -17,20 +17,16 @@
 
 import uuid
 
-from keystone.catalog import core
 from keystone.common import controller
-from keystone.common import wsgi
+from keystone.common import dependency
 from keystone import exception
-from keystone import identity
-from keystone import policy
-from keystone import token
 
 
 INTERFACES = ['public', 'internal', 'admin']
 
 
+@dependency.requires('catalog_api')
 class Service(controller.V2Controller):
-
     def get_services(self, context):
         self.assert_admin(context)
         service_list = self.catalog_api.list_services(context)
@@ -55,6 +51,7 @@ class Service(controller.V2Controller):
         return {'OS-KSADM:service': new_service_ref}
 
 
+@dependency.requires('catalog_api')
 class Endpoint(controller.V2Controller):
     def get_endpoints(self, context):
         """Merge matching v3 endpoint refs into legacy refs."""
@@ -115,6 +112,7 @@ class Endpoint(controller.V2Controller):
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
 
+@dependency.requires('catalog_api')
 class ServiceV3(controller.V3Controller):
     @controller.protected
     def create_service(self, context, service):
@@ -147,6 +145,7 @@ class ServiceV3(controller.V3Controller):
         return self.catalog_api.delete_service(context, service_id)
 
 
+@dependency.requires('catalog_api')
 class EndpointV3(controller.V3Controller):
     @controller.protected
     def create_endpoint(self, context, endpoint):
