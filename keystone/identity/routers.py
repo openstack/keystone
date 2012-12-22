@@ -20,12 +20,8 @@ from keystone.common import router
 
 
 class Public(wsgi.ComposableRouter):
-    def __init__(self, apis):
-        self.apis = apis
-        super(Public, self).__init__()
-
     def add_routes(self, mapper):
-        tenant_controller = controllers.Tenant(**self.apis)
+        tenant_controller = controllers.Tenant()
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_tenants_for_token',
@@ -33,13 +29,9 @@ class Public(wsgi.ComposableRouter):
 
 
 class Admin(wsgi.ComposableRouter):
-    def __init__(self, apis):
-        self.apis = apis
-        super(Admin, self).__init__()
-
     def add_routes(self, mapper):
         # Tenant Operations
-        tenant_controller = controllers.Tenant(**self.apis)
+        tenant_controller = controllers.Tenant()
         mapper.connect('/tenants',
                        controller=tenant_controller,
                        action='get_all_tenants',
@@ -50,14 +42,14 @@ class Admin(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
         # User Operations
-        user_controller = controllers.User(**self.apis)
+        user_controller = controllers.User()
         mapper.connect('/users/{user_id}',
                        controller=user_controller,
                        action='get_user',
                        conditions=dict(method=['GET']))
 
         # Role Operations
-        roles_controller = controllers.Role(**self.apis)
+        roles_controller = controllers.Role()
         mapper.connect('/tenants/{tenant_id}/users/{user_id}/roles',
                        controller=roles_controller,
                        action='get_user_roles',
@@ -68,11 +60,11 @@ class Admin(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
 
-def append_v3_routers(mapper, routers, apis):
+def append_v3_routers(mapper, routers):
     routers.append(
-        router.Router(controllers.DomainV3(**apis),
+        router.Router(controllers.DomainV3(),
                       'domains', 'domain'))
-    project_controller = controllers.ProjectV3(**apis)
+    project_controller = controllers.ProjectV3()
     routers.append(
         router.Router(project_controller,
                       'projects', 'project'))
@@ -81,12 +73,12 @@ def append_v3_routers(mapper, routers, apis):
                    action='list_user_projects',
                    conditions=dict(method=['GET']))
     routers.append(
-        router.Router(controllers.UserV3(**apis),
+        router.Router(controllers.UserV3(),
                       'users', 'user'))
     routers.append(
-        router.Router(controllers.CredentialV3(**apis),
+        router.Router(controllers.CredentialV3(),
                       'credentials', 'credential'))
-    role_controller = controllers.RoleV3(**apis)
+    role_controller = controllers.RoleV3()
     routers.append(router.Router(role_controller, 'roles', 'role'))
     mapper.connect('/projects/{project_id}/users/{user_id}/roles/{role_id}',
                    controller=role_controller,

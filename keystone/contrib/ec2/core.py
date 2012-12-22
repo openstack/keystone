@@ -36,20 +36,20 @@ glance to list images needed to perform the requested task.
 
 import uuid
 
-from keystone import catalog
+from keystone.common import controller
+from keystone.common import dependency
 from keystone.common import manager
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
-from keystone import identity
-from keystone import policy
 from keystone import token
 
 
 CONF = config.CONF
 
 
+@dependency.provider('ec2_api')
 class Manager(manager.Manager):
     """Default pivot point for the EC2 Credentials backend.
 
@@ -95,15 +95,8 @@ class Ec2Extension(wsgi.ExtensionRouter):
             conditions=dict(method=['DELETE']))
 
 
-class Ec2Controller(wsgi.Application):
-    def __init__(self):
-        self.catalog_api = catalog.Manager()
-        self.identity_api = identity.Manager()
-        self.token_api = token.Manager()
-        self.policy_api = policy.Manager()
-        self.ec2_api = Manager()
-        super(Ec2Controller, self).__init__()
-
+@dependency.requires('catalog_api', 'ec2_api')
+class Ec2Controller(controller.V2Controller):
     def check_signature(self, creds_ref, credentials):
         signer = utils.Ec2Signer(creds_ref['secret'])
         signature = signer.generate(credentials)

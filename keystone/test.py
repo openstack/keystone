@@ -31,7 +31,10 @@ from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
-from keystone.openstack.common import importutils
+from keystone import catalog
+from keystone import identity
+from keystone import policy
+from keystone import token
 
 
 do_monkeypatch = not os.getenv('STANDARD_THREADS')
@@ -44,6 +47,7 @@ VENDOR = os.path.join(ROOTDIR, 'vendor')
 TESTSDIR = os.path.join(ROOTDIR, 'tests')
 ETCDIR = os.path.join(ROOTDIR, 'etc')
 CONF = config.CONF
+DRIVERS = {}
 
 
 cd = os.chdir
@@ -59,6 +63,14 @@ def etcdir(*p):
 
 def testsdir(*p):
     return os.path.join(TESTSDIR, *p)
+
+
+def initialize_drivers():
+    DRIVERS['catalog_api'] = catalog.Manager()
+    DRIVERS['identity_api'] = identity.Manager()
+    DRIVERS['policy_api'] = policy.Manager()
+    DRIVERS['token_api'] = token.Manager()
+    return DRIVERS
 
 
 def checkout_vendor(repo, rev):
@@ -202,11 +214,9 @@ class TestCase(NoModule, unittest.TestCase):
             CONF.set_override(k, v)
 
     def load_backends(self):
-        """Hacky shortcut to load the backends for data manipulation."""
-        self.identity_api = importutils.import_object(CONF.identity.driver)
-        self.token_api = importutils.import_object(CONF.token.driver)
-        self.catalog_api = importutils.import_object(CONF.catalog.driver)
-        self.policy_api = importutils.import_object(CONF.policy.driver)
+        """Create shortcut references to each driver for data manipulation."""
+        for name, manager in initialize_drivers().iteritems():
+            setattr(self, name, manager.driver)
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.

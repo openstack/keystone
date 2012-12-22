@@ -18,8 +18,9 @@
 
 import datetime
 
-from keystone.common import manager
 from keystone.common import cms
+from keystone.common import dependency
+from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
@@ -54,6 +55,7 @@ def default_expire_time():
     return timeutils.utcnow() + expire_delta
 
 
+@dependency.provider('token_api')
 class Manager(manager.Manager):
     """Default pivot point for the Token backend.
 

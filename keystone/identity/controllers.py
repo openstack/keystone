@@ -22,11 +22,7 @@ import uuid
 
 from keystone.common import controller
 from keystone.common import logging
-from keystone.common import wsgi
 from keystone import exception
-from keystone.identity import core
-from keystone import policy
-from keystone import token
 
 
 LOG = logging.getLogger(__name__)
