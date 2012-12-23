@@ -732,7 +732,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                                      self.member_attribute, user_dn)])
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
-                raise exception.RoleNotFound(role_id=roll_id)
+                raise exception.RoleNotFound(role_id=role_id)
             attrs = [('objectClass', [self.object_class]),
                      (self.member_attribute, [user_dn])]
 
