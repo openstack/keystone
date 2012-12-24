@@ -91,6 +91,13 @@ if __name__ == '__main__':
         sys.exit(1)
 
     monkeypatch_thread = not CONF.standard_threads
+    pydev_debug_url = utils.setup_remote_pydev_debug()
+    if pydev_debug_url:
+        # in order to work around errors caused by monkey patching we have to
+        # set the thread to False.  An explanation is here:
+        # http://lists.openstack.org/pipermail/openstack-dev/2012-August/
+        # 000794.html
+        monkeypatch_thread = False
     eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
                                   thread=monkeypatch_thread)
 
