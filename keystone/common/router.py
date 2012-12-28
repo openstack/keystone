@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from keystone.common import wsgi
-from keystone import config
 
 
 class Router(wsgi.ComposableRouter):

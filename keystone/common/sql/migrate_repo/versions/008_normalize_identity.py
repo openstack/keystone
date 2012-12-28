@@ -14,11 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-import string
 
 from sqlalchemy import Column, MetaData, String, Table, Text, types
-from sqlalchemy.orm import sessionmaker
 
 
 #this won't work on sqlite.  It doesn't support dropping columns
