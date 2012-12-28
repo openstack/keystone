@@ -985,7 +985,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             raise exception.ValidationError('Cannot change role ID')
         try:
             old_name = self.get_by_name(role['name'])
-            raise exception.Conflict('Cannot duplicate name %s' % role['name'])
+            raise exception.Conflict('Cannot duplicate name %s' % old_name)
         except exception.NotFound:
             pass
         try:
