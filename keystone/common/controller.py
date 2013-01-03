@@ -18,15 +18,15 @@ def protected(f):
         if not context['is_admin']:
             action = 'identity:%s' % f.__name__
 
-            LOG.debug('RBAC: Authorizing %s(%s)' % (
+            LOG.debug(_('RBAC: Authorizing %s(%s)' % (
                 action,
-                ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])))
+                ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs]))))
 
             try:
                 token_ref = self.token_api.get_token(
                     context=context, token_id=context['token_id'])
             except exception.TokenNotFound:
-                LOG.warning('RBAC: Invalid token')
+                LOG.warning(_('RBAC: Invalid token'))
                 raise exception.Unauthorized()
 
             creds = token_ref['metadata'].copy()
@@ -34,13 +34,13 @@ def protected(f):
             try:
                 creds['user_id'] = token_ref['user'].get('id')
             except AttributeError:
-                LOG.warning('RBAC: Invalid user')
+                LOG.warning(_('RBAC: Invalid user'))
                 raise exception.Unauthorized()
 
             try:
                 creds['tenant_id'] = token_ref['tenant'].get('id')
             except AttributeError:
-                LOG.debug('RBAC: Proceeding without tenant')
+                LOG.debug(_('RBAC: Proceeding without tenant'))
 
             # NOTE(vish): this is pretty inefficient
             creds['roles'] = [self.identity_api.get_role(context, role)['name']
@@ -48,9 +48,9 @@ def protected(f):
 
             self.policy_api.enforce(context, creds, action, kwargs)
 
-            LOG.debug('RBAC: Authorization granted')
+            LOG.debug(_('RBAC: Authorization granted'))
         else:
-            LOG.warning('RBAC: Bypassing authorization')
+            LOG.warning(_('RBAC: Bypassing authorization'))
 
         return f(self, context, **kwargs)
     return wrapper
