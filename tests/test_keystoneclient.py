@@ -789,7 +789,7 @@ class KeystoneClientTests(object):
 
 class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
     def get_checkout(self):
-        return KEYSTONECLIENT_REPO, 'master'
+        return KEYSTONECLIENT_REPO, '0.2.0'
 
     def test_tenant_add_and_remove_user(self):
         client = self.get_client(admin=True)
