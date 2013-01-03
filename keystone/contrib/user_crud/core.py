@@ -17,9 +17,9 @@
 import copy
 import uuid
 
-from keystone import exception
 from keystone.common import logging
 from keystone.common import wsgi
+from keystone import exception
 from keystone import identity
 
 

@@ -14,8 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import wsgi
 from keystone import catalog
+from keystone.common import wsgi
 from keystone import exception
 
 

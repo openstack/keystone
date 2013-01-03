@@ -17,9 +17,9 @@
 import routes
 
 from keystone import catalog
-from keystone.contrib import ec2
 from keystone.common import logging
 from keystone.common import wsgi
+from keystone.contrib import ec2
 from keystone import identity
 from keystone import policy
 from keystone import routers

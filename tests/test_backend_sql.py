@@ -16,8 +16,8 @@
 
 import uuid
 
-from keystone.common import sql
 from keystone import catalog
+from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone import identity

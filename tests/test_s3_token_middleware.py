@@ -165,7 +165,3 @@ class S3TokenMiddlewareTest(unittest.TestCase):
         req.get_response(self.middleware)
         path = req.environ['PATH_INFO']
         self.assertTrue(path.startswith('/v1/AUTH_FORCED_TENANT_ID'))
-
-
-if __name__ == '__main__':
-    unittest.main()

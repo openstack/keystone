@@ -15,13 +15,13 @@
 # under the License.
 
 import datetime
-import uuid
 import default_fixtures
+import uuid
 
 from keystone.catalog import core
 from keystone import exception
-from keystone import test
 from keystone.openstack.common import timeutils
+from keystone import test
 
 
 class IdentityTests(object):
