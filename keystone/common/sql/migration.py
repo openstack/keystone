@@ -44,7 +44,7 @@ def db_sync(version=None):
         try:
             version = int(version)
         except ValueError:
-            raise Exception('version should be an integer')
+            raise Exception(_('version should be an integer'))
 
     current_version = db_version()
     repo_path = _find_migrate_repo()

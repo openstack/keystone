@@ -90,8 +90,8 @@ class Ec2Signer(object):
                                           credentials['verb'],
                                           credentials['host'],
                                           credentials['path'])
-        raise Exception('Unknown Signature Version: %s' %
-                        credentials['params']['SignatureVersion'])
+        raise Exception(_('Unknown Signature Version: %s' %
+                        credentials['params']['SignatureVersion']))
 
     @staticmethod
     def _get_utf8_value(value):
