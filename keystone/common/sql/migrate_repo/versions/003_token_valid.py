@@ -15,11 +15,7 @@
 # under the License.
 
 
-from migrate import *
 from sqlalchemy import *
-
-
-from keystone.common import sql
 
 
 def upgrade(migrate_engine):

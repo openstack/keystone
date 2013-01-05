@@ -15,9 +15,8 @@
 # under the License.
 
 import json
-import string
 
-from sqlalchemy import Column, MetaData, String, Table, types
+from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import sessionmaker
 
 disabled_values = ['false', 'disabled', 'no', '0']

@@ -21,7 +21,6 @@ from keystone.identity.backends import ldap as identity_ldap
 from keystone import test
 
 import default_fixtures
-import test_backend
 import test_backend_ldap
 
 

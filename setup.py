@@ -16,7 +16,6 @@
 
 from setuptools import find_packages
 from setuptools import setup
-import subprocess
 
 from keystone.openstack.common.setup import get_cmdclass
 from keystone.openstack.common.setup import parse_requirements
