@@ -120,7 +120,6 @@ class TemplatedCatalog(kvs.Catalog):
             for service, service_ref in region_ref.iteritems():
                 o[region][service] = {}
                 for k, v in service_ref.iteritems():
-                    v = v.replace('$(', '%(')
                     o[region][service][k] = core.format_url(v, d)
 
         return o
