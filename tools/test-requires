@@ -29,3 +29,6 @@ netifaces
 Babel
 
 requests<1.0
+
+# keyring is required by python-keystoneclient-master
+keyring
