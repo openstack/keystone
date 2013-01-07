@@ -18,5 +18,5 @@ graft doc
 graft tests
 graft tools
 graft examples
-recursive-include keystone *.json *.xml *.cfg *.pem README *.pot *.sql
+recursive-include keystone *.json *.xml *.cfg *.pem README *.po *.pot *.sql
 global-exclude *.pyc *.sdx *.log *.db *.swp
