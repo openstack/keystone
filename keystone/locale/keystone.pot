@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone 2013.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-01-02 00:00+0000\n"
+"POT-Creation-Date: 2013-01-07 00:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,6 +90,36 @@ msgstr ""
 msgid "Signing error: %s"
 msgstr ""
 
+#: keystone/common/controller.py:23
+#, python-format
+msgid "RBAC: Authorizing %s(%s)"
+msgstr ""
+
+#: keystone/common/controller.py:29
+msgid "RBAC: Invalid token"
+msgstr ""
+
+#: keystone/common/controller.py:37
+msgid "RBAC: Invalid user"
+msgstr ""
+
+#: keystone/common/controller.py:43
+msgid "RBAC: Proceeding without tenant"
+msgstr ""
+
+#: keystone/common/controller.py:51
+msgid "RBAC: Authorization granted"
+msgstr ""
+
+#: keystone/common/controller.py:53
+msgid "RBAC: Bypassing authorization"
+msgstr ""
+
+#: keystone/common/utils.py:93
+#, python-format
+msgid "Unknown Signature Version: %sparamsSignatureVersion"
+msgstr ""
+
 #: keystone/common/utils.py:124
 msgid "using _calc_signature_2"
 msgstr ""
@@ -156,6 +186,41 @@ msgstr ""
 #: keystone/common/ldap/core.py:321
 #, python-format
 msgid "LDAP backend does not allow %s delete"
+msgstr ""
+
+#: keystone/common/ldap/core.py:339
+#, python-format
+msgid "LDAP init: url=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:343
+#, python-format
+msgid "LDAP bind: dn=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:354
+#, python-format
+msgid "LDAP add: dn=%s, attrs=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:359
+#, python-format
+msgid "LDAP search: dn=%s, scope=%s, query=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:382
+#, python-format
+msgid "LDAP modify: dn=%s, modlist=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:387
+#, python-format
+msgid "LDAP delete: dn=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:391
+#, python-format
+msgid "LDAP delete_ext: dn=%s, serverctrls=%s"
 msgstr ""
 
 #: keystone/common/ldap/fakeldap.py:148
@@ -259,6 +324,10 @@ msgstr ""
 msgid "Cannot migrate EC2 credential: %s"
 msgstr ""
 
+#: keystone/common/sql/migration.py:47
+msgid "version should be an integer"
+msgstr ""
+
 #: keystone/common/sql/nova.py:58
 #, python-format
 msgid "Create tenant %s"
@@ -292,6 +361,11 @@ msgstr ""
 #: keystone/common/sql/nova.py:123
 #, python-format
 msgid "Creating ec2 cred for user %s and tenant %s"
+msgstr ""
+
+#: keystone/identity/backends/ldap/core.py:708
+#, python-format
+msgid "Role %s not found"
 msgstr ""
 
 #: keystone/policy/backends/rules.py:95
