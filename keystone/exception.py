@@ -114,6 +114,24 @@ class Unauthorized(SecurityError):
     title = 'Not Authorized'
 
 
+class AuthPluginException(Unauthorized):
+    """ Authentication plugin error. """
+    authentication = {}
+
+
+class AuthMethodNotSupported(AuthPluginException):
+    """ Attempted to authenticate with an unsupported method. """
+    authentication = {'methods': CONF.auth.methods}
+
+
+class AdditionalAuthRequired(AuthPluginException):
+    """ Additional authentications steps required. """
+
+    def __init__(self, auth_response=None, **kwargs):
+        super(AdditionalAuthRequired, self).__init__(message=None, **kwargs)
+        self.authentication = auth_response
+
+
 class Forbidden(SecurityError):
     """You are not authorized to perform the requested action."""
     code = 403

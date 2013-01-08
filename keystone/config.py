@@ -310,3 +310,11 @@ register_bool('group_allow_delete', group='ldap', default=True)
 register_str('url', group='pam', default=None)
 register_str('userid', group='pam', default=None)
 register_str('password', group='pam', default=None)
+
+# default authentication methods
+register_list('methods', group='auth',
+              default=['password', 'token'])
+register_str('password', group='auth',
+             default='keystone.auth.methods.token.Token')
+register_str('token', group='auth',
+             default='keystone.auth.methods.password.Password')

@@ -31,6 +31,10 @@ CONF = config.CONF
 AUTH_TOKEN_HEADER = 'X-Auth-Token'
 
 
+# Header used to transmit the subject token
+SUBJECT_TOKEN_HEADER = 'X-Subject-Token'
+
+
 # Environment variable used to pass the request context
 CONTEXT_ENV = wsgi.CONTEXT_ENV
 
@@ -44,6 +48,9 @@ class TokenAuthMiddleware(wsgi.Middleware):
         token = request.headers.get(AUTH_TOKEN_HEADER)
         context = request.environ.get(CONTEXT_ENV, {})
         context['token_id'] = token
+        if SUBJECT_TOKEN_HEADER in request.headers:
+            context['subject_token_id'] = (
+                request.headers.get(SUBJECT_TOKEN_HEADER))
         request.environ[CONTEXT_ENV] = context
 
 

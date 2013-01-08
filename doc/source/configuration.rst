@@ -75,6 +75,7 @@ values are organized into the following sections:
 * ``[policy]`` - policy system driver configuration for RBAC
 * ``[signing]`` - cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL configuration
+* ``[auth]`` - Authentication plugin configuration
 
 The Keystone configuration file is expected to be named ``keystone.conf``.
 When starting keystone, you can specify a different configuration file to
@@ -87,6 +88,59 @@ order:
 * ``/etc/keystone/``
 * ``/etc/``
 
+
+Authentication Plugins
+----------------------
+
+Keystone supports authentication plugins and they are specified
+in the ``[auth]`` section of the configuration file. However, an
+authentication plugin may also have its own section in the configuration
+file. It is up to the plugin to register its own configuration options.
+
+* ``methods`` - comma-delimited list of authentication plugin names
+* ``<plugin name>`` - specify the class which handles to authentication method, in the same manner as one would specify a backend driver.
+
+Keystone provides two authentication methods by default. ``password`` handles password authentication and ``token`` handles token authentication.
+
+How to Implement an Authentication Plugin
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+All authentication plugins must extend the
+``keystone.auth.core.AuthMethodHandler`` class and implement the
+``authenticate()`` method. The ``authenticate()`` method expects the
+following parameters.
+
+* ``context`` - Keystone's request context
+* ``auth_payload`` - the content of the authentication for a given method
+* ``auth_context`` - user authentication context, a dictionary shared by all plugins. It contains ``method_names`` and ``extras`` by default. ``method_names`` is a list and ``extras`` is a dictionary.
+
+If successful, the ``authenticate()`` method must provide a valid ``user_id``
+in ``auth_context`` and return ``None``. ``method_name`` is used to convey
+any additional authentication methods in case authentication is for re-scoping.
+For example, if the authentication is for re-scoping, a plugin must append
+the previous method names into ``method_names``. Also, a plugin may add any
+additional information into ``extras``. Anything in ``extras`` will be
+conveyed in the token's ``extras`` field.
+
+If authentication requires multiple steps, the ``authenticate()`` method must
+return the payload in the form of a dictionary for the next authentication
+step.
+
+If authentication is unsuccessful, the ``authenticate()`` method must raise a
+``keystone.exception.Unauthorized`` exception.
+
+Simply add the new plugin name to the ``methods`` list along with your plugin
+class configuration in the ``[auth]`` sections of the configuration file
+to deploy it.
+
+If the plugin require addition configurations, it may register its own section
+in the configuration file.
+
+Plugins are invoked in the order in which they are specified in the ``methods``
+attribute of the ``authentication`` request body. If multiple plugins are
+invoked, all plugins must succeed in order to for the entire
+authentication to be successful. Furthermore, all the plugins invoked must
+agree on the ``user_id`` in the ``auth_context``.
 
 Certificates for PKI
 --------------------

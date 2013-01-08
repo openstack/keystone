@@ -101,13 +101,13 @@ class IdentityTests(object):
 
     def test_authenticate_role_return(self):
         self.identity_api.add_role_to_user_and_project(
-            self.user_foo['id'], self.tenant_baz['id'], 'keystone_admin')
+            self.user_foo['id'], self.tenant_baz['id'], self.role_admin['id'])
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=self.user_foo['id'],
             tenant_id=self.tenant_baz['id'],
             password=self.user_foo['password'])
         self.assertIn('roles', metadata_ref)
-        self.assertIn('keystone_admin', metadata_ref['roles'])
+        self.assertIn(self.role_admin['id'], metadata_ref['roles'])
 
     def test_authenticate_no_metadata(self):
         user = {
@@ -223,9 +223,9 @@ class IdentityTests(object):
 
     def test_get_role(self):
         role_ref = self.identity_api.get_role(
-            role_id=self.role_keystone_admin['id'])
+            role_id=self.role_admin['id'])
         role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
-        self.assertDictEqual(role_ref_dict, self.role_keystone_admin)
+        self.assertDictEqual(role_ref_dict, self.role_admin)
 
     def test_get_role_404(self):
         self.assertRaises(exception.RoleNotFound,
@@ -469,31 +469,31 @@ class IdentityTests(object):
     def test_add_duplicate_role_grant(self):
         roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
-        self.assertNotIn('keystone_admin', roles_ref)
+        self.assertNotIn(self.role_admin['id'], roles_ref)
         self.identity_api.add_role_to_user_and_project(
-            self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
+            self.user_foo['id'], self.tenant_bar['id'], self.role_admin['id'])
         self.assertRaises(exception.Conflict,
                           self.identity_api.add_role_to_user_and_project,
                           self.user_foo['id'],
                           self.tenant_bar['id'],
-                          'keystone_admin')
+                          self.role_admin['id'])
 
     def test_get_role_by_user_and_project(self):
         roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
-        self.assertNotIn('keystone_admin', roles_ref)
+        self.assertNotIn(self.role_admin['id'], roles_ref)
         self.identity_api.add_role_to_user_and_project(
-            self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
+            self.user_foo['id'], self.tenant_bar['id'], self.role_admin['id'])
         roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
-        self.assertIn('keystone_admin', roles_ref)
+        self.assertIn(self.role_admin['id'], roles_ref)
         self.assertNotIn('member', roles_ref)
 
         self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'member')
         roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
-        self.assertIn('keystone_admin', roles_ref)
+        self.assertIn(self.role_admin['id'], roles_ref)
         self.assertIn('member', roles_ref)
 
     def test_get_roles_for_user_and_project_404(self):
@@ -512,13 +512,13 @@ class IdentityTests(object):
                           self.identity_api.add_role_to_user_and_project,
                           uuid.uuid4().hex,
                           self.tenant_bar['id'],
-                          'keystone_admin')
+                          self.role_admin['id'])
 
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.add_role_to_user_and_project,
                           self.user_foo['id'],
                           uuid.uuid4().hex,
-                          'keystone_admin')
+                          self.role_admin['id'])
 
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.add_role_to_user_and_project,
@@ -547,11 +547,12 @@ class IdentityTests(object):
         self.assertEquals(len(roles_ref), 1)
         self.identity_api.create_grant(user_id=self.user_foo['id'],
                                        project_id=self.tenant_bar['id'],
-                                       role_id='keystone_admin')
+                                       role_id=self.role_admin['id'])
         roles_ref = self.identity_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_bar['id'])
-        self.assertDictEqual(roles_ref[1], self.role_keystone_admin)
+        self.assertIn(self.role_admin['id'],
+                      [role_ref['id'] for role_ref in roles_ref])
 
         self.identity_api.create_grant(user_id=self.user_foo['id'],
                                        project_id=self.tenant_bar['id'],
@@ -563,7 +564,7 @@ class IdentityTests(object):
         roles_ref_ids = []
         for i, ref in enumerate(roles_ref):
             roles_ref_ids.append(ref['id'])
-        self.assertIn('keystone_admin', roles_ref_ids)
+        self.assertIn(self.role_admin['id'], roles_ref_ids)
         self.assertIn('member', roles_ref_ids)
 
     def test_get_role_grants_for_user_and_project_404(self):
@@ -582,13 +583,13 @@ class IdentityTests(object):
                           self.identity_api.create_grant,
                           user_id=uuid.uuid4().hex,
                           project_id=self.tenant_bar['id'],
-                          role_id='keystone_admin')
+                          role_id=self.role_admin['id'])
 
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.create_grant,
                           user_id=self.user_foo['id'],
                           project_id=uuid.uuid4().hex,
-                          role_id='keystone_admin')
+                          role_id=self.role_admin['id'])
 
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.create_grant,
@@ -730,13 +731,13 @@ class IdentityTests(object):
 
         self.identity_api.create_grant(group_id=new_group2['id'],
                                        domain_id=new_domain['id'],
-                                       role_id='keystone_admin')
+                                       role_id=self.role_admin['id'])
         self.identity_api.create_grant(user_id=new_user2['id'],
                                        domain_id=new_domain['id'],
-                                       role_id='keystone_admin')
+                                       role_id=self.role_admin['id'])
         self.identity_api.create_grant(group_id=new_group['id'],
                                        project_id=new_project['id'],
-                                       role_id='keystone_admin')
+                                       role_id=self.role_admin['id'])
 
         roles_ref = self.identity_api.list_grants(
             group_id=new_group['id'],

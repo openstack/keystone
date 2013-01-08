@@ -553,7 +553,7 @@ class UserV3(controller.V3Controller):
             # revoke all tokens owned by this user
             self.token_api.revoke_tokens(
                 context,
-                user_id=user['id'])
+                user_id=ref['id'])
 
         return UserV3.wrap_member(context, ref)
 

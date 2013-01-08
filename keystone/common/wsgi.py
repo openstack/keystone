@@ -547,10 +547,11 @@ def render_response(body=None, status=None, headers=None):
 
 def render_exception(error):
     """Forms a WSGI response based on the current error."""
-    return render_response(status=(error.code, error.title), body={
-        'error': {
-            'code': error.code,
-            'title': error.title,
-            'message': str(error),
-        }
-    })
+    body = {'error': {
+        'code': error.code,
+        'title': error.title,
+        'message': str(error)
+    }}
+    if isinstance(error, exception.AuthPluginException):
+        body['authentication'] = error.authentication
+    return render_response(status=(error.code, error.title), body=body)

@@ -53,7 +53,7 @@ class CompatTestCase(test.TestCase):
         # override the fixtures, for now
         self.metadata_foobar = self.identity_api.update_metadata(
             self.user_foo['id'], self.tenant_bar['id'],
-            dict(roles=['keystone_admin'], is_admin='1'))
+            dict(roles=[self.role_admin['id']], is_admin='1'))
 
     def tearDown(self):
         self.public_server.kill()
@@ -536,8 +536,8 @@ class KeystoneClientTests(object):
 
     def test_role_get(self):
         client = self.get_client(admin=True)
-        role = client.roles.get(role='keystone_admin')
-        self.assertEquals(role.id, 'keystone_admin')
+        role = client.roles.get(role=self.role_admin['id'])
+        self.assertEquals(role.id, self.role_admin['id'])
 
     def test_role_crud(self):
         from keystoneclient import exceptions as client_exceptions
@@ -784,7 +784,7 @@ class KeystoneClientTests(object):
         # ROLE CRUD
         self.assertRaises(exception,
                           two.roles.get,
-                          role='keystone_admin')
+                          role=self.role_admin['id'])
         self.assertRaises(exception,
                           two.roles.list)
         self.assertRaises(exception,
@@ -792,7 +792,7 @@ class KeystoneClientTests(object):
                           name='oops')
         self.assertRaises(exception,
                           two.roles.delete,
-                          role='keystone_admin')
+                          role=self.role_admin['id'])
 
         # TODO(ja): MEMBERSHIP CRUD
         # TODO(ja): determine what else todo

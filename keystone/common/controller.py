@@ -32,7 +32,7 @@ def protected(f):
                 LOG.warning(_('RBAC: Invalid token'))
                 raise exception.Unauthorized()
 
-            creds = token_ref['metadata'].copy()
+            creds = token_ref.get('metadata', {}).copy()
 
             try:
                 creds['user_id'] = token_ref['user'].get('id')

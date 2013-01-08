@@ -402,19 +402,8 @@ class Auth(controller.V2Controller):
         """
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-
-        if cms.is_ans1_token(token_id):
-            data = json.loads(cms.cms_verify(cms.token_to_cms(token_id),
-                                             CONF.signing.certfile,
-                                             CONF.signing.ca_certs))
-            data['access']['token']['user'] = data['access']['user']
-            data['access']['token']['metadata'] = data['access']['metadata']
-            if belongs_to:
-                assert data['access']['token']['tenant']['id'] == belongs_to
-            token_ref = data['access']['token']
-        else:
-            token_ref = self.token_api.get_token(context=context,
-                                                 token_id=token_id)
+        token_ref = self.token_api.get_token(context=context,
+                                             token_id=token_id)
         return token_ref
 
     # admin only
