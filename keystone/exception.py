@@ -22,6 +22,9 @@ from keystone import config
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
+# Tests use this to make exception message format errors fatal
+_FATAL_EXCEPTION_FORMAT_ERRORS = False
+
 
 class Error(StandardError):
     """Base error class.
@@ -37,10 +40,13 @@ class Error(StandardError):
 
         try:
             message = self._build_message(message, **kwargs)
-        except KeyError:
+        except KeyError as e:
             # if you see this warning in your logs, please raise a bug report
-            LOG.warning('missing expected exception kwargs (programmer error)')
-            message = self.__doc__
+            if _FATAL_EXCEPTION_FORMAT_ERRORS:
+                raise e
+            else:
+                LOG.warning('missing exception kwargs (programmer error)')
+                message = self.__doc__
 
         super(Error, self).__init__(message)
 
