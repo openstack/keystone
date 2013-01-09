@@ -886,7 +886,7 @@ class CatalogTests(object):
         endpoint = {
             'id': uuid.uuid4().hex,
             'region': uuid.uuid4().hex,
-            'interface': uuid.uuid4().hex,
+            'interface': uuid.uuid4().hex[:8],
             'url': uuid.uuid4().hex,
             'service_id': service['id'],
         }
@@ -933,6 +933,24 @@ class CatalogTests(object):
                           self.catalog_man.delete_endpoint,
                           {},
                           uuid.uuid4().hex)
+
+    def test_create_endpoint(self):
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service.copy())
+
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'region': "0" * 255,
+            'service_id': service['id'],
+            'interface': 'public',
+            'url': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
 
 class PolicyTests(object):

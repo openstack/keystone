@@ -42,7 +42,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
     def new_endpoint_ref(self, service_id):
         ref = self.new_ref()
-        ref['interface'] = uuid.uuid4().hex
+        ref['interface'] = uuid.uuid4().hex[:8]
         ref['service_id'] = service_id
         ref['url'] = uuid.uuid4().hex
         return ref

@@ -23,10 +23,12 @@ from sqlalchemy.ext import declarative
 import sqlalchemy.orm
 import sqlalchemy.pool
 from sqlalchemy import types as sql_types
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from keystone.common import logging
 from keystone import config
 from keystone.openstack.common import jsonutils
+from keystone import exception
 
 
 CONF = config.CONF
@@ -47,6 +49,44 @@ IntegrityError = sql.exc.IntegrityError
 NotFound = sql.orm.exc.NoResultFound
 Boolean = sql.Boolean
 Text = sql.Text
+
+
+def initialize_decorator(init):
+    """Ensure that the length of string field do not exceed the limit.
+
+    This decorator check the initialize arguments, to make sure the
+    length of string field do not exceed the length limit, or raise a
+    'StringLengthExceeded' exception.
+
+    Use decorator instead of inheritance, because the metaclass will
+    check the __tablename__, primary key columns, etc. at the class
+    definition.
+
+    """
+    def initialize(self, *args, **kwargs):
+        cls = type(self)
+        for k, v in kwargs.items():
+            if hasattr(cls, k):
+                attr = getattr(cls, k)
+                if isinstance(attr, InstrumentedAttribute):
+                    column = attr.property.columns[0]
+                    if isinstance(column.type, String):
+                        if column.type.length and \
+                                column.type.length < len(str(v)):
+                            #if signing.token_format == 'PKI', the id will
+                            #store it's public key which is very long.
+                            if config.CONF.signing.token_format == 'PKI' and \
+                                    self.__tablename__ == 'token' and \
+                                    k == 'id':
+                                continue
+
+                            raise exception.StringLengthExceeded(
+                                string=v, type=k, length=column.type.length)
+
+        init(self, *args, **kwargs)
+    return initialize
+
+ModelBase.__init__ = initialize_decorator(ModelBase.__init__)
 
 
 def set_global_engine(engine):

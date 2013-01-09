@@ -264,6 +264,26 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.assertIsNone(catalog_endpoint.get('adminURL'))
         self.assertIsNone(catalog_endpoint.get('internalURL'))
 
+    def test_create_endpoint_400(self):
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service.copy())
+
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'region': "0" * 256,
+            'service_id': service['id'],
+            'interface': 'public',
+            'url': uuid.uuid4().hex,
+        }
+
+        with self.assertRaises(exception.StringLengthExceeded):
+            self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
+
 
 class SqlPolicy(SqlTests, test_backend.PolicyTests):
     pass
