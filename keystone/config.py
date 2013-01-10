@@ -117,6 +117,9 @@ register_str('admin_port', default=35357)
 register_str('public_port', default=5000)
 register_str('onready')
 register_str('auth_admin_prefix', default='')
+register_int('max_param_size', default=64)
+# we allow tokens to be a bit larger to accomidate PKI
+register_int('max_token_size', default=8192)
 
 #ssl options
 register_bool('enable', group='ssl', default=False)
