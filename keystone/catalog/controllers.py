@@ -81,9 +81,13 @@ class Endpoint(controller.V2Controller):
         """Create three v3 endpoint refs based on a legacy ref."""
         self.assert_admin(context)
 
+        # according to the v2 spec publicurl is mandatory
+        self._require_attribute(endpoint, 'publicurl')
+
         legacy_endpoint_ref = endpoint.copy()
 
-        urls = dict((i, endpoint.pop('%surl' % i)) for i in INTERFACES)
+        urls = dict((i, endpoint.pop('%surl' % i)) for i in INTERFACES
+                    if endpoint.get('%surl' % i) is not None)
         legacy_endpoint_id = uuid.uuid4().hex
         for interface, url in urls.iteritems():
             endpoint_ref = endpoint.copy()
