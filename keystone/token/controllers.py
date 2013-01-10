@@ -5,12 +5,13 @@ from keystone.common import cms
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import logging
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone.token import core
 
-
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -22,13 +23,13 @@ class ExternalAuthNotApplicable(Exception):
 @dependency.requires('catalog_api')
 class Auth(controller.V2Controller):
     def ca_cert(self, context, auth=None):
-        ca_file = open(config.CONF.signing.ca_certs, 'r')
+        ca_file = open(CONF.signing.ca_certs, 'r')
         data = ca_file.read()
         ca_file.close()
         return data
 
     def signing_cert(self, context, auth=None):
-        cert_file = open(config.CONF.signing.certfile, 'r')
+        cert_file = open(CONF.signing.certfile, 'r')
         data = cert_file.read()
         cert_file.close()
         return data
@@ -134,17 +135,17 @@ class Auth(controller.V2Controller):
         service_catalog = Auth.format_catalog(catalog_ref)
         token_data['access']['serviceCatalog'] = service_catalog
 
-        if config.CONF.signing.token_format == 'UUID':
+        if CONF.signing.token_format == 'UUID':
             token_id = uuid.uuid4().hex
-        elif config.CONF.signing.token_format == 'PKI':
+        elif CONF.signing.token_format == 'PKI':
             token_id = cms.cms_sign_token(json.dumps(token_data),
-                                          config.CONF.signing.certfile,
-                                          config.CONF.signing.keyfile)
+                                          CONF.signing.certfile,
+                                          CONF.signing.keyfile)
         else:
             raise exception.UnexpectedError(
                 'Invalid value for token_format: %s.'
                 '  Allowed values are PKI or UUID.' %
-                config.CONF.signing.token_format)
+                CONF.signing.token_format)
         try:
             self.token_api.create_token(
                 context, token_id, dict(key=token_id,
@@ -180,6 +181,9 @@ class Auth(controller.V2Controller):
                 attribute="id", target="token")
 
         old_token = auth['token']['id']
+        if len(old_token) > CONF.max_token_size:
+            raise exception.ValidationSizeError(attribute='token',
+                                                size=CONF.max_token_size)
 
         try:
             old_token_ref = self.token_api.get_token(context=context,
@@ -228,6 +232,10 @@ class Auth(controller.V2Controller):
                 attribute='password', target='passwordCredentials')
 
         password = auth['passwordCredentials']['password']
+        max_pw_size = utils.MAX_PASSWORD_LENGTH
+        if password and len(password) > max_pw_size:
+            raise exception.ValidationSizeError(attribute='password',
+                                                size=max_pw_size)
 
         if ("userId" not in auth['passwordCredentials'] and
                 "username" not in auth['passwordCredentials']):
@@ -236,7 +244,14 @@ class Auth(controller.V2Controller):
                 target='passwordCredentials')
 
         user_id = auth['passwordCredentials'].get('userId', None)
+        if user_id and len(user_id) > CONF.max_param_size:
+            raise exception.ValidationSizeError(attribute='userId',
+                                                size=CONF.max_param_size)
+
         username = auth['passwordCredentials'].get('username', '')
+        if len(username) > CONF.max_param_size:
+            raise exception.ValidationSizeError(attribute='username',
+                                                size=CONF.max_param_size)
 
         if username:
             try:
@@ -323,7 +338,15 @@ class Auth(controller.V2Controller):
         Returns a valid tenant_id if it exists, or None if not specified.
         """
         tenant_id = auth.get('tenantId', None)
+        if tenant_id and len(tenant_id) > CONF.max_param_size:
+            raise exception.ValidationSizeError(attribute='tenantId',
+                                                size=CONF.max_param_size)
+
         tenant_name = auth.get('tenantName', None)
+        if tenant_name and len(tenant_name) > CONF.max_param_size:
+            raise exception.ValidationSizeError(attribute='tenantName',
+                                                size=CONF.max_param_size)
+
         if tenant_name:
             try:
                 tenant_ref = self.identity_api.get_project_by_name(
@@ -410,8 +433,8 @@ class Auth(controller.V2Controller):
 
         if cms.is_ans1_token(token_id):
             data = json.loads(cms.cms_verify(cms.token_to_cms(token_id),
-                                             config.CONF.signing.certfile,
-                                             config.CONF.signing.ca_certs))
+                                             CONF.signing.certfile,
+                                             CONF.signing.ca_certs))
             data['access']['token']['user'] = data['access']['user']
             data['access']['token']['metadata'] = data['access']['metadata']
             if belongs_to:
@@ -482,8 +505,8 @@ class Auth(controller.V2Controller):
         data = {'revoked': tokens}
         json_data = json.dumps(data)
         signed_text = cms.cms_sign_text(json_data,
-                                        config.CONF.signing.certfile,
-                                        config.CONF.signing.keyfile)
+                                        CONF.signing.certfile,
+                                        CONF.signing.keyfile)
 
         return {'signed': signed_text}
 

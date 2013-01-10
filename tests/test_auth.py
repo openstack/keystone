@@ -27,8 +27,8 @@ from keystone import token
 CONF = config.CONF
 
 
-def _build_user_auth(token=None, username=None,
-                     password=None, tenant_name=None):
+def _build_user_auth(token=None, user_id=None, username=None,
+                     password=None, tenant_id=None, tenant_name=None):
     """Build auth dictionary.
 
     It will create an auth dictionary based on all the arguments
@@ -41,10 +41,14 @@ def _build_user_auth(token=None, username=None,
         auth_json['passwordCredentials'] = {}
     if username is not None:
         auth_json['passwordCredentials']['username'] = username
+    if user_id is not None:
+        auth_json['passwordCredentials']['userId'] = user_id
     if password is not None:
         auth_json['passwordCredentials']['password'] = password
     if tenant_name is not None:
         auth_json['tenantName'] = tenant_name
+    if tenant_id is not None:
+        auth_json['tenantId'] = tenant_id
     return auth_json
 
 
@@ -120,6 +124,45 @@ class AuthBadRequests(AuthTest):
         """Verify sending invalid 'auth' raises the right exception."""
         self.assertRaises(exception.ValidationError, self.api.authenticate,
                           {}, {'auth': 'abcd'})
+
+    def test_authenticate_user_id_too_large(self):
+        """Verify sending large 'userId' raises the right exception."""
+        body_dict = _build_user_auth(user_id='0' * 65, username='FOO',
+                                     password='foo2')
+        self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
+                          {}, body_dict)
+
+    def test_authenticate_username_too_large(self):
+        """Verify sending large 'username' raises the right exception."""
+        body_dict = _build_user_auth(username='0' * 65, password='foo2')
+        self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
+                          {}, body_dict)
+
+    def test_authenticate_tenant_id_too_large(self):
+        """Verify sending large 'tenantId' raises the right exception."""
+        body_dict = _build_user_auth(username='FOO', password='foo2',
+                                     tenant_id='0' * 65)
+        self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
+                          {}, body_dict)
+
+    def test_authenticate_tenant_name_too_large(self):
+        """Verify sending large 'tenantName' raises the right exception."""
+        body_dict = _build_user_auth(username='FOO', password='foo2',
+                                     tenant_name='0' * 65)
+        self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
+                          {}, body_dict)
+
+    def test_authenticate_token_too_large(self):
+        """Verify sending large 'token' raises the right exception."""
+        body_dict = _build_user_auth(token={'id': '0' * 8193})
+        self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
+                          {}, body_dict)
+
+    def test_authenticate_password_too_large(self):
+        """Verify sending large 'password' raises the right exception."""
+        body_dict = _build_user_auth(username='FOO', password='0' * 8193)
+        self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
+                          {}, body_dict)
 
 
 class AuthWithToken(AuthTest):

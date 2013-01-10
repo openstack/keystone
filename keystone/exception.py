@@ -84,6 +84,19 @@ class StringLengthExceeded(ValidationError):
     %(type)s(CHAR(%(length)d))."""
 
 
+class ValidationSizeError(Error):
+    """Request attribute %(attribute)s must be less than or equal to %(size)i.
+
+    The server could not comply with the request because the attribute
+    size is invalid (too large).
+
+    The client is assumed to be in error.
+
+    """
+    code = 400
+    title = 'Bad Request'
+
+
 class SecurityError(Error):
     """Avoids exposing details of security failures, unless in debug mode."""
 
