@@ -23,7 +23,6 @@ def upgrade(migrate_engine):
 
     meta = MetaData()
     meta.bind = migrate_engine
-    dialect = migrate_engine.url.get_dialect().name
     token = Table('token', meta, autoload=True)
     valid = Column("valid", Boolean(), ColumnDefault(True), nullable=False)
     token.create_column(valid)
