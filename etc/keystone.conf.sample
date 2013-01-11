@@ -152,6 +152,8 @@
 # user_allow_create = True
 # user_allow_update = True
 # user_allow_delete = True
+# user_enabled_emulation = False
+# user_enabled_emulation_dn =
 
 # tenant_tree_dn = ou=Groups,dc=example,dc=com
 # tenant_filter =
@@ -165,6 +167,8 @@
 # tenant_allow_create = True
 # tenant_allow_update = True
 # tenant_allow_delete = True
+# tenant_enabled_emulation = False
+# tenant_enabled_emulation_dn =
 
 # role_tree_dn = ou=Roles,dc=example,dc=com
 # role_filter =

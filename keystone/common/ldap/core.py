@@ -388,3 +388,117 @@ class LdapWrapper(object):
     def delete_ext_s(self, dn, serverctrls):
         LOG.debug(_("LDAP delete_ext: dn=%s, serverctrls=%s"), dn, serverctrls)
         return self.conn.delete_ext_s(dn, serverctrls)
+
+
+class EnabledEmuMixIn(BaseLdap):
+    """Emulates boolean 'enabled' attribute if turned on.
+
+    Creates groupOfNames holding all enabled objects of this class, all missing
+    objects are considered disabled.
+
+    Options:
+
+    * $name_enabled_emulation - boolean, on/off
+    * $name_enabled_emulation_dn - DN of that groupOfNames, default is
+      cn=enabled_$name,$tree_dn
+
+    Where $name is self.options_name ('user' or 'tenant'), $tree_dn is
+    self.tree_dn.
+    """
+
+    def __init__(self, conf):
+        super(EnabledEmuMixIn, self).__init__(conf)
+        enabled_emulation = '%s_enabled_emulation' % self.options_name
+        self.enabled_emulation = getattr(conf.ldap, enabled_emulation)
+
+        enabled_emulation_dn = '%s_enabled_emulation_dn' % self.options_name
+        self.enabled_emulation_dn = getattr(conf.ldap, enabled_emulation_dn)
+        if not self.enabled_emulation_dn:
+            self.enabled_emulation_dn = ('cn=enabled_%ss,%s' %
+                                         (self.options_name, self.tree_dn))
+
+    def _get_enabled(self, object_id):
+        conn = self.get_connection()
+        dn = self._id_to_dn(object_id)
+        query = '(member=%s)' % dn
+        try:
+            enabled_value = conn.search_s(self.enabled_emulation_dn,
+                                          ldap.SCOPE_BASE,
+                                          query)
+        except ldap.NO_SUCH_OBJECT:
+            return False
+        else:
+            return bool(enabled_value)
+
+    def _add_enabled(self, object_id):
+        conn = self.get_connection()
+        modlist = [(ldap.MOD_ADD,
+                    'member',
+                    [self._id_to_dn(object_id)])]
+        try:
+            conn.modify_s(self.enabled_emulation_dn, modlist)
+        except ldap.NO_SUCH_OBJECT:
+            attr_list = [('objectClass', ['groupOfNames']),
+                         ('member',
+                         [self._id_to_dn(object_id)])]
+            if self.use_dumb_member:
+                attr_list[1][1].append(self.dumb_member)
+            conn.add_s(self.enabled_emulation_dn, attr_list)
+
+    def _remove_enabled(self, object_id):
+        conn = self.get_connection()
+        modlist = [(ldap.MOD_DELETE,
+                    'member',
+                    [self._id_to_dn(object_id)])]
+        try:
+            conn.modify_s(self.enabled_emulation_dn, modlist)
+        except (ldap.NO_SUCH_OBJECT, ldap.NO_SUCH_ATTRIBUTE):
+            pass
+
+    def create(self, values):
+        if self.enabled_emulation:
+            enabled_value = values.pop('enabled', True)
+            ref = super(EnabledEmuMixIn, self).create(values)
+            if 'enabled' not in self.attribute_ignore:
+                if enabled_value:
+                    self._add_enabled(ref['id'])
+                ref['enabled'] = enabled_value
+            return ref
+        else:
+            return super(EnabledEmuMixIn, self).create(values)
+
+    def get(self, object_id, filter=None):
+        ref = super(EnabledEmuMixIn, self).get(object_id, filter)
+        if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
+            ref['enabled'] = self._get_enabled(object_id)
+        return ref
+
+    def get_all(self, filter=None):
+        if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
+            # had to copy BaseLdap.get_all here to filter by DN
+            tenant_list = [self._ldap_res_to_model(x)
+                           for x in self._ldap_get_all(filter)
+                           if x[0] != self.enabled_emulation_dn]
+            for tenant_ref in tenant_list:
+                tenant_ref['enabled'] = self._get_enabled(tenant_ref['id'])
+            return tenant_list
+        else:
+            return super(EnabledEmuMixIn, self).get_all(filter)
+
+    def update(self, object_id, values, old_obj=None):
+        if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
+            data = values.copy()
+            enabled_value = data.pop('enabled', None)
+            super(EnabledEmuMixIn, self).update(object_id, data, old_obj)
+            if enabled_value is not None:
+                if enabled_value:
+                    self._add_enabled(object_id)
+                else:
+                    self._remove_enabled(object_id)
+        else:
+            super(EnabledEmuMixIn, self).update(object_id, values, old_obj)
+
+    def delete(self, object_id):
+        if self.enabled_emulation:
+            self._remove_enabled(object_id)
+        super(EnabledEmuMixIn, self).delete(object_id)

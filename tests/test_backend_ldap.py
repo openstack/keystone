@@ -468,3 +468,69 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+
+class LDAPIdentityEnabledEmulation(LDAPIdentity):
+    def setUp(self):
+        super(LDAPIdentityEnabledEmulation, self).setUp()
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap.conf')])
+        CONF.ldap.user_enabled_emulation = True
+        CONF.ldap.tenant_enabled_emulation = True
+        clear_database()
+        self.identity_api = identity_ldap.Identity()
+        self.load_fixtures(default_fixtures)
+        for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
+                    self.user_two, self.user_badguy]:
+            obj.setdefault('enabled', True)
+
+    def test_authenticate_no_metadata(self):
+        user = {
+            'id': 'no_meta',
+            'name': 'NO_META',
+            'domain_id': test_backend.DEFAULT_DOMAIN_ID,
+            'password': 'no_meta2',
+            'enabled': True,
+        }
+        self.identity_api.create_user(user['id'], user)
+        self.identity_api.add_user_to_project(self.tenant_baz['id'],
+                                              user['id'])
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+            user_id=user['id'],
+            tenant_id=self.tenant_baz['id'],
+            password=user['password'])
+        # NOTE(termie): the password field is left in user_foo to make
+        #               it easier to authenticate in tests, but should
+        #               not be returned by the api
+        user.pop('password')
+        self.assertEquals(metadata_ref, {"roles":
+                                         [CONF.member_role_id]})
+        self.assertDictEqual(user_ref, user)
+        self.assertDictEqual(tenant_ref, self.tenant_baz)
+
+    def test_user_crud(self):
+        user = {'domain_id': uuid.uuid4().hex, 'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex, 'password': 'passw0rd'}
+        self.identity_api.create_user(user['id'], user)
+        user['enabled'] = True
+        user_ref = self.identity_api.get_user(user['id'])
+        del user['password']
+        user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
+        self.assertDictEqual(user_ref_dict, user)
+
+        user['password'] = uuid.uuid4().hex
+        self.identity_api.update_user(user['id'], user)
+        user_ref = self.identity_api.get_user(user['id'])
+        del user['password']
+        user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
+        self.assertDictEqual(user_ref_dict, user)
+
+        self.identity_api.delete_user(user['id'])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          user['id'])
+
+    def test_user_enable_attribute_mask(self):
+        raise nose.exc.SkipTest(
+            "Enabled emulation conflicts with enabled mask")
