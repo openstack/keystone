@@ -14,43 +14,40 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from setuptools import find_packages
-from setuptools import setup
+import setuptools
 
-from keystone.openstack.common.setup import get_cmdclass
-from keystone.openstack.common.setup import parse_requirements
-from keystone.openstack.common.setup import parse_dependency_links
-from keystone.openstack.common.setup import write_requirements
+from keystone.openstack.common import setup
 
 
-requires = parse_requirements()
-depend_links = parse_dependency_links()
+requires = setup.parse_requirements()
+depend_links = setup.parse_dependency_links()
+project = 'keystone'
 
-write_requirements()
 
-setup(name='keystone',
-      version='2013.1',
-      description="Authentication service for OpenStack",
-      license='Apache License (2.0)',
-      author='OpenStack, LLC.',
-      author_email='openstack@lists.launchpad.net',
-      url='http://www.openstack.org',
-      cmdclass=get_cmdclass(),
-      packages=find_packages(exclude=['test', 'bin']),
-      include_package_data=True,
-      scripts=['bin/keystone-all', 'bin/keystone-manage'],
-      zip_safe=False,
-      install_requires=requires,
-      dependency_links=depend_links,
-      test_suite='nose.collector',
-      classifiers=[
-          'Environment :: OpenStack',
-          'Intended Audience :: Information Technology',
-          'Intended Audience :: System Administrators',
-          'License :: OSI Approved :: Apache Software License',
-          'Operating System :: POSIX :: Linux',
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
-      ],
-      )
+setuptools.setup(
+    name=project,
+    version=setup.get_version(project, '2013.1'),
+    description="Authentication service for OpenStack",
+    license='Apache License (2.0)',
+    author='OpenStack, LLC.',
+    author_email='openstack@lists.launchpad.net',
+    url='http://www.openstack.org',
+    cmdclass=setup.get_cmdclass(),
+    packages=setuptools.find_packages(exclude=['test', 'bin']),
+    include_package_data=True,
+    scripts=['bin/keystone-all', 'bin/keystone-manage'],
+    zip_safe=False,
+    install_requires=requires,
+    dependency_links=depend_links,
+    test_suite='nose.collector',
+    classifiers=[
+        'Environment :: OpenStack',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+    ],
+)
