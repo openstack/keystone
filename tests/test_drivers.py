@@ -2,10 +2,10 @@ import inspect
 import unittest2 as unittest
 
 from keystone import catalog
+from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import token
-from keystone import exception
 
 
 class TestDrivers(unittest.TestCase):

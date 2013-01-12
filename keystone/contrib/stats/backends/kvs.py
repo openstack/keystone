@@ -14,8 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.contrib import stats
 from keystone.common import kvs
+from keystone.contrib import stats
 
 
 class Stats(kvs.Base, stats.Driver):

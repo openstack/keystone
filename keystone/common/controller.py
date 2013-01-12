@@ -1,5 +1,5 @@
-import uuid
 import functools
+import uuid
 
 from keystone.common import dependency
 from keystone.common import logging

@@ -14,6 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.identity.core import *
 from keystone.identity import controllers
+from keystone.identity.core import *
 from keystone.identity import routers

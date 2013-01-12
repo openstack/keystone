@@ -22,9 +22,10 @@ from migrate.versioning import api as versioning_api
 import sqlalchemy
 
 from keystone.common import sql
+from keystone.common.sql import migration
 from keystone import config
 from keystone import test
-from keystone.common.sql import migration
+
 import default_fixtures
 
 
