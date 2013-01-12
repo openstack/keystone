@@ -19,6 +19,7 @@ import uuid
 import routes
 
 from keystone import catalog
+from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import policy
@@ -28,6 +29,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -251,10 +253,22 @@ class TokenController(wsgi.Application):
         token_id = uuid.uuid4().hex
         if 'passwordCredentials' in auth:
             username = auth['passwordCredentials'].get('username', '')
+            if len(username) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='username',
+                                                    size=CONF.max_param_size)
             password = auth['passwordCredentials'].get('password', '')
+            max_pw_size = utils.MAX_PASSWORD_LENGTH
+            if len(password) > max_pw_size:
+                raise exception.ValidationSizeError(attribute='password',
+                                                    size=max_pw_size)
             tenant_name = auth.get('tenantName', None)
-
+            if tenant_name and len(tenant_name) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='tenantName',
+                                                    size=CONF.max_param_size)
             user_id = auth['passwordCredentials'].get('userId', None)
+            if user_id and len(user_id) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='userId',
+                                                    size=CONF.max_param_size)
             if username:
                 user_ref = self.identity_api.get_user_by_name(
                         context=context, user_name=username)
@@ -263,6 +277,9 @@ class TokenController(wsgi.Application):
 
             # more compat
             tenant_id = auth.get('tenantId', None)
+            if tenant_id and len(tenant_id) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='tenantId',
+                                                    size=CONF.max_param_size)
             if tenant_name:
                 tenant_ref = self.identity_api.get_tenant_by_name(
                         context=context, tenant_name=tenant_name)
@@ -304,9 +321,13 @@ class TokenController(wsgi.Application):
 
         elif 'token' in auth:
             token = auth['token'].get('id', None)
-
+            if len(token) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='token',
+                                                    size=CONF.max_param_size)
             tenant_name = auth.get('tenantName')
-
+            if tenant_name and len(tenant_name) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='tenantName',
+                                                    size=CONF.max_param_size)
             # more compat
             if tenant_name:
                 tenant_ref = self.identity_api.get_tenant_by_name(
