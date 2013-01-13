@@ -86,7 +86,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertValidJsonRendering(e)
         self.assertNotIn(risky_info, str(e))
 
-    def test_unauthroized_exposure_in_debug(self):
+    def test_unauthorized_exposure_in_debug(self):
         CONF.debug = True
 
         risky_info = uuid.uuid4().hex
@@ -94,7 +94,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertValidJsonRendering(e)
         self.assertIn(risky_info, str(e))
 
-    def test_foribdden_exposure(self):
+    def test_forbidden_exposure(self):
         CONF.debug = False
 
         risky_info = uuid.uuid4().hex
@@ -102,7 +102,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertValidJsonRendering(e)
         self.assertNotIn(risky_info, str(e))
 
-    def test_forbidden_exposure_in_Debug(self):
+    def test_forbidden_exposure_in_debug(self):
         CONF.debug = True
 
         risky_info = uuid.uuid4().hex
