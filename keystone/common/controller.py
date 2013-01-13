@@ -59,7 +59,12 @@ def protected(f):
 @dependency.requires('identity_api', 'policy_api', 'token_api')
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
-    pass
+
+    def _require_attribute(self, ref, attr):
+        """Ensures the reference contains the specified attribute."""
+        if ref.get(attr) is None or ref.get(attr) == '':
+            msg = '%s field is required and cannot be empty' % attr
+            raise exception.ValidationError(message=msg)
 
 
 class V3Controller(V2Controller):
@@ -70,12 +75,6 @@ class V3Controller(V2Controller):
         page = context['query_string'].get('page', 1)
         per_page = context['query_string'].get('per_page', 30)
         return refs[per_page * (page - 1):per_page * page]
-
-    def _require_attribute(self, ref, attr):
-        """Ensures the reference contains the specified attribute."""
-        if ref.get(attr) is None or ref.get(attr) == '':
-            msg = '%s field is required and cannot be empty' % attr
-            raise exception.ValidationError(message=msg)
 
     def _require_matching_id(self, value, ref):
         """Ensures the value matches the reference's ID, if any."""
