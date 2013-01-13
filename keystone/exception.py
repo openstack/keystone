@@ -173,6 +173,12 @@ class Conflict(Error):
     title = 'Conflict'
 
 
+class RequestTooLarge(Error):
+    """Request is too large."""
+    code = 413
+    title = 'Request is too large.'
+
+
 class UnexpectedError(Error):
     """An unexpected error prevented the server from fulfilling your request.
 
