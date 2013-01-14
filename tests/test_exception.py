@@ -114,10 +114,11 @@ class SecurityErrorTestCase(ExceptionTestCase):
         CONF.debug = False
 
         risky_info = uuid.uuid4().hex
-
-        e = exception.ForbiddenAction(message=risky_info)
+        action = uuid.uuid4().hex
+        e = exception.ForbiddenAction(message=risky_info, action=action)
         self.assertValidJsonRendering(e)
         self.assertNotIn(risky_info, str(e))
+        self.assertIn(action, str(e))
 
         e = exception.ForbiddenAction(action=risky_info)
         self.assertValidJsonRendering(e)
