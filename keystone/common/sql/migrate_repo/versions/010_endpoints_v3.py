@@ -25,6 +25,7 @@ def upgrade(migrate_engine):
     legacy_table = sql.Table('endpoint', meta, autoload=True)
     legacy_table.rename('endpoint_v2')
 
+    sql.Table('service', meta, autoload=True)
     new_table = sql.Table(
         'endpoint_v3',
         meta,

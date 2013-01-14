@@ -37,6 +37,7 @@ def downgrade(migrate_engine):
     new_table = sql.Table('endpoint', meta, autoload=True)
     new_table.rename('endpoint_v3')
 
+    sql.Table('service', meta, autoload=True)
     legacy_table = sql.Table(
         'endpoint_v2',
         meta,
