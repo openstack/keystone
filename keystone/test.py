@@ -32,6 +32,7 @@ from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
+from keystone import exception
 from keystone import identity
 from keystone import policy
 from keystone import token
@@ -187,6 +188,7 @@ class TestCase(NoModule, unittest.TestCase):
                      testsdir('test_overrides.conf')])
         self.mox = mox.Mox()
         self.stubs = stubout.StubOutForTesting()
+        self.stubs.Set(exception, '_FATAL_EXCEPTION_FORMAT_ERRORS', True)
 
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
