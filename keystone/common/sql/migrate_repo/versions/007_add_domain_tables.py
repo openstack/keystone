@@ -77,7 +77,7 @@ def downgrade(migrate_engine):
     role = sql.Table('role', meta, autoload=True)
     role.drop_column('extra')
 
-    tables = ['domain', 'user_domain_metadata', 'credential']
+    tables = ['user_domain_metadata', 'credential', 'domain']
     for t in tables:
         table = sql.Table(t, meta, autoload=True)
         table.drop(migrate_engine, checkfirst=True)
