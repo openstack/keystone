@@ -748,7 +748,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             raise exception.Conflict(type='role grant', details=msg)
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
-                raise Exception(_("Role %s not found" % (role_id,)))
+                raise Exception(_("Role %s not found") % (role_id,))
 
             attrs = [('objectClass', [self.object_class]),
                      (self.member_attribute, [user_dn])]
