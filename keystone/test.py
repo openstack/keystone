@@ -276,9 +276,9 @@ class TestCase(NoModule, unittest.TestCase):
         return deploy.appconfig(self._paste_config(config))
 
     def serveapp(self, config, name=None, cert=None, key=None, ca=None,
-                 cert_required=None):
+                 cert_required=None, host="127.0.0.1", port=0):
         app = self.loadapp(config, name=name)
-        server = wsgi.Server(app, host="127.0.0.1", port=0)
+        server = wsgi.Server(app, host, port)
         if cert is not None and ca is not None and key is not None:
             server.set_ssl(certfile=cert, keyfile=key, ca_certs=ca,
                            cert_required=cert_required)

@@ -20,6 +20,7 @@
 
 """Utility methods for working with WSGI servers."""
 
+import socket
 import sys
 
 import eventlet.wsgi
@@ -74,23 +75,35 @@ class Server(object):
                   {'arg0': sys.argv[0],
                    'host': self.host,
                    'port': self.port})
-        socket = eventlet.listen((self.host, self.port), backlog=backlog)
+
+        # TODO(dims): eventlet's green dns/socket module does not actually
+        # support IPv6 in getaddrinfo(). We need to get around this in the
+        # future or monitor upstream for a fix
+        info = socket.getaddrinfo(self.host,
+                                  self.port,
+                                  socket.AF_UNSPEC,
+                                  socket.SOCK_STREAM)[0]
+        _socket = eventlet.listen(info[-1],
+                                  family=info[0],
+                                  backlog=backlog)
         if key:
-            self.socket_info[key] = socket.getsockname()
+            self.socket_info[key] = _socket.getsockname()
         # SSL is enabled
         if self.do_ssl:
             if self.cert_required:
                 cert_reqs = ssl.CERT_REQUIRED
             else:
                 cert_reqs = ssl.CERT_NONE
-            sslsocket = eventlet.wrap_ssl(socket, certfile=self.certfile,
+            sslsocket = eventlet.wrap_ssl(_socket, certfile=self.certfile,
                                           keyfile=self.keyfile,
                                           server_side=True,
                                           cert_reqs=cert_reqs,
                                           ca_certs=self.ca_certs)
-            socket = sslsocket
+            _socket = sslsocket
 
-        self.greenthread = self.pool.spawn(self._run, self.application, socket)
+        self.greenthread = self.pool.spawn(self._run,
+                                           self.application,
+                                           _socket)
 
     def set_ssl(self, certfile, keyfile=None, ca_certs=None,
                 cert_required=True):
