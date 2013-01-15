@@ -79,6 +79,11 @@ class ValidationError(Error):
     title = 'Bad Request'
 
 
+class StringLengthExceeded(ValidationError):
+    """The length of string "%(string)s" exceeded the limit of column
+    %(type)s(CHAR(%(length)d))."""
+
+
 class SecurityError(Error):
     """Avoids exposing details of security failures, unless in debug mode."""
 
