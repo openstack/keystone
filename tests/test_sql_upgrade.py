@@ -13,7 +13,18 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+"""
+To run these tests against a live database:
+1. Modify the file `tests/backend_sql.conf` to use the connection for your
+   live database
+2. Set up a blank, live database.
+3. run the tests using
+    ./run_tests.sh -N  test_sql_upgrade
+    WARNING::
+        Your database will be wiped.
+    Do not do this against a Database with valuable data as
+    all data will be lost.
+"""
 import copy
 import json
 import uuid
@@ -57,6 +68,10 @@ class SqlUpgradeTests(test.TestCase):
         self.max_version = self.schema.repository.version().version
 
     def tearDown(self):
+        table = sqlalchemy.Table("migrate_version", self.metadata,
+                                 autoload=True)
+        self.downgrade(0)
+        table.drop(self.engine, checkfirst=True)
         super(SqlUpgradeTests, self).tearDown()
 
     def test_blank_db_to_start(self):
