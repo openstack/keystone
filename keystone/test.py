@@ -16,12 +16,14 @@
 
 import datetime
 import os
+import socket
 import subprocess
 import sys
 import time
 
 import eventlet
 import mox
+import nose.exc
 from paste import deploy
 import stubout
 import unittest2 as unittest
@@ -302,3 +304,15 @@ class TestCase(NoModule, unittest.TestCase):
         :param delta: Maximum allowable time delta, defined in seconds.
         """
         self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=delta))
+
+    @staticmethod
+    def skip_if_no_ipv6():
+        try:
+            s = socket.socket(socket.AF_INET6)
+        except socket.error as e:
+            if e.errno == errno.EAFNOSUPPORT:
+                raise nose.exc.SkipTest("IPv6 is not enabled in the system")
+            else:
+                raise
+        else:
+            s.close()

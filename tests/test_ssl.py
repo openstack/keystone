@@ -85,6 +85,7 @@ class SSLTestCase(test.TestCase):
         """
         Make sure both public and admin API work with 1-way ipv6 & SSL.
         """
+        self.skip_if_no_ipv6()
         self.public_server = self.serveapp('keystone', name='main',
                                            cert=CERT, key=KEY, ca=CA,
                                            host="::1", port=0)
@@ -107,6 +108,7 @@ class SSLTestCase(test.TestCase):
         Make sure both public and admin API work with 2-way ipv6 & SSL.
         Requires client certificate.
         """
+        self.skip_if_no_ipv6()
         self.public_server = self.serveapp(
             'keystone', name='main', cert=CERT,
             key=KEY, ca=CA, cert_required=True,
