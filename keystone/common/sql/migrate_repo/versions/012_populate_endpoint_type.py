@@ -48,13 +48,10 @@ def upgrade(migrate_engine):
                 'url': urls[interface],
                 'extra': json.dumps(extra),
             }
-            session.execute(
-                'INSERT INTO `%s` (%s) VALUES (%s)' % (
-                    new_table.name,
-                    ', '.join('%s' % k for k in endpoint.keys()),
-                    ', '.join([':%s' % k for k in endpoint.keys()])),
-                endpoint)
+            insert = new_table.insert().values(endpoint)
+            migrate_engine.execute(insert)
     session.commit()
+    session.close()
 
 
 def downgrade(migrate_engine):
@@ -67,31 +64,31 @@ def downgrade(migrate_engine):
 
     session = orm.sessionmaker(bind=migrate_engine)()
     for ref in session.query(new_table).all():
-        extra = json.loads(ref.extra)
-        extra['%surl' % ref.interface] = ref.url
-        endpoint = {
-            'id': ref.legacy_endpoint_id,
-            'region': ref.region,
-            'service_id': ref.service_id,
-            'extra': json.dumps(extra),
-        }
-
-        try:
-            session.execute(
-                'INSERT INTO `%s` (%s) VALUES (%s)' % (
-                    legacy_table.name,
-                    ', '.join('%s' % k for k in endpoint.keys()),
-                    ', '.join([':%s' % k for k in endpoint.keys()])),
-                endpoint)
-        except sql.exc.IntegrityError:
-            q = session.query(legacy_table)
-            q = q.filter_by(id=ref.legacy_endpoint_id)
-            legacy_ref = q.one()
+        q = session.query(legacy_table)
+        q = q.filter_by(id=ref.legacy_endpoint_id)
+        legacy_ref = q.first()
+        if legacy_ref:
+            # We already have one, so just update the extra
+            # attribute with the urls.
             extra = json.loads(legacy_ref.extra)
             extra['%surl' % ref.interface] = ref.url
-
-            session.execute(
-                'UPDATE `%s` SET extra=:extra WHERE id=:id' % (
-                    legacy_table.name),
-                {'extra': json.dumps(extra), 'id': legacy_ref.id})
-    session.commit()
+            values = {'extra': json.dumps(extra)}
+            update = legacy_table.update().\
+                where(legacy_table.c.id == legacy_ref.id).\
+                values(values)
+            migrate_engine.execute(update)
+        else:
+            # This is the first one of this legacy ID, so
+            # we can insert instead.
+            extra = json.loads(ref.extra)
+            extra['%surl' % ref.interface] = ref.url
+            endpoint = {
+                'id': ref.legacy_endpoint_id,
+                'region': ref.region,
+                'service_id': ref.service_id,
+                'extra': json.dumps(extra),
+            }
+            insert = legacy_table.insert().values(endpoint)
+            migrate_engine.execute(insert)
+        session.commit()
+    session.close()

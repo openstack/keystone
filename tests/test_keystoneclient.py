@@ -22,11 +22,13 @@ import nose.exc
 
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
+from keystone import config
 from keystone import test
-
 
 import default_fixtures
 
+CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 OPENSTACK_REPO = 'https://review.openstack.org/p/openstack'
 KEYSTONECLIENT_REPO = '%s/python-keystoneclient.git' % OPENSTACK_REPO
 
@@ -862,7 +864,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         # Add two arbitrary tenants to user for testing purposes
         for i in range(2):
             tenant_id = uuid.uuid4().hex
-            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id}
+            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
+                      'domain_id': DEFAULT_DOMAIN_ID}
             self.identity_api.create_project(tenant_id, tenant)
             self.identity_api.add_user_to_project(tenant_id,
                                                   self.user_foo['id'])
@@ -888,7 +891,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         # Add two arbitrary tenants to user for testing purposes
         for i in range(2):
             tenant_id = uuid.uuid4().hex
-            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id}
+            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
+                      'domain_id': DEFAULT_DOMAIN_ID}
             self.identity_api.create_project(tenant_id, tenant)
             self.identity_api.add_user_to_project(tenant_id,
                                                   self.user_foo['id'])

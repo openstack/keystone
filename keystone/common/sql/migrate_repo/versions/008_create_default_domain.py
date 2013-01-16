@@ -22,7 +22,7 @@ from keystone import config
 
 
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF['identity']['default_domain_id']
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def upgrade(migrate_engine):

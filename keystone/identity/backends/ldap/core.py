@@ -106,7 +106,9 @@ class Identity(identity.Driver):
     def get_projects(self):
         return self.project.get_all()
 
-    def get_project_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name, domain_id):
+        # TODO(henry-nash): Use domain_id once domains are implemented
+        # in LDAP backend
         try:
             return self.project.get_by_name(tenant_name)
         except exception.NotFound:
@@ -124,7 +126,9 @@ class Identity(identity.Driver):
     def list_users(self):
         return self.user.get_all()
 
-    def get_user_by_name(self, user_name):
+    def get_user_by_name(self, user_name, domain_id):
+        # TODO(henry-nash): Use domain_id once domains are implemented
+        # in LDAP backend
         try:
             return identity.filter_user(self.user.get_by_name(user_name))
         except exception.NotFound:
@@ -353,7 +357,8 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     attribute_mapping = {'password': 'userPassword',
                          'email': 'mail',
                          'name': 'sn',
-                         'enabled': 'enabled'}
+                         'enabled': 'enabled',
+                         'domain_id': 'domain_id'}
 
     model = models.User
 
@@ -363,6 +368,8 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
         self.attribute_mapping['email'] = conf.ldap.user_mail_attribute
         self.attribute_mapping['password'] = conf.ldap.user_pass_attribute
         self.attribute_mapping['enabled'] = conf.ldap.user_enabled_attribute
+        self.attribute_mapping['domain_id'] = (
+            conf.ldap.user_domain_id_attribute)
         self.enabled_mask = conf.ldap.user_enabled_mask
         self.enabled_default = conf.ldap.user_enabled_default
         self.attribute_ignore = (getattr(conf.ldap, 'user_attribute_ignore')
@@ -510,7 +517,8 @@ class ProjectApi(common_ldap.BaseLdap, ApiShimMixin):
     attribute_mapping = {'name': 'ou',
                          'description': 'desc',
                          'tenantId': 'cn',
-                         'enabled': 'enabled'}
+                         'enabled': 'enabled',
+                         'domain_id': 'domain_id'}
     model = models.Project
 
     def __init__(self, conf):
@@ -519,6 +527,8 @@ class ProjectApi(common_ldap.BaseLdap, ApiShimMixin):
         self.attribute_mapping['name'] = conf.ldap.tenant_name_attribute
         self.attribute_mapping['description'] = conf.ldap.tenant_desc_attribute
         self.attribute_mapping['enabled'] = conf.ldap.tenant_enabled_attribute
+        self.attribute_mapping['domain_id'] = (
+            conf.ldap.tenant_domain_id_attribute)
         self.member_attribute = (getattr(conf.ldap, 'tenant_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self.attribute_ignore = (getattr(conf.ldap, 'tenant_attribute_ignore')
@@ -1070,7 +1080,8 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
     options_name = 'group'
     attribute_mapping = {'name': 'ou',
                          'description': 'desc',
-                         'groupId': 'cn'}
+                         'groupId': 'cn',
+                         'domain_id': 'domain_id'}
     model = models.Group
 
     def __init__(self, conf):
@@ -1078,6 +1089,8 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
         self.api = ApiShim(conf)
         self.attribute_mapping['name'] = conf.ldap.group_name_attribute
         self.attribute_mapping['description'] = conf.ldap.group_desc_attribute
+        self.attribute_mapping['domain_id'] = (
+            conf.ldap.group_domain_id_attribute)
         self.member_attribute = (getattr(conf.ldap, 'group_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self.attribute_ignore = (getattr(conf.ldap, 'group_attribute_ignore')

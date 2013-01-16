@@ -10,6 +10,7 @@ from keystone import exception
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def protected(f):
@@ -67,6 +68,21 @@ class V2Controller(wsgi.Application):
         if ref.get(attr) is None or ref.get(attr) == '':
             msg = '%s field is required and cannot be empty' % attr
             raise exception.ValidationError(message=msg)
+
+    def _normalize_domain_id(self, context, ref):
+        """Fill in domain_id since v2 calls are not domain-aware.
+
+        This will overwrite any domain_id that was inadvertently
+        specified in the v2 call.
+
+        """
+        ref['domain_id'] = DEFAULT_DOMAIN_ID
+        return ref
+
+    def _filter_domain_id(self, ref):
+        """Remove domain_id since v2 calls are not domain-aware."""
+        ref.pop('domain_id', None)
+        return ref
 
 
 class V3Controller(V2Controller):
@@ -148,3 +164,37 @@ class V3Controller(V2Controller):
             value = context['query_string'][attr]
             return [r for r in refs if r[attr] == value]
         return refs
+
+    def _normalize_domain_id(self, context, ref):
+        """Fill in domain_id if not specified in a v3 call."""
+
+        if 'domain_id' not in ref:
+            if context['is_admin']:
+                ref['domain_id'] = DEFAULT_DOMAIN_ID
+            else:
+                # Fish the domain_id out of the token
+                #
+                # We could make this more efficient by loading the domain_id
+                # into the context in the wrapper function above (since
+                # this version of normalize_domain will only be called inside
+                # a v3 protected call).  However, given that we only use this
+                # for creating entities, this optimization is probably not
+                # worth the duplication of state
+                try:
+                    token_ref = self.token_api.get_token(
+                        context=context, token_id=context['token_id'])
+                except exception.TokenNotFound:
+                    LOG.warning(_('Invalid token in normalize_domain_id'))
+                    raise exception.Unauthorized()
+
+                if 'domain' in token_ref:
+                    ref['domain_id'] = token_ref['domain']['id']
+                else:
+                    # FIXME(henry-nash) Revisit this once v3 token scoping
+                    # across domains has been hashed out
+                    ref['domain_id'] = DEFAULT_DOMAIN_ID
+        return ref
+
+    def _filter_domain_id(self, ref):
+        """Override v2 filter to let domain_id out for v3 calls."""
+        return ref

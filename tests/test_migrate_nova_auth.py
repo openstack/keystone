@@ -25,6 +25,7 @@ from keystone import test
 
 
 CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 FIXTURE = {
@@ -92,11 +93,13 @@ class MigrateNovaAuth(test.TestCase):
 
         users = {}
         for user in ['user1', 'user2', 'user3', 'user4']:
-            users[user] = self.identity_api.get_user_by_name(user)
+            users[user] = self.identity_api.get_user_by_name(
+                user, DEFAULT_DOMAIN_ID)
 
         tenants = {}
         for tenant in ['proj1', 'proj2', 'proj4']:
-            tenants[tenant] = self.identity_api.get_project_by_name(tenant)
+            tenants[tenant] = self.identity_api.get_project_by_name(
+                tenant, DEFAULT_DOMAIN_ID)
 
         membership_map = {
             'user1': ['proj1'],

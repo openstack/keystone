@@ -26,7 +26,8 @@ def upgrade(migrate_engine):
         'group',
         meta,
         sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('domain_id', sql.String(64), sql.ForeignKey('domain.id')),
+        sql.Column('domain_id', sql.String(64), sql.ForeignKey('domain.id'),
+                   nullable=False),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
         sql.Column('description', sql.Text()),
         sql.Column('extra', sql.Text()))

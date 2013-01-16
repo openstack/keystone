@@ -15,6 +15,7 @@
 # under the License.
 
 import uuid
+import nose.exc
 
 from keystone.common.ldap import fakeldap
 from keystone import config
@@ -413,48 +414,57 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         user_api.get_connection(user=None, password=None)
 
 # TODO (henry-nash) These need to be removed when the full LDAP implementation
-# is submitted - see BugL #1092187
+# is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
     def test_group_crud(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_add_user_to_group(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_add_user_to_group_404(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_check_user_in_group(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_check_user_not_in_group(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_list_users_in_group(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_remove_user_from_group(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_remove_user_from_group_404(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_get_role_grant_by_user_and_project(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_get_role_grants_for_user_and_project_404(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_add_role_grant_to_user_and_project_404(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_remove_role_grant_from_user_and_project(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_get_and_remove_role_grant_by_group_and_domain(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_get_and_remove_role_grant_by_user_and_domain(self):
-        pass
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_get_and_remove_correct_role_grant_from_a_mix(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_domain_crud(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_project_crud(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101289')

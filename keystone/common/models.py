@@ -87,6 +87,7 @@ class User(Model):
     Required keys:
         id
         name
+        domain_id
 
     Optional keys:
         password
@@ -95,7 +96,7 @@ class User(Model):
         enabled (bool, default True)
     """
 
-    required_keys = ('id', 'name')
+    required_keys = ('id', 'name', 'domain_id')
     optional_keys = ('password', 'description', 'email', 'enabled')
 
 
@@ -105,15 +106,16 @@ class Group(Model):
     Required keys:
         id
         name
+        domain_id
 
     Optional keys:
-        domain_id
+
         description
 
     """
 
-    required_keys = ('id', 'name')
-    optional_keys = ('domain_id', 'description')
+    required_keys = ('id', 'name', 'domain_id')
+    optional_keys = ('description')
 
 
 class Project(Model):
@@ -122,6 +124,7 @@ class Project(Model):
     Required keys:
         id
         name
+        domain_id
 
     Optional Keys:
         description
@@ -129,7 +132,7 @@ class Project(Model):
 
     """
 
-    required_keys = ('id', 'name')
+    required_keys = ('id', 'name', 'domain_id')
     optional_keys = ('description', 'enabled')
 
 
