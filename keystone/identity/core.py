@@ -335,7 +335,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def list_users_in_group(self, group_id, group):
+    def list_users_in_group(self, group_id):
         """List all users in a group.
 
         :returns: a list of user_refs or an empty list.
@@ -501,7 +501,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def list_groups_for_user(self, user_id, user):
+    def list_groups_for_user(self, user_id):
         """List all groups a user is in
 
         :returns: a list of group_refs or an empty list.
