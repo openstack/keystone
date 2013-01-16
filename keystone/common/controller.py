@@ -18,9 +18,9 @@ def protected(f):
         if not context['is_admin']:
             action = 'identity:%s' % f.__name__
 
-            LOG.debug(_('RBAC: Authorizing %s(%s)' % (
+            LOG.debug(_('RBAC: Authorizing %s(%s)') % (
                 action,
-                ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs]))))
+                ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])))
 
             try:
                 token_ref = self.token_api.get_token(

@@ -333,11 +333,11 @@ class BaseLdap(object):
 
 class LdapWrapper(object):
     def __init__(self, url):
-        LOG.debug(_("LDAP init: url=%s", url))
+        LOG.debug(_("LDAP init: url=%s"), url)
         self.conn = ldap.initialize(url)
 
     def simple_bind_s(self, user, password):
-        LOG.debug(_("LDAP bind: dn=%s", user))
+        LOG.debug(_("LDAP bind: dn=%s"), user)
         return self.conn.simple_bind_s(user, password)
 
     def add_s(self, dn, attrs):
@@ -348,15 +348,15 @@ class LdapWrapper(object):
                            if kind != 'userPassword'
                            else ['****'])
                           for kind, values in ldap_attrs]
-            LOG.debug(_('LDAP add: dn=%s, attrs=%s', dn, sane_attrs))
+            LOG.debug(_('LDAP add: dn=%s, attrs=%s'), dn, sane_attrs)
         return self.conn.add_s(dn, ldap_attrs)
 
     def search_s(self, dn, scope, query):
         if LOG.isEnabledFor(logging.DEBUG):
-            LOG.debug(_('LDAP search: dn=%s, scope=%s, query=%s',
+            LOG.debug(_('LDAP search: dn=%s, scope=%s, query=%s'),
                       dn,
                       scope,
-                      query))
+                      query)
         res = self.conn.search_s(dn, scope, query)
 
         o = []
@@ -376,14 +376,14 @@ class LdapWrapper(object):
             sane_modlist = [(op, kind, (values if kind != 'userPassword'
                                         else ['****']))
                             for op, kind, values in ldap_modlist]
-            LOG.debug(_("LDAP modify: dn=%s, modlist=%s", dn, sane_modlist))
+            LOG.debug(_("LDAP modify: dn=%s, modlist=%s"), dn, sane_modlist)
 
         return self.conn.modify_s(dn, ldap_modlist)
 
     def delete_s(self, dn):
-        LOG.debug(_("LDAP delete: dn=%s", dn))
+        LOG.debug(_("LDAP delete: dn=%s"), dn)
         return self.conn.delete_s(dn)
 
     def delete_ext_s(self, dn, serverctrls):
-        LOG.debug(_("LDAP delete_ext: dn=%s, serverctrls=%s", dn, serverctrls))
+        LOG.debug(_("LDAP delete_ext: dn=%s, serverctrls=%s"), dn, serverctrls)
         return self.conn.delete_ext_s(dn, serverctrls)
