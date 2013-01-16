@@ -1038,7 +1038,8 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def delete(self, id):
         conn = self.get_connection()
-        query = '(objectClass=%s)' % self.object_class
+        query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
+                                                self.id_attr, id)
         tenant_dn = self.tenant_api.tree_dn
         try:
             for role_dn, _ in conn.search_s(tenant_dn,

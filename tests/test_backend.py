@@ -822,13 +822,18 @@ class IdentityTests(object):
 
     def test_delete_role_check_role_grant(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        alt_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_role(role['id'], role)
+        self.identity_api.create_role(alt_role['id'], alt_role)
         self.identity_api.add_role_to_user_and_tenant(
             self.user_foo['id'], self.tenant_bar['id'], role['id'])
+        self.identity_api.add_role_to_user_and_tenant(
+            self.user_foo['id'], self.tenant_bar['id'], alt_role['id'])
         self.identity_api.delete_role(role['id'])
         roles_ref = self.identity_api.get_roles_for_user_and_tenant(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(role['id'], roles_ref)
+        self.assertIn(alt_role['id'], roles_ref)
 
     def test_create_tenant_doesnt_modify_passed_in_dict(self):
         new_tenant = {'id': 'tenant_id', 'name': 'new_tenant'}
