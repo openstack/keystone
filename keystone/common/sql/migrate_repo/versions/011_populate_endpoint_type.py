@@ -50,9 +50,10 @@ def upgrade(migrate_engine):
             }
             session.execute(
                 'INSERT INTO `%s` (%s) VALUES (%s)' % (
-                new_table.name,
-                ', '.join('%s' % k for k in endpoint.keys()),
-                ', '.join("'%s'" % v for v in endpoint.values())))
+                    new_table.name,
+                    ', '.join('%s' % k for k in endpoint.keys()),
+                    ', '.join([':%s' % k for k in endpoint.keys()])),
+                endpoint)
     session.commit()
 
 
@@ -78,9 +79,10 @@ def downgrade(migrate_engine):
         try:
             session.execute(
                 'INSERT INTO `%s` (%s) VALUES (%s)' % (
-                legacy_table.name,
-                ', '.join('%s' % k for k in endpoint.keys()),
-                ', '.join("'%s'" % v for v in endpoint.values())))
+                    legacy_table.name,
+                    ', '.join('%s' % k for k in endpoint.keys()),
+                    ', '.join([':%s' % k for k in endpoint.keys()])),
+                endpoint)
         except sql.exc.IntegrityError:
             q = session.query(legacy_table)
             q = q.filter_by(id=ref.legacy_endpoint_id)
@@ -89,8 +91,7 @@ def downgrade(migrate_engine):
             extra['%surl' % ref.interface] = ref.url
 
             session.execute(
-                'UPDATE `%s` SET extra=\'%s\' WHERE id="%s"' % (
-                legacy_table.name,
-                json.dumps(extra),
-                legacy_ref.id))
+                'UPDATE `%s` SET extra=:extra WHERE id=:id' % (
+                    legacy_table.name),
+                {'extra': json.dumps(extra), 'id': legacy_ref.id})
     session.commit()
