@@ -53,6 +53,9 @@ class SqlUpgradeTests(test.TestCase):
         self.schema = versioning_api.ControlledSchema.create(self.engine,
                                                              self.repo_path, 0)
 
+        # auto-detect the highest available schema version in the migrate_repo
+        self.max_version = self.schema.repository.version().version
+
     def tearDown(self):
         super(SqlUpgradeTests, self).tearDown()
 
@@ -270,7 +273,7 @@ class SqlUpgradeTests(test.TestCase):
                 ', '.join("'%s'" % v for v in d.values())))
 
     def test_downgrade_to_0(self):
-        self.upgrade(13)
+        self.upgrade(self.max_version)
         self.downgrade(0)
         for table_name in ["user", "token", "role", "user_tenant_membership",
                            "metadata"]:
