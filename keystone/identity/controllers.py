@@ -22,9 +22,12 @@ import uuid
 
 from keystone.common import controller
 from keystone.common import logging
+from keystone import config
 from keystone import exception
 
 
+CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF['identity']['default_domain_id']
 LOG = logging.getLogger(__name__)
 
 
@@ -442,6 +445,12 @@ class DomainV3(controller.V3Controller):
 
     @controller.protected
     def delete_domain(self, context, domain_id):
+        # explicitly forbid deleting the default domain (this should be a
+        # carefully orchestrated manual process involving configuration
+        # changes, etc)
+        if domain_id == DEFAULT_DOMAIN_ID:
+            raise exception.ForbiddenAction(action='delete the default domain')
+
         return self.identity_api.delete_domain(context, domain_id)
 
 
