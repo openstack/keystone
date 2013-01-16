@@ -12,34 +12,26 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.domain_id = uuid.uuid4().hex
         self.domain = self.new_domain_ref()
         self.domain['id'] = self.domain_id
-        self.identity_api.create_domain(
-            self.domain_id,
-            self.domain.copy())
+        self.identity_api.create_domain(self.domain_id, self.domain)
 
         self.project_id = uuid.uuid4().hex
         self.project = self.new_project_ref(
             domain_id=self.domain_id)
         self.project['id'] = self.project_id
-        self.identity_api.create_project(
-            self.project_id,
-            self.project.copy())
+        self.identity_api.create_project(self.project_id, self.project)
 
         self.user_id = uuid.uuid4().hex
         self.user = self.new_user_ref(
             domain_id=self.domain_id,
             project_id=self.project_id)
         self.user['id'] = self.user_id
-        self.identity_api.create_user(
-            self.user_id,
-            self.user.copy())
+        self.identity_api.create_user(self.user_id, self.user)
 
         self.group_id = uuid.uuid4().hex
         self.group = self.new_group_ref(
             domain_id=self.domain_id)
         self.group['id'] = self.group_id
-        self.identity_api.create_group(
-            self.group_id,
-            self.group.copy())
+        self.identity_api.create_group(self.group_id, self.group)
 
         self.credential_id = uuid.uuid4().hex
         self.credential = self.new_credential_ref(
@@ -48,14 +40,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.credential['id'] = self.credential_id
         self.identity_api.create_credential(
             self.credential_id,
-            self.credential.copy())
+            self.credential)
 
         self.role_id = uuid.uuid4().hex
         self.role = self.new_role_ref()
         self.role['id'] = self.role_id
-        self.identity_api.create_role(
-            self.role_id,
-            self.role.copy())
+        self.identity_api.create_role(self.role_id, self.role)
 
     # domain validation
 
@@ -202,7 +192,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         entities = resp.body
         self.assertIsNotNone(entities)
         self.assertTrue(len(entities))
-        roles_ref_ids = []
         for i, entity in enumerate(entities):
             self.assertValidEntity(entity)
             self.assertValidGrant(entity, ref)
@@ -247,6 +236,27 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             'domain_id': self.domain_id},
             body={'domain': ref})
         self.assertValidDomainResponse(r, ref)
+
+    def test_disable_domain(self):
+        """PATCH /domains/{domain_id} (set enabled=False)"""
+        self.domain['enabled'] = False
+        r = self.patch('/domains/%(domain_id)s' % {
+            'domain_id': self.domain_id},
+            body={'domain': {'enabled': False}})
+        self.assertValidDomainResponse(r, self.domain)
+
+        # check that the project and user are still enabled
+        r = self.get('/projects/%(project_id)s' % {
+            'project_id': self.project_id})
+        self.assertValidProjectResponse(r, self.project)
+        self.assertTrue(r.body['project']['enabled'])
+
+        r = self.get('/users/%(user_id)s' % {
+            'user_id': self.user_id})
+        self.assertValidUserResponse(r, self.user)
+        self.assertTrue(r.body['user']['enabled'])
+
+        # TODO(dolph): assert that v2 & v3 auth return 401
 
     def test_delete_domain(self):
         """DELETE /domains/{domain_id}"""
@@ -314,14 +324,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_add_user_to_group(self):
         """PUT /groups/{group_id}/users/{user_id}"""
-        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+        self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user_id})
 
     def test_check_user_in_group(self):
         """HEAD /groups/{group_id}/users/{user_id}"""
-        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+        self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user_id})
-        r = self.head('/groups/%(group_id)s/users/%(user_id)s' % {
+        self.head('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user_id})
 
     def test_list_users_in_group(self):
@@ -334,9 +344,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_remove_user_from_group(self):
         """DELETE /groups/{group_id}/users/{user_id}"""
-        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+        self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user_id})
-        r = self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
+        self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user_id})
 
     def test_update_user(self):

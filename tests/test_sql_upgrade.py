@@ -346,7 +346,7 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableColumns('credential', ['id', 'user_id', 'project_id',
                                                'blob', 'type', 'extra'])
         self.assertTableExists('domain')
-        self.assertTableColumns('domain', ['id', 'name', 'extra'])
+        self.assertTableColumns('domain', ['id', 'name', 'enabled', 'extra'])
         self.assertTableExists('user_domain_metadata')
         self.assertTableColumns('user_domain_metadata',
                                 ['user_id', 'domain_id', 'data'])

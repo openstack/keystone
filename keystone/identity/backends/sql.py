@@ -72,9 +72,10 @@ class Credential(sql.ModelBase, sql.DictBase):
 
 class Domain(sql.ModelBase, sql.DictBase):
     __tablename__ = 'domain'
-    attributes = ['id', 'name']
+    attributes = ['id', 'name', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
+    enabled = sql.Column(sql.Boolean, default=True)
     extra = sql.Column(sql.JsonBlob())
 
 

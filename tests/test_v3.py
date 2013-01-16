@@ -26,6 +26,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.admin_server.kill()
         self.public_server = None
         self.admin_server = None
+        sql_util.teardown_test_database()
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
