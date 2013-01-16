@@ -19,41 +19,30 @@ import json
 from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import sessionmaker
 
-disabled_values = ['false', 'disabled', 'no', '0']
+
+DISABLED_VALUES = ['false', 'disabled', 'no', '0']
 
 
 def is_enabled(enabled):
-    #no explicit value means enabled
-    if enabled is None:
-        return 1
-    if enabled is str:
-        if str(enabled).lower() in disabled_values:
-            return 0
-    if enabled:
-        return 1
-    else:
-        return 0
+    # no explicit value means enabled
+    if enabled is True or enabled is None:
+        return True
+    if isinstance(enabled, basestring) and enabled.lower() in DISABLED_VALUES:
+        return False
+    return bool(enabled)
 
 
 def downgrade_user_table(meta, migrate_engine):
     user_table = Table('user', meta, autoload=True)
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
-    user_data = []
-    for a_user in session.query(user_table):
-        id, name, extra, password, enabled = a_user
-        extra_parsed = json.loads(extra)
-        extra_parsed['password'] = password
-        extra_parsed['enabled'] = "%r" % enabled
-        user_data.append((password,
-                          json.dumps(extra_parsed),
-                          is_enabled(enabled), id))
-    for user in user_data:
-        session.execute("update user "
-                        "set extra = '%s' "
-                        "where id = '%s'" %
-                        user)
-
+    for user in session.query(user_table).all():
+        extra = json.loads(user.extra)
+        extra['password'] = user.password
+        extra['enabled'] = '%r' % user.enabled
+        session.execute(
+            'UPDATE `user` SET `extra`=:extra WHERE `id`=:id',
+            {'id': user.id, 'extra': json.dumps(extra)})
     session.commit()
 
 
@@ -61,21 +50,13 @@ def downgrade_tenant_table(meta, migrate_engine):
     tenant_table = Table('tenant', meta, autoload=True)
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
-    tenant_data = []
-    for a_tenant in session.query(tenant_table):
-        id, name, extra, password, enabled = a_tenant
-        extra_parsed = json.loads(extra)
-        extra_parsed['description'] = description
-        extra_parsed['enabled'] = "%r" % enabled
-        tenant_data.append((password,
-                            json.dumps(extra_parsed),
-                            is_enabled(enabled), id))
-    for tenant in tenant_data:
-        session.execute("update tenant "
-                        "set extra = '%s' "
-                        "where id = '%s'" %
-                        tenant)
-
+    for tenant in session.query(tenant_table).all():
+        extra = json.loads(tenant.extra)
+        extra['description'] = tenant.description
+        extra['enabled'] = '%r' % tenant.enabled
+        session.execute(
+            'UPDATE `tenant` SET `extra`=:extra WHERE `id`=:id',
+            {'id': tenant.id, 'extra': json.dumps(extra)})
     session.commit()
 
 
@@ -84,24 +65,18 @@ def upgrade_user_table(meta, migrate_engine):
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
 
-    new_user_data = []
-    for a_user in session.query(user_table):
-        id, name, extra, password, enabled = a_user
-        extra_parsed = json.loads(extra)
-        if 'password' in extra_parsed:
-            password = extra_parsed['password']
-            extra_parsed.pop('password')
-        if 'enabled' in extra_parsed:
-            enabled = extra_parsed['enabled']
-            extra_parsed.pop('enabled')
-        new_user_data.append((password,
-                              json.dumps(extra_parsed),
-                              is_enabled(enabled), id))
-    for new_user in new_user_data:
-        session.execute("update user "
-                        "set password = '%s', extra = '%s', enabled = '%s' "
-                        "where id = '%s'" %
-                        new_user)
+    for user in session.query(user_table).all():
+        extra = json.loads(user.extra)
+        password = extra.pop('password', None)
+        enabled = extra.pop('enabled', True)
+        session.execute(
+            'UPDATE `user` SET `password`=:password, `enabled`=:enabled, '
+            '`extra`=:extra WHERE `id`=:id',
+            {
+                'id': user.id,
+                'password': password,
+                'enabled': is_enabled(enabled),
+                'extra': json.dumps(extra)})
     session.commit()
 
 
@@ -110,24 +85,18 @@ def upgrade_tenant_table(meta, migrate_engine):
 
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
-    new_tenant_data = []
-    for a_tenant in session.query(tenant_table):
-        id, name, extra, description, enabled = a_tenant
-        extra_parsed = json.loads(extra)
-        if 'description' in extra_parsed:
-            description = extra_parsed['description']
-            extra_parsed.pop('description')
-        if 'enabled' in extra_parsed:
-            enabled = extra_parsed['enabled']
-            extra_parsed.pop('enabled')
-        new_tenant_data.append((description,
-                                json.dumps(extra_parsed),
-                                is_enabled(enabled), id))
-    for new_tenant in new_tenant_data:
-        session.execute("update tenant "
-                        "set description = '%s', extra = '%s', enabled = '%s' "
-                        "where id = '%s'" %
-                        new_tenant)
+    for tenant in session.query(tenant_table):
+        extra = json.loads(tenant.extra)
+        description = extra.pop('description', None)
+        enabled = extra.pop('enabled', True)
+        session.execute(
+            'UPDATE `tenant` SET `enabled`=:enabled, `extra`=:extra, '
+            '`description`=:description WHERE `id`=:id',
+            {
+                'id': tenant.id,
+                'description': description,
+                'enabled': is_enabled(enabled),
+                'extra': json.dumps(extra)})
     session.commit()
 
 
