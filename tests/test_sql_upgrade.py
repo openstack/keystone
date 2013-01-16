@@ -118,6 +118,9 @@ class SqlUpgradeTests(test.TestCase):
         session.commit()
 
     def test_downgrade_9_to_7(self):
+        self.upgrade(7)
+        self.populate_user_table()
+        self.populate_tenant_table()
         self.upgrade(9)
         self.downgrade(7)
 
