@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import uuid
+import nose.exc
 
 from keystone import catalog
 from keystone.catalog.backends import kvs as catalog_kvs
@@ -31,6 +32,21 @@ class KvsIdentity(test.TestCase, test_backend.IdentityTests):
         super(KvsIdentity, self).setUp()
         self.identity_api = identity_kvs.Identity(db={})
         self.load_fixtures(default_fixtures)
+
+    def test_list_user_projects(self):
+        raise nose.exc.SkipTest('Blocked by bug 1119770')
+
+    def test_list_projects(self):
+        raise nose.exc.SkipTest('Blocked by bug 1119770')
+
+    def test_list_groups(self):
+        raise nose.exc.SkipTest('Blocked by bug 1119770')
+
+    def test_list_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1119770')
+
+    def test_get_project_users(self):
+        raise nose.exc.SkipTest('Blocked by bug 1119770')
 
 
 class KvsToken(test.TestCase, test_backend.TokenTests):

@@ -468,3 +468,42 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_project_crud(self):
         raise nose.exc.SkipTest('Blocked by bug 1101289')
+
+    def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_role_grant_by_group_and_cross_domain_project(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_role_grant_by_user_and_cross_domain_project(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_multi_role_grant_by_user_group_on_project_domain(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_delete_role_with_user_and_group_grants(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_delete_user_with_group_project_domain_links(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_delete_group_with_user_project_domain_links(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_list_groups(self):
+        raise nose.exc.SkipTest('Blocked by bug 1122354')
+
+    def test_list_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1122354')
+
+    def test_list_projects(self):
+        raise nose.exc.SkipTest('Blocked by bug 1122354')
+
+    def test_list_user_projects(self):
+        raise nose.exc.SkipTest('Blocked by bug 1122354')
+
+    def test_get_project_users(self):
+        raise nose.exc.SkipTest('Blocked by bug 1122354')
