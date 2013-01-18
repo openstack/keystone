@@ -31,10 +31,12 @@ import webob.exc
 
 from keystone.common import logging
 from keystone.common import utils
+from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
 
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 # Environment variable used to pass the request context
@@ -414,6 +416,11 @@ class Router(object):
           mapper.connect(None, '/v1.0/{path_info:.*}', controller=BlogApp())
 
         """
+        # if we're only running in debug, bump routes' internal logging up a
+        # notch, as it's very spammy
+        if CONF.debug:
+            logging.getLogger('routes.middleware').setLevel(logging.INFO)
+
         self.map = mapper
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,
                                                           self.map)
