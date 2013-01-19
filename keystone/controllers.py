@@ -14,9 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import catalog
 from keystone.common import wsgi
+from keystone.common import logging
+from keystone import config
 from keystone import exception
+
+
+LOG = logging.getLogger(__name__)
+CONF = config.CONF
 
 
 class Extensions(wsgi.Application):
@@ -70,28 +75,19 @@ class PublicExtensions(Extensions):
 
 class Version(wsgi.Application):
     def __init__(self, version_type):
-        self.catalog_api = catalog.Manager()
-        self.url_key = '%sURL' % version_type
+        self.endpoint_url_type = version_type
 
         super(Version, self).__init__()
 
-    def _get_identity_url(self, context):
-        catalog_ref = self.catalog_api.get_catalog(context=context,
-                                                   user_id=None,
-                                                   tenant_id=None)
-        for region, region_ref in catalog_ref.iteritems():
-            for service, service_ref in region_ref.iteritems():
-                if service == 'identity':
-                    return service_ref[self.url_key]
-
-        raise exception.NotImplemented()
+    def _get_identity_url(self, version='v2.0'):
+        """Returns a URL to keystone's own endpoint."""
+        url = CONF['%s_endpoint' % self.endpoint_url_type] % CONF
+        if url[-1] != '/':
+            url += '/'
+        return '%s%s/' % (url, version)
 
     def _get_versions_list(self, context):
         """The list of versions is dependent on the context."""
-        identity_url = self._get_identity_url(context)
-        if not identity_url.endswith('/'):
-            identity_url = identity_url + '/'
-
         versions = {}
         versions['v2.0'] = {
             'id': 'v2.0',
@@ -100,7 +96,7 @@ class Version(wsgi.Application):
             'links': [
                 {
                     'rel': 'self',
-                    'href': identity_url,
+                    'href': self._get_identity_url(version='v2.0'),
                 }, {
                     'rel': 'describedby',
                     'type': 'text/html',

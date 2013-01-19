@@ -11,6 +11,11 @@
 # The port number which the public admin listens on
 # admin_port = 35357
 
+# The base endpoint URLs for keystone that are advertised to clients
+# (NOTE: this does NOT affect how keystone listens for connections)
+# public_endpoint = http://localhost:%(public_port)d/
+# admin_endpoint = http://localhost:%(admin_port)d/
+
 # The port number which the OpenStack Compute service listens on
 # compute_port = 8774
 
