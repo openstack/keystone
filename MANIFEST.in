@@ -16,7 +16,7 @@ include etc/*
 include httpd/*
 graft bin
 graft doc
-graft tests
+graft keystone/tests
 graft tools
 graft examples
 recursive-include keystone *.json *.xml *.cfg *.pem README *.po *.pot *.sql

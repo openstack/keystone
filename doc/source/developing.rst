@@ -133,8 +133,8 @@ Test Structure
 --------------
 
 ``./run_test.sh`` uses its python cohort (``run_tests.py``) to iterate
-through the ``tests`` directory, using Nosetest to collect the tests and
-invoke them using an OpenStack custom test running that displays the tests
+through the ``keystone/tests`` directory, using Nosetest to collect the tests
+and invoke them using an OpenStack custom test running that displays the tests
 as well as the time taken to run those tests.
 
 Not all of the tests in the tests directory are strictly unit tests. Keystone
@@ -223,9 +223,9 @@ and set environment variables ``KEYSTONE_IDENTITY_BACKEND=ldap`` and
 ``KEYSTONE_CLEAR_LDAP=yes`` in your ``localrc`` file.
 
 The unit tests can be run against a live server with
-``tests/_ldap_livetest.py``.  The default password is ``test`` but if you have
+``keystone/tests/_ldap_livetest.py``.  The default password is ``test`` but if you have
 installed devstack with a different LDAP password, modify the file
-``tests/backend_liveldap.conf`` to reflect your password.
+``keystone/tests/backend_liveldap.conf`` to reflect your password.
 
 
 Building the Documentation

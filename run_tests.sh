@@ -95,10 +95,10 @@ fi
 
 function cleanup_test_db {
   # Default test settings will leave around some test*.db files
-  # TODO(termie): this could probably be moved into tests/__init__.py
+  # TODO(termie): this could probably be moved into keystone/tests/__init__.py
   #               but there have been some issues with creating that
   #               file for some users
-  rm -f tests/test*.db
+  rm -f keystone/tests/*.db
 }
 
 function run_tests {
