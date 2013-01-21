@@ -79,7 +79,7 @@ class ExceptionTestCase(test.TestCase):
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
     def test_unauthorized_exposure(self):
-        CONF.debug = False
+        self.opt(debug=False)
 
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
@@ -87,7 +87,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(risky_info, str(e))
 
     def test_unauthorized_exposure_in_debug(self):
-        CONF.debug = True
+        self.opt(debug=True)
 
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
@@ -95,7 +95,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, str(e))
 
     def test_forbidden_exposure(self):
-        CONF.debug = False
+        self.opt(debug=False)
 
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
@@ -103,7 +103,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(risky_info, str(e))
 
     def test_forbidden_exposure_in_debug(self):
-        CONF.debug = True
+        self.opt(debug=True)
 
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
@@ -111,7 +111,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, str(e))
 
     def test_forbidden_action_exposure(self):
-        CONF.debug = False
+        self.opt(debug=False)
 
         risky_info = uuid.uuid4().hex
         action = uuid.uuid4().hex
@@ -125,7 +125,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, str(e))
 
     def test_forbidden_action_exposure_in_debug(self):
-        CONF.debug = True
+        self.opt(debug=True)
 
         risky_info = uuid.uuid4().hex
 
