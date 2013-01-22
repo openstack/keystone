@@ -197,7 +197,7 @@ new_certs_dir     = $dir
 serial            = $dir/serial
 database          = $dir/index.txt
 default_days      = 365
-default_md        = sha1
+default_md        = default # use public key default MD
 preserve          = no
 email_in_dn       = no
 nameopt           = default_ca
@@ -215,7 +215,7 @@ commonName              = supplied
 emailAddress            = optional
 
 [ req ]
-default_bits       = 1024 # Size of keys
+default_bits       = 2048 # Size of keys
 default_keyfile    = key.pem # name of generated keys
 default_md         = default # message digest algorithm
 string_mask        = nombstr # permitted characters

@@ -146,7 +146,7 @@
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
-#key_size = 1024
+#key_size = 2048
 #valid_days = 3650
 #ca_password = None
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
