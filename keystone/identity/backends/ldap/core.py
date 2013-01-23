@@ -422,7 +422,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
             old_obj = self.get(id)
         except exception.NotFound:
             raise exception.UserNotFound(user_id=id)
-        if old_obj.get('name') != values['name']:
+        if 'name' in values and old_obj.get('name') != values['name']:
             raise exception.Conflict('Cannot change user name')
         try:
             new_tenant = values['tenant_id']
@@ -440,6 +440,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
             values['enabled_nomask'] = old_obj['enabled_nomask']
             self.mask_enabled_attribute(values)
         super(UserApi, self).update(id, values, old_obj)
+        return self.get(id)
 
     def delete(self, id):
         user = self.get(id)
