@@ -49,7 +49,7 @@ def read_cached_file(filename, cache_info, reload_func=None):
     :param reload_func: optional function to be called with data when
                         file is reloaded due to a modification.
 
-    :returns: data from file
+    :returns: data from file.
 
     """
     mtime = os.path.getmtime(filename)
