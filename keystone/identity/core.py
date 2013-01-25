@@ -76,7 +76,7 @@ class Driver(object):
         """Get a tenant by id.
 
         :returns: tenant_ref
-        :raises: keystone.exception.TenantNotFound
+        :raises: keystone.exception.ProjectNotFound
 
         """
         raise exception.NotImplemented()
@@ -85,7 +85,7 @@ class Driver(object):
         """Get a tenant by name.
 
         :returns: tenant_ref
-        :raises: keystone.exception.TenantNotFound
+        :raises: keystone.exception.ProjectNotFound
 
         """
         raise exception.NotImplemented()
@@ -102,7 +102,7 @@ class Driver(object):
     def add_user_to_tenant(self, tenant_id, user_id):
         """Add user to a tenant without an explicit role relationship.
 
-        :raises: keystone.exception.TenantNotFound,
+        :raises: keystone.exception.ProjectNotFound,
                  keystone.exception.UserNotFound
 
         """
@@ -111,7 +111,7 @@ class Driver(object):
     def remove_user_from_tenant(self, tenant_id, user_id):
         """Remove user from a tenant without an explicit role relationship.
 
-        :raises: keystone.exception.TenantNotFound,
+        :raises: keystone.exception.ProjectNotFound,
                  keystone.exception.UserNotFound
 
         """
@@ -153,7 +153,7 @@ class Driver(object):
 
         :returns: a list of role ids.
         :raises: keystone.exception.UserNotFound,
-                 keystone.exception.TenantNotFound
+                 keystone.exception.ProjectNotFound
 
         """
         raise exception.NotImplemented()
@@ -162,7 +162,7 @@ class Driver(object):
         """Add a role to a user within given tenant.
 
         :raises: keystone.exception.UserNotFound,
-                 keystone.exception.TenantNotFound,
+                 keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
         """
         raise exception.NotImplemented()
@@ -171,7 +171,7 @@ class Driver(object):
         """Remove a role from a user within given tenant.
 
         :raises: keystone.exception.UserNotFound,
-                 keystone.exception.TenantNotFound,
+                 keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
 
         """
@@ -189,7 +189,8 @@ class Driver(object):
     def update_tenant(self, tenant_id, tenant):
         """Updates an existing tenant.
 
-        :raises: keystone.exception.TenantNotFound, keystone.exception.Conflict
+        :raises: keystone.exception.ProjectNotFound,
+                 keystone.exception.Conflict
 
         """
         raise exception.NotImplemented()
@@ -197,7 +198,7 @@ class Driver(object):
     def delete_tenant(self, tenant_id):
         """Deletes an existing tenant.
 
-        :raises: keystone.exception.TenantNotFound
+        :raises: keystone.exception.ProjectNotFound
 
         """
         raise exception.NotImplemented()

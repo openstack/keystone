@@ -116,8 +116,8 @@ class Group(Model):
     optional_keys = ('domain_id', 'description')
 
 
-class Tenant(Model):
-    """Tenant object.
+class Project(Model):
+    """Project object.
 
     Required keys:
         id

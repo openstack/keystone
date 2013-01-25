@@ -41,7 +41,7 @@ class Identity(identity.Driver):
         self.suffix = CONF.ldap.suffix
 
         self.user = UserApi(CONF)
-        self.tenant = TenantApi(CONF)
+        self.tenant = ProjectApi(CONF)
         self.role = RoleApi(CONF)
         self.group = GroupApi(CONF)
 
@@ -89,7 +89,7 @@ class Identity(identity.Driver):
                 # TODO(termie): this should probably be made into a
                 #               get roles call
                 metadata_ref = self.get_metadata(user_id, tenant_id)
-            except exception.TenantNotFound:
+            except exception.ProjectNotFound:
                 tenant_ref = None
                 metadata_ref = {}
             except exception.MetadataNotFound:
@@ -101,7 +101,7 @@ class Identity(identity.Driver):
         try:
             return self.tenant.get(tenant_id)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
 
     def get_tenants(self):
         return self.tenant.get_all()
@@ -110,7 +110,7 @@ class Identity(identity.Driver):
         try:
             return self.tenant.get_by_name(tenant_name)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_name)
+            raise exception.ProjectNotFound(project_id=tenant_name)
 
     def _get_user(self, user_id):
         try:
@@ -240,7 +240,7 @@ class Identity(identity.Driver):
         try:
             return self.tenant.delete(tenant_id)
         except ldap.NO_SUCH_OBJECT:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
 
     def delete_user(self, user_id):
         try:
@@ -307,7 +307,7 @@ class ApiShim(object):
     @property
     def tenant(self):
         if not self._tenant:
-            self._tenant = TenantApi(self.conf)
+            self._tenant = ProjectApi(self.conf)
         return self._tenant
 
     @property
@@ -332,7 +332,7 @@ class ApiShimMixin(object):
         return self.api.role
 
     @property
-    def tenant_api(self):
+    def project_api(self):
         return self.api.tenant
 
     @property
@@ -412,7 +412,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
         values = super(UserApi, self).create(values)
         tenant_id = values.get('tenant_id')
         if tenant_id is not None:
-            self.tenant_api.add_user(values['tenant_id'], values['id'])
+            self.project_api.add_user(values['tenant_id'], values['id'])
         return values
 
     def update(self, id, values):
@@ -431,9 +431,9 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
         else:
             if old_obj.get('tenant_id') != new_tenant:
                 if old_obj['tenant_id']:
-                    self.tenant_api.remove_user(old_obj['tenant_id'], id)
+                    self.project_api.remove_user(old_obj['tenant_id'], id)
                 if new_tenant:
-                    self.tenant_api.add_user(new_tenant, id)
+                    self.project_api.add_user(new_tenant, id)
 
         values = utils.hash_ldap_user_password(values)
         if self.enabled_mask:
@@ -444,7 +444,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     def delete(self, id):
         user = self.get(id)
         if hasattr(user, 'tenant_id'):
-            self.tenant_api.remove_user(user.tenant_id, id)
+            self.project_api.remove_user(user.tenant_id, id)
 
         super(UserApi, self).delete(id)
 
@@ -469,8 +469,8 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     def get_by_tenant(self, user_id, tenant_id):
         user_dn = self._id_to_dn(user_id)
         user = self.get(user_id)
-        tenant = self.tenant_api._ldap_get(tenant_id,
-                                           '(member=%s)' % (user_dn,))
+        tenant = self.project_api._ldap_get(tenant_id,
+                                            '(member=%s)' % (user_dn,))
         if tenant is not None:
             return user
         else:
@@ -491,12 +491,12 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
     def users_get_by_tenant_get_page(self, tenant_id, role_id, marker, limit):
         return self._get_page(marker,
                               limit,
-                              self.tenant_api.get_users(tenant_id, role_id))
+                              self.project_api.get_users(tenant_id, role_id))
 
     def users_get_by_tenant_get_page_markers(self, tenant_id, role_id, marker,
                                              limit):
         return self._get_page_markers(
-            marker, limit, self.tenant_api.get_users(tenant_id, role_id))
+            marker, limit, self.project_api.get_users(tenant_id, role_id))
 
     def check_password(self, user_id, password):
         user = self.get(user_id)
@@ -504,7 +504,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
 
 
 # TODO(termie): turn this into a data object and move logic to driver
-class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
+class ProjectApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_OU = 'ou=Groups'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'
@@ -516,10 +516,10 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
                          'description': 'desc',
                          'tenantId': 'cn',
                          'enabled': 'enabled'}
-    model = models.Tenant
+    model = models.Project
 
     def __init__(self, conf):
-        super(TenantApi, self).__init__(conf)
+        super(ProjectApi, self).__init__(conf)
         self.api = ApiShim(conf)
         self.attribute_mapping['name'] = conf.ldap.tenant_name_attribute
         self.attribute_mapping['description'] = conf.ldap.tenant_desc_attribute
@@ -530,11 +530,11 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
                                  or self.DEFAULT_ATTRIBUTE_IGNORE)
 
     def get(self, id, filter=None):
-        """Replaces exception.NotFound with exception.TenantNotFound."""
+        """Replaces exception.NotFound with exception.ProjectNotFound."""
         try:
-            return super(TenantApi, self).get(id, filter)
+            return super(ProjectApi, self).get(id, filter)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=id)
+            raise exception.ProjectNotFound(project_id=id)
 
     def get_by_name(self, name, filter=None):  # pylint: disable=W0221,W0613
         search_filter = ('(%s=%s)'
@@ -544,14 +544,14 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
         try:
             return tenants[0]
         except IndexError:
-            raise exception.TenantNotFound(tenant_id=name)
+            raise exception.ProjectNotFound(project_id=name)
 
     def create(self, values):
         self.affirm_unique(values)
         data = values.copy()
         if data.get('id') is None:
             data['id'] = uuid.uuid4().hex
-        return super(TenantApi, self).create(data)
+        return super(ProjectApi, self).create(data)
 
     def get_user_tenants(self, user_id):
         """Returns list of tenants a user has access to
@@ -625,20 +625,20 @@ class TenantApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def delete(self, id):
         if self.subtree_delete_enabled:
-            super(TenantApi, self).deleteTree(id)
+            super(ProjectApi, self).deleteTree(id)
         else:
             self.role_api.roles_delete_subtree_by_tenant(id)
-            super(TenantApi, self).delete(id)
+            super(ProjectApi, self).delete(id)
 
     def update(self, id, values):
         try:
             old_obj = self.get(id)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=id)
+            raise exception.ProjectNotFound(project_id=id)
         if old_obj['name'] != values['name']:
             msg = 'Changing Name not supported by LDAP'
             raise exception.NotImplemented(message=msg)
-        super(TenantApi, self).update(id, values, old_obj)
+        super(ProjectApi, self).update(id, values, old_obj)
 
 
 class UserRoleAssociation(object):
@@ -672,7 +672,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     attribute_mapping = {'name': 'cn',
                          #'serviceId': 'service_id',
                          }
-    model = models.Tenant
+    model = models.Role
 
     def __init__(self, conf):
         super(RoleApi, self).__init__(conf)
@@ -713,7 +713,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         else:
             return '%s=%s,%s' % (self.id_attr,
                                  ldap.dn.escape_dn_chars(role_id),
-                                 self.tenant_api._id_to_dn(tenant_id))
+                                 self.project_api._id_to_dn(tenant_id))
 
     def get(self, id, filter=None):
         model = super(RoleApi, self).get(id, filter)
@@ -803,7 +803,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     def get_role_assignments(self, tenant_id):
         conn = self.get_connection()
         query = '(objectClass=%s)' % self.object_class
-        tenant_dn = self.tenant_api._id_to_dn(tenant_id)
+        tenant_dn = self.project_api._id_to_dn(tenant_id)
 
         try:
             roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
@@ -844,7 +844,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                                                 self.member_attribute,
                                                 user_dn)
         if tenant_id is not None:
-            tenant_dn = self.tenant_api._id_to_dn(tenant_id)
+            tenant_dn = self.project_api._id_to_dn(tenant_id)
             try:
                 roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
             except ldap.NO_SUCH_OBJECT:
@@ -860,7 +860,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                     tenant_id=tenant_id))
         else:
             try:
-                roles = conn.search_s(self.tenant_api.tree_dn,
+                roles = conn.search_s(self.project_api.tree_dn,
                                       ldap.SCOPE_SUBTREE,
                                       query)
             except ldap.NO_SUCH_OBJECT:
@@ -911,7 +911,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         if tenant_id is None:
             all_roles += self.list_global_roles_for_user(user_id)
         else:
-            for tenant in self.tenant_api.get_all():
+            for tenant in self.project_api.get_all():
                 all_roles += self.list_tenant_roles_for_user(user_id,
                                                              tenant['id'])
         return self._get_page(marker, limit, all_roles)
@@ -921,7 +921,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         if tenant_id is None:
             all_roles = self.list_global_roles_for_user(user_id)
         else:
-            for tenant in self.tenant_api.get_all():
+            for tenant in self.project_api.get_all():
                 all_roles += self.list_tenant_roles_for_user(user_id,
                                                              tenant['id'])
         return self._get_page_markers(marker, limit, all_roles)
@@ -956,7 +956,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 tenant_id = None
                 if tenant_dns is not None:
                     for tenant_dn in tenant_dns:
-                        tenant_id = self.tenant_api._dn_to_id(tenant_dn)
+                        tenant_id = self.project_api._dn_to_id(tenant_dn)
                 role_id = self._dn_to_id(role_dn)
                 res.append(UserRoleAssociation(
                     id=self._create_ref(role_id, tenant_id, user_id),
@@ -968,7 +968,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     def roles_delete_subtree_by_tenant(self, tenant_id):
         conn = self.get_connection()
         query = '(objectClass=%s)' % self.object_class
-        tenant_dn = self.tenant_api._id_to_dn(tenant_id)
+        tenant_dn = self.project_api._id_to_dn(tenant_id)
         try:
             roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
             for role_dn, _ in roles:
@@ -987,7 +987,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                                                 user_dn)
 
         if tenant_id is not None:
-            tenant_dn = self.tenant_api._id_to_dn(tenant_id)
+            tenant_dn = self.project_api._id_to_dn(tenant_id)
             try:
                 roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
             except ldap.NO_SUCH_OBJECT:
@@ -1040,7 +1040,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         conn = self.get_connection()
         query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
                                                 self.id_attr, id)
-        tenant_dn = self.tenant_api.tree_dn
+        tenant_dn = self.project_api.tree_dn
         try:
             for role_dn, _ in conn.search_s(tenant_dn,
                                             ldap.SCOPE_SUBTREE,

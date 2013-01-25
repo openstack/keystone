@@ -49,7 +49,7 @@ class Identity(kvs.Base, identity.Driver):
             try:
                 tenant_ref = self.get_tenant(tenant_id)
                 metadata_ref = self.get_metadata(user_id, tenant_id)
-            except exception.TenantNotFound:
+            except exception.ProjectNotFound:
                 tenant_ref = None
                 metadata_ref = {}
             except exception.MetadataNotFound:
@@ -61,7 +61,7 @@ class Identity(kvs.Base, identity.Driver):
         try:
             return self.db.get('tenant-%s' % tenant_id)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
 
     def get_tenants(self):
         tenant_keys = filter(lambda x: x.startswith("tenant-"), self.db.keys())
@@ -71,7 +71,7 @@ class Identity(kvs.Base, identity.Driver):
         try:
             return self.db.get('tenant_name-%s' % tenant_name)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_name)
+            raise exception.ProjectNotFound(project_id=tenant_name)
 
     def get_tenant_users(self, tenant_id):
         self.get_tenant(tenant_id)
@@ -287,7 +287,7 @@ class Identity(kvs.Base, identity.Driver):
         tenant['name'] = clean.tenant_name(tenant['name'])
         try:
             self.get_tenant(tenant_id)
-        except exception.TenantNotFound:
+        except exception.ProjectNotFound:
             pass
         else:
             msg = 'Duplicate ID, %s.' % tenant_id
@@ -295,7 +295,7 @@ class Identity(kvs.Base, identity.Driver):
 
         try:
             self.get_tenant_by_name(tenant['name'])
-        except exception.TenantNotFound:
+        except exception.ProjectNotFound:
             pass
         else:
             msg = 'Duplicate name, %s.' % tenant['name']
@@ -319,7 +319,7 @@ class Identity(kvs.Base, identity.Driver):
         try:
             old_tenant = self.db.get('tenant-%s' % tenant_id)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
         new_tenant = old_tenant.copy()
         new_tenant.update(tenant)
         new_tenant['id'] = tenant_id
@@ -332,7 +332,7 @@ class Identity(kvs.Base, identity.Driver):
         try:
             old_tenant = self.db.get('tenant-%s' % tenant_id)
         except exception.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
         self.db.delete('tenant_name-%s' % old_tenant['name'])
         self.db.delete('tenant-%s' % tenant_id)
 

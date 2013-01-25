@@ -334,12 +334,12 @@ class Ec2Controller(controller.V2Controller):
         """Ensure a valid tenant id.
 
         :param context: standard context
-        :param user_id: expected credential owner
-        :raises exception.UserNotFound: on failure
+        :param tenant_id: expected tenant
+        :raises exception.ProjectNotFound: on failure
 
         """
         tenant_ref = self.identity_api.get_tenant(
             context=context,
             tenant_id=tenant_id)
         if not tenant_ref:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)

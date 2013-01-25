@@ -147,6 +147,6 @@ class Driver(object):
         """Invalidates all tokens held by a user (optionally for a tenant).
 
         :raises: keystone.exception.UserNotFound,
-                 keystone.exception.TenantNotFound
+                 keystone.exception.ProjectNotFound
         """
         raise exception.NotImplemented()

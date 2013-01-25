@@ -111,7 +111,7 @@ class IdentityTests(object):
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_tenant_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant,
                           tenant_id=uuid.uuid4().hex)
 
@@ -121,12 +121,12 @@ class IdentityTests(object):
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_tenant_by_name_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant,
                           tenant_id=uuid.uuid4().hex)
 
     def test_get_tenant_users_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant_users,
                           tenant_id=uuid.uuid4().hex)
 
@@ -307,7 +307,7 @@ class IdentityTests(object):
         self.identity_api.update_tenant('fake1', tenant)
         tenant_ref = self.identity_api.get_tenant('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant,
                           'fake2')
 
@@ -347,7 +347,7 @@ class IdentityTests(object):
                           uuid.uuid4().hex,
                           self.tenant_bar['id'])
 
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_roles_for_user_and_tenant,
                           self.user_foo['id'],
                           uuid.uuid4().hex)
@@ -359,7 +359,7 @@ class IdentityTests(object):
                           self.tenant_bar['id'],
                           'keystone_admin')
 
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.add_role_to_user_and_tenant,
                           self.user_foo['id'],
                           uuid.uuid4().hex,
@@ -417,7 +417,7 @@ class IdentityTests(object):
                           user_id=uuid.uuid4().hex,
                           project_id=self.tenant_bar['id'])
 
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.list_grants,
                           user_id=self.user_foo['id'],
                           project_id=uuid.uuid4().hex)
@@ -429,7 +429,7 @@ class IdentityTests(object):
                           project_id=self.tenant_bar['id'],
                           role_id='keystone_admin')
 
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.create_grant,
                           user_id=self.user_foo['id'],
                           project_id=uuid.uuid4().hex,
@@ -596,7 +596,7 @@ class IdentityTests(object):
         self.assertIn(self.tenant_bar['id'], tenants)
 
     def test_add_user_to_tenant_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.add_user_to_tenant,
                           uuid.uuid4().hex,
                           self.user_foo['id'])
@@ -615,7 +615,7 @@ class IdentityTests(object):
         self.assertNotIn(self.tenant_bar['id'], tenants)
 
     def test_remove_user_from_tenant_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.remove_user_from_tenant,
                           uuid.uuid4().hex,
                           self.user_foo['id'])
@@ -636,13 +636,13 @@ class IdentityTests(object):
                           uuid.uuid4().hex)
 
     def test_update_tenant_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.update_tenant,
                           uuid.uuid4().hex,
                           dict())
 
     def test_delete_tenant_404(self):
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.delete_tenant,
                           uuid.uuid4().hex)
 

@@ -131,7 +131,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api.update_tenant('fake1', tenant)
 
         self.identity_api.delete_tenant('fake1')
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant,
                           'fake1')
 
@@ -226,7 +226,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
         CONF.ldap.tenant_filter = '(CN=DOES_NOT_MATCH)'
         self.identity_api = identity_ldap.Identity()
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant,
                           self.tenant_bar['id'])
 

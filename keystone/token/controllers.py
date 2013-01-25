@@ -305,7 +305,7 @@ class Auth(controller.V2Controller):
                 tenant_ref = self.identity_api.get_tenant_by_name(
                     context=context, tenant_name=tenant_name)
                 tenant_id = tenant_ref['id']
-            except exception.TenantNotFound as e:
+            except exception.ProjectNotFound as e:
                 raise exception.Unauthorized(e)
         return tenant_id
 
@@ -323,7 +323,7 @@ class Auth(controller.V2Controller):
             try:
                 tenant_ref = self.identity_api.get_tenant(context=context,
                                                           tenant_id=tenant_id)
-            except exception.TenantNotFound as e:
+            except exception.ProjectNotFound as e:
                 exception.Unauthorized(e)
         return tenant_ref
 
