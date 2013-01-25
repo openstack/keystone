@@ -64,7 +64,7 @@ class Credential(sql.ModelBase, sql.DictBase):
     user_id = sql.Column(sql.String(64),
                          sql.ForeignKey('user.id'),
                          nullable=False)
-    project_id = sql.Column(sql.String(64), sql.ForeignKey('tenant.id'))
+    project_id = sql.Column(sql.String(64), sql.ForeignKey('project.id'))
     blob = sql.Column(sql.JsonBlob(), nullable=False)
     type = sql.Column(sql.String(255), nullable=False)
     extra = sql.Column(sql.JsonBlob())
@@ -80,8 +80,7 @@ class Domain(sql.ModelBase, sql.DictBase):
 
 # TODO(dolph): rename to Project
 class Tenant(sql.ModelBase, sql.DictBase):
-    # TODO(dolph): rename to project
-    __tablename__ = 'tenant'
+    __tablename__ = 'project'
     attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
@@ -141,12 +140,12 @@ class GroupDomainGrant(sql.ModelBase, BaseGrant):
 # TODO(dolph): ... do we need this table?
 class UserTenantMembership(sql.ModelBase, sql.DictBase):
     """Tenant membership join table."""
-    __tablename__ = 'user_tenant_membership'
+    __tablename__ = 'user_project_membership'
     user_id = sql.Column(sql.String(64),
                          sql.ForeignKey('user.id'),
                          primary_key=True)
     tenant_id = sql.Column(sql.String(64),
-                           sql.ForeignKey('tenant.id'),
+                           sql.ForeignKey('project.id'),
                            primary_key=True)
 
 

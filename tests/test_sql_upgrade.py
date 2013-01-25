@@ -212,6 +212,30 @@ class SqlUpgradeTests(test.TestCase):
             self.assertEqual(ref.url, endpoint_extra['%surl' % interface])
             self.assertEqual(ref.extra, '{}')
 
+    def assertTenantTables(self):
+        self.assertTableExists('tenant')
+        self.assertTableExists('user_tenant_membership')
+        self.assertTableDoesNotExist('project')
+        self.assertTableDoesNotExist('user_project_membership')
+
+    def assertProjectTables(self):
+        self.assertTableExists('project')
+        self.assertTableExists('user_project_membership')
+        self.assertTableDoesNotExist('tenant')
+        self.assertTableDoesNotExist('user_tenant_membership')
+
+    def test_upgrade_tenant_to_project(self):
+        self.upgrade(13)
+        self.assertTenantTables()
+        self.upgrade(14)
+        self.assertProjectTables()
+
+    def test_downgrade_project_to_tenant(self):
+        self.upgrade(14)
+        self.assertProjectTables()
+        self.downgrade(13)
+        self.assertTenantTables()
+
     def test_upgrade_12_to_13(self):
         self.upgrade(12)
         self.upgrade(13)
@@ -355,10 +379,10 @@ class SqlUpgradeTests(test.TestCase):
         return s
 
     def assertTableExists(self, table_name):
-        """Asserts that a given table exists can be selected by name."""
         try:
-            self.select_table(table_name)
-        except sqlalchemy.exc.NoSuchTableError:
+            #TODO ayoung: make quoting work for postgres
+            self.engine.execute("select count(*) from '%s'" % table_name)
+        except:
             raise AssertionError('Table "%s" does not exist' % table_name)
 
     def assertTableDoesNotExist(self, table_name):
