@@ -85,10 +85,15 @@ if __name__ == '__main__':
     if CONF.debug:
         CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
 
-    if not CONF.config_file:
-        print "No config files could be found."
-        CONF.print_help()
-        sys.exit(1)
+    if CONF.config_file:
+        paste_config = CONF.config_file[0]
+    else:
+        paste_config = CONF.find_file('keystone.conf')
+        if not paste_config:
+            print ("The keystone.conf file could not be found in the "
+                   "configuration directories.")
+            CONF.print_help()
+            sys.exit(1)
 
     monkeypatch_thread = not CONF.standard_threads
     pydev_debug_url = utils.setup_remote_pydev_debug()
@@ -101,14 +106,14 @@ if __name__ == '__main__':
     eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
                                   thread=monkeypatch_thread)
 
-    options = deploy.appconfig('config:%s' % CONF.config_file[0])
+    options = deploy.appconfig('config:%s' % paste_config)
 
     servers = []
-    servers.append(create_server(CONF.config_file[0],
+    servers.append(create_server(paste_config,
                                  'admin',
                                  CONF.bind_host,
                                  int(CONF.admin_port)))
-    servers.append(create_server(CONF.config_file[0],
+    servers.append(create_server(paste_config,
                                  'main',
                                  CONF.bind_host,
                                  int(CONF.public_port)))
