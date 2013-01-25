@@ -200,11 +200,11 @@ class Identity(sql.Base, identity.Driver):
             raise AssertionError('Invalid user / password')
 
         if tenant_id is not None:
-            if tenant_id not in self.get_tenants_for_user(user_id):
+            if tenant_id not in self.get_projects_for_user(user_id):
                 raise AssertionError('Invalid tenant')
 
             try:
-                tenant_ref = self.get_tenant(tenant_id)
+                tenant_ref = self.get_project(tenant_id)
                 metadata_ref = self.get_metadata(user_id, tenant_id)
             except exception.ProjectNotFound:
                 tenant_ref = None
@@ -214,23 +214,23 @@ class Identity(sql.Base, identity.Driver):
 
         return (identity.filter_user(user_ref), tenant_ref, metadata_ref)
 
-    def get_tenant(self, tenant_id):
+    def get_project(self, tenant_id):
         session = self.get_session()
         tenant_ref = session.query(Project).filter_by(id=tenant_id).first()
         if tenant_ref is None:
             raise exception.ProjectNotFound(project_id=tenant_id)
         return tenant_ref.to_dict()
 
-    def get_tenant_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name):
         session = self.get_session()
         tenant_ref = session.query(Project).filter_by(name=tenant_name).first()
         if not tenant_ref:
             raise exception.ProjectNotFound(project_id=tenant_name)
         return tenant_ref.to_dict()
 
-    def get_tenant_users(self, tenant_id):
+    def get_project_users(self, tenant_id):
         session = self.get_session()
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         query = session.query(User)
         query = query.join(UserProjectMembership)
         query = query.filter(UserProjectMembership.tenant_id == tenant_id)
@@ -274,7 +274,7 @@ class Identity(sql.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -302,7 +302,7 @@ class Identity(sql.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -321,7 +321,7 @@ class Identity(sql.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -343,7 +343,7 @@ class Identity(sql.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -366,9 +366,9 @@ class Identity(sql.Base, identity.Driver):
                                  domain_id, group_id)
 
     # These should probably be part of the high-level API
-    def add_user_to_tenant(self, tenant_id, user_id):
+    def add_user_to_project(self, tenant_id, user_id):
         session = self.get_session()
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         self.get_user(user_id)
         query = session.query(UserProjectMembership)
         query = query.filter_by(user_id=user_id)
@@ -382,9 +382,9 @@ class Identity(sql.Base, identity.Driver):
                                               tenant_id=tenant_id))
             session.flush()
 
-    def remove_user_from_tenant(self, tenant_id, user_id):
+    def remove_user_from_project(self, tenant_id, user_id):
         session = self.get_session()
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         self.get_user(user_id)
         query = session.query(UserProjectMembership)
         query = query.filter_by(user_id=user_id)
@@ -396,12 +396,15 @@ class Identity(sql.Base, identity.Driver):
             session.delete(membership_ref)
             session.flush()
 
-    def get_tenants(self):
+    def get_projects(self):
         session = self.get_session()
         tenant_refs = session.query(Project).all()
         return [tenant_ref.to_dict() for tenant_ref in tenant_refs]
 
-    def get_tenants_for_user(self, user_id):
+    def list_projects(self):
+        return self.get_projects()
+
+    def get_projects_for_user(self, user_id):
         session = self.get_session()
         self.get_user(user_id)
         query = session.query(UserProjectMembership)
@@ -409,18 +412,18 @@ class Identity(sql.Base, identity.Driver):
         membership_refs = query.all()
         return [x.tenant_id for x in membership_refs]
 
-    def get_roles_for_user_and_tenant(self, user_id, tenant_id):
+    def get_roles_for_user_and_project(self, user_id, tenant_id):
         self.get_user(user_id)
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         try:
             metadata_ref = self.get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         return metadata_ref.get('roles', [])
 
-    def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         self.get_role(role_id)
         try:
             metadata_ref = self.get_metadata(user_id, tenant_id)
@@ -440,7 +443,7 @@ class Identity(sql.Base, identity.Driver):
         else:
             self.update_metadata(user_id, tenant_id, metadata_ref)
 
-    def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
+    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         try:
             metadata_ref = self.get_metadata(user_id, tenant_id)
             is_new = False
@@ -460,9 +463,9 @@ class Identity(sql.Base, identity.Driver):
             self.update_metadata(user_id, tenant_id, metadata_ref)
 
     # CRUD
-    @handle_conflicts(type='tenant')
-    def create_tenant(self, tenant_id, tenant):
-        tenant['name'] = clean.tenant_name(tenant['name'])
+    @handle_conflicts(type='project')
+    def create_project(self, tenant_id, tenant):
+        tenant['name'] = clean.project_name(tenant['name'])
         session = self.get_session()
         with session.begin():
             tenant_ref = Project.from_dict(tenant)
@@ -470,29 +473,29 @@ class Identity(sql.Base, identity.Driver):
             session.flush()
         return tenant_ref.to_dict()
 
-    @handle_conflicts(type='tenant')
-    def update_tenant(self, tenant_id, tenant):
+    @handle_conflicts(type='project')
+    def update_project(self, tenant_id, tenant):
         session = self.get_session()
 
         if 'name' in tenant:
-            tenant['name'] = clean.tenant_name(tenant['name'])
-
+            tenant['name'] = clean.project_name(tenant['name'])
         try:
             tenant_ref = session.query(Project).filter_by(id=tenant_id).one()
         except sql.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
 
         with session.begin():
-            old_tenant_dict = tenant_ref.to_dict()
+            old_project_dict = tenant_ref.to_dict()
             for k in tenant:
-                old_tenant_dict[k] = tenant[k]
-            new_tenant = Project.from_dict(old_tenant_dict)
-            tenant_ref.name = new_tenant.name
-            tenant_ref.extra = new_tenant.extra
+                old_project_dict[k] = tenant[k]
+            new_project = Project.from_dict(old_project_dict)
+            tenant_ref.name = new_project.name
+            tenant_ref.extra = new_project.extra
             session.flush()
         return tenant_ref.to_dict(include_extra_dict=True)
 
-    def delete_tenant(self, tenant_id):
+    @handle_conflicts(type='project')
+    def delete_project(self, tenant_id):
         session = self.get_session()
 
         try:
@@ -625,39 +628,6 @@ class Identity(sql.Base, identity.Driver):
         with session.begin():
             session.delete(ref)
             session.flush()
-
-    # project crud
-
-    @handle_conflicts(type='project')
-    def create_project(self, project_id, project):
-        return self.create_tenant(project_id, project)
-
-    def get_project(self, project_id):
-        return self.get_tenant(project_id)
-
-    def list_projects(self):
-        return self.get_tenants()
-
-    @handle_conflicts(type='project')
-    def update_project(self, project_id, project):
-        session = self.get_session()
-        with session.begin():
-            ref = session.query(Project).filter_by(id=project_id).first()
-            if ref is None:
-                raise exception.ProjectNotFound(project_id=project_id)
-            old_dict = ref.to_dict()
-            for k in project:
-                old_dict[k] = project[k]
-            new_project = Project.from_dict(old_dict)
-            for attr in Project.attributes:
-                if attr != 'id':
-                    setattr(ref, attr, getattr(new_project, attr))
-            ref.extra = new_project.extra
-            session.flush()
-        return ref.to_dict()
-
-    def delete_project(self, project_id):
-        return self.delete_tenant(project_id)
 
     def list_user_projects(self, user_id):
         session = self.get_session()
@@ -1003,7 +973,7 @@ class Identity(sql.Base, identity.Driver):
             for metadata_ref in session.query(UserProjectGrant):
                 metadata = metadata_ref.to_dict()
                 try:
-                    self.remove_role_from_user_and_tenant(
+                    self.remove_role_from_user_and_project(
                         metadata['user_id'], metadata['tenant_id'], role_id)
                 except exception.RoleNotFound:
                     pass

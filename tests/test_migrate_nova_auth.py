@@ -96,7 +96,7 @@ class MigrateNovaAuth(test.TestCase):
 
         tenants = {}
         for tenant in ['proj1', 'proj2', 'proj4']:
-            tenants[tenant] = self.identity_api.get_tenant_by_name(tenant)
+            tenants[tenant] = self.identity_api.get_project_by_name(tenant)
 
         membership_map = {
             'user1': ['proj1'],
@@ -105,10 +105,10 @@ class MigrateNovaAuth(test.TestCase):
             'user4': ['proj4'],
         }
 
-        for (old_user, old_tenants) in membership_map.iteritems():
+        for (old_user, old_projects) in membership_map.iteritems():
             user = users[old_user]
-            membership = self.identity_api.get_tenants_for_user(user['id'])
-            expected = [tenants[t]['id'] for t in old_tenants]
+            membership = self.identity_api.get_projects_for_user(user['id'])
+            expected = [tenants[t]['id'] for t in old_projects]
             self.assertEqual(set(expected), set(membership))
             for tenant_id in membership:
                 password = None
@@ -119,7 +119,7 @@ class MigrateNovaAuth(test.TestCase):
 
         for ec2_cred in FIXTURE['ec2_credentials']:
             user_id = users[ec2_cred['user_id']]['id']
-            for tenant_id in self.identity_api.get_tenants_for_user(user_id):
+            for tenant_id in self.identity_api.get_projects_for_user(user_id):
                 access = '%s:%s' % (tenant_id, ec2_cred['access_key'])
                 cred = self.ec2_api.get_credential(access)
                 actual = cred['secret']
@@ -137,14 +137,14 @@ class MigrateNovaAuth(test.TestCase):
             'user4': {'proj4': ['role1']},
         }
 
-        for (old_user, old_tenant_map) in assignment_map.iteritems():
+        for (old_user, old_project_map) in assignment_map.iteritems():
             tenant_names = ['proj1', 'proj2', 'proj4']
             for tenant_name in tenant_names:
                 user = users[old_user]
                 tenant = tenants[tenant_name]
-                roles = self.identity_api.get_roles_for_user_and_tenant(
+                roles = self.identity_api.get_roles_for_user_and_project(
                     user['id'], tenant['id'])
                 actual = [self.identity_api.get_role(role_id)['name']
                           for role_id in roles]
-                expected = old_tenant_map.get(tenant_name, [])
+                expected = old_project_map.get(tenant_name, [])
                 self.assertEqual(set(actual), set(expected))

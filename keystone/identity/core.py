@@ -72,7 +72,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_tenant(self, tenant_id):
+    def get_project(self, tenant_id):
         """Get a tenant by id.
 
         :returns: tenant_ref
@@ -81,7 +81,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_tenant_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name):
         """Get a tenant by name.
 
         :returns: tenant_ref
@@ -99,7 +99,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def add_user_to_tenant(self, tenant_id, user_id):
+    def add_user_to_project(self, tenant_id, user_id):
         """Add user to a tenant without an explicit role relationship.
 
         :raises: keystone.exception.ProjectNotFound,
@@ -108,7 +108,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def remove_user_from_tenant(self, tenant_id, user_id):
+    def remove_user_from_project(self, tenant_id, user_id):
         """Remove user from a tenant without an explicit role relationship.
 
         :raises: keystone.exception.ProjectNotFound,
@@ -117,11 +117,11 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_all_tenants(self):
+    def get_all_projects(self):
         """FIXME(dolph): Lists all tenants in the system? I'm not sure how this
-                         is different from get_tenants, why get_tenants isn't
+                         is different from get_projects, why get_projects isn't
                          documented as part of the driver, or why it's called
-                         get_tenants instead of list_tenants (i.e. list_roles
+                         get_projects instead of list_projects (i.e. list_roles
                          and list_users)...
 
         :returns: a list of ... FIXME(dolph): tenant_refs or tenant_id's?
@@ -129,17 +129,17 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_tenant_users(self, tenant_id):
+    def get_project_users(self, tenant_id):
         """FIXME(dolph): Lists all users with a relationship to the specified
                          tenant?
 
         :returns: a list of ... FIXME(dolph): user_refs or user_id's?
-        :raises: keystone.exception.UserNotFound
+        :raises: keystone.exception.ProjectNotFound
 
         """
         raise exception.NotImplemented()
 
-    def get_tenants_for_user(self, user_id):
+    def get_projects_for_user(self, user_id):
         """Get the tenants associated with a given user.
 
         :returns: a list of tenant_id's.
@@ -148,7 +148,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_roles_for_user_and_tenant(self, user_id, tenant_id):
+    def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given tenant.
 
         :returns: a list of role ids.
@@ -158,7 +158,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant.
 
         :raises: keystone.exception.UserNotFound,
@@ -167,7 +167,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
+    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         """Remove a role from a user within given tenant.
 
         :raises: keystone.exception.UserNotFound,
@@ -178,7 +178,7 @@ class Driver(object):
         raise exception.NotImplemented()
 
     # tenant crud
-    def create_tenant(self, tenant_id, tenant):
+    def create_project(self, tenant_id, tenant):
         """Creates a new tenant.
 
         :raises: keystone.exception.Conflict
@@ -186,7 +186,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def update_tenant(self, tenant_id, tenant):
+    def update_project(self, tenant_id, tenant):
         """Updates an existing tenant.
 
         :raises: keystone.exception.ProjectNotFound,
@@ -195,7 +195,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def delete_tenant(self, tenant_id):
+    def delete_project(self, tenant_id):
         """Deletes an existing tenant.
 
         :raises: keystone.exception.ProjectNotFound

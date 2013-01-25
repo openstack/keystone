@@ -43,11 +43,11 @@ class Identity(kvs.Base, identity.Driver):
             raise AssertionError('Invalid user / password')
 
         if tenant_id is not None:
-            if tenant_id not in self.get_tenants_for_user(user_id):
+            if tenant_id not in self.get_projects_for_user(user_id):
                 raise AssertionError('Invalid tenant')
 
             try:
-                tenant_ref = self.get_tenant(tenant_id)
+                tenant_ref = self.get_project(tenant_id)
                 metadata_ref = self.get_metadata(user_id, tenant_id)
             except exception.ProjectNotFound:
                 tenant_ref = None
@@ -57,24 +57,24 @@ class Identity(kvs.Base, identity.Driver):
 
         return (identity.filter_user(user_ref), tenant_ref, metadata_ref)
 
-    def get_tenant(self, tenant_id):
+    def get_project(self, tenant_id):
         try:
             return self.db.get('tenant-%s' % tenant_id)
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
 
-    def get_tenants(self):
+    def get_projects(self):
         tenant_keys = filter(lambda x: x.startswith("tenant-"), self.db.keys())
         return [self.db.get(key) for key in tenant_keys]
 
-    def get_tenant_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name):
         try:
             return self.db.get('tenant_name-%s' % tenant_name)
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_name)
 
-    def get_tenant_users(self, tenant_id):
-        self.get_tenant(tenant_id)
+    def get_project_users(self, tenant_id):
+        self.get_project(tenant_id)
         user_keys = filter(lambda x: x.startswith("user-"), self.db.keys())
         user_refs = [self.db.get(key) for key in user_keys]
         return filter(lambda x: tenant_id in x['tenants'], user_refs)
@@ -122,15 +122,15 @@ class Identity(kvs.Base, identity.Driver):
         return [self.get_role(x) for x in role_ids]
 
     # These should probably be part of the high-level API
-    def add_user_to_tenant(self, tenant_id, user_id):
-        self.get_tenant(tenant_id)
+    def add_user_to_project(self, tenant_id, user_id):
+        self.get_project(tenant_id)
         user_ref = self._get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
         tenants.add(tenant_id)
         self.update_user(user_id, {'tenants': list(tenants)})
 
-    def remove_user_from_tenant(self, tenant_id, user_id):
-        self.get_tenant(tenant_id)
+    def remove_user_from_project(self, tenant_id, user_id):
+        self.get_project(tenant_id)
         user_ref = self._get_user(user_id)
         tenants = set(user_ref.get('tenants', []))
         try:
@@ -139,22 +139,22 @@ class Identity(kvs.Base, identity.Driver):
             raise exception.NotFound('User not found in tenant')
         self.update_user(user_id, {'tenants': list(tenants)})
 
-    def get_tenants_for_user(self, user_id):
+    def get_projects_for_user(self, user_id):
         user_ref = self._get_user(user_id)
         return user_ref.get('tenants', [])
 
-    def get_roles_for_user_and_tenant(self, user_id, tenant_id):
+    def get_roles_for_user_and_project(self, user_id, tenant_id):
         self.get_user(user_id)
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         try:
             metadata_ref = self.get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         return metadata_ref.get('roles', [])
 
-    def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
-        self.get_tenant(tenant_id)
+        self.get_project(tenant_id)
         self.get_role(role_id)
         try:
             metadata_ref = self.get_metadata(user_id, tenant_id)
@@ -169,7 +169,7 @@ class Identity(kvs.Base, identity.Driver):
         metadata_ref['roles'] = list(roles)
         self.update_metadata(user_id, tenant_id, metadata_ref)
 
-    def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
+    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         try:
             metadata_ref = self.get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
@@ -283,10 +283,10 @@ class Identity(kvs.Base, identity.Driver):
         user_list.remove(user_id)
         self.db.set('user_list', list(user_list))
 
-    def create_tenant(self, tenant_id, tenant):
-        tenant['name'] = clean.tenant_name(tenant['name'])
+    def create_project(self, tenant_id, tenant):
+        tenant['name'] = clean.project_name(tenant['name'])
         try:
-            self.get_tenant(tenant_id)
+            self.get_project(tenant_id)
         except exception.ProjectNotFound:
             pass
         else:
@@ -294,7 +294,7 @@ class Identity(kvs.Base, identity.Driver):
             raise exception.Conflict(type='tenant', details=msg)
 
         try:
-            self.get_tenant_by_name(tenant['name'])
+            self.get_project_by_name(tenant['name'])
         except exception.ProjectNotFound:
             pass
         else:
@@ -305,9 +305,9 @@ class Identity(kvs.Base, identity.Driver):
         self.db.set('tenant_name-%s' % tenant['name'], tenant)
         return tenant
 
-    def update_tenant(self, tenant_id, tenant):
+    def update_project(self, tenant_id, tenant):
         if 'name' in tenant:
-            tenant['name'] = clean.tenant_name(tenant['name'])
+            tenant['name'] = clean.project_name(tenant['name'])
             try:
                 existing = self.db.get('tenant_name-%s' % tenant['name'])
                 if existing and tenant_id != existing['id']:
@@ -317,23 +317,23 @@ class Identity(kvs.Base, identity.Driver):
                 pass
         # get the old name and delete it too
         try:
-            old_tenant = self.db.get('tenant-%s' % tenant_id)
+            old_project = self.db.get('tenant-%s' % tenant_id)
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
-        new_tenant = old_tenant.copy()
-        new_tenant.update(tenant)
-        new_tenant['id'] = tenant_id
-        self.db.delete('tenant_name-%s' % old_tenant['name'])
-        self.db.set('tenant-%s' % tenant_id, new_tenant)
-        self.db.set('tenant_name-%s' % new_tenant['name'], new_tenant)
-        return new_tenant
+        new_project = old_project.copy()
+        new_project.update(tenant)
+        new_project['id'] = tenant_id
+        self.db.delete('tenant_name-%s' % old_project['name'])
+        self.db.set('tenant-%s' % tenant_id, new_project)
+        self.db.set('tenant_name-%s' % new_project['name'], new_project)
+        return new_project
 
-    def delete_tenant(self, tenant_id):
+    def delete_project(self, tenant_id):
         try:
-            old_tenant = self.db.get('tenant-%s' % tenant_id)
+            old_project = self.db.get('tenant-%s' % tenant_id)
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
-        self.db.delete('tenant_name-%s' % old_tenant['name'])
+        self.db.delete('tenant_name-%s' % old_project['name'])
         self.db.delete('tenant-%s' % tenant_id)
 
     def create_metadata(self, user_id, tenant_id, metadata,
@@ -396,9 +396,9 @@ class Identity(kvs.Base, identity.Driver):
                 tenant_id = key.split('-')[1]
                 user_id = key.split('-')[2]
                 try:
-                    self.remove_role_from_user_and_tenant(user_id,
-                                                          tenant_id,
-                                                          role_id)
+                    self.remove_role_from_user_and_project(user_id,
+                                                           tenant_id,
+                                                           role_id)
                 except exception.RoleNotFound:
                     pass
         except exception.NotFound:
@@ -418,7 +418,7 @@ class Identity(kvs.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -440,7 +440,7 @@ class Identity(kvs.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -459,7 +459,7 @@ class Identity(kvs.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,
@@ -481,7 +481,7 @@ class Identity(kvs.Base, identity.Driver):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
-            self.get_tenant(project_id)
+            self.get_project(project_id)
 
         try:
             metadata_ref = self.get_metadata(user_id, project_id,

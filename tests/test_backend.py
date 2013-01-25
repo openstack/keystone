@@ -39,14 +39,14 @@ class IdentityTests(object):
                           tenant_id=self.tenant_bar['id'],
                           password=uuid.uuid4().hex)
 
-    def test_authenticate_bad_tenant(self):
+    def test_authenticate_bad_project(self):
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
                           user_id=self.user_foo['id'],
                           tenant_id=uuid.uuid4().hex,
                           password=self.user_foo['password'])
 
-    def test_authenticate_no_tenant(self):
+    def test_authenticate_no_project(self):
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=self.user_foo['id'],
             password=self.user_foo['password'])
@@ -72,7 +72,7 @@ class IdentityTests(object):
         self.assertDictEqual(metadata_ref, self.metadata_foobar)
 
     def test_authenticate_role_return(self):
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=self.user_foo['id'],
@@ -88,7 +88,8 @@ class IdentityTests(object):
             'password': 'no_meta2',
         }
         self.identity_api.create_user(user['id'], user)
-        self.identity_api.add_user_to_tenant(self.tenant_baz['id'], user['id'])
+        self.identity_api.add_user_to_project(self.tenant_baz['id'],
+                                              user['id'])
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=user['id'],
             tenant_id=self.tenant_baz['id'],
@@ -105,29 +106,29 @@ class IdentityTests(object):
         user_ref = self.identity_api._get_user(self.user_foo['id'])
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
 
-    def test_get_tenant(self):
-        tenant_ref = self.identity_api.get_tenant(
+    def test_get_project(self):
+        tenant_ref = self.identity_api.get_project(
             tenant_id=self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
-    def test_get_tenant_404(self):
+    def test_get_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           tenant_id=uuid.uuid4().hex)
 
-    def test_get_tenant_by_name(self):
-        tenant_ref = self.identity_api.get_tenant_by_name(
+    def test_get_project_by_name(self):
+        tenant_ref = self.identity_api.get_project_by_name(
             tenant_name=self.tenant_bar['name'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
-    def test_get_tenant_by_name_404(self):
+    def test_get_project_by_name_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           tenant_id=uuid.uuid4().hex)
 
-    def test_get_tenant_users_404(self):
+    def test_get_project_users_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant_users,
+                          self.identity_api.get_project_users,
                           tenant_id=uuid.uuid4().hex)
 
     def test_get_user(self):
@@ -271,116 +272,116 @@ class IdentityTests(object):
                           self.identity_api.get_user,
                           'fake2')
 
-    def test_create_duplicate_tenant_id_fails(self):
+    def test_create_duplicate_project_id_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1'}
-        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           'fake1',
                           tenant)
 
-    def test_create_duplicate_tenant_name_fails(self):
+    def test_create_duplicate_project_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake'}
-        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           'fake1',
                           tenant)
 
-    def test_rename_duplicate_tenant_name_fails(self):
+    def test_rename_duplicate_project_name_fails(self):
         tenant1 = {'id': 'fake1', 'name': 'fake1'}
         tenant2 = {'id': 'fake2', 'name': 'fake2'}
-        self.identity_api.create_tenant('fake1', tenant1)
-        self.identity_api.create_tenant('fake2', tenant2)
+        self.identity_api.create_project('fake1', tenant1)
+        self.identity_api.create_project('fake2', tenant2)
         tenant2['name'] = 'fake1'
         self.assertRaises(exception.Error,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           'fake2',
                           tenant2)
 
-    def test_update_tenant_id_does_nothing(self):
+    def test_update_project_id_does_nothing(self):
         tenant = {'id': 'fake1', 'name': 'fake1'}
-        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['id'] = 'fake2'
-        self.identity_api.update_tenant('fake1', tenant)
-        tenant_ref = self.identity_api.get_tenant('fake1')
+        self.identity_api.update_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           'fake2')
 
     def test_add_duplicate_role_grant(self):
-        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+        roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn('keystone_admin', roles_ref)
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
         self.assertRaises(exception.Conflict,
-                          self.identity_api.add_role_to_user_and_tenant,
+                          self.identity_api.add_role_to_user_and_project,
                           self.user_foo['id'],
                           self.tenant_bar['id'],
                           'keystone_admin')
 
-    def test_get_role_by_user_and_tenant(self):
-        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+    def test_get_role_by_user_and_project(self):
+        roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn('keystone_admin', roles_ref)
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'keystone_admin')
-        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+        roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertIn('keystone_admin', roles_ref)
         self.assertNotIn('member', roles_ref)
 
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'member')
-        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+        roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertIn('keystone_admin', roles_ref)
         self.assertIn('member', roles_ref)
 
-    def test_get_roles_for_user_and_tenant_404(self):
+    def test_get_roles_for_user_and_project_404(self):
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_roles_for_user_and_tenant,
+                          self.identity_api.get_roles_for_user_and_project,
                           uuid.uuid4().hex,
                           self.tenant_bar['id'])
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_roles_for_user_and_tenant,
+                          self.identity_api.get_roles_for_user_and_project,
                           self.user_foo['id'],
                           uuid.uuid4().hex)
 
-    def test_add_role_to_user_and_tenant_404(self):
+    def test_add_role_to_user_and_project_404(self):
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.add_role_to_user_and_tenant,
+                          self.identity_api.add_role_to_user_and_project,
                           uuid.uuid4().hex,
                           self.tenant_bar['id'],
                           'keystone_admin')
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.add_role_to_user_and_tenant,
+                          self.identity_api.add_role_to_user_and_project,
                           self.user_foo['id'],
                           uuid.uuid4().hex,
                           'keystone_admin')
 
         self.assertRaises(exception.RoleNotFound,
-                          self.identity_api.add_role_to_user_and_tenant,
+                          self.identity_api.add_role_to_user_and_project,
                           self.user_foo['id'],
                           self.tenant_bar['id'],
                           uuid.uuid4().hex)
 
-    def test_remove_role_from_user_and_tenant(self):
-        self.identity_api.add_role_to_user_and_tenant(
+    def test_remove_role_from_user_and_project(self):
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'member')
-        self.identity_api.remove_role_from_user_and_tenant(
+        self.identity_api.remove_role_from_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], 'member')
-        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+        roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn('member', roles_ref)
         self.assertRaises(exception.NotFound,
-                          self.identity_api.remove_role_from_user_and_tenant,
+                          self.identity_api.remove_role_from_user_and_project,
                           self.user_foo['id'],
                           self.tenant_bar['id'],
                           'member')
@@ -589,61 +590,61 @@ class IdentityTests(object):
                           role['id'],
                           role)
 
-    def test_add_user_to_tenant(self):
-        self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
-                                             self.user_foo['id'])
-        tenants = self.identity_api.get_tenants_for_user(self.user_foo['id'])
+    def test_add_user_to_project(self):
+        self.identity_api.add_user_to_project(self.tenant_bar['id'],
+                                              self.user_foo['id'])
+        tenants = self.identity_api.get_projects_for_user(self.user_foo['id'])
         self.assertIn(self.tenant_bar['id'], tenants)
 
-    def test_add_user_to_tenant_404(self):
+    def test_add_user_to_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.add_user_to_tenant,
+                          self.identity_api.add_user_to_project,
                           uuid.uuid4().hex,
                           self.user_foo['id'])
 
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.add_user_to_tenant,
+                          self.identity_api.add_user_to_project,
                           self.tenant_bar['id'],
                           uuid.uuid4().hex)
 
-    def test_remove_user_from_tenant(self):
-        self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
-                                             self.user_foo['id'])
-        self.identity_api.remove_user_from_tenant(self.tenant_bar['id'],
-                                                  self.user_foo['id'])
-        tenants = self.identity_api.get_tenants_for_user(self.user_foo['id'])
+    def test_remove_user_from_project(self):
+        self.identity_api.add_user_to_project(self.tenant_bar['id'],
+                                              self.user_foo['id'])
+        self.identity_api.remove_user_from_project(self.tenant_bar['id'],
+                                                   self.user_foo['id'])
+        tenants = self.identity_api.get_projects_for_user(self.user_foo['id'])
         self.assertNotIn(self.tenant_bar['id'], tenants)
 
-    def test_remove_user_from_tenant_404(self):
+    def test_remove_user_from_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.remove_user_from_tenant,
+                          self.identity_api.remove_user_from_project,
                           uuid.uuid4().hex,
                           self.user_foo['id'])
 
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.remove_user_from_tenant,
+                          self.identity_api.remove_user_from_project,
                           self.tenant_bar['id'],
                           uuid.uuid4().hex)
 
         self.assertRaises(exception.NotFound,
-                          self.identity_api.remove_user_from_tenant,
+                          self.identity_api.remove_user_from_project,
                           self.tenant_baz['id'],
                           self.user_foo['id'])
 
-    def test_get_tenants_for_user_404(self):
+    def test_get_projects_for_user_404(self):
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_tenants_for_user,
+                          self.identity_api.get_projects_for_user,
                           uuid.uuid4().hex)
 
-    def test_update_tenant_404(self):
+    def test_update_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           uuid.uuid4().hex,
                           dict())
 
-    def test_delete_tenant_404(self):
+    def test_delete_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.delete_tenant,
+                          self.identity_api.delete_project,
                           uuid.uuid4().hex)
 
     def test_update_user_404(self):
@@ -653,16 +654,16 @@ class IdentityTests(object):
                           user_id,
                           {'id': user_id})
 
-    def test_delete_user_with_tenant_association(self):
+    def test_delete_user_with_project_association(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
                 'password': uuid.uuid4().hex}
         self.identity_api.create_user(user['id'], user)
-        self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
-                                             user['id'])
+        self.identity_api.add_user_to_project(self.tenant_bar['id'],
+                                              user['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_tenants_for_user,
+                          self.identity_api.get_projects_for_user,
                           user['id'])
 
     def test_delete_user_404(self):
@@ -675,62 +676,62 @@ class IdentityTests(object):
                           self.identity_api.delete_role,
                           uuid.uuid4().hex)
 
-    def test_create_tenant_long_name_fails(self):
+    def test_create_project_long_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'a' * 65}
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
 
-    def test_create_tenant_blank_name_fails(self):
+    def test_create_project_blank_name_fails(self):
         tenant = {'id': 'fake1', 'name': ''}
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
 
-    def test_create_tenant_invalid_name_fails(self):
+    def test_create_project_invalid_name_fails(self):
         tenant = {'id': 'fake1', 'name': None}
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
         tenant = {'id': 'fake1', 'name': 123}
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
 
-    def test_update_tenant_blank_name_fails(self):
+    def test_update_project_blank_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1'}
-        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = ''
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           tenant['id'],
                           tenant)
 
-    def test_update_tenant_long_name_fails(self):
+    def test_update_project_long_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1'}
-        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = 'a' * 65
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           tenant['id'],
                           tenant)
 
-    def test_update_tenant_invalid_name_fails(self):
+    def test_update_project_invalid_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1'}
-        self.identity_api.create_tenant('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = None
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           tenant['id'],
                           tenant)
 
         tenant['name'] = 123
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           tenant['id'],
                           tenant)
 
@@ -805,19 +806,20 @@ class IdentityTests(object):
         for test_role in default_fixtures.ROLES:
             self.assertTrue(x for x in roles if x['id'] == test_role['id'])
 
-    def test_get_tenants(self):
-        tenants = self.identity_api.get_tenants()
-        for test_tenant in default_fixtures.TENANTS:
-            self.assertTrue(x for x in tenants if x['id'] == test_tenant['id'])
+    def test_get_projects(self):
+        tenants = self.identity_api.get_projects()
+        for test_project in default_fixtures.TENANTS:
+            self.assertTrue(x for x in tenants
+                            if x['id'] == test_project['id'])
 
-    def test_delete_tenant_with_role_assignments(self):
+    def test_delete_project_with_role_assignments(self):
         tenant = {'id': 'fake1', 'name': 'fake1'}
-        self.identity_api.create_tenant('fake1', tenant)
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.create_project('fake1', tenant)
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], tenant['id'], 'member')
-        self.identity_api.delete_tenant(tenant['id'])
+        self.identity_api.delete_project(tenant['id'])
         self.assertRaises(exception.NotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           tenant['id'])
 
     def test_delete_role_check_role_grant(self):
@@ -825,21 +827,21 @@ class IdentityTests(object):
         alt_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_role(role['id'], role)
         self.identity_api.create_role(alt_role['id'], alt_role)
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], role['id'])
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], alt_role['id'])
         self.identity_api.delete_role(role['id'])
-        roles_ref = self.identity_api.get_roles_for_user_and_tenant(
+        roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(role['id'], roles_ref)
         self.assertIn(alt_role['id'], roles_ref)
 
-    def test_create_tenant_doesnt_modify_passed_in_dict(self):
-        new_tenant = {'id': 'tenant_id', 'name': 'new_tenant'}
-        original_tenant = new_tenant.copy()
-        self.identity_api.create_tenant('tenant_id', new_tenant)
-        self.assertDictEqual(original_tenant, new_tenant)
+    def test_create_project_doesnt_modify_passed_in_dict(self):
+        new_project = {'id': 'tenant_id', 'name': 'new_project'}
+        original_project = new_project.copy()
+        self.identity_api.create_project('tenant_id', new_project)
+        self.assertDictEqual(original_project, new_project)
 
     def test_create_user_doesnt_modify_passed_in_dict(self):
         new_user = {'id': 'user_id', 'name': 'new_user',
@@ -864,20 +866,20 @@ class IdentityTests(object):
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
-    def test_update_tenant_enable(self):
+    def test_update_project_enable(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
-        self.identity_api.create_tenant('fake1', tenant)
-        tenant_ref = self.identity_api.get_tenant('fake1')
+        self.identity_api.create_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['enabled'], True)
 
         tenant['enabled'] = False
-        self.identity_api.update_tenant('fake1', tenant)
-        tenant_ref = self.identity_api.get_tenant('fake1')
+        self.identity_api.update_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])
 
         tenant['enabled'] = True
-        self.identity_api.update_tenant('fake1', tenant)
-        tenant_ref = self.identity_api.get_tenant('fake1')
+        self.identity_api.update_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])
 
     def test_add_user_to_group(self):

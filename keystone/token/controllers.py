@@ -169,9 +169,9 @@ class Auth(controller.V2Controller):
         current_user_ref = self.identity_api.get_user(context=context,
                                                       user_id=user_id)
 
-        tenant_id = self._get_tenant_id_from_auth(context, auth)
+        tenant_id = self._get_project_id_from_auth(context, auth)
 
-        tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
+        tenant_ref = self._get_project_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
 
         self._append_roles(metadata_ref,
@@ -222,7 +222,7 @@ class Auth(controller.V2Controller):
             except exception.UserNotFound as e:
                 raise exception.Unauthorized(e)
 
-        tenant_id = self._get_tenant_id_from_auth(context, auth)
+        tenant_id = self._get_project_id_from_auth(context, auth)
 
         try:
             auth_info = self.identity_api.authenticate(
@@ -266,9 +266,9 @@ class Auth(controller.V2Controller):
         except exception.UserNotFound as e:
             raise exception.Unauthorized(e)
 
-        tenant_id = self._get_tenant_id_from_auth(context, auth)
+        tenant_id = self._get_project_id_from_auth(context, auth)
 
-        tenant_ref = self._get_tenant_ref(context, user_id, tenant_id)
+        tenant_ref = self._get_project_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
 
         self._append_roles(metadata_ref,
@@ -293,7 +293,7 @@ class Auth(controller.V2Controller):
                          metadata=metadata,
                          expires=expiry))
 
-    def _get_tenant_id_from_auth(self, context, auth):
+    def _get_project_id_from_auth(self, context, auth):
         """Extract tenant information from auth dict.
 
         Returns a valid tenant_id if it exists, or None if not specified.
@@ -302,18 +302,18 @@ class Auth(controller.V2Controller):
         tenant_name = auth.get('tenantName', None)
         if tenant_name:
             try:
-                tenant_ref = self.identity_api.get_tenant_by_name(
+                tenant_ref = self.identity_api.get_project_by_name(
                     context=context, tenant_name=tenant_name)
                 tenant_id = tenant_ref['id']
             except exception.ProjectNotFound as e:
                 raise exception.Unauthorized(e)
         return tenant_id
 
-    def _get_tenant_ref(self, context, user_id, tenant_id):
+    def _get_project_ref(self, context, user_id, tenant_id):
         """Returns the tenant_ref for the user's tenant"""
         tenant_ref = None
         if tenant_id:
-            tenants = self.identity_api.get_tenants_for_user(context, user_id)
+            tenants = self.identity_api.get_projects_for_user(context, user_id)
             if tenant_id not in tenants:
                 msg = 'User %s is unauthorized for tenant %s' % (
                     user_id, tenant_id)
@@ -321,8 +321,8 @@ class Auth(controller.V2Controller):
                 raise exception.Unauthorized(msg)
 
             try:
-                tenant_ref = self.identity_api.get_tenant(context=context,
-                                                          tenant_id=tenant_id)
+                tenant_ref = self.identity_api.get_project(context=context,
+                                                           tenant_id=tenant_id)
             except exception.ProjectNotFound as e:
                 exception.Unauthorized(e)
         return tenant_ref

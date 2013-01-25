@@ -24,7 +24,7 @@ class Public(wsgi.ComposableRouter):
         tenant_controller = controllers.Tenant()
         mapper.connect('/tenants',
                        controller=tenant_controller,
-                       action='get_tenants_for_token',
+                       action='get_projects_for_token',
                        conditions=dict(method=['GET']))
 
 
@@ -34,11 +34,11 @@ class Admin(wsgi.ComposableRouter):
         tenant_controller = controllers.Tenant()
         mapper.connect('/tenants',
                        controller=tenant_controller,
-                       action='get_all_tenants',
+                       action='get_all_projects',
                        conditions=dict(method=['GET']))
         mapper.connect('/tenants/{tenant_id}',
                        controller=tenant_controller,
-                       action='get_tenant',
+                       action='get_project',
                        conditions=dict(method=['GET']))
 
         # User Operations

@@ -71,10 +71,10 @@ class PamIdentity(identity.Driver):
 
             return (user, tenant, metadata)
 
-    def get_tenant(self, tenant_id):
+    def get_project(self, tenant_id):
         return {'id': tenant_id, 'name': tenant_id}
 
-    def get_tenant_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name):
         return {'id': tenant_name, 'name': tenant_name}
 
     def get_user(self, user_id):
@@ -92,25 +92,25 @@ class PamIdentity(identity.Driver):
     def list_roles(self):
         raise NotImplementedError()
 
-    def add_user_to_tenant(self, tenant_id, user_id):
+    def add_user_to_project(self, tenant_id, user_id):
         pass
 
-    def remove_user_from_tenant(self, tenant_id, user_id):
+    def remove_user_from_project(self, tenant_id, user_id):
         pass
 
-    def get_all_tenants(self):
+    def get_all_projects(self):
         raise NotImplementedError()
 
-    def get_tenants_for_user(self, user_id):
+    def get_projects_for_user(self, user_id):
         return [user_id]
 
-    def get_roles_for_user_and_tenant(self, user_id, tenant_id):
+    def get_roles_for_user_and_project(self, user_id, tenant_id):
         raise NotImplementedError()
 
-    def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         raise NotImplementedError()
 
-    def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
+    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         raise NotImplementedError()
 
     def create_user(self, user_id, user):
@@ -122,13 +122,13 @@ class PamIdentity(identity.Driver):
     def delete_user(self, user_id):
         raise NotImplementedError()
 
-    def create_tenant(self, tenant_id, tenant):
+    def create_project(self, tenant_id, tenant):
         raise NotImplementedError()
 
-    def update_tenant(self, tenant_id, tenant):
+    def update_project(self, tenant_id, tenant):
         raise NotImplementedError()
 
-    def delete_tenant(self, tenant_id, tenant):
+    def delete_project(self, tenant_id, tenant):
         raise NotImplementedError()
 
     def get_metadata(self, user_id, tenant_id):
