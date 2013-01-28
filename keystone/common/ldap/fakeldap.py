@@ -321,7 +321,10 @@ class FakeLdap(object):
         objects = []
         for dn, attrs in results:
             # filter the objects by query
-            if not query or _match_query(query, attrs):
+            id_attr, id_val = dn.partition(',')[0].split('=', 1)
+            match_attrs = attrs.copy()
+            match_attrs[id_attr] = [id_val]
+            if not query or _match_query(query, match_attrs):
                 # filter the attributes by fields
                 attrs = dict([(k, v) for k, v in attrs.iteritems()
                               if not fields or k in fields])
