@@ -27,6 +27,10 @@ CONF = config.CONF
 
 
 class IPv6TestCase(test.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.skip_if_no_ipv6()
+
     def setUp(self):
         super(IPv6TestCase, self).setUp()
         self.load_backends()
