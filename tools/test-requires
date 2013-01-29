@@ -20,7 +20,7 @@ distribute>=0.6.24
 
 # for python-keystoneclient
 httplib2 # keystoneclient <0.2.1
-requests<1.0 # replaces httplib2 in keystoneclient >=0.2.1
+requests>=1.0.0 # replaces httplib2 in keystoneclient >=0.2.1
 keyring
 
 # swift_auth test dependencies
