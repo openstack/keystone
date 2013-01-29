@@ -80,7 +80,7 @@ class Domain(sql.ModelBase, sql.DictBase):
 
 
 # TODO(dolph): rename to Project
-class Tenant(sql.ModelBase, sql.DictBase):
+class Project(sql.ModelBase, sql.DictBase):
     __tablename__ = 'project'
     attributes = ['id', 'name']
     id = sql.Column(sql.String(64), primary_key=True)
@@ -139,8 +139,8 @@ class GroupDomainGrant(sql.ModelBase, BaseGrant):
 
 
 # TODO(dolph): ... do we need this table?
-class UserTenantMembership(sql.ModelBase, sql.DictBase):
-    """Tenant membership join table."""
+class UserProjectMembership(sql.ModelBase, sql.DictBase):
+    """Project membership join table."""
     __tablename__ = 'user_project_membership'
     user_id = sql.Column(sql.String(64),
                          sql.ForeignKey('user.id'),
@@ -207,7 +207,7 @@ class Identity(sql.Base, identity.Driver):
             try:
                 tenant_ref = self.get_tenant(tenant_id)
                 metadata_ref = self.get_metadata(user_id, tenant_id)
-            except exception.TenantNotFound:
+            except exception.ProjectNotFound:
                 tenant_ref = None
                 metadata_ref = {}
             except exception.MetadataNotFound:
@@ -217,24 +217,24 @@ class Identity(sql.Base, identity.Driver):
 
     def get_tenant(self, tenant_id):
         session = self.get_session()
-        tenant_ref = session.query(Tenant).filter_by(id=tenant_id).first()
+        tenant_ref = session.query(Project).filter_by(id=tenant_id).first()
         if tenant_ref is None:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
         return tenant_ref.to_dict()
 
     def get_tenant_by_name(self, tenant_name):
         session = self.get_session()
-        tenant_ref = session.query(Tenant).filter_by(name=tenant_name).first()
+        tenant_ref = session.query(Project).filter_by(name=tenant_name).first()
         if not tenant_ref:
-            raise exception.TenantNotFound(tenant_id=tenant_name)
+            raise exception.ProjectNotFound(project_id=tenant_name)
         return tenant_ref.to_dict()
 
     def get_tenant_users(self, tenant_id):
         session = self.get_session()
         self.get_tenant(tenant_id)
         query = session.query(User)
-        query = query.join(UserTenantMembership)
-        query = query.filter(UserTenantMembership.tenant_id == tenant_id)
+        query = query.join(UserProjectMembership)
+        query = query.filter(UserProjectMembership.tenant_id == tenant_id)
         user_refs = query.all()
         return [identity.filter_user(user_ref.to_dict())
                 for user_ref in user_refs]
@@ -371,7 +371,7 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         self.get_tenant(tenant_id)
         self.get_user(user_id)
-        query = session.query(UserTenantMembership)
+        query = session.query(UserProjectMembership)
         query = query.filter_by(user_id=user_id)
         query = query.filter_by(tenant_id=tenant_id)
         rv = query.first()
@@ -379,15 +379,15 @@ class Identity(sql.Base, identity.Driver):
             return
 
         with session.begin():
-            session.add(UserTenantMembership(user_id=user_id,
-                                             tenant_id=tenant_id))
+            session.add(UserProjectMembership(user_id=user_id,
+                                              tenant_id=tenant_id))
             session.flush()
 
     def remove_user_from_tenant(self, tenant_id, user_id):
         session = self.get_session()
         self.get_tenant(tenant_id)
         self.get_user(user_id)
-        query = session.query(UserTenantMembership)
+        query = session.query(UserProjectMembership)
         query = query.filter_by(user_id=user_id)
         query = query.filter_by(tenant_id=tenant_id)
         membership_ref = query.first()
@@ -399,13 +399,13 @@ class Identity(sql.Base, identity.Driver):
 
     def get_tenants(self):
         session = self.get_session()
-        tenant_refs = session.query(Tenant).all()
+        tenant_refs = session.query(Project).all()
         return [tenant_ref.to_dict() for tenant_ref in tenant_refs]
 
     def get_tenants_for_user(self, user_id):
         session = self.get_session()
         self.get_user(user_id)
-        query = session.query(UserTenantMembership)
+        query = session.query(UserProjectMembership)
         query = query.filter_by(user_id=user_id)
         membership_refs = query.all()
         return [x.tenant_id for x in membership_refs]
@@ -466,7 +466,7 @@ class Identity(sql.Base, identity.Driver):
         tenant['name'] = clean.tenant_name(tenant['name'])
         session = self.get_session()
         with session.begin():
-            tenant_ref = Tenant.from_dict(tenant)
+            tenant_ref = Project.from_dict(tenant)
             session.add(tenant_ref)
             session.flush()
         return tenant_ref.to_dict()
@@ -479,15 +479,15 @@ class Identity(sql.Base, identity.Driver):
             tenant['name'] = clean.tenant_name(tenant['name'])
 
         try:
-            tenant_ref = session.query(Tenant).filter_by(id=tenant_id).one()
+            tenant_ref = session.query(Project).filter_by(id=tenant_id).one()
         except sql.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
 
         with session.begin():
             old_tenant_dict = tenant_ref.to_dict()
             for k in tenant:
                 old_tenant_dict[k] = tenant[k]
-            new_tenant = Tenant.from_dict(old_tenant_dict)
+            new_tenant = Project.from_dict(old_tenant_dict)
             tenant_ref.name = new_tenant.name
             tenant_ref.extra = new_tenant.extra
             session.flush()
@@ -497,12 +497,12 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
 
         try:
-            tenant_ref = session.query(Tenant).filter_by(id=tenant_id).one()
+            tenant_ref = session.query(Project).filter_by(id=tenant_id).one()
         except sql.NotFound:
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
 
         with session.begin():
-            q = session.query(UserTenantMembership)
+            q = session.query(UserProjectMembership)
             q = q.filter_by(tenant_id=tenant_id)
             q.delete(False)
 
@@ -514,8 +514,9 @@ class Identity(sql.Base, identity.Driver):
             q = q.filter_by(project_id=tenant_id)
             q.delete(False)
 
-            if not session.query(Tenant).filter_by(id=tenant_id).delete(False):
-                raise exception.TenantNotFound(tenant_id=tenant_id)
+            delete_query = session.query(Project).filter_by(id=tenant_id)
+            if not delete_query.delete(False):
+                raise exception.ProjectNotFound(project_id=tenant_id)
 
             session.delete(tenant_ref)
             session.flush()
@@ -642,14 +643,14 @@ class Identity(sql.Base, identity.Driver):
     def update_project(self, project_id, project):
         session = self.get_session()
         with session.begin():
-            ref = session.query(Tenant).filter_by(id=project_id).first()
+            ref = session.query(Project).filter_by(id=project_id).first()
             if ref is None:
-                raise exception.TenantNotFound(project_id=project_id)
+                raise exception.ProjectNotFound(project_id=project_id)
             old_dict = ref.to_dict()
             for k in project:
                 old_dict[k] = project[k]
-            new_project = Tenant.from_dict(old_dict)
-            for attr in Tenant.attributes:
+            new_project = Project.from_dict(old_dict)
+            for attr in Project.attributes:
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_project, attr))
             ref.extra = new_project.extra
@@ -804,7 +805,7 @@ class Identity(sql.Base, identity.Driver):
             raise exception.UserNotFound(user_id=user_id)
 
         with session.begin():
-            q = session.query(UserTenantMembership)
+            q = session.query(UserProjectMembership)
             q = q.filter_by(user_id=user_id)
             q.delete(False)
 

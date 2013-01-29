@@ -143,11 +143,7 @@ class DomainNotFound(NotFound):
     """Could not find domain: %(domain_id)s"""
 
 
-class TenantNotFound(NotFound):
-    """Could not find tenant: %(tenant_id)s"""
-
-
-class ProjectNotFound(TenantNotFound):
+class ProjectNotFound(NotFound):
     """Could not find project: %(project_id)s"""
 
 

@@ -54,7 +54,7 @@ class KvsCatalog(test.TestCase, test_backend.CatalogTests):
 
     def test_get_catalog_404(self):
         # FIXME(dolph): this test should be moved up to test_backend
-        # FIXME(dolph): exceptions should be UserNotFound and TenantNotFound
+        # FIXME(dolph): exceptions should be UserNotFound and ProjectNotFound
         self.assertRaises(exception.NotFound,
                           self.catalog_api.get_catalog,
                           uuid.uuid4().hex,

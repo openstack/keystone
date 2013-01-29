@@ -178,7 +178,7 @@ class User(controller.V2Controller):
         tenant_id = user.get('tenantId', None)
         if (tenant_id is not None
                 and self.identity_api.get_tenant(context, tenant_id) is None):
-            raise exception.TenantNotFound(tenant_id=tenant_id)
+            raise exception.ProjectNotFound(project_id=tenant_id)
         user_id = uuid.uuid4().hex
         user_ref = user.copy()
         user_ref['id'] = user_id

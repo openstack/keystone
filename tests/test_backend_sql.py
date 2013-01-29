@@ -96,10 +96,10 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           self.identity_api.create_tenant,
                           tenant['id'],
                           tenant)
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant,
                           tenant['id'])
-        self.assertRaises(exception.TenantNotFound,
+        self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_tenant_by_name,
                           tenant['name'])
 
