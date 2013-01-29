@@ -27,15 +27,15 @@ Please see the documentation under ``doc/source/`` for development setup
 Building the Documentation
 --------------------------
 
-The documentation is all generated with Sphinx from within the docs directory.
+The documentation is all generated with Sphinx from within the doc directory.
 To generate the full set of HTML documentation::
 
-    cd docs
+    cd doc
     make autodoc
     make html
     make man
 
-the results are in the ``docs/build/html`` and ``docs/build/man`` directories
+the results are in the ``doc/build/html`` and ``doc/build/man`` directories
 respectively.
 
 
