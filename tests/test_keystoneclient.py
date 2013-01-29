@@ -995,8 +995,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         rv = self.public_server.application(
             req.environ,
             responseobject.start_fake_response)
-        responce_json = jsonutils.loads(rv.next())
-        new_token_id = responce_json['access']['token']['id']
+        response_json = jsonutils.loads(rv.pop())
+        new_token_id = response_json['access']['token']['id']
 
         self.assertRaises(client_exceptions.Unauthorized, client.tenants.list)
         client.auth_token = new_token_id
