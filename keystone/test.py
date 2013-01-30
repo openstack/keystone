@@ -233,7 +233,7 @@ class TestCase(NoModule, unittest.TestCase):
         #               loaddata will be much preferred.
         if hasattr(self, 'identity_api'):
             for tenant in fixtures.TENANTS:
-                rv = self.identity_api.create_tenant(tenant['id'], tenant)
+                rv = self.identity_api.create_project(tenant['id'], tenant)
                 setattr(self, 'tenant_%s' % tenant['id'], rv)
 
             for user in fixtures.USERS:
@@ -242,7 +242,8 @@ class TestCase(NoModule, unittest.TestCase):
                 rv = self.identity_api.create_user(user['id'],
                                                    user_copy.copy())
                 for tenant_id in tenants:
-                    self.identity_api.add_user_to_tenant(tenant_id, user['id'])
+                    self.identity_api.add_user_to_project(tenant_id,
+                                                          user['id'])
                 setattr(self, 'user_%s' % user['id'], user_copy)
 
             for role in fixtures.ROLES:

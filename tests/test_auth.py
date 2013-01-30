@@ -150,7 +150,7 @@ class AuthWithToken(AuthTest):
             self.api.authenticate,
             {}, body_dict)
 
-    def test_auth_unscoped_token_no_tenant(self):
+    def test_auth_unscoped_token_no_project(self):
         """Verify getting an unscoped token with an unscoped token"""
         body_dict = _build_user_auth(
             username='FOO',
@@ -163,10 +163,10 @@ class AuthWithToken(AuthTest):
 
         self.assertEqualTokens(unscoped_token, unscoped_token_2)
 
-    def test_auth_unscoped_token_tenant(self):
+    def test_auth_unscoped_token_project(self):
         """Verify getting a token in a tenant with an unscoped token"""
         # Add a role in so we can check we get this back
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_member['id'])
@@ -186,10 +186,10 @@ class AuthWithToken(AuthTest):
         self.assertEquals(tenant["id"], self.tenant_bar['id'])
         self.assertEquals(roles[0], self.role_member['id'])
 
-    def test_auth_token_tenant_group_role(self):
+    def test_auth_token_project_group_role(self):
         """Verify getting a token in a tenant with group roles"""
         # Add a v2 style role in so we can check we get this back
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_member['id'])

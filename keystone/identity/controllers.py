@@ -29,21 +29,21 @@ LOG = logging.getLogger(__name__)
 
 
 class Tenant(controller.V2Controller):
-    def get_all_tenants(self, context, **kw):
+    def get_all_projects(self, context, **kw):
         """Gets a list of all tenants for an admin user."""
         if 'name' in context['query_string']:
-            return self.get_tenant_by_name(
+            return self.get_project_by_name(
                 context, context['query_string'].get('name'))
 
         self.assert_admin(context)
-        tenant_refs = self.identity_api.get_tenants(context)
+        tenant_refs = self.identity_api.get_projects(context)
         params = {
             'limit': context['query_string'].get('limit'),
             'marker': context['query_string'].get('marker'),
         }
-        return self._format_tenant_list(tenant_refs, **params)
+        return self._format_project_list(tenant_refs, **params)
 
-    def get_tenants_for_token(self, context, **kw):
+    def get_projects_for_token(self, context, **kw):
         """Get valid tenants for token based on token used to authenticate.
 
         Pulls the token from the context, validates it and gets the valid
@@ -60,31 +60,31 @@ class Tenant(controller.V2Controller):
             raise exception.Unauthorized(e)
 
         user_ref = token_ref['user']
-        tenant_ids = self.identity_api.get_tenants_for_user(
+        tenant_ids = self.identity_api.get_projects_for_user(
             context, user_ref['id'])
         tenant_refs = []
         for tenant_id in tenant_ids:
-            tenant_refs.append(self.identity_api.get_tenant(
+            tenant_refs.append(self.identity_api.get_project(
                 context=context,
                 tenant_id=tenant_id))
         params = {
             'limit': context['query_string'].get('limit'),
             'marker': context['query_string'].get('marker'),
         }
-        return self._format_tenant_list(tenant_refs, **params)
+        return self._format_project_list(tenant_refs, **params)
 
-    def get_tenant(self, context, tenant_id):
+    def get_project(self, context, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-        return {'tenant': self.identity_api.get_tenant(context, tenant_id)}
+        return {'tenant': self.identity_api.get_project(context, tenant_id)}
 
-    def get_tenant_by_name(self, context, tenant_name):
+    def get_project_by_name(self, context, tenant_name):
         self.assert_admin(context)
-        return {'tenant': self.identity_api.get_tenant_by_name(
+        return {'tenant': self.identity_api.get_project_by_name(
             context, tenant_name)}
 
     # CRUD Extension
-    def create_tenant(self, context, tenant):
+    def create_project(self, context, tenant):
         tenant_ref = self._normalize_dict(tenant)
 
         if not 'name' in tenant_ref or not tenant_ref['name']:
@@ -93,26 +93,26 @@ class Tenant(controller.V2Controller):
 
         self.assert_admin(context)
         tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
-        tenant = self.identity_api.create_tenant(
+        tenant = self.identity_api.create_project(
             context, tenant_ref['id'], tenant_ref)
         return {'tenant': tenant}
 
-    def update_tenant(self, context, tenant_id, tenant):
+    def update_project(self, context, tenant_id, tenant):
         self.assert_admin(context)
-        tenant_ref = self.identity_api.update_tenant(
+        tenant_ref = self.identity_api.update_project(
             context, tenant_id, tenant)
         return {'tenant': tenant_ref}
 
-    def delete_tenant(self, context, tenant_id):
+    def delete_project(self, context, tenant_id):
         self.assert_admin(context)
-        self.identity_api.delete_tenant(context, tenant_id)
+        self.identity_api.delete_project(context, tenant_id)
 
-    def get_tenant_users(self, context, tenant_id, **kw):
+    def get_project_users(self, context, tenant_id, **kw):
         self.assert_admin(context)
-        user_refs = self.identity_api.get_tenant_users(context, tenant_id)
+        user_refs = self.identity_api.get_project_users(context, tenant_id)
         return {'users': user_refs}
 
-    def _format_tenant_list(self, tenant_refs, **kwargs):
+    def _format_project_list(self, tenant_refs, **kwargs):
         marker = kwargs.get('marker')
         first_index = 0
         if marker is not None:
@@ -177,7 +177,7 @@ class User(controller.V2Controller):
 
         tenant_id = user.get('tenantId', None)
         if (tenant_id is not None
-                and self.identity_api.get_tenant(context, tenant_id) is None):
+                and self.identity_api.get_project(context, tenant_id) is None):
             raise exception.ProjectNotFound(project_id=tenant_id)
         user_id = uuid.uuid4().hex
         user_ref = user.copy()
@@ -185,7 +185,7 @@ class User(controller.V2Controller):
         new_user_ref = self.identity_api.create_user(
             context, user_id, user_ref)
         if tenant_id:
-            self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+            self.identity_api.add_user_to_project(context, tenant_id, user_id)
         return {'user': new_user_ref}
 
     def update_user(self, context, user_id, user):
@@ -215,12 +215,12 @@ class User(controller.V2Controller):
     def set_user_password(self, context, user_id, user):
         return self.update_user(context, user_id, user)
 
-    def update_user_tenant(self, context, user_id, user):
+    def update_user_project(self, context, user_id, user):
         """Update the default tenant."""
         self.assert_admin(context)
         # ensure that we're a member of that tenant
         tenant_id = user.get('tenantId')
-        self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
+        self.identity_api.add_user_to_project(context, tenant_id, user_id)
         return self.update_user(context, user_id, user)
 
 
@@ -238,7 +238,7 @@ class Role(controller.V2Controller):
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant ID required')
 
-        roles = self.identity_api.get_roles_for_user_and_tenant(
+        roles = self.identity_api.get_roles_for_user_and_project(
             context, user_id, tenant_id)
         return {'roles': [self.identity_api.get_role(context, x)
                           for x in roles]}
@@ -283,8 +283,8 @@ class Role(controller.V2Controller):
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant
-        self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_user_to_project(context, tenant_id, user_id)
+        self.identity_api.add_role_to_user_and_project(
             context, user_id, tenant_id, role_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 
@@ -305,12 +305,12 @@ class Role(controller.V2Controller):
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant, so we must follow up on that
-        self.identity_api.remove_role_from_user_and_tenant(
+        self.identity_api.remove_role_from_user_and_project(
             context, user_id, tenant_id, role_id)
-        roles = self.identity_api.get_roles_for_user_and_tenant(
+        roles = self.identity_api.get_roles_for_user_and_project(
             context, user_id, tenant_id)
         if not roles:
-            self.identity_api.remove_user_from_tenant(
+            self.identity_api.remove_user_from_project(
                 context, tenant_id, user_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 
@@ -327,10 +327,10 @@ class Role(controller.V2Controller):
         self.assert_admin(context)
         # Ensure user exists by getting it first.
         self.identity_api.get_user(context, user_id)
-        tenant_ids = self.identity_api.get_tenants_for_user(context, user_id)
+        tenant_ids = self.identity_api.get_projects_for_user(context, user_id)
         o = []
         for tenant_id in tenant_ids:
-            role_ids = self.identity_api.get_roles_for_user_and_tenant(
+            role_ids = self.identity_api.get_roles_for_user_and_project(
                 context, user_id, tenant_id)
             for role_id in role_ids:
                 ref = {'roleId': role_id,
@@ -352,8 +352,8 @@ class Role(controller.V2Controller):
         # TODO(termie): for now we're ignoring the actual role
         tenant_id = role.get('tenantId')
         role_id = role.get('roleId')
-        self.identity_api.add_user_to_tenant(context, tenant_id, user_id)
-        self.identity_api.add_role_to_user_and_tenant(
+        self.identity_api.add_user_to_project(context, tenant_id, user_id)
+        self.identity_api.add_role_to_user_and_project(
             context, user_id, tenant_id, role_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 
@@ -377,12 +377,12 @@ class Role(controller.V2Controller):
         role_ref_ref = urlparse.parse_qs(role_ref_id)
         tenant_id = role_ref_ref.get('tenantId')[0]
         role_id = role_ref_ref.get('roleId')[0]
-        self.identity_api.remove_role_from_user_and_tenant(
+        self.identity_api.remove_role_from_user_and_project(
             context, user_id, tenant_id, role_id)
-        roles = self.identity_api.get_roles_for_user_and_tenant(
+        roles = self.identity_api.get_roles_for_user_and_project(
             context, user_id, tenant_id)
         if not roles:
-            self.identity_api.remove_user_from_tenant(
+            self.identity_api.remove_user_from_project(
                 context, tenant_id, user_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 

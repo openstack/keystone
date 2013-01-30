@@ -49,8 +49,8 @@ def domain_name(name):
     return check_name('Domain', name)
 
 
-def tenant_name(name):
-    return check_name('Tenant', name)
+def project_name(name):
+    return check_name('Project', name)
 
 
 def user_name(name):

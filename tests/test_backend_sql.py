@@ -62,16 +62,16 @@ class SqlTests(test.TestCase):
 
 
 class SqlIdentity(SqlTests, test_backend.IdentityTests):
-    def test_delete_user_with_tenant_association(self):
+    def test_delete_user_with_project_association(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
                 'password': uuid.uuid4().hex}
         self.identity_api.create_user(user['id'], user)
-        self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
-                                             user['id'])
+        self.identity_api.add_user_to_project(self.tenant_bar['id'],
+                                              user['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_tenants_for_user,
+                          self.identity_api.get_projects_for_user,
                           user['id'])
 
     def test_create_null_user_name(self):
@@ -89,18 +89,18 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           self.identity_api.get_user_by_name,
                           user['name'])
 
-    def test_create_null_tenant_name(self):
+    def test_create_null_project_name(self):
         tenant = {'id': uuid.uuid4().hex,
                   'name': None}
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           tenant['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant_by_name,
+                          self.identity_api.get_project_by_name,
                           tenant['name'])
 
     def test_create_null_role_name(self):
@@ -114,15 +114,15 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           self.identity_api.get_role,
                           role['id'])
 
-    def test_delete_tenant_with_user_association(self):
+    def test_delete_project_with_user_association(self):
         user = {'id': 'fake',
                 'name': 'fakeuser',
                 'password': 'passwd'}
         self.identity_api.create_user('fake', user)
-        self.identity_api.add_user_to_tenant(self.tenant_bar['id'],
-                                             user['id'])
-        self.identity_api.delete_tenant(self.tenant_bar['id'])
-        tenants = self.identity_api.get_tenants_for_user(user['id'])
+        self.identity_api.add_user_to_project(self.tenant_bar['id'],
+                                              user['id'])
+        self.identity_api.delete_project(self.tenant_bar['id'])
+        tenants = self.identity_api.get_projects_for_user(user['id'])
         self.assertEquals(tenants, [])
 
     def test_delete_user_with_metadata(self):
@@ -139,7 +139,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           user['id'],
                           self.tenant_bar['id'])
 
-    def test_delete_tenant_with_metadata(self):
+    def test_delete_project_with_metadata(self):
         user = {'id': 'fake',
                 'name': 'fakeuser',
                 'password': 'passwd'}
@@ -147,13 +147,13 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.identity_api.create_metadata(user['id'],
                                           self.tenant_bar['id'],
                                           {'extra': 'extra'})
-        self.identity_api.delete_tenant(self.tenant_bar['id'])
+        self.identity_api.delete_project(self.tenant_bar['id'])
         self.assertRaises(exception.MetadataNotFound,
                           self.identity_api.get_metadata,
                           user['id'],
                           self.tenant_bar['id'])
 
-    def test_update_tenant_returns_extra(self):
+    def test_update_project_returns_extra(self):
         """This tests for backwards-compatibility with an essex/folsom bug.
 
         Non-indexed attributes were returned in an 'extra' attribute, instead
@@ -170,12 +170,12 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             'id': tenant_id,
             'name': uuid.uuid4().hex,
             arbitrary_key: arbitrary_value}
-        ref = self.identity_api.create_tenant(tenant_id, tenant)
+        ref = self.identity_api.create_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertIsNone(ref.get('extra'))
 
         tenant['name'] = uuid.uuid4().hex
-        ref = self.identity_api.update_tenant(tenant_id, tenant)
+        ref = self.identity_api.update_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 

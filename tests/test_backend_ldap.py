@@ -116,26 +116,26 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.identity_api.delete_user,
                           self.user_foo['id'])
 
-    def test_configurable_allowed_tenant_actions(self):
+    def test_configurable_allowed_project_actions(self):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
         self.identity_api = identity_ldap.Identity()
 
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
-        self.identity_api.create_tenant('fake1', tenant)
-        tenant_ref = self.identity_api.get_tenant('fake1')
+        self.identity_api.create_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
 
         tenant['enabled'] = 'False'
-        self.identity_api.update_tenant('fake1', tenant)
+        self.identity_api.update_project('fake1', tenant)
 
-        self.identity_api.delete_tenant('fake1')
+        self.identity_api.delete_project('fake1')
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           'fake1')
 
-    def test_configurable_forbidden_tenant_actions(self):
+    def test_configurable_forbidden_project_actions(self):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
@@ -146,17 +146,17 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
         tenant = {'id': 'fake1', 'name': 'fake1'}
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.create_tenant,
+                          self.identity_api.create_project,
                           'fake1',
                           tenant)
 
         self.tenant_bar['enabled'] = 'False'
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.update_tenant,
+                          self.identity_api.update_project,
                           self.tenant_bar['id'],
                           self.tenant_bar)
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.delete_tenant,
+                          self.identity_api.delete_project,
                           self.tenant_bar['id'])
 
     def test_configurable_allowed_role_actions(self):
@@ -217,17 +217,17 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.identity_api.get_user,
                           self.user_foo['id'])
 
-    def test_tenant_filter(self):
+    def test_project_filter(self):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
-        tenant_ref = self.identity_api.get_tenant(self.tenant_bar['id'])
+        tenant_ref = self.identity_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
         CONF.ldap.tenant_filter = '(CN=DOES_NOT_MATCH)'
         self.identity_api = identity_ldap.Identity()
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_tenant,
+                          self.identity_api.get_project,
                           self.tenant_bar['id'])
 
     def test_role_filter(self):
@@ -299,7 +299,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertNotIn('enabled', user_ref)
         self.assertNotIn('tenants', user_ref)
 
-    def test_tenant_attribute_mapping(self):
+    def test_project_attribute_mapping(self):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
@@ -309,7 +309,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        tenant_ref = self.identity_api.get_tenant(self.tenant_baz['id'])
+        tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertEqual(tenant_ref['name'], self.tenant_baz['name'])
         self.assertEqual(
@@ -320,13 +320,13 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.tenant_name_attribute = 'desc'
         CONF.ldap.tenant_desc_attribute = 'ou'
         self.identity_api = identity_ldap.Identity()
-        tenant_ref = self.identity_api.get_tenant(self.tenant_baz['id'])
+        tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertEqual(tenant_ref['name'], self.tenant_baz['description'])
         self.assertEqual(tenant_ref['description'], self.tenant_baz['name'])
         self.assertEqual(tenant_ref['enabled'], self.tenant_baz['enabled'])
 
-    def test_tenant_attribute_ignore(self):
+    def test_project_attribute_ignore(self):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
@@ -336,7 +336,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         clear_database()
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
-        tenant_ref = self.identity_api.get_tenant(self.tenant_baz['id'])
+        tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertNotIn('name', tenant_ref)
         self.assertNotIn('description', tenant_ref)
