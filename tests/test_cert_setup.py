@@ -43,7 +43,7 @@ class CertSetupTestCase(test.TestCase):
         CONF.signing.keyfile = os.path.join(KEYDIR, "signing_key.pem")
 
     def test_create_certs(self):
-        ssl = openssl.ConfigurePKI()
+        ssl = openssl.ConfigurePKI(None, None)
         ssl.run()
         self.assertTrue(os.path.exists(CONF.signing.certfile))
         self.assertTrue(os.path.exists(CONF.signing.ca_certs))
