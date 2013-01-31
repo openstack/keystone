@@ -128,7 +128,7 @@ class S3Token(object):
             return self.app(environ, start_response)
 
         # Read request signature and access id.
-        if not 'Authorization' in req.headers:
+        if 'Authorization' not in req.headers:
             msg = 'No Authorization header. skipping.'
             self.logger.debug(msg)
             return self.app(environ, start_response)

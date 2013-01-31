@@ -140,7 +140,7 @@ class Ec2Controller(controller.V2Controller):
         if not credentials and ec2Credentials:
             credentials = ec2Credentials
 
-        if not 'access' in credentials:
+        if 'access' not in credentials:
             raise exception.Unauthorized(message='EC2 signature not supplied.')
 
         creds_ref = self._get_credentials(context,

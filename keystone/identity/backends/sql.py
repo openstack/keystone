@@ -652,7 +652,7 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
-        if not 'enabled' in user:
+        if 'enabled' not in user:
             user['enabled'] = True
         user = utils.hash_user_password(user)
         session = self.get_session()

@@ -105,7 +105,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
         # Reject unrecognized content types. Empty string indicates
         # the client did not explicitly set the header
-        if not request.content_type in ('application/json', ''):
+        if request.content_type not in ('application/json', ''):
             e = exception.ValidationError(attribute='application/json',
                                           target='Content-Type header')
             return wsgi.render_exception(e)
