@@ -41,13 +41,8 @@ def upgrade(migrate_engine):
                            'on Identity API v2.'})}
 
     session = orm.sessionmaker(bind=migrate_engine)()
-
-    session.execute(
-        'INSERT INTO `%s` (%s) VALUES (%s)' % (
-            domain_table.name,
-            ', '.join(['`%s`' % k for k in domain.keys()]),
-            ', '.join([':%s' % k for k in domain.keys()])),
-        domain)
+    insert = domain_table.insert()
+    insert.execute(domain)
     session.commit()
 
 
@@ -59,5 +54,5 @@ def downgrade(migrate_engine):
     sql.Table('domain', meta, autoload=True)
     session = orm.sessionmaker(bind=migrate_engine)()
     session.execute(
-        'DELETE FROM `domain` WHERE `id`=:id', {'id': DEFAULT_DOMAIN_ID})
+        'DELETE FROM domain WHERE id=:id', {'id': DEFAULT_DOMAIN_ID})
     session.commit()
