@@ -56,9 +56,9 @@ class SqlUpgradeTests(test.TestCase):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_sql.conf')])
+        self.base = sql.Base()
 
         # create and share a single sqlalchemy engine for testing
-        self.base = sql.Base()
         self.engine = self.base.get_engine(allow_global_engine=False)
         self.Session = self.base.get_sessionmaker(engine=self.engine,
                                                   autocommit=False)
@@ -107,7 +107,7 @@ class SqlUpgradeTests(test.TestCase):
         actual_cols = [col.name for col in table.columns]
         self.assertEqual(expected_cols, actual_cols, '%s table' % table_name)
 
-    def test_upgrade_0_to_1(self):
+    def test_upgrade_add_initial_tables(self):
         self.upgrade(1)
         self.assertTableColumns("user", ["id", "name", "extra"])
         self.assertTableColumns("tenant", ["id", "name", "extra"])
@@ -117,7 +117,7 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableColumns("metadata", ["user_id", "tenant_id", "data"])
         self.populate_user_table()
 
-    def test_upgrade_5_to_6(self):
+    def test_upgrade_add_policy(self):
         self.upgrade(5)
         self.assertTableDoesNotExist('policy')
 
@@ -125,7 +125,7 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableExists('policy')
         self.assertTableColumns('policy', ['id', 'type', 'blob', 'extra'])
 
-    def test_upgrade_8_to_10(self):
+    def test_upgrade_normalize_identity(self):
         self.upgrade(8)
         self.populate_user_table()
         self.populate_tenant_table()
@@ -179,7 +179,7 @@ class SqlUpgradeTests(test.TestCase):
         session.commit()
         session.close()
 
-    def test_upgrade_10_to_13(self):
+    def test_upgrade_endpoints(self):
         self.upgrade(10)
         service_extra = {
             'name': uuid.uuid4().hex,
@@ -266,7 +266,7 @@ class SqlUpgradeTests(test.TestCase):
         self.downgrade(14)
         self.assertTenantTables()
 
-    def test_upgrade_13_to_14(self):
+    def test_upgrade_add_group_tables(self):
         self.upgrade(13)
         self.upgrade(14)
         self.assertTableExists('group')
@@ -327,7 +327,7 @@ class SqlUpgradeTests(test.TestCase):
         session.commit()
         session.close()
 
-    def test_downgrade_14_to_13(self):
+    def test_downgrade_remove_group_tables(self):
         self.upgrade(14)
         self.downgrade(13)
         self.assertTableDoesNotExist('group')
@@ -335,7 +335,7 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableDoesNotExist('group_domain_metadata')
         self.assertTableDoesNotExist('user_group_membership')
 
-    def test_downgrade_13_to_10(self):
+    def test_downgrade_endpoints(self):
         self.upgrade(13)
 
         service_extra = {
@@ -420,7 +420,7 @@ class SqlUpgradeTests(test.TestCase):
                            "metadata"]:
             self.assertTableDoesNotExist(table_name)
 
-    def test_upgrade_6_to_7(self):
+    def test_upgrade_add_domain_tables(self):
         self.upgrade(6)
         self.assertTableDoesNotExist('credential')
         self.assertTableDoesNotExist('domain')
@@ -435,6 +435,22 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableExists('user_domain_metadata')
         self.assertTableColumns('user_domain_metadata',
                                 ['user_id', 'domain_id', 'data'])
+
+    def test_upgrade_default_roles(self):
+        def count_member_roles():
+            session = self.Session()
+            query_string = ("select count(*) as c from role "
+                            "where name='%s'" % config.CONF.member_role_name)
+            role_count = session.execute(query_string).fetchone()['c']
+            session.close()
+            return role_count
+
+        self.upgrade(16)
+        self.assertEquals(0, count_member_roles())
+        self.upgrade(17)
+        self.assertEquals(1, count_member_roles())
+        self.downgrade(16)
+        self.assertEquals(0, count_member_roles())
 
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
