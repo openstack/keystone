@@ -70,7 +70,7 @@ Authentication Component
 
 Figure 1. Authentication Component
 
-.. image:: images/graphs_authComp.svg
+.. image:: images/graphs_authComp.png
    :width: 100%
    :height: 180
    :alt: An Authentication Component
@@ -91,7 +91,7 @@ Authentication Component (Delegated Mode)
 
 Figure 2. Authentication Component (Delegated Mode)
 
-.. image:: images/graphs_authCompDelegate.svg
+.. image:: images/graphs_authCompDelegate.png
    :width: 100%
    :height: 180
    :alt: An Authentication Component (Delegated Mode)
