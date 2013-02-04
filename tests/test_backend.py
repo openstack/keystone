@@ -666,6 +666,20 @@ class IdentityTests(object):
                           self.identity_api.get_projects_for_user,
                           user['id'])
 
+    def test_delete_user_with_project_roles(self):
+        user = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex}
+        self.identity_api.create_user(user['id'], user)
+        self.identity_api.add_role_to_user_and_project(
+            user['id'],
+            self.tenant_bar['id'],
+            self.role_member['id'])
+        self.identity_api.delete_user(user['id'])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_projects_for_user,
+                          user['id'])
+
     def test_delete_user_404(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.delete_user,
