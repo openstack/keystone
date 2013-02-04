@@ -156,27 +156,17 @@ class Identity(identity.Driver):
 
     def get_projects_for_user(self, user_id):
         self.get_user(user_id)
-        tenant_list = []
-        for tenant in self.project.get_user_projects(user_id):
-            tenant_list.append(tenant['id'])
-        return tenant_list
+        return [p['id'] for p in self.project.get_user_projects(user_id)]
 
     def get_project_users(self, tenant_id):
         self.get_project(tenant_id)
-        user_list = []
-        for user in self.project.get_users(tenant_id):
-            user_list.append(user)
-        return user_list
+        return self.project.get_users(tenant_id)
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         self.get_user(user_id)
         self.get_project(tenant_id)
-        assignments = self.role.get_role_assignments(tenant_id)
-        roles = []
-        for assignment in assignments:
-            if assignment.user_id == user_id:
-                roles.append(assignment.role_id)
-        return roles
+        return [a.role_id for a in self.role.get_role_assignments(tenant_id)
+                if a.user_id == user_id]
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
