@@ -169,6 +169,18 @@
 # role_allow_update = True
 # role_allow_delete = True
 
+# group_tree_dn =
+# group_filter =
+# group_objectclass = groupOfNames
+# group_id_attribute = cn
+# group_name_attribute = ou
+# group_member_attribute = member
+# group_desc_attribute = desc
+# group_attribute_ignore =
+# group_allow_create = True
+# group_allow_update = True
+# group_allow_delete = True
+
 [filter:debug]
 paste.filter_factory = keystone.common.wsgi:Debug.factory
 
