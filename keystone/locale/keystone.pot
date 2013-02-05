@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone 2013.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-01-07 00:01+0000\n"
+"POT-Creation-Date: 2013-02-05 00:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,7 +46,7 @@ msgstr ""
 msgid "Invalid syslog facility"
 msgstr ""
 
-#: keystone/test.py:103
+#: keystone/test.py:106
 #, python-format
 msgid "Failed to checkout %s"
 msgstr ""
@@ -90,7 +90,7 @@ msgstr ""
 msgid "Signing error: %s"
 msgstr ""
 
-#: keystone/common/controller.py:23
+#: keystone/common/controller.py:21
 #, python-format
 msgid "RBAC: Authorizing %s(%s)"
 msgstr ""
@@ -117,7 +117,7 @@ msgstr ""
 
 #: keystone/common/utils.py:93
 #, python-format
-msgid "Unknown Signature Version: %sparamsSignatureVersion"
+msgid "Unknown Signature Version: %s"
 msgstr ""
 
 #: keystone/common/utils.py:124
@@ -144,22 +144,22 @@ msgstr ""
 msgid "base64 encoded digest: %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:73
+#: keystone/common/wsgi.py:74
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr ""
 
-#: keystone/common/wsgi.py:196
+#: keystone/common/wsgi.py:209
 #, python-format
 msgid "arg_dict: %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:217
+#: keystone/common/wsgi.py:230
 #, python-format
 msgid "Authorization failed. %s from %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:430
+#: keystone/common/wsgi.py:443
 msgid "The resource could not be found."
 msgstr ""
 
@@ -175,50 +175,50 @@ msgstr ""
 
 #: keystone/common/ldap/core.py:186
 #, python-format
-msgid "LDAP backend does not allow %s create"
+msgid "LDAP %s create"
 msgstr ""
 
-#: keystone/common/ldap/core.py:293
+#: keystone/common/ldap/core.py:292
 #, python-format
-msgid "LDAP backend does not allow %s update"
+msgid "LDAP %s update"
 msgstr ""
 
-#: keystone/common/ldap/core.py:321
+#: keystone/common/ldap/core.py:319
 #, python-format
-msgid "LDAP backend does not allow %s delete"
+msgid "LDAP %s delete"
 msgstr ""
 
-#: keystone/common/ldap/core.py:339
+#: keystone/common/ldap/core.py:336
 #, python-format
 msgid "LDAP init: url=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:343
+#: keystone/common/ldap/core.py:340
 #, python-format
 msgid "LDAP bind: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:354
+#: keystone/common/ldap/core.py:351
 #, python-format
 msgid "LDAP add: dn=%s, attrs=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:359
+#: keystone/common/ldap/core.py:356
 #, python-format
 msgid "LDAP search: dn=%s, scope=%s, query=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:382
+#: keystone/common/ldap/core.py:379
 #, python-format
 msgid "LDAP modify: dn=%s, modlist=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:387
+#: keystone/common/ldap/core.py:384
 #, python-format
 msgid "LDAP delete: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:391
+#: keystone/common/ldap/core.py:388
 #, python-format
 msgid "LDAP delete_ext: dn=%s, serverctrls=%s"
 msgstr ""
@@ -314,12 +314,12 @@ msgstr ""
 msgid "Search scope %s not implemented."
 msgstr ""
 
-#: keystone/common/sql/core.py:163
+#: keystone/common/sql/core.py:203
 #, python-format
 msgid "Got mysql server has gone away: %s"
 msgstr ""
 
-#: keystone/common/sql/legacy.py:174
+#: keystone/common/sql/legacy.py:175
 #, python-format
 msgid "Cannot migrate EC2 credential: %s"
 msgstr ""
@@ -363,9 +363,17 @@ msgstr ""
 msgid "Creating ec2 cred for user %s and tenant %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:708
+#: keystone/identity/backends/kvs.py:250 keystone/identity/backends/kvs.py:259
+msgid "User not found in group"
+msgstr ""
+
+#: keystone/identity/backends/ldap/core.py:751
 #, python-format
 msgid "Role %s not found"
+msgstr ""
+
+#: keystone/identity/backends/ldap/core.py:1115
+msgid "Changing Name not supported by LDAP"
 msgstr ""
 
 #: keystone/policy/backends/rules.py:95
