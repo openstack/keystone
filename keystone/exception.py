@@ -51,6 +51,19 @@ class ValidationError(Error):
     title = 'Bad Request'
 
 
+class ValidationSizeError(Error):
+    """Request attribute %(attribute)s must be less than or equal to %(size)i.
+
+    The server could not comply with the request because the attribute
+    size is invalid (too large).
+
+    The client is assumed to be in error.
+
+    """
+    code = 400
+    title = 'Bad Request'
+
+
 class Unauthorized(Error):
     """The request you have made requires authentication."""
     code = 401
