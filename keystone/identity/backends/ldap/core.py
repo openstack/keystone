@@ -644,11 +644,15 @@ class ProjectApi(common_ldap.BaseLdap, ApiShimMixin):
 class UserRoleAssociation(object):
     """Role Grant model."""
 
-    def __init__(self, user_id=None, role_id=None, tenant_id=None,
+    def __init__(self, user_id=None, role_id=None, tenant_id=None, id=None,
                  *args, **kw):
         self.user_id = str(user_id)
         self.role_id = role_id
         self.project_id = str(tenant_id)
+        if id is None:
+            self.id = create_role_ref(role_id, tenant_id, user_id)
+        else:
+            self.id = id
 
 
 class GroupRoleAssociation(object):
@@ -659,6 +663,17 @@ class GroupRoleAssociation(object):
         self.group_id = str(group_id)
         self.role_id = role_id
         self.project_id = str(tenant_id)
+
+
+def create_role_ref(role_id, tenant_id, user_id):
+    role_id = '' if role_id is None else str(role_id)
+    tenant_id = '' if tenant_id is None else str(tenant_id)
+    user_id = '' if user_id is None else str(user_id)
+    return '%d-%d-%s%s%s' % (len(role_id),
+                             len(tenant_id),
+                             role_id,
+                             tenant_id,
+                             user_id)
 
 
 # TODO(termie): turn this into a data object and move logic to driver
@@ -685,14 +700,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
 
     @staticmethod
     def _create_ref(role_id, tenant_id, user_id):
-        role_id = '' if role_id is None else str(role_id)
-        tenant_id = '' if tenant_id is None else str(tenant_id)
-        user_id = '' if user_id is None else str(user_id)
-        return '%d-%d-%s%s%s' % (len(role_id),
-                                 len(tenant_id),
-                                 role_id,
-                                 tenant_id,
-                                 user_id)
+        return create_role_ref(role_id, tenant_id, user_id)
 
     @staticmethod
     def _explode_ref(rolegrant):
@@ -902,7 +910,9 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         conn = self.get_connection()
         try:
-            conn.modify_s(role_dn, [(ldap.MOD_DELETE, '', [user_dn])])
+            conn.modify_s(role_dn, [(ldap.MOD_DELETE,
+                                     self.member_attribute,
+                                     [user_dn])])
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.Error("No such user in role")
 
