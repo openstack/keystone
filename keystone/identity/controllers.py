@@ -90,7 +90,7 @@ class Tenant(controller.V2Controller):
     def create_project(self, context, tenant):
         tenant_ref = self._normalize_dict(tenant)
 
-        if not 'name' in tenant_ref or not tenant_ref['name']:
+        if 'name' not in tenant_ref or not tenant_ref['name']:
             msg = 'Name field is required and cannot be empty'
             raise exception.ValidationError(message=msg)
 
@@ -174,7 +174,7 @@ class User(controller.V2Controller):
         user = self._normalize_dict(user)
         self.assert_admin(context)
 
-        if not 'name' in user or not user['name']:
+        if 'name' not in user or not user['name']:
             msg = 'Name field is required and cannot be empty'
             raise exception.ValidationError(message=msg)
 
@@ -255,7 +255,7 @@ class Role(controller.V2Controller):
         role = self._normalize_dict(role)
         self.assert_admin(context)
 
-        if not 'name' in role or not role['name']:
+        if 'name' not in role or not role['name']:
             msg = 'Name field is required and cannot be empty'
             raise exception.ValidationError(message=msg)
 

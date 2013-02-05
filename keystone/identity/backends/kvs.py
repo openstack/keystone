@@ -246,7 +246,7 @@ class Identity(kvs.Base, identity.Driver):
     def check_user_in_group(self, user_id, group_id):
         self.get_group(group_id)
         user_ref = self._get_user(user_id)
-        if not group_id in set(user_ref.get('groups', [])):
+        if group_id not in set(user_ref.get('groups', [])):
             raise exception.NotFound(_('User not found in group'))
 
     def remove_user_from_group(self, user_id, group_id):

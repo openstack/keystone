@@ -18,6 +18,24 @@ General
 - Do not name anything the same name as a built-in or reserved word
 - When defining global constants, define them before functions and classes
 - Avoid using "double quotes" where you can reasonably use 'single quotes'
+- Use the "is not" operator when testing for unequal identities. Example::
+
+    if not X is Y:  # BAD, intended behavior is ambiguous
+        pass
+
+    if X is not Y:  # OKAY, intuitive
+        pass
+
+- Use the "not in" operator for evaluating membership in a collection. Example::
+
+    if not X in Y:  # BAD, intended behavior is ambiguous
+        pass
+
+    if X not in Y:  # OKAY, intuitive
+        pass
+
+    if not (X in Y or X in Z):  # OKAY, still better than all those 'not's
+        pass
 
 
 TODO vs FIXME
