@@ -1,6 +1,7 @@
 [run]
 branch = True
-omit = /usr*,setup.py,*egg*,.venv/*,.tox/*,tests/*
+source = keystone
+omit = keystone/openstack/*
 
 [report]
 ignore-errors = True
