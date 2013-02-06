@@ -233,6 +233,9 @@ class Application(BaseApplication):
         except exception.Error as e:
             LOG.warning(e)
             return render_exception(e)
+        except TypeError as e:
+            logging.exception(e)
+            return render_exception(exception.ValidationError(e))
         except Exception as e:
             logging.exception(e)
             return render_exception(exception.UnexpectedError(exception=e))

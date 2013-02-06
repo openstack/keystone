@@ -506,6 +506,27 @@ class CoreApiTests(object):
         """This triggers assertValidErrorResponse by convention."""
         self.public_request(path='/v2.0/tenants', expected_status=401)
 
+    def test_invalid_parameter_error_response(self):
+        token = self.get_scoped_token()
+        bad_body = {
+            'OS-KSADM:serviceBAD': {
+                'name': uuid.uuid4().hex,
+                'type': uuid.uuid4().hex,
+            },
+        }
+        res = self.admin_request(method='POST',
+                                 path='/v2.0/OS-KSADM/services',
+                                 body=bad_body,
+                                 token=token,
+                                 expected_status=400)
+        self.assertValidErrorResponse(res)
+        res = self.admin_request(method='POST',
+                                 path='/v2.0/users',
+                                 body=bad_body,
+                                 token=token,
+                                 expected_status=400)
+        self.assertValidErrorResponse(res)
+
 
 class JsonTestCase(RestfulTestCase, CoreApiTests):
     content_type = 'json'
