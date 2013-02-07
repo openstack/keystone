@@ -22,6 +22,9 @@ from keystone.openstack.common import cfg
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 
+import grp
+import pwd
+
 CONF = config.CONF
 
 
@@ -54,9 +57,33 @@ class PKISetup(BaseApp):
 
     name = 'pki_setup'
 
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(PKISetup,
+                       cls).add_argument_parser(subparsers)
+        parser.add_argument('--keystone-user')
+        parser.add_argument('--keystone-group')
+        return parser
+
     @staticmethod
     def main():
-        conf_ssl = openssl.ConfigurePKI()
+        keystone_user_id = None
+        keystone_group_id = None
+        try:
+            a = CONF.command.keystone_user
+            if a:
+                keystone_user_id = pwd.getpwnam(a).pw_uid
+        except KeyError:
+            raise ValueError("Unknown user '%s' in --keystone-user" % a)
+
+        try:
+            a = CONF.command.keystone_group
+            if a:
+                keystone_group_id = grp.getgrnam(a).gr_gid
+        except KeyError:
+            raise ValueError("Unknown group '%s' in --keystone-group" % a)
+
+        conf_ssl = openssl.ConfigurePKI(keystone_user_id, keystone_group_id)
         conf_ssl.run()
 
 

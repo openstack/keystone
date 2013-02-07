@@ -36,12 +36,6 @@ def file_exists(file_path):
     return os.path.exists(file_path)
 
 
-def make_dirs(file_name):
-    dir = os.path.dirname(file_name)
-    if not file_exists(dir):
-        os.makedirs(dir, DIR_PERMS)
-
-
 class ConfigurePKI(object):
     """Generate files for PKI signing using OpenSSL.
 
@@ -51,8 +45,10 @@ class ConfigurePKI(object):
 
     """
 
-    def __init__(self, *args, **kw):
+    def __init__(self, keystone_user, keystone_group, **kw):
         self.conf_dir = os.path.dirname(CONF.signing.ca_certs)
+        self.use_keystone_user = keystone_user
+        self.use_keystone_group = keystone_group
         self.ssl_config_file_name = os.path.join(self.conf_dir, "openssl.conf")
         self.ca_key_file = os.path.join(self.conf_dir, "cakey.pem")
         self.request_file_name = os.path.join(self.conf_dir, "req.pem")
@@ -69,6 +65,19 @@ class ConfigurePKI(object):
                                'valid_days': int(CONF.signing.valid_days),
                                'ca_password': CONF.signing.ca_password}
 
+    def _make_dirs(self, file_name):
+        dir = os.path.dirname(file_name)
+        if not file_exists(dir):
+            os.makedirs(dir, DIR_PERMS)
+        if os.geteuid() == 0 and self.use_keystone_group:
+            os.chown(dir, -1, self.use_keystone_group)
+
+    def _set_permissions(self, file_name, perms):
+        os.chmod(file_name, perms)
+        if os.geteuid() == 0:
+            os.chown(file_name, self.use_keystone_user or -1,
+                     self.use_keystone_group or -1)
+
     def exec_command(self, command):
         to_exec = command % self.ssl_dictionary
         LOG.info(to_exec)
@@ -76,55 +85,57 @@ class ConfigurePKI(object):
 
     def build_ssl_config_file(self):
         if not file_exists(self.ssl_config_file_name):
-            make_dirs(self.ssl_config_file_name)
+            self._make_dirs(self.ssl_config_file_name)
             ssl_config_file = open(self.ssl_config_file_name, 'w')
             ssl_config_file.write(self.sslconfig % self.ssl_dictionary)
             ssl_config_file.close()
-        os.chmod(self.ssl_config_file_name, CERT_PERMS)
+        self._set_permissions(self.ssl_config_file_name, CERT_PERMS)
 
         index_file_name = os.path.join(self.conf_dir, 'index.txt')
         if not file_exists(index_file_name):
             index_file = open(index_file_name, 'w')
             index_file.write('')
             index_file.close()
-        os.chmod(self.ssl_config_file_name, PRIV_PERMS)
+        self._set_permissions(self.ssl_config_file_name, PRIV_PERMS)
 
         serial_file_name = os.path.join(self.conf_dir, 'serial')
         if not file_exists(serial_file_name):
             index_file = open(serial_file_name, 'w')
             index_file.write('01')
             index_file.close()
-        os.chmod(self.ssl_config_file_name, PRIV_PERMS)
+        self._set_permissions(self.ssl_config_file_name, PRIV_PERMS)
 
     def build_ca_cert(self):
         if not file_exists(CONF.signing.ca_certs):
             if not os.path.exists(self.ca_key_file):
-                make_dirs(self.ca_key_file)
+                self._make_dirs(self.ca_key_file)
                 self.exec_command('openssl genrsa -out %(ca_private_key)s '
                                   '%(key_size)d -config %(ssl_config)s')
-                os.chmod(self.ssl_dictionary['ca_private_key'], stat.S_IRUSR)
+                self._set_permissions(self.ssl_dictionary['ca_private_key'],
+                                      stat.S_IRUSR)
             self.exec_command('openssl req -new -x509 -extensions v3_ca '
                               '-passin pass:%(ca_password)s '
                               '-key %(ca_private_key)s -out %(ca_cert)s '
                               '-days %(valid_days)d '
                               '-config %(ssl_config)s '
                               '-subj %(default_subject)s')
-            os.chmod(self.ssl_dictionary['ca_cert'], CERT_PERMS)
+            self._set_permissions(self.ssl_dictionary['ca_cert'], CERT_PERMS)
 
     def build_private_key(self):
-        if not file_exists(CONF.signing.keyfile):
-            make_dirs(CONF.signing.keyfile)
+        signing_keyfile = self.ssl_dictionary['signing_key']
+
+        if not file_exists(signing_keyfile):
+            self._make_dirs(signing_keyfile)
 
             self.exec_command('openssl genrsa -out %(signing_key)s '
                               '%(key_size)d '
                               '-config %(ssl_config)s')
-        os.chmod(os.path.dirname(self.ssl_dictionary['signing_key']),
-                 PRIV_PERMS)
-        os.chmod(self.ssl_dictionary['signing_key'], stat.S_IRUSR)
+        self._set_permissions(os.path.dirname(signing_keyfile), PRIV_PERMS)
+        self._set_permissions(signing_keyfile, stat.S_IRUSR)
 
     def build_signing_cert(self):
         if not file_exists(CONF.signing.certfile):
-            make_dirs(CONF.signing.certfile)
+            self._make_dirs(CONF.signing.certfile)
             self.exec_command('openssl req -key %(signing_key)s -new -nodes '
                               '-out %(request_file)s -config %(ssl_config)s '
                               '-subj %(default_subject)s')
