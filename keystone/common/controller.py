@@ -4,10 +4,12 @@ import uuid
 from keystone.common import dependency
 from keystone.common import logging
 from keystone.common import wsgi
+from keystone import config
 from keystone import exception
 
 
 LOG = logging.getLogger(__name__)
+CONF = config.CONF
 
 
 def protected(f):
@@ -68,10 +70,63 @@ class V2Controller(wsgi.Application):
 
 
 class V3Controller(V2Controller):
-    """Base controller class for Identity API v3."""
+    """Base controller class for Identity API v3.
 
-    def _paginate(self, context, refs):
+    Child classes should set the ``collection_name`` and ``member_name`` class
+    attributes, representing the collection of entities they are exposing to
+    the API. This is required for supporting self-referential links,
+    pagination, etc.
+
+    """
+
+    collection_name = 'entities'
+    member_name = 'entity'
+
+    @classmethod
+    def base_url(cls, path=None):
+        endpoint = CONF.public_endpoint % CONF
+
+        # allow a missing trailing slash in the config
+        if endpoint[-1] != '/':
+            endpoint += '/'
+
+        url = endpoint + 'v3'
+
+        if path:
+            return url + path
+        else:
+            return url + '/' + cls.collection_name
+
+    @classmethod
+    def _add_self_referential_link(cls, ref):
+        ref.setdefault('links', {})
+        ref['links']['self'] = cls.base_url() + '/' + ref['id']
+
+    @classmethod
+    def wrap_member(cls, context, ref):
+        cls._add_self_referential_link(ref)
+        return {cls.member_name: ref}
+
+    @classmethod
+    def wrap_collection(cls, context, refs):
+        refs = cls.paginate(context, refs)
+
+        for ref in refs:
+            cls.wrap_member(context, ref)
+
+        container = {cls.collection_name: refs}
+        container['links'] = {
+            'next': None,
+            'self': cls.base_url(path=context['path']),
+            'previous': None}
+        return container
+
+    @classmethod
+    def paginate(cls, context, refs):
         """Paginates a list of references by page & per_page query strings."""
+        # FIXME(dolph): client needs to support pagination first
+        return refs
+
         page = context['query_string'].get('page', 1)
         per_page = context['query_string'].get('per_page', 30)
         return refs[per_page * (page - 1):per_page * page]

@@ -25,12 +25,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     # service validation
 
-    def assertValidServiceListResponse(self, resp, ref):
+    def assertValidServiceListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'services',
             self.assertValidService,
-            ref)
+            **kwargs)
 
     def assertValidServiceResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -47,12 +47,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     # endpoint validation
 
-    def assertValidEndpointListResponse(self, resp, ref):
+    def assertValidEndpointListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'endpoints',
             self.assertValidEndpoint,
-            ref)
+            **kwargs)
 
     def assertValidEndpointResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -82,7 +82,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_list_services(self):
         """GET /services"""
         r = self.get('/services')
-        self.assertValidServiceListResponse(r, self.service)
+        self.assertValidServiceListResponse(r, ref=self.service)
 
     def test_get_service(self):
         """GET /services/{service_id}"""
@@ -109,7 +109,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_list_endpoints(self):
         """GET /endpoints"""
         r = self.get('/endpoints')
-        self.assertValidEndpointListResponse(r, self.endpoint)
+        self.assertValidEndpointListResponse(r, ref=self.endpoint)
 
     def test_create_endpoint(self):
         """POST /endpoints"""
