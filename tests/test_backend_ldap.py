@@ -396,6 +396,22 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
+    def test_user_api_get_connection_no_user_password(self):
+        """Don't bind in case the user and password are blank"""
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf')])
+        CONF.ldap.url = "fake://memory"
+        user_api = identity_ldap.UserApi(CONF)
+        self.stubs.Set(fakeldap, 'FakeLdap',
+                       self.mox.CreateMock(fakeldap.FakeLdap))
+        # we have to track all calls on 'conn' to make sure that
+        # conn.simple_bind_s is not called
+        conn = self.mox.CreateMockAnything()
+        conn = fakeldap.FakeLdap(CONF.ldap.url).AndReturn(conn)
+        self.mox.ReplayAll()
+
+        user_api.get_connection(user=None, password=None)
+
 # TODO (henry-nash) These need to be removed when the full LDAP implementation
 # is submitted - see BugL #1092187
     def test_group_crud(self):

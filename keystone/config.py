@@ -148,13 +148,14 @@ register_int('max_token_size', default=8192)
 # identity
 register_str('default_domain_id', group='identity', default='default')
 
-#ssl options
+# ssl
 register_bool('enable', group='ssl', default=False)
 register_str('certfile', group='ssl', default=None)
 register_str('keyfile', group='ssl', default=None)
 register_str('ca_certs', group='ssl', default=None)
 register_bool('cert_required', group='ssl', default=False)
-#signing options
+
+# signing
 register_str('token_format', group='signing',
              default="PKI")
 register_str('certfile', group='signing',
@@ -168,7 +169,7 @@ register_int('valid_days', group='signing', default=3650)
 register_str('ca_password', group='signing', default=None)
 
 
-# sql options
+# sql
 register_str('connection', group='sql', default='sqlite:///keystone.db')
 register_int('idle_timeout', group='sql', default=200)
 
@@ -187,10 +188,10 @@ register_str('driver', group='stats',
              default='keystone.contrib.stats.backends.kvs.Stats')
 
 
-#ldap
+# ldap
 register_str('url', group='ldap', default='ldap://localhost')
-register_str('user', group='ldap', default='dc=Manager,dc=example,dc=com')
-register_str('password', group='ldap', default='freeipa4all')
+register_str('user', group='ldap', default=None)
+register_str('password', group='ldap', default=None)
 register_str('suffix', group='ldap', default='cn=example,cn=com')
 register_bool('use_dumb_member', group='ldap', default=False)
 register_str('dumb_member', group='ldap', default='cn=dumb,dc=nonexistent')
@@ -247,7 +248,8 @@ register_list('group_attribute_ignore', group='ldap', default='')
 register_bool('group_allow_create', group='ldap', default=True)
 register_bool('group_allow_update', group='ldap', default=True)
 register_bool('group_allow_delete', group='ldap', default=True)
-#pam
+
+# pam
 register_str('url', group='pam', default=None)
 register_str('userid', group='pam', default=None)
 register_str('password', group='pam', default=None)
