@@ -58,18 +58,11 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_build_tree(self):
         """Regression test for building the tree names
         """
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
-
         user_api = identity_ldap.UserApi(CONF)
         self.assertTrue(user_api)
         self.assertEquals(user_api.tree_dn, "ou=Users,%s" % CONF.ldap.suffix)
 
     def test_configurable_allowed_user_actions(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         self.identity_api = identity_ldap.Identity()
 
         user = {'id': 'fake1',
@@ -89,9 +82,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           'fake1')
 
     def test_configurable_forbidden_user_actions(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.user_allow_create = False
         CONF.ldap.user_allow_update = False
         CONF.ldap.user_allow_delete = False
@@ -117,9 +107,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.user_foo['id'])
 
     def test_configurable_allowed_project_actions(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         self.identity_api = identity_ldap.Identity()
 
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
@@ -136,9 +123,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           'fake1')
 
     def test_configurable_forbidden_project_actions(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.tenant_allow_create = False
         CONF.ldap.tenant_allow_update = False
         CONF.ldap.tenant_allow_delete = False
@@ -160,9 +144,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.tenant_bar['id'])
 
     def test_configurable_allowed_role_actions(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         self.identity_api = identity_ldap.Identity()
 
         role = {'id': 'fake1', 'name': 'fake1'}
@@ -179,9 +160,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           'fake1')
 
     def test_configurable_forbidden_role_actions(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.role_allow_create = False
         CONF.ldap.role_allow_update = False
         CONF.ldap.role_allow_delete = False
@@ -204,9 +182,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.role_member['id'])
 
     def test_user_filter(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         user_ref = self.identity_api.get_user(self.user_foo['id'])
         self.user_foo.pop('password')
         self.assertDictEqual(user_ref, self.user_foo)
@@ -218,9 +193,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.user_foo['id'])
 
     def test_project_filter(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         tenant_ref = self.identity_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
@@ -231,9 +203,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.tenant_bar['id'])
 
     def test_role_filter(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertDictEqual(role_ref, self.role_member)
 
@@ -244,9 +213,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.role_member['id'])
 
     def test_dumb_member(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.use_dumb_member = True
         CONF.ldap.dumb_member = 'cn=dumb,cn=example,cn=com'
         clear_database()
@@ -257,9 +223,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           'dumb')
 
     def test_user_attribute_mapping(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.user_name_attribute = 'sn'
         CONF.ldap.user_mail_attribute = 'email'
         CONF.ldap.user_enabled_attribute = 'enabled'
@@ -282,9 +245,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(user_ref['enabled'], self.user_two['enabled'])
 
     def test_user_attribute_ignore(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.user_attribute_ignore = ['name', 'email', 'password',
                                            'tenant_id', 'enabled', 'tenants']
         clear_database()
@@ -300,9 +260,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertNotIn('tenants', user_ref)
 
     def test_project_attribute_mapping(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.tenant_name_attribute = 'ou'
         CONF.ldap.tenant_desc_attribute = 'desc'
         CONF.ldap.tenant_enabled_attribute = 'enabled'
@@ -327,9 +284,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(tenant_ref['enabled'], self.tenant_baz['enabled'])
 
     def test_project_attribute_ignore(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.tenant_attribute_ignore = ['name',
                                              'description',
                                              'enabled']
@@ -343,9 +297,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertNotIn('enabled', tenant_ref)
 
     def test_role_attribute_mapping(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.role_name_attribute = 'ou'
         clear_database()
         self.identity_api = identity_ldap.Identity()
@@ -361,9 +312,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertNotIn('name', role_ref)
 
     def test_role_attribute_ignore(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.role_attribute_ignore = ['name']
         clear_database()
         self.identity_api = identity_ldap.Identity()
@@ -373,9 +321,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertNotIn('name', role_ref)
 
     def test_user_enable_attribute_mask(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_ldap.conf')])
         CONF.ldap.user_enabled_attribute = 'enabled'
         CONF.ldap.user_enabled_mask = 2
         CONF.ldap.user_enabled_default = 512
