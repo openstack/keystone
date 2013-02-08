@@ -406,13 +406,10 @@ class Identity(sql.Base, identity.Driver):
             session.delete(membership_ref)
             session.flush()
 
-    def get_projects(self):
+    def list_projects(self):
         session = self.get_session()
         tenant_refs = session.query(Project).all()
         return [tenant_ref.to_dict() for tenant_ref in tenant_refs]
-
-    def list_projects(self):
-        return self.get_projects()
 
     def get_projects_for_user(self, user_id):
         session = self.get_session()

@@ -45,17 +45,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
 
-    def test_role_crud(self):
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.identity_api.create_role(role['id'], role)
-        role_ref = self.identity_api.get_role(role['id'])
-        role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
-        self.assertDictEqual(role_ref_dict, role)
-        self.identity_api.delete_role(role['id'])
-        self.assertRaises(exception.RoleNotFound,
-                          self.identity_api.get_role,
-                          role['id'])
-
     def test_build_tree(self):
         """Regression test for building the tree names
         """
@@ -494,16 +483,13 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_list_groups(self):
-        raise nose.exc.SkipTest('Blocked by bug 1122354')
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_list_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1122354')
-
-    def test_list_projects(self):
-        raise nose.exc.SkipTest('Blocked by bug 1122354')
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
 
     def test_list_user_projects(self):
-        raise nose.exc.SkipTest('Blocked by bug 1122354')
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
     def test_get_project_users(self):
-        raise nose.exc.SkipTest('Blocked by bug 1122354')
+        raise nose.exc.SkipTest('Blocked by bug 1101287')

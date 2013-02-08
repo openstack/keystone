@@ -34,18 +34,7 @@ class KvsIdentity(test.TestCase, test_backend.IdentityTests):
         self.load_fixtures(default_fixtures)
 
     def test_list_user_projects(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
-
-    def test_list_projects(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
-
-    def test_list_groups(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
-
-    def test_list_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
-
-    def test_get_project_users(self):
+        # NOTE(chungg): not implemented
         raise nose.exc.SkipTest('Blocked by bug 1119770')
 
 

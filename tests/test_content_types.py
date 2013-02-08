@@ -509,7 +509,7 @@ class CoreApiTests(object):
     def test_invalid_parameter_error_response(self):
         token = self.get_scoped_token()
         bad_body = {
-            'OS-KSADM:serviceBAD': {
+            'OS-KSADM:service%s' % uuid.uuid4().hex: {
                 'name': uuid.uuid4().hex,
                 'type': uuid.uuid4().hex,
             },
