@@ -414,24 +414,21 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
         return values
 
     def update(self, id, values):
-        if values['id'] != id:
+        if 'id' in values and values['id'] != id:
             raise exception.ValidationError('Cannot change user ID')
         try:
             old_obj = self.get(id)
         except exception.NotFound:
             raise exception.UserNotFound(user_id=id)
-        if old_obj.get('name') != values['name']:
+        if 'name' in values and old_obj.get('name') != values['name']:
             raise exception.Conflict('Cannot change user name')
-        try:
-            new_project = values['tenant_id']
-        except KeyError:
-            pass
-        else:
-            if old_obj.get('tenant_id') != new_project:
-                if old_obj['tenant_id']:
-                    self.project_api.remove_user(old_obj['tenant_id'], id)
-                if new_project:
-                    self.project_api.add_user(new_project, id)
+
+        if 'tenant_id' in values and \
+                old_obj.get('tenant_id') != values['tenant_id']:
+            if old_obj['tenant_id']:
+                self.project_api.remove_user(old_obj['tenant_id'], id)
+            if values['tenant_id']:
+                self.project_api.add_user(values['tenant_id'], id)
 
         values = utils.hash_ldap_user_password(values)
         if self.enabled_mask:
