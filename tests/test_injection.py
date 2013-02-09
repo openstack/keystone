@@ -56,7 +56,7 @@ class TestDependencyInjection(unittest.TestCase):
         self.assertIsInstance(consumer.second_api, Interface)
         consumer.do_work_with_dependencies()
 
-    def test_dependency_configuration(self):
+    def test_dependency_provider_configuration(self):
         @dependency.provider('api')
         class Configurable(object):
             def __init__(self, value=None):
@@ -79,6 +79,32 @@ class TestDependencyInjection(unittest.TestCase):
         # the expected dependencies should be available to the consumer
         self.assertIs(consumer.api, api)
         self.assertIsInstance(consumer.api, Configurable)
+        self.assertTrue(consumer.get_value())
+
+    def test_dependency_consumer_configuration(self):
+        @dependency.provider('api')
+        class Provider(object):
+            def get_value(self):
+                return True
+
+        @dependency.requires('api')
+        class Configurable(object):
+            def __init__(self, value=None):
+                self.value = value
+
+            def get_value(self):
+                if self.value:
+                    return self.api.get_value()
+
+        # initialize dependency providers
+        api = Provider()
+
+        # ... sometime later, initialize a dependency consumer
+        consumer = Configurable(value=True)
+
+        # the expected dependencies should be available to the consumer
+        self.assertIs(consumer.api, api)
+        self.assertIsInstance(consumer.api, Provider)
         self.assertTrue(consumer.get_value())
 
     def test_inherited_dependency(self):
