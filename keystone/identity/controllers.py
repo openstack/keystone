@@ -391,21 +391,24 @@ class Role(controller.V2Controller):
 
 
 class DomainV3(controller.V3Controller):
+    collection_name = 'domains'
+    member_name = 'domain'
+
     @controller.protected
     def create_domain(self, context, domain):
         ref = self._assign_unique_id(self._normalize_dict(domain))
         ref = self.identity_api.create_domain(context, ref['id'], ref)
-        return {'domain': ref}
+        return DomainV3.wrap_member(context, ref)
 
     @controller.protected
     def list_domains(self, context):
         refs = self.identity_api.list_domains(context)
-        return {'domains': self._paginate(context, refs)}
+        return DomainV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_domain(self, context, domain_id):
         ref = self.identity_api.get_domain(context, domain_id)
-        return {'domain': ref}
+        return DomainV3.wrap_member(context, ref)
 
     @controller.protected
     def update_domain(self, context, domain_id, domain):
@@ -441,7 +444,7 @@ class DomainV3(controller.V3Controller):
                             user_id=user['id'],
                             tenant_id=project['id'])
 
-        return {'domain': ref}
+        return DomainV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_domain(self, context, domain_id):
@@ -455,33 +458,36 @@ class DomainV3(controller.V3Controller):
 
 
 class ProjectV3(controller.V3Controller):
+    collection_name = 'projects'
+    member_name = 'project'
+
     @controller.protected
     def create_project(self, context, project):
         ref = self._assign_unique_id(self._normalize_dict(project))
         ref = self.identity_api.create_project(context, ref['id'], ref)
-        return {'project': ref}
+        return ProjectV3.wrap_member(context, ref)
 
     @controller.protected
     def list_projects(self, context):
         refs = self.identity_api.list_projects(context)
-        return {'projects': self._paginate(context, refs)}
+        return ProjectV3.wrap_collection(context, refs)
 
     @controller.protected
     def list_user_projects(self, context, user_id):
         refs = self.identity_api.list_user_projects(context, user_id)
-        return {'projects': self._paginate(context, refs)}
+        return ProjectV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_project(self, context, project_id):
         ref = self.identity_api.get_project(context, project_id)
-        return {'project': ref}
+        return ProjectV3.wrap_member(context, ref)
 
     @controller.protected
     def update_project(self, context, project_id, project):
         self._require_matching_id(project_id, project)
 
         ref = self.identity_api.update_project(context, project_id, project)
-        return {'project': ref}
+        return ProjectV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_project(self, context, project_id):
@@ -489,26 +495,29 @@ class ProjectV3(controller.V3Controller):
 
 
 class UserV3(controller.V3Controller):
+    collection_name = 'users'
+    member_name = 'user'
+
     @controller.protected
     def create_user(self, context, user):
         ref = self._assign_unique_id(self._normalize_dict(user))
         ref = self.identity_api.create_user(context, ref['id'], ref)
-        return {'user': ref}
+        return UserV3.wrap_member(context, ref)
 
     @controller.protected
     def list_users(self, context):
         refs = self.identity_api.list_users(context)
-        return {'users': self._paginate(context, refs)}
+        return UserV3.wrap_collection(context, refs)
 
     @controller.protected
     def list_users_in_group(self, context, group_id):
         refs = self.identity_api.list_users_in_group(context, group_id)
-        return {'users': self._paginate(context, refs)}
+        return UserV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_user(self, context, user_id):
         ref = self.identity_api.get_user(context, user_id)
-        return {'user': ref}
+        return UserV3.wrap_member(context, ref)
 
     @controller.protected
     def update_user(self, context, user_id, user):
@@ -522,7 +531,7 @@ class UserV3(controller.V3Controller):
                 context,
                 user_id=user['id'])
 
-        return {'user': ref}
+        return UserV3.wrap_member(context, ref)
 
     @controller.protected
     def add_user_to_group(self, context, user_id, group_id):
@@ -545,33 +554,36 @@ class UserV3(controller.V3Controller):
 
 
 class GroupV3(controller.V3Controller):
+    collection_name = 'groups'
+    member_name = 'group'
+
     @controller.protected
     def create_group(self, context, group):
         ref = self._assign_unique_id(self._normalize_dict(group))
         ref = self.identity_api.create_group(context, ref['id'], ref)
-        return {'group': ref}
+        return GroupV3.wrap_member(context, ref)
 
     @controller.protected
     def list_groups(self, context):
         refs = self.identity_api.list_groups(context)
-        return {'groups': self._paginate(context, refs)}
+        return GroupV3.wrap_collection(context, refs)
 
     @controller.protected
     def list_groups_for_user(self, context, user_id):
         refs = self.identity_api.list_groups_for_user(context, user_id)
-        return {'groups': self._paginate(context, refs)}
+        return GroupV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_group(self, context, group_id):
         ref = self.identity_api.get_group(context, group_id)
-        return {'group': ref}
+        return GroupV3.wrap_member(context, ref)
 
     @controller.protected
     def update_group(self, context, group_id, group):
         self._require_matching_id(group_id, group)
 
         ref = self.identity_api.update_group(context, group_id, group)
-        return {'group': ref}
+        return GroupV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_group(self, context, group_id):
@@ -579,21 +591,24 @@ class GroupV3(controller.V3Controller):
 
 
 class CredentialV3(controller.V3Controller):
+    collection_name = 'credentials'
+    member_name = 'credential'
+
     @controller.protected
     def create_credential(self, context, credential):
         ref = self._assign_unique_id(self._normalize_dict(credential))
         ref = self.identity_api.create_credential(context, ref['id'], ref)
-        return {'credential': ref}
+        return CredentialV3.wrap_member(context, ref)
 
     @controller.protected
     def list_credentials(self, context):
         refs = self.identity_api.list_credentials(context)
-        return {'credentials': self._paginate(context, refs)}
+        return CredentialV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_credential(self, context, credential_id):
         ref = self.identity_api.get_credential(context, credential_id)
-        return {'credential': ref}
+        return CredentialV3.wrap_member(context, ref)
 
     @controller.protected
     def update_credential(self, context, credential_id, credential):
@@ -603,7 +618,7 @@ class CredentialV3(controller.V3Controller):
             context,
             credential_id,
             credential)
-        return {'credential': ref}
+        return CredentialV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_credential(self, context, credential_id):
@@ -611,28 +626,31 @@ class CredentialV3(controller.V3Controller):
 
 
 class RoleV3(controller.V3Controller):
+    collection_name = 'roles'
+    member_name = 'role'
+
     @controller.protected
     def create_role(self, context, role):
         ref = self._assign_unique_id(self._normalize_dict(role))
         ref = self.identity_api.create_role(context, ref['id'], ref)
-        return {'role': ref}
+        return RoleV3.wrap_member(context, ref)
 
     @controller.protected
     def list_roles(self, context):
         refs = self.identity_api.list_roles(context)
-        return {'roles': self._paginate(context, refs)}
+        return RoleV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_role(self, context, role_id):
         ref = self.identity_api.get_role(context, role_id)
-        return {'role': ref}
+        return RoleV3.wrap_member(context, ref)
 
     @controller.protected
     def update_role(self, context, role_id, role):
         self._require_matching_id(role_id, role)
 
         ref = self.identity_api.update_role(context, role_id, role)
-        return {'role': ref}
+        return RoleV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_role(self, context, role_id):
@@ -655,7 +673,7 @@ class RoleV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
-        return self.identity_api.create_grant(
+        self.identity_api.create_grant(
             context, role_id, user_id, group_id, domain_id, project_id)
 
     @controller.protected
@@ -665,8 +683,9 @@ class RoleV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
-        return self.identity_api.list_grants(
+        refs = self.identity_api.list_grants(
             context, user_id, group_id, domain_id, project_id)
+        return RoleV3.wrap_collection(context, refs)
 
     @controller.protected
     def check_grant(self, context, role_id, user_id=None, group_id=None,

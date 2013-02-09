@@ -2,11 +2,12 @@ import uuid
 
 from keystone.common.sql import util as sql_util
 from keystone import test
+from keystone import config
 
 import test_content_types
 
 
-BASE_URL = 'http://127.0.0.1:35357/v3'
+CONF = config.CONF
 
 
 class RestfulTestCase(test_content_types.RestfulTestCase):
@@ -133,7 +134,8 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def delete(self, path, **kwargs):
         return self.v3_request(method='DELETE', path=path, **kwargs)
 
-    def assertValidListResponse(self, resp, key, entity_validator, ref=None):
+    def assertValidListResponse(self, resp, key, entity_validator, ref=None,
+                                expected_length=None):
         """Make assertions common to all API list responses.
 
         If a reference is provided, it's ID will be searched for in the
@@ -142,7 +144,20 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         """
         entities = resp.body.get(key)
         self.assertIsNotNone(entities)
-        self.assertTrue(len(entities))
+
+        if expected_length is not None:
+            self.assertEqual(len(entities), expected_length)
+        elif ref is not None:
+            # we're at least expecting the ref
+            self.assertTrue(len(entities))
+
+        # collections should have relational links
+        self.assertIsNotNone(resp.body.get('links'))
+        self.assertIn('previous', resp.body['links'])
+        self.assertIn('self', resp.body['links'])
+        self.assertIn('next', resp.body['links'])
+        self.assertIn(CONF.public_endpoint % CONF, resp.body['links']['self'])
+
         for entity in entities:
             self.assertIsNotNone(entity)
             self.assertValidEntity(entity)
@@ -173,10 +188,10 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             msg = '%s unnexpectedly None in %s' % (k, entity)
             self.assertIsNotNone(entity.get(k), msg)
 
-        # FIXME(dolph): need to test this in v3
-        # self.assertIsNotNone(entity.get('link'))
-        # self.assertIsNotNone(entity['link'].get('href'))
-        # self.assertEquals(entity['link'].get('rel'), 'self')
+        self.assertIsNotNone(entity.get('links'))
+        self.assertIsNotNone(entity['links'].get('self'))
+        self.assertIn(CONF.public_endpoint % CONF, entity['links']['self'])
+        self.assertIn(entity['id'], entity['links']['self'])
 
         if ref:
             for k in keys:

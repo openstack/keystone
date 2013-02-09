@@ -17,12 +17,12 @@ class PolicyTestCase(test_v3.RestfulTestCase):
 
     # policy validation
 
-    def assertValidPolicyListResponse(self, resp, ref):
+    def assertValidPolicyListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'policies',
             self.assertValidPolicy,
-            ref)
+            **kwargs)
 
     def assertValidPolicyResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -52,7 +52,7 @@ class PolicyTestCase(test_v3.RestfulTestCase):
     def test_list_policies(self):
         """GET /policies"""
         r = self.get('/policies')
-        self.assertValidPolicyListResponse(r, self.policy)
+        self.assertValidPolicyListResponse(r, ref=self.policy)
 
     def test_get_policy(self):
         """GET /policies/{policy_id}"""

@@ -211,6 +211,7 @@ class Application(BaseApplication):
         # allow middleware up the stack to provide context & params
         context = req.environ.get(CONTEXT_ENV, {})
         context['query_string'] = dict(req.params.iteritems())
+        context['path'] = req.environ['PATH_INFO']
         params = req.environ.get(PARAMS_ENV, {})
         if 'REMOTE_USER' in req.environ:
             context['REMOTE_USER'] = req.environ['REMOTE_USER']

@@ -18,6 +18,9 @@ from keystone.common import controller
 
 
 class PolicyV3(controller.V3Controller):
+    collection_name = 'policies'
+    member_name = 'policy'
+
     @controller.protected
     def create_policy(self, context, policy):
         ref = self._assign_unique_id(self._normalize_dict(policy))
@@ -25,23 +28,23 @@ class PolicyV3(controller.V3Controller):
         self._require_attribute(ref, 'type')
 
         ref = self.policy_api.create_policy(context, ref['id'], ref)
-        return {'policy': ref}
+        return PolicyV3.wrap_member(context, ref)
 
     @controller.protected
     def list_policies(self, context):
         refs = self.policy_api.list_policies(context)
         refs = self._filter_by_attribute(context, refs, 'type')
-        return {'policies': self._paginate(context, refs)}
+        return PolicyV3.wrap_collection(context, refs)
 
     @controller.protected
     def get_policy(self, context, policy_id):
         ref = self.policy_api.get_policy(context, policy_id)
-        return {'policy': ref}
+        return PolicyV3.wrap_member(context, ref)
 
     @controller.protected
     def update_policy(self, context, policy_id, policy):
         ref = self.policy_api.update_policy(context, policy_id, policy)
-        return {'policy': ref}
+        return PolicyV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_policy(self, context, policy_id):

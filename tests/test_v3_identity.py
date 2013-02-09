@@ -49,12 +49,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     # domain validation
 
-    def assertValidDomainListResponse(self, resp, ref):
+    def assertValidDomainListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'domains',
             self.assertValidDomain,
-            ref)
+            **kwargs)
 
     def assertValidDomainResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -70,12 +70,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     # project validation
 
-    def assertValidProjectListResponse(self, resp, ref):
+    def assertValidProjectListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'projects',
             self.assertValidProject,
-            ref)
+            **kwargs)
 
     def assertValidProjectResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -92,12 +92,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     # user validation
 
-    def assertValidUserListResponse(self, resp, ref):
+    def assertValidUserListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'users',
             self.assertValidUser,
-            ref)
+            **kwargs)
 
     def assertValidUserResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -117,12 +117,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     # group validation
 
-    def assertValidGroupListResponse(self, resp, ref):
+    def assertValidGroupListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'groups',
             self.assertValidGroup,
-            ref)
+            **kwargs)
 
     def assertValidGroupResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -139,12 +139,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     # credential validation
 
-    def assertValidCredentialListResponse(self, resp, ref):
+    def assertValidCredentialListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'credentials',
             self.assertValidCredential,
-            ref)
+            **kwargs)
 
     def assertValidCredentialResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -166,12 +166,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     # role validation
 
-    def assertValidRoleListResponse(self, resp, ref):
+    def assertValidRoleListResponse(self, resp, **kwargs):
         return self.assertValidListResponse(
             resp,
             'roles',
             self.assertValidRole,
-            ref)
+            **kwargs)
 
     def assertValidRoleResponse(self, resp, ref):
         return self.assertValidResponse(
@@ -183,27 +183,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def assertValidRole(self, entity, ref=None):
         self.assertIsNotNone(entity.get('name'))
         if ref:
-            self.assertEqual(ref['name'], entity['name'])
-        return entity
-
-    # grant validation
-
-    def assertValidGrantListResponse(self, resp, ref):
-        entities = resp.body
-        self.assertIsNotNone(entities)
-        self.assertTrue(len(entities))
-        for i, entity in enumerate(entities):
-            self.assertValidEntity(entity)
-            self.assertValidGrant(entity, ref)
-            if ref and entity['id'] == ref['id'][0]:
-                self.assertValidEntity(entity, ref)
-                self.assertValidGrant(entity, ref)
-
-    def assertValidGrant(self, entity, ref=None):
-        self.assertIsNotNone(entity.get('id'))
-        self.assertIsNotNone(entity.get('name'))
-        if ref:
-            self.assertEqual(ref['id'], entity['id'])
             self.assertEqual(ref['name'], entity['name'])
         return entity
 
@@ -220,7 +199,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_domains(self):
         """GET /domains"""
         r = self.get('/domains')
-        self.assertValidDomainListResponse(r, self.domain)
+        self.assertValidDomainListResponse(r, ref=self.domain)
 
     def test_get_domain(self):
         """GET /domains/{domain_id}"""
@@ -268,7 +247,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_projects(self):
         """GET /projects"""
         r = self.get('/projects')
-        self.assertValidProjectListResponse(r, self.project)
+        self.assertValidProjectListResponse(r, ref=self.project)
 
     def test_create_project(self):
         """POST /projects"""
@@ -314,7 +293,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_users(self):
         """GET /users"""
         r = self.get('/users')
-        self.assertValidUserListResponse(r, self.user)
+        self.assertValidUserListResponse(r, ref=self.user)
 
     def test_get_user(self):
         """GET /users/{user_id}"""
@@ -340,7 +319,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             'group_id': self.group_id, 'user_id': self.user_id})
         r = self.get('/groups/%(group_id)s/users' % {
             'group_id': self.group_id})
-        self.assertValidUserListResponse(r, self.user)
+        self.assertValidUserListResponse(r, ref=self.user)
+        self.assertIn('/groups/%(group_id)s/users' % {
+            'group_id': self.group_id}, r.body['links']['self'])
 
     def test_remove_user_from_group(self):
         """DELETE /groups/{group_id}/users/{user_id}"""
@@ -376,7 +357,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_groups(self):
         """GET /groups"""
         r = self.get('/groups')
-        self.assertValidGroupListResponse(r, self.group)
+        self.assertValidGroupListResponse(r, ref=self.group)
 
     def test_get_group(self):
         """GET /groups/{group_id}"""
@@ -403,7 +384,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_credentials(self):
         """GET /credentials"""
         r = self.get('/credentials')
-        self.assertValidCredentialListResponse(r, self.credential)
+        self.assertValidCredentialListResponse(r, ref=self.credential)
 
     def test_create_credential(self):
         """POST /credentials"""
@@ -451,7 +432,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_roles(self):
         """GET /roles"""
         r = self.get('/roles')
-        self.assertValidRoleListResponse(r, self.role)
+        self.assertValidRoleListResponse(r, ref=self.role)
 
     def test_get_role(self):
         """GET /roles/{role_id}"""
@@ -473,82 +454,82 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.delete('/roles/%(role_id)s' % {
             'role_id': self.role_id})
 
-    def test_create_user_project_grant(self):
-        """PUT /projects/{project_id}/users/{user_id}/roles/{role_id}"""
-        self.put('/projects/%(project_id)s/users/%(user_id)s/roles/'
-                 '%(role_id)s' % {
-                 'project_id': self.project_id,
-                 'user_id': self.user_id,
-                 'role_id': self.role_id})
-        self.head('/projects/%(project_id)s/users/%(user_id)s/roles/'
-                  '%(role_id)s' % {
-                  'project_id': self.project_id,
-                  'user_id': self.user_id,
-                  'role_id': self.role_id})
+    def test_crud_user_project_role_grants(self):
+        collection_url = (
+            '/projects/%(project_id)s/users/%(user_id)s/roles' % {
+                'project_id': self.project_id,
+                'user_id': self.user_id})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
 
-    def test_create_group_project_grant(self):
-        """PUT /projects/{project_id}/groups/{group_id}/roles/{role_id}"""
-        self.put('/projects/%(project_id)s/groups/%(group_id)s/roles/'
-                 '%(role_id)s' % {
-                 'project_id': self.project_id,
-                 'group_id': self.group_id,
-                 'role_id': self.role_id})
-        self.head('/projects/%(project_id)s/groups/%(group_id)s/roles/'
-                  '%(role_id)s' % {
-                  'project_id': self.project_id,
-                  'group_id': self.group_id,
-                  'role_id': self.role_id})
+        self.put(member_url)
+        self.head(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, ref=self.role)
+        self.assertIn(collection_url, r.body['links']['self'])
 
-    def test_create_group_domain_grant(self):
-        """PUT /domains/{domain_id}/groups/{group_id}/roles/{role_id}"""
-        self.put('/domains/%(domain_id)s/groups/%(group_id)s/roles/'
-                 '%(role_id)s' % {
-                 'domain_id': self.domain_id,
-                 'group_id': self.group_id,
-                 'role_id': self.role_id})
-        self.head('/domains/%(domain_id)s/groups/%(group_id)s/roles/'
-                  '%(role_id)s' % {
-                  'domain_id': self.domain_id,
-                  'group_id': self.group_id,
-                  'role_id': self.role_id})
+        self.delete(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, expected_length=0)
+        self.assertIn(collection_url, r.body['links']['self'])
 
-    def test_list_user_project_grants(self):
-        """GET /projects/{project_id}/users/{user_id}/roles"""
-        self.put('/projects/%(project_id)s/users/%(user_id)s/roles/'
-                 '%(role_id)s' % {
-                 'project_id': self.project_id,
-                 'user_id': self.user_id,
-                 'role_id': self.role_id})
-        r = self.get('/projects/%(project_id)s/users/%(user_id)s/roles' % {
-                     'project_id': self.project_id,
-                     'user_id': self.user_id})
-        self.assertValidGrantListResponse(r, self.role)
+    def test_crud_user_domain_role_grants(self):
+        collection_url = (
+            '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
+                'domain_id': self.domain_id,
+                'user_id': self.user_id})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
 
-    def test_list_group_project_grants(self):
-        """GET /projects/{project_id}/groups/{group_id}/roles"""
-        self.put('/projects/%(project_id)s/groups/%(group_id)s/roles/'
-                 '%(role_id)s' % {
-                 'project_id': self.project_id,
-                 'group_id': self.group_id,
-                 'role_id': self.role_id})
-        r = self.get('/projects/%(project_id)s/groups/%(group_id)s/roles' % {
-                     'project_id': self.project_id,
-                     'group_id': self.group_id})
-        self.assertValidGrantListResponse(r, self.role)
+        self.put(member_url)
+        self.head(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, ref=self.role)
+        self.assertIn(collection_url, r.body['links']['self'])
 
-    def test_delete_group_project_grant(self):
-        """DELETE /projects/{project_id}/groups/{group_id}/roles/{role_id}"""
-        self.put('/projects/%(project_id)s/groups/%(group_id)s/roles/'
-                 '%(role_id)s' % {
-                 'project_id': self.project_id,
-                 'group_id': self.group_id,
-                 'role_id': self.role_id})
-        self.delete('/projects/%(project_id)s/groups/%(group_id)s/roles/'
-                    '%(role_id)s' % {
-                    'project_id': self.project_id,
-                    'group_id': self.group_id,
-                    'role_id': self.role_id})
-        r = self.get('/projects/%(project_id)s/groups/%(group_id)s/roles' % {
-                     'project_id': self.project_id,
-                     'group_id': self.group_id})
-        self.assertEquals(len(r.body), 0)
+        self.delete(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, expected_length=0)
+        self.assertIn(collection_url, r.body['links']['self'])
+
+    def test_crud_group_project_role_grants(self):
+        collection_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/roles' % {
+                'project_id': self.project_id,
+                'group_id': self.group_id})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        self.put(member_url)
+        self.head(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, ref=self.role)
+        self.assertIn(collection_url, r.body['links']['self'])
+
+        self.delete(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, expected_length=0)
+        self.assertIn(collection_url, r.body['links']['self'])
+
+    def test_crud_group_domain_role_grants(self):
+        collection_url = (
+            '/domains/%(domain_id)s/groups/%(group_id)s/roles' % {
+                'domain_id': self.domain_id,
+                'group_id': self.group_id})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        self.put(member_url)
+        self.head(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, ref=self.role)
+        self.assertIn(collection_url, r.body['links']['self'])
+
+        self.delete(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, expected_length=0)
+        self.assertIn(collection_url, r.body['links']['self'])
