@@ -16,14 +16,15 @@
 
 from __future__ import absolute_import
 
-from keystone.common import openssl
-from keystone import config
-from keystone.openstack.common import cfg
-from keystone.openstack.common import importutils
-from keystone.openstack.common import jsonutils
-
 import grp
 import pwd
+
+from oslo.config import cfg
+
+from keystone.common import openssl
+from keystone import config
+from keystone.openstack.common import importutils
+from keystone.openstack.common import jsonutils
 
 CONF = config.CONF
 
