@@ -51,27 +51,25 @@ logging_cli_opts = [
     cfg.StrOpt('log-format',
                default=_DEFAULT_LOG_FORMAT,
                metavar='FORMAT',
-               help='A logging.Formatter log message format string which may'
-                    'use any of the available logging.LogRecord attributes. '
-                    'Default: %(default)s'),
+               help='A logging.Formatter log message format string which may '
+                    'use any of the available logging.LogRecord attributes.'),
     cfg.StrOpt('log-date-format',
                default=_DEFAULT_LOG_DATE_FORMAT,
                metavar='DATE_FORMAT',
-               help='Format string for %%(asctime)s in log records. '
-                    'Default: %(default)s'),
+               help='Format string for %%(asctime)s in log records.'),
     cfg.StrOpt('log-file',
                metavar='PATH',
-               help='(Optional) Name of log file to output to. '
+               help='Name of log file to output. '
                     'If not set, logging will go to stdout.'),
     cfg.StrOpt('log-dir',
-               help='(Optional) The directory to keep log files in '
-                    '(will be prepended to --logfile)'),
+               help='The directory in which to store log files. '
+                    '(will be prepended to --log-file)'),
     cfg.BoolOpt('use-syslog',
                 default=False,
                 help='Use syslog for logging.'),
     cfg.StrOpt('syslog-log-facility',
                default='LOG_USER',
-               help='syslog facility to receive log lines')
+               help='syslog facility to receive log lines.')
 ]
 
 CONF = cfg.CONF
