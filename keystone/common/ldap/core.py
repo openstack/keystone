@@ -71,7 +71,6 @@ class BaseLdap(object):
     model = None
     attribute_mapping = {}
     attribute_ignore = []
-    model = None
     tree_dn = None
 
     def __init__(self, conf):
