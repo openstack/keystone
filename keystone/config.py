@@ -48,11 +48,24 @@ logging_cli_opts = [
                     'options specified. Please see the Python logging module '
                     'documentation for details on logging configuration '
                     'files.'),
+    cfg.StrOpt('log-format',
+               default=_DEFAULT_LOG_FORMAT,
+               metavar='FORMAT',
+               help='A logging.Formatter log message format string which may'
+                    'use any of the available logging.LogRecord attributes. '
+                    'Default: %(default)s'),
     cfg.StrOpt('log-date-format',
                default=_DEFAULT_LOG_DATE_FORMAT,
                metavar='DATE_FORMAT',
                help='Format string for %%(asctime)s in log records. '
                     'Default: %(default)s'),
+    cfg.StrOpt('log-file',
+               metavar='PATH',
+               help='(Optional) Name of log file to output to. '
+                    'If not set, logging will go to stdout.'),
+    cfg.StrOpt('log-dir',
+               help='(Optional) The directory to keep log files in '
+                    '(will be prepended to --logfile)'),
     cfg.BoolOpt('use-syslog',
                 default=False,
                 help='Use syslog for logging.'),
