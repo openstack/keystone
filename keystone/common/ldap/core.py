@@ -210,7 +210,10 @@ class BaseLdap(object):
             paramfilter = filter if filter is not None else ''
             query = '(&%s%s%s)' % (localfilter, paramfilter, query)
         try:
-            res = conn.search_s(self._id_to_dn(id), ldap.SCOPE_BASE, query)
+            res = conn.search_s(self._id_to_dn(id),
+                                ldap.SCOPE_BASE,
+                                query,
+                                self.attribute_mapping.values())
         except ldap.NO_SUCH_OBJECT:
             return None
 
@@ -227,7 +230,10 @@ class BaseLdap(object):
             paramfilter = filter if filter is not None else ''
             query = '(&%s%s%s)' % (localfilter, paramfilter, query)
         try:
-            return conn.search_s(self.tree_dn, ldap.SCOPE_ONELEVEL, query)
+            return conn.search_s(self.tree_dn,
+                                 ldap.SCOPE_ONELEVEL,
+                                 query,
+                                 self.attribute_mapping.values())
         except ldap.NO_SUCH_OBJECT:
             return []
 
@@ -351,13 +357,14 @@ class LdapWrapper(object):
             LOG.debug(_('LDAP add: dn=%s, attrs=%s'), dn, sane_attrs)
         return self.conn.add_s(dn, ldap_attrs)
 
-    def search_s(self, dn, scope, query):
+    def search_s(self, dn, scope, query, attrlist=None):
         if LOG.isEnabledFor(logging.DEBUG):
-            LOG.debug(_('LDAP search: dn=%s, scope=%s, query=%s'),
+            LOG.debug(_('LDAP search: dn=%s, scope=%s, query=%s, attrs=%s'),
                       dn,
                       scope,
-                      query)
-        res = self.conn.search_s(dn, scope, query)
+                      query,
+                      attrlist)
+        res = self.conn.search_s(dn, scope, query, attrlist)
 
         o = []
         for dn, attrs in res:
