@@ -26,6 +26,8 @@ LOG = logging.getLogger(__name__)
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}
 CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
+LDAP_SCOPES = {'one': ldap.SCOPE_ONELEVEL,
+               'sub': ldap.SCOPE_SUBTREE}
 
 
 def py2ldap(val):
@@ -59,6 +61,14 @@ def safe_iter(attrs):
         yield attrs
 
 
+def ldap_scope(scope):
+    try:
+        return LDAP_SCOPES[scope]
+    except KeyError:
+        raise ValueError(_('Invalid LDAP scope: %s. Choose one of: ' % scope) +
+                         ', '.join(LDAP_SCOPES.keys()))
+
+
 class BaseLdap(object):
     DEFAULT_SUFFIX = "dc=example,dc=com"
     DEFAULT_OU = None
@@ -77,6 +87,7 @@ class BaseLdap(object):
         self.LDAP_URL = conf.ldap.url
         self.LDAP_USER = conf.ldap.user
         self.LDAP_PASSWORD = conf.ldap.password
+        self.LDAP_SCOPE = ldap_scope(conf.ldap.query_scope)
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
@@ -133,9 +144,18 @@ class BaseLdap(object):
         return conn
 
     def _id_to_dn(self, id):
-        return '%s=%s,%s' % (self.id_attr,
-                             ldap.dn.escape_dn_chars(str(id)),
-                             self.tree_dn)
+        conn = self.get_connection()
+        try:
+            dn, attrs = conn.search_s(
+                self.tree_dn, self.LDAP_SCOPE,
+                '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
+                {'id_attr': self.id_attr,
+                 'id': ldap.filter.escape_filter_chars(str(id)),
+                 'objclass': self.object_class})[0]
+        except ValueError, IndexError:
+            raise ldap.NO_SUCH_OBJECT
+        else:
+            return dn
 
     @staticmethod
     def _dn_to_id(dn):
@@ -203,16 +223,18 @@ class BaseLdap(object):
 
     def _ldap_get(self, id, filter=None):
         conn = self.get_connection()
-        query = '(&%s(objectClass=%s))' % (filter or self.filter or '',
-                                           self.object_class)
+        query = ('(&(%(id_attr)s=%(id)s)'
+                 '%(filter)s'
+                 '(objectClass=%(object_class)s))'
+                 % {'id_attr': self.id_attr,
+                    'id': ldap.filter.escape_filter_chars(str(id)),
+                    'filter': (filter or self.filter or ''),
+                    'object_class': self.object_class})
         try:
-            res = conn.search_s(self._id_to_dn(id),
-                                ldap.SCOPE_BASE,
-                                query,
+            res = conn.search_s(self.tree_dn, self.LDAP_SCOPE, query,
                                 self.attribute_mapping.values())
         except ldap.NO_SUCH_OBJECT:
             return None
-
         try:
             return res[0]
         except IndexError:
@@ -224,7 +246,7 @@ class BaseLdap(object):
                                            self.object_class)
         try:
             return conn.search_s(self.tree_dn,
-                                 ldap.SCOPE_ONELEVEL,
+                                 self.LDAP_SCOPE,
                                  query,
                                  self.attribute_mapping.values())
         except ldap.NO_SUCH_OBJECT:
