@@ -44,6 +44,11 @@ CONF = config.CONF
 
 
 class SqlUpgradeTests(test.TestCase):
+
+    def initialize_sql(self):
+        self.metadata = sqlalchemy.MetaData()
+        self.metadata.bind = self.engine
+
     def setUp(self):
         super(SqlUpgradeTests, self).setUp()
         self.config([test.etcdir('keystone.conf.sample'),
@@ -51,18 +56,16 @@ class SqlUpgradeTests(test.TestCase):
                      test.testsdir('backend_sql.conf')])
 
         # create and share a single sqlalchemy engine for testing
-        base = sql.Base()
-        self.engine = base.get_engine(allow_global_engine=False)
-        self.Session = base.get_sessionmaker(
-            engine=self.engine,
-            autocommit=False)
-        self.metadata = sqlalchemy.MetaData()
+        self.base = sql.Base()
+        self.engine = self.base.get_engine(allow_global_engine=False)
+        self.Session = self.base.get_sessionmaker(engine=self.engine,
+                                                  autocommit=False)
 
-        # populate the engine with tables & fixtures
-        self.metadata.bind = self.engine
+        self.initialize_sql()
         self.repo_path = migration._find_migrate_repo()
-        self.schema = versioning_api.ControlledSchema.create(self.engine,
-                                                             self.repo_path, 0)
+        self.schema = versioning_api.ControlledSchema.create(
+            self.engine,
+            self.repo_path, 0)
 
         # auto-detect the highest available schema version in the migrate_repo
         self.max_version = self.schema.repository.version().version
@@ -82,7 +85,7 @@ class SqlUpgradeTests(test.TestCase):
         self.assertEqual(version, 0, "DB is at version 0")
 
     def test_two_steps_forward_one_step_back(self):
-        """You should be able to cleanly undo a re-apply all upgrades.
+        """You should be able to cleanly undo and re-apply all upgrades.
 
         Upgrades are run in the following order::
 
@@ -97,6 +100,7 @@ class SqlUpgradeTests(test.TestCase):
 
     def assertTableColumns(self, table_name, expected_cols):
         """Asserts that the table contains the expected set of columns."""
+        self.initialize_sql()
         table = self.select_table(table_name)
         actual_cols = [col.name for col in table.columns]
         self.assertEqual(expected_cols, actual_cols, '%s table' % table_name)
@@ -352,14 +356,17 @@ class SqlUpgradeTests(test.TestCase):
                                 ['user_id', 'domain_id', 'data'])
 
     def populate_user_table(self):
+        user_table = sqlalchemy.Table('user',
+                                      self.metadata,
+                                      autoload=True)
+        session = self.Session()
+        insert = user_table.insert()
         for user in default_fixtures.USERS:
             extra = copy.deepcopy(user)
             extra.pop('id')
             extra.pop('name')
-            self.engine.execute("insert into user values ('%s', '%s', '%s')"
-                                % (user['id'],
-                                   user['name'],
-                                   json.dumps(extra)))
+            user['extra'] = json.dumps(extra)
+            insert.execute(user)
 
     def populate_tenant_table(self):
         for tenant in default_fixtures.TENANTS:

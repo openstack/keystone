@@ -17,10 +17,11 @@
 
 from sqlalchemy import Column, MetaData, String, Table, Text, types
 from sqlalchemy.orm import sessionmaker
+from keystone import config
 
 
 #sqlite doesn't support dropping columns. Copy to a new table instead
-def downgrade_user_table(meta, migrate_engine):
+def downgrade_user_table_with_copy(meta, migrate_engine):
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
     session.execute("ALTER TABLE user RENAME TO orig_user;")
@@ -43,7 +44,7 @@ def downgrade_user_table(meta, migrate_engine):
     session.execute("drop table orig_user;")
 
 
-def downgrade_tenant_table(meta, migrate_engine):
+def downgrade_tenant_table_with_copy(meta, migrate_engine):
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
     session.execute("ALTER TABLE tenant RENAME TO orig_tenant;")
@@ -66,17 +67,30 @@ def downgrade_tenant_table(meta, migrate_engine):
     session.execute("drop table orig_tenant;")
 
 
+def downgrade_user_table_with_column_drop(meta, migrate_engine):
+    user_table = Table('user', meta, autoload=True)
+    user_table.drop_column(Column('password', String(128)))
+    user_table.drop_column(Column('enabled', types.Boolean,
+                                  default=True))
+
+
+def downgrade_tenant_table_with_column_drop(meta, migrate_engine):
+    tenant_table = Table('tenant', meta, autoload=True)
+    tenant_table.drop_column(Column('description', Text()))
+    tenant_table.drop_column(Column('enabled', types.Boolean))
+
+
 def upgrade_user_table(meta, migrate_engine):
     user_table = Table('user', meta, autoload=True)
-    user_table.create_column(Column("password", String(128)))
-    user_table.create_column(Column("enabled", types.Boolean,
+    user_table.create_column(Column('password', String(128)))
+    user_table.create_column(Column('enabled', types.Boolean,
                                     default=True))
 
 
 def upgrade_tenant_table(meta, migrate_engine):
     tenant_table = Table('tenant', meta, autoload=True)
-    tenant_table.create_column(Column("description", Text()))
-    tenant_table.create_column(Column("enabled", types.Boolean))
+    tenant_table.create_column(Column('description', Text()))
+    tenant_table.create_column(Column('enabled', types.Boolean))
 
 
 def upgrade(migrate_engine):
@@ -89,5 +103,9 @@ def upgrade(migrate_engine):
 def downgrade(migrate_engine):
     meta = MetaData()
     meta.bind = migrate_engine
-    downgrade_user_table(meta, migrate_engine)
-    downgrade_tenant_table(meta, migrate_engine)
+    if migrate_engine.name == 'sqlite':
+        downgrade_user_table_with_copy(meta, migrate_engine)
+        downgrade_tenant_table_with_copy(meta, migrate_engine)
+    else:
+        downgrade_user_table_with_column_drop(meta, migrate_engine)
+        downgrade_tenant_table_with_column_drop(meta, migrate_engine)

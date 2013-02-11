@@ -40,9 +40,11 @@ def downgrade_user_table(meta, migrate_engine):
         extra = json.loads(user.extra)
         extra['password'] = user.password
         extra['enabled'] = '%r' % user.enabled
-        session.execute(
-            'UPDATE `user` SET `extra`=:extra WHERE `id`=:id',
-            {'id': user.id, 'extra': json.dumps(extra)})
+        values = {'extra':  json.dumps(extra)}
+        update = user_table.update().\
+            where(user_table.c.id == user.id).\
+            values(values)
+        migrate_engine.execute(update)
     session.commit()
 
 
@@ -54,9 +56,11 @@ def downgrade_tenant_table(meta, migrate_engine):
         extra = json.loads(tenant.extra)
         extra['description'] = tenant.description
         extra['enabled'] = '%r' % tenant.enabled
-        session.execute(
-            'UPDATE `tenant` SET `extra`=:extra WHERE `id`=:id',
-            {'id': tenant.id, 'extra': json.dumps(extra)})
+        values = {'extra': json.dumps(extra)}
+        update = tenant_table.update().\
+            where(tenant_table.c.id == tenant.id).\
+            values(values)
+        migrate_engine.execute(update)
     session.commit()
 
 
@@ -64,19 +68,15 @@ def upgrade_user_table(meta, migrate_engine):
     user_table = Table('user', meta, autoload=True)
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
-
     for user in session.query(user_table).all():
         extra = json.loads(user.extra)
-        password = extra.pop('password', None)
-        enabled = extra.pop('enabled', True)
-        session.execute(
-            'UPDATE `user` SET `password`=:password, `enabled`=:enabled, '
-            '`extra`=:extra WHERE `id`=:id',
-            {
-                'id': user.id,
-                'password': password,
-                'enabled': is_enabled(enabled),
-                'extra': json.dumps(extra)})
+        values = {'password': extra.pop('password', None),
+                  'enabled': extra.pop('enabled', True),
+                  'extra': json.dumps(extra)}
+        update = user_table.update().\
+            where(user_table.c.id == user.id).\
+            values(values)
+        migrate_engine.execute(update)
     session.commit()
 
 
@@ -87,16 +87,13 @@ def upgrade_tenant_table(meta, migrate_engine):
     session = maker()
     for tenant in session.query(tenant_table):
         extra = json.loads(tenant.extra)
-        description = extra.pop('description', None)
-        enabled = extra.pop('enabled', True)
-        session.execute(
-            'UPDATE `tenant` SET `enabled`=:enabled, `extra`=:extra, '
-            '`description`=:description WHERE `id`=:id',
-            {
-                'id': tenant.id,
-                'description': description,
-                'enabled': is_enabled(enabled),
-                'extra': json.dumps(extra)})
+        values = {'description': extra.pop('description', None),
+                  'enabled': extra.pop('enabled', True),
+                  'extra': json.dumps(extra)}
+        update = tenant_table.update().\
+            where(tenant_table.c.id == tenant.id).\
+            values(values)
+        migrate_engine.execute(update)
     session.commit()
 
 
