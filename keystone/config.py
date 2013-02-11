@@ -24,8 +24,46 @@ from keystone.openstack.common import cfg
 
 gettext.install('keystone', unicode=1)
 
+_DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
+_DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+common_cli_opts = [
+    cfg.BoolOpt('debug',
+                short='d',
+                default=False,
+                help='Print debugging output (set logging level to '
+                     'DEBUG instead of default WARNING level).'),
+    cfg.BoolOpt('verbose',
+                short='v',
+                default=False,
+                help='Print more verbose output (set logging level to '
+                     'INFO instead of default WARNING level).'),
+]
+
+logging_cli_opts = [
+    cfg.StrOpt('log-config',
+               metavar='PATH',
+               help='If this option is specified, the logging configuration '
+                    'file specified is used and overrides any other logging '
+                    'options specified. Please see the Python logging module '
+                    'documentation for details on logging configuration '
+                    'files.'),
+    cfg.StrOpt('log-date-format',
+               default=_DEFAULT_LOG_DATE_FORMAT,
+               metavar='DATE_FORMAT',
+               help='Format string for %%(asctime)s in log records. '
+                    'Default: %(default)s'),
+    cfg.BoolOpt('use-syslog',
+                default=False,
+                help='Use syslog for logging.'),
+    cfg.StrOpt('syslog-log-facility',
+               default='LOG_USER',
+               help='syslog facility to receive log lines')
+]
 
 CONF = cfg.CONF
+CONF.register_cli_opts(common_cli_opts)
+CONF.register_cli_opts(logging_cli_opts)
 
 
 def setup_logging(conf):
