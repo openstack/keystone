@@ -193,7 +193,7 @@ register_str('policy_default_rule', default=None)
 #default max request size is 112k
 register_int('max_request_body_size', default=114688)
 register_int('max_param_size', default=64)
-# we allow tokens to be a bit larger to accomidate PKI
+# we allow tokens to be a bit larger to accommodate PKI
 register_int('max_token_size', default=8192)
 
 # identity
