@@ -203,11 +203,8 @@ class BaseLdap(object):
 
     def _ldap_get(self, id, filter=None):
         conn = self.get_connection()
-        query = '(objectClass=%s)' % self.object_class
-        if (filter is not None or self.filter is not None):
-            localfilter = self.filter if self.filter is not None else ''
-            paramfilter = filter if filter is not None else ''
-            query = '(&%s%s%s)' % (localfilter, paramfilter, query)
+        query = '(&%s(objectClass=%s))' % (filter or self.filter or '',
+                                           self.object_class)
         try:
             res = conn.search_s(self._id_to_dn(id),
                                 ldap.SCOPE_BASE,
@@ -223,11 +220,8 @@ class BaseLdap(object):
 
     def _ldap_get_all(self, filter=None):
         conn = self.get_connection()
-        query = '(objectClass=%s)' % (self.object_class,)
-        if (filter is not None or self.filter is not None):
-            localfilter = self.filter if self.filter is not None else ''
-            paramfilter = filter if filter is not None else ''
-            query = '(&%s%s%s)' % (localfilter, paramfilter, query)
+        query = '(&%s(objectClass=%s))' % (filter or self.filter or '',
+                                           self.object_class)
         try:
             return conn.search_s(self.tree_dn,
                                  ldap.SCOPE_ONELEVEL,

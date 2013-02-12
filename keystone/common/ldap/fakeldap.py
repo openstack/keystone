@@ -51,14 +51,14 @@ def _match_query(query, attrs):
     """
     # cut off the parentheses
     inner = query[1:-1]
-    if inner.startswith('&'):
-        # cut off the &
-        l, r = _paren_groups(inner[1:])
-        return _match_query(l, attrs) and _match_query(r, attrs)
-    if inner.startswith('|'):
-        # cut off the |
-        l, r = _paren_groups(inner[1:])
-        return _match_query(l, attrs) or _match_query(r, attrs)
+    if inner.startswith(('&', '|')):
+        # cut off the & or |
+        groups = _paren_groups(inner[1:])
+        try:
+            l, r = groups
+            return _match_query(l, attrs) and _match_query(r, attrs)
+        except ValueError:  # just one group
+            return _match_query(groups[0], attrs)
     if inner.startswith('!'):
         # cut off the ! and the nested parentheses
         return not _match_query(query[2:-1], attrs)
