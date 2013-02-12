@@ -22,9 +22,12 @@ from sqlalchemy import exc
 from keystone.common import logging
 from keystone.contrib.ec2.backends import sql as ec2_sql
 from keystone.identity.backends import sql as identity_sql
+from keystone import config
 
 
 LOG = logging.getLogger(__name__)
+CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def export_db(db):
@@ -103,7 +106,8 @@ class LegacyMigration(object):
             # map
             new_dict = {'description': x.get('desc', ''),
                         'id': x.get('uid', x.get('id')),
-                        'enabled': x.get('enabled', True)}
+                        'enabled': x.get('enabled', True),
+                        'domain_id': x.get('domain_id', DEFAULT_DOMAIN_ID)}
             new_dict['name'] = x.get('name', new_dict.get('id'))
             # track internal ids
             self._project_map[x.get('id')] = new_dict['id']
@@ -117,7 +121,8 @@ class LegacyMigration(object):
             new_dict = {'email': x.get('email', ''),
                         'password': x.get('password', None),
                         'id': x.get('uid', x.get('id')),
-                        'enabled': x.get('enabled', True)}
+                        'enabled': x.get('enabled', True),
+                        'domain_id': x.get('domain_id', DEFAULT_DOMAIN_ID)}
             if x.get('tenant_id'):
                 new_dict['tenant_id'] = self._project_map.get(x['tenant_id'])
             new_dict['name'] = x.get('name', new_dict.get('id'))

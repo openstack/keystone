@@ -29,7 +29,9 @@ LOG = logging.getLogger(__name__)
 
 
 def filter_user(user_ref):
-    """Filter out private items in a user dict ('password' and 'tenants')
+    """Filter out private items in a user dict.
+
+    'password', 'tenants' and 'groups' are never returned.
 
     :returns: user_ref
 
@@ -81,7 +83,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_project_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
 
         :returns: tenant_ref
@@ -90,7 +92,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_user_by_name(self, user_name):
+    def get_user_by_name(self, user_name, domain_id):
         """Get a user by name.
 
         :returns: user_ref
@@ -252,7 +254,16 @@ class Driver(object):
     def get_domain(self, domain_id):
         """Get a domain by ID.
 
-        :returns: user_ref
+        :returns: domain_ref
+        :raises: keystone.exception.DomainNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def get_domain_by_name(self, domain_name):
+        """Get a domain by name.
+
+        :returns: domain_ref
         :raises: keystone.exception.DomainNotFound
 
         """

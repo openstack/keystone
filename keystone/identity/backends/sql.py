@@ -39,9 +39,11 @@ def handle_conflicts(type='object'):
 
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
-    attributes = ['id', 'name', 'password', 'enabled']
+    attributes = ['id', 'name', 'domain_id', 'password', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
+    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
+                           nullable=False)
     password = sql.Column(sql.String(128))
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
@@ -52,7 +54,8 @@ class Group(sql.ModelBase, sql.DictBase):
     attributes = ['id', 'name', 'domain_id']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
-    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'))
+    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
+                           nullable=False)
     description = sql.Column(sql.Text())
     extra = sql.Column(sql.JsonBlob())
 
@@ -82,9 +85,11 @@ class Domain(sql.ModelBase, sql.DictBase):
 # TODO(dolph): rename to Project
 class Project(sql.ModelBase, sql.DictBase):
     __tablename__ = 'project'
-    attributes = ['id', 'name']
+    attributes = ['id', 'name', 'domain_id']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), unique=True, nullable=False)
+    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
+                           nullable=False)
     description = sql.Column(sql.Text())
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
@@ -222,12 +227,16 @@ class Identity(sql.Base, identity.Driver):
             raise exception.ProjectNotFound(project_id=tenant_id)
         return tenant_ref.to_dict()
 
-    def get_project_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name, domain_id):
         session = self.get_session()
-        tenant_ref = session.query(Project).filter_by(name=tenant_name).first()
-        if not tenant_ref:
+        query = session.query(Project)
+        query = query.filter_by(name=tenant_name)
+        query = query.filter_by(domain_id=domain_id)
+        try:
+            project_ref = query.one()
+        except sql.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_name)
-        return tenant_ref.to_dict()
+        return project_ref.to_dict()
 
     def get_project_users(self, tenant_id):
         session = self.get_session()
@@ -484,7 +493,8 @@ class Identity(sql.Base, identity.Driver):
             tenant_ref = session.query(Project).filter_by(id=tenant_id).one()
         except sql.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
-
+        # FIXME(henry-nash) Think about how we detect potential name clash
+        # when we move domains
         with session.begin():
             old_project_dict = tenant_ref.to_dict()
             for k in tenant:
@@ -603,6 +613,14 @@ class Identity(sql.Base, identity.Driver):
             raise exception.DomainNotFound(domain_id=domain_id)
         return ref.to_dict()
 
+    def get_domain_by_name(self, domain_name):
+        session = self.get_session()
+        try:
+            ref = session.query(Domain).filter_by(name=domain_name).one()
+        except sql.NotFound:
+            raise exception.DomainNotFound(domain_id=domain_name)
+        return ref.to_dict()
+
     @handle_conflicts(type='domain')
     def update_domain(self, domain_id, domain):
         session = self.get_session()
@@ -674,18 +692,23 @@ class Identity(sql.Base, identity.Driver):
             raise exception.UserNotFound(user_id=user_id)
         return user_ref.to_dict()
 
-    def _get_user_by_name(self, user_name):
+    def _get_user_by_name(self, user_name, domain_id):
         session = self.get_session()
-        user_ref = session.query(User).filter_by(name=user_name).first()
-        if not user_ref:
+        query = session.query(User)
+        query = query.filter_by(name=user_name)
+        query = query.filter_by(domain_id=domain_id)
+        try:
+            user_ref = query.one()
+        except sql.NotFound:
             raise exception.UserNotFound(user_id=user_name)
         return user_ref.to_dict()
 
     def get_user(self, user_id):
         return identity.filter_user(self._get_user(user_id))
 
-    def get_user_by_name(self, user_name):
-        return identity.filter_user(self._get_user_by_name(user_name))
+    def get_user_by_name(self, user_name, domain_id):
+        return identity.filter_user(
+            self._get_user_by_name(user_name, domain_id))
 
     @handle_conflicts(type='user')
     def update_user(self, user_id, user):
@@ -694,6 +717,8 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         if 'id' in user and user_id != user['id']:
             raise exception.ValidationError('Cannot change user ID')
+        # FIXME(henry-nash) Think about how we detect potential name clash
+        # when we move domains
         with session.begin():
             user_ref = session.query(User).filter_by(id=user_id).first()
             if user_ref is None:
@@ -826,6 +851,8 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='group')
     def update_group(self, group_id, group):
         session = self.get_session()
+        # FIXME(henry-nash) Think about how we detect potential name clash
+        # when we move domains
         with session.begin():
             ref = session.query(Group).filter_by(id=group_id).first()
             if ref is None:

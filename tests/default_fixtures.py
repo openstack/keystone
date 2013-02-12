@@ -17,13 +17,21 @@
 # NOTE(dolph): please try to avoid additional fixtures if possible; test suite
 #              performance may be negatively affected.
 
+from keystone import config
+
+
+DEFAULT_DOMAIN_ID = config.CONF.identity.default_domain_id
+
+
 TENANTS = [
     {
         'id': 'bar',
         'name': 'BAR',
+        'domain_id': DEFAULT_DOMAIN_ID,
     }, {
         'id': 'baz',
         'name': 'BAZ',
+        'domain_id': DEFAULT_DOMAIN_ID,
         'description': 'description',
         'enabled': True,
     }
@@ -34,11 +42,13 @@ USERS = [
     {
         'id': 'foo',
         'name': 'FOO',
+        'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'foo2',
         'tenants': ['bar']
     }, {
         'id': 'two',
         'name': 'TWO',
+        'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'two2',
         'email': 'two@example.com',
         'enabled': True,
@@ -47,6 +57,7 @@ USERS = [
     }, {
         'id': 'badguy',
         'name': 'BadGuy',
+        'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'bad',
         'email': 'bad@guy.com',
         'enabled': False,

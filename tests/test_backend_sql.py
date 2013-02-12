@@ -28,8 +28,8 @@ from keystone import token
 import default_fixtures
 import test_backend
 
-
 CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 class SqlTests(test.TestCase):
@@ -65,6 +65,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_delete_user_with_project_association(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
+                'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
         self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
@@ -77,6 +78,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_create_null_user_name(self):
         user = {'id': uuid.uuid4().hex,
                 'name': None,
+                'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
         self.assertRaises(exception.ValidationError,
                           self.identity_api.create_user,
@@ -87,11 +89,13 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           user['id'])
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user_by_name,
-                          user['name'])
+                          user['name'],
+                          DEFAULT_DOMAIN_ID)
 
     def test_create_null_project_name(self):
         tenant = {'id': uuid.uuid4().hex,
-                  'name': None}
+                  'name': None,
+                  'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
                           self.identity_api.create_project,
                           tenant['id'],
@@ -101,7 +105,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           tenant['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project_by_name,
-                          tenant['name'])
+                          tenant['name'],
+                          DEFAULT_DOMAIN_ID)
 
     def test_create_null_role_name(self):
         role = {'id': uuid.uuid4().hex,
@@ -117,6 +122,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_delete_project_with_user_association(self):
         user = {'id': 'fake',
                 'name': 'fakeuser',
+                'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'passwd'}
         self.identity_api.create_user('fake', user)
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
@@ -128,6 +134,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_delete_user_with_metadata(self):
         user = {'id': 'fake',
                 'name': 'fakeuser',
+                'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'passwd'}
         self.identity_api.create_user('fake', user)
         self.identity_api.create_metadata(user['id'],
@@ -142,6 +149,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_delete_project_with_metadata(self):
         user = {'id': 'fake',
                 'name': 'fakeuser',
+                'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'passwd'}
         self.identity_api.create_user('fake', user)
         self.identity_api.create_metadata(user['id'],
@@ -169,6 +177,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         tenant = {
             'id': tenant_id,
             'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID,
             arbitrary_key: arbitrary_value}
         ref = self.identity_api.create_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
@@ -195,6 +204,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user = {
             'id': user_id,
             'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID,
             'password': uuid.uuid4().hex,
             arbitrary_key: arbitrary_value}
         ref = self.identity_api.create_user(user_id, user)

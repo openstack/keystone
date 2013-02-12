@@ -18,12 +18,15 @@
 
 import uuid
 
+from keystone import config
 from keystone.common import logging
 from keystone.contrib.ec2.backends import sql as ec2_sql
 from keystone.identity.backends import sql as identity_sql
 
 
 LOG = logging.getLogger(__name__)
+CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def import_auth(data):
@@ -51,6 +54,7 @@ def _create_projects(api, tenants):
         tenant_dict = {
             'id': _generate_uuid(),
             'name': tenant['id'],
+            'domain_id': tenant.get('domain_id', DEFAULT_DOMAIN_ID),
             'description': tenant['description'],
             'enabled': True,
         }
@@ -66,6 +70,7 @@ def _create_users(api, users):
         user_dict = {
             'id': _generate_uuid(),
             'name': user['id'],
+            'domain_id': user.get('domain_id', DEFAULT_DOMAIN_ID),
             'email': '',
             'password': user['password'],
             'enabled': True,

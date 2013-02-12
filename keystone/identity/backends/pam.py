@@ -74,13 +74,17 @@ class PamIdentity(identity.Driver):
     def get_project(self, tenant_id):
         return {'id': tenant_id, 'name': tenant_id}
 
-    def get_project_by_name(self, tenant_name):
+    def get_project_by_name(self, tenant_name, domain_id):
+        # TODO(henry-nash): Used domain_id once domains are implemented
+        # in LDAP backend
         return {'id': tenant_name, 'name': tenant_name}
 
     def get_user(self, user_id):
         return {'id': user_id, 'name': user_id}
 
-    def get_user_by_name(self, user_name):
+    def get_user_by_name(self, user_name, domain_id):
+        # TODO(henry-nash): Used domain_id once domains are implemented
+        # in LDAP backend
         return {'id': user_name, 'name': user_name}
 
     def get_role(self, role_id):
