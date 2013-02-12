@@ -266,7 +266,7 @@ class CoreApiTests(object):
         """Applicable to XML and JSON.
 
         However, navigating links and media-types differs between content
-        types so they need to be validated seperately.
+        types so they need to be validated separately.
 
         """
         self.assertIsNotNone(version)
@@ -278,7 +278,7 @@ class CoreApiTests(object):
         """Applicable to XML and JSON.
 
         However, navigating extension links differs between content types.
-        They need to be validated seperately with assertValidExtensionLink.
+        They need to be validated separately with assertValidExtensionLink.
 
         """
         self.assertIsNotNone(extension)

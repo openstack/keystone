@@ -63,7 +63,7 @@ You will find sample configuration files in ``etc/``
 * default_catalog.templates
 
 From here, refer to :doc:`configuration` to choose which backend drivers to
-enable and use. Once configured, you should be able to run keystone by issueing
+enable and use. Once configured, you should be able to run keystone by issuing
 the command::
 
     keystone-all

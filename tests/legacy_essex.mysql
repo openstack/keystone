@@ -177,7 +177,7 @@ CREATE TABLE `services` (
 
 LOCK TABLES `services` WRITE;
 /*!40000 ALTER TABLE `services` DISABLE KEYS */;
-INSERT INTO `services` VALUES ('Nova Compute Service','compute',1,'nova',NULL),('EC2 Compatability Layer','ec2',2,'ec2',NULL),('Glance Image Service','image',3,'glance',NULL),('Keystone Identity Service','identity',4,'keystone',NULL),('Swift Service','object-store',5,'swift',NULL);
+INSERT INTO `services` VALUES ('Nova Compute Service','compute',1,'nova',NULL),('EC2 Compatibility Layer','ec2',2,'ec2',NULL),('Glance Image Service','image',3,'glance',NULL),('Keystone Identity Service','identity',4,'keystone',NULL),('Swift Service','object-store',5,'swift',NULL);
 /*!40000 ALTER TABLE `services` ENABLE KEYS */;
 UNLOCK TABLES;
 

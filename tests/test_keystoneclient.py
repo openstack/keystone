@@ -941,7 +941,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         self.user_two['password'] = new_password
         self.get_client(self.user_two)
 
-    def test_user_cant_update_other_users_passwd(self):
+    def test_user_cannot_update_other_users_passwd(self):
         from keystoneclient import exceptions as client_exceptions
 
         client = self.get_client(self.user_two)

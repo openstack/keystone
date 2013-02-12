@@ -191,7 +191,7 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
-        """Retreive and format the current service catalog.
+        """Retrieve and format the current service catalog.
 
         Example::
 

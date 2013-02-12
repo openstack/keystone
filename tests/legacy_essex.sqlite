@@ -178,7 +178,7 @@ CREATE TABLE `services` (
 
 /*!40000 ALTER TABLE `services` DISABLE KEYS */;
 INSERT INTO `services` VALUES ('Nova Compute Service','compute',1,'nova',NULL);
-INSERT INTO `services` VALUES ('EC2 Compatability Layer','ec2',2,'ec2',NULL);
+INSERT INTO `services` VALUES ('EC2 Compatibility Layer','ec2',2,'ec2',NULL);
 INSERT INTO `services` VALUES ('Glance Image Service','image',3,'glance',NULL);
 INSERT INTO `services` VALUES ('Keystone Identity Service','identity',4,'keystone',NULL);
 INSERT INTO `services` VALUES ('Swift Service','object-store',5,'swift',NULL);

@@ -225,7 +225,7 @@ class Ec2Controller(controller.V2Controller):
         return {'credentials': self.ec2_api.list_credentials(context, user_id)}
 
     def get_credential(self, context, user_id, credential_id):
-        """Retreive a user's access/secret pair by the access key.
+        """Retrieve a user's access/secret pair by the access key.
 
         Grab the full access/secret pair for a given access key.
 
