@@ -16,14 +16,20 @@
 
 import uuid
 
-import unittest2 as unittest
-
 from keystone.contrib.s3.core import S3Controller
+from keystone.contrib import ec2
+
 from keystone import exception
+from keystone import test
 
 
-class S3ContribCore(unittest.TestCase):
+class S3ContribCore(test.TestCase):
     def setUp(self):
+        super(S3ContribCore, self).setUp()
+
+        self.load_backends()
+
+        self.ec2_api = ec2.Manager()
         self.controller = S3Controller()
 
     def test_good_signature(self):
