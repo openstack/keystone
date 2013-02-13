@@ -54,7 +54,7 @@ class ExceptionTestCase(test.TestCase):
         user-facing.
 
         This test provides a custom message to bypass docstring parsing, which
-        should be tested seperately.
+        should be tested separately.
 
         """
         for cls in [x for x in exception.__dict__.values() if callable(x)]:

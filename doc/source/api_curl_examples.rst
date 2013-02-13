@@ -77,7 +77,7 @@ These examples assume a default port value of 35357, and depend on the
 GET /
 =====
 
-Disover API version information, links to documentation (PDF, HTML, WADL),
+Discover API version information, links to documentation (PDF, HTML, WADL),
 and supported media types::
 
     $ curl http://0.0.0.0:35357

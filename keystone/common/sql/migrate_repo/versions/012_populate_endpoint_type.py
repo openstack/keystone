@@ -25,7 +25,7 @@ ENDPOINT_TYPES = ['public', 'internal', 'admin']
 
 
 def upgrade(migrate_engine):
-    """Split each legacy endpoint into seperate records for each interface."""
+    """Split each legacy endpoint into separate records for each interface."""
     meta = sql.MetaData()
     meta.bind = migrate_engine
 

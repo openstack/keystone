@@ -117,7 +117,7 @@ Creating New Extensions
 #. **Adopt a unique organization abbreviation.**
 
    This prefix should uniquely identify your organization within the community.
-   The goal is to avoid schema and resource collisions with similiar extensions.
+   The goal is to avoid schema and resource collisions with similar extensions.
    (e.g. ``OS`` for OpenStack, ``RAX`` for Rackspace, or ``HP`` for Hewlett-Packard)
 
 #. **Adopt a unique extension abbreviation.**
