@@ -42,23 +42,29 @@ class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
     attributes = ['id', 'name', 'domain_id', 'password', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), unique=True, nullable=False)
+    name = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
                            nullable=False)
     password = sql.Column(sql.String(128))
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
+    # Unique constraint across two columns to create the separation
+    # rather than just only 'name' being unique
+    __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
 class Group(sql.ModelBase, sql.DictBase):
     __tablename__ = 'group'
     attributes = ['id', 'name', 'domain_id']
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), unique=True, nullable=False)
+    name = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
                            nullable=False)
     description = sql.Column(sql.Text())
     extra = sql.Column(sql.JsonBlob())
+    # Unique constraint across two columns to create the separation
+    # rather than just only 'name' being unique
+    __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
 class Credential(sql.ModelBase, sql.DictBase):
@@ -87,12 +93,15 @@ class Project(sql.ModelBase, sql.DictBase):
     __tablename__ = 'project'
     attributes = ['id', 'name', 'domain_id']
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), unique=True, nullable=False)
+    name = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
                            nullable=False)
     description = sql.Column(sql.Text())
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
+    # Unique constraint across two columns to create the separation
+    # rather than just only 'name' being unique
+    __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
 class Role(sql.ModelBase, sql.DictBase):
@@ -451,14 +460,15 @@ class Identity(sql.Base, identity.Driver):
             tenant_ref = session.query(Project).filter_by(id=tenant_id).one()
         except sql.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
-        # FIXME(henry-nash) Think about how we detect potential name clash
-        # when we move domains
+
         with session.begin():
             old_project_dict = tenant_ref.to_dict()
             for k in tenant:
                 old_project_dict[k] = tenant[k]
             new_project = Project.from_dict(old_project_dict)
-            tenant_ref.name = new_project.name
+            for attr in Project.attributes:
+                if attr != 'id':
+                    setattr(tenant_ref, attr, getattr(new_project, attr))
             tenant_ref.extra = new_project.extra
             session.flush()
         return tenant_ref.to_dict(include_extra_dict=True)
@@ -675,8 +685,7 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         if 'id' in user and user_id != user['id']:
             raise exception.ValidationError('Cannot change user ID')
-        # FIXME(henry-nash) Think about how we detect potential name clash
-        # when we move domains
+
         with session.begin():
             user_ref = session.query(User).filter_by(id=user_id).first()
             if user_ref is None:
@@ -806,8 +815,7 @@ class Identity(sql.Base, identity.Driver):
     @handle_conflicts(type='group')
     def update_group(self, group_id, group):
         session = self.get_session()
-        # FIXME(henry-nash) Think about how we detect potential name clash
-        # when we move domains
+
         with session.begin():
             ref = session.query(Group).filter_by(id=group_id).first()
             if ref is None:

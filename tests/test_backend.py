@@ -285,6 +285,59 @@ class IdentityTests(object):
                           'fake2',
                           user)
 
+    def test_create_duplicate_user_name_in_different_domains(self):
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        user1 = {'id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex,
+                 'domain_id': DEFAULT_DOMAIN_ID,
+                 'password': uuid.uuid4().hex}
+        user2 = {'id': uuid.uuid4().hex,
+                 'name': user1['name'],
+                 'domain_id': new_domain['id'],
+                 'password': uuid.uuid4().hex}
+        self.identity_api.create_user(user1['id'], user1)
+        self.identity_api.create_user(user2['id'], user2)
+
+    def test_move_user_between_domains(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        user = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'domain_id': domain1['id'],
+                'password': uuid.uuid4().hex}
+        self.identity_api.create_user(user['id'], user)
+        user['domain_id'] = domain2['id']
+        self.identity_api.update_user(user['id'], user)
+
+    def test_move_user_between_domains_with_clashing_names_fails(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        # First, create a user in domain1
+        user1 = {'id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex,
+                 'domain_id': domain1['id'],
+                 'password': uuid.uuid4().hex}
+        self.identity_api.create_user(user1['id'], user1)
+        # Now create a user in domain2 with a potentially clashing
+        # name - which should work since we have domain separation
+        user2 = {'id': uuid.uuid4().hex,
+                 'name': user1['name'],
+                 'domain_id': domain2['id'],
+                 'password': uuid.uuid4().hex}
+        self.identity_api.create_user(user2['id'], user2)
+        # Now try and move user1 into the 2nd domain - which should
+        # fail since the names clash
+        user1['domain_id'] = domain2['id']
+        self.assertRaises(exception.Conflict,
+                          self.identity_api.update_user,
+                          user1['id'],
+                          user1)
+
     def test_rename_duplicate_user_name_fails(self):
         user1 = {'id': 'fake1',
                  'name': 'fake1',
@@ -341,6 +394,52 @@ class IdentityTests(object):
                           self.identity_api.create_project,
                           'fake1',
                           tenant)
+
+    def test_create_duplicate_project_name_in_different_domains(self):
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        tenant1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': DEFAULT_DOMAIN_ID}
+        tenant2 = {'id': uuid.uuid4().hex, 'name': tenant1['name'],
+                   'domain_id': new_domain['id']}
+        self.identity_api.create_project(tenant1['id'], tenant1)
+        self.identity_api.create_project(tenant2['id'], tenant2)
+
+    def test_move_project_between_domains(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
+                   'domain_id': domain1['id']}
+        self.identity_api.create_project(project['id'], project)
+        project['domain_id'] = domain2['id']
+        self.identity_api.update_project(project['id'], project)
+
+    def test_move_project_between_domains_with_clashing_names_fails(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        # First, create a project in domain1
+        project1 = {'id': uuid.uuid4().hex,
+                    'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.identity_api.create_project(project1['id'], project1)
+        # Now create a project in domain2 with a potentially clashing
+        # name - which should work since we have domain separation
+        project2 = {'id': uuid.uuid4().hex,
+                    'name': project1['name'],
+                    'domain_id': domain2['id']}
+        self.identity_api.create_project(project2['id'], project2)
+        # Now try and move project1 into the 2nd domain - which should
+        # fail since the names clash
+        project1['domain_id'] = domain2['id']
+        self.assertRaises(exception.Conflict,
+                          self.identity_api.update_project,
+                          project1['id'],
+                          project1)
 
     def test_rename_duplicate_project_name_fails(self):
         tenant1 = {'id': 'fake1', 'name': 'fake1',
@@ -1638,6 +1737,62 @@ class IdentityTests(object):
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
                           group['id'])
+
+    def test_create_duplicate_group_name_fails(self):
+        group1 = {'id': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
+                  'name': uuid.uuid4().hex}
+        group2 = {'id': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
+                  'name': group1['name']}
+        self.identity_api.create_group(group1['id'], group1)
+        self.assertRaises(exception.Conflict,
+                          self.identity_api.create_group,
+                          group2['id'], group2)
+
+    def test_create_duplicate_group_name_in_different_domains(self):
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        group1 = {'id': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
+                  'name': uuid.uuid4().hex}
+        group2 = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
+                  'name': group1['name']}
+        self.identity_api.create_group(group1['id'], group1)
+        self.identity_api.create_group(group2['id'], group2)
+
+    def test_move_group_between_domains(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        group = {'id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex,
+                 'domain_id': domain1['id']}
+        self.identity_api.create_group(group['id'], group)
+        group['domain_id'] = domain2['id']
+        self.identity_api.update_group(group['id'], group)
+
+    def test_move_group_between_domains_with_clashing_names_fails(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        # First, create a group in domain1
+        group1 = {'id': uuid.uuid4().hex,
+                  'name': uuid.uuid4().hex,
+                  'domain_id': domain1['id']}
+        self.identity_api.create_group(group1['id'], group1)
+        # Now create a group in domain2 with a potentially clashing
+        # name - which should work since we have domain separation
+        group2 = {'id': uuid.uuid4().hex,
+                  'name': group1['name'],
+                  'domain_id': domain2['id']}
+        self.identity_api.create_group(group2['id'], group2)
+        # Now try and move group1 into the 2nd domain - which should
+        # fail since the names clash
+        group1['domain_id'] = domain2['id']
+        self.assertRaises(exception.Conflict,
+                          self.identity_api.update_group,
+                          group1['id'],
+                          group1)
 
     def test_project_crud(self):
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,

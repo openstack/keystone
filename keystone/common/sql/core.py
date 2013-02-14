@@ -49,6 +49,7 @@ IntegrityError = sql.exc.IntegrityError
 NotFound = sql.orm.exc.NoResultFound
 Boolean = sql.Boolean
 Text = sql.Text
+UniqueConstraint = sql.UniqueConstraint
 
 
 def initialize_decorator(init):
