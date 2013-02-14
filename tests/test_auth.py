@@ -261,6 +261,61 @@ class AuthWithToken(AuthTest):
         self.assertIn(self.role_member['id'], roles)
         self.assertIn(self.role_keystone_admin['id'], roles)
 
+    def test_auth_token_cross_domain_group_and_project(self):
+        """Verify getting a token in cross domain group/project roles"""
+        # create domain, project and group and grant roles to user
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.identity_api.create_project(project1['id'], project1)
+        role_foo_domain1 = {'id': uuid.uuid4().hex,
+                            'name': uuid.uuid4().hex}
+        self.identity_api.create_role(role_foo_domain1['id'],
+                                      role_foo_domain1)
+        role_group_domain1 = {'id': uuid.uuid4().hex,
+                              'name': uuid.uuid4().hex}
+        self.identity_api.create_role(role_group_domain1['id'],
+                                      role_group_domain1)
+        self.identity_api.add_user_to_project(project1['id'],
+                                              self.user_foo['id'])
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        self.identity_api.add_user_to_group(self.user_foo['id'],
+                                            new_group['id'])
+        self.identity_api.create_grant(
+            user_id=self.user_foo['id'],
+            project_id=project1['id'],
+            role_id=self.role_member['id'])
+        self.identity_api.create_grant(
+            group_id=new_group['id'],
+            project_id=project1['id'],
+            role_id=self.role_keystone_admin['id'])
+        self.identity_api.create_grant(
+            user_id=self.user_foo['id'],
+            domain_id=domain1['id'],
+            role_id=role_foo_domain1['id'])
+        self.identity_api.create_grant(
+            group_id=new_group['id'],
+            domain_id=domain1['id'],
+            role_id=role_group_domain1['id'])
+
+        # Get a scoped token for the tenant
+        body_dict = _build_user_auth(
+            username=self.user_foo['name'],
+            password=self.user_foo['password'],
+            tenant_name=project1['name'])
+
+        scoped_token = self.api.authenticate({}, body_dict)
+        tenant = scoped_token["access"]["token"]["tenant"]
+        roles = scoped_token["access"]["metadata"]["roles"]
+        self.assertEquals(tenant["id"], project1['id'])
+        self.assertIn(self.role_member['id'], roles)
+        self.assertIn(self.role_keystone_admin['id'], roles)
+        self.assertNotIn(role_foo_domain1['id'], roles)
+        self.assertNotIn(role_group_domain1['id'], roles)
+
 
 class AuthWithPasswordCredentials(AuthTest):
     def setUp(self):
