@@ -229,7 +229,7 @@ class FakeMemcache(object):
         data['access']['token']['expires'] = ks_expires
         return (data, str(self.token_expiration))
 
-    def set(self, key, value, time=None):
+    def set(self, key, value, time=None, timeout=None):
         self.set_value = value
         self.set_key = key
 
