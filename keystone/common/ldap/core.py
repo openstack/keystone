@@ -310,8 +310,9 @@ class BaseLdap(object):
                     op = ldap.MOD_REPLACE
                 modlist.append((op, self.attribute_mapping.get(k, k), [v]))
 
-        conn = self.get_connection()
-        conn.modify_s(self._id_to_dn(id), modlist)
+        if modlist:
+            conn = self.get_connection()
+            conn.modify_s(self._id_to_dn(id), modlist)
 
     def delete(self, id):
         if not self.allow_delete:
