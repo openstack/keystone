@@ -1,3 +1,6 @@
+# Optional backend: SQL
+pysqlite
+
 # Optional backend: Memcache
 python-memcached
 
