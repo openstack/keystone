@@ -61,6 +61,26 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
 
+    def create_user(self, context, user_id, user_ref):
+        user = user_ref.copy()
+        if 'enabled' not in user:
+            user['enabled'] = True
+        return self.driver.create_user(user_id, user)
+
+    def create_group(self, context, group_id, group_ref):
+        group = group_ref.copy()
+        if 'description' not in group:
+            group['description'] = ''
+        return self.driver.create_group(group_id, group)
+
+    def create_project(self, context, tenant_id, tenant_ref):
+        tenant = tenant_ref.copy()
+        if 'enabled' not in tenant:
+            tenant['enabled'] = True
+        if 'description' not in tenant:
+            tenant['description'] = ''
+        return self.driver.create_project(tenant_id, tenant)
+
 
 class Driver(object):
     """Interface description for an Identity driver."""

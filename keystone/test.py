@@ -313,6 +313,15 @@ class TestCase(NoModule, unittest.TestCase):
         """
         self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=delta))
 
+    def assertDictContainsSubset(self, dict1, dict2):
+        if len(dict1) < len(dict2):
+            (subset, fullset) = dict1, dict2
+        else:
+            (subset, fullset) = dict2, dict1
+        for x in subset:
+            self.assertIn(x, fullset)
+            self.assertEquals(subset.get(x), fullset.get(x))
+
     @staticmethod
     def skip_if_no_ipv6():
         try:
