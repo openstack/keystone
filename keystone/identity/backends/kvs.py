@@ -402,21 +402,33 @@ class Identity(kvs.Base, identity.Driver):
         return role
 
     def delete_role(self, role_id):
-        try:
-            self.db.delete('role-%s' % role_id)
-            metadata_keys = filter(lambda x: x.startswith("metadata-"),
-                                   self.db.keys())
-            for key in metadata_keys:
-                tenant_id = key.split('-')[1]
-                user_id = key.split('-')[2]
-                try:
-                    self.remove_role_from_user_and_project(user_id,
-                                                           tenant_id,
-                                                           role_id)
-                except exception.RoleNotFound:
-                    pass
-        except exception.NotFound:
-            raise exception.RoleNotFound(role_id=role_id)
+        self.get_role(role_id)
+        metadata_keys = filter(lambda x: x.startswith("metadata-"),
+                               self.db.keys())
+        for key in metadata_keys:
+            meta_id1 = key.split('-')[1]
+            meta_id2 = key.split('-')[2]
+            try:
+                self.delete_grant(role_id, project_id=meta_id1,
+                                  user_id=meta_id2)
+            except exception.NotFound:
+                pass
+            try:
+                self.delete_grant(role_id, project_id=meta_id1,
+                                  group_id=meta_id2)
+            except exception.NotFound:
+                pass
+            try:
+                self.delete_grant(role_id, domain_id=meta_id1,
+                                  user_id=meta_id2)
+            except exception.NotFound:
+                pass
+            try:
+                self.delete_grant(role_id, domain_id=meta_id1,
+                                  group_id=meta_id2)
+            except exception.NotFound:
+                pass
+        self.db.delete('role-%s' % role_id)
         role_list = set(self.db.get('role_list', []))
         role_list.remove(role_id)
         self.db.set('role_list', list(role_list))
