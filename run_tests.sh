@@ -26,6 +26,7 @@ function usage {
   echo "  -n, --no-recreate-db     Don't recreate the test database."
   echo "  -x, --stop               Stop running tests after the first error or failure."
   echo "  -f, --force              Force a clean re-build of the virtual environment. Useful when dependencies have been added."
+  echo "  -u, --update             Update the virtual environment with any newer package versions"
   echo "  -p, --pep8               Just run pep8"
   echo "  -P, --no-pep8            Don't run pep8"
   echo "  -c, --coverage           Generate coverage report"
@@ -48,6 +49,7 @@ function process_option {
     -r|--recreate-db) recreate_db=1;;
     -n|--no-recreate-db) recreate_db=0;;
     -f|--force) force=1;;
+    -u|--update) update=1;;
     -p|--pep8) just_pep8=1;;
     -P|--no-pep8) no_pep8=1;;
     -c|--coverage) coverage=1;;
@@ -73,6 +75,7 @@ no_pep8=0
 coverage=0
 nokeystoneclient=0
 recreate_db=1
+update=0
 
 for arg in "$@"; do
   process_option $arg
@@ -125,6 +128,10 @@ then
   if [ $force -eq 1 ]; then
     echo "Cleaning virtualenv..."
     rm -rf ${venv}
+  fi
+  if [ $update -eq 1 ]; then
+    echo "Updating virtualenv..."
+    python tools/install_venv.py
   fi
   if [ -e ${venv} ]; then
     wrapper="${with_venv}"
