@@ -102,9 +102,6 @@ class PamIdentity(identity.Driver):
     def remove_user_from_project(self, tenant_id, user_id):
         pass
 
-    def get_all_projects(self):
-        raise NotImplementedError()
-
     def get_projects_for_user(self, user_id):
         return [user_id]
 

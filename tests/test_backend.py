@@ -1397,12 +1397,6 @@ class IdentityTests(object):
         for test_role in default_fixtures.ROLES:
             self.assertTrue(x for x in roles if x['id'] == test_role['id'])
 
-    def test_get_projects(self):
-        tenants = self.identity_api.get_projects()
-        for test_project in default_fixtures.TENANTS:
-            self.assertTrue(x for x in tenants
-                            if x['id'] == test_project['id'])
-
     def test_delete_project_with_role_assignments(self):
         tenant = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': DEFAULT_DOMAIN_ID}

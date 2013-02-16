@@ -63,8 +63,9 @@ class Identity(kvs.Base, identity.Driver):
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
 
-    def get_projects(self):
-        tenant_keys = filter(lambda x: x.startswith("tenant-"), self.db.keys())
+    def list_projects(self):
+        tenant_keys = filter(lambda x: x.startswith("tenant-"),
+                             self.db.keys())
         return [self.db.get(key) for key in tenant_keys]
 
     def get_project_by_name(self, tenant_name, domain_id):
@@ -77,7 +78,8 @@ class Identity(kvs.Base, identity.Driver):
         self.get_project(tenant_id)
         user_keys = filter(lambda x: x.startswith("user-"), self.db.keys())
         user_refs = [self.db.get(key) for key in user_keys]
-        return filter(lambda x: tenant_id in x['tenants'], user_refs)
+        user_refs = filter(lambda x: tenant_id in x['tenants'], user_refs)
+        return [identity.filter_user(user_ref) for user_ref in user_refs]
 
     def _get_user(self, user_id):
         try:
@@ -539,7 +541,8 @@ class Identity(kvs.Base, identity.Driver):
         return domain
 
     def list_domains(self):
-        return self.db.get('domain_list', [])
+        domain_ids = self.db.get('domain_list', [])
+        return [self.get_domain(x) for x in domain_ids]
 
     def get_domain(self, domain_id):
         try:
@@ -580,7 +583,8 @@ class Identity(kvs.Base, identity.Driver):
         return group
 
     def list_groups(self):
-        return self.db.get('group_list', [])
+        group_ids = self.db.get('group_list', [])
+        return [self.get_group(x) for x in group_ids]
 
     def get_group(self, group_id):
         try:
