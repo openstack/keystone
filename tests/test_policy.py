@@ -19,11 +19,11 @@ import StringIO
 import tempfile
 import urllib2
 
-from keystone.common import policy as common_policy
 from keystone import config
 from keystone import exception
-from keystone.policy.backends import rules
 from keystone import test
+from keystone.openstack.common import policy as common_policy
+from keystone.policy.backends import rules
 
 
 CONF = config.CONF
@@ -51,7 +51,7 @@ class PolicyFileTestCase(test.TestCase):
             policyfile.write("""{"example:test": ["false:false"]}""")
         # NOTE(vish): reset stored policy cache so we don't have to sleep(1)
         rules._POLICY_CACHE = {}
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           empty_credentials, action, self.target)
 
 
@@ -61,7 +61,7 @@ class PolicyTestCase(test.TestCase):
         rules.reset()
         # NOTE(vish): preload rules to circumvent reloading from file
         rules.init()
-        brain = {
+        self.rules = {
             "true": [],
             "example:allowed": [],
             "example:denied": [["false:false"]],
@@ -73,10 +73,17 @@ class PolicyTestCase(test.TestCase):
             "example:lowercase_admin": [["role:admin"], ["role:sysadmin"]],
             "example:uppercase_admin": [["role:ADMIN"], ["role:sysadmin"]],
         }
-        # NOTE(vish): then overload underlying brain
-        common_policy.set_brain(common_policy.HttpBrain(brain))
+
+        # NOTE(vish): then overload underlying policy engine
+        self._set_rules()
         self.credentials = {}
         self.target = {}
+
+    def _set_rules(self):
+        these_rules = common_policy.Rules(
+            dict((k, common_policy.parse_rule(v))
+                 for k, v in self.rules.items()))
+        common_policy.set_rules(these_rules)
 
     def tearDown(self):
         rules.reset()
@@ -84,12 +91,12 @@ class PolicyTestCase(test.TestCase):
 
     def test_enforce_nonexistent_action_throws(self):
         action = "example:noexist"
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, action, self.target)
 
     def test_enforce_bad_action_throws(self):
         action = "example:denied"
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, action, self.target)
 
     def test_enforce_good_action(self):
@@ -105,7 +112,7 @@ class PolicyTestCase(test.TestCase):
         action = "example:get_http"
         target = {}
         result = rules.enforce(self.credentials, action, target)
-        self.assertEqual(result, None)
+        self.assertTrue(result)
 
     def test_enforce_http_false(self):
 
@@ -114,7 +121,7 @@ class PolicyTestCase(test.TestCase):
         self.stubs.Set(urllib2, 'urlopen', fakeurlopen)
         action = "example:get_http"
         target = {}
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, action, target)
 
     def test_templatized_enforcement(self):
@@ -123,12 +130,12 @@ class PolicyTestCase(test.TestCase):
         credentials = {'project_id': 'fake', 'roles': []}
         action = "example:my_file"
         rules.enforce(credentials, action, target_mine)
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           credentials, action, target_not_mine)
 
     def test_early_AND_enforcement(self):
         action = "example:early_and_fail"
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, action, self.target)
 
     def test_early_OR_enforcement(self):
@@ -151,30 +158,31 @@ class DefaultPolicyTestCase(test.TestCase):
         rules.reset()
         rules.init()
 
-        self.brain = {
+        self.rules = {
             "default": [],
             "example:exist": [["false:false"]]
         }
-
-        self._set_brain('default')
+        self._set_rules('default')
         self.credentials = {}
 
-    def _set_brain(self, default_rule):
-        brain = common_policy.HttpBrain(self.brain, default_rule)
-        common_policy.set_brain(brain)
+    def _set_rules(self, default_rule):
+        these_rules = common_policy.Rules(
+            dict((k, common_policy.parse_rule(v))
+                 for k, v in self.rules.items()), default_rule)
+        common_policy.set_rules(these_rules)
 
     def tearDown(self):
         super(DefaultPolicyTestCase, self).setUp()
         rules.reset()
 
     def test_policy_called(self):
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, "example:exist", {})
 
     def test_not_found_policy_calls_default(self):
         rules.enforce(self.credentials, "example:noexist", {})
 
     def test_default_not_found(self):
-        self._set_brain("default_noexist")
-        self.assertRaises(exception.Forbidden, rules.enforce,
+        self._set_rules("default_noexist")
+        self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, "example:noexist", {})
