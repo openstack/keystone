@@ -432,6 +432,7 @@ class UserApi(common_ldap.BaseLdap, ApiShimMixin):
             values['enabled_nomask'] = old_obj['enabled_nomask']
             self.mask_enabled_attribute(values)
         super(UserApi, self).update(id, values, old_obj)
+        return self.get(id)
 
     def delete(self, id):
         user = self.get(id)
