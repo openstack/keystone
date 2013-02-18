@@ -19,8 +19,6 @@ import webob
 from keystone import middleware
 from keystone import test
 
-import test_auth_token_middleware as test_atm
-
 
 class FakeApp(object):
     """Fakes a WSGI app URL normalized."""
@@ -33,7 +31,6 @@ class FakeApp(object):
 class UrlMiddlewareTest(test.TestCase):
     def setUp(self):
         self.middleware = middleware.NormalizingFilter(FakeApp())
-        self.middleware.http_client_class = test_atm.FakeHTTPConnection
         self.response_status = None
         self.response_headers = None
         super(UrlMiddlewareTest, self).setUp()
