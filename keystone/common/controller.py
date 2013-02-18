@@ -13,6 +13,44 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
+def _build_policy_check_credentials(self, action, context, kwargs):
+
+    LOG.debug(_('RBAC: Authorizing %s(%s)') % (
+        action,
+        ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])))
+
+    try:
+        token_ref = self.token_api.get_token(
+            context=context, token_id=context['token_id'])
+    except exception.TokenNotFound:
+        LOG.warning(_('RBAC: Invalid token'))
+        raise exception.Unauthorized()
+
+    creds = {}
+    token_data = token_ref['token_data']
+
+    try:
+        creds['user_id'] = token_data['user']['id']
+    except AttributeError:
+        LOG.warning(_('RBAC: Invalid user'))
+        raise exception.Unauthorized()
+
+    if 'project' in token_data:
+        creds['project_id'] = token_data['project']['id']
+    else:
+        LOG.debug(_('RBAC: Proceeding without project'))
+
+    if 'domain' in token_data:
+        creds['domain_id'] = token_data['domain']['id']
+
+    if 'roles' in token_data:
+        creds['roles'] = []
+        for role in token_data['roles']:
+            creds['roles'].append(role['name'])
+
+    return creds
+
+
 def protected(f):
     """Wraps API calls with role based access controls (RBAC)."""
 
@@ -20,43 +58,65 @@ def protected(f):
     def wrapper(self, context, **kwargs):
         if not context['is_admin']:
             action = 'identity:%s' % f.__name__
-
-            LOG.debug(_('RBAC: Authorizing %s(%s)') % (
-                action,
-                ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])))
-
-            try:
-                token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
-            except exception.TokenNotFound:
-                LOG.warning(_('RBAC: Invalid token'))
-                raise exception.Unauthorized()
-
-            creds = token_ref.get('metadata', {}).copy()
-
-            try:
-                creds['user_id'] = token_ref['user'].get('id')
-            except AttributeError:
-                LOG.warning(_('RBAC: Invalid user'))
-                raise exception.Unauthorized()
-
-            try:
-                creds['tenant_id'] = token_ref['tenant'].get('id')
-            except AttributeError:
-                LOG.debug(_('RBAC: Proceeding without tenant'))
-
-            # NOTE(vish): this is pretty inefficient
-            creds['roles'] = [self.identity_api.get_role(context, role)['name']
-                              for role in creds.get('roles', [])]
-
+            creds = _build_policy_check_credentials(self, action,
+                                                    context, kwargs)
+            # Simply use the passed kwargs as the target dict, which
+            # would typically include the prime key of a get/update/delete
+            # call.
             self.policy_api.enforce(context, creds, action, kwargs)
-
             LOG.debug(_('RBAC: Authorization granted'))
         else:
             LOG.warning(_('RBAC: Bypassing authorization'))
 
         return f(self, context, **kwargs)
     return wrapper
+
+
+def filterprotected(*filters):
+    """Wraps filtered API calls with role based access controls (RBAC)."""
+
+    def _filterprotected(f):
+        @functools.wraps(f)
+        def wrapper(self, context, **kwargs):
+            if not context['is_admin']:
+                action = 'identity:%s' % f.__name__
+                creds = _build_policy_check_credentials(self, action,
+                                                        context, kwargs)
+                # Now, build the target dict for policy check.  We include:
+                #
+                # - Any query filter parameters
+                # - Data from the main url (which will be in the kwargs
+                #   parameter) and would typically include the prime key
+                #   of a get/update/delete call
+                #
+                # TODO(henry-nash) do we need to put the whole object
+                # in, which is part of kwargs?  I kept this in as it was part
+                # of the previous implementation, but without a specific key
+                # reference in the target I don't see how it can be used.
+
+                # First  any query filter parameters
+                target = dict()
+                if len(filters) > 0:
+                    for filter in filters:
+                        if filter in context['query_string']:
+                            target[filter] = context['query_string'][filter]
+
+                    LOG.debug(_('RBAC: Adding query filter params (%s)') % (
+                        ', '.join(['%s=%s' % (filter, target[filter])
+                                  for filter in target])))
+
+                # Now any formal url parameters
+                for key in kwargs:
+                    target[key] = kwargs[key]
+
+                self.policy_api.enforce(context, creds, action, target)
+
+                LOG.debug(_('RBAC: Authorization granted'))
+            else:
+                LOG.warning(_('RBAC: Bypassing authorization'))
+            return f(self, context, filters, **kwargs)
+        return wrapper
+    return _filterprotected
 
 
 @dependency.requires('identity_api', 'policy_api', 'token_api')
@@ -124,7 +184,10 @@ class V3Controller(V2Controller):
         return {cls.member_name: ref}
 
     @classmethod
-    def wrap_collection(cls, context, refs):
+    def wrap_collection(cls, context, refs, filters=[]):
+        for f in filters:
+            refs = cls.filter_by_attribute(context, refs, f)
+
         refs = cls.paginate(context, refs)
 
         for ref in refs:
@@ -147,6 +210,14 @@ class V3Controller(V2Controller):
         per_page = context['query_string'].get('per_page', 30)
         return refs[per_page * (page - 1):per_page * page]
 
+    @classmethod
+    def filter_by_attribute(cls, context, refs, attr):
+        """Filters a list of references by query string value."""
+        if attr in context['query_string']:
+            value = context['query_string'][attr]
+            return [r for r in refs if r[attr] == value]
+        return refs
+
     def _require_matching_id(self, value, ref):
         """Ensures the value matches the reference's ID, if any."""
         if 'id' in ref and ref['id'] != value:
@@ -157,13 +228,6 @@ class V3Controller(V2Controller):
         ref = ref.copy()
         ref['id'] = uuid.uuid4().hex
         return ref
-
-    def _filter_by_attribute(self, context, refs, attr):
-        """Filters a list of references by query string value."""
-        if attr in context['query_string']:
-            value = context['query_string'][attr]
-            return [r for r in refs if r[attr] == value]
-        return refs
 
     def _normalize_domain_id(self, context, ref):
         """Fill in domain_id if not specified in a v3 call."""
