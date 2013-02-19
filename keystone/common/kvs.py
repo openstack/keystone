@@ -20,7 +20,10 @@ from keystone import exception
 class DictKvs(dict):
     def get(self, key, default=None):
         try:
-            return self[key]
+            if isinstance(self[key], dict):
+                return self[key].copy()
+            else:
+                return self[key][:]
         except KeyError:
             if default is not None:
                 return default

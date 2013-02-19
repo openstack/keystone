@@ -340,7 +340,7 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         self.assertIn('signed', r.body)
 
 
-class ATestTokenRevoking(test_v3.RestfulTestCase):
+class TestTokenRevoking(test_v3.RestfulTestCase):
     """Test token revoking for relevant v3 identity apis"""
 
     def setUp(self):
@@ -360,7 +360,7 @@ class ATestTokenRevoking(test_v3.RestfulTestCase):
         - User3 is a member of group2
 
         """
-        super(ATestTokenRevoking, self).setUp()
+        super(TestTokenRevoking, self).setUp()
 
         # Start by creating a couple of domains and projects
         self.domainA = self.new_domain_ref()

@@ -23,7 +23,6 @@ from keystone.catalog import core
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
-from keystone import config
 from keystone import test
 
 
@@ -1582,10 +1581,11 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain1['id'], domain1)
         self.identity_api.create_domain(domain2['id'], domain2)
         domains = self.identity_api.list_domains()
-        self.assertEquals(len(domains), 2)
+        self.assertEquals(len(domains), 3)
         domain_ids = []
         for domain in domains:
             domain_ids.append(domain.get('id'))
+        self.assertIn(DEFAULT_DOMAIN_ID, domain_ids)
         self.assertIn(domain1['id'], domain_ids)
         self.assertIn(domain2['id'], domain_ids)
 
