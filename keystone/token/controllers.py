@@ -462,9 +462,16 @@ class Auth(controller.V2Controller):
         """
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=token_id)
-        return token_ref
+        data = self.token_api.get_token(context=context,
+                                        token_id=token_id)
+        if belongs_to:
+            if data.get('tenant') is None:
+                raise exception.Unauthorized(
+                    _('Token does not belong to specified tenant.'))
+            if data['tenant'].get('id') != belongs_to:
+                raise exception.Unauthorized(
+                    _('Token does not belong to specified tenant.'))
+        return data
 
     # admin only
     def validate_token_head(self, context, token_id):
