@@ -70,16 +70,16 @@ def upgrade_user_table_with_copy(meta, migrate_engine, session):
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
         sql.Column('extra', sql.Text()),
-        sql.Column("password", sql.String(128)),
-        sql.Column("enabled", sql.Boolean, default=True))
+        sql.Column('password', sql.String(128)),
+        sql.Column('enabled', sql.Boolean, default=True))
     temp_user_table.create(migrate_engine, checkfirst=True)
 
     user_table = sql.Table('user', meta, autoload=True)
     for user in session.query(user_table):
-        session.execute("insert into temp_user (id, name, extra, "
-                        "password, enabled) "
-                        "values ( :id, :name, :extra, "
-                        ":password, :enabled);",
+        session.execute('insert into temp_user (id, name, extra, '
+                        'password, enabled) '
+                        'values ( :id, :name, :extra, '
+                        ':password, :enabled);',
                         {'id': user.id,
                          'name': user.name,
                          'extra': user.extra,
@@ -99,21 +99,22 @@ def upgrade_user_table_with_copy(meta, migrate_engine, session):
         'user',
         meta2,
         sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(64), unique=True, nullable=False),
+        sql.Column('name', sql.String(64), nullable=False),
         sql.Column('extra', sql.Text()),
         sql.Column("password", sql.String(128)),
         sql.Column("enabled", sql.Boolean, default=True),
         sql.Column('domain_id', sql.String(64), sql.ForeignKey('domain.id'),
-                   nullable=False))
+                   nullable=False),
+        sql.UniqueConstraint('domain_id', 'name'))
     user_table.create(migrate_engine, checkfirst=True)
 
     # Finally copy in the data from our temp table and then clean
     # up by deleting our temp table
     for user in session.query(temp_user_table):
-        session.execute("insert into user (id, name, extra, "
-                        "password, enabled, domain_id) "
-                        "values ( :id, :name, :extra, "
-                        ":password, :enabled, :domain_id);",
+        session.execute('insert into user (id, name, extra, '
+                        'password, enabled, domain_id) '
+                        'values ( :id, :name, :extra, '
+                        ':password, :enabled, :domain_id);',
                         {'id': user.id,
                          'name': user.name,
                          'extra': user.extra,
@@ -121,7 +122,7 @@ def upgrade_user_table_with_copy(meta, migrate_engine, session):
                          'enabled': user.enabled,
                          'domain_id': DEFAULT_DOMAIN_ID})
     _enable_foreign_constraints(session, migrate_engine)
-    session.execute("drop table temp_user;")
+    session.execute('drop table temp_user;')
 
 
 def upgrade_project_table_with_copy(meta, migrate_engine, session):
@@ -138,16 +139,16 @@ def upgrade_project_table_with_copy(meta, migrate_engine, session):
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
         sql.Column('extra', sql.Text()),
-        sql.Column("description", sql.Text()),
-        sql.Column("enabled", sql.Boolean, default=True))
+        sql.Column('description', sql.Text()),
+        sql.Column('enabled', sql.Boolean, default=True))
     temp_project_table.create(migrate_engine, checkfirst=True)
 
     project_table = sql.Table('project', meta, autoload=True)
     for project in session.query(project_table):
-        session.execute("insert into temp_project (id, name, extra, "
-                        "description, enabled) "
-                        "values ( :id, :name, :extra, "
-                        ":description, :enabled);",
+        session.execute('insert into temp_project (id, name, extra, '
+                        'description, enabled) '
+                        'values ( :id, :name, :extra, '
+                        ':description, :enabled);',
                         {'id': project.id,
                          'name': project.name,
                          'extra': project.extra,
@@ -157,7 +158,7 @@ def upgrade_project_table_with_copy(meta, migrate_engine, session):
     # Now switch off constraints while we drop and then re-create the
     # project table, with the additional domain_id column
     _disable_foreign_constraints(session, migrate_engine)
-    session.execute("drop table project;")
+    session.execute('drop table project;')
     # Need to create a new metadata stream since we are going to load a
     # different version of the project table
     meta2 = sql.MetaData()
@@ -167,21 +168,22 @@ def upgrade_project_table_with_copy(meta, migrate_engine, session):
         'project',
         meta2,
         sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(64), unique=True, nullable=False),
+        sql.Column('name', sql.String(64), nullable=False),
         sql.Column('extra', sql.Text()),
         sql.Column('description', sql.Text()),
-        sql.Column("enabled", sql.Boolean, default=True),
+        sql.Column('enabled', sql.Boolean, default=True),
         sql.Column('domain_id', sql.String(64), sql.ForeignKey('domain.id'),
-                   nullable=False))
+                   nullable=False),
+        sql.UniqueConstraint('domain_id', 'name'))
     project_table.create(migrate_engine, checkfirst=True)
 
     # Finally copy in the data from our temp table and then clean
     # up by deleting our temp table
     for project in session.query(temp_project_table):
-        session.execute("insert into project (id, name, extra, "
-                        "description, enabled, domain_id) "
-                        "values ( :id, :name, :extra, "
-                        ":description, :enabled, :domain_id);",
+        session.execute('insert into project (id, name, extra, '
+                        'description, enabled, domain_id) '
+                        'values ( :id, :name, :extra, '
+                        ':description, :enabled, :domain_id);',
                         {'id': project.id,
                          'name': project.name,
                          'extra': project.extra,
@@ -189,7 +191,7 @@ def upgrade_project_table_with_copy(meta, migrate_engine, session):
                          'enabled': project.enabled,
                          'domain_id': DEFAULT_DOMAIN_ID})
     _enable_foreign_constraints(session, migrate_engine)
-    session.execute("drop table temp_project;")
+    session.execute('drop table temp_project;')
 
 
 def downgrade_user_table_with_copy(meta, migrate_engine, session):
@@ -204,22 +206,19 @@ def downgrade_user_table_with_copy(meta, migrate_engine, session):
         meta,
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
-        # Temporary table, so no need to make it a foreign key
-        sql.Column('domain_id', sql.String(64), nullable=False),
-        sql.Column("password", sql.String(128)),
-        sql.Column("enabled", sql.Boolean, default=True),
+        sql.Column('password', sql.String(128)),
+        sql.Column('enabled', sql.Boolean, default=True),
         sql.Column('extra', sql.Text()))
     temp_user_table.create(migrate_engine, checkfirst=True)
 
     user_table = sql.Table('user', meta, autoload=True)
     for user in session.query(user_table):
-        session.execute("insert into temp_user (id, name, domain_id, "
-                        "password, enabled, extra) "
-                        "values ( :id, :name, :domain_id, "
-                        ":password, :enabled, :extra);",
+        session.execute('insert into temp_user (id, name, '
+                        'password, enabled, extra) '
+                        'values ( :id, :name, '
+                        ':password, :enabled, :extra);',
                         {'id': user.id,
                          'name': user.name,
-                         'domain_id': user.domain_id,
                          'password': user.password,
                          'enabled': user.enabled,
                          'extra': user.extra})
@@ -227,7 +226,7 @@ def downgrade_user_table_with_copy(meta, migrate_engine, session):
     # Now switch off constraints while we drop and then re-create the
     # user table, less the columns we wanted to drop
     _disable_foreign_constraints(session, migrate_engine)
-    session.execute("drop table user;")
+    session.execute('drop table user;')
     # Need to create a new metadata stream since we are going to load a
     # different version of the user table
     meta2 = sql.MetaData()
@@ -238,24 +237,24 @@ def downgrade_user_table_with_copy(meta, migrate_engine, session):
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
         sql.Column('extra', sql.Text()),
-        sql.Column("password", sql.String(128)),
-        sql.Column("enabled", sql.Boolean, default=True))
+        sql.Column('password', sql.String(128)),
+        sql.Column('enabled', sql.Boolean, default=True))
     user_table.create(migrate_engine, checkfirst=True)
     _enable_foreign_constraints(session, migrate_engine)
 
     # Finally copy in the data from our temp table and then clean
     # up by deleting our temp table
     for user in session.query(temp_user_table):
-        session.execute("insert into user (id, name, extra, "
-                        "password, enabled) "
-                        "values ( :id, :name, :extra, "
-                        ":password, :enabled);",
+        session.execute('insert into user (id, name, extra, '
+                        'password, enabled) '
+                        'values ( :id, :name, :extra, '
+                        ':password, :enabled);',
                         {'id': user.id,
                          'name': user.name,
                          'extra': user.extra,
                          'password': user.password,
                          'enabled': user.enabled})
-    session.execute("drop table temp_user;")
+    session.execute('drop table temp_user;')
 
 
 def downgrade_project_table_with_copy(meta, migrate_engine, session):
@@ -270,22 +269,19 @@ def downgrade_project_table_with_copy(meta, migrate_engine, session):
         meta,
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
-        # Temporary table, so no need to make it a foreign key
-        sql.Column('domain_id', sql.String(64), nullable=False),
         sql.Column('description', sql.Text()),
-        sql.Column("enabled", sql.Boolean, default=True),
+        sql.Column('enabled', sql.Boolean, default=True),
         sql.Column('extra', sql.Text()))
     temp_project_table.create(migrate_engine, checkfirst=True)
 
     project_table = sql.Table('project', meta, autoload=True)
     for project in session.query(project_table):
-        session.execute("insert into temp_project (id, name, domain_id, "
-                        "description, enabled, extra) "
-                        "values ( :id, :name, :domain_id, "
-                        ":description, :enabled, :extra);",
+        session.execute('insert into temp_project (id, name, '
+                        'description, enabled, extra) '
+                        'values ( :id, :name, '
+                        ':description, :enabled, :extra);',
                         {'id': project.id,
                          'name': project.name,
-                         'domain_id': project.domain_id,
                          'description': project.description,
                          'enabled': project.enabled,
                          'extra': project.extra})
@@ -293,7 +289,7 @@ def downgrade_project_table_with_copy(meta, migrate_engine, session):
     # Now switch off constraints while we drop and then re-create the
     # project table, less the columns we wanted to drop
     _disable_foreign_constraints(session, migrate_engine)
-    session.execute("drop table project;")
+    session.execute('drop table project;')
     # Need to create a new metadata stream since we are going to load a
     # different version of the project table
     meta2 = sql.MetaData()
@@ -304,18 +300,18 @@ def downgrade_project_table_with_copy(meta, migrate_engine, session):
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(64), unique=True, nullable=False),
         sql.Column('extra', sql.Text()),
-        sql.Column("description", sql.Text()),
-        sql.Column("enabled", sql.Boolean, default=True))
+        sql.Column('description', sql.Text()),
+        sql.Column('enabled', sql.Boolean, default=True))
     project_table.create(migrate_engine, checkfirst=True)
     _enable_foreign_constraints(session, migrate_engine)
 
     # Finally copy in the data from our temp table and then clean
     # up by deleting our temp table
     for project in session.query(temp_project_table):
-        session.execute("insert into project (id, name, extra, "
-                        "description, enabled) "
-                        "values ( :id, :name, :extra, "
-                        ":description, :enabled);",
+        session.execute('insert into project (id, name, extra, '
+                        'description, enabled) '
+                        'values ( :id, :name, :extra, '
+                        ':description, :enabled);',
                         {'id': project.id,
                          'name': project.name,
                          'extra': project.extra,
@@ -345,6 +341,11 @@ def upgrade_user_table_with_col_create(meta, migrate_engine, session):
     session.commit()
     user_table.columns.domain_id.alter(nullable=False)
 
+    # Finally, change the uniqueness settings for the name attribute
+    session.execute('ALTER TABLE "user" DROP CONSTRAINT user_name_key;')
+    session.execute('ALTER TABLE "user" ADD CONSTRAINT user_dom_name_unique '
+                    'UNIQUE (domain_id, name);')
+
 
 def upgrade_project_table_with_col_create(meta, migrate_engine, session):
     # Create the domain_id column.  We want this to be not nullable
@@ -367,8 +368,19 @@ def upgrade_project_table_with_col_create(meta, migrate_engine, session):
     session.commit()
     project_table.columns.domain_id.alter(nullable=False)
 
+    # Finally, change the uniqueness settings for the name attribute
+    session.execute('ALTER TABLE project DROP CONSTRAINT tenant_name_key;')
+    session.execute('ALTER TABLE project ADD CONSTRAINT proj_dom_name_unique '
+                    'UNIQUE (domain_id, name);')
 
-def downgrade_user_table_with_col_drop(meta, migrate_engine):
+
+def downgrade_user_table_with_col_drop(meta, migrate_engine, session):
+    # Revert uniqueness settings for the name attribute
+    session.execute('ALTER TABLE "user" DROP CONSTRAINT '
+                    'user_dom_name_unique;')
+    session.execute('ALTER TABLE "user" ADD UNIQUE (name);')
+    session.commit()
+    # And now go ahead an drop the domain_id column
     domain_table = sql.Table('domain', meta, autoload=True)
     user_table = sql.Table('user', meta, autoload=True)
     column = sql.Column('domain_id', sql.String(64),
@@ -376,7 +388,14 @@ def downgrade_user_table_with_col_drop(meta, migrate_engine):
     column.drop(user_table)
 
 
-def downgrade_project_table_with_col_drop(meta, migrate_engine):
+def downgrade_project_table_with_col_drop(meta, migrate_engine, session):
+    # Revert uniqueness settings for the name attribute
+    session.execute('ALTER TABLE project DROP CONSTRAINT '
+                    'proj_dom_name_unique;')
+    session.execute('ALTER TABLE project ADD CONSTRAINT tenant_name_key '
+                    'UNIQUE (name);')
+    session.commit()
+    # And now go ahead an drop the domain_id column
     domain_table = sql.Table('domain', meta, autoload=True)
     project_table = sql.Table('project', meta, autoload=True)
     column = sql.Column('domain_id', sql.String(64),
@@ -408,7 +427,7 @@ def downgrade(migrate_engine):
     else:
         # MySQL should in theory be able to use this path, but seems to
         # have problems dropping columns which are foreign keys
-        downgrade_user_table_with_col_drop(meta, migrate_engine)
-        downgrade_project_table_with_col_drop(meta, migrate_engine)
+        downgrade_user_table_with_col_drop(meta, migrate_engine, session)
+        downgrade_project_table_with_col_drop(meta, migrate_engine, session)
     session.commit()
     session.close()

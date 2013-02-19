@@ -438,3 +438,33 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_get_project_users(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_create_duplicate_user_name_in_different_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_create_duplicate_project_name_in_different_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_create_duplicate_group_name_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1092187')
+
+    def test_create_duplicate_group_name_in_different_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_user_between_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_user_between_domains_with_clashing_names_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_group_between_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_group_between_domains_with_clashing_names_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_project_between_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_project_between_domains_with_clashing_names_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
