@@ -304,9 +304,6 @@ class Role(controller.V2Controller):
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant_id required')
 
-        # This still has the weird legacy semantics that adding a role to
-        # a user also adds them to a tenant
-        self.identity_api.add_user_to_project(context, tenant_id, user_id)
         self.identity_api.add_role_to_user_and_project(
             context, user_id, tenant_id, role_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
@@ -332,9 +329,6 @@ class Role(controller.V2Controller):
             context, user_id, tenant_id, role_id)
         roles = self.identity_api.get_roles_for_user_and_project(
             context, user_id, tenant_id)
-        if not roles:
-            self.identity_api.remove_user_from_project(
-                context, tenant_id, user_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 
     # COMPAT(diablo): CRUD extension
@@ -375,7 +369,6 @@ class Role(controller.V2Controller):
         # TODO(termie): for now we're ignoring the actual role
         tenant_id = role.get('tenantId')
         role_id = role.get('roleId')
-        self.identity_api.add_user_to_project(context, tenant_id, user_id)
         self.identity_api.add_role_to_user_and_project(
             context, user_id, tenant_id, role_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
@@ -404,9 +397,6 @@ class Role(controller.V2Controller):
             context, user_id, tenant_id, role_id)
         roles = self.identity_api.get_roles_for_user_and_project(
             context, user_id, tenant_id)
-        if not roles:
-            self.identity_api.remove_user_from_project(
-                context, tenant_id, user_id)
         self.token_api.revoke_tokens(context, user_id, tenant_id)
 
 

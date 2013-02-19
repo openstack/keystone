@@ -185,7 +185,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         keys = ['name', 'description', 'enabled']
 
         for k in ['id'] + keys:
-            msg = '%s unnexpectedly None in %s' % (k, entity)
+            msg = '%s unexpectedly None in %s' % (k, entity)
             self.assertIsNotNone(entity.get(k), msg)
 
         self.assertIsNotNone(entity.get('links'))

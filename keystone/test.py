@@ -237,6 +237,13 @@ class TestCase(NoModule, unittest.TestCase):
                 rv = self.identity_api.create_project(tenant['id'], tenant)
                 setattr(self, 'tenant_%s' % tenant['id'], rv)
 
+            for role in fixtures.ROLES:
+                try:
+                    rv = self.identity_api.create_role(role['id'], role)
+                except exception.Conflict:
+                    pass
+                setattr(self, 'role_%s' % role['id'], rv)
+
             for user in fixtures.USERS:
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
@@ -246,10 +253,6 @@ class TestCase(NoModule, unittest.TestCase):
                     self.identity_api.add_user_to_project(tenant_id,
                                                           user['id'])
                 setattr(self, 'user_%s' % user['id'], user_copy)
-
-            for role in fixtures.ROLES:
-                rv = self.identity_api.create_role(role['id'], role)
-                setattr(self, 'role_%s' % role['id'], rv)
 
             for metadata in fixtures.METADATA:
                 metadata_ref = metadata.copy()

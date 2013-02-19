@@ -102,22 +102,28 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def add_user_to_project(self, tenant_id, user_id):
-        """Add user to a tenant without an explicit role relationship.
+            """Add user to a tenant by creating a default role relationship.
 
-        :raises: keystone.exception.ProjectNotFound,
-                 keystone.exception.UserNotFound
+            :raises: keystone.exception.ProjectNotFound,
+                     keystone.exception.UserNotFound
 
-        """
-        raise exception.NotImplemented()
+            """
+            self.add_role_to_user_and_project(user_id,
+                                              tenant_id,
+                                              config.CONF.member_role_id)
 
     def remove_user_from_project(self, tenant_id, user_id):
-        """Remove user from a tenant without an explicit role relationship.
+        """Remove user from a tenant
 
         :raises: keystone.exception.ProjectNotFound,
                  keystone.exception.UserNotFound
 
         """
-        raise exception.NotImplemented()
+        roles = self.get_roles_for_user_and_project(user_id, tenant_id)
+        if not roles:
+            raise exception.NotFound(tenant_id)
+        for role_id in roles:
+            self.remove_role_from_user_and_project(user_id, tenant_id, role_id)
 
     def get_project_users(self, tenant_id):
         """Lists all users with a relationship to the specified project.
