@@ -242,10 +242,10 @@ class Application(BaseApplication):
             LOG.warning(e)
             return render_exception(e)
         except TypeError as e:
-            logging.exception(e)
+            LOG.exception(e)
             return render_exception(exception.ValidationError(e))
         except Exception as e:
-            logging.exception(e)
+            LOG.exception(e)
             return render_exception(exception.UnexpectedError(exception=e))
 
         if result is None:
@@ -288,13 +288,13 @@ class Application(BaseApplication):
             try:
                 creds['user_id'] = user_token_ref['user'].get('id')
             except AttributeError:
-                logging.debug('Invalid user')
+                LOG.debug('Invalid user')
                 raise exception.Unauthorized()
 
             try:
                 creds['tenant_id'] = user_token_ref['tenant'].get('id')
             except AttributeError:
-                logging.debug('Invalid tenant')
+                LOG.debug('Invalid tenant')
                 raise exception.Unauthorized()
 
             # NOTE(vish): this is pretty inefficient
