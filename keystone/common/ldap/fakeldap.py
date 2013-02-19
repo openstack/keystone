@@ -47,18 +47,14 @@ def _match_query(query, attrs):
     """Match an ldap query to an attribute dictionary.
 
     The characters &, |, and ! are supported in the query. No syntax checking
-    is performed, so malformed querys will not work correctly.
+    is performed, so malformed queries will not work correctly.
     """
     # cut off the parentheses
     inner = query[1:-1]
     if inner.startswith(('&', '|')):
         # cut off the & or |
         groups = _paren_groups(inner[1:])
-        try:
-            l, r = groups
-            return _match_query(l, attrs) and _match_query(r, attrs)
-        except ValueError:  # just one group
-            return _match_query(groups[0], attrs)
+        return all(_match_query(group, attrs) for group in groups)
     if inner.startswith('!'):
         # cut off the ! and the nested parentheses
         return not _match_query(query[2:-1], attrs)
