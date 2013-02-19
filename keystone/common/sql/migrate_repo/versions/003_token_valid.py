@@ -24,8 +24,11 @@ def upgrade(migrate_engine):
     meta = MetaData()
     meta.bind = migrate_engine
     token = Table('token', meta, autoload=True)
-    valid = Column("valid", Boolean(), ColumnDefault(True), nullable=False)
-    token.create_column(valid)
+    # creating the column immediately with nullable=False fails with
+    # PostgreSQL (LP 1068181), so do it in two steps instead
+    valid = Column("valid", Boolean(), ColumnDefault(True), nullable=True)
+    valid.create(token, populate_default=True)
+    valid.alter(type=Boolean(), default=True, nullable=False)
 
 
 def downgrade(migrate_engine):
