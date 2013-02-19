@@ -29,6 +29,16 @@ import re
 DOCTYPE = '<?xml version="1.0" encoding="UTF-8"?>'
 XMLNS = 'http://docs.openstack.org/identity/api/v2.0'
 
+PARSER = etree.XMLParser(
+    resolve_entities=False,
+    remove_comments=True,
+    remove_pis=True)
+
+# NOTE(dolph): lxml.etree.Entity() is just a callable that currently returns an
+# lxml.etree._Entity instance, which doesn't appear to be part of the
+# public API, so we discover the type dynamically to be safe
+ENTITY_TYPE = type(etree.Entity('x'))
+
 
 def from_xml(xml):
     """Deserialize XML to a dictionary."""
@@ -51,7 +61,7 @@ def to_xml(d, xmlns=None):
 class XmlDeserializer(object):
     def __call__(self, xml_str):
         """Returns a dictionary populated by decoding the given xml string."""
-        dom = etree.fromstring(xml_str.strip())
+        dom = etree.fromstring(xml_str.strip(), PARSER)
         return self.walk_element(dom)
 
     @staticmethod
@@ -87,7 +97,8 @@ class XmlDeserializer(object):
         # current spec does not have attributes on an element with text
         values = values or text or {}
 
-        for child in [self.walk_element(x) for x in element]:
+        for child in [self.walk_element(x) for x in element
+                      if not isinstance(x, ENTITY_TYPE)]:
             values = dict(values.items() + child.items())
 
         return {XmlDeserializer._tag_name(element.tag): values}
