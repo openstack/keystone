@@ -66,6 +66,8 @@ be issued.
 Your code should set the ``REMOTE_USER`` if the user is properly authenticated,
 following the semantics below::
 
+    from keystone.common import wsgi
+
     class MyMiddlewareAuth(wsgi.Middleware):
         def __init__(self, *args, **kwargs):
             super(MyMiddlewareAuth, self).__init__(*args, **kwargs)
@@ -84,7 +86,7 @@ following the semantics below::
                 # User is authenticated
                 request.environ['REMOTE_USER'] = username
             else:
-                # User is not authenticated
+                # User is not authenticated, render exception
                 raise exception.Unauthorized("Invalid user")
 
 
