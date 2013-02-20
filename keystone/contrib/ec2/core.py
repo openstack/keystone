@@ -43,12 +43,14 @@ from keystone import identity
 from keystone import policy
 from keystone import service
 from keystone import token
+from keystone.common import logging
 from keystone.common import manager
 from keystone.common import utils
 from keystone.common import wsgi
 
 
 CONF = config.CONF
+LOG = logging.getLogger(__name__)
 
 
 class Manager(manager.Manager):
@@ -112,9 +114,9 @@ class Ec2Controller(wsgi.Application):
             credentials['host'] = hostname
             signature = signer.generate(credentials)
             if not utils.auth_str_equal(credentials.signature, signature):
-                raise exception.Unauthorized(message='Invalid EC2 signature.')
+                raise exception.Unauthorized()
         else:
-            raise exception.Unauthorized(message='EC2 signature not supplied.')
+            raise exception.Unauthorized()
 
     def authenticate(self, context, credentials=None,
                          ec2Credentials=None):
@@ -145,7 +147,7 @@ class Ec2Controller(wsgi.Application):
             credentials = ec2Credentials
 
         if not 'access' in credentials:
-            raise exception.Unauthorized(message='EC2 signature not supplied.')
+            raise exception.Unauthorized()
 
         creds_ref = self._get_credentials(context,
                                           credentials['access'])
@@ -157,9 +159,19 @@ class Ec2Controller(wsgi.Application):
         tenant_ref = self.identity_api.get_tenant(
                 context=context,
                 tenant_id=creds_ref['tenant_id'])
+        # If the tenant is disabled don't allow them to authenticate
+        if tenant_ref and not tenant_ref.get('enabled', True):
+            msg = 'Tenant %s is disabled' % tenant_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized()
         user_ref = self.identity_api.get_user(
                 context=context,
                 user_id=creds_ref['user_id'])
+        # If the user is disabled don't allow them to authenticate
+        if not user_ref.get('enabled', True):
+            msg = 'User %s is disabled' % user_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized()
         metadata_ref = self.identity_api.get_metadata(
             context=context,
             user_id=user_ref['id'],
@@ -170,7 +182,7 @@ class Ec2Controller(wsgi.Application):
         # fill out the roles in the metadata
         roles = metadata_ref.get('roles', [])
         if not roles:
-            raise exception.Unauthorized(message='User not valid for tenant.')
+            raise exception.Unauthorized()
         roles_ref = [self.identity_api.get_role(context, role_id)
                      for role_id in roles]
 
@@ -275,7 +287,7 @@ class Ec2Controller(wsgi.Application):
         creds = self.ec2_api.get_credential(context,
                                             credential_id)
         if not creds:
-            raise exception.Unauthorized(message='EC2 access key not found.')
+            raise exception.Unauthorized()
         return creds
 
     def _assert_identity(self, context, user_id):
