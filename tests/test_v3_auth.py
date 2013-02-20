@@ -143,11 +143,6 @@ class AuthTest(test_v3.RestfulTestCase):
         self.assertIn('id', token['domain'])
         self.assertIn('name', token['domain'])
 
-    def assertValidProjectScopedToken(self, token):
-        self.assertNotEqual([], token['roles'])
-        self.assertEqual(self.user['id'], token['user']['id'])
-        self.assertEqual(self.role_id, token['roles'][0]['id'])
-
     def assertEqualTokens(self, a, b):
         """Assert that two tokens are equal.
 
