@@ -20,6 +20,7 @@ import datetime
 
 from keystone.common import cms
 from keystone.common import dependency
+from keystone.common import logging
 from keystone.common import manager
 from keystone import config
 from keystone import exception
@@ -28,6 +29,7 @@ from keystone.openstack.common import timeutils
 
 CONF = config.CONF
 config.register_int('expiration', group='token', default=86400)
+LOG = logging.getLogger(__name__)
 
 
 def unique_id(token_id):
@@ -53,6 +55,58 @@ def default_expire_time():
     """
     expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
     return timeutils.utcnow() + expire_delta
+
+
+def validate_auth_info(self, context, user_ref, tenant_ref):
+    """Validate user and tenant auth info.
+
+    Validate the user and tenant auth into in order to ensure that user and
+    tenant information is valid and not disabled.
+
+    Consolidate the checks here to ensure consistency between token auth and
+    ec2 auth.
+
+    :params context: keystone's request context
+    :params user_ref: the authenticating user
+    :params tenant_ref: the scope of authorization, if any
+    :raises Unauthorized: if any of the user, user's domain, tenant or
+            tenant's domain are either disabled or otherwise invalid
+    """
+    # If the user is disabled don't allow them to authenticate
+    if not user_ref.get('enabled', True):
+        msg = 'User is disabled: %s' % user_ref['id']
+        LOG.warning(msg)
+        raise exception.Unauthorized(msg)
+
+    # If the user's domain is disabled don't allow them to authenticate
+    # TODO(dolph): remove this check after default-domain migration
+    if user_ref.get('domain_id') is not None:
+        user_domain_ref = self.identity_api.get_domain(
+            context,
+            user_ref['domain_id'])
+        if user_domain_ref and not user_domain_ref.get('enabled', True):
+            msg = 'Domain is disabled: %s' % user_domain_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
+
+    if tenant_ref:
+        # If the project is disabled don't allow them to authenticate
+        if not tenant_ref.get('enabled', True):
+            msg = 'Tenant is disabled: %s' % tenant_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
+
+        # If the project's domain is disabled don't allow them to authenticate
+        # TODO(dolph): remove this check after default-domain migration
+        if tenant_ref.get('domain_id') is not None:
+            project_domain_ref = self.identity_api.get_domain(
+                context,
+                tenant_ref['domain_id'])
+            if (project_domain_ref and
+                    not project_domain_ref.get('enabled', True)):
+                msg = 'Domain is disabled: %s' % project_domain_ref['id']
+                LOG.warning(msg)
+                raise exception.Unauthorized(msg)
 
 
 @dependency.provider('token_api')

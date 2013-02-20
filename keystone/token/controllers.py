@@ -86,43 +86,10 @@ class Auth(controller.V2Controller):
                                                     metadata_ref,
                                                     expiry)
 
-        # If the user is disabled don't allow them to authenticate
-        if not user_ref.get('enabled', True):
-            msg = 'User is disabled: %s' % user_ref['id']
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
-
-        # If the user's domain is disabled don't allow them to authenticate
-        # TODO(dolph): remove this check after default-domain migration
-        if user_ref.get('domain_id') is not None:
-            user_domain_ref = self.identity_api.get_domain(
-                context,
-                user_ref['domain_id'])
-            if user_domain_ref and not user_domain_ref.get('enabled', True):
-                msg = 'Domain is disabled: %s' % user_domain_ref['id']
-                LOG.warning(msg)
-                raise exception.Unauthorized(msg)
+        # FIXME(dolph): domains will not be validated, as we just removed them
+        core.validate_auth_info(self, context, user_ref, tenant_ref)
 
         if tenant_ref:
-            # If the project is disabled don't allow them to authenticate
-            if not tenant_ref.get('enabled', True):
-                msg = 'Tenant is disabled: %s' % tenant_ref['id']
-                LOG.warning(msg)
-                raise exception.Unauthorized(msg)
-
-            # If the project's domain is disabled don't allow them to
-            # authenticate
-            # TODO(dolph): remove this check after default-domain migration
-            if tenant_ref.get('domain_id') is not None:
-                project_domain_ref = self.identity_api.get_domain(
-                    context,
-                    tenant_ref['domain_id'])
-                if (project_domain_ref and
-                        not project_domain_ref.get('enabled', True)):
-                    msg = 'Domain is disabled: %s' % project_domain_ref['id']
-                    LOG.warning(msg)
-                    raise exception.Unauthorized(msg)
-
             catalog_ref = self.catalog_api.get_catalog(
                 context=context,
                 user_id=user_ref['id'],
