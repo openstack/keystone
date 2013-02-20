@@ -14,9 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import ldap
 import uuid
 import nose.exc
 
+from keystone.common import ldap as ldap_common
 from keystone.common.ldap import fakeldap
 from keystone import config
 from keystone import exception
@@ -42,6 +44,9 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
         clear_database()
+        self.stubs.Set(ldap_common.BaseLdap, "_id_to_dn",
+                       lambda self, id: '%s=%s,%s' % (self.id_attr,
+                                                      str(id), self.tree_dn))
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
 
@@ -346,6 +351,13 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.mox.ReplayAll()
 
         user_api.get_connection(user=None, password=None)
+
+    def test_wrong_ldap_scope(self):
+        CONF.ldap.query_scope = uuid.uuid4().hex
+        self.assertRaisesRegexp(
+            ValueError,
+            'Invalid LDAP scope: %s. *' % CONF.ldap.query_scope,
+            identity_ldap.Identity)
 
 # TODO (henry-nash) These need to be removed when the full LDAP implementation
 # is submitted - see Bugs 1092187, 1101287, 1101276, 1101289

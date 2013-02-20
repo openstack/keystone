@@ -138,6 +138,10 @@
 # allow_subtree_delete = False
 # dumb_member = cn=dumb,dc=example,dc=com
 
+# The LDAP scope for queries, this can be either 'one'
+# (onelevel/singleLevel) or 'sub' (subtree/wholeSubtree)
+# query_scope = one
+
 # user_tree_dn = ou=Users,dc=example,dc=com
 # user_filter =
 # user_objectclass = inetOrgPerson
