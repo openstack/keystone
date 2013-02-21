@@ -267,6 +267,8 @@ register_list('user_attribute_ignore', group='ldap',
 register_bool('user_allow_create', group='ldap', default=True)
 register_bool('user_allow_update', group='ldap', default=True)
 register_bool('user_allow_delete', group='ldap', default=True)
+register_bool('user_enabled_emulation', group='ldap', default=False)
+register_str('user_enabled_emulation_dn', group='ldap', default=None)
 
 register_str('tenant_tree_dn', group='ldap', default=None)
 register_str('tenant_filter', group='ldap', default=None)
@@ -281,6 +283,8 @@ register_list('tenant_attribute_ignore', group='ldap', default='')
 register_bool('tenant_allow_create', group='ldap', default=True)
 register_bool('tenant_allow_update', group='ldap', default=True)
 register_bool('tenant_allow_delete', group='ldap', default=True)
+register_bool('tenant_enabled_emulation', group='ldap', default=False)
+register_str('tenant_enabled_emulation_dn', group='ldap', default=None)
 
 register_str('role_tree_dn', group='ldap', default=None)
 register_str('role_filter', group='ldap', default=None)
