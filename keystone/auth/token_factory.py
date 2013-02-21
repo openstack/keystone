@@ -294,7 +294,7 @@ def create_token(context, auth_context, auth_info):
     return (token_id, token_data)
 
 
-def render_token_data_response(token_id, token_data):
+def render_token_data_response(token_id, token_data, created=False):
     """ Render token data HTTP response.
 
     Stash token ID into the X-Auth-Token header.
@@ -303,7 +303,12 @@ def render_token_data_response(token_id, token_data):
     headers = [('X-Subject-Token', token_id)]
     headers.append(('Vary', 'X-Auth-Token'))
     headers.append(('Content-Type', 'application/json'))
-    status = (200, 'OK')
+
+    if created:
+        status = (201, 'Created')
+    else:
+        status = (200, 'OK')
+
     body = jsonutils.dumps(token_data, cls=utils.SmarterEncoder)
     return webob.Response(body=body,
                           status='%s %s' % status,

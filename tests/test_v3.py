@@ -221,22 +221,40 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             **kwargs)
 
     def get(self, path, **kwargs):
-        return self.v3_request(method='GET', path=path, **kwargs)
+        r = self.v3_request(method='GET', path=path, **kwargs)
+        if 'expected_status' not in kwargs:
+            self.assertResponseStatus(r, 200)
+        return r
 
     def head(self, path, **kwargs):
-        return self.v3_request(method='HEAD', path=path, **kwargs)
+        r = self.v3_request(method='HEAD', path=path, **kwargs)
+        if 'expected_status' not in kwargs:
+            self.assertResponseStatus(r, 204)
+        return r
 
     def post(self, path, **kwargs):
-        return self.v3_request(method='POST', path=path, **kwargs)
+        r = self.v3_request(method='POST', path=path, **kwargs)
+        if 'expected_status' not in kwargs:
+            self.assertResponseStatus(r, 201)
+        return r
 
     def put(self, path, **kwargs):
-        return self.v3_request(method='PUT', path=path, **kwargs)
+        r = self.v3_request(method='PUT', path=path, **kwargs)
+        if 'expected_status' not in kwargs:
+            self.assertResponseStatus(r, 204)
+        return r
 
     def patch(self, path, **kwargs):
-        return self.v3_request(method='PATCH', path=path, **kwargs)
+        r = self.v3_request(method='PATCH', path=path, **kwargs)
+        if 'expected_status' not in kwargs:
+            self.assertResponseStatus(r, 200)
+        return r
 
     def delete(self, path, **kwargs):
-        return self.v3_request(method='DELETE', path=path, **kwargs)
+        r = self.v3_request(method='DELETE', path=path, **kwargs)
+        if 'expected_status' not in kwargs:
+            self.assertResponseStatus(r, 204)
+        return r
 
     def assertValidErrorResponse(self, r):
         if r.getheader('Content-Type') == 'application/xml':

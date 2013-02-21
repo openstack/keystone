@@ -33,6 +33,7 @@ from keystone.common import logging
 from keystone.common import utils
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 
 
@@ -251,7 +252,17 @@ class Application(BaseApplication):
             return result
         elif isinstance(result, webob.exc.WSGIHTTPException):
             return result
-        return render_response(body=result)
+
+        response_code = self._get_response_code(req)
+        return render_response(body=result, status=response_code)
+
+    def _get_response_code(self, req):
+        req_method = req.environ['REQUEST_METHOD']
+        controller = importutils.import_class('keystone.common.controller')
+        code = None
+        if isinstance(self, controller.V3Controller) and req_method == 'POST':
+            code = (201, 'Created')
+        return code
 
     def _normalize_arg(self, arg):
         return str(arg).replace(':', '_').replace('-', '_')

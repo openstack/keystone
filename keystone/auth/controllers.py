@@ -294,8 +294,8 @@ class Auth(controller.V3Controller):
                                                 auth_context)
             (token_id, token_data) = token_factory.create_token(
                 context, auth_context, auth_info)
-            return token_factory.render_token_data_response(token_id,
-                                                            token_data)
+            return token_factory.render_token_data_response(
+                token_id, token_data, created=True)
         except (exception.Unauthorized,
                 exception.AuthMethodNotSupported,
                 exception.AdditionalAuthRequired) as e:
