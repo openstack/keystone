@@ -143,19 +143,26 @@ class BaseLdap(object):
 
         return conn
 
+    def _id_to_dn_string(self, id):
+        return '%s=%s,%s' % (self.id_attr,
+                             ldap.dn.escape_dn_chars(str(id)),
+                             self.tree_dn)
+
     def _id_to_dn(self, id):
+        if self.LDAP_SCOPE == ldap.SCOPE_ONELEVEL:
+            return self._id_to_dn_string(id)
         conn = self.get_connection()
-        try:
-            dn, attrs = conn.search_s(
-                self.tree_dn, self.LDAP_SCOPE,
-                '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
-                {'id_attr': self.id_attr,
-                 'id': ldap.filter.escape_filter_chars(str(id)),
-                 'objclass': self.object_class})[0]
-        except ValueError, IndexError:
-            raise ldap.NO_SUCH_OBJECT
-        else:
+        search_result = conn.search_s(
+            self.tree_dn, self.LDAP_SCOPE,
+            '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
+            {'id_attr': self.id_attr,
+             'id': ldap.filter.escape_filter_chars(str(id)),
+             'objclass': self.object_class})
+        if search_result:
+            dn, attrs = search_result[0]
             return dn
+        else:
+            return self._id_to_dn_string(id)
 
     @staticmethod
     def _dn_to_id(dn):
