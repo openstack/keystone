@@ -67,11 +67,12 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         create_object(CONF.ldap.tenant_tree_dn,
                       {'objectclass': 'organizationalUnit',
                       'ou': 'Projects'})
-
-        # NOTE(crazed): This feature is currently being added
-        create_object("ou=Groups,%s" % CONF.ldap.suffix,
+        create_object(CONF.ldap.domain_tree_dn,
                       {'objectclass': 'organizationalUnit',
-                      'ou': 'Groups'})
+                      'ou': 'Domain'})
+        create_object(CONF.ldap.group_tree_dn,
+                      {'objectclass': 'organizationalUnit',
+                      'ou': 'UserGroups'})
 
     def _set_config(self):
         self.config([test.etcdir('keystone.conf.sample'),

@@ -41,6 +41,7 @@ def filter_user(user_ref):
         user_ref.pop('password', None)
         user_ref.pop('tenants', None)
         user_ref.pop('groups', None)
+        user_ref.pop('domains', None)
         try:
             user_ref['extra'].pop('password', None)
             user_ref['extra'].pop('tenants', None)

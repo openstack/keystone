@@ -116,7 +116,7 @@ class Group(Model):
     """
 
     required_keys = ('id', 'name', 'domain_id')
-    optional_keys = ('description')
+    optional_keys = ('description',)
 
 
 class Project(Model):
@@ -162,3 +162,21 @@ class Trust(Model):
 
     required_keys = ('id', 'trustor_user_id', 'trustee_user_id', 'project_id')
     optional_keys = tuple('expires_at')
+
+
+class Domain(Model):
+    """Domain object.
+
+    Required keys:
+        id
+        name
+
+    Optional keys:
+
+        description
+        enabled (bool, default True)
+
+    """
+
+    required_keys = ('id', 'name')
+    optional_keys = ('description', 'enabled')

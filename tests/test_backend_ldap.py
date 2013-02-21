@@ -359,29 +359,43 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
 # TODO (henry-nash) These need to be removed when the full LDAP implementation
 # is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
+
+    # (spzala)The group and domain crud tests below override the standard ones
+    # in test_backend.py so that we can exclude the update name test, since we
+    # do not yet support the update of either group or domain names with LDAP.
+    # In the tests below, the update is demonstrated by updating description.
+    # Refer to bug 1136403 for more detail.
     def test_group_crud(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
+        group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex, 'description': uuid.uuid4().hex}
+        self.identity_api.create_group(group['id'], group)
+        group_ref = self.identity_api.get_group(group['id'])
+        self.assertDictEqual(group_ref, group)
+        group['description'] = uuid.uuid4().hex
+        self.identity_api.update_group(group['id'], group)
+        group_ref = self.identity_api.get_group(group['id'])
+        self.assertDictEqual(group_ref, group)
 
-    def test_add_user_to_group(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
+        self.identity_api.delete_group(group['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group,
+                          group['id'])
 
-    def test_add_user_to_group_404(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
+    def test_domain_crud(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True, 'description': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        domain_ref = self.identity_api.get_domain(domain['id'])
+        self.assertDictEqual(domain_ref, domain)
+        domain['description'] = uuid.uuid4().hex
+        self.identity_api.update_domain(domain['id'], domain)
+        domain_ref = self.identity_api.get_domain(domain['id'])
+        self.assertDictEqual(domain_ref, domain)
 
-    def test_check_user_in_group(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
-
-    def test_check_user_not_in_group(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
-
-    def test_list_users_in_group(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
-
-    def test_remove_user_from_group(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
-
-    def test_remove_user_from_group_404(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
+        self.identity_api.delete_domain(domain['id'])
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.get_domain,
+                          domain['id'])
 
     def test_get_role_grant_by_user_and_project(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
@@ -406,15 +420,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_get_roles_for_user_and_domain(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_get_roles_for_user_and_domain_404(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_domain_crud(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
 
     def test_project_crud(self):
         # NOTE(topol): LDAP implementation does not currently support the
@@ -467,12 +472,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_delete_group_with_user_project_domain_links(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
 
-    def test_list_groups(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
-
-    def test_list_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
     def test_list_user_projects(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
 
@@ -484,9 +483,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_create_duplicate_project_name_in_different_domains(self):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_create_duplicate_group_name_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1092187')
 
     def test_create_duplicate_group_name_in_different_domains(self):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
@@ -508,6 +504,9 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_get_roles_for_user_and_domain(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):

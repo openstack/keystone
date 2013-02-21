@@ -28,7 +28,6 @@ from keystone import config
 from keystone import exception
 from keystone import identity
 
-
 CONF = config.CONF
 
 
@@ -44,6 +43,7 @@ class Identity(identity.Driver):
         self.project = ProjectApi(CONF)
         self.role = RoleApi(CONF)
         self.group = GroupApi(CONF)
+        self.domain = DomainApi(CONF)
 
     def get_connection(self, user=None, password=None):
         if self.LDAP_URL.startswith('fake://'):
@@ -238,6 +238,62 @@ class Identity(identity.Driver):
     def delete_group(self, group_id):
         return self.group.delete(group_id)
 
+    def add_user_to_group(self, user_id, group_id):
+        self.get_user(user_id)
+        self.get_group(group_id)
+        self.group.add_user(user_id, group_id)
+
+    def remove_user_from_group(self, user_id, group_id):
+        self.get_user(user_id)
+        self.get_group(group_id)
+        self.group.remove_user(user_id, group_id)
+
+    def list_groups_for_user(self, user_id):
+        self.get_user(user_id)
+        return self.group.list_user_groups(user_id)
+
+    def list_groups(self):
+        return self.group.get_all()
+
+    def list_users_in_group(self, group_id):
+        self.get_group(group_id)
+        return self.group.list_group_users(group_id)
+
+    def check_user_in_group(self, user_id, group_id):
+        self.get_user(user_id)
+        self.get_group(group_id)
+        user_refs = self.list_users_in_group(group_id)
+        found = False
+        for x in user_refs:
+            if x['id'] == user_id:
+                found = True
+                break
+        return found
+
+    def create_domain(self, domain_id, domain):
+        domain['name'] = clean.domain_name(domain['name'])
+        return self.domain.create(domain)
+
+    def get_domain(self, domain_id):
+        try:
+            return self.domain.get(domain_id)
+        except exception.NotFound:
+            raise exception.DomainNotFound(domain_id=domain_id)
+
+    def update_domain(self, domain_id, domain):
+        if 'name' in domain:
+            domain['name'] = clean.domain_name(domain['name'])
+        return self.domain.update(domain_id, domain)
+
+    def delete_domain(self, domain_id):
+        try:
+            return self.domain.delete(domain_id)
+        except ldap.NO_SUCH_OBJECT:
+            raise exception.DomainNotFound(domain_id=domain_id)
+
+    def list_domains(self):
+        return self.domain.get_all()
+
 
 # TODO(termie): remove this and move cross-api calls into driver
 class ApiShim(object):
@@ -251,6 +307,7 @@ class ApiShim(object):
     _project = None
     _user = None
     _group = None
+    _domain = None
 
     def __init__(self, conf):
         self.conf = conf
@@ -275,9 +332,15 @@ class ApiShim(object):
 
     @property
     def group(self):
-        if not self.group:
-            self.group = GroupApi(self.conf)
-        return self.group
+        if not self._group:
+            self._group = GroupApi(self.conf)
+        return self._group
+
+    @property
+    def domain(self):
+        if not self._domain:
+            self._domain = DomainApi(self.conf)
+        return self._domain
 
 
 # TODO(termie): remove this and move cross-api calls into driver
@@ -299,6 +362,10 @@ class ApiShimMixin(object):
     @property
     def group_api(self):
         return self.api.group
+
+    @property
+    def domain_api(self):
+        return self.api.domain
 
 
 # TODO(termie): turn this into a data object and move logic to driver
@@ -569,7 +636,6 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     def create(self, values):
         #values['id'] = values['name']
         #delattr(values, 'name')
-
         return super(RoleApi, self).create(values)
 
     def add_user(self, role_id, user_id, tenant_id=None):
@@ -736,9 +802,29 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             pass
         super(RoleApi, self).delete(id)
 
+# TODO (spzala) - this is only placeholder for group and domain role support
+# which will be added under bug 1101287
+    def roles_delete_subtree_by_type(self, id, type):
+        conn = self.get_connection()
+        query = '(objectClass=%s)' % self.object_class
+        dn = None
+        if type == 'Group':
+            dn = self.group_api._id_to_dn(id)
+        if type == 'Domain':
+            dn = self.domain_api._id_to_dn(id)
+        if dn:
+            try:
+                roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
+                                      query, ['%s' % '1.1'])
+                for role_dn, _ in roles:
+                    try:
+                        conn.delete_s(role_dn)
+                    except:
+                        raise Exception
+            except ldap.NO_SUCH_OBJECT:
+                pass
 
-# TODO (henry-nash) This is a placeholder for the full LDPA implementation
-# This needs to be completed (see Bug #1092187)
+
 class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_OU = 'ou=UserGroups'
     DEFAULT_STRUCTURAL_CLASSES = []
@@ -771,13 +857,15 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
         data = values.copy()
         if data.get('id') is None:
             data['id'] = uuid.uuid4().hex
+        if 'description' in data and data['description'] in ['', None]:
+            data.pop('description')
         return super(GroupApi, self).create(data)
 
     def delete(self, id):
         if self.subtree_delete_enabled:
             super(GroupApi, self).deleteTree(id)
         else:
-            self.role_api.roles_delete_subtree_by_group(id)
+            self.role_api.roles_delete_subtree_by_type(id, 'Group')
             super(GroupApi, self).delete(id)
 
     def update(self, id, values):
@@ -786,3 +874,112 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
             msg = _('Changing Name not supported by LDAP')
             raise exception.NotImplemented(message=msg)
         super(GroupApi, self).update(id, values, old_obj)
+
+    def add_user(self, user_id, group_id):
+        conn = self.get_connection()
+        try:
+            conn.modify_s(
+                self._id_to_dn(group_id),
+                [(ldap.MOD_ADD,
+                  self.member_attribute,
+                  self.user_api._id_to_dn(user_id))])
+        except ldap.TYPE_OR_VALUE_EXISTS:
+            msg = _('User %s is already a member of group %s'
+                    % (user_id, group_id))
+            raise exception.Conflict(msg)
+
+    def remove_user(self, user_id, group_id):
+        conn = self.get_connection()
+        try:
+            conn.modify_s(
+                self._id_to_dn(group_id),
+                [(ldap.MOD_DELETE,
+                  self.member_attribute,
+                  self.user_api._id_to_dn(user_id))])
+        except ldap.NO_SUCH_ATTRIBUTE:
+            raise exception.UserNotFound(user_id=user_id)
+
+    def list_user_groups(self, user_id):
+        """Returns a list of groups a user has access to"""
+        user_dn = self.user_api._id_to_dn(user_id)
+        query = '(%s=%s)' % (self.member_attribute, user_dn)
+        memberships = self.get_all(query)
+        return memberships
+
+    def list_group_users(self, group_id):
+        """Returns a list of users that belong to a group"""
+        query = '(objectClass=%s)' % self.object_class
+        conn = self.get_connection()
+        group_dn = self._id_to_dn(group_id)
+        try:
+            attrs = conn.search_s(group_dn,
+                                  ldap.SCOPE_BASE,
+                                  query, ['%s' % self.member_attribute])
+        except ldap.NO_SUCH_OBJECT:
+            return []
+        users = []
+        for dn, member in attrs:
+            user_dns = member[self.member_attribute]
+            for user_dn in user_dns:
+                if self.use_dumb_member and user_dn == self.dumb_member:
+                    continue
+                user_id = self.user_api._dn_to_id(user_dn)
+                users.append(self.user_api.get(user_id))
+        return users
+
+
+class DomainApi(common_ldap.BaseLdap, ApiShimMixin):
+    DEFAULT_OU = 'ou=Domains'
+    DEFAULT_STRUCTURAL_CLASSES = []
+    DEFAULT_OBJECTCLASS = 'groupOfNames'
+    DEFAULT_ID_ATTR = 'cn'
+    DEFAULT_MEMBER_ATTRIBUTE = 'member'
+    DEFAULT_ATTRIBUTE_IGNORE = []
+    options_name = 'domain'
+    attribute_mapping = {'name': 'ou',
+                         'description': 'description',
+                         'domainId': 'cn',
+                         'enabled': 'enabled'}
+    model = models.Domain
+
+    def __init__(self, conf):
+        super(DomainApi, self).__init__(conf)
+        self.api = ApiShim(conf)
+        self.attribute_mapping['name'] = conf.ldap.domain_name_attribute
+        self.attribute_mapping['description'] = conf.ldap.domain_desc_attribute
+        self.attribute_mapping['enabled'] = conf.ldap.tenant_enabled_attribute
+        self.member_attribute = (getattr(conf.ldap, 'domain_member_attribute')
+                                 or self.DEFAULT_MEMBER_ATTRIBUTE)
+        self.attribute_ignore = (getattr(conf.ldap, 'domain_attribute_ignore')
+                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
+
+    def get(self, id, filter=None):
+        """Replaces exception.NotFound with exception.DomainNotFound."""
+        try:
+            return super(DomainApi, self).get(id, filter)
+        except exception.NotFound:
+            raise exception.DomainNotFound(domain_id=id)
+
+    def create(self, values):
+        self.affirm_unique(values)
+        data = values.copy()
+        if data.get('id') is None:
+            data['id'] = uuid.uuid4().hex
+        return super(DomainApi, self).create(data)
+
+    def delete(self, id):
+        if self.subtree_delete_enabled:
+            super(DomainApi, self).deleteTree(id)
+        else:
+            self.role_api.roles_delete_subtree_by_type(id, 'Domain')
+            super(DomainApi, self).delete(id)
+
+    def update(self, id, values):
+        try:
+            old_obj = self.get(id)
+        except exception.NotFound:
+            raise exception.DomainNotFound(domain_id=id)
+        if old_obj['name'] != values['name']:
+            msg = _('Changing Name not supported by LDAP')
+            raise exception.NotImplemented(message=msg)
+        super(DomainApi, self).update(id, values, old_obj)
