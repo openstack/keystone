@@ -44,9 +44,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
         clear_database()
-        self.stubs.Set(ldap_common.BaseLdap, "_id_to_dn",
-                       lambda self, id: '%s=%s,%s' % (self.id_attr,
-                                                      str(id), self.tree_dn))
         self.identity_api = identity_ldap.Identity()
         self.load_fixtures(default_fixtures)
 
