@@ -77,11 +77,25 @@ class TokenDataHelper(object):
             raise exception.Unauthorized(msg)
         return roles_ref
 
+    def _get_domain_roles_for_user(self, user_id, domain_id):
+        roles = self.identity_api.get_roles_for_user_and_domain(
+            self.context, user_id, domain_id)
+        roles_ref = []
+        for role_id in roles:
+            role_ref = self.identity_api.get_role(self.context, role_id)
+            role_ref.setdefault('domain_id', domain_id)
+            roles_ref.append(role_ref)
+        # user have no domain roles, therefore access denied
+        if len(roles_ref) == 0:
+            msg = _('User have no access to domain')
+            LOG.debug(msg)
+            raise exception.Unauthorized(msg)
+        return roles_ref
+
     def _get_roles_for_user(self, user_id, domain_id, project_id):
         roles = []
         if domain_id:
-            # TODO(gyee): get domain roles
-            pass
+            roles = self._get_domain_roles_for_user(user_id, domain_id)
         if project_id:
             roles = self._get_project_roles_for_user(user_id, project_id)
         return roles

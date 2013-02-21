@@ -153,6 +153,16 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    def get_roles_for_user_and_domain(self, user_id, domain_id):
+        """Get the roles associated with a user within given domain.
+
+        :returns: a list of role ids.
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.ProjectNotFound
+
+        """
+        raise exception.NotImplemented()
+
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant.
 
