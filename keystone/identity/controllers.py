@@ -410,11 +410,10 @@ class DomainV3(controller.V3Controller):
         ref = self.identity_api.create_domain(context, ref['id'], ref)
         return DomainV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_domains(self, context):
+    @controller.filterprotected('enabled', 'name')
+    def list_domains(self, context, filters):
         refs = self.identity_api.list_domains(context)
-        refs = self._filter_by_attribute(context, refs, 'name')
-        return DomainV3.wrap_collection(context, refs)
+        return DomainV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_domain(self, context, domain_id):
@@ -490,15 +489,15 @@ class ProjectV3(controller.V3Controller):
         ref = self.identity_api.create_project(context, ref['id'], ref)
         return ProjectV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_projects(self, context):
+    @controller.filterprotected('domain_id', 'enabled', 'name')
+    def list_projects(self, context, filters):
         refs = self.identity_api.list_projects(context)
-        return ProjectV3.wrap_collection(context, refs)
+        return ProjectV3.wrap_collection(context, refs, filters)
 
-    @controller.protected
-    def list_user_projects(self, context, user_id):
+    @controller.filterprotected('enabled', 'name')
+    def list_user_projects(self, context, filters, user_id):
         refs = self.identity_api.list_user_projects(context, user_id)
-        return ProjectV3.wrap_collection(context, refs)
+        return ProjectV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_project(self, context, project_id):
@@ -528,15 +527,15 @@ class UserV3(controller.V3Controller):
         ref = self.identity_api.create_user(context, ref['id'], ref)
         return UserV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_users(self, context):
+    @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
+    def list_users(self, context, filters):
         refs = self.identity_api.list_users(context)
-        return UserV3.wrap_collection(context, refs)
+        return UserV3.wrap_collection(context, refs, filters)
 
-    @controller.protected
-    def list_users_in_group(self, context, group_id):
+    @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
+    def list_users_in_group(self, context, filters, group_id):
         refs = self.identity_api.list_users_in_group(context, group_id)
-        return UserV3.wrap_collection(context, refs)
+        return UserV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_user(self, context, user_id):
@@ -546,7 +545,6 @@ class UserV3(controller.V3Controller):
     @controller.protected
     def update_user(self, context, user_id, user):
         self._require_matching_id(user_id, user)
-
         ref = self.identity_api.update_user(context, user_id, user)
 
         if user.get('password') or not user.get('enabled', True):
@@ -588,15 +586,15 @@ class GroupV3(controller.V3Controller):
         ref = self.identity_api.create_group(context, ref['id'], ref)
         return GroupV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_groups(self, context):
+    @controller.filterprotected('domain_id', 'name')
+    def list_groups(self, context, filters):
         refs = self.identity_api.list_groups(context)
-        return GroupV3.wrap_collection(context, refs)
+        return GroupV3.wrap_collection(context, refs, filters)
 
-    @controller.protected
-    def list_groups_for_user(self, context, user_id):
+    @controller.filterprotected('name')
+    def list_groups_for_user(self, context, filters, user_id):
         refs = self.identity_api.list_groups_for_user(context, user_id)
-        return GroupV3.wrap_collection(context, refs)
+        return GroupV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_group(self, context, group_id):
@@ -660,10 +658,10 @@ class RoleV3(controller.V3Controller):
         ref = self.identity_api.create_role(context, ref['id'], ref)
         return RoleV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_roles(self, context):
+    @controller.filterprotected('name')
+    def list_roles(self, context, filters):
         refs = self.identity_api.list_roles(context)
-        return RoleV3.wrap_collection(context, refs)
+        return RoleV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_role(self, context, role_id):

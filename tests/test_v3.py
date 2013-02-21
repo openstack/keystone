@@ -148,11 +148,28 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             })
         return r.getheader('X-Subject-Token')
 
+    def get_requested_token(self, auth):
+        """Request the specific token we want."""
+
+        r = self.admin_request(
+            method='POST',
+            path='/v3/auth/tokens',
+            body=auth)
+        return r.getheader('X-Subject-Token')
+
     def v3_request(self, path, **kwargs):
+        # Check if the caller has passed in auth details for
+        # use in requesting the token
+        auth = kwargs.get('auth', None)
+        if auth:
+            kwargs.pop('auth')
+            token = self.get_requested_token(auth)
+        else:
+            token = self.get_scoped_token()
         path = '/v3' + path
         return self.admin_request(
             path=path,
-            token=self.get_scoped_token(),
+            token=token,
             **kwargs)
 
     def get(self, path, **kwargs):

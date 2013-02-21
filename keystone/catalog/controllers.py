@@ -131,11 +131,10 @@ class ServiceV3(controller.V3Controller):
         ref = self.catalog_api.create_service(context, ref['id'], ref)
         return ServiceV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_services(self, context):
+    @controller.filterprotected('type')
+    def list_services(self, context, filters):
         refs = self.catalog_api.list_services(context)
-        refs = self._filter_by_attribute(context, refs, 'type')
-        return ServiceV3.wrap_collection(context, refs)
+        return ServiceV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_service(self, context, service_id):
@@ -169,12 +168,10 @@ class EndpointV3(controller.V3Controller):
         ref = self.catalog_api.create_endpoint(context, ref['id'], ref)
         return EndpointV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_endpoints(self, context):
+    @controller.filterprotected('interface', 'service_id')
+    def list_endpoints(self, context, filters):
         refs = self.catalog_api.list_endpoints(context)
-        refs = self._filter_by_attribute(context, refs, 'service_id')
-        refs = self._filter_by_attribute(context, refs, 'interface')
-        return EndpointV3.wrap_collection(context, refs)
+        return EndpointV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_endpoint(self, context, endpoint_id):

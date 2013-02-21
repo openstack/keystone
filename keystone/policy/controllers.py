@@ -30,11 +30,10 @@ class PolicyV3(controller.V3Controller):
         ref = self.policy_api.create_policy(context, ref['id'], ref)
         return PolicyV3.wrap_member(context, ref)
 
-    @controller.protected
-    def list_policies(self, context):
+    @controller.filterprotected('type')
+    def list_policies(self, context, filters):
         refs = self.policy_api.list_policies(context)
-        refs = self._filter_by_attribute(context, refs, 'type')
-        return PolicyV3.wrap_collection(context, refs)
+        return PolicyV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_policy(self, context, policy_id):
