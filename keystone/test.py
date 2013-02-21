@@ -190,6 +190,7 @@ class TestCase(NoModule, unittest.TestCase):
         self.config([etcdir('keystone.conf.sample'),
                      testsdir('test_overrides.conf')])
         self.mox = mox.Mox()
+        self.opt(policy_file=etcdir('policy.json'))
         self.stubs = stubout.StubOutForTesting()
         self.stubs.Set(exception, '_FATAL_EXCEPTION_FORMAT_ERRORS', True)
 

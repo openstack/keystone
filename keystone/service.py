@@ -16,6 +16,7 @@
 
 import routes
 
+from keystone import auth
 from keystone import catalog
 from keystone.common import logging
 from keystone.common import wsgi
@@ -80,7 +81,7 @@ def v3_app_factory(global_conf, **local_conf):
     conf.update(local_conf)
     mapper = routes.Mapper()
     v3routers = []
-    for module in [catalog, identity, policy]:
+    for module in [auth, catalog, identity, policy]:
         module.routers.append_v3_routers(mapper, v3routers)
     # TODO(ayoung): put token routes here
     return wsgi.ComposingRouter(mapper, v3routers)

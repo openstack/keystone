@@ -31,6 +31,8 @@ TENANTS = [
         'id': 'bar',
         'name': 'BAR',
         'domain_id': DEFAULT_DOMAIN_ID,
+        'description': 'description',
+        'enabled': True,
     }, {
         'id': 'baz',
         'name': 'BAZ',
@@ -53,7 +55,9 @@ USERS = [
         'name': 'FOO',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'foo2',
-        'tenants': ['bar']
+        'tenants': ['bar'],
+        'enabled': True,
+        'email': 'foo@bar.com',
     }, {
         'id': 'two',
         'name': 'TWO',
@@ -63,6 +67,7 @@ USERS = [
         'enabled': True,
         'tenant_id': 'baz',
         'tenants': ['baz'],
+        'email': 'two@three.com',
     }, {
         'id': 'badguy',
         'name': 'BadGuy',
@@ -72,13 +77,15 @@ USERS = [
         'enabled': False,
         'tenant_id': 'baz',
         'tenants': ['baz'],
+        'email': 'badguy@goodguy.com',
     }, {
         'id': 'sna',
         'name': 'SNA',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'snafu',
         'enabled': True,
-        'tenants': ['bar']
+        'tenants': ['bar'],
+        'email': 'sna@snl.coom',
     }
 ]
 
@@ -91,8 +98,8 @@ METADATA = [
 
 ROLES = [
     {
-        'id': 'keystone_admin',
-        'name': 'Keystone Admin',
+        'id': 'admin',
+        'name': 'admin',
     }, {
         'id': 'member',
         'name': 'Member',

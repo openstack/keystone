@@ -245,7 +245,7 @@ class AuthWithToken(AuthTest):
         self.identity_api.create_grant(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'],
-            role_id=self.role_keystone_admin['id'])
+            role_id=self.role_admin['id'])
 
         # Get a scoped token for the tenant
         body_dict = _build_user_auth(
@@ -259,7 +259,7 @@ class AuthWithToken(AuthTest):
         roles = scoped_token["access"]["metadata"]["roles"]
         self.assertEquals(tenant["id"], self.tenant_bar['id'])
         self.assertIn(self.role_member['id'], roles)
-        self.assertIn(self.role_keystone_admin['id'], roles)
+        self.assertIn(self.role_admin['id'], roles)
 
     def test_auth_token_cross_domain_group_and_project(self):
         """Verify getting a token in cross domain group/project roles"""
@@ -291,7 +291,7 @@ class AuthWithToken(AuthTest):
         self.identity_api.create_grant(
             group_id=new_group['id'],
             project_id=project1['id'],
-            role_id=self.role_keystone_admin['id'])
+            role_id=self.role_admin['id'])
         self.identity_api.create_grant(
             user_id=self.user_foo['id'],
             domain_id=domain1['id'],
@@ -312,7 +312,7 @@ class AuthWithToken(AuthTest):
         roles = scoped_token["access"]["metadata"]["roles"]
         self.assertEquals(tenant["id"], project1['id'])
         self.assertIn(self.role_member['id'], roles)
-        self.assertIn(self.role_keystone_admin['id'], roles)
+        self.assertIn(self.role_admin['id'], roles)
         self.assertNotIn(role_foo_domain1['id'], roles)
         self.assertNotIn(role_group_domain1['id'], roles)
 

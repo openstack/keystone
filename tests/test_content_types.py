@@ -73,7 +73,7 @@ class RestfulTestCase(test.TestCase):
         self.metadata_foobar = self.identity_api.update_metadata(
             self.user_foo['id'],
             self.tenant_bar['id'],
-            dict(roles=['keystone_admin'], is_admin='1'))
+            dict(roles=[self.role_admin['id']], is_admin='1'))
 
     def tearDown(self):
         """Kill running servers and release references to avoid leaks."""
@@ -180,7 +180,8 @@ class RestfulTestCase(test.TestCase):
             elif self.content_type == 'xml':
                 response.body = etree.fromstring(response.body)
 
-    def restful_request(self, headers=None, body=None, token=None, **kwargs):
+    def restful_request(self, method='GET', headers=None, body=None,
+                        token=None, **kwargs):
         """Serializes/deserializes json/xml as request/response body.
 
         .. WARNING::
@@ -198,12 +199,13 @@ class RestfulTestCase(test.TestCase):
         body = self._to_content_type(body, headers)
 
         # Perform the HTTP request/response
-        response = self.request(headers=headers, body=body, **kwargs)
+        response = self.request(method=method, headers=headers, body=body,
+                                **kwargs)
 
         self._from_content_type(response)
 
         # we can save some code & improve coverage by always doing this
-        if response.status >= 400:
+        if method != 'HEAD' and response.status >= 400:
             self.assertValidErrorResponse(response)
 
         # Contains the decoded response.body

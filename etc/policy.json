@@ -32,6 +32,16 @@
     "identity:update_user": [["rule:admin_required"]],
     "identity:delete_user": [["rule:admin_required"]],
 
+    "identity:get_group": [["rule:admin_required"]],
+    "identity:list_groups": [["rule:admin_required"]],
+    "identity:create_group": [["rule:admin_required"]],
+    "identity:update_group": [["rule:admin_required"]],
+    "identity:delete_group": [["rule:admin_required"]],
+    "identity:list_users_in_group": [["rule:admin_required"]],
+    "identity:remove_user_from_group": [["rule:admin_required"]],
+    "identity:check_user_in_group": [["rule:admin_required"]],
+    "identity:add_user_to_group": [["rule:admin_required"]],
+
     "identity:get_credential": [["rule:admin_required"]],
     "identity:list_credentials": [["rule:admin_required"]],
     "identity:create_credential": [["rule:admin_required"]],
@@ -41,8 +51,8 @@
     "identity:get_role": [["rule:admin_required"]],
     "identity:list_roles": [["rule:admin_required"]],
     "identity:create_role": [["rule:admin_required"]],
-    "identity:update_roles": [["rule:admin_required"]],
-    "identity:delete_roles": [["rule:admin_required"]],
+    "identity:update_role": [["rule:admin_required"]],
+    "identity:delete_role": [["rule:admin_required"]],
 
     "identity:check_grant": [["rule:admin_required"]],
     "identity:list_grants": [["rule:admin_required"]],
@@ -53,5 +63,10 @@
     "identity:list_policies": [["rule:admin_required"]],
     "identity:create_policy": [["rule:admin_required"]],
     "identity:update_policy": [["rule:admin_required"]],
-    "identity:delete_policy": [["rule:admin_required"]]
+    "identity:delete_policy": [["rule:admin_required"]],
+
+    "identity:check_token": [["rule:admin_required"]],
+    "identity:validate_token": [["rule:admin_required"]],
+    "identity:revocation_list": [["rule:admin_required"]],
+    "identity:revoke_token": [["rule:admin_required"], ["user_id:%(user_id)s"]]
 }
