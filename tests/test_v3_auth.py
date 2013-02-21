@@ -378,6 +378,61 @@ class TestAuth(AuthTest):
         resp = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectScopedToken(resp.body)
 
+    def test_domain_scope_token_with_id(self):
+        # grant the domain role to user
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+        # now get a domain-scoped token
+        auth_data = _build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        self.assertValidDomainScopedToken(resp.body)
+
+    def test_domain_scope_token_with_group_role(self):
+        group_id = uuid.uuid4().hex
+        group = self.new_group_ref(
+            domain_id=self.domain_id)
+        group['id'] = group_id
+        self.identity_api.create_group(group_id, group)
+        # add user to group
+        self.identity_api.add_user_to_group(self.user['id'], group['id'])
+        # grant the domain role to group
+        path = '/domains/%s/groups/%s/roles/%s' % (
+            self.domain['id'], group['id'], self.role['id'])
+        self.put(path=path)
+        # now get a domain-scoped token
+        auth_data = _build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        self.assertValidDomainScopedToken(resp.body)
+
+    def test_domain_scope_token_with_name(self):
+        # grant the domain role to user
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+        # now get a domain-scoped token
+        auth_data = _build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_name=self.domain['name'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        self.assertValidDomainScopedToken(resp.body)
+
+    def test_domain_scope_failed(self):
+        auth_data = _build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        resp = self.post('/auth/tokens', body=auth_data,
+                         expected_status=401)
+        self.assertEqual(resp.status, 401)
+
     def test_auth_with_id(self):
         auth_data = _build_authentication_request(
             user_id=self.user['id'],
