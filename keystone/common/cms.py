@@ -131,7 +131,12 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
     output, err = process.communicate(text)
     retcode = process.poll()
     if retcode or "Error" in err:
-        LOG.error(_('Signing error: %s') % err)
+        if retcode == 3:
+            LOG.error(_("Signing error: Unable to load certificate - "
+                      "ensure you've configured PKI with "
+                      "'keystone-manage pki_setup'"))
+        else:
+            LOG.error(_('Signing error: %s') % err)
         raise subprocess.CalledProcessError(retcode, "openssl")
     return output
 
