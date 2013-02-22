@@ -77,6 +77,8 @@ class BaseLdap(object):
     DEFAULT_OBJECTCLASS = None
     DEFAULT_FILTER = None
     DUMB_MEMBER_DN = 'cn=dumb,dc=nonexistent'
+    NotFound = None
+    notfound_arg = None
     options_name = None
     model = None
     attribute_mapping = {}
@@ -117,12 +119,21 @@ class BaseLdap(object):
             self.allow_delete = getattr(conf.ldap, allow_delete)
 
             self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
+
+            if self.notfound_arg is None:
+                self.notfound_arg = self.options_name + '_id'
         self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member')
         self.dumb_member = (getattr(conf.ldap, 'dumb_member') or
                             self.DUMB_MEMBER_DN)
 
         self.subtree_delete_enabled = getattr(conf.ldap,
                                               'allow_subtree_delete')
+
+    def _not_found(self, object_id):
+        if self.NotFound is None:
+            return exception.NotFound(target=object_id)
+        else:
+            return self.NotFound(**{self.notfound_arg: object_id})
 
     def get_connection(self, user=None, password=None):
         if self.LDAP_URL.startswith('fake://'):
@@ -262,7 +273,7 @@ class BaseLdap(object):
     def get(self, id, filter=None):
         res = self._ldap_get(id, filter)
         if res is None:
-            raise exception.NotFound(target=id)
+            raise self._not_found(id)
         else:
             return self._ldap_res_to_model(res)
 
@@ -296,7 +307,10 @@ class BaseLdap(object):
 
         if modlist:
             conn = self.get_connection()
-            conn.modify_s(self._id_to_dn(id), modlist)
+            try:
+                conn.modify_s(self._id_to_dn(id), modlist)
+            except ldap.NO_SUCH_OBJECT:
+                raise self._not_found(id)
 
     def delete(self, id):
         if not self.allow_delete:
@@ -304,15 +318,21 @@ class BaseLdap(object):
             raise exception.ForbiddenAction(action=action)
 
         conn = self.get_connection()
-        conn.delete_s(self._id_to_dn(id))
+        try:
+            conn.delete_s(self._id_to_dn(id))
+        except ldap.NO_SUCH_OBJECT:
+            raise self._not_found(id)
 
     def deleteTree(self, id):
         conn = self.get_connection()
         tree_delete_control = ldap.controls.LDAPControl(CONTROL_TREEDELETE,
                                                         0,
                                                         None)
-        conn.delete_ext_s(self._id_to_dn(id),
-                          serverctrls=[tree_delete_control])
+        try:
+            conn.delete_ext_s(self._id_to_dn(id),
+                              serverctrls=[tree_delete_control])
+        except ldap.NO_SUCH_OBJECT:
+            raise self._not_found(id)
 
 
 class LdapWrapper(object):
