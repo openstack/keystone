@@ -496,7 +496,7 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
     DEFAULT_ATTRIBUTE_IGNORE = []
     options_name = 'tenant'
     attribute_mapping = {'name': 'ou',
-                         'description': 'desc',
+                         'description': 'description',
                          'tenantId': 'cn',
                          'enabled': 'enabled',
                          'domain_id': 'domain_id'}
@@ -912,7 +912,7 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_ATTRIBUTE_IGNORE = []
     options_name = 'group'
     attribute_mapping = {'name': 'ou',
-                         'description': 'desc',
+                         'description': 'description',
                          'groupId': 'cn',
                          'domain_id': 'domain_id'}
     model = models.Group
