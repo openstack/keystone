@@ -15,6 +15,7 @@
 # under the License.
 
 import ldap
+from ldap import filter as ldap_filter
 
 from keystone.common.ldap import fakeldap
 from keystone.common import logging
@@ -278,6 +279,15 @@ class BaseLdap(object):
             raise self._not_found(id)
         else:
             return self._ldap_res_to_model(res)
+
+    def get_by_name(self, name, filter=None):
+        query = ('(%s=%s)' % (self.attribute_mapping['name'],
+                              ldap_filter.escape_filter_chars(name)))
+        res = self.get_all(query)
+        try:
+            return res[0]
+        except IndexError:
+            raise self._not_found(name)
 
     def get_all(self, filter=None):
         return [self._ldap_res_to_model(x)

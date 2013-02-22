@@ -343,15 +343,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
         values['enabled'] = values['enabled_nomask']
         del values['enabled_nomask']
 
-    def get_by_name(self, name, filter=None):
-        query = ('(%s=%s)' % (self.attribute_mapping['name'],
-                              ldap_filter.escape_filter_chars(name)))
-        users = self.get_all(query)
-        try:
-            return users[0]
-        except IndexError:
-            raise exception.UserNotFound(user_id=name)
-
     def create(self, values):
         self.affirm_unique(values)
         values = utils.hash_ldap_user_password(values)
@@ -461,16 +452,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self.attribute_ignore = (getattr(conf.ldap, 'tenant_attribute_ignore')
                                  or self.DEFAULT_ATTRIBUTE_IGNORE)
-
-    def get_by_name(self, name, filter=None):  # pylint: disable=W0221,W0613
-        search_filter = ('(%s=%s)'
-                         % (self.attribute_mapping['name'],
-                            ldap_filter.escape_filter_chars(name)))
-        tenants = self.get_all(search_filter)
-        try:
-            return tenants[0]
-        except IndexError:
-            raise exception.ProjectNotFound(project_id=name)
 
     def create(self, values):
         self.affirm_unique(values)
@@ -632,16 +613,6 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         #delattr(values, 'name')
 
         return super(RoleApi, self).create(values)
-
-    # pylint: disable=W0221
-    def get_by_name(self, name, filter=None):
-        roles = self.get_all('(%s=%s)' %
-                             (self.attribute_mapping['name'],
-                              ldap_filter.escape_filter_chars(name)))
-        try:
-            return roles[0]
-        except IndexError:
-            raise exception.RoleNotFound(role_id=name)
 
     def add_user(self, role_id, user_id, tenant_id=None):
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
@@ -847,15 +818,6 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self.attribute_ignore = (getattr(conf.ldap, 'group_attribute_ignore')
                                  or self.DEFAULT_ATTRIBUTE_IGNORE)
-
-    def get_by_name(self, name, filter=None):
-        query = ('(%s=%s)' % (self.attribute_mapping['name'],
-                              ldap_filter.escape_filter_chars(name)))
-        groups = self.get_all(query)
-        try:
-            return groups[0]
-        except IndexError:
-            raise exception.GroupNotFound(group_id=name)
 
     def create(self, values):
         self.affirm_unique(values)
