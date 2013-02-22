@@ -120,11 +120,11 @@ class TokenDataHelper(object):
 
     def _populate_service_catalog(self, token_data, user_id,
                                   domain_id, project_id):
-        service_catalog = self.catalog_api.get_v3_catalog(self.context,
-                                                          user_id,
-                                                          project_id)
-        # TODO(gyee): v3 service catalog is not quite completed yet
-        token_data['catalog'] = service_catalog
+        if project_id or domain_id:
+            service_catalog = self.catalog_api.get_v3_catalog(
+                self.context, user_id, project_id)
+            # TODO(gyee): v3 service catalog is not quite completed yet
+            token_data['catalog'] = service_catalog
 
     def _populate_token(self, token_data, expires=None):
         if not expires:
