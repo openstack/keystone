@@ -134,7 +134,11 @@ class Identity(identity.Driver):
         except exception.NotFound:
             raise exception.UserNotFound(user_id=user_name)
 
-    def get_metadata(self, user_id, tenant_id):
+    def get_metadata(self, user_id=None, tenant_id=None,
+                     domain_id=None, group_id=None):
+        # FIXME(henry-nash): Use domain_id and group_id once domains
+        # and groups are implemented in LDAP backend
+
         if not self.get_project(tenant_id) or not self.get_user(user_id):
             return {}
 

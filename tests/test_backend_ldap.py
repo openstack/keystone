@@ -406,6 +406,12 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
 
+    def test_get_roles_for_user_and_domain(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_get_roles_for_user_and_domain_404(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
     def test_domain_crud(self):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
 
