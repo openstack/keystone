@@ -169,4 +169,5 @@ def main(argv=None, config_files=None):
          project='keystone',
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
          default_config_files=config_files)
+    config.setup_logging(CONF)
     CONF.command.cmd_class.main()
