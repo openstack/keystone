@@ -32,6 +32,7 @@ CONF = config.CONF
 class PolicyFileTestCase(test.TestCase):
     def setUp(self):
         super(PolicyFileTestCase, self).setUp()
+        self.orig_policy_file = CONF.policy_file
         rules.reset()
         _unused, self.tmpfilename = tempfile.mkstemp()
         self.opt(policy_file=self.tmpfilename)
@@ -40,6 +41,7 @@ class PolicyFileTestCase(test.TestCase):
     def tearDown(self):
         super(PolicyFileTestCase, self).tearDown()
         rules.reset()
+        self.opt(policy_file=self.orig_policy_file)
 
     def test_modified_policy_reloads(self):
         action = "example:test"
