@@ -20,9 +20,14 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class RestfulTestCase(test_content_types.RestfulTestCase):
-    def setUp(self):
-        rules.reset()
+    def setUp(self, load_sample_data=True):
+        """Setup for v3 Restful Test Cases.
 
+        If a child class wants to create their own sample data
+        and provide their own auth data to obtain tokens, then
+        load_sample_data should be set to false.
+
+        """
         self.config([
             test.etcdir('keystone.conf.sample'),
             test.testsdir('test_overrides.conf'),
@@ -32,32 +37,33 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         sql_util.setup_test_database()
         self.load_backends()
 
-        self.domain_id = uuid.uuid4().hex
-        self.domain = self.new_domain_ref()
-        self.domain['id'] = self.domain_id
-        self.identity_api.create_domain(self.domain_id, self.domain)
+        if load_sample_data:
+            self.domain_id = uuid.uuid4().hex
+            self.domain = self.new_domain_ref()
+            self.domain['id'] = self.domain_id
+            self.identity_api.create_domain(self.domain_id, self.domain)
 
-        self.project_id = uuid.uuid4().hex
-        self.project = self.new_project_ref(
-            domain_id=self.domain_id)
-        self.project['id'] = self.project_id
-        self.identity_api.create_project(self.project_id, self.project)
+            self.project_id = uuid.uuid4().hex
+            self.project = self.new_project_ref(
+                domain_id=self.domain_id)
+            self.project['id'] = self.project_id
+            self.identity_api.create_project(self.project_id, self.project)
 
-        self.user_id = uuid.uuid4().hex
-        self.user = self.new_user_ref(
-            domain_id=self.domain_id,
-            project_id=self.project_id)
-        self.user['id'] = self.user_id
-        self.identity_api.create_user(self.user_id, self.user)
+            self.user_id = uuid.uuid4().hex
+            self.user = self.new_user_ref(
+                domain_id=self.domain_id,
+                project_id=self.project_id)
+            self.user['id'] = self.user_id
+            self.identity_api.create_user(self.user_id, self.user)
 
-        # create & grant policy.json's default role for admin_required
-        self.role_id = uuid.uuid4().hex
-        self.role = self.new_role_ref()
-        self.role['id'] = self.role_id
-        self.role['name'] = 'admin'
-        self.identity_api.create_role(self.role_id, self.role)
-        self.identity_api.add_role_to_user_and_project(
-            self.user_id, self.project_id, self.role_id)
+            # create & grant policy.json's default role for admin_required
+            self.role_id = uuid.uuid4().hex
+            self.role = self.new_role_ref()
+            self.role['id'] = self.role_id
+            self.role['name'] = 'admin'
+            self.identity_api.create_role(self.role_id, self.role)
+            self.identity_api.add_role_to_user_and_project(
+                self.user_id, self.project_id, self.role_id)
 
         self.public_server = self.serveapp('keystone', name='main')
         self.admin_server = self.serveapp('keystone', name='admin')
@@ -751,6 +757,76 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
                                  entity.get('expires_at'))
 
         return entity
+
+    def build_auth_scope(self, project_id=None, project_name=None,
+                         project_domain_id=None, project_domain_name=None,
+                         domain_id=None, domain_name=None, trust_id=None):
+        scope_data = {}
+        if project_id or project_name:
+            scope_data['project'] = {}
+            if project_id:
+                scope_data['project']['id'] = project_id
+            else:
+                scope_data['project']['name'] = project_name
+                if project_domain_id or project_domain_name:
+                    project_domain_json = {}
+                    if project_domain_id:
+                        project_domain_json['id'] = project_domain_id
+                    else:
+                        project_domain_json['name'] = project_domain_name
+                    scope_data['project']['domain'] = project_domain_json
+        if domain_id or domain_name:
+            scope_data['domain'] = {}
+            if domain_id:
+                scope_data['domain']['id'] = domain_id
+            else:
+                scope_data['domain']['name'] = domain_name
+        if trust_id:
+            scope_data['trust'] = {}
+            scope_data['trust']['id'] = trust_id
+        return scope_data
+
+    def build_password_auth(self, user_id=None, username=None,
+                            user_domain_id=None, user_domain_name=None,
+                            password=None):
+        password_data = {'user': {}}
+        if user_id:
+            password_data['user']['id'] = user_id
+        else:
+            password_data['user']['name'] = username
+            if user_domain_id or user_domain_name:
+                password_data['user']['domain'] = {}
+                if user_domain_id:
+                    password_data['user']['domain']['id'] = user_domain_id
+                else:
+                    password_data['user']['domain']['name'] = user_domain_name
+        password_data['user']['password'] = password
+        return password_data
+
+    def build_token_auth(self, token):
+        return {'id': token}
+
+    def build_authentication_request(self, token=None, user_id=None,
+                                     username=None, user_domain_id=None,
+                                     user_domain_name=None, password=None,
+                                     **kwargs):
+        """Build auth dictionary.
+
+        It will create an auth dictionary based on all the arguments
+        that it receives.
+        """
+        auth_data = {}
+        auth_data['identity'] = {'methods': []}
+        if token:
+            auth_data['identity']['methods'].append('token')
+            auth_data['identity']['token'] = self.build_token_auth(token)
+        if user_id or username:
+            auth_data['identity']['methods'].append('password')
+            auth_data['identity']['password'] = self.build_password_auth(
+                user_id, username, user_domain_id, user_domain_name, password)
+        if kwargs:
+            auth_data['scope'] = self.build_auth_scope(**kwargs)
+        return {'auth': auth_data}
 
 
 class VersionTestCase(RestfulTestCase):
