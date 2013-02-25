@@ -20,9 +20,13 @@ import uuid
 
 import nose.exc
 
+from keystone import config
 from keystone.policy.backends import rules
 
 import test_v3
+
+
+CONF = config.CONF
 
 
 class IdentityTestProtectedCase(test_v3.RestfulTestCase):
@@ -71,6 +75,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         # Initialize the policy engine and allow us to write to a temp
         # file in each test to create the policies
+        self.orig_policy_file = CONF.policy_file
         rules.reset()
         _unused, self.tmpfilename = tempfile.mkstemp()
         self.opt(policy_file=self.tmpfilename)
@@ -84,6 +89,11 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
             self.user1['id'])
         self.auth['authentication']['password']['user']['password'] = (
             self.user1['password'])
+
+    def tearDown(self):
+        super(IdentityTestProtectedCase, self).tearDown()
+        rules.reset()
+        self.opt(policy_file=self.orig_policy_file)
 
     def _get_id_list_from_ref_list(self, ref_list):
         result_list = []
