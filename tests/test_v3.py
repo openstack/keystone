@@ -1,5 +1,8 @@
 import uuid
 
+from lxml import etree
+
+from keystone.common import serializer
 from keystone.common.sql import util as sql_util
 from keystone import auth
 from keystone import test
@@ -128,21 +131,23 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             method='POST',
             path='/v3/auth/tokens',
             body={
-                'authentication': {
-                    'methods': ['password'],
-                    'password': {
-                        'user': {
-                            'name': self.user['name'],
-                            'password': self.user['password'],
-                            'domain': {
-                                'id': self.user['domain_id']
+                'auth': {
+                    'identity': {
+                        'methods': ['password'],
+                        'password': {
+                            'user': {
+                                'name': self.user['name'],
+                                'password': self.user['password'],
+                                'domain': {
+                                    'id': self.user['domain_id']
+                                }
                             }
                         }
-                    }
-                },
-                'scope': {
-                    'project': {
-                        'id': self.project['id'],
+                    },
+                    'scope': {
+                        'project': {
+                            'id': self.project['id'],
+                        }
                     }
                 }
             })
@@ -191,11 +196,15 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         return self.v3_request(method='DELETE', path=path, **kwargs)
 
     def assertValidErrorResponse(self, r):
-        self.assertIsNotNone(r.body.get('error'))
-        self.assertIsNotNone(r.body['error'].get('code'))
-        self.assertIsNotNone(r.body['error'].get('title'))
-        self.assertIsNotNone(r.body['error'].get('message'))
-        self.assertEqual(r.body['error']['code'], r.status)
+        if r.getheader('Content-Type') == 'application/xml':
+            resp = serializer.from_xml(etree.tostring(r.body))
+        else:
+            resp = r.body
+        self.assertIsNotNone(resp.get('error'))
+        self.assertIsNotNone(resp['error'].get('code'))
+        self.assertIsNotNone(resp['error'].get('title'))
+        self.assertIsNotNone(resp['error'].get('message'))
+        self.assertEqual(int(resp['error']['code']), r.status)
 
     def assertValidListResponse(self, resp, key, entity_validator, ref=None,
                                 expected_length=None):

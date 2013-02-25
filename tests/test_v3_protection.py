@@ -83,13 +83,14 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         # A default auth request we can use - un-scoped user token
         self.auth = {}
-        self.auth['authentication'] = {'methods': []}
-        self.auth['authentication']['methods'].append('password')
-        self.auth['authentication']['password'] = {'user': {}}
-        self.auth['authentication']['password']['user']['id'] = (
+        self.auth['identity'] = {'methods': []}
+        self.auth['identity']['methods'].append('password')
+        self.auth['identity']['password'] = {'user': {}}
+        self.auth['identity']['password']['user']['id'] = (
             self.user1['id'])
-        self.auth['authentication']['password']['user']['password'] = (
+        self.auth['identity']['password']['user']['password'] = (
             self.user1['password'])
+        self.auth = {'auth': self.auth}
 
     def tearDown(self):
         super(IdentityTestProtectedCase, self).tearDown()
@@ -136,7 +137,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         new_policy = """{"identity:list_users": ["domain_id:%(domain_id)s"]}"""
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write(new_policy)
-        self.auth['scope'] = {'domain': {'id': self.domainA['id']}}
+        self.auth['auth']['scope'] = {'domain': {'id': self.domainA['id']}}
         url_by_name = '/users?domain_id=%s' % self.user1['domain_id']
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back one user, the one in DomainA

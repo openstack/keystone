@@ -38,12 +38,14 @@ class Token(auth.AuthMethodHandler):
                                                 target=METHOD_NAME)
             token_id = auth_payload['id']
             token_ref = self.token_api.get_token(context, token_id)
-            user_context.setdefault('user_id',
-                                    token_ref['token_data']['user']['id'])
-            user_context.setdefault('expires',
-                                    token_ref['expires'])
-            user_context['extras'].update(token_ref['token_data']['extras'])
-            user_context['method_names'] += token_ref['token_data']['methods']
+            user_context.setdefault(
+                'user_id', token_ref['token_data']['token']['user']['id'])
+            user_context.setdefault(
+                'expires', token_ref['token_data']['token']['expires'])
+            user_context['extras'].update(
+                token_ref['token_data']['token']['extras'])
+            user_context['method_names'].extend(
+                token_ref['token_data']['token']['methods'])
         except AssertionError as e:
             LOG.error(e)
             raise exception.Unauthorized(e)

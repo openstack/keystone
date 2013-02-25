@@ -145,6 +145,17 @@ class XmlSerializerTestCase(test.TestCase):
 
         self.assertSerializeDeserialize(d, xml)
 
+    def test_policy_list(self):
+        d = {"policies": [{"id": "ab12cd"}]}
+
+        xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <policies xmlns="http://docs.openstack.org/identity/api/v2.0">
+                <policy id="ab12cd"/>
+            </policies>
+        """
+        self.assertEqualIgnoreWhitespace(serializer.to_xml(d), xml)
+
     def test_values_list(self):
         d = {
             "objects": {

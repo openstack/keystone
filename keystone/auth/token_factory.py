@@ -144,7 +144,7 @@ class TokenDataHelper(object):
         self._populate_service_catalog(token_data, user_id, domain_id,
                                        project_id)
         self._populate_token(token_data, expires)
-        return token_data
+        return {'token': token_data}
 
 
 def recreate_token_data(context, token_data=None, expires=None,
@@ -161,6 +161,8 @@ def recreate_token_data(context, token_data=None, expires=None,
     methods = ['password', 'token']
     extras = {}
     if token_data:
+        # peel the outer layer so its easier to operate
+        token_data = token_data['token']
         domain_id = (token_data['domain']['id'] if 'domain' in token_data
                      else None)
         project_id = (token_data['project']['id'] if 'project' in token_data
@@ -207,20 +209,20 @@ def create_token(context, auth_context, auth_info):
             CONF.signing.token_format)
     token_api = token_module.Manager()
     try:
-        expiry = token_data['expires']
+        expiry = token_data['token']['expires']
         if isinstance(expiry, basestring):
             expiry = timeutils.parse_isotime(expiry)
         role_ids = []
-        if 'project' in token_data:
+        if 'project' in token_data['token']:
             # project-scoped token, fill in the v2 token data
             # all we care are the role IDs
-            role_ids = [role['id'] for role in token_data['roles']]
+            role_ids = [role['id'] for role in token_data['token']['roles']]
         metadata_ref = {'roles': role_ids}
         data = dict(key=token_id,
                     id=token_id,
                     expires=expiry,
-                    user=token_data['user'],
-                    tenant=token_data.get('project'),
+                    user=token_data['token']['user'],
+                    tenant=token_data['token'].get('project'),
                     metadata=metadata_ref,
                     token_data=token_data)
         token_api.create_token(context, token_id, data)
