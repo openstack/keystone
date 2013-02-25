@@ -22,19 +22,6 @@ from keystone import exception
 from keystone.policy.backends import rules
 
 
-def handle_conflicts(type='object'):
-    """Converts IntegrityError into HTTP 409 Conflict."""
-    def decorator(method):
-        @functools.wraps(method)
-        def wrapper(*args, **kwargs):
-            try:
-                return method(*args, **kwargs)
-            except sql.IntegrityError as e:
-                raise exception.Conflict(type=type, details=str(e))
-        return wrapper
-    return decorator
-
-
 class PolicyModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'policy'
     attributes = ['id', 'blob', 'type']
@@ -49,7 +36,7 @@ class Policy(sql.Base, rules.Policy):
     def db_sync(self):
         migration.db_sync()
 
-    @handle_conflicts(type='policy')
+    @sql.handle_conflicts(type='policy')
     def create_policy(self, policy_id, policy):
         session = self.get_session()
 
@@ -78,7 +65,7 @@ class Policy(sql.Base, rules.Policy):
 
         return self._get_policy(session, policy_id).to_dict()
 
-    @handle_conflicts(type='policy')
+    @sql.handle_conflicts(type='policy')
     def update_policy(self, policy_id, policy):
         session = self.get_session()
 
