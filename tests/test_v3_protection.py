@@ -15,6 +15,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import tempfile
 import uuid
 
@@ -130,20 +131,25 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
     def test_list_users_protected_by_domain(self):
         """GET /users?domain_id=mydomain (protected)"""
 
-        raise nose.exc.SkipTest('Blocked by incomplete '
-                                'domain scoping in v3/auth')
         # Update policy to protect by domain, and then use a domain
         # scoped token
         new_policy = """{"identity:list_users": ["domain_id:%(domain_id)s"]}"""
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write(new_policy)
-        self.auth['scope'] = {'domain': []}
-        self.auth['domain']['id'] = self.domainA['id']
+        self.auth['scope'] = {'domain': {'id': self.domainA['id']}}
         url_by_name = '/users?domain_id=%s' % self.user1['domain_id']
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back one user, the one in DomainA
         id_list = self._get_id_list_from_ref_list(r.body.get('users'))
-        self.assertIn(self.user2['id'], id_list)
+        self.assertIn(self.user1['id'], id_list)
 
-    # TODO (henry-nash) Add some more tests to cover the various likely
-    # protection filters
+    def test_get_user_protected_match_id(self):
+        """GET /users/{id} (match payload)"""
+        # Tests the flattening of the payload
+        policy = {"identity:get_user": [["user_id:%(user_id)s"]]}
+        with open(self.tmpfilename, "w") as policyfile:
+            policyfile.write(json.dumps(policy))
+        url_by_name = '/users/%s' % self.user1['id']
+        r = self.get(url_by_name, auth=self.auth)
+        body = r.body
+        self.assertEquals(self.user1['id'], body['user']['id'])
