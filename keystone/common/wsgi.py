@@ -130,8 +130,12 @@ class Server(object):
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
         log = logging.getLogger('eventlet.wsgi.server')
-        eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                             log=WritableLogger(log))
+        try:
+            eventlet.wsgi.server(socket, application, custom_pool=self.pool,
+                                 log=WritableLogger(log))
+        except Exception:
+            LOG.exception(_('Server error'))
+            raise
 
 
 class Request(webob.Request):
