@@ -145,6 +145,7 @@
 # user_tree_dn = ou=Users,dc=example,dc=com
 # user_filter =
 # user_objectclass = inetOrgPerson
+# user_domain_id_attribute = businessCategory
 # user_id_attribute = cn
 # user_name_attribute = sn
 # user_mail_attribute = email
@@ -162,6 +163,7 @@
 # tenant_tree_dn = ou=Groups,dc=example,dc=com
 # tenant_filter =
 # tenant_objectclass = groupOfNames
+# tenant_domain_id_attribute = businessCategory
 # tenant_id_attribute = cn
 # tenant_member_attribute = member
 # tenant_name_attribute = ou
