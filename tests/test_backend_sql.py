@@ -24,6 +24,8 @@ from keystone import identity
 from keystone import policy
 from keystone import test
 from keystone import token
+from keystone import trust
+
 
 import default_fixtures
 import test_backend
@@ -43,6 +45,7 @@ class SqlTests(test.TestCase):
         self.catalog_man = catalog.Manager()
         self.identity_man = identity.Manager()
         self.token_man = token.Manager()
+        self.trust_man = trust.Manager()
         self.policy_man = policy.Manager()
 
         # create shortcut references to each driver
@@ -50,6 +53,7 @@ class SqlTests(test.TestCase):
         self.identity_api = self.identity_man.driver
         self.token_api = self.token_man.driver
         self.policy_api = self.policy_man.driver
+        self.trust_api = self.trust_man.driver
 
         # populate the engine with tables & fixtures
         self.load_fixtures(default_fixtures)
@@ -219,6 +223,10 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.assertIsNone(ref['extra'].get('password'))
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
+
+
+class SqlTrust(SqlTests, test_backend.TrustTests):
+    pass
 
 
 class SqlToken(SqlTests, test_backend.TokenTests):

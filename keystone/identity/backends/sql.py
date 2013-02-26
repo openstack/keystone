@@ -14,8 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import functools
-
 from keystone import clean
 from keystone import config
 from keystone.common import sql
@@ -195,18 +193,7 @@ class Identity(sql.Base, identity.Driver):
             # FIXME(gyee): this should really be
             # get_roles_for_user_and_project() after the dusts settle
             if tenant_id not in self.get_projects_for_user(user_id):
-                # get_roles_for_user_and_project() returns a set
-                roles = []
-                try:
-                    roles = self.get_roles_for_user_and_project(user_id,
-                                                                tenant_id)
-                except:
-                    # FIXME(gyee): we should never get into this situation
-                    # after user project role migration is completed
-                    pass
-                if not roles:
-                    raise AssertionError('Invalid tenant')
-
+                raise AssertionError('Invalid project')
             try:
                 tenant_ref = self.get_project(tenant_id)
                 metadata_ref = self.get_metadata(user_id, tenant_id)
@@ -215,7 +202,6 @@ class Identity(sql.Base, identity.Driver):
                 metadata_ref = {}
             except exception.MetadataNotFound:
                 metadata_ref = {}
-
         return (identity.filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_project(self, tenant_id):
@@ -622,6 +608,7 @@ class Identity(sql.Base, identity.Driver):
             raise exception.DomainNotFound(domain_id=domain_id)
         return ref.to_dict()
 
+    @sql.handle_conflicts(type='domain')
     def get_domain_by_name(self, domain_name):
         session = self.get_session()
         try:

@@ -12,23 +12,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+import datetime
 import time
 import uuid
 
+from keystone import auth
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import test
 from keystone import token
+from keystone import trust
 
 import default_fixtures
 
 
 CONF = config.CONF
+TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 def _build_user_auth(token=None, user_id=None, username=None,
-                     password=None, tenant_id=None, tenant_name=None):
+                     password=None, tenant_id=None, tenant_name=None,
+                     trust_id=None):
     """Build auth dictionary.
 
     It will create an auth dictionary based on all the arguments
@@ -49,6 +55,8 @@ def _build_user_auth(token=None, user_id=None, username=None,
         auth_json['tenantName'] = tenant_name
     if tenant_id is not None:
         auth_json['tenantId'] = tenant_id
+    if trust_id is not None:
+        auth_json['trust_id'] = trust_id
     return auth_json
 
 
@@ -450,6 +458,240 @@ class AuthWithRemoteUser(AuthTest):
             self.controller.authenticate,
             {'REMOTE_USER': uuid.uuid4().hex},
             body_dict)
+
+
+class AuthWithTrust(AuthTest):
+    def setUp(self):
+        super(AuthWithTrust, self).setUp()
+
+        trust.Manager()
+        self.trust_controller = trust.controllers.TrustV3()
+        self.auth_v3_controller = auth.controllers.Auth()
+        self.trustor = self.user_foo
+        self.trustee = self.user_two
+        self.assigned_roles = [self.role_member['id'],
+                               self.role_browser['id']]
+        for assigned_role in self.assigned_roles:
+            self.identity_api.add_role_to_user_and_project(
+                self.trustor['id'], self.tenant_bar['id'], assigned_role)
+
+        self.sample_data = {'trustor_user_id': self.trustor['id'],
+                            'trustee_user_id': self.trustee['id'],
+                            'project_id': self.tenant_bar['id'],
+                            'impersonation': 'True',
+                            'roles': [{'id': self.role_browser['id']},
+                                      {'name': self.role_member['name']}]}
+        expires_at = timeutils.strtime(timeutils.utcnow() +
+                                       datetime.timedelta(minutes=10),
+                                       fmt=TIME_FORMAT)
+        self.create_trust(expires_at=expires_at)
+
+    def create_trust(self, expires_at=None, impersonation='True'):
+        username = self.trustor['name'],
+        password = 'foo2'
+        body_dict = _build_user_auth(username=username, password=password)
+        self.unscoped_token = self.controller.authenticate({}, body_dict)
+        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        trust_data = copy.deepcopy(self.sample_data)
+        trust_data['expires_at'] = expires_at
+        trust_data['impersonation'] = impersonation
+
+        self.new_trust = (self.trust_controller.create_trust
+                          (context, trust=trust_data)['trust'])
+
+    def build_v2_token_request(self, username, password):
+        body_dict = _build_user_auth(username=username, password=password)
+        self.unscoped_token = self.controller.authenticate({}, body_dict)
+        unscoped_token_id = self.unscoped_token['access']['token']['id']
+        request_body = _build_user_auth(token={'id': unscoped_token_id},
+                                        trust_id=self.new_trust['id'],
+                                        tenant_id=self.tenant_bar['id'])
+        return request_body
+
+    def test_create_trust_bad_data_fails(self):
+        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        bad_sample_data = {'trustor_user_id': self.trustor['id']}
+
+        self.assertRaises(exception.ValidationError,
+                          self.trust_controller.create_trust,
+                          context, trust=bad_sample_data)
+
+    def test_create_trust_no_roles(self):
+        self.new_trust = None
+        self.sample_data['roles'] = []
+        self.create_trust()
+        self.assertEquals(self.new_trust['roles'], [])
+
+    def test_create_trust(self):
+        self.assertEquals(self.new_trust['trustor_user_id'],
+                          self.trustor['id'])
+        self.assertEquals(self.new_trust['trustee_user_id'],
+                          self.trustee['id'])
+        role_ids = [self.role_browser['id'], self.role_member['id']]
+        self.assertTrue(timeutils.parse_strtime(self.new_trust['expires_at'],
+                                                fmt=TIME_FORMAT))
+
+        for role in self.new_trust['roles']:
+            self.assertIn(role['id'], role_ids)
+
+    def test_get_trust(self):
+        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        trust = self.trust_controller.get_trust(context,
+                                                self.new_trust['id'])['trust']
+        self.assertEquals(trust['trustor_user_id'],
+                          self.trustor['id'])
+        self.assertEquals(trust['trustee_user_id'],
+                          self.trustee['id'])
+        role_ids = [self.role_browser['id'], self.role_member['id']]
+        for role in self.new_trust['roles']:
+            self.assertIn(role['id'], role_ids)
+
+    def test_create_trust_no_impersonation(self):
+        self.create_trust(expires_at=None, impersonation='False')
+        self.assertEquals(self.new_trust['trustor_user_id'],
+                          self.trustor['id'])
+        self.assertEquals(self.new_trust['trustee_user_id'],
+                          self.trustee['id'])
+        self.assertEquals(self.new_trust['impersonation'],
+                          'False')
+        auth_response = self.fetch_v2_token_from_trust()
+        token_user = auth_response['access']['user']
+        self.assertEquals(token_user['id'],
+                          self.new_trust['trustee_user_id'])
+
+        #TODO Endpoints
+
+    def test_token_from_trust_wrong_user_fails(self):
+        new_trust = self.create_trust()
+        request_body = self.build_v2_token_request('FOO', 'foo2')
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, {}, request_body)
+
+    def fetch_v2_token_from_trust(self):
+        request_body = self.build_v2_token_request('TWO', 'two2')
+        auth_response = self.controller.authenticate({}, request_body)
+        return auth_response
+
+    def fetch_v3_token_from_trust(self):
+        self.identity_api.create_domain("default",
+                                        {"name": "default",
+                                         "id": "default"})
+        v3_password_data = {
+            'identity': {
+                "methods": ["password"],
+                "password": {
+                    "user": {
+                        "id": self.trustee["id"],
+                        "password": self.trustee["password"]}}
+            },
+            'scope': {
+                'project': {
+                    'id': self.tenant_baz['id']}}}
+        auth_response = (self.auth_v3_controller.authenticate_for_token
+                         ({}, v3_password_data))
+        token = auth_response.headers['X-Subject-Token']
+
+        v3_req_with_trust = {
+            "identity": {
+                "methods": ["token"],
+                "token": {"id": token}},
+            "scope": {
+                "trust": {"id": self.new_trust['id']}}}
+        token_auth_response = (self.auth_v3_controller.authenticate_for_token
+                               ({}, v3_req_with_trust))
+        return token_auth_response
+
+    def test_create_v3_token_from_trust(self):
+        auth_response = self.fetch_v3_token_from_trust()
+
+        trust_token_user = auth_response.json['token']['user']
+        self.assertEquals(trust_token_user['id'], self.trustor['id'])
+
+        trust_token_trust = auth_response.json['token']['trust']
+        self.assertEquals(trust_token_trust['id'], self.new_trust['id'])
+        self.assertEquals(trust_token_trust['trustor_user']['id'],
+                          self.trustor['id'])
+        self.assertEquals(trust_token_trust['trustee_user']['id'],
+                          self.trustee['id'])
+
+        trust_token_roles = auth_response.json['token']['roles']
+        self.assertEquals(len(trust_token_roles), 2)
+
+    def test_v3_trust_token_get_token_fails(self):
+        auth_response = self.fetch_v3_token_from_trust()
+        trust_token = auth_response.headers['X-Subject-Token']
+        v3_token_data = {
+            "methods": ["token"],
+            "token": {"id": trust_token}
+        }
+        self.assertRaises(
+            exception.Unauthorized,
+            self.auth_v3_controller.authenticate_for_token,
+            {}, v3_token_data)
+
+    def test_token_from_trust(self):
+        auth_response = self.fetch_v2_token_from_trust()
+
+        self.assertIsNotNone(auth_response)
+        self.assertEquals(len(auth_response['access']['metadata']['roles']),
+                          2,
+                          "user_foo has three roles, but the token should"
+                          " only get the two roles specified in the trust.")
+
+    def test_token_from_trust_cant_get_another_token(self):
+        auth_response = self.fetch_v2_token_from_trust()
+        trust_token_id = auth_response['access']['token']['id']
+        request_body = _build_user_auth(token={'id': trust_token_id},
+                                        tenant_id=self.tenant_bar['id'])
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, {}, request_body)
+
+    def test_delete_trust_revokes_token(self):
+        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        auth_response = self.fetch_v2_token_from_trust()
+        trust_id = self.new_trust['id']
+        trust_token_id = auth_response['access']['token']['id']
+        tokens = self.token_api.list_tokens(self.trustor['id'],
+                                            trust_id=trust_id)
+        self.assertEquals(len(tokens), 1)
+        self.trust_controller.delete_trust(context, trust_id=trust_id)
+        tokens = self.token_api.list_tokens(self.trustor['id'],
+                                            trust_id=trust_id)
+        self.assertEquals(len(tokens), 0)
+
+    def test_token_from_trust_with_no_role_fails(self):
+        for assigned_role in self.assigned_roles:
+            self.identity_api.remove_role_from_user_and_project(
+                self.trustor['id'], self.tenant_bar['id'], assigned_role)
+        request_body = self.build_v2_token_request('TWO', 'two2')
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, {}, request_body)
+
+    def test_expired_trust_get_token_fails(self):
+        expiry = "1999-02-18T10:10:00Z"
+        self.create_trust(expiry)
+        request_body = self.build_v2_token_request('TWO', 'two2')
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, {}, request_body)
+
+    def test_token_from_trust_with_wrong_role_fails(self):
+        self.identity_api.add_role_to_user_and_project(
+            self.trustor['id'],
+            self.tenant_bar['id'],
+            self.role_other['id'])
+        for assigned_role in self.assigned_roles:
+            self.identity_api.remove_role_from_user_and_project(
+                self.trustor['id'], self.tenant_bar['id'], assigned_role)
+
+        request_body = self.build_v2_token_request('TWO', 'two2')
+
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, {}, request_body)
 
 
 class TokenExpirationTest(AuthTest):

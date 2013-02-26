@@ -190,6 +190,10 @@ class GroupNotFound(NotFound):
     """Could not find group: %(group_id)s"""
 
 
+class TrustNotFound(NotFound):
+    """Could not find trust: %(trust_id)s"""
+
+
 class Conflict(Error):
     """Conflict occurred attempting to store %(type)s.
 

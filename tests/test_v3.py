@@ -7,6 +7,8 @@ from keystone.common.sql import util as sql_util
 from keystone import auth
 from keystone import test
 from keystone import config
+from keystone.policy.backends import rules
+
 
 import test_content_types
 
@@ -16,11 +18,14 @@ CONF = config.CONF
 
 class RestfulTestCase(test_content_types.RestfulTestCase):
     def setUp(self):
+        rules.reset()
+
         self.config([
             test.etcdir('keystone.conf.sample'),
             test.testsdir('test_overrides.conf'),
             test.testsdir('backend_sql.conf'),
             test.testsdir('backend_sql_disk.conf')])
+
         sql_util.setup_test_database()
         self.load_backends()
 
@@ -62,6 +67,9 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         sql_util.teardown_test_database()
         # need to reset the plug-ins
         auth.controllers.AUTH_METHODS = {}
+        #drop the policy rules
+        CONF.reset()
+        rules.reset()
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
