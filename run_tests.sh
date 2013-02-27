@@ -51,6 +51,7 @@ function process_option {
     -f|--force) force=1;;
     -u|--update) update=1;;
     -p|--pep8) just_pep8=1;;
+    -8|--8) short_pep8=1;;
     -P|--no-pep8) no_pep8=1;;
     -c|--coverage) coverage=1;;
     -xintegration) nokeystoneclient=1;;
@@ -71,6 +72,7 @@ noseargs=
 noseopts=
 wrapper=""
 just_pep8=0
+short_pep8=0
 no_pep8=0
 coverage=0
 nokeystoneclient=0
@@ -108,6 +110,14 @@ function run_tests {
 }
 
 function run_pep8 {
+  FLAGS=--show-pep8
+  echo $#
+  if [ $# -gt 0 ] && [ 'short' == ''$1 ]
+  then
+      FLAGS=''
+  fi
+
+
   echo "Running pep8 ..."
   # Opt-out files from pep8
   ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
@@ -116,7 +126,7 @@ function run_pep8 {
   ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
   srcfiles="."
   # Just run PEP8 in current environment
-  ${wrapper} pep8 --repeat --show-pep8 --show-source \
+  ${wrapper} pep8 --repeat $FLAGS --show-source \
     --exclude=${ignore} ${srcfiles} | tee pep8.txt
 }
 
@@ -161,6 +171,12 @@ if [ $just_pep8 -eq 1 ]; then
     run_pep8
     exit
 fi
+
+if [ $short_pep8 -eq 1 ]; then
+     run_pep8 short
+     exit
+fi
+
 
 if [ $recreate_db -eq 1 ]; then
     rm -f tests.sqlite
