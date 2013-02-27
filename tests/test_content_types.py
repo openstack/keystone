@@ -173,15 +173,15 @@ class RestfulTestCase(test.TestCase):
         if response.body is not None and response.body.strip():
             # if a body is provided, a Content-Type is also expected
             header = response.getheader('Content-Type', None)
-            self.assertIn(self.content_type, header)
+            self.assertIn(content_type, header)
 
-            if self.content_type == 'json':
+            if content_type == 'json':
                 response.body = jsonutils.loads(response.body)
-            elif self.content_type == 'xml':
+            elif content_type == 'xml':
                 response.body = etree.fromstring(response.body)
 
     def restful_request(self, method='GET', headers=None, body=None,
-                        token=None, **kwargs):
+                        token=None, content_type=None, **kwargs):
         """Serializes/deserializes json/xml as request/response body.
 
         .. WARNING::
@@ -196,13 +196,13 @@ class RestfulTestCase(test.TestCase):
         if token is not None:
             headers['X-Auth-Token'] = token
 
-        body = self._to_content_type(body, headers)
+        body = self._to_content_type(body, headers, content_type)
 
         # Perform the HTTP request/response
         response = self.request(method=method, headers=headers, body=body,
                                 **kwargs)
 
-        self._from_content_type(response)
+        self._from_content_type(response, content_type)
 
         # we can save some code & improve coverage by always doing this
         if method != 'HEAD' and response.status >= 400:
@@ -742,8 +742,9 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
 
         self.assertIsNotNone(extension.find(self._tag('description')))
         self.assertTrue(extension.find(self._tag('description')).text)
-        self.assertTrue(len(extension.findall(self._tag('link'))))
-        for link in extension.findall(self._tag('link')):
+        links = extension.find(self._tag('links'))
+        self.assertTrue(len(links.findall(self._tag('link'))))
+        for link in links.findall(self._tag('link')):
             self.assertValidExtensionLink(link)
 
     def assertValidExtensionListResponse(self, r):
@@ -763,8 +764,10 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
     def assertValidVersion(self, version):
         super(XmlTestCase, self).assertValidVersion(version)
 
-        self.assertTrue(len(version.findall(self._tag('link'))))
-        for link in version.findall(self._tag('link')):
+        links = version.find(self._tag('links'))
+        self.assertIsNotNone(links)
+        self.assertTrue(len(links.findall(self._tag('link'))))
+        for link in links.findall(self._tag('link')):
             self.assertIsNotNone(link.get('rel'))
             self.assertIsNotNone(link.get('href'))
 

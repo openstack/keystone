@@ -16,6 +16,7 @@
 
 import webob.dec
 
+from keystone.common import logging
 from keystone.common import serializer
 from keystone.common import utils
 from keystone.common import wsgi
@@ -25,6 +26,7 @@ from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
+LOG = logging.getLogger(__name__)
 
 
 # Header used to transmit the auth token
@@ -158,6 +160,7 @@ class XmlBodyMiddleware(wsgi.Middleware):
                 body_obj = jsonutils.loads(response.body)
                 response.body = serializer.to_xml(body_obj)
             except Exception:
+                LOG.exception('Serializer failed')
                 raise exception.Error(message=response.body)
         return response
 

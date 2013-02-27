@@ -49,21 +49,23 @@ class AuthMethodHandler(object):
          "extras": {}}
 
         Plugins are invoked in the order in which they are specified in the
-        "methods" attribute of the "authentication" request body.
+        "methods" attribute of the "identity" object.
         For example, with the following authentication request,
 
-        {"authentication": {
-            "methods": ["custom-plugin", "password", "token"],
-            "token": {
-                "id": "sdfafasdfsfasfasdfds"
-            },
-            "custom-plugin": {
-                "custom-data": "sdfdfsfsfsdfsf"
-            },
-            "password": {
-                "user": {
-                    "id": "s23sfad1",
-                    "password": "secrete"
+        {"auth": {
+            "identity": {
+                "methods": ["custom-plugin", "password", "token"],
+                "token": {
+                    "id": "sdfafasdfsfasfasdfds"
+                },
+                "custom-plugin": {
+                    "custom-data": "sdfdfsfsfsdfsf"
+                },
+                "password": {
+                    "user": {
+                        "id": "s23sfad1",
+                        "password": "secrete"
+                    }
                 }
             }
         }}

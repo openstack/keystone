@@ -553,5 +553,5 @@ def render_exception(error):
         'message': str(error)
     }}
     if isinstance(error, exception.AuthPluginException):
-        body['authentication'] = error.authentication
+        body['error']['identity'] = error.authentication
     return render_response(status=(error.code, error.title), body=body)

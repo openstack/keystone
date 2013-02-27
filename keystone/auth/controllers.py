@@ -187,15 +187,15 @@ class AuthInfo(object):
 
     def _validate_auth_methods(self):
         # make sure auth methods are provided
-        if 'methods' not in self.auth['authentication']:
+        if 'methods' not in self.auth['identity']:
             raise exception.ValidationError(attribute='methods',
-                                            target='authentication')
+                                            target='identity')
 
         # make sure all the method data/payload are provided
         for method_name in self.get_method_names():
-            if method_name not in self.auth['authentication']:
+            if method_name not in self.auth['identity']:
                 raise exception.ValidationError(attribute=method_name,
-                                                target='authentication')
+                                                target='identity')
 
         # make sure auth method is supported
         for method_name in self.get_method_names():
@@ -213,12 +213,12 @@ class AuthInfo(object):
         self._validate_and_normalize_scope_data()
 
     def get_method_names(self):
-        """ Returns the authentication method names.
+        """ Returns the identity method names.
 
         :returns: list of auth method names
 
         """
-        return self.auth['authentication']['methods']
+        return self.auth['identity']['methods']
 
     def get_method_data(self, method):
         """ Get the auth method payload.
@@ -226,10 +226,10 @@ class AuthInfo(object):
         :returns: auth method payload
 
         """
-        if method not in self.auth['authentication']['methods']:
+        if method not in self.auth['identity']['methods']:
             raise exception.ValidationError(attribute=method_name,
-                                            target='authentication')
-        return self.auth['authentication'][method]
+                                            target='identity')
+        return self.auth['identity'][method]
 
     def get_scope(self):
         """ Get scope information.
@@ -257,13 +257,9 @@ class Auth(controller.V3Controller):
         super(Auth, self).__init__(*args, **kw)
         self.token_controllers_ref = token.controllers.Auth()
 
-    def authenticate_for_token(self, context, authentication, scope=None):
+    def authenticate_for_token(self, context, auth=None):
         """ Authenticate user and issue a token. """
         try:
-            auth = None
-            auth = {'authentication': authentication}
-            if scope:
-                auth['scope'] = scope
             auth_info = AuthInfo(context, auth=auth)
             auth_context = {'extras': {}, 'method_names': []}
             self.authenticate(context, auth_info, auth_context)
@@ -306,7 +302,7 @@ class Auth(controller.V3Controller):
         # requiring domain_id to do user lookup now. Try to get
         # the user_id from auth_info for now, assuming external auth
         # has check to make sure user is the same as the one specify
-        # in "authentication".
+        # in "identity".
         if 'password' in auth_info.get_method_names():
             user_info = auth_info.get_method_data('password')
             user_ref = auth_info.lookup_user(user_info['user'])

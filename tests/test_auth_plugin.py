@@ -56,7 +56,7 @@ class TestAuthPlugin(test.TestCase):
         method_name = uuid.uuid4().hex
         auth_data = {'methods': [method_name]}
         auth_data[method_name] = {'test': 'test'}
-        auth_data = {'authentication': auth_data}
+        auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
                           auth.controllers.AuthInfo,
                           None,
@@ -66,7 +66,7 @@ class TestAuthPlugin(test.TestCase):
         auth_data = {'methods': ['simple-challenge-response']}
         auth_data['simple-challenge-response'] = {
             'test': 'test'}
-        auth_data = {'authentication': auth_data}
+        auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         try:
@@ -81,7 +81,7 @@ class TestAuthPlugin(test.TestCase):
         auth_data = {'methods': ['simple-challenge-response']}
         auth_data['simple-challenge-response'] = {
             'response': EXPECTED_RESPONSE}
-        auth_data = {'authentication': auth_data}
+        auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.api.authenticate({}, auth_info, auth_context)
@@ -91,7 +91,7 @@ class TestAuthPlugin(test.TestCase):
         auth_data = {'methods': ['simple-challenge-response']}
         auth_data['simple-challenge-response'] = {
             'response': uuid.uuid4().hex}
-        auth_data = {'authentication': auth_data}
+        auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,

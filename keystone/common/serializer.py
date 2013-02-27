@@ -120,10 +120,28 @@ class XmlDeserializer(object):
 
         # current spec does not have attributes on an element with text
         values = values or text or {}
+        decoded_tag = XmlDeserializer._tag_name(element.tag, namespace)
+        list_item_tag = None
+        if decoded_tag[-1] == 's' and len(values) == 0:
+            # FIXME(gyee): special-case lists for now unti we
+            # figure out how to properly handle them.
+            # If any key ends with an 's', we are assuming it is a list.
+            # List element have no attributes.
+            values = list(values)
+            if decoded_tag == 'policies':
+                list_item_tag = 'policy'
+            else:
+                list_item_tag = decoded_tag[:-1]
 
         for child in [self.walk_element(x) for x in element
                       if not isinstance(x, ENTITY_TYPE)]:
-            values = dict(values.items() + child.items())
+            if list_item_tag:
+                # FIXME(gyee): special-case lists for now unti we
+                # figure out how to properly handle them.
+                # If any key ends with an 's', we are assuming it is a list.
+                values.append(child[list_item_tag])
+            else:
+                values = dict(values.items() + child.items())
 
         return {XmlDeserializer._tag_name(element.tag, namespace): values}
 
@@ -173,7 +191,7 @@ class XmlSerializer(object):
                 container = etree.Element(k)
                 element.append(container)
             name = k[:-1]
-        elif k == 'serviceCatalog':
+        elif k == 'serviceCatalog' or k == 'catalog':
             # xsd compliance: <serviceCatalog> contains <service>s
             container = etree.Element(k)
             element.append(container)
@@ -184,7 +202,13 @@ class XmlSerializer(object):
             # unnecessary in XML
             name = element.tag[:-1]
         elif k[-1] == 's':
-            name = k[:-1]
+            container = etree.Element(k)
+            element.append(container)
+            if k == 'policies':
+                # need to special-case policies since policie is not a word
+                name = 'policy'
+            else:
+                name = k[:-1]
         else:
             name = k
 
@@ -226,6 +250,8 @@ class XmlSerializer(object):
             self._populate_sequence(element, value)
         elif isinstance(value, dict):
             self._populate_tree(element, value)
+        elif isinstance(value, basestring):
+            element.text = unicode(value)
 
     def _populate_sequence(self, element, l):
         """Populates an etree with a sequence of elements, given a list."""
@@ -233,6 +259,8 @@ class XmlSerializer(object):
         name = element.tag
         if element.tag[-1] == 's':
             name = element.tag[:-1]
+            if name == 'policie':
+                name = 'policy'
 
         for item in l:
             child = etree.Element(name)

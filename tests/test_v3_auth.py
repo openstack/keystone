@@ -14,9 +14,13 @@
 
 import uuid
 
+from lxml import etree
+
 from keystone import auth
 from keystone import config
 from keystone import exception
+from keystone.common import serializer
+from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 from keystone import test
 
@@ -86,13 +90,13 @@ def _build_authentication_request(token=None, user_id=None, username=None,
     that it receives.
     """
     auth_data = {}
-    auth_data['authentication'] = {'methods': []}
+    auth_data['identity'] = {'methods': []}
     if token:
-        auth_data['authentication']['methods'].append('token')
-        auth_data['authentication']['token'] = _build_token_auth(token)
+        auth_data['identity']['methods'].append('token')
+        auth_data['identity']['token'] = _build_token_auth(token)
     if user_id or username:
-        auth_data['authentication']['methods'].append('password')
-        auth_data['authentication']['password'] = _build_password_auth(
+        auth_data['identity']['methods'].append('password')
+        auth_data['identity']['password'] = _build_password_auth(
             user_id, username, user_domain_id, user_domain_name, password)
     if project_id or project_name or domain_id or domain_name:
         auth_data['scope'] = _build_auth_scope(project_id,
@@ -101,14 +105,17 @@ def _build_authentication_request(token=None, user_id=None, username=None,
                                                project_domain_name,
                                                domain_id,
                                                domain_name)
-    return auth_data
+    return {'auth': auth_data}
 
 
 class AuthTest(test_v3.RestfulTestCase):
     def assertValidTokenResponse(self, r):
         self.assertTrue(r.getheader('X-Subject-Token'))
         token = r.body
-
+        if r.getheader('Content-Type') == 'application/xml':
+            token = serializer.from_xml(etree.tostring(r.body))['token']
+        else:
+            token = r.body['token']
         self.assertIn('expires', token)
         self.assertIn('user', token)
         self.assertEqual(self.user['id'], token['user']['id'])
@@ -169,23 +176,23 @@ class AuthTest(test_v3.RestfulTestCase):
         the time in the comparison.
         """
         def normalize(token):
-            del token['expires']
-            del token['issued_at']
+            del token['token']['expires']
+            del token['token']['issued_at']
             return token
 
         self.assertCloseEnoughForGovernmentWork(
-            timeutils.parse_isotime(a['expires']),
-            timeutils.parse_isotime(b['expires']))
+            timeutils.parse_isotime(a['token']['expires']),
+            timeutils.parse_isotime(b['token']['expires']))
         self.assertCloseEnoughForGovernmentWork(
-            timeutils.parse_isotime(a['issued_at']),
-            timeutils.parse_isotime(b['issued_at']))
+            timeutils.parse_isotime(a['token']['issued_at']),
+            timeutils.parse_isotime(b['token']['issued_at']))
         return self.assertDictEqual(normalize(a), normalize(b))
 
 
 class TestAuthInfo(test.TestCase):
     def test_missing_auth_methods(self):
-        auth_data = {'authentication': {}}
-        auth_data['authentication']['token'] = {'id': uuid.uuid4().hex}
+        auth_data = {'identity': {}}
+        auth_data['identity']['token'] = {'id': uuid.uuid4().hex}
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo,
                           None,
@@ -194,7 +201,7 @@ class TestAuthInfo(test.TestCase):
     def test_unsupported_auth_method(self):
         auth_data = {'methods': ['abc']}
         auth_data['abc'] = {'test': 'test'}
-        auth_data = {'authentication': auth_data}
+        auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
                           auth.controllers.AuthInfo,
                           None,
@@ -202,7 +209,7 @@ class TestAuthInfo(test.TestCase):
 
     def test_missing_auth_method_data(self):
         auth_data = {'methods': ['password']}
-        auth_data = {'authentication': auth_data}
+        auth_data = {'identity': auth_data}
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo,
                           None,
@@ -211,7 +218,7 @@ class TestAuthInfo(test.TestCase):
     def test_project_name_no_domain(self):
         auth_data = _build_authentication_request(username='test',
                                                   password='test',
-                                                  project_name='abc')
+                                                  project_name='abc')['auth']
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo,
                           None,
@@ -221,7 +228,7 @@ class TestAuthInfo(test.TestCase):
         auth_data = _build_authentication_request(user_id='test',
                                                   password='test',
                                                   project_name='test',
-                                                  domain_name='test')
+                                                  domain_name='test')['auth']
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo,
                           None,
@@ -262,11 +269,11 @@ class TestTokenAPIs(AuthTest):
                                   method='GET')
         v2_token = resp.body
         self.assertEqual(v2_token['access']['user']['id'],
-                         token_data['user']['id'])
+                         token_data['token']['user']['id'])
         self.assertEqual(v2_token['access']['token']['expires'],
-                         token_data['expires'])
+                         token_data['token']['expires'])
         self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
-                         token_data['roles'][0]['id'])
+                         token_data['token']['roles'][0]['id'])
 
     def test_v3_v2_pki_token_intermix(self):
         # FIXME(gyee): PKI tokens are not interchangeable because token
@@ -287,11 +294,11 @@ class TestTokenAPIs(AuthTest):
                                   method='GET')
         v2_token = resp.body
         self.assertEqual(v2_token['access']['user']['id'],
-                         token_data['user']['id'])
+                         token_data['token']['user']['id'])
         self.assertEqual(v2_token['access']['token']['expires'],
-                         token_data['expires'])
+                         token_data['token']['expires'])
         self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
-                         token_data['roles'][0]['id'])
+                         token_data['token']['roles'][0]['id'])
 
     def test_v2_v3_uuid_token_intermix(self):
         self.opt_in_group('signing', token_format='UUID')
@@ -312,11 +319,11 @@ class TestTokenAPIs(AuthTest):
         resp = self.get('/auth/tokens', headers=headers)
         token_data = resp.body
         self.assertEqual(v2_token_data['access']['user']['id'],
-                         token_data['user']['id'])
+                         token_data['token']['user']['id'])
         self.assertEqual(v2_token_data['access']['token']['expires'],
-                         token_data['expires'])
+                         token_data['token']['expires'])
         self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
-                         token_data['roles'][0]['name'])
+                         token_data['token']['roles'][0]['name'])
 
     def test_v2_v3_pki_token_intermix(self):
         self.opt_in_group('signing', token_format='PKI')
@@ -337,21 +344,21 @@ class TestTokenAPIs(AuthTest):
         resp = self.get('/auth/tokens', headers=headers)
         token_data = resp.body
         self.assertEqual(v2_token_data['access']['user']['id'],
-                         token_data['user']['id'])
+                         token_data['token']['user']['id'])
         self.assertEqual(v2_token_data['access']['token']['expires'],
-                         token_data['expires'])
+                         token_data['token']['expires'])
         self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
-                         token_data['roles'][0]['name'])
+                         token_data['token']['roles'][0]['name'])
 
     def test_rescoping_token(self):
-        expires = self.token_data['expires']
+        expires = self.token_data['token']['expires']
         auth_data = _build_authentication_request(
             token=self.token,
             project_id=self.project_id)
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectScopedTokenResponse(r)
         # make sure expires stayed the same
-        self.assertEqual(expires, r.body['expires'])
+        self.assertEqual(expires, r.body['token']['expires'])
 
     def test_check_token(self):
         self.head('/auth/tokens', headers=self.headers, expected_status=204)
@@ -370,7 +377,9 @@ class TestTokenAPIs(AuthTest):
         self.assertIn('signed', r.body)
 
 
-class TestAuth(AuthTest):
+class TestAuthJSON(AuthTest):
+    content_type = 'json'
+
     def test_unscoped_token_with_user_id(self):
         auth_data = _build_authentication_request(
             user_id=self.user['id'],
@@ -601,7 +610,7 @@ class TestAuth(AuthTest):
     def test_remote_user(self):
         auth_data = _build_authentication_request(
             user_id=self.user['id'],
-            password=self.user['password'])
+            password=self.user['password'])['auth']
         api = auth.controllers.Auth()
         context = {'REMOTE_USER': self.user['name']}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
@@ -612,7 +621,7 @@ class TestAuth(AuthTest):
     def test_remote_user_no_domain(self):
         auth_data = _build_authentication_request(
             username=self.user['name'],
-            password=self.user['password'])
+            password=self.user['password'])['auth']
         api = auth.controllers.Auth()
         context = {'REMOTE_USER': self.user['name']}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
@@ -622,3 +631,7 @@ class TestAuth(AuthTest):
                           context,
                           auth_info,
                           auth_context)
+
+
+class TestAuthXML(TestAuthJSON):
+    content_type = 'xml'

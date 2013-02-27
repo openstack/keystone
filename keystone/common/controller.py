@@ -30,7 +30,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
     creds = {}
     if 'token_data' in token_ref:
         #V3 Tokens
-        token_data = token_ref['token_data']
+        token_data = token_ref['token_data']['token']
         try:
             creds['user_id'] = token_data['user']['id']
         except AttributeError:
