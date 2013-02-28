@@ -40,8 +40,10 @@ class Token(auth.AuthMethodHandler):
             token_ref = self.token_api.get_token(context, token_id)
             user_context.setdefault(
                 'user_id', token_ref['token_data']['token']['user']['id'])
-            user_context.setdefault(
-                'expires', token_ref['token_data']['token']['expires'])
+            # to support Grizzly-3 to Grizzly-RC1 transition
+            expires_at = token_ref['token_data']['token'].get(
+                'expires_at', token_ref['token_data']['token'].get('expires'))
+            user_context.setdefault('expires_at', expires_at)
             user_context['extras'].update(
                 token_ref['token_data']['token']['extras'])
             user_context['method_names'].extend(

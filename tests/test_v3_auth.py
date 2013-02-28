@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import re
 import uuid
 
 from lxml import etree
@@ -116,13 +117,22 @@ class AuthTest(test_v3.RestfulTestCase):
             token = serializer.from_xml(etree.tostring(r.body))['token']
         else:
             token = r.body['token']
-        self.assertIn('expires', token)
+        self.assertIn('expires_at', token)
+        self.assertValidISOTimeFormat(token['expires_at'])
+        if 'issued_at' in token:
+            self.assertValidISOTimeFormat(token['issued_at'])
         self.assertIn('user', token)
         self.assertEqual(self.user['id'], token['user']['id'])
         self.assertEqual(self.user['name'], token['user']['name'])
         self.assertEqual(self.user['domain_id'], token['user']['domain']['id'])
 
         return token
+
+    def assertValidISOTimeFormat(self, timestr):
+        # match ISO 8610 time to seconds or fraction of seconds
+        isotime_re = re.compile(
+            '^\s*\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d+Z\s*$')
+        self.assertTrue(isotime_re.match(timestr))
 
     def assertValidUnscopedTokenResponse(self, r):
         token = self.assertValidTokenResponse(r)
@@ -176,13 +186,13 @@ class AuthTest(test_v3.RestfulTestCase):
         the time in the comparison.
         """
         def normalize(token):
-            del token['token']['expires']
+            del token['token']['expires_at']
             del token['token']['issued_at']
             return token
 
         self.assertCloseEnoughForGovernmentWork(
-            timeutils.parse_isotime(a['token']['expires']),
-            timeutils.parse_isotime(b['token']['expires']))
+            timeutils.parse_isotime(a['token']['expires_at']),
+            timeutils.parse_isotime(b['token']['expires_at']))
         self.assertCloseEnoughForGovernmentWork(
             timeutils.parse_isotime(a['token']['issued_at']),
             timeutils.parse_isotime(b['token']['issued_at']))
@@ -270,8 +280,10 @@ class TestTokenAPIs(AuthTest):
         v2_token = resp.body
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
-        self.assertEqual(v2_token['access']['token']['expires'],
-                         token_data['token']['expires'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token['access']['token']['expires'][:-1],
+                      token_data['token']['expires_at'])
         self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
                          token_data['token']['roles'][0]['id'])
 
@@ -295,8 +307,10 @@ class TestTokenAPIs(AuthTest):
         v2_token = resp.body
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
-        self.assertEqual(v2_token['access']['token']['expires'],
-                         token_data['token']['expires'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token['access']['token']['expires'][-1],
+                      token_data['token']['expires_at'])
         self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
                          token_data['token']['roles'][0]['id'])
 
@@ -320,8 +334,10 @@ class TestTokenAPIs(AuthTest):
         token_data = resp.body
         self.assertEqual(v2_token_data['access']['user']['id'],
                          token_data['token']['user']['id'])
-        self.assertEqual(v2_token_data['access']['token']['expires'],
-                         token_data['token']['expires'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token_data['access']['token']['expires'][-1],
+                      token_data['token']['expires_at'])
         self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
                          token_data['token']['roles'][0]['name'])
 
@@ -345,20 +361,22 @@ class TestTokenAPIs(AuthTest):
         token_data = resp.body
         self.assertEqual(v2_token_data['access']['user']['id'],
                          token_data['token']['user']['id'])
-        self.assertEqual(v2_token_data['access']['token']['expires'],
-                         token_data['token']['expires'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token_data['access']['token']['expires'][-1],
+                      token_data['token']['expires_at'])
         self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
                          token_data['token']['roles'][0]['name'])
 
     def test_rescoping_token(self):
-        expires = self.token_data['token']['expires']
+        expires = self.token_data['token']['expires_at']
         auth_data = _build_authentication_request(
             token=self.token,
             project_id=self.project_id)
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectScopedTokenResponse(r)
         # make sure expires stayed the same
-        self.assertEqual(expires, r.body['token']['expires'])
+        self.assertEqual(expires, r.body['token']['expires_at'])
 
     def test_check_token(self):
         self.head('/auth/tokens', headers=self.headers, expected_status=204)
