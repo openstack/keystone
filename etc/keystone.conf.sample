@@ -137,6 +137,8 @@
 # use_dumb_member = False
 # allow_subtree_delete = False
 # dumb_member = cn=dumb,dc=example,dc=com
+
+# Maximum results per page; a value of zero ('0') disables paging (default)
 # page_size = 0
 
 # The LDAP scope for queries, this can be either 'one'
