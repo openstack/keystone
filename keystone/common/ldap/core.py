@@ -88,6 +88,7 @@ class BaseLdap(object):
         self.LDAP_USER = conf.ldap.user
         self.LDAP_PASSWORD = conf.ldap.password
         self.LDAP_SCOPE = ldap_scope(conf.ldap.query_scope)
+        self.page_size = conf.ldap.page_size
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
@@ -128,7 +129,8 @@ class BaseLdap(object):
         if self.LDAP_URL.startswith('fake://'):
             conn = fakeldap.FakeLdap(self.LDAP_URL)
         else:
-            conn = LdapWrapper(self.LDAP_URL)
+            conn = LdapWrapper(self.LDAP_URL,
+                               self.page_size)
 
         if user is None:
             user = self.LDAP_USER
@@ -361,9 +363,10 @@ class BaseLdap(object):
 
 
 class LdapWrapper(object):
-    def __init__(self, url):
+    def __init__(self, url, page_size):
         LOG.debug(_("LDAP init: url=%s"), url)
         self.conn = ldap.initialize(url)
+        self.page_size = page_size
 
     def simple_bind_s(self, user, password):
         LOG.debug(_("LDAP bind: dn=%s"), user)
@@ -387,14 +390,58 @@ class LdapWrapper(object):
                       scope,
                       query,
                       attrlist)
-        res = self.conn.search_s(dn, scope, query, attrlist)
+        if self.page_size:
+            res = self.paged_search_s(dn, scope, query, attrlist)
+        else:
+            res = self.conn.search_s(dn, scope, query, attrlist)
 
         o = []
         for dn, attrs in res:
             o.append((dn, dict((kind, [ldap2py(x) for x in values])
                                for kind, values in attrs.iteritems())))
-
         return o
+
+    def paged_search_s(self, dn, scope, query, attrlist=None):
+        res = []
+        lc = ldap.controls.SimplePagedResultsControl(
+            controlType=ldap.LDAP_CONTROL_PAGE_OID,
+            criticality=True,
+            controlValue=(self.page_size, ''))
+        msgid = self.conn.search_ext(dn,
+                                     scope,
+                                     query,
+                                     attrlist,
+                                     serverctrls=[lc])
+        # Endless loop request pages on ldap server until it has no data
+        while True:
+            # Request to the ldap server a page with 'page_size' entries
+            rtype, rdata, rmsgid, serverctrls = self.conn.result3(msgid)
+            # Receive the data
+            res.extend(rdata)
+            pctrls = [c for c in serverctrls
+                      if c.controlType == ldap.LDAP_CONTROL_PAGE_OID]
+            if pctrls:
+                # LDAP server supports pagination
+                est, cookie = pctrls[0].controlValue
+                if cookie:
+                    # There is more data still on the server
+                    # so we request another page
+                    lc.controlValue = (self.page_size, cookie)
+                    msgid = self.conn.search_ext(dn,
+                                                 scope,
+                                                 query,
+                                                 attrlist,
+                                                 serverctrls=[lc])
+                else:
+                    # Exit condition no more data on server
+                    break
+            else:
+                LOG.warning(_('LDAP Server does not support paging.'
+                              'Disable paging in keystone.conf to'
+                              'avoid this message'))
+                self._disable_paging()
+                break
+        return res
 
     def modify_s(self, dn, modlist):
         ldap_modlist = [
@@ -417,6 +464,10 @@ class LdapWrapper(object):
     def delete_ext_s(self, dn, serverctrls):
         LOG.debug(_("LDAP delete_ext: dn=%s, serverctrls=%s"), dn, serverctrls)
         return self.conn.delete_ext_s(dn, serverctrls)
+
+    def _disable_paging(self):
+        # Disable the pagination from now on
+        self.page_size = 0
 
 
 class EnabledEmuMixIn(BaseLdap):
