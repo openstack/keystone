@@ -62,9 +62,11 @@ def parse_strtime(timestr, fmt=PERFECT_TIME_FORMAT):
 
 
 def normalize_time(timestamp):
-    """Normalize time in arbitrary timezone to UTC"""
+    """Normalize time in arbitrary timezone to UTC naive object"""
     offset = timestamp.utcoffset()
-    return timestamp.replace(tzinfo=None) - offset if offset else timestamp
+    if offset is None:
+        return timestamp
+    return timestamp.replace(tzinfo=None) - offset
 
 
 def is_older_than(before, seconds):
@@ -121,7 +123,10 @@ def marshall_now(now=None):
 
 def unmarshall_time(tyme):
     """Unmarshall a datetime dict."""
-    return datetime.datetime(day=tyme['day'], month=tyme['month'],
-                             year=tyme['year'], hour=tyme['hour'],
-                             minute=tyme['minute'], second=tyme['second'],
+    return datetime.datetime(day=tyme['day'],
+                             month=tyme['month'],
+                             year=tyme['year'],
+                             hour=tyme['hour'],
+                             minute=tyme['minute'],
+                             second=tyme['second'],
                              microsecond=tyme['microsecond'])
