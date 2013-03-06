@@ -272,51 +272,6 @@ class BaseLdap(object):
         return [self._ldap_res_to_model(x)
                 for x in self._ldap_get_all(filter)]
 
-    def get_page(self, marker, limit):
-        return self._get_page(marker, limit, self.get_all())
-
-    def get_page_markers(self, marker, limit):
-        return self._get_page_markers(marker, limit, self.get_all())
-
-    @staticmethod
-    def _get_page(marker, limit, lst, key=lambda x: x.id):
-        lst.sort(key=key)
-        if not marker:
-            return lst[:limit]
-        else:
-            return [x for x in lst if key(x) > marker][:limit]
-
-    @staticmethod
-    def _get_page_markers(marker, limit, lst, key=lambda x: x.id):
-        if len(lst) < limit:
-            return (None, None)
-
-        lst.sort(key=key)
-        if marker is None:
-            if len(lst) <= limit + 1:
-                nxt = None
-            else:
-                nxt = key(lst[limit])
-            return (None, nxt)
-
-        i = 0
-        for i, item in enumerate(lst):
-            k = key(item)
-            if k >= marker:
-                break
-
-        if i <= limit:
-            prv = None
-        else:
-            prv = key(lst[i - limit])
-
-        if i + limit >= len(lst) - 1:
-            nxt = None
-        else:
-            nxt = key(lst[i + limit])
-
-        return (prv, nxt)
-
     def update(self, id, values, old_obj=None):
         if not self.allow_update:
             action = _('LDAP %s update') % self.options_name

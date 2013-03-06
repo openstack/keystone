@@ -464,22 +464,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
         return self.role_api.add_user(values.role_id, values.user_id,
                                       values.tenant_id)
 
-    def users_get_page(self, marker, limit):
-        return self.get_page(marker, limit)
-
-    def users_get_page_markers(self, marker, limit):
-        return self.get_page_markers(marker, limit)
-
-    def users_get_by_project_get_page(self, tenant_id, role_id, marker, limit):
-        return self._get_page(marker,
-                              limit,
-                              self.project_api.get_users(tenant_id, role_id))
-
-    def users_get_by_project_get_page_markers(self, tenant_id, role_id,
-                                              marker, limit):
-        return self._get_page_markers(
-            marker, limit, self.project_api.get_users(tenant_id, role_id))
-
     def check_password(self, user_id, password):
         user = self.get(user_id)
         return utils.check_password(password, user.password)
@@ -552,15 +536,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
             #the connection.  This is the safer way
             projects.append(self.get(project_id))
         return projects
-
-    def list_for_user_get_page(self, user, marker, limit):
-        return self._get_page(marker,
-                              limit,
-                              self.get_user_projects(user['id']))
-
-    def list_for_user_get_page_markers(self, user, marker, limit):
-        return self._get_page_markers(
-            marker, limit, self.get_user_projects(user['id']))
 
     def is_empty(self, id):
         tenant = self._ldap_get(id)
@@ -850,14 +825,6 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                     role_id=role_id,
                     tenant_id=tenant_id))
         return res
-
-    def get_by_service_get_page(self, service_id, marker, limit):
-        all_roles = self.get_by_service(service_id)
-        return self._get_page(marker, limit, all_roles)
-
-    def get_by_service_get_page_markers(self, service_id, marker, limit):
-        all_roles = self.get_by_service(service_id)
-        return self._get_page_markers(marker, limit, all_roles)
 
     def roles_delete_subtree_by_project(self, tenant_id):
         conn = self.get_connection()
