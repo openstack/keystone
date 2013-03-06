@@ -23,52 +23,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             self.endpoint_id,
             self.endpoint.copy())
 
-    # service validation
-
-    def assertValidServiceListResponse(self, resp, **kwargs):
-        return self.assertValidListResponse(
-            resp,
-            'services',
-            self.assertValidService,
-            **kwargs)
-
-    def assertValidServiceResponse(self, resp, ref):
-        return self.assertValidResponse(
-            resp,
-            'service',
-            self.assertValidService,
-            ref)
-
-    def assertValidService(self, entity, ref=None):
-        self.assertIsNotNone(entity.get('type'))
-        if ref:
-            self.assertEqual(ref['type'], entity['type'])
-        return entity
-
-    # endpoint validation
-
-    def assertValidEndpointListResponse(self, resp, **kwargs):
-        return self.assertValidListResponse(
-            resp,
-            'endpoints',
-            self.assertValidEndpoint,
-            **kwargs)
-
-    def assertValidEndpointResponse(self, resp, ref):
-        return self.assertValidResponse(
-            resp,
-            'endpoint',
-            self.assertValidEndpoint,
-            ref)
-
-    def assertValidEndpoint(self, entity, ref=None):
-        self.assertIsNotNone(entity.get('interface'))
-        self.assertIsNotNone(entity.get('service_id'))
-        if ref:
-            self.assertEqual(ref['interface'], entity['interface'])
-            self.assertEqual(ref['service_id'], entity['service_id'])
-        return entity
-
     # service crud tests
 
     def test_create_service(self):
