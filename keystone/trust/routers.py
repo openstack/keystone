@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 """WSGI Routers for the Identity service."""
-from keystone.common import wsgi
+
 from keystone.trust import controllers
 from keystone.common import router
 
