@@ -47,7 +47,7 @@ class Extension(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
 
-class Version(wsgi.ComposableRouter):
+class VersionV2(wsgi.ComposableRouter):
     def __init__(self, description):
         self.description = description
 
@@ -55,7 +55,18 @@ class Version(wsgi.ComposableRouter):
         version_controller = controllers.Version(self.description)
         mapper.connect('/',
                        controller=version_controller,
-                       action='get_version')
+                       action='get_version_v2')
+
+
+class VersionV3(wsgi.ComposableRouter):
+    def __init__(self, description):
+        self.description = description
+
+    def add_routes(self, mapper):
+        version_controller = controllers.Version(self.description)
+        mapper.connect('/',
+                       controller=version_controller,
+                       action='get_version_v3')
 
 
 class Versions(wsgi.ComposableRouter):
