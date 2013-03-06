@@ -179,11 +179,15 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def list_tokens(self, user_id):
+    def list_tokens(self, user_id, tenant_id=None, trust_id=None):
         """Returns a list of current token_id's for a user
 
         :param user_id: identity of the user
         :type user_id: string
+        :param tenant_id: identity of the tenant
+        :type tenant_id: string
+        :param trust_id: identified of the trust
+        :type trust_id: string
         :returns: list of token_id's
 
         """

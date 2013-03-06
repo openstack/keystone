@@ -43,16 +43,18 @@ class Token(sql.Base, token.Driver):
         query = query.filter_by(id=token.unique_id(token_id), valid=True)
         token_ref = query.first()
         now = datetime.datetime.utcnow()
-        if token_ref and (not token_ref.expires or now < token_ref.expires):
-            return token_ref.to_dict()
-        else:
+        if not token_ref:
             raise exception.TokenNotFound(token_id=token_id)
+        if not token_ref.expires:
+            raise exception.TokenNotFound(token_id=token_id)
+        if now >= token_ref.expires:
+            raise exception.TokenNotFound(token_id=token_id)
+        return token_ref.to_dict()
 
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
-        if 'expires' not in data_copy:
+        if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
-
         token_ref = TokenModel.from_dict(data_copy)
         token_ref.id = token.unique_id(token_id)
         token_ref.valid = True
@@ -73,7 +75,7 @@ class Token(sql.Base, token.Driver):
             token_ref.valid = False
             session.flush()
 
-    def list_tokens(self, user_id, tenant_id=None):
+    def list_tokens(self, user_id, tenant_id=None, trust_id=None):
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
@@ -92,6 +94,12 @@ class Token(sql.Base, token.Driver):
                 if not tenant:
                     continue
                 if tenant.get('id') != tenant_id:
+                    continue
+            if trust_id is not None:
+                token_trust_id = token_ref_dict.get('trust_id')
+                if not token_trust_id:
+                    continue
+                if token_trust_id != trust_id:
                     continue
             tokens.append(token_ref['id'])
         return tokens

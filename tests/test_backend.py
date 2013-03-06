@@ -29,6 +29,7 @@ from keystone import test
 
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
+TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class IdentityTests(object):
@@ -1888,12 +1889,14 @@ class TokenTests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_api.delete_token, token_id)
 
-    def create_token_sample_data(self, tenant_id=None):
+    def create_token_sample_data(self, tenant_id=None, trust_id=None):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': 'testuserid'}}
         if tenant_id is not None:
             data['tenant'] = {'id': tenant_id, 'name': tenant_id}
+        if trust_id is not None:
+            data['trust_id'] = trust_id
         self.token_api.create_token(token_id, data)
         return token_id
 
@@ -1936,6 +1939,13 @@ class TokenTests(object):
         self.assertNotIn(token_id3, tokens)
         self.assertIn(token_id4, tokens)
 
+    def test_token_list_trust(self):
+        trust_id = uuid.uuid4().hex
+        token_id5 = self.create_token_sample_data(trust_id=trust_id)
+        tokens = self.token_api.list_tokens('testuserid', trust_id=trust_id)
+        self.assertEquals(len(tokens), 1)
+        self.assertIn(token_id5, tokens)
+
     def test_get_token_404(self):
         self.assertRaises(exception.TokenNotFound,
                           self.token_api.get_token,
@@ -1965,7 +1975,7 @@ class TokenTests(object):
         data = {'id': token_id, 'id_hash': token_id, 'a': 'b', 'expires': None,
                 'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
-        self.assertDictEqual(data_ref, data)
+        self.assertIsNotNone(data_ref['expires'])
         new_data_ref = self.token_api.get_token(token_id)
         self.assertEqual(data_ref, new_data_ref)
 
@@ -2000,6 +2010,80 @@ class TokenTests(object):
     def test_list_revoked_tokens_for_multiple_tokens(self):
         self.check_list_revoked_tokens([self.delete_token()
                                         for x in xrange(2)])
+
+
+class TrustTests(object):
+    def create_sample_trust(self, new_id):
+        self.trustor = self.user_foo
+        self.trustee = self.user_two
+        trust_data = (self.trust_api.create_trust
+                      (new_id,
+                       {'trustor_user_id': self.trustor['id'],
+                       'trustee_user_id': self.user_two['id'],
+                       'project_id': self.tenant_bar['id'],
+                       'expires_at': timeutils.
+                        parse_isotime('2031-02-18T18:10:00Z'),
+                       'impersonation': True},
+                       roles=[{"id": "member"},
+                              {"id": "other"},
+                              {"id": "browser"}]))
+        return trust_data
+
+    def test_delete_trust(self):
+        new_id = uuid.uuid4().hex
+        trust_data = self.create_sample_trust(new_id)
+        trust_id = trust_data['id']
+        self.assertIsNotNone(trust_data)
+        trust_data = self.trust_api.get_trust(trust_id)
+        self.assertEquals(new_id, trust_data['id'])
+        self.trust_api.delete_trust(trust_id)
+        self.assertIsNone(self.trust_api.get_trust(trust_id))
+
+    def test_get_trust(self):
+        new_id = uuid.uuid4().hex
+        trust_data = self.create_sample_trust(new_id)
+        trust_id = trust_data['id']
+        self.assertIsNotNone(trust_data)
+        trust_data = self.trust_api.get_trust(trust_id)
+        self.assertEquals(new_id, trust_data['id'])
+
+    def test_create_trust(self):
+        new_id = uuid.uuid4().hex
+        trust_data = self.create_sample_trust(new_id)
+
+        self.assertEquals(new_id, trust_data['id'])
+        self.assertEquals(self.trustee['id'], trust_data['trustee_user_id'])
+        self.assertEquals(self.trustor['id'], trust_data['trustor_user_id'])
+        self.assertTrue(timeutils.normalize_time(trust_data['expires_at']) >
+                        timeutils.utcnow())
+
+        self.assertEquals([{'id':'member'},
+                           {'id': 'other'},
+                           {'id': 'browser'}], trust_data['roles'])
+
+    def test_list_trust_by_trustee(self):
+        for i in range(0, 3):
+            trust_data = self.create_sample_trust(uuid.uuid4().hex)
+        trusts = self.trust_api.list_trusts_for_trustee(self.trustee)
+        self.assertEqual(len(trusts), 3)
+        self.assertEqual(trusts[0]["trustee_user_id"], self.trustee['id'])
+        trusts = self.trust_api.list_trusts_for_trustee(self.trustor)
+        self.assertEqual(len(trusts), 0)
+
+    def test_list_trust_by_trustee(self):
+        for i in range(0, 3):
+            trust_data = self.create_sample_trust(uuid.uuid4().hex)
+        trusts = self.trust_api.list_trusts_for_trustor(self.trustor['id'])
+        self.assertEqual(len(trusts), 3)
+        self.assertEqual(trusts[0]["trustor_user_id"], self.trustor['id'])
+        trusts = self.trust_api.list_trusts_for_trustor(self.trustee['id'])
+        self.assertEqual(len(trusts), 0)
+
+    def test_list_trusts(self):
+        for i in range(0, 3):
+            trust_data = self.create_sample_trust(uuid.uuid4().hex)
+        trusts = self.trust_api.list_trusts()
+        self.assertEqual(len(trusts), 3)
 
 
 class CommonHelperTests(test.TestCase):

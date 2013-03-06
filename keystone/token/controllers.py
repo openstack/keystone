@@ -21,7 +21,7 @@ class ExternalAuthNotApplicable(Exception):
     pass
 
 
-@dependency.requires('catalog_api')
+@dependency.requires('catalog_api', 'trust_api', 'token_api')
 class Auth(controller.V2Controller):
     def ca_cert(self, context, auth=None):
         ca_file = open(CONF.signing.ca_certs, 'r')
@@ -78,6 +78,7 @@ class Auth(controller.V2Controller):
                     context, auth)
 
         user_ref, tenant_ref, metadata_ref, expiry = auth_info
+        trust_id = metadata_ref.get('trust_id')
         user_ref = self._filter_domain_id(user_ref)
         if tenant_ref:
             tenant_ref = self._filter_domain_id(tenant_ref)
@@ -128,7 +129,8 @@ class Auth(controller.V2Controller):
                                         expires=auth_token_data['expires'],
                                         user=user_ref,
                                         tenant=tenant_ref,
-                                        metadata=metadata_ref))
+                                        metadata=metadata_ref,
+                                        trust_id=trust_id))
         except Exception as e:
             # an identical token may have been created already.
             # if so, return the token_data as it is also identical
@@ -166,11 +168,43 @@ class Auth(controller.V2Controller):
         except exception.NotFound as e:
             raise exception.Unauthorized(e)
 
+        #A trust token cannot be used to get another token
+        if 'trust' in old_token_ref:
+            raise exception.Unauthorized()
+        if 'trust_id' in old_token_ref["metadata"]:
+            raise exception.Forbidden()
+
         user_ref = old_token_ref['user']
         user_id = user_ref['id']
+        if 'trust_id' in auth:
+            trust_ref = self.trust_api.get_trust(context, auth['trust_id'])
+            if trust_ref is None:
+                raise exception.Forbidden()
+            if user_id != trust_ref['trustee_user_id']:
+                raise exception.Forbidden()
+            if ('expires' in trust_ref) and (trust_ref['expires']):
+                expiry = trust_ref['expires']
+                if expiry < timeutils.parse_isotime(timeutils.isotime()):
+                    raise exception.Forbidden()()
+            user_id = trust_ref['trustor_user_id']
+            trustor_user_ref = (self.identity_api.get_user(
+                                context=context,
+                                user_id=trust_ref['trustor_user_id']))
+            if not trustor_user_ref['enabled']:
+                raise exception.Forbidden()()
+            trustee_user_ref = self.identity_api.get_user(
+                context, trust_ref['trustee_user_id'])
+            if not trustee_user_ref['enabled']:
+                raise exception.Forbidden()()
+            if trust_ref['impersonation'] == 'True':
+                current_user_ref = trustor_user_ref
+            else:
+                current_user_ref = trustee_user_ref
 
-        current_user_ref = self.identity_api.get_user(context=context,
-                                                      user_id=user_id)
+        else:
+            tenant_id = self._get_project_id_from_auth(context, auth)
+            current_user_ref = self.identity_api.get_user(context=context,
+                                                          user_id=user_id)
 
         tenant_id = self._get_project_id_from_auth(context, auth)
 
@@ -185,6 +219,28 @@ class Auth(controller.V2Controller):
                                context, user_id, tenant_id))
 
         expiry = old_token_ref['expires']
+        if 'trust_id' in auth:
+            trust_id = auth['trust_id']
+            trust_roles = []
+            for role in trust_ref['roles']:
+                if not 'roles' in metadata_ref:
+                    raise exception.Forbidden()()
+                if role['id'] in metadata_ref['roles']:
+                    trust_roles.append(role['id'])
+                else:
+                    raise exception.Forbidden()
+            if 'expiry' in trust_ref and trust_ref['expiry']:
+                trust_expiry = timeutils.parse_isotime(trust_ref['expiry'])
+                if trust_expiry < expiry:
+                    expiry = trust_expiry
+            metadata_ref['roles'] = trust_roles
+            metadata_ref['trustee_user_id'] = trust_ref['trustee_user_id']
+            metadata_ref['trust_id'] = trust_id
+
+        auth_token_data = self._get_auth_token_data(current_user_ref,
+                                                    tenant_ref,
+                                                    metadata_ref,
+                                                    expiry)
         return (current_user_ref, tenant_ref, metadata_ref, expiry)
 
     def _authenticate_local(self, context, auth):
@@ -526,7 +582,12 @@ class Auth(controller.V2Controller):
             else:
                 o['access']['metadata'] = {'is_admin': 0}
         if 'roles' in metadata_ref:
-                o['access']['metadata']['roles'] = metadata_ref['roles']
+            o['access']['metadata']['roles'] = metadata_ref['roles']
+        if 'trust_id' in metadata_ref:
+            o['access']['trust'] = {'trustee_user_id':
+                                    metadata_ref['trustee_user_id'],
+                                    'id': metadata_ref['trust_id']
+                                    }
         return o
 
     @classmethod
