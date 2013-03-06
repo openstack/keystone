@@ -161,22 +161,22 @@ class Tenant(controller.V2Controller):
         return o
 
 
-def delete_tokens_for_user(token_api, trust_api, context, user_id, user):
+def delete_tokens_for_user(context, token_api, trust_api, user_id):
     try:
         #First delete tokens that could get other tokens.
         for token_id in token_api.list_tokens(context, user_id):
             token_api.delete_token(context, token_id)
         #now delete trust tokens
-        for trust_id in (trust_api.list_trusts_for_trustee(context, user_id)):
-            token_list = token_api.list_tokens(context, userid,
-                                               trust_id=trust_id)
+        for trust in trust_api.list_trusts_for_trustee(context, user_id):
+            token_list = token_api.list_tokens(context, user_id,
+                                               trust_id=trust['id'])
             for token in token_list:
                 token_api.delete_token(context, token)
     except exception.NotImplemented:
         # The users status has been changed but tokens remain valid for
         # backends that can't list tokens for users
-        LOG.warning('User %s status has changed, but existing tokens '
-                    'remain valid' % user_id)
+        LOG.warning(_('User %s status has changed, but existing tokens '
+                    'remain valid') % user_id)
 
 
 class User(controller.V2Controller):
@@ -235,10 +235,8 @@ class User(controller.V2Controller):
 
         if user.get('password') or not user.get('enabled', True):
         # If the password was changed or the user was disabled we clear tokens
-            delete_tokens_for_user(self.token_api, self.trust_api,
-                                   context,
-                                   user_id,
-                                   user)
+            delete_tokens_for_user(context, self.token_api, self.trust_api,
+                                   user_id)
         return {'user': self._filter_domain_id(user_ref)}
 
     def delete_user(self, context, user_id):
@@ -343,8 +341,8 @@ class Role(controller.V2Controller):
             context, user_id, tenant_id, role_id)
         roles = self.identity_api.get_roles_for_user_and_project(
             context, user_id, tenant_id)
-        delete_tokens_for_user(self.token_api, self.trust_api, context,
-                               user_id, tenant_id)
+        delete_tokens_for_user(
+            context, self.token_api, self.trust_api, user_id)
 
     # COMPAT(diablo): CRUD extension
     def get_role_refs(self, context, user_id):

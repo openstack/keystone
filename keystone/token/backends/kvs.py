@@ -46,7 +46,7 @@ class Token(kvs.Base, token.Driver):
         if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
         if 'trust_id' in data and data['trust_id'] is None:
-                data_copy.pop('trust_id')
+            data_copy.pop('trust_id')
         self.db.set('token-%s' % token_id, data_copy)
         return copy.deepcopy(data_copy)
 
@@ -59,31 +59,51 @@ class Token(kvs.Base, token.Driver):
         except exception.NotFound:
             raise exception.TokenNotFound(token_id=token_id)
 
-    def list_tokens(self, user_id, tenant_id=None, trust_id=None):
+    def is_not_expired(self, now, ref):
+        return not ref.get('expires') and ref.get('expires') < now
+
+    def is_expired(self, now, ref):
+        return ref.get('expires') and ref.get('expires') < now
+
+    def trust_matches(self, trust_id, ref):
+        return ref.get('trust_id') and ref['trust_id'] == trust_id
+
+    def _list_tokens_for_trust(self, trust_id):
         tokens = []
         now = timeutils.utcnow()
         for token, ref in self.db.items():
-            if not token.startswith('token-'):
+            if not token.startswith('token-') or self.is_expired(now, ref):
                 continue
-            user = ref.get('user')
-            if not user:
-                continue
-            if user.get('id') != user_id:
-                continue
-            if ref.get('expires') and ref.get('expires') < now:
-                continue
-            if tenant_id is not None:
-                tenant = ref.get('tenant')
-                if not tenant:
-                    continue
-                if tenant.get('id') != tenant_id:
-                    continue
-            if trust_id is not None:
-                trust = ref.get('trust_id')
-                if not trust:
-                    continue
-            tokens.append(token.split('-', 1)[1])
+            ref_trust_id = ref.get('trust_id')
+            if self.trust_matches(trust_id, ref):
+                tokens.append(token.split('-', 1)[1])
         return tokens
+
+    def _list_tokens_for_user(self, user_id, tenant_id=None):
+        def user_matches(user_id, ref):
+            return ref.get('user') and ref['user'].get('id') == user_id
+
+        def tenant_matches(tenant_id, ref):
+            return ((tenant_id is None) or
+                    (ref.get('tenant') and
+                     ref['tenant'].get('id') == tenant_id))
+
+        tokens = []
+        now = timeutils.utcnow()
+        for token, ref in self.db.items():
+            if not token.startswith('token-') or self.is_expired(now, ref):
+                continue
+            else:
+                if (user_matches(user_id, ref) and
+                        tenant_matches(tenant_id, ref)):
+                        tokens.append(token.split('-', 1)[1])
+        return tokens
+
+    def list_tokens(self, user_id, tenant_id=None, trust_id=None):
+        if trust_id:
+            return self._list_tokens_for_trust(trust_id)
+        else:
+            return self._list_tokens_for_user(user_id, tenant_id)
 
     def list_revoked_tokens(self):
         tokens = []
