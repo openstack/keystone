@@ -27,6 +27,15 @@ from keystone import exception
 from keystone import trust
 
 
+def _filter_trust(ref):
+    if ref['deleted']:
+        return None
+    if ref.get('expires_at') and timeutils.utcnow() > ref['expires_at']:
+        return None
+    ref = copy.deepcopy(ref)
+    return ref
+
+
 class Trust(kvs.Base, trust.Driver):
     def create_trust(self, trust_id, trust, roles):
         trust_ref = trust
@@ -49,18 +58,10 @@ class Trust(kvs.Base, trust.Driver):
         self.db.set('trustor-%s' % trustor_user_id, trustor_list)
         return copy.deepcopy(trust_ref)
 
-    def _filter_trust(selfself, ref):
-        if ref['deleted']:
-            return None
-        if ref.get('expires_at') and timeutils.utcnow() > ref['expires_at']:
-                return None
-        ref = copy.deepcopy(ref)
-        return ref
-
     def get_trust(self, trust_id):
         try:
             ref = self.db.get('trust-%s' % trust_id)
-            return self._filter_trust(ref)
+            return _filter_trust(ref)
         except exception.NotFound:
             return None
 
