@@ -36,6 +36,8 @@ glance to list images needed to perform the requested task.
 
 import uuid
 
+from keystoneclient.contrib.ec2 import utils as ec2_utils
+
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import manager
@@ -98,7 +100,7 @@ class Ec2Extension(wsgi.ExtensionRouter):
 @dependency.requires('catalog_api', 'ec2_api')
 class Ec2Controller(controller.V2Controller):
     def check_signature(self, creds_ref, credentials):
-        signer = utils.Ec2Signer(creds_ref['secret'])
+        signer = ec2_utils.Ec2Signer(creds_ref['secret'])
         signature = signer.generate(credentials)
         if utils.auth_str_equal(credentials['signature'], signature):
             return
