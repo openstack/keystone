@@ -129,10 +129,10 @@ class TokenDataHelper(object):
     def _populate_token(self, token_data, expires=None):
         if not expires:
             expires = token_module.default_expire_time()
-        if not isinstance(expires, unicode):
-            expires = timeutils.isotime(expires)
-        token_data['expires'] = expires
-        token_data['issued_at'] = timeutils.strtime()
+        if not isinstance(expires, basestring):
+            expires = timeutils.isotime(expires, subsecond=True)
+        token_data['expires_at'] = expires
+        token_data['issued_at'] = timeutils.isotime(subsecond=True)
 
     def get_token_data(self, user_id, method_names, extras,
                        domain_id=None, project_id=None, expires=None):
@@ -168,7 +168,10 @@ def recreate_token_data(context, token_data=None, expires=None,
         project_id = (token_data['project']['id'] if 'project' in token_data
                       else None)
         if not new_expires:
-            new_expires = token_data['expires']
+            # support Grizzly-3 to Grizzly-RC1 transition
+            # tokens issued in G3 has 'expires' instead of 'expires_at'
+            new_expires = token_data.get('expires_at',
+                                         token_data.get('expires'))
         user_id = token_data['user']['id']
         methods = token_data['methods']
         extras = token_data['extras']
@@ -189,13 +192,13 @@ def create_token(context, auth_context, auth_info):
     (domain_id, project_id) = auth_info.get_scope()
     method_names = list(set(auth_info.get_method_names() +
                             auth_context.get('method_names', [])))
-    token_data = token_data_helper.get_token_data(auth_context['user_id'],
-                                                  method_names,
-                                                  auth_context['extras'],
-                                                  domain_id,
-                                                  project_id,
-                                                  auth_context.get('expires',
-                                                                   None))
+    token_data = token_data_helper.get_token_data(
+        auth_context['user_id'],
+        method_names,
+        auth_context['extras'],
+        domain_id,
+        project_id,
+        auth_context.get('expires_at', None))
     if CONF.signing.token_format == 'UUID':
         token_id = uuid.uuid4().hex
     elif CONF.signing.token_format == 'PKI':
@@ -209,7 +212,7 @@ def create_token(context, auth_context, auth_info):
             CONF.signing.token_format)
     token_api = token_module.Manager()
     try:
-        expiry = token_data['token']['expires']
+        expiry = token_data['token']['expires_at']
         if isinstance(expiry, basestring):
             expiry = timeutils.parse_isotime(expiry)
         role_ids = []
