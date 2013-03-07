@@ -388,34 +388,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
         for ref in self.role_api.list_project_roles_for_user(id):
             self.role_api.delete_user(ref.role_id, ref.user_id, ref.project_id)
 
-    def get_by_email(self, email):
-        query = ('(%s=%s)' % (self.attribute_mapping['mail'],
-                              ldap_filter.escape_filter_chars(email)))
-        users = self.get_all(query)
-        try:
-            return users[0]
-        except IndexError:
-            return None
-
-    def user_roles_by_project(self, user_id, tenant_id):
-        return self.role_api.list_project_roles_for_user(user_id, tenant_id)
-
-    def get_by_project(self, user_id, tenant_id):
-        user_dn = self._id_to_dn(user_id)
-        user = self.get(user_id)
-        tenant = self.project_api._ldap_get(tenant_id,
-                                            '(member=%s)' % (user_dn,))
-        if tenant is not None:
-            return user
-        else:
-            if self.role_api.list_project_roles_for_user(user_id, tenant_id):
-                return user
-        return None
-
-    def user_role_add(self, values):
-        return self.role_api.add_user(values.role_id, values.user_id,
-                                      values.tenant_id)
-
     def check_password(self, user_id, password):
         user = self.get(user_id)
         return utils.check_password(password, user.password)
@@ -473,15 +445,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
             #the connection.  This is the safer way
             projects.append(self.get(project_id))
         return projects
-
-    def is_empty(self, id):
-        tenant = self._ldap_get(id)
-        members = tenant[1].get(self.member_attribute, [])
-        if self.use_dumb_member:
-            empty = members == [self.dumb_member]
-        else:
-            empty = len(members) == 0
-        return empty and len(self.role_api.get_role_assignments(id)) == 0
 
     def get_role_assignments(self, tenant_id):
         return self.role_api.get_role_assignments(tenant_id)
@@ -560,17 +523,6 @@ class GroupRoleAssociation(object):
         self.group_id = str(group_id)
         self.role_id = role_id
         self.project_id = str(tenant_id)
-
-
-def create_role_ref(role_id, tenant_id, user_id):
-    role_id = '' if role_id is None else str(role_id)
-    tenant_id = '' if tenant_id is None else str(tenant_id)
-    user_id = '' if user_id is None else str(user_id)
-    return '%d-%d-%s%s%s' % (len(role_id),
-                             len(tenant_id),
-                             role_id,
-                             tenant_id,
-                             user_id)
 
 
 # TODO(termie): turn this into a data object and move logic to driver
@@ -666,17 +618,6 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
 
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.UserNotFound(user_id=user_id)
-
-    def get_by_service(self, service_id):
-        roles = self.get_all('(service_id=%s)' %
-                             ldap_filter.escape_filter_chars(service_id))
-        try:
-            res = []
-            for role in roles:
-                res.append(role)
-            return res
-        except IndexError:
-            return None
 
     def get_role_assignments(self, tenant_id):
         conn = self.get_connection()
