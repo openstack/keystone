@@ -91,8 +91,8 @@ class Version(wsgi.Application):
         versions = {}
         versions['v2.0'] = {
             'id': 'v2.0',
-            'status': 'beta',
-            'updated': '2011-11-19T00:00:00Z',
+            'status': 'stable',
+            'updated': '2013-03-06T00:00:00Z',
             'links': [
                 {
                     'rel': 'self',
