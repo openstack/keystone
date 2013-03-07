@@ -21,8 +21,8 @@ from keystone.catalog.backends import templated as catalog_templated
 from keystone import exception
 from keystone import test
 
-import default_fixtures
-import test_backend
+from tests import default_fixtures
+from tests import test_backend
 
 DEFAULT_CATALOG_TEMPLATES = os.path.abspath(os.path.join(
     os.path.dirname(__file__),

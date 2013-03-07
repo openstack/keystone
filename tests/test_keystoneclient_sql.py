@@ -22,7 +22,7 @@ from keystone.common import sql
 from keystone import config
 from keystone import test
 
-import test_keystoneclient
+from tests import test_keystoneclient
 
 
 CONF = config.CONF

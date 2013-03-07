@@ -38,7 +38,7 @@ from keystone import config
 from keystone import exception
 from keystone import test
 
-import default_fixtures
+from tests import default_fixtures
 
 
 CONF = config.CONF

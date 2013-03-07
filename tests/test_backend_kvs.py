@@ -24,8 +24,8 @@ from keystone import test
 from keystone.token.backends import kvs as token_kvs
 from keystone.trust.backends import kvs as trust_kvs
 
-import default_fixtures
-import test_backend
+from tests import default_fixtures
+from tests import test_backend
 
 
 class KvsIdentity(test.TestCase, test_backend.IdentityTests):

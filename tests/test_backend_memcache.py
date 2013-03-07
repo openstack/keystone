@@ -23,7 +23,7 @@ from keystone.openstack.common import timeutils
 from keystone import test
 from keystone.token.backends import memcache as token_memcache
 
-import test_backend
+from tests import test_backend
 
 
 class MemcacheClient(object):
