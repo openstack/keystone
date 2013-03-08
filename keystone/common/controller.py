@@ -88,7 +88,7 @@ def flatten(d, parent_key=''):
 def protected(f):
     """Wraps API calls with role based access controls (RBAC)."""
     @functools.wraps(f)
-    def wrapper(self, context, **kwargs):
+    def wrapper(self, context, *args, **kwargs):
         if 'is_admin' in context and context['is_admin']:
             LOG.warning(_('RBAC: Bypassing authorization'))
         else:
@@ -101,7 +101,7 @@ def protected(f):
             self.policy_api.enforce(context, creds, action, flatten(kwargs))
             LOG.debug(_('RBAC: Authorization granted'))
 
-        return f(self, context, **kwargs)
+        return f(self, context, *args, **kwargs)
     return wrapper
 
 
