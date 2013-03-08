@@ -17,6 +17,7 @@
 """Token Factory"""
 
 import json
+import subprocess
 import uuid
 import webob
 
@@ -255,13 +256,17 @@ def create_token(context, auth_context, auth_info):
     if CONF.signing.token_format == 'UUID':
         token_id = uuid.uuid4().hex
     elif CONF.signing.token_format == 'PKI':
-        token_id = cms.cms_sign_token(json.dumps(token_data),
-                                      CONF.signing.certfile,
-                                      CONF.signing.keyfile)
+        try:
+            token_id = cms.cms_sign_token(json.dumps(token_data),
+                                          CONF.signing.certfile,
+                                          CONF.signing.keyfile)
+        except subprocess.CalledProcessError:
+            raise exception.UnexpectedError(_(
+                'Unable to sign token.'))
     else:
-        raise exception.UnexpectedError(
+        raise exception.UnexpectedError(_(
             'Invalid value for token_format: %s.'
-            '  Allowed values are PKI or UUID.' %
+            '  Allowed values are PKI or UUID.') %
             CONF.signing.token_format)
     token_api = token_module.Manager()
     try:
