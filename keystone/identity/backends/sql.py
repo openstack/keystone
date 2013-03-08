@@ -40,7 +40,7 @@ class User(sql.ModelBase, sql.DictBase):
 
 class Group(sql.ModelBase, sql.DictBase):
     __tablename__ = 'group'
-    attributes = ['id', 'name', 'domain_id']
+    attributes = ['id', 'name', 'domain_id', 'description']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
@@ -76,7 +76,7 @@ class Domain(sql.ModelBase, sql.DictBase):
 
 class Project(sql.ModelBase, sql.DictBase):
     __tablename__ = 'project'
-    attributes = ['id', 'name', 'domain_id']
+    attributes = ['id', 'name', 'domain_id', 'description', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
@@ -666,8 +666,6 @@ class Identity(sql.Base, identity.Driver):
     @sql.handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
-        if 'enabled' not in user:
-            user['enabled'] = True
         user = utils.hash_user_password(user)
         session = self.get_session()
         with session.begin():

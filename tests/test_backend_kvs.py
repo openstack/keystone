@@ -19,7 +19,7 @@ import nose.exc
 from keystone import catalog
 from keystone.catalog.backends import kvs as catalog_kvs
 from keystone import exception
-from keystone.identity.backends import kvs as identity_kvs
+from keystone import identity
 from keystone import test
 from keystone.token.backends import kvs as token_kvs
 from keystone.trust.backends import kvs as trust_kvs
@@ -31,7 +31,10 @@ import test_backend
 class KvsIdentity(test.TestCase, test_backend.IdentityTests):
     def setUp(self):
         super(KvsIdentity, self).setUp()
-        self.identity_api = identity_kvs.Identity(db={})
+        identity.CONF.identity.driver = \
+            'keystone.identity.backends.kvs.Identity'
+        self.identity_man = identity.Manager()
+        self.identity_api = self.identity_man.driver
         self.load_fixtures(default_fixtures)
 
     def test_list_user_projects(self):
@@ -75,8 +78,11 @@ class KvsToken(test.TestCase, test_backend.TokenTests):
 class KvsTrust(test.TestCase, test_backend.TrustTests):
     def setUp(self):
         super(KvsTrust, self).setUp()
+        identity.CONF.identity.driver = \
+            'keystone.identity.backends.kvs.Identity'
+        self.identity_man = identity.Manager()
+        self.identity_api = self.identity_man.driver
         self.trust_api = trust_kvs.Trust(db={})
-        self.identity_api = identity_kvs.Identity(db={})
         self.catalog_api = catalog_kvs.Catalog(db={})
         self.load_fixtures(default_fixtures)
 
