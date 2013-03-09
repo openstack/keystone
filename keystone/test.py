@@ -302,8 +302,8 @@ class TestCase(NoModule, unittest.TestCase):
             test_path = os.path.join(TESTSDIR, config)
             etc_path = os.path.join(ROOTDIR, 'etc', config)
             for path in [test_path, etc_path]:
-                if os.path.exists('%s.conf.sample' % path):
-                    return 'config:%s.conf.sample' % path
+                if os.path.exists('%s-paste.ini' % path):
+                    return 'config:%s-paste.ini' % path
         return config
 
     def loadapp(self, config, name='main'):

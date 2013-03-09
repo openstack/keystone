@@ -407,3 +407,6 @@ def configure():
     for method_name in CONF.auth.methods:
         if method_name not in _DEFAULT_AUTH_METHODS:
             register_str(method_name, group='auth')
+
+    # PasteDeploy config file
+    register_str('config_file', group='paste_deploy', default=None)
