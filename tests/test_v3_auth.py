@@ -35,8 +35,8 @@ class TestAuthInfo(test_v3.RestfulTestCase):
     # building helper functions, they cause backend databases and fixtures
     # to be loaded unnecessarily.  Separating out the helper functions from
     # this base class would improve efficiency (Bug #1134836)
-    def setUp(self):
-        super(TestAuthInfo, self).setUp(load_sample_data=False)
+    def setUp(self, load_sample_data=False):
+        super(TestAuthInfo, self).setUp(load_sample_data=load_sample_data)
 
     def test_missing_auth_methods(self):
         auth_data = {'identity': {}}
@@ -815,9 +815,9 @@ class TestAuthXML(TestAuthJSON):
     content_type = 'xml'
 
 
-class TestTrustAuth(test_v3.RestfulTestCase):
+class TestTrustAuth(TestAuthInfo):
     def setUp(self):
-        super(TestTrustAuth, self).setUp()
+        super(TestTrustAuth, self).setUp(load_sample_data=True)
 
         # create a trustee to delegate stuff to
         self.trustee_user_id = uuid.uuid4().hex
@@ -1065,3 +1065,43 @@ class TestTrustAuth(test_v3.RestfulTestCase):
                      self.user_id, expected_status=200)
         trusts = r.body['trusts']
         self.assertEqual(len(trusts), 0)
+
+    def test_change_password_invalidates_trust_tokens(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+
+        r = self.post('/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+
+        self.assertValidProjectTrustScopedTokenResponse(r, self.user)
+        trust_token = r.getheader('X-Subject-Token')
+
+        self.get('/trusts?trustor_user_id=%s' %
+                 self.user_id, expected_status=200,
+                 token=trust_token)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'])
+
+        self.assertValidUserResponse(
+            self.patch('/users/%s' % self.trustee_user['id'],
+                       body={'user': {'password': uuid.uuid4().hex}},
+                       auth=auth_data,
+                       expected_status=200))
+
+        self.get('/trusts?trustor_user_id=%s' %
+                 self.user_id, expected_status=401,
+                 token=trust_token)

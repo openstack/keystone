@@ -26,11 +26,13 @@ from keystone import token
 
 class TokenModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'token'
-    attributes = ['id', 'expires']
+    attributes = ['id', 'expires', 'user_id', 'trust_id']
     id = sql.Column(sql.String(64), primary_key=True)
     expires = sql.Column(sql.DateTime(), default=None)
     extra = sql.Column(sql.JsonBlob())
     valid = sql.Column(sql.Boolean(), default=True)
+    user_id = sql.Column(sql.String(64))
+    trust_id = sql.Column(sql.String(64), nullable=True)
 
 
 class Token(sql.Base, token.Driver):
@@ -55,6 +57,9 @@ class Token(sql.Base, token.Driver):
         data_copy = copy.deepcopy(data)
         if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
+        if not data_copy.get('user_id'):
+            data_copy['user_id'] = data_copy['user']['id']
+
         token_ref = TokenModel.from_dict(data_copy)
         token_ref.id = token.unique_id(token_id)
         token_ref.valid = True
@@ -76,27 +81,20 @@ class Token(sql.Base, token.Driver):
             session.flush()
 
     def _list_tokens_for_trust(self, trust_id):
-        def trust_matches(trust_id, token_ref_dict):
-            return (token_ref_dict.get('trust_id') and
-                    token_ref_dict['trust_id'] == trust_id)
-
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
         query = session.query(TokenModel)
         query = query.filter(TokenModel.expires > now)
+        query = query.filter(TokenModel.trust_id == trust_id)
+
         token_references = query.filter_by(valid=True)
         for token_ref in token_references:
             token_ref_dict = token_ref.to_dict()
-            if trust_matches(trust_id, token_ref_dict):
-                tokens.append(token_ref['id'])
+            tokens.append(token_ref['id'])
         return tokens
 
     def _list_tokens_for_user(self, user_id, tenant_id=None):
-        def user_matches(user_id, token_ref_dict):
-            return (token_ref_dict.get('user') and
-                    token_ref_dict['user'].get('id') == user_id)
-
         def tenant_matches(tenant_id, token_ref_dict):
             return ((tenant_id is None) or
                     (token_ref_dict.get('tenant') and
@@ -107,12 +105,13 @@ class Token(sql.Base, token.Driver):
         now = timeutils.utcnow()
         query = session.query(TokenModel)
         query = query.filter(TokenModel.expires > now)
+        query = query.filter(TokenModel.user_id == user_id)
+
         token_references = query.filter_by(valid=True)
         for token_ref in token_references:
             token_ref_dict = token_ref.to_dict()
-            if (user_matches(user_id, token_ref_dict) and
-                    tenant_matches(tenant_id, token_ref_dict)):
-                    tokens.append(token_ref['id'])
+            if tenant_matches(tenant_id, token_ref_dict):
+                tokens.append(token_ref['id'])
         return tokens
 
     def list_tokens(self, user_id, tenant_id=None, trust_id=None):

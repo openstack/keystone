@@ -214,12 +214,13 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def v3_request(self, path, **kwargs):
         # Check if the caller has passed in auth details for
         # use in requesting the token
-        auth = kwargs.get('auth', None)
+        auth = kwargs.pop('auth', None)
         if auth:
-            kwargs.pop('auth')
             token = self.get_requested_token(auth)
         else:
-            token = self.get_scoped_token()
+            token = kwargs.pop('token', None)
+            if not token:
+                token = self.get_scoped_token()
         path = '/v3' + path
         return self.admin_request(
             path=path,

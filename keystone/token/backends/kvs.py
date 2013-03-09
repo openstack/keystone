@@ -45,8 +45,8 @@ class Token(kvs.Base, token.Driver):
         data_copy = copy.deepcopy(data)
         if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
-        if 'trust_id' in data and data['trust_id'] is None:
-            data_copy.pop('trust_id')
+        if not data_copy.get('user_id'):
+            data_copy['user_id'] = data_copy['user']['id']
         self.db.set('token-%s' % token_id, data_copy)
         return copy.deepcopy(data_copy)
 

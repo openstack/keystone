@@ -285,7 +285,8 @@ def create_token(context, auth_context, auth_info):
                     user=token_data['token']['user'],
                     tenant=token_data['token'].get('project'),
                     metadata=metadata_ref,
-                    token_data=token_data)
+                    token_data=token_data,
+                    trust_id=trust['id'] if trust else None)
         token_api.create_token(context, token_id, data)
     except Exception as e:
         # an identical token may have been created already.

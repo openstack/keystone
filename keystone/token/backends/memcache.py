@@ -66,6 +66,8 @@ class Token(token.Driver):
         ptk = self._prefix_token_id(token.unique_id(token_id))
         if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
+        if not data_copy.get('user_id'):
+            data_copy['user_id'] = data_copy['user']['id']
         kwargs = {}
         if data_copy['expires'] is not None:
             expires_ts = utils.unixtime(data_copy['expires'])

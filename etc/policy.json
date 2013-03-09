@@ -25,8 +25,7 @@
 
     "identity:get_project": [["rule:admin_required"]],
     "identity:list_projects": [["rule:admin_required"]],
-    "identity:list_user_projects": [["rule:admin_required"],
-                                    ["user_id:%(user_id)s"]],
+    "identity:list_user_projects": [["rule:admin_or_owner"]],
     "identity:create_project": [["rule:admin_or_owner"]],
     "identity:update_project": [["rule:admin_required"]],
     "identity:delete_project": [["rule:admin_required"]],
@@ -34,7 +33,7 @@
     "identity:get_user": [["rule:admin_required"]],
     "identity:list_users": [["rule:admin_required"]],
     "identity:create_user": [["rule:admin_required"]],
-    "identity:update_user": [["rule:admin_required"]],
+    "identity:update_user": [["rule:admin_or_owner"]],
     "identity:delete_user": [["rule:admin_required"]],
 
     "identity:get_group": [["rule:admin_required"]],

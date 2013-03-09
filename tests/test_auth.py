@@ -687,10 +687,8 @@ class AuthWithTrust(AuthTest):
         self.assert_token_count_for_trust(0)
         auth_response = self.fetch_v2_token_from_trust()
         self.assert_token_count_for_trust(1)
-        identity.controllers.delete_tokens_for_user(
+        self.trust_controller._delete_tokens_for_user(
             {},
-            self.trust_controller.token_api,
-            self.trust_controller.trust_api,
             self.trustee['id'])
         self.assert_token_count_for_trust(0)
 

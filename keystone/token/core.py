@@ -121,15 +121,6 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.token.driver)
 
-    def revoke_tokens(self, context, user_id, tenant_id=None):
-        """Invalidates all tokens held by a user (optionally for a tenant).
-
-        If a specific tenant ID is not provided, *all* tokens held by user will
-        be revoked.
-        """
-        for token_id in self.list_tokens(context, user_id, tenant_id):
-            self.delete_token(context, token_id)
-
 
 class Driver(object):
     """Interface description for a Token driver."""
@@ -198,13 +189,5 @@ class Driver(object):
 
         :returns: list of token_id's
 
-        """
-        raise exception.NotImplemented()
-
-    def revoke_tokens(self, user_id, tenant_id=None):
-        """Invalidates all tokens held by a user (optionally for a tenant).
-
-        :raises: keystone.exception.UserNotFound,
-                 keystone.exception.ProjectNotFound
         """
         raise exception.NotImplemented()

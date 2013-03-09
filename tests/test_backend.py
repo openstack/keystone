@@ -1953,14 +1953,18 @@ class TokenTests(object):
     def test_token_crud(self):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'a': 'b',
+                'trust_id': None,
                 'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
         expires = data_ref.pop('expires')
+        data_ref.pop('user_id')
         self.assertTrue(isinstance(expires, datetime.datetime))
         self.assertDictEqual(data_ref, data)
 
         new_data_ref = self.token_api.get_token(token_id)
         expires = new_data_ref.pop('expires')
+        new_data_ref.pop('user_id')
+
         self.assertTrue(isinstance(expires, datetime.datetime))
         self.assertEquals(new_data_ref, data)
 
@@ -2045,8 +2049,10 @@ class TokenTests(object):
         expire_time = timeutils.utcnow() - datetime.timedelta(minutes=1)
         data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
                 'expires': expire_time,
+                'trust_id': None,
                 'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
+        data_ref.pop('user_id')
         self.assertDictEqual(data_ref, data)
         self.assertRaises(exception.TokenNotFound,
                           self.token_api.get_token, token_id)
