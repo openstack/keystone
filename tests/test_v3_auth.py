@@ -12,10 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+import nose.exc
 import uuid
 
-import nose.exc
 
+from keystone.common import cms
 from keystone import auth
 from keystone import config
 from keystone import exception
@@ -160,6 +162,20 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
 
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
+
+    def test_v3_pki_token_id(self):
+        self.opt_in_group('signing', token_format='PKI')
+        auth_data = _build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token_data = resp.body
+        token_id = resp.getheader('X-Subject-Token')
+        self.assertIn('expires_at', token_data['token'])
+        token_signed = cms.cms_sign_token(json.dumps(token_data),
+                                          CONF.signing.certfile,
+                                          CONF.signing.keyfile)
+        self.assertEqual(token_signed, token_id)
 
     def test_v3_v2_uuid_token_intermix(self):
         # FIXME(gyee): PKI tokens are not interchangeable because token

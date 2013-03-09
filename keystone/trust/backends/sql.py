@@ -81,7 +81,7 @@ class Trust(sql.Base, trust.Driver):
             return None
         if ref.expires_at is not None:
             now = timeutils.utcnow()
-            if  now > ref.expires_at:
+            if now > ref.expires_at:
                 return None
         trust_dict = ref.to_dict()
 
