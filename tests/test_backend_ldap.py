@@ -417,7 +417,26 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
 
     def test_project_crud(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101289')
+        # NOTE(topol): LDAP implementation does not currently support the
+        #              updating of a project name so this method override
+        #              provides a different update test
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': uuid.uuid4().hex,
+                   'description': uuid.uuid4().hex
+                   }
+        self.identity_api.create_project(project['id'], project)
+        project_ref = self.identity_api.get_project(project['id'])
+        self.assertDictEqual(project_ref, project)
+
+        project['description'] = uuid.uuid4().hex
+        self.identity_api.update_project(project['id'], project)
+        project_ref = self.identity_api.get_project(project['id'])
+        self.assertDictEqual(project_ref, project)
+
+        self.identity_api.delete_project(project['id'])
+        self.assertRaises(exception.ProjectNotFound,
+                          self.identity_api.get_project,
+                          project['id'])
 
     def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
@@ -525,6 +544,34 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
                                          [CONF.member_role_id]})
         self.assertDictEqual(user_ref, user)
         self.assertDictEqual(tenant_ref, self.tenant_baz)
+
+    def test_project_crud(self):
+        # NOTE(topol): LDAPIdentityEnabledEmulation will create an
+        #              enabled key in the project dictionary so this
+        #              method override handles this side-effect
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': uuid.uuid4().hex,
+                   'description': uuid.uuid4().hex
+                   }
+
+        self.identity_api.create_project(project['id'], project)
+        project_ref = self.identity_api.get_project(project['id'])
+
+        # self.identity_api.create_project adds an enabled
+        # key with a value of True when LDAPIdentityEnabledEmulation
+        # is used so we now add this expected key to the project dictionary
+        project['enabled'] = True
+        self.assertDictEqual(project_ref, project)
+
+        project['description'] = uuid.uuid4().hex
+        self.identity_api.update_project(project['id'], project)
+        project_ref = self.identity_api.get_project(project['id'])
+        self.assertDictEqual(project_ref, project)
+
+        self.identity_api.delete_project(project['id'])
+        self.assertRaises(exception.ProjectNotFound,
+                          self.identity_api.get_project,
+                          project['id'])
 
     def test_user_crud(self):
         user = {'domain_id': uuid.uuid4().hex, 'id': uuid.uuid4().hex,
