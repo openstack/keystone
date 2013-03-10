@@ -868,3 +868,21 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         for tenant in r.body.findall(self._tag('tenant')):
             self.assertValidTenant(tenant)
             self.assertIn(tenant.get('enabled'), ['true', 'false'])
+
+    def test_authenticate_with_invalid_xml_in_password(self):
+        # public_request would auto escape the ampersand
+        r = self.request(
+            port=self._public_port(),
+            method='POST',
+            path='/v2.0/tokens',
+            headers={
+                'Content-Type': 'application/xml'
+            },
+            body="""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <auth xmlns="http://docs.openstack.org/identity/api/v2.0"
+                        tenantId="bar">
+                     <passwordCredentials username="FOO" password="&"/>
+                </auth>
+            """,
+            expected_status=400)
