@@ -538,6 +538,23 @@ class SqlUpgradeTests(test.TestCase):
         self.assertTableColumns("trust_role",
                                 ["trust_id", "role_id"])
 
+    def test_fixup_role(self):
+        session = self.Session()
+        self.assertEqual(self.schema.version, 0, "DB is at version 0")
+        self.upgrade(1)
+        self.insert_dict(session, "role", {"id": "test", "name": "test"})
+        self.upgrade(18)
+        self.insert_dict(session, "role", {"id": "test2",
+                                           "name": "test2",
+                                           "extra": None})
+        r = session.execute('select count(*) as c from role '
+                            'where extra is null')
+        self.assertEqual(r.fetchone()['c'], 2)
+        self.upgrade(19)
+        r = session.execute('select count(*) as c from role '
+                            'where extra is null')
+        self.assertEqual(r.fetchone()['c'], 0)
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
