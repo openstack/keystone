@@ -175,8 +175,8 @@ class Auth(controller.V2Controller):
 
         #A trust token cannot be used to get another token
         if 'trust' in old_token_ref:
-            raise exception.Unauthorized()
-        if 'trust_id' in old_token_ref["metadata"]:
+            raise exception.Forbidden()
+        if 'trust_id' in old_token_ref['metadata']:
             raise exception.Forbidden()
 
         user_ref = old_token_ref['user']
@@ -207,7 +207,6 @@ class Auth(controller.V2Controller):
                 current_user_ref = trustee_user_ref
 
         else:
-            tenant_id = self._get_project_id_from_auth(context, auth)
             current_user_ref = self.identity_api.get_user(context=context,
                                                           user_id=user_id)
 
