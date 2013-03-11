@@ -23,6 +23,9 @@ from keystone import exception
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
 
+MEDIA_TYPE_JSON = 'application/vnd.openstack.identity-%s+json'
+MEDIA_TYPE_XML = 'application/vnd.openstack.identity-%s+xml'
+
 
 class Extensions(wsgi.Application):
     """Base extensions controller to be extended by public and admin API's."""
@@ -113,12 +116,30 @@ class Version(wsgi.Application):
             'media-types': [
                 {
                     'base': 'application/json',
-                    'type': 'application/vnd.openstack.identity-v2.0'
-                            '+json'
+                    'type': MEDIA_TYPE_JSON % 'v2.0'
                 }, {
                     'base': 'application/xml',
-                    'type': 'application/vnd.openstack.identity-v2.0'
-                            '+xml'
+                    'type': MEDIA_TYPE_XML % 'v2.0'
+                }
+            ]
+        }
+        versions['v3'] = {
+            'id': 'v3.0',
+            'status': 'stable',
+            'updated': '2013-03-06T00:00:00Z',
+            'links': [
+                {
+                    'rel': 'self',
+                    'href': self._get_identity_url(version='v3'),
+                }
+            ],
+            'media-types': [
+                {
+                    'base': 'application/json',
+                    'type': MEDIA_TYPE_JSON % 'v3'
+                }, {
+                    'base': 'application/xml',
+                    'type': MEDIA_TYPE_XML % 'v3'
                 }
             ]
         }
@@ -133,8 +154,14 @@ class Version(wsgi.Application):
             }
         })
 
-    def get_version(self, context):
+    def get_version_v2(self, context):
         versions = self._get_versions_list(context)
         return wsgi.render_response(body={
             'version': versions['v2.0']
+        })
+
+    def get_version_v3(self, context):
+        versions = self._get_versions_list(context)
+        return wsgi.render_response(body={
+            'version': versions['v3']
         })
