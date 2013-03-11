@@ -122,7 +122,11 @@ class Identity(identity.Driver):
         # in LDAP backend
         return identity.filter_user(self.user.get_by_name(user_name))
 
-    def get_metadata(self, user_id, tenant_id):
+    def get_metadata(self, user_id=None, tenant_id=None,
+                     domain_id=None, group_id=None):
+        # FIXME(henry-nash): Use domain_id and group_id once domains
+        # and groups are implemented in LDAP backend
+
         if not self.get_project(tenant_id) or not self.get_user(user_id):
             return {}
 

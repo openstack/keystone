@@ -497,6 +497,87 @@ class IdentityTests(object):
         self.assertIn(self.role_admin['id'], roles_ref)
         self.assertIn('member', roles_ref)
 
+    def test_get_roles_for_user_and_domain(self):
+        """ Test for getting roles for user on a domain.
+
+        Test Plan:
+        - Create a domain, with 2 users
+        - Check no roles yet exit
+        - Give user1 two roles on the domain, user2 one role
+        - Get roles on user1 and the domain - maybe sure we only
+          get back the 2 roles on user1
+        - Delete both roles from user1
+        - Check we get no roles back for user1 on domain
+
+        """
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        new_user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                     'password': uuid.uuid4().hex, 'enabled': True,
+                     'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user1['id'], new_user1)
+        new_user2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                     'password': uuid.uuid4().hex, 'enabled': True,
+                     'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user2['id'], new_user2)
+        roles_ref = self.identity_api.list_grants(
+            user_id=new_user1['id'],
+            domain_id=new_domain['id'])
+        self.assertEquals(len(roles_ref), 0)
+        # Now create the grants (roles are defined in default_fixtures)
+        self.identity_api.create_grant(user_id=new_user1['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        self.identity_api.create_grant(user_id=new_user1['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='other')
+        self.identity_api.create_grant(user_id=new_user2['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='admin')
+        # Read back the roles for user1 on domain
+        roles_ids = self.identity_api.get_roles_for_user_and_domain(
+            new_user1['id'], new_domain['id'])
+        self.assertEqual(len(roles_ids), 2)
+        self.assertIn(self.role_member['id'], roles_ids)
+        self.assertIn(self.role_other['id'], roles_ids)
+
+        # Now delete both grants for user1
+        self.identity_api.delete_grant(user_id=new_user1['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        self.identity_api.delete_grant(user_id=new_user1['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='other')
+        roles_ref = self.identity_api.list_grants(
+            user_id=new_user1['id'],
+            domain_id=new_domain['id'])
+        self.assertEquals(len(roles_ref), 0)
+
+    def test_get_roles_for_user_and_domain_404(self):
+        """ Test errors raised when getting roles for user on a domain.
+
+        Test Plan:
+        - Check non-existing user gives UserNotFound
+        - Check non-existing domain gives DomainNotFound
+
+        """
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        new_user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                     'password': uuid.uuid4().hex, 'enabled': True,
+                     'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user1['id'], new_user1)
+
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_roles_for_user_and_domain,
+                          uuid.uuid4().hex,
+                          new_domain['id'])
+
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.get_roles_for_user_and_domain,
+                          new_user1['id'],
+                          uuid.uuid4().hex)
+
     def test_get_roles_for_user_and_project_404(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_roles_for_user_and_project,
