@@ -249,6 +249,312 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         self.assertIn('signed', r.body)
 
 
+class ATestTokenRevoking(test_v3.RestfulTestCase):
+    """Test token revoking for relevant v3 identity apis"""
+
+    def setUp(self):
+        """Setup for Token Revoking Test Cases.
+
+        As well as the usual housekeeping, create a set of domains,
+        users, groups, roles and projects for the subsequent tests:
+
+        - Two domains: A & B
+        - DomainA has user1, domainB has user2 and user3
+        - DomainA has group1 and group2, domainB has group3
+        - User1 has a role on domainA
+        - Two projects: A & B, both in domainA
+        - All users have a role on projectA
+        - Two groups: 1 & 2
+        - User1 and user2 are members of group1
+        - User3 is a member of group2
+
+        """
+        super(ATestTokenRevoking, self).setUp()
+
+        # Start by creating a couple of domains and projects
+        self.domainA = self.new_domain_ref()
+        domainA_ref = self.identity_api.create_domain(self.domainA['id'],
+                                                      self.domainA)
+        self.domainB = self.new_domain_ref()
+        domainB_ref = self.identity_api.create_domain(self.domainB['id'],
+                                                      self.domainB)
+        self.projectA = self.new_project_ref(domain_id=self.domainA['id'])
+        projectA_ref = self.identity_api.create_project(self.projectA['id'],
+                                                        self.projectA)
+        self.projectB = self.new_project_ref(domain_id=self.domainA['id'])
+        projectB_ref = self.identity_api.create_project(self.projectB['id'],
+                                                        self.projectB)
+
+        # Now create some users, one in domainA and two of them in domainB
+        self.user1 = self.new_user_ref(
+            domain_id=self.domainA['id'])
+        self.user1['password'] = uuid.uuid4().hex
+        user_ref = self.identity_api.create_user(self.user1['id'],
+                                                 self.user1)
+
+        self.user2 = self.new_user_ref(
+            domain_id=self.domainB['id'])
+        self.user2['password'] = uuid.uuid4().hex
+        user_ref = self.identity_api.create_user(self.user2['id'],
+                                                 self.user2)
+
+        self.user3 = self.new_user_ref(
+            domain_id=self.domainB['id'])
+        self.user3['password'] = uuid.uuid4().hex
+        user_ref = self.identity_api.create_user(self.user3['id'],
+                                                 self.user3)
+
+        self.group1 = self.new_group_ref(
+            domain_id=self.domainA['id'])
+        user_ref = self.identity_api.create_group(self.group1['id'],
+                                                  self.group1)
+
+        self.group2 = self.new_group_ref(
+            domain_id=self.domainA['id'])
+        user_ref = self.identity_api.create_group(self.group2['id'],
+                                                  self.group2)
+
+        self.group3 = self.new_group_ref(
+            domain_id=self.domainB['id'])
+        user_ref = self.identity_api.create_group(self.group3['id'],
+                                                  self.group3)
+
+        self.identity_api.add_user_to_group(self.user1['id'],
+                                            self.group1['id'])
+        self.identity_api.add_user_to_group(self.user2['id'],
+                                            self.group1['id'])
+        self.identity_api.add_user_to_group(self.user3['id'],
+                                            self.group2['id'])
+
+        self.role1 = self.new_role_ref()
+        self.identity_api.create_role(self.role1['id'], self.role1)
+        self.role2 = self.new_role_ref()
+        self.identity_api.create_role(self.role2['id'], self.role2)
+
+        self.identity_api.create_grant(self.role1['id'],
+                                       user_id=self.user1['id'],
+                                       domain_id=self.domainA['id'])
+        self.identity_api.create_grant(self.role1['id'],
+                                       user_id=self.user1['id'],
+                                       project_id=self.projectA['id'])
+        self.identity_api.create_grant(self.role1['id'],
+                                       user_id=self.user2['id'],
+                                       project_id=self.projectA['id'])
+        self.identity_api.create_grant(self.role1['id'],
+                                       user_id=self.user3['id'],
+                                       project_id=self.projectA['id'])
+        self.identity_api.create_grant(self.role1['id'],
+                                       group_id=self.group1['id'],
+                                       project_id=self.projectA['id'])
+
+    def test_deleting_user_grant_revokes_token(self):
+        """Test deleting a user grant revokes token.
+
+        Test Plan:
+        - Get a token for user1, scoped to ProjectA
+        - Delete the grant user1 has on ProjectA
+        - Check token is no longer valid
+
+        """
+        auth_data = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.getheader('X-Subject-Token')
+        # Confirm token is valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=204)
+        # Delete the grant, which should invalidate the token
+        grant_url = (
+            '/projects/%(project_id)s/users/%(user_id)s/'
+            'roles/%(role_id)s' % {
+                'project_id': self.projectA['id'],
+                'user_id': self.user1['id'],
+                'role_id': self.role1['id']})
+        self.delete(grant_url)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=401)
+
+    def test_creating_user_grant_revokes_token(self):
+        """Test creating a user grant revokes token.
+
+        Test Plan:
+        - Get a token for user1, scoped to ProjectA
+        - Create a grant for user1 on DomainB
+        - Check token is no longer valid
+
+        """
+        auth_data = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.getheader('X-Subject-Token')
+        # Confirm token is valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=204)
+        # Delete the grant, which should invalidate the token
+        grant_url = (
+            '/domains/%(domain_id)s/users/%(user_id)s/'
+            'roles/%(role_id)s' % {
+                'domain_id': self.domainB['id'],
+                'user_id': self.user1['id'],
+                'role_id': self.role1['id']})
+        self.put(grant_url)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=401)
+
+    def test_deleting_group_grant_revokes_tokens(self):
+        """Test deleting a group grant revokes tokens.
+
+        Test Plan:
+        - Get a token for user1, scoped to ProjectA
+        - Get a token for user2, scoped to ProjectA
+        - Get a token for user3, scoped to ProjectA
+        - Delete the grant group1 has on ProjectA
+        - Check tokens for user1 & user2 are no longer valid,
+          since user1 and user2 are members of group1
+        - Check token for user3 is still valid
+
+        """
+        auth_data = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token1 = resp.getheader('X-Subject-Token')
+        auth_data = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token2 = resp.getheader('X-Subject-Token')
+        auth_data = self.build_authentication_request(
+            user_id=self.user3['id'],
+            password=self.user3['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token3 = resp.getheader('X-Subject-Token')
+        # Confirm tokens are valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token1},
+                  expected_status=204)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token2},
+                  expected_status=204)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token3},
+                  expected_status=204)
+        # Delete the group grant, which should invalidate the
+        # tokens for user1 and user2
+        grant_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/'
+            'roles/%(role_id)s' % {
+                'project_id': self.projectA['id'],
+                'group_id': self.group1['id'],
+                'role_id': self.role1['id']})
+        self.delete(grant_url)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token1},
+                  expected_status=401)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token2},
+                  expected_status=401)
+        # But user3's token should still be valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token3},
+                  expected_status=204)
+
+    def test_creating_group_grant_revokes_token(self):
+        """Test creating a group grant revokes token.
+
+        Test Plan:
+        - Get a token for user1, scoped to ProjectA
+        - Create a grant for group1 on DomainB
+        - Check token is no longer valid
+
+        """
+        auth_data = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.getheader('X-Subject-Token')
+        # Confirm token is valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=204)
+        # Delete the grant, which should invalidate the token
+        grant_url = (
+            '/domains/%(domain_id)s/groups/%(group_id)s/'
+            'roles/%(role_id)s' % {
+                'domain_id': self.domainB['id'],
+                'group_id': self.group1['id'],
+                'role_id': self.role1['id']})
+        self.put(grant_url)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=401)
+
+    def test_group_membership_changes_revokes_token(self):
+        """Test add/removal to/from group revokes token.
+
+        Test Plan:
+        - Get a token for user1, scoped to ProjectA
+        - Get a token for user2, scoped to ProjectA
+        - Remove user1 from group1
+        - Check token for user1 is no longer valid
+        - Check token for user2 is still valid, even though
+          user2 is also part of group1
+        - Add user2 to group2
+        - Check token for user2 is now no longer valid
+
+        """
+        auth_data = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token1 = resp.getheader('X-Subject-Token')
+        auth_data = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'],
+            project_id=self.projectA['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token2 = resp.getheader('X-Subject-Token')
+        # Confirm tokens are valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token1},
+                  expected_status=204)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token2},
+                  expected_status=204)
+        # Remove user1 from group1, which should invalidate
+        # the token
+        self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group1['id'],
+            'user_id': self.user1['id']})
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token1},
+                  expected_status=401)
+        # But user2's token should still be valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token2},
+                  expected_status=204)
+        # Adding user2 to a group should invalidate token
+        self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group2['id'],
+            'user_id': self.user2['id']})
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token2},
+                  expected_status=401)
+
+
 class TestAuthJSON(test_v3.RestfulTestCase):
     content_type = 'json'
 
