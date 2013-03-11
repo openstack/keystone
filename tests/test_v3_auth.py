@@ -21,7 +21,7 @@ from keystone import config
 from keystone import exception
 from keystone import test
 
-import test_v3
+from tests import test_v3
 
 
 CONF = config.CONF

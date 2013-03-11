@@ -11,7 +11,7 @@ from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
 from keystone import test
 
-import test_content_types
+from tests import test_content_types
 
 
 CONF = config.CONF

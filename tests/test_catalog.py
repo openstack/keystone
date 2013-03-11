@@ -3,7 +3,7 @@ import uuid
 from keystone.common.sql import util as sql_util
 from keystone import test
 
-import test_content_types
+from tests import test_content_types
 
 
 BASE_URL = 'http://127.0.0.1:35357/v2'

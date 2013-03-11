@@ -7,7 +7,7 @@ from keystone import config
 from keystone.common.sql import util as sql_util
 from keystone import test
 
-import test_content_types
+from tests import test_content_types
 
 
 CONF = config.CONF

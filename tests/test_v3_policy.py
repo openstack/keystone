@@ -1,6 +1,6 @@
 import uuid
 
-import test_v3
+from tests import test_v3
 
 
 class PolicyTestCase(test_v3.RestfulTestCase):

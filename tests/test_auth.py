@@ -26,7 +26,7 @@ from keystone import test
 from keystone import token
 from keystone import trust
 
-import default_fixtures
+from tests import default_fixtures
 
 
 CONF = config.CONF

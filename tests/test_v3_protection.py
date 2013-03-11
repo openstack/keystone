@@ -24,7 +24,7 @@ import nose.exc
 from keystone import config
 from keystone.policy.backends import rules
 
-import test_v3
+from tests import test_v3
 
 
 CONF = config.CONF
