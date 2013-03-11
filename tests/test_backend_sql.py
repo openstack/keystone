@@ -27,8 +27,8 @@ from keystone import token
 from keystone import trust
 
 
-from tests import default_fixtures
-from tests import test_backend
+import default_fixtures
+import test_backend
 
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id

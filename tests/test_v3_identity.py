@@ -16,7 +16,7 @@
 
 import uuid
 
-from tests import test_v3
+import test_v3
 
 
 class IdentityTestCase(test_v3.RestfulTestCase):

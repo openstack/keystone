@@ -25,7 +25,7 @@ from keystone.openstack.common import timeutils
 from keystone import config
 from keystone import test
 
-from tests import default_fixtures
+import default_fixtures
 
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id

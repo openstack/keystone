@@ -24,7 +24,7 @@ from keystone.common import serializer
 from keystone.openstack.common import jsonutils
 from keystone import test
 
-from tests import default_fixtures
+import default_fixtures
 
 
 class RestfulTestCase(test.TestCase):
