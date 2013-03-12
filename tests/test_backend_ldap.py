@@ -357,6 +357,13 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
             'Invalid LDAP scope: %s. *' % CONF.ldap.query_scope,
             identity.backends.ldap.Identity)
 
+    def test_wrong_alias_dereferencing(self):
+        CONF.ldap.alias_dereferencing = uuid.uuid4().hex
+        self.assertRaisesRegexp(
+            ValueError,
+            'Invalid LDAP deref option: %s\.' % CONF.ldap.alias_dereferencing,
+            identity.backends.ldap.Identity)
+
 # TODO (henry-nash) These need to be removed when the full LDAP implementation
 # is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
 

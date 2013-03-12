@@ -140,6 +140,11 @@
 # Maximum results per page; a value of zero ('0') disables paging (default)
 # page_size = 0
 
+# The LDAP dereferencing option for queries. This can be either 'never',
+# 'searching', 'always', 'finding' or 'default'. The 'default' option falls
+# back to using default dereferencing configured by your ldap.conf.
+# alias_dereferencing = default
+
 # The LDAP scope for queries, this can be either 'one'
 # (onelevel/singleLevel) or 'sub' (subtree/wholeSubtree)
 # query_scope = one
