@@ -32,18 +32,21 @@ import test_backend
 CONF = config.CONF
 
 
-def clear_database():
-    db = fakeldap.FakeShelve().get_instance()
-    db.clear()
-
-
 class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
-    def setUp(self):
-        super(LDAPIdentity, self).setUp()
+
+    def clear_database(self):
+        db = fakeldap.FakeShelve().get_instance()
+        db.clear()
+
+    def _set_config(self):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
-        clear_database()
+
+    def setUp(self):
+        super(LDAPIdentity, self).setUp()
+        self._set_config()
+        self.clear_database()
         self.identity_man = identity.Manager()
         self.identity_api = self.identity_man.driver
         self.load_fixtures(default_fixtures)
@@ -62,7 +65,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                 'name': 'fake1',
                 'password': 'fakepass1',
                 'tenants': ['bar']}
-        self.identity_man.create_user({}, 'fake1', user)
+        self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['id'], 'fake1')
 
@@ -103,7 +106,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api = identity.backends.ldap.Identity()
 
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
-        self.identity_man.create_project({}, 'fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
 
@@ -208,7 +211,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_dumb_member(self):
         CONF.ldap.use_dumb_member = True
         CONF.ldap.dumb_member = 'cn=dumb,cn=example,cn=com'
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         self.assertRaises(exception.UserNotFound,
@@ -217,35 +220,32 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_user_attribute_mapping(self):
         CONF.ldap.user_name_attribute = 'sn'
-        CONF.ldap.user_mail_attribute = 'email'
+        CONF.ldap.user_mail_attribute = 'mail'
         CONF.ldap.user_enabled_attribute = 'enabled'
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         user_ref = self.identity_api.get_user(self.user_two['id'])
         self.assertEqual(user_ref['id'], self.user_two['id'])
         self.assertEqual(user_ref['name'], self.user_two['name'])
         self.assertEqual(user_ref['email'], self.user_two['email'])
-        self.assertEqual(user_ref['enabled'], self.user_two['enabled'])
 
-        CONF.ldap.user_name_attribute = 'email'
+        CONF.ldap.user_name_attribute = 'mail'
         CONF.ldap.user_mail_attribute = 'sn'
         self.identity_api = identity.backends.ldap.Identity()
         user_ref = self.identity_api.get_user(self.user_two['id'])
         self.assertEqual(user_ref['id'], self.user_two['id'])
         self.assertEqual(user_ref['name'], self.user_two['email'])
         self.assertEqual(user_ref['email'], self.user_two['name'])
-        self.assertEqual(user_ref['enabled'], self.user_two['enabled'])
 
     def test_user_attribute_ignore(self):
-        CONF.ldap.user_attribute_ignore = ['name', 'email', 'password',
+        CONF.ldap.user_attribute_ignore = ['email', 'password',
                                            'tenant_id', 'enabled', 'tenants']
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         user_ref = self.identity_api.get_user(self.user_two['id'])
         self.assertEqual(user_ref['id'], self.user_two['id'])
-        self.assertNotIn('name', user_ref)
         self.assertNotIn('email', user_ref)
         self.assertNotIn('password', user_ref)
         self.assertNotIn('tenant_id', user_ref)
@@ -254,9 +254,9 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_project_attribute_mapping(self):
         CONF.ldap.tenant_name_attribute = 'ou'
-        CONF.ldap.tenant_desc_attribute = 'desc'
+        CONF.ldap.tenant_desc_attribute = 'description'
         CONF.ldap.tenant_enabled_attribute = 'enabled'
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
@@ -267,7 +267,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
             self.tenant_baz['description'])
         self.assertEqual(tenant_ref['enabled'], self.tenant_baz['enabled'])
 
-        CONF.ldap.tenant_name_attribute = 'desc'
+        CONF.ldap.tenant_name_attribute = 'description'
         CONF.ldap.tenant_desc_attribute = 'ou'
         self.identity_api = identity.backends.ldap.Identity()
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
@@ -280,7 +280,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.tenant_attribute_ignore = ['name',
                                              'description',
                                              'enabled']
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
@@ -291,7 +291,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_role_attribute_mapping(self):
         CONF.ldap.role_name_attribute = 'ou'
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         role_ref = self.identity_api.get_role(self.role_member['id'])
@@ -306,7 +306,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_role_attribute_ignore(self):
         CONF.ldap.role_attribute_ignore = ['name']
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         self.load_fixtures(default_fixtures)
         role_ref = self.identity_api.get_role(self.role_member['id'])
@@ -317,10 +317,10 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.user_enabled_attribute = 'enabled'
         CONF.ldap.user_enabled_mask = 2
         CONF.ldap.user_enabled_default = 512
-        clear_database()
+        self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
-        self.identity_man.create_user({}, 'fake1', user)
+        self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
@@ -426,6 +426,11 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                    }
         self.identity_api.create_project(project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
+
+        # NOTE(crazed): If running live test with emulation, there will be
+        #               an enabled key in the project_ref.
+        if self.identity_api.project.enabled_emulation:
+            project['enabled'] = True
         self.assertDictEqual(project_ref, project)
 
         project['description'] = uuid.uuid4().hex
@@ -513,7 +518,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
                      test.testsdir('backend_ldap.conf')])
         CONF.ldap.user_enabled_emulation = True
         CONF.ldap.tenant_enabled_emulation = True
-        clear_database()
+        self.clear_database()
         self.identity_man = identity.Manager()
         self.identity_api = self.identity_man.driver
         self.load_fixtures(default_fixtures)

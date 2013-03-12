@@ -117,7 +117,7 @@ class IdentityTests(object):
             'domain_id': DEFAULT_DOMAIN_ID,
             'password': 'no_meta2',
         }
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
         user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
@@ -350,8 +350,8 @@ class IdentityTests(object):
                  'domain_id': DEFAULT_DOMAIN_ID,
                  'password': 'fakepass',
                  'tenants': ['bar']}
-        self.identity_man.create_user({}, 'fake1', user1)
-        self.identity_man.create_user({}, 'fake2', user2)
+        self.identity_api.create_user('fake1', user1)
+        self.identity_api.create_user('fake2', user2)
         user2['name'] = 'fake1'
         self.assertRaises(exception.Conflict,
                           self.identity_api.update_user,
@@ -364,7 +364,7 @@ class IdentityTests(object):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'fakepass',
                 'tenants': ['bar']}
-        self.identity_man.create_user({}, 'fake1', user)
+        self.identity_api.create_user('fake1', user)
         user['id'] = 'fake2'
         self.assertRaises(exception.ValidationError,
                           self.identity_api.update_user,
@@ -458,7 +458,7 @@ class IdentityTests(object):
     def test_update_project_id_does_nothing(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project({}, 'fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['id'] = 'fake2'
         self.identity_api.update_project('fake1', tenant)
         tenant_ref = self.identity_api.get_project('fake1')
@@ -1389,7 +1389,7 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
                                               user['id'])
         self.identity_api.delete_user(user['id'])
@@ -1402,7 +1402,7 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
@@ -1606,7 +1606,7 @@ class IdentityTests(object):
     def test_delete_project_with_role_assignments(self):
         tenant = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project({}, tenant['id'], tenant)
+        self.identity_api.create_project(tenant['id'], tenant)
         self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], tenant['id'], 'member')
         self.identity_api.delete_project(tenant['id'])
@@ -1647,7 +1647,7 @@ class IdentityTests(object):
     def test_update_user_enable(self):
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_user({}, 'fake1', user)
+        self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
@@ -1664,7 +1664,7 @@ class IdentityTests(object):
     def test_update_project_enable(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project({}, 'fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['enabled'], True)
 
@@ -1914,7 +1914,7 @@ class IdentityTests(object):
     def test_user_crud(self):
         user = {'domain_id': uuid.uuid4().hex, 'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex, 'password': 'passw0rd'}
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)

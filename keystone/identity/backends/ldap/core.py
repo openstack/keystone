@@ -176,7 +176,9 @@ class Identity(identity.Driver):
         data = tenant.copy()
         if 'id' not in data or data['id'] is None:
             data['id'] = str(uuid.uuid4().hex)
-        return self.project.create(tenant)
+        if 'description' in data and data['description'] in ['', None]:
+            data.pop('description')
+        return self.project.create(data)
 
     def update_project(self, tenant_id, tenant):
         if 'name' in tenant:
