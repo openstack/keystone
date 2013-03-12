@@ -339,8 +339,6 @@ class Role(controller.V2Controller):
         # a user also adds them to a tenant, so we must follow up on that
         self.identity_api.remove_role_from_user_and_project(
             context, user_id, tenant_id, role_id)
-        roles = self.identity_api.get_roles_for_user_and_project(
-            context, user_id, tenant_id)
         delete_tokens_for_user(
             context, self.token_api, self.trust_api, user_id)
 
