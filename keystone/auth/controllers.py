@@ -71,7 +71,7 @@ class AuthInfo(object):
         # self._scope_data is (domain_id, project_id, trust_ref)
         # project scope: (None, project_id, None)
         # domain scope: (domain_id, None, None)
-        # trust scope: (None, None, trust_id)
+        # trust scope: (None, None, trust_ref)
         # unscoped: (None, None, None)
         self._validate_and_normalize_auth_data()
 
@@ -146,7 +146,7 @@ class AuthInfo(object):
                                             target='trust')
         trust = self.trust_api.get_trust(self.context, trust_id)
         if not trust:
-            raise exception.TrustNotFound(trust_id)
+            raise exception.TrustNotFound(trust_id=trust_id)
         return trust
 
     def lookup_user(self, user_info):
