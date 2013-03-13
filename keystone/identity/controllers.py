@@ -179,6 +179,14 @@ def delete_tokens_for_user(context, token_api, trust_api, user_id):
                     'remain valid') % user_id)
 
 
+def delete_tokens_for_group(context, identity_api, token_api, trust_api,
+                            group_id):
+    user_refs = identity_api.list_users_in_group(context, group_id)
+    for user in user_refs:
+        delete_tokens_for_user(
+            context, token_api, trust_api, user['id'])
+
+
 class User(controller.V2Controller):
     def get_user(self, context, user_id):
         self.assert_admin(context)
@@ -568,8 +576,12 @@ class UserV3(controller.V3Controller):
 
     @controller.protected
     def add_user_to_group(self, context, user_id, group_id):
-        return self.identity_api.add_user_to_group(context,
-                                                   user_id, group_id)
+        self.identity_api.add_user_to_group(
+            context, user_id, group_id)
+        # Delete any tokens so that group membership can have an
+        # immediate effect
+        delete_tokens_for_user(
+            context, self.token_api, self.trust_api, user_id)
 
     @controller.protected
     def check_user_in_group(self, context, user_id, group_id):
@@ -578,8 +590,10 @@ class UserV3(controller.V3Controller):
 
     @controller.protected
     def remove_user_from_group(self, context, user_id, group_id):
-        return self.identity_api.remove_user_from_group(context,
-                                                        user_id, group_id)
+        self.identity_api.remove_user_from_group(
+            context, user_id, group_id)
+        delete_tokens_for_user(
+            context, self.token_api, self.trust_api, user_id)
 
     @controller.protected
     def delete_user(self, context, user_id):
@@ -621,7 +635,17 @@ class GroupV3(controller.V3Controller):
 
     @controller.protected
     def delete_group(self, context, group_id):
-        return self.identity_api.delete_group(context, group_id)
+        # As well as deleting the group, we need to invalidate
+        # any tokens for the users who are members of the group.
+        # We get the list of users before we attempt the group
+        # deletion, so that we can remove these tokens after we know
+        # the group deletion succeeded.
+
+        user_refs = self.identity_api.list_users_in_group(context, group_id)
+        self.identity_api.delete_group(context, group_id)
+        for user in user_refs:
+            delete_tokens_for_user(
+                context, self.token_api, self.trust_api, user['id'])
 
 
 class CredentialV3(controller.V3Controller):
@@ -710,6 +734,17 @@ class RoleV3(controller.V3Controller):
         self.identity_api.create_grant(
             context, role_id, user_id, group_id, domain_id, project_id)
 
+        # So that existing tokens don't stop the use of this grant
+        # delete any tokens for this user or, in the case of a group,
+        # tokens from all the uses who are members of this group.
+        if user_id:
+            delete_tokens_for_user(
+                context, self.token_api, self.trust_api, user_id)
+        else:
+            delete_tokens_for_group(
+                context, self.identity_api, self.token_api, self.trust_api,
+                group_id)
+
     @controller.protected
     def list_grants(self, context, user_id=None, group_id=None,
                     domain_id=None, project_id=None):
@@ -740,3 +775,13 @@ class RoleV3(controller.V3Controller):
 
         self.identity_api.delete_grant(
             context, role_id, user_id, group_id, domain_id, project_id)
+
+        # Now delete any tokens for this user or, in the case of a group,
+        # tokens from all the uses who are members of this group.
+        if user_id:
+            delete_tokens_for_user(
+                context, self.token_api, self.trust_api, user_id)
+        else:
+            delete_tokens_for_group(
+                context, self.identity_api, self.token_api,
+                self.trust_api, group_id)
