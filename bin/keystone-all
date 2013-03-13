@@ -25,6 +25,7 @@ from keystone import config
 from keystone.common import wsgi
 from keystone.common import utils
 from keystone.openstack.common import importutils
+from keystone.openstack.common import version
 
 
 CONF = config.CONF
@@ -77,7 +78,9 @@ if __name__ == '__main__':
     if os.path.exists(dev_conf):
         config_files = [dev_conf]
 
-    CONF(project='keystone', default_config_files=config_files)
+    CONF(project='keystone',
+         version=version.VersionInfo('keystone').version_string(),
+         default_config_files=config_files)
 
     config.setup_logging(CONF)
 
