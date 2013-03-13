@@ -518,6 +518,10 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def assertValidEndpoint(self, entity, ref=None):
         self.assertIsNotNone(entity.get('interface'))
         self.assertIsNotNone(entity.get('service_id'))
+
+        # this is intended to be an unexposed implementation detail
+        self.assertNotIn('legacy_endpoint_id', entity)
+
         if ref:
             self.assertEqual(ref['interface'], entity['interface'])
             self.assertEqual(ref['service_id'], entity['service_id'])
