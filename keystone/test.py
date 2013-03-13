@@ -58,6 +58,9 @@ DRIVERS = {}
 cd = os.chdir
 
 
+logging.getLogger('routes.middleware').level = logging.WARN
+
+
 def rootdir(*p):
     return os.path.join(ROOTDIR, *p)
 
