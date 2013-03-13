@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2011 OpenStack LLC.
+# Copyright 2011 OpenStack Foundation.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -29,7 +29,7 @@ def import_class(import_str):
     try:
         __import__(mod_str)
         return getattr(sys.modules[mod_str], class_str)
-    except (ValueError, AttributeError), exc:
+    except (ValueError, AttributeError):
         raise ImportError('Class %s cannot be found (%s)' %
                           (class_str,
                            traceback.format_exception(*sys.exc_info())))
@@ -57,3 +57,11 @@ def import_module(import_str):
     """Import a module."""
     __import__(import_str)
     return sys.modules[import_str]
+
+
+def try_import(import_str, default=None):
+    """Try to import a module and if it fails return default."""
+    try:
+        return import_module(import_str)
+    except ImportError:
+        return default
