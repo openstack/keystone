@@ -33,8 +33,8 @@ OpenStack projects based on the WSGI standard.
 
 For the architecture of keystone and its services, please see
 :doc:`architecture`. This documentation primarily describes the implementation
-in ``keystone/middleware/auth_token.py``
-(:py:class:`keystone.middleware.auth_token.AuthProtocol`)
+in ``keystoneclient/middleware/auth_token.py``
+(:py:class:`keystoneclient.middleware.auth_token.AuthProtocol`)
 
 Specification Overview
 ======================
@@ -122,7 +122,7 @@ a WSGI component. Example for the auth_token middleware::
     pipeline = tokenauth myService
 
     [filter:tokenauth]
-    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
     auth_host = 127.0.0.1
     auth_port = 35357
     auth_protocol = http
@@ -143,7 +143,7 @@ config file. For example in Nova, all middleware parameters can be removed
 from api-paste.ini::
 
     [filter:authtoken]
-    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 
 and set in nova.conf::
 
@@ -219,7 +219,7 @@ unsuccessful.
 Extended the request with additional User Information
 -----------------------------------------------------
 
-:py:class:`keystone.middleware.auth_token.AuthProtocol` extends the request
+:py:class:`keystoneclient.middleware.auth_token.AuthProtocol` extends the request
 with additional information if the user has been authenticated.
 
 
