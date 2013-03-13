@@ -26,6 +26,7 @@ gettext.install('keystone', unicode=1)
 
 _DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+_DEFAULT_AUTH_METHODS = ['password', 'token']
 
 common_cli_opts = [
     cfg.BoolOpt('debug',
@@ -322,8 +323,13 @@ register_str('password', group='pam', default=None)
 
 # default authentication methods
 register_list('methods', group='auth',
-              default=['password', 'token'])
+              default=_DEFAULT_AUTH_METHODS)
 register_str('password', group='auth',
              default='keystone.auth.methods.token.Token')
 register_str('token', group='auth',
              default='keystone.auth.methods.password.Password')
+
+# register any non-default auth methods here (used by extensions, etc)
+for method_name in CONF.auth.methods:
+    if method_name not in _DEFAULT_AUTH_METHODS:
+        config.register_str(method_name, group='auth')
