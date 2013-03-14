@@ -691,6 +691,43 @@ class SqlUpgradeTests(test.TestCase):
                             'where extra is null')
         self.assertEqual(r.fetchone()['c'], 0)
 
+    def test_legacy_endpoint_id(self):
+        session = self.Session()
+        self.upgrade(21)
+
+        service = {
+            'id': uuid.uuid4().hex,
+            'name': 'keystone',
+            'type': 'identity'}
+        self.insert_dict(session, 'service', service)
+
+        legacy_endpoint_id = uuid.uuid4().hex
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'service_id': service['id'],
+            'interface': uuid.uuid4().hex[:8],
+            'url': uuid.uuid4().hex,
+            'extra': json.dumps({
+                'legacy_endpoint_id': legacy_endpoint_id})}
+        self.insert_dict(session, 'endpoint', endpoint)
+
+        self.upgrade(22)
+        session.commit()
+        session.close()
+
+        session = self.Session()
+        endpoint_table = sqlalchemy.Table(
+            'endpoint', self.metadata, autoload=True)
+
+        self.assertEqual(session.query(endpoint_table).count(), 1)
+        ref = session.query(endpoint_table).one()
+        self.assertEqual(ref.id, endpoint['id'], ref)
+        self.assertEqual(ref.service_id, endpoint['service_id'])
+        self.assertEqual(ref.interface, endpoint['interface'])
+        self.assertEqual(ref.url, endpoint['url'])
+        self.assertEqual(ref.legacy_endpoint_id, legacy_endpoint_id)
+        self.assertEqual(ref.extra, '{}')
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
