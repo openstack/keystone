@@ -204,6 +204,10 @@ class CredentialNotFound(NotFound):
     """Could not find credential: %(credential_id)s"""
 
 
+class VersionNotFound(NotFound):
+    """Could not find version: %(version)s"""
+
+
 class Conflict(Error):
     """Conflict occurred attempting to store %(type)s.
 

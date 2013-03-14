@@ -16,6 +16,7 @@
 # limitations under the License.
 
 from keystone import config
+from keystone import controllers
 from keystone.openstack.common import jsonutils
 from keystone import test
 
@@ -193,3 +194,65 @@ class VersionTestCase(test.TestCase):
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v3/' % CONF.admin_port)
         self.assertEqual(data, expected)
+
+    def test_v2_disabled(self):
+        self.stubs.Set(controllers, '_VERSIONS', ['v3'])
+        client = self.client(self.public_app)
+        # request to /v2.0 should fail
+        resp = client.get('/v2.0/')
+        self.assertEqual(resp.status_int, 404)
+
+        # request to /v3 should pass
+        resp = client.get('/v3/')
+        self.assertEqual(resp.status_int, 200)
+        data = jsonutils.loads(resp.body)
+        expected = v3_VERSION_RESPONSE
+        self._paste_in_port(expected['version'],
+                            'http://localhost:%s/v3/' % CONF.public_port)
+        self.assertEqual(data, expected)
+
+        # only v3 information should be displayed by requests to /
+        v3_only_response = {
+            "versions": {
+                "values": [
+                    v3_EXPECTED_RESPONSE
+                ]
+            }
+        }
+        self._paste_in_port(v3_only_response['versions']['values'][0],
+                            'http://localhost:%s/v3/' % CONF.public_port)
+        resp = client.get('/')
+        self.assertEqual(resp.status_int, 300)
+        data = jsonutils.loads(resp.body)
+        self.assertEqual(data, v3_only_response)
+
+    def test_v3_disabled(self):
+        self.stubs.Set(controllers, '_VERSIONS', ['v2.0'])
+        client = self.client(self.public_app)
+        # request to /v3 should fail
+        resp = client.get('/v3/')
+        self.assertEqual(resp.status_int, 404)
+
+        # request to /v2.0 should pass
+        resp = client.get('/v2.0/')
+        self.assertEqual(resp.status_int, 200)
+        data = jsonutils.loads(resp.body)
+        expected = v2_VERSION_RESPONSE
+        self._paste_in_port(expected['version'],
+                            'http://localhost:%s/v2.0/' % CONF.public_port)
+        self.assertEqual(data, expected)
+
+        # only v2 information should be displayed by requests to /
+        v2_only_response = {
+            "versions": {
+                "values": [
+                    v2_EXPECTED_RESPONSE
+                ]
+            }
+        }
+        self._paste_in_port(v2_only_response['versions']['values'][0],
+                            'http://localhost:%s/v2.0/' % CONF.public_port)
+        resp = client.get('/')
+        self.assertEqual(resp.status_int, 300)
+        data = jsonutils.loads(resp.body)
+        self.assertEqual(data, v2_only_response)
