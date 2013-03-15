@@ -149,7 +149,14 @@ class XmlBodyMiddleware(wsgi.Middleware):
         incoming_xml = 'application/xml' in str(request.content_type)
         if incoming_xml and request.body:
             request.content_type = 'application/json'
-            request.body = jsonutils.dumps(serializer.from_xml(request.body))
+            try:
+                request.body = jsonutils.dumps(
+                    serializer.from_xml(request.body))
+            except Exception:
+                LOG.exception('Serializer failed')
+                e = exception.ValidationError(attribute='valid XML',
+                                              target='request body')
+                return wsgi.render_exception(e)
 
     def process_response(self, request, response):
         """Transform the response from JSON to XML."""
