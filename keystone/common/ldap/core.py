@@ -496,19 +496,20 @@ class EnabledEmuMixIn(BaseLdap):
             return bool(enabled_value)
 
     def _add_enabled(self, object_id):
-        conn = self.get_connection()
-        modlist = [(ldap.MOD_ADD,
-                    'member',
-                    [self._id_to_dn(object_id)])]
-        try:
-            conn.modify_s(self.enabled_emulation_dn, modlist)
-        except ldap.NO_SUCH_OBJECT:
-            attr_list = [('objectClass', ['groupOfNames']),
-                         ('member',
-                         [self._id_to_dn(object_id)])]
-            if self.use_dumb_member:
-                attr_list[1][1].append(self.dumb_member)
-            conn.add_s(self.enabled_emulation_dn, attr_list)
+        if not self._get_enabled(object_id):
+            conn = self.get_connection()
+            modlist = [(ldap.MOD_ADD,
+                        'member',
+                        [self._id_to_dn(object_id)])]
+            try:
+                conn.modify_s(self.enabled_emulation_dn, modlist)
+            except ldap.NO_SUCH_OBJECT:
+                attr_list = [('objectClass', ['groupOfNames']),
+                             ('member',
+                             [self._id_to_dn(object_id)])]
+                if self.use_dumb_member:
+                    attr_list[1][1].append(self.dumb_member)
+                conn.add_s(self.enabled_emulation_dn, attr_list)
 
     def _remove_enabled(self, object_id):
         conn = self.get_connection()
