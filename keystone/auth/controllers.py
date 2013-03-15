@@ -36,15 +36,6 @@ CONF = config.CONF
 AUTH_METHODS = {}
 
 
-# register method drivers
-for method_name in CONF.auth.methods:
-    try:
-        config.register_str(method_name, group='auth')
-    except Exception as e:
-        # don't care about duplicate error
-        LOG.warn(e)
-
-
 def load_auth_method(method_name):
     if method_name not in CONF.auth.methods:
         raise exception.AuthMethodNotSupported()
