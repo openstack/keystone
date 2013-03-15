@@ -298,7 +298,10 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         response, and asserted to be equal.
 
         """
-        entities = resp.body.get(key)
+        resp_body = resp.body
+        if resp.getheader('Content-Type') == 'application/xml':
+            resp_body = serializer.from_xml(etree.tostring(resp_body))
+        entities = resp_body.get(key)
         self.assertIsNotNone(entities)
 
         if expected_length is not None:
@@ -308,7 +311,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.assertTrue(len(entities))
 
         # collections should have relational links
-        self.assertValidListLinks(resp.body.get('links'))
+        self.assertValidListLinks(resp_body.get('links'))
 
         for entity in entities:
             self.assertIsNotNone(entity)

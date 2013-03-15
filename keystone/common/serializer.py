@@ -71,7 +71,35 @@ class XmlDeserializer(object):
     def __call__(self, xml_str):
         """Returns a dictionary populated by decoding the given xml string."""
         dom = etree.fromstring(xml_str.strip(), PARSER)
-        return self.walk_element(dom, True)
+        links_json = self._find_and_remove_links_from_root(dom, True)
+        obj_json = self.walk_element(dom, True)
+        if links_json:
+            obj_json['links'] = links_json['links']
+        return obj_json
+
+    def _deserialize_links(self, links, links_json):
+        for link in links:
+            links_json['links'][link.attrib['rel']] = link.attrib['href']
+
+    def _find_and_remove_links_from_root(self, dom, namespace):
+        """Special-case links element
+
+        If "links" is in the elements, convert it and remove it from root
+        element. "links" will be placed back into the root of the converted
+        JSON object.
+
+        """
+        for element in dom:
+            decoded_tag = XmlDeserializer._tag_name(element.tag, namespace)
+            if decoded_tag == 'links':
+                links_json = {'links': {}}
+                self._deserialize_links(element, links_json)
+                dom.remove(element)
+                # TODO(gyee): are 'next' and 'previous' mandatory? If so,
+                # setting them to None if they don't exist?
+                links_json['links'].setdefault('previous')
+                links_json['links'].setdefault('next')
+                return links_json
 
     @staticmethod
     def _tag_name(tag, namespace):
@@ -133,6 +161,12 @@ class XmlDeserializer(object):
             else:
                 list_item_tag = decoded_tag[:-1]
 
+        # links is a special dict
+        if decoded_tag == 'links':
+            links_json = {'links': {}}
+            self._deserialize_links(element, links_json)
+            return links_json
+
         for child in [self.walk_element(x) for x in element
                       if not isinstance(x, ENTITY_TYPE)]:
             if list_item_tag:
@@ -153,10 +187,17 @@ class XmlSerializer(object):
         Optionally, namespace the etree by specifying an ``xmlns``.
 
         """
+        links = None
         # FIXME(dolph): skipping links for now
         for key in d.keys():
             if '_links' in key:
                 d.pop(key)
+            # FIXME(gyee): special-case links in collections
+            if 'links' == key:
+                if links:
+                    # we have multiple links
+                    raise Exception('Multiple links found')
+                links = d.pop(key)
 
         assert len(d.keys()) == 1, ('Cannot encode more than one root '
                                     'element: %s' % d.keys())
@@ -175,8 +216,22 @@ class XmlSerializer(object):
 
         self.populate_element(root, d[name])
 
+        # FIXME(gyee): special-case links for now
+        if links:
+            self._populate_links(root, links)
+
         # TODO(dolph): you can get a doctype from lxml, using ElementTrees
         return '%s\n%s' % (DOCTYPE, etree.tostring(root, pretty_print=True))
+
+    def _populate_links(self, element, links_json):
+        links = etree.Element('links')
+        for k, v in links_json.iteritems():
+            if v:
+                link = etree.Element('link')
+                link.set('rel', unicode(k))
+                link.set('href', unicode(v))
+                links.append(link)
+        element.append(links)
 
     def _populate_list(self, element, k, v):
         """Populates an element with a key & list value."""
@@ -219,9 +274,13 @@ class XmlSerializer(object):
 
     def _populate_dict(self, element, k, v):
         """Populates an element with a key & dictionary value."""
-        child = etree.Element(k)
-        self.populate_element(child, v)
-        element.append(child)
+        if k == 'links':
+            # links is a special dict
+            self._populate_links(element, v)
+        else:
+            child = etree.Element(k)
+            self.populate_element(child, v)
+            element.append(child)
 
     def _populate_bool(self, element, k, v):
         """Populates an element with a key & boolean value."""

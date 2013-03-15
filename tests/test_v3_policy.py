@@ -30,6 +30,11 @@ class PolicyTestCase(test_v3.RestfulTestCase):
         r = self.get('/policies')
         self.assertValidPolicyListResponse(r, ref=self.policy)
 
+    def test_list_policies_xml(self):
+        """GET /policies (xml data)"""
+        r = self.get('/policies', content_type='xml')
+        self.assertValidPolicyListResponse(r, ref=self.policy)
+
     def test_get_policy(self):
         """GET /policies/{policy_id}"""
         r = self.get(

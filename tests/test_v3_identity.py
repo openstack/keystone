@@ -55,6 +55,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get('/domains')
         self.assertValidDomainListResponse(r, ref=self.domain)
 
+    def test_list_domains_xml(self):
+        """GET /domains (xml data)"""
+        r = self.get('/domains', content_type='xml')
+        self.assertValidDomainListResponse(r, ref=self.domain)
+
     def test_get_domain(self):
         """GET /domains/{domain_id}"""
         r = self.get('/domains/%(domain_id)s' % {
@@ -105,6 +110,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get('/projects')
         self.assertValidProjectListResponse(r, ref=self.project)
 
+    def test_list_projects_xml(self):
+        """GET /projects (xml data)"""
+        r = self.get('/projects', content_type='xml')
+        self.assertValidProjectListResponse(r, ref=self.project)
+
     def test_create_project(self):
         """POST /projects"""
         ref = self.new_project_ref(domain_id=self.domain_id)
@@ -149,6 +159,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_users(self):
         """GET /users"""
         r = self.get('/users')
+        self.assertValidUserListResponse(r, ref=self.user)
+
+    def test_list_users_xml(self):
+        """GET /users (xml data)"""
+        r = self.get('/users', content_type='xml')
         self.assertValidUserListResponse(r, ref=self.user)
 
     def test_get_user(self):
@@ -215,6 +230,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get('/groups')
         self.assertValidGroupListResponse(r, ref=self.group)
 
+    def test_list_groups_xml(self):
+        """GET /groups (xml data)"""
+        r = self.get('/groups', content_type='xml')
+        self.assertValidGroupListResponse(r, ref=self.group)
+
     def test_get_group(self):
         """GET /groups/{group_id}"""
         r = self.get('/groups/%(group_id)s' % {
@@ -240,6 +260,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_credentials(self):
         """GET /credentials"""
         r = self.get('/credentials')
+        self.assertValidCredentialListResponse(r, ref=self.credential)
+
+    def test_list_credentials_xml(self):
+        """GET /credentials (xml data)"""
+        r = self.get('/credentials', content_type='xml')
         self.assertValidCredentialListResponse(r, ref=self.credential)
 
     def test_create_credential(self):
@@ -288,6 +313,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_roles(self):
         """GET /roles"""
         r = self.get('/roles')
+        self.assertValidRoleListResponse(r, ref=self.role)
+
+    def test_list_roles_xml(self):
+        """GET /roles (xml data)"""
+        r = self.get('/roles', content_type='xml')
         self.assertValidRoleListResponse(r, ref=self.role)
 
     def test_get_role(self):

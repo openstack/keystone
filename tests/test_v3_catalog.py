@@ -38,6 +38,11 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         r = self.get('/services')
         self.assertValidServiceListResponse(r, ref=self.service)
 
+    def test_list_services_xml(self):
+        """GET /services (xml data)"""
+        r = self.get('/services', content_type='xml')
+        self.assertValidServiceListResponse(r, ref=self.service)
+
     def test_get_service(self):
         """GET /services/{service_id}"""
         r = self.get('/services/%(service_id)s' % {
@@ -63,6 +68,11 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_list_endpoints(self):
         """GET /endpoints"""
         r = self.get('/endpoints')
+        self.assertValidEndpointListResponse(r, ref=self.endpoint)
+
+    def test_list_endpoints_xml(self):
+        """GET /endpoints (xml data)"""
+        r = self.get('/endpoints', content_type='xml')
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
 
     def test_create_endpoint(self):
