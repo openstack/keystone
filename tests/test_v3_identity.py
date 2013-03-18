@@ -16,6 +16,8 @@
 
 import uuid
 
+from keystone import exception
+
 import test_v3
 
 
@@ -98,10 +100,95 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # TODO(dolph): assert that v2 & v3 auth return 401
 
-    def test_delete_domain(self):
-        """DELETE /domains/{domain_id}"""
+    def test_delete_enabled_domain_fails(self):
+        """DELETE /domains/{domain_id}...(when domain enabled)"""
+
+        # Try deleting an enabled domain, which should fail
         self.delete('/domains/%(domain_id)s' % {
-            'domain_id': self.domain_id})
+            'domain_id': self.domain['id']},
+            expected_status=exception.ForbiddenAction.code)
+
+    def test_delete_domain(self):
+        """DELETE /domains/{domain_id}
+
+        The sample data set up already has a user, group, project
+        and credential that is part of self.domain. Since the user
+        we will authenticate with is in this domain, we create a
+        another set of entities in a second domain.  Deleting this
+        second domain should delete all these new entities. In addition,
+        all the entities in the regular self.domain should be unaffected
+        by the delete.
+
+        Test Plan:
+        - Create domain2 and a 2nd set of entities
+        - Disable domain2
+        - Delete domain2
+        - Check entities in domain2 have been deleted
+        - Check entities in self.domain are unaffected
+
+        """
+        # Create a 2nd set of entities in a 2nd domain
+        self.domain2 = self.new_domain_ref()
+        self.identity_api.create_domain(self.domain2['id'], self.domain2)
+
+        self.project2 = self.new_project_ref(
+            domain_id=self.domain2['id'])
+        self.identity_api.create_project(self.project2['id'], self.project2)
+
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain2['id'],
+            project_id=self.project2['id'])
+        self.identity_api.create_user(self.user2['id'], self.user2)
+
+        self.group2 = self.new_group_ref(
+            domain_id=self.domain2['id'])
+        self.identity_api.create_group(self.group2['id'], self.group2)
+
+        self.credential2 = self.new_credential_ref(
+            user_id=self.user2['id'],
+            project_id=self.project2['id'])
+        self.identity_api.create_credential(
+            self.credential2['id'],
+            self.credential2)
+
+        # Now disable the new domain and delete it
+        self.domain2['enabled'] = False
+        r = self.patch('/domains/%(domain_id)s' % {
+            'domain_id': self.domain2['id']},
+            body={'domain': {'enabled': False}})
+        self.assertValidDomainResponse(r, self.domain2)
+        self.delete('/domains/%(domain_id)s' % {
+            'domain_id': self.domain2['id']})
+
+        # Check all the domain2 relevant entities are gone
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.get_domain,
+                          domain_id=self.domain2['id'])
+        self.assertRaises(exception.ProjectNotFound,
+                          self.identity_api.get_project,
+                          tenant_id=self.project2['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group,
+                          group_id=self.group2['id'])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          user_id=self.user2['id'])
+        self.assertRaises(exception.CredentialNotFound,
+                          self.identity_api.get_credential,
+                          credential_id=self.credential2['id'])
+
+        # ...and that all self.domain entities are still here
+        r = self.identity_api.get_domain(self.domain['id'])
+        self.assertDictEqual(r, self.domain)
+        r = self.identity_api.get_project(self.project['id'])
+        self.assertDictEqual(r, self.project)
+        r = self.identity_api.get_group(self.group['id'])
+        self.assertDictEqual(r, self.group)
+        r = self.identity_api.get_user(self.user['id'])
+        self.user.pop('password')
+        self.assertDictEqual(r, self.user)
+        r = self.identity_api.get_credential(self.credential['id'])
+        self.assertDictEqual(r, self.credential)
 
     # project crud tests
 
@@ -141,10 +228,40 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidProjectResponse(r, ref)
 
     def test_delete_project(self):
-        """DELETE /projects/{project_id}"""
+        """DELETE /projects/{project_id}
+
+        As well as making sure the delete succeeds, we ensure
+        that any credentials that reference this projects are
+        also deleted, while other credentials are unaffected.
+
+        """
+        # First check the credential for this project is present
+        r = self.identity_api.get_credential(self.credential['id'])
+        self.assertDictEqual(r, self.credential)
+        # Create a second credential with a different project
+        self.project2 = self.new_project_ref(
+            domain_id=self.domain['id'])
+        self.identity_api.create_project(self.project2['id'], self.project2)
+        self.credential2 = self.new_credential_ref(
+            user_id=self.user['id'],
+            project_id=self.project2['id'])
+        self.identity_api.create_credential(
+            self.credential2['id'],
+            self.credential2)
+
+        # Now delete the project
         self.delete(
             '/projects/%(project_id)s' % {
                 'project_id': self.project_id})
+
+        # Deleting the project should have deleted any credentials
+        # that reference this project
+        self.assertRaises(exception.CredentialNotFound,
+                          self.identity_api.get_credential,
+                          credential_id=self.credential['id'])
+        # But the credential for project2 is unaffected
+        r = self.identity_api.get_credential(self.credential2['id'])
+        self.assertDictEqual(r, self.credential2)
 
     # user crud tests
 
@@ -211,9 +328,56 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidUserResponse(r, user)
 
     def test_delete_user(self):
-        """DELETE /users/{user_id}"""
+        """DELETE /users/{user_id}
+
+        As well as making sure the delete succeeds, we ensure
+        that any credentials that reference this user are
+        also deleted, while other credentials are unaffected.
+        In addition, no tokens should remain valid for this user.
+
+        """
+        # First check the credential for this user is present
+        r = self.identity_api.get_credential(self.credential['id'])
+        self.assertDictEqual(r, self.credential)
+        # Create a second credential with a different user
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain['id'],
+            project_id=self.project['id'])
+        self.identity_api.create_user(self.user2['id'], self.user2)
+        self.credential2 = self.new_credential_ref(
+            user_id=self.user2['id'],
+            project_id=self.project['id'])
+        self.identity_api.create_credential(
+            self.credential2['id'],
+            self.credential2)
+        # Create a token for this user which we can check later
+        # gets deleted
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.getheader('X-Subject-Token')
+        # Confirm token is valid for now
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=204)
+
+        # Now delete the user
         self.delete('/users/%(user_id)s' % {
             'user_id': self.user['id']})
+
+        # Deleting the user should have deleted any credentials
+        # that reference this project
+        self.assertRaises(exception.CredentialNotFound,
+                          self.identity_api.get_credential,
+                          credential_id=self.credential['id'])
+        # And the no tokens we remain valid
+        tokens = self.token_api.list_tokens(self.user['id'])
+        self.assertEquals(len(tokens), 0)
+        # But the credential for user2 is unaffected
+        r = self.identity_api.get_credential(self.credential2['id'])
+        self.assertDictEqual(r, self.credential2)
 
     # group crud tests
 
