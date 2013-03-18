@@ -13,15 +13,14 @@
 # under the License.
 
 import json
-import nose.exc
 import uuid
 
+import nose.exc
 
 from keystone.common import cms
 from keystone import auth
 from keystone import config
 from keystone import exception
-from keystone import test
 
 import test_v3
 
@@ -588,6 +587,56 @@ class TestAuthJSON(test_v3.RestfulTestCase):
             project_id=self.project['id'])
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectScopedTokenResponse(r)
+
+    def test_default_project_id_scoped_token_with_user_id(self):
+        # create a second project to work with
+        ref = self.new_project_ref(domain_id=self.domain_id)
+        r = self.post('/projects', body={'project': ref})
+        project = self.assertValidProjectResponse(r, ref)
+
+        # grant the user a role on the project
+        self.put(
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'user_id': self.user['id'],
+                'project_id': project['id'],
+                'role_id': self.role['id']})
+
+        # set the user's preferred project
+        body = {'user': {'default_project_id': project['id']}}
+        r = self.patch('/users/%(user_id)s' % {
+            'user_id': self.user['id']},
+            body=body)
+        self.assertValidUserResponse(r)
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectScopedTokenResponse(r)
+        self.assertEqual(r.body['token']['project']['id'], project['id'])
+
+    def test_default_project_id_scoped_token_with_user_id_401(self):
+        # create a second project to work with
+        ref = self.new_project_ref(domain_id=self.domain['id'])
+        del ref['id']
+        r = self.post('/projects', body={'project': ref})
+        project = self.assertValidProjectResponse(r, ref)
+
+        # set the user's preferred project without having authz on that project
+        body = {'user': {'default_project_id': project['id']}}
+        r = self.patch('/users/%(user_id)s' % {
+            'user_id': self.user['id']},
+            body=body)
+        self.assertValidUserResponse(r)
+
+        # attempt to authenticate without requesting a project
+        # the default_project_id should be the assumed scope of the request,
+        # and fail because the user doesn't have explicit authz on that scope
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
 
     def test_project_id_scoped_token_with_user_id_401(self):
         project_id = uuid.uuid4().hex

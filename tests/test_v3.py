@@ -175,6 +175,17 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
         return ref
 
+    def admin_request(self, *args, **kwargs):
+        """Translates XML responses to dicts.
+
+        This implies that we only have to write assertions for JSON.
+
+        """
+        r = super(RestfulTestCase, self).admin_request(*args, **kwargs)
+        if r.getheader('Content-Type') == 'application/xml':
+            r.body = serializer.from_xml(etree.tostring(r.body))
+        return r
+
     def get_scoped_token(self):
         """Convenience method so that we can test authenticated requests."""
         r = self.admin_request(
@@ -223,10 +234,8 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             if not token:
                 token = self.get_scoped_token()
         path = '/v3' + path
-        return self.admin_request(
-            path=path,
-            token=token,
-            **kwargs)
+
+        return self.admin_request(path=path, token=token, **kwargs)
 
     def get(self, path, **kwargs):
         r = self.v3_request(method='GET', path=path, **kwargs)
@@ -300,10 +309,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         response, and asserted to be equal.
 
         """
-        resp_body = resp.body
-        if resp.getheader('Content-Type') == 'application/xml':
-            resp_body = serializer.from_xml(etree.tostring(resp_body))
-        entities = resp_body.get(key)
+        entities = resp.body.get(key)
         self.assertIsNotNone(entities)
 
         if expected_length is not None:
@@ -313,7 +319,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.assertTrue(len(entities))
 
         # collections should have relational links
-        self.assertValidListLinks(resp_body.get('links'))
+        self.assertValidListLinks(resp.body.get('links'))
 
         for entity in entities:
             self.assertIsNotNone(entity)
@@ -370,11 +376,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
     def assertValidTokenResponse(self, r, user=None):
         self.assertTrue(r.getheader('X-Subject-Token'))
-        token = r.body
-        if r.getheader('Content-Type') == 'application/xml':
-            token = serializer.from_xml(etree.tostring(r.body))['token']
-        else:
-            token = r.body['token']
+        token = r.body['token']
 
         self.assertIsNotNone(token.get('expires_at'))
         expires_at = self.assertValidISO8601ExtendedFormatDatetime(
