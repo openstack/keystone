@@ -71,35 +71,10 @@ class XmlDeserializer(object):
     def __call__(self, xml_str):
         """Returns a dictionary populated by decoding the given xml string."""
         dom = etree.fromstring(xml_str.strip(), PARSER)
-        links_json = self._find_and_remove_links_from_root(dom, True)
-        obj_json = self.walk_element(dom, True)
-        if links_json:
-            obj_json['links'] = links_json['links']
-        return obj_json
+        return self.walk_element(dom, True)
 
-    def _deserialize_links(self, links, links_json):
-        for link in links:
-            links_json['links'][link.attrib['rel']] = link.attrib['href']
-
-    def _find_and_remove_links_from_root(self, dom, namespace):
-        """Special-case links element
-
-        If "links" is in the elements, convert it and remove it from root
-        element. "links" will be placed back into the root of the converted
-        JSON object.
-
-        """
-        for element in dom:
-            decoded_tag = XmlDeserializer._tag_name(element.tag, namespace)
-            if decoded_tag == 'links':
-                links_json = {'links': {}}
-                self._deserialize_links(element, links_json)
-                dom.remove(element)
-                # TODO(gyee): are 'next' and 'previous' mandatory? If so,
-                # setting them to None if they don't exist?
-                links_json['links'].setdefault('previous')
-                links_json['links'].setdefault('next')
-                return links_json
+    def _deserialize_links(self, links):
+        return dict((x.attrib['rel'], x.attrib['href']) for x in links)
 
     @staticmethod
     def _tag_name(tag, namespace):
@@ -161,23 +136,31 @@ class XmlDeserializer(object):
             else:
                 list_item_tag = decoded_tag[:-1]
 
-        # links is a special dict
         if decoded_tag == 'links':
-            links_json = {'links': {}}
-            self._deserialize_links(element, links_json)
-            return links_json
+            return {'links': self._deserialize_links(element)}
 
+        links = None
         for child in [self.walk_element(x) for x in element
                       if not isinstance(x, ENTITY_TYPE)]:
             if list_item_tag:
-                # FIXME(gyee): special-case lists for now unti we
+                # FIXME(gyee): special-case lists for now until we
                 # figure out how to properly handle them.
                 # If any key ends with an 's', we are assuming it is a list.
-                values.append(child[list_item_tag])
+                if list_item_tag in child:
+                    values.append(child[list_item_tag])
+                else:
+                    links = child['links']
             else:
                 values = dict(values.items() + child.items())
 
-        return {XmlDeserializer._tag_name(element.tag, namespace): values}
+        d = {XmlDeserializer._tag_name(element.tag, namespace): values}
+
+        if links:
+            d['links'] = links
+            d['links'].setdefault('next')
+            d['links'].setdefault('previous')
+
+        return d
 
 
 class XmlSerializer(object):

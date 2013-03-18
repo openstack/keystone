@@ -15,43 +15,51 @@
 # under the License.
 
 import copy
-import re
+import StringIO
+
+from lxml import etree
 
 from keystone.common import serializer
 from keystone import test
 
 
 class XmlSerializerTestCase(test.TestCase):
-    def assertEqualIgnoreWhitespace(self, a, b):
-        """Splits two strings into lists and compares them.
+    def assertEqualXML(self, a, b):
+        """Parses two XML documents from strings and compares the results.
 
         This provides easy-to-read failures from nose.
 
         """
-        try:
-            self.assertEqual(a, b)
-        except AssertionError:
-            a = re.sub('[ \n]+', ' ', a).strip().split()
-            b = re.sub('[ \n]+', ' ', b).strip().split()
-            self.assertEqual(a, b)
+        parser = etree.XMLParser(remove_blank_text=True)
+
+        def canonical_xml(s):
+            s = s.strip()
+
+            fp = StringIO.StringIO()
+            dom = etree.fromstring(s, parser)
+            dom.getroottree().write_c14n(fp)
+            s = fp.getvalue()
+
+            dom = etree.fromstring(s, parser)
+            return etree.tostring(dom, pretty_print=True)
+
+        a = canonical_xml(a)
+        b = canonical_xml(b)
+        self.assertEqual(a.split('\n'), b.split('\n'))
 
     def assertSerializeDeserialize(self, d, xml, xmlns=None):
-        self.assertEqualIgnoreWhitespace(serializer.to_xml(d, xmlns), xml)
+        self.assertEqualXML(
+            serializer.to_xml(copy.deepcopy(d), xmlns),
+            xml)
         self.assertEqual(serializer.from_xml(xml), d)
 
-        # operations should be invertable
+        # operations should be invertible
         self.assertEqual(
-            serializer.from_xml(serializer.to_xml(d, xmlns)),
+            serializer.from_xml(serializer.to_xml(copy.deepcopy(d), xmlns)),
             d)
-        self.assertEqualIgnoreWhitespace(
+        self.assertEqualXML(
             serializer.to_xml(serializer.from_xml(xml), xmlns),
             xml)
-
-    def test_none(self):
-        d = None
-        xml = None
-
-        self.assertSerializeDeserialize(d, xml)
 
     def test_auth_request(self):
         d = {
@@ -155,7 +163,7 @@ class XmlSerializerTestCase(test.TestCase):
                 <policy id="ab12cd"/>
             </policies>
         """
-        self.assertEqualIgnoreWhitespace(serializer.to_xml(d), xml)
+        self.assertEqualXML(serializer.to_xml(d), xml)
 
     def test_values_list(self):
         d = {
@@ -176,7 +184,7 @@ class XmlSerializerTestCase(test.TestCase):
             </objects>
         """
 
-        self.assertEqualIgnoreWhitespace(serializer.to_xml(d), xml)
+        self.assertEqualXML(serializer.to_xml(d), xml)
 
     def test_collection_list(self):
         d = {
@@ -222,6 +230,26 @@ class XmlSerializerTestCase(test.TestCase):
                 </links>
             </objects>
         """
-        self.assertEqualIgnoreWhitespace(
-            serializer.to_xml(copy.deepcopy(d)), xml)
-        self.assertDictEqual(serializer.from_xml(xml), d)
+        self.assertSerializeDeserialize(d, xml)
+
+    def test_collection_member(self):
+        d = {
+            "object": {
+                "attribute": "value",
+                "links": {
+                    "self": "http://localhost:5000/v3/objects/abc123def",
+                    "anotherobj": "http://localhost:5000/v3/anotherobjs/123"}}}
+
+        xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <object xmlns="http://docs.openstack.org/identity/api/v2.0"
+                attribute="value">
+                    <links>
+                        <link rel="self"
+                            href="http://localhost:5000/v3/objects/abc123def"/>
+                        <link rel="anotherobj"
+                            href="http://localhost:5000/v3/anotherobjs/123"/>
+                    </links>
+            </object>
+        """
+        self.assertSerializeDeserialize(d, xml)

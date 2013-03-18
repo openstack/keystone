@@ -190,6 +190,9 @@ class TestCase(NoModule, unittest.TestCase):
         self._overrides = []
         self._group_overrides = {}
 
+        # show complete diffs on failure
+        self.maxDiff = None
+
     def setUp(self):
         super(TestCase, self).setUp()
         self.config([etcdir('keystone.conf.sample'),
