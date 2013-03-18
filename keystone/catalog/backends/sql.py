@@ -36,8 +36,10 @@ class Service(sql.ModelBase, sql.DictBase):
 
 class Endpoint(sql.ModelBase, sql.DictBase):
     __tablename__ = 'endpoint'
-    attributes = ['id', 'interface', 'region', 'service_id', 'url']
+    attributes = ['id', 'interface', 'region', 'service_id', 'url',
+                  'legacy_endpoint_id']
     id = sql.Column(sql.String(64), primary_key=True)
+    legacy_endpoint_id = sql.Column(sql.String(64))
     interface = sql.Column(sql.String(8), primary_key=True)
     region = sql.Column('region', sql.String(255))
     service_id = sql.Column(sql.String(64),

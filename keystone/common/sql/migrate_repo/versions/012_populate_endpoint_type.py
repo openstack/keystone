@@ -64,8 +64,13 @@ def downgrade(migrate_engine):
 
     session = orm.sessionmaker(bind=migrate_engine)()
     for ref in session.query(new_table).all():
+        extra = json.loads(ref.extra)
+        legacy_id = ref.legacy_endpoint_id or extra.get('legacy_endpoint_id')
+        if not legacy_id:
+            continue
+
         q = session.query(legacy_table)
-        q = q.filter_by(id=ref.legacy_endpoint_id)
+        q = q.filter_by(id=legacy_id)
         legacy_ref = q.first()
         if legacy_ref:
             # We already have one, so just update the extra
@@ -83,7 +88,7 @@ def downgrade(migrate_engine):
             extra = json.loads(ref.extra)
             extra['%surl' % ref.interface] = ref.url
             endpoint = {
-                'id': ref.legacy_endpoint_id,
+                'id': legacy_id,
                 'region': ref.region,
                 'service_id': ref.service_id,
                 'extra': json.dumps(extra),
