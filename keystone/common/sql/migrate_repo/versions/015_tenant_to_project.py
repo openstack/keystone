@@ -58,8 +58,8 @@ def upgrade_with_copy(meta, migrate_engine):
                                              meta,
                                              autoload=True)
     insert = user_project_membership_table.insert()
-    for membership in session.query(user_tenant_membership_table):
-        insert.execute(membership)
+    for user_id, tenant_id in session.query(user_tenant_membership_table):
+        insert.execute({'user_id': user_id, 'tenant_id': tenant_id})
 
     session.commit()
     session.close()
