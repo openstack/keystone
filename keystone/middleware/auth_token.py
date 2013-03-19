@@ -383,26 +383,36 @@ class AuthProtocol(object):
                                           self.key_file,
                                           self.cert_file)
 
-    def _http_request(self, method, path):
+    def _http_request(self, method, path, **kwargs):
         """HTTP request helper used to make unspecified content type requests.
 
         :param method: http method
         :param path: relative request url
-        :return (http response object)
+        :return (http response object, response body)
         :raise ServerError when unable to communicate with keystone
 
         """
         conn = self._get_http_connection()
 
-        try:
-            conn.request(method, path)
-            response = conn.getresponse()
-            body = response.read()
-        except Exception, e:
-            LOG.error('HTTP connection exception: %s' % e)
-            raise ServiceError('Unable to communicate with keystone')
-        finally:
-            conn.close()
+        RETRIES = 3
+        retry = 0
+
+        while True:
+            try:
+                conn.request(method, path, **kwargs)
+                response = conn.getresponse()
+                body = response.read()
+                break
+            except Exception as e:
+                if retry == RETRIES:
+                    LOG.error('HTTP connection exception: %s' % e)
+                    raise ServiceError('Unable to communicate with keystone')
+                # NOTE(vish): sleep 0.5, 1, 2
+                LOG.warn('Retrying on HTTP connection exception: %s' % e)
+                time.sleep(2.0 ** retry / 2)
+                retry += 1
+            finally:
+                conn.close()
 
         return response, body
 
@@ -418,8 +428,6 @@ class AuthProtocol(object):
         :raise ServerError when unable to communicate with keystone
 
         """
-        conn = self._get_http_connection()
-
         kwargs = {
             'headers': {
                 'Content-type': 'application/json',
@@ -433,16 +441,9 @@ class AuthProtocol(object):
         if body:
             kwargs['body'] = jsonutils.dumps(body)
 
-        full_path = self.auth_admin_prefix + path
-        try:
-            conn.request(method, full_path, **kwargs)
-            response = conn.getresponse()
-            body = response.read()
-        except Exception, e:
-            LOG.error('HTTP connection exception: %s' % e)
-            raise ServiceError('Unable to communicate with keystone')
-        finally:
-            conn.close()
+        path = self.auth_admin_prefix + path
+
+        response, body = self._http_request(method, path, **kwargs)
 
         try:
             data = jsonutils.loads(body)
