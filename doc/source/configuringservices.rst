@@ -192,7 +192,7 @@ Here is an example paste config filter that makes use of the 'admin_user' and
 'admin_password' parameters::
 
     [filter:authtoken]
-    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
     auth_port = 35357
     auth_host = 127.0.0.1
     auth_token = 012345SECRET99TOKEN012345
@@ -208,7 +208,7 @@ The auth_token middleware can also be configured in nova.conf
 parameters::
 
     [filter:authtoken]
-    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
 
 and in nova.conf::
 
