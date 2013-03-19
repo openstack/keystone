@@ -16,11 +16,11 @@
 
 import webob.dec
 
+from keystone.common import config
 from keystone.common import logging
 from keystone.common import serializer
 from keystone.common import utils
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
 
