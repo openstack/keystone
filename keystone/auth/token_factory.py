@@ -228,7 +228,7 @@ def recreate_token_data(context, token_data=None, expires=None,
         methods = token_data['methods']
         extras = token_data['extras']
     else:
-        project_id = project_ref['id']
+        project_id = project_ref['id'] if project_ref else None
         user_id = user_ref['id']
     token_data_helper = TokenDataHelper(context)
     return token_data_helper.get_token_data(user_id,

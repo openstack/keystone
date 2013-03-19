@@ -113,6 +113,50 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
                                           CONF.signing.keyfile)
         self.assertEqual(token_signed, token_id)
 
+    def test_v3_v2_unscoped_uuid_token_intermix(self):
+        self.opt_in_group('signing', token_format='UUID')
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token_data = resp.body
+        token = resp.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET')
+        v2_token = resp.body
+        self.assertEqual(v2_token['access']['user']['id'],
+                         token_data['token']['user']['id'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token['access']['token']['expires'][:-1],
+                      token_data['token']['expires_at'])
+
+    def test_v3_v2_unscoped_pki_token_intermix(self):
+        self.opt_in_group('signing', token_format='PKI')
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token_data = resp.body
+        token = resp.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET')
+        v2_token = resp.body
+        self.assertEqual(v2_token['access']['user']['id'],
+                         token_data['token']['user']['id'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token['access']['token']['expires'][:-1],
+                      token_data['token']['expires_at'])
+
     def test_v3_v2_uuid_token_intermix(self):
         # FIXME(gyee): PKI tokens are not interchangeable because token
         # data is baked into the token itself.
@@ -166,6 +210,54 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
                       token_data['token']['expires_at'])
         self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
                          token_data['token']['roles'][0]['id'])
+
+    def test_v2_v3_unscoped_uuid_token_intermix(self):
+        self.opt_in_group('signing', token_format='UUID')
+        body = {
+            'auth': {
+                'passwordCredentials': {
+                    'userId': self.user['id'],
+                    'password': self.user['password']
+                }
+            }}
+        resp = self.admin_request(path='/v2.0/tokens',
+                                  method='POST',
+                                  body=body)
+        v2_token_data = resp.body
+        v2_token = v2_token_data['access']['token']['id']
+        headers = {'X-Subject-Token': v2_token}
+        resp = self.get('/auth/tokens', headers=headers)
+        token_data = resp.body
+        self.assertEqual(v2_token_data['access']['user']['id'],
+                         token_data['token']['user']['id'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token_data['access']['token']['expires'][-1],
+                      token_data['token']['expires_at'])
+
+    def test_v2_v3_unscoped_pki_token_intermix(self):
+        self.opt_in_group('signing', token_format='PKI')
+        body = {
+            'auth': {
+                'passwordCredentials': {
+                    'userId': self.user['id'],
+                    'password': self.user['password']
+                }
+            }}
+        resp = self.admin_request(path='/v2.0/tokens',
+                                  method='POST',
+                                  body=body)
+        v2_token_data = resp.body
+        v2_token = v2_token_data['access']['token']['id']
+        headers = {'X-Subject-Token': v2_token}
+        resp = self.get('/auth/tokens', headers=headers)
+        token_data = resp.body
+        self.assertEqual(v2_token_data['access']['user']['id'],
+                         token_data['token']['user']['id'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token_data['access']['token']['expires'][-1],
+                      token_data['token']['expires_at'])
 
     def test_v2_v3_uuid_token_intermix(self):
         self.opt_in_group('signing', token_format='UUID')
