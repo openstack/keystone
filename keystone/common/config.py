@@ -344,6 +344,8 @@ def configure():
     register_bool('domain_allow_create', group='ldap', default=True)
     register_bool('domain_allow_update', group='ldap', default=True)
     register_bool('domain_allow_delete', group='ldap', default=True)
+    register_bool('domain_enabled_emulation', group='ldap', default=False)
+    register_str('domain_enabled_emulation_dn', group='ldap', default=None)
 
     # pam
     register_str('url', group='pam', default=None)

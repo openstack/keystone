@@ -928,7 +928,8 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
         return users
 
 
-class DomainApi(common_ldap.BaseLdap, ApiShimMixin):
+class DomainApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
+                ApiShimMixin):
     DEFAULT_OU = 'ou=Domains'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'

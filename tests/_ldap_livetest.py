@@ -69,7 +69,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                       'ou': 'Projects'})
         create_object(CONF.ldap.domain_tree_dn,
                       {'objectclass': 'organizationalUnit',
-                      'ou': 'Domain'})
+                      'ou': 'Domains'})
         create_object(CONF.ldap.group_tree_dn,
                       {'objectclass': 'organizationalUnit',
                       'ou': 'UserGroups'})
