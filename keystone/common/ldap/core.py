@@ -421,9 +421,9 @@ class LdapWrapper(object):
                     # Exit condition no more data on server
                     break
             else:
-                LOG.warning(_('LDAP Server does not support paging.'
-                              'Disable paging in keystone.conf to'
-                              'avoid this message'))
+                LOG.warning(_('LDAP Server does not support paging. '
+                              'Disable paging in keystone.conf to '
+                              'avoid this message.'))
                 self._disable_paging()
                 break
         return res
