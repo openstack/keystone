@@ -277,6 +277,7 @@ class Auth(controller.V3Controller):
     def __init__(self, *args, **kw):
         super(Auth, self).__init__(*args, **kw)
         self.token_controllers_ref = token.controllers.Auth()
+        config.setup_authentication()
 
     def authenticate_for_token(self, context, auth=None):
         """ Authenticate user and issue a token. """

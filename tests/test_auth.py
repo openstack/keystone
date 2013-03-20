@@ -789,3 +789,11 @@ class TokenExpirationTest(AuthTest):
     def test_maintain_uuid_token_expiration(self):
         self.opt_in_group('signing', token_format='UUID')
         self._maintain_token_expiration()
+
+
+class NonDefaultAuthTest(test.TestCase):
+
+    def test_add_non_default_auth_method(self):
+        self.opt_in_group('auth', methods=['password', 'token', 'custom'])
+        config.setup_authentication()
+        self.assertTrue(hasattr(CONF.auth, 'custom'))
