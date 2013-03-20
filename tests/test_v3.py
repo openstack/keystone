@@ -15,6 +15,7 @@ import test_content_types
 
 
 CONF = config.CONF
+DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -56,6 +57,21 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.user['id'] = self.user_id
             self.identity_api.create_user(self.user_id, self.user)
 
+            self.default_domain_project_id = uuid.uuid4().hex
+            self.default_domain_project = self.new_project_ref(
+                domain_id=DEFAULT_DOMAIN_ID)
+            self.default_domain_project['id'] = self.default_domain_project_id
+            self.identity_api.create_project(self.default_domain_project_id,
+                                             self.default_domain_project)
+
+            self.default_domain_user_id = uuid.uuid4().hex
+            self.default_domain_user = self.new_user_ref(
+                domain_id=DEFAULT_DOMAIN_ID,
+                project_id=self.default_domain_project_id)
+            self.default_domain_user['id'] = self.default_domain_user_id
+            self.identity_api.create_user(self.default_domain_user_id,
+                                          self.default_domain_user)
+
             # create & grant policy.json's default role for admin_required
             self.role_id = uuid.uuid4().hex
             self.role = self.new_role_ref()
@@ -64,6 +80,12 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.identity_api.create_role(self.role_id, self.role)
             self.identity_api.add_role_to_user_and_project(
                 self.user_id, self.project_id, self.role_id)
+            self.identity_api.add_role_to_user_and_project(
+                self.default_domain_user_id, self.default_domain_project_id,
+                self.role_id)
+            self.identity_api.add_role_to_user_and_project(
+                self.default_domain_user_id, self.project_id,
+                self.role_id)
 
         self.public_server = self.serveapp('keystone', name='main')
         self.admin_server = self.serveapp('keystone', name='admin')
