@@ -113,11 +113,64 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
                                           CONF.signing.keyfile)
         self.assertEqual(token_signed, token_id)
 
-    def test_v3_v2_unscoped_uuid_token_intermix(self):
+    def test_v3_v2_intermix_non_default_domain_failed(self):
         self.opt_in_group('signing', token_format='UUID')
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token_data = resp.body
+        token = resp.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
+    def test_v3_v2_intermix_domain_scoped_token_failed(self):
+        self.opt_in_group('signing', token_format='UUID')
+        # grant the domain role to user
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token_data = resp.body
+        token = resp.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
+    def test_v3_v2_intermix_non_default_project_failed(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.project['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token_data = resp.body
+        token = resp.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
+    def test_v3_v2_unscoped_uuid_token_intermix(self):
+        self.opt_in_group('signing', token_format='UUID')
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
         token_data = resp.body
         token = resp.getheader('X-Subject-Token')
@@ -138,8 +191,8 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
     def test_v3_v2_unscoped_pki_token_intermix(self):
         self.opt_in_group('signing', token_format='PKI')
         auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
         token_data = resp.body
         token = resp.getheader('X-Subject-Token')
@@ -162,9 +215,9 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         # data is baked into the token itself.
         self.opt_in_group('signing', token_format='UUID')
         auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project['id'])
         resp = self.post('/auth/tokens', body=auth_data)
         token_data = resp.body
         token = resp.getheader('X-Subject-Token')
@@ -189,9 +242,9 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         # data is baked into the token itself.
         self.opt_in_group('signing', token_format='PKI')
         auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project['id'])
         resp = self.post('/auth/tokens', body=auth_data)
         token_data = resp.body
         token = resp.getheader('X-Subject-Token')
@@ -1090,6 +1143,155 @@ class TestTrustAuth(TestAuthInfo):
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         self.post('/auth/tokens', body=auth_data, expected_status=401)
+
+    def test_v3_v2_intermix_trustor_not_in_default_domain_failed(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.default_domain_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+
+        r = self.post('/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectTrustScopedTokenResponse(
+            r, self.default_domain_user)
+
+        token = r.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
+    def test_v3_v2_intermix_trustor_not_in_default_domaini_failed(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.default_domain_user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.default_domain_project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project_id)
+        r = self.post('/auth/tokens', body=auth_data)
+        token = r.getheader('X-Subject-Token')
+
+        r = self.post('/trusts', body={'trust': ref}, token=token)
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectTrustScopedTokenResponse(
+            r, self.trustee_user)
+        token = r.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
+    def test_v3_v2_intermix_project_not_in_default_domaini_failed(self):
+        # create a trustee in default domain to delegate stuff to
+        trustee_user_id = uuid.uuid4().hex
+        trustee_user = self.new_user_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID)
+        trustee_user['id'] = trustee_user_id
+        self.identity_api.create_user(trustee_user_id, trustee_user)
+
+        ref = self.new_trust_ref(
+            trustor_user_id=self.default_domain_user_id,
+            trustee_user_id=trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project_id)
+        r = self.post('/auth/tokens', body=auth_data)
+        token = r.getheader('X-Subject-Token')
+
+        r = self.post('/trusts', body={'trust': ref}, token=token)
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectTrustScopedTokenResponse(
+            r, trustee_user)
+        token = r.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
+    def test_v3_v2_intermix(self):
+        # create a trustee in default domain to delegate stuff to
+        trustee_user_id = uuid.uuid4().hex
+        trustee_user = self.new_user_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID)
+        trustee_user['id'] = trustee_user_id
+        self.identity_api.create_user(trustee_user_id, trustee_user)
+
+        ref = self.new_trust_ref(
+            trustor_user_id=self.default_domain_user_id,
+            trustee_user_id=trustee_user_id,
+            project_id=self.default_domain_project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project_id)
+        r = self.post('/auth/tokens', body=auth_data)
+        token = r.getheader('X-Subject-Token')
+
+        r = self.post('/trusts', body={'trust': ref}, token=token)
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectTrustScopedTokenResponse(
+            r, trustee_user)
+        token = r.getheader('X-Subject-Token')
+
+        # now validate the v3 token with v2 API
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=200)
 
     def test_exercise_trust_scoped_token_without_impersonation(self):
         ref = self.new_trust_ref(
