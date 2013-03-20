@@ -79,26 +79,81 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_disable_domain(self):
         """PATCH /domains/{domain_id} (set enabled=False)"""
-        self.domain['enabled'] = False
+        # Create a 2nd set of entities in a 2nd domain
+        self.domain2 = self.new_domain_ref()
+        self.identity_api.create_domain(self.domain2['id'], self.domain2)
+
+        self.project2 = self.new_project_ref(
+            domain_id=self.domain2['id'])
+        self.identity_api.create_project(self.project2['id'], self.project2)
+
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain2['id'],
+            project_id=self.project2['id'])
+        self.identity_api.create_user(self.user2['id'], self.user2)
+
+        self.identity_api.add_user_to_project(self.project2['id'],
+                                              self.user2['id'])
+
+        # First check a user in that domain can authenticate, via
+        # Both v2 and v3
+        body = {
+            'auth': {
+                'passwordCredentials': {
+                    'userId': self.user2['id'],
+                    'password': self.user2['password']
+                },
+                'tenantId': self.project2['id']
+            }
+        }
+        resp = self.admin_request(path='/v2.0/tokens',
+                                  method='POST',
+                                  body=body)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'],
+            project_id=self.project2['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+
+        # Now disable the domain
+        self.domain2['enabled'] = False
         r = self.patch('/domains/%(domain_id)s' % {
-            'domain_id': self.domain_id},
+            'domain_id': self.domain2['id']},
             body={'domain': {'enabled': False}})
-        self.assertValidDomainResponse(r, self.domain)
+        self.assertValidDomainResponse(r, self.domain2)
 
-        # check that the project and user are still enabled
-        # FIXME(gyee): are these tests still valid since user should not
-        # be able to authenticate into a disabled domain
-        #r = self.get('/projects/%(project_id)s' % {
-        #    'project_id': self.project_id})
-        #self.assertValidProjectResponse(r, self.project)
-        #self.assertTrue(r.body['project']['enabled'])
+        # Make sure the user can no longer authenticate, via
+        # either API
+        body = {
+            'auth': {
+                'passwordCredentials': {
+                    'userId': self.user2['id'],
+                    'password': self.user2['password']
+                },
+                'tenantId': self.project2['id']
+            }
+        }
+        resp = self.admin_request(path='/v2.0/tokens',
+                                  method='POST',
+                                  body=body,
+                                  expected_status=401)
 
-        #r = self.get('/users/%(user_id)s' % {
-        #    'user_id': self.user['id']})
-        #self.assertValidUserResponse(r, self.user)
-        #self.assertTrue(r.body['user']['enabled'])
+        # Try looking up in v3 by name and id
+        auth_data = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'],
+            project_id=self.project2['id'])
+        resp = self.post('/auth/tokens', body=auth_data,
+                         expected_status=401)
 
-        # TODO(dolph): assert that v2 & v3 auth return 401
+        auth_data = self.build_authentication_request(
+            username=self.user2['name'],
+            user_domain_id=self.domain2['id'],
+            password=self.user2['password'],
+            project_id=self.project2['id'])
+        resp = self.post('/auth/tokens', body=auth_data,
+                         expected_status=401)
 
     def test_delete_enabled_domain_fails(self):
         """DELETE /domains/{domain_id}...(when domain enabled)"""

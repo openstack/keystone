@@ -23,6 +23,9 @@ from keystone import exception
 from keystone import test
 from keystone import token
 
+import default_fixtures
+
+
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SSLDIR = "%s/tests/ssl/" % ROOTDIR
 CONF = test.CONF
@@ -46,6 +49,7 @@ class CertSetupTestCase(test.TestCase):
         CONF.signing.keyfile = os.path.join(KEYDIR, "signing_key.pem")
 
         self.load_backends()
+        self.load_fixtures(default_fixtures)
         self.controller = token.controllers.Auth()
 
     def test_can_handle_missing_certs(self):

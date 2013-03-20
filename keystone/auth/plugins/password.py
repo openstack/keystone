@@ -91,6 +91,9 @@ class UserAuthInfo(object):
             else:
                 user_ref = self.identity_api.get_user(
                     context=self.context, user_id=user_id)
+                domain_ref = self.identity_api.get_domain(
+                    context=self.context, domain_id=user_ref['domain_id'])
+                self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)

@@ -79,15 +79,13 @@ def validate_auth_info(self, context, user_ref, tenant_ref):
         raise exception.Unauthorized(msg)
 
     # If the user's domain is disabled don't allow them to authenticate
-    # TODO(dolph): remove this check after default-domain migration
-    if user_ref.get('domain_id') is not None:
-        user_domain_ref = self.identity_api.get_domain(
-            context,
-            user_ref['domain_id'])
-        if user_domain_ref and not user_domain_ref.get('enabled', True):
-            msg = 'Domain is disabled: %s' % user_domain_ref['id']
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+    user_domain_ref = self.identity_api.get_domain(
+        context,
+        user_ref['domain_id'])
+    if user_domain_ref and not user_domain_ref.get('enabled', True):
+        msg = 'Domain is disabled: %s' % user_domain_ref['id']
+        LOG.warning(msg)
+        raise exception.Unauthorized(msg)
 
     if tenant_ref:
         # If the project is disabled don't allow them to authenticate
@@ -97,16 +95,14 @@ def validate_auth_info(self, context, user_ref, tenant_ref):
             raise exception.Unauthorized(msg)
 
         # If the project's domain is disabled don't allow them to authenticate
-        # TODO(dolph): remove this check after default-domain migration
-        if tenant_ref.get('domain_id') is not None:
-            project_domain_ref = self.identity_api.get_domain(
-                context,
-                tenant_ref['domain_id'])
-            if (project_domain_ref and
-                    not project_domain_ref.get('enabled', True)):
-                msg = 'Domain is disabled: %s' % project_domain_ref['id']
-                LOG.warning(msg)
-                raise exception.Unauthorized(msg)
+        project_domain_ref = self.identity_api.get_domain(
+            context,
+            tenant_ref['domain_id'])
+        if (project_domain_ref and
+                not project_domain_ref.get('enabled', True)):
+            msg = 'Domain is disabled: %s' % project_domain_ref['id']
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
 
 
 @dependency.provider('token_api')

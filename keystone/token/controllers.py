@@ -79,6 +79,7 @@ class Auth(controller.V2Controller):
                     context, auth)
 
         user_ref, tenant_ref, metadata_ref, expiry = auth_info
+        core.validate_auth_info(self, context, user_ref, tenant_ref)
         trust_id = metadata_ref.get('trust_id')
         user_ref = self._filter_domain_id(user_ref)
         if tenant_ref:
@@ -87,9 +88,6 @@ class Auth(controller.V2Controller):
                                                     tenant_ref,
                                                     metadata_ref,
                                                     expiry)
-
-        # FIXME(dolph): domains will not be validated, as we just removed them
-        core.validate_auth_info(self, context, user_ref, tenant_ref)
 
         if tenant_ref:
             catalog_ref = self.catalog_api.get_catalog(

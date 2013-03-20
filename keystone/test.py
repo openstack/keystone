@@ -242,25 +242,43 @@ class TestCase(NoModule, unittest.TestCase):
         # TODO(termie): doing something from json, probably based on Django's
         #               loaddata will be much preferred.
         if hasattr(self, 'identity_api'):
+            for domain in fixtures.DOMAINS:
+                try:
+                    rv = self.identity_api.create_domain(domain['id'], domain)
+                except (exception.Conflict, exception.NotImplemented):
+                    pass
+                setattr(self, 'domain_%s' % domain['id'], domain)
+
             for tenant in fixtures.TENANTS:
-                rv = self.identity_api.create_project(tenant['id'], tenant)
+                try:
+                    rv = self.identity_api.create_project(tenant['id'], tenant)
+                except exception.Conflict:
+                    rv = self.identity_api.get_project(tenant['id'])
+                    pass
                 setattr(self, 'tenant_%s' % tenant['id'], rv)
 
             for role in fixtures.ROLES:
                 try:
                     rv = self.identity_api.create_role(role['id'], role)
                 except exception.Conflict:
+                    rv = self.identity_api.get_role(role['id'])
                     pass
                 setattr(self, 'role_%s' % role['id'], rv)
 
             for user in fixtures.USERS:
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
-                rv = self.identity_api.create_user(user['id'],
-                                                   user_copy.copy())
+                try:
+                    rv = self.identity_api.create_user(user['id'],
+                                                       user_copy.copy())
+                except exception.Conflict:
+                    pass
                 for tenant_id in tenants:
-                    self.identity_api.add_user_to_project(tenant_id,
-                                                          user['id'])
+                    try:
+                        self.identity_api.add_user_to_project(tenant_id,
+                                                              user['id'])
+                    except exception.Conflict:
+                        pass
                 setattr(self, 'user_%s' % user['id'], user_copy)
 
             for metadata in fixtures.METADATA:

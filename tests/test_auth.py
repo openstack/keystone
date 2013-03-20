@@ -612,9 +612,6 @@ class AuthWithTrust(AuthTest):
         return auth_response
 
     def fetch_v3_token_from_trust(self):
-        self.identity_api.create_domain("default",
-                                        {"name": "default",
-                                         "id": "default"})
         v3_password_data = {
             'identity': {
                 "methods": ["password"],
