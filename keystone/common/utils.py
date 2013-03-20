@@ -26,8 +26,8 @@ import time
 
 import passlib.hash
 
+from keystone.common import config
 from keystone.common import logging
-from keystone import config
 from keystone import exception
 
 

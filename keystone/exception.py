@@ -15,8 +15,8 @@
 # under the License.
 import re
 
+from keystone.common import config
 from keystone.common import logging
-from keystone import config
 
 
 CONF = config.CONF
@@ -116,12 +116,18 @@ class Unauthorized(SecurityError):
 
 class AuthPluginException(Unauthorized):
     """ Authentication plugin error. """
-    authentication = {}
+
+    def __init__(self, *args, **kwargs):
+        super(AuthPluginException, self).__init__(*args, **kwargs)
+        self.authentication = {}
 
 
 class AuthMethodNotSupported(AuthPluginException):
     """ Attempted to authenticate with an unsupported method. """
-    authentication = {'methods': CONF.auth.methods}
+
+    def __init__(self, *args, **kwargs):
+        super(AuthMethodNotSupported, self).__init__(*args, **kwargs)
+        self.authentication = {'methods': CONF.auth.methods}
 
 
 class AdditionalAuthRequired(AuthPluginException):

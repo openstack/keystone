@@ -29,9 +29,9 @@ import ssl
 import webob.dec
 import webob.exc
 
+from keystone.common import config
 from keystone.common import logging
 from keystone.common import utils
-from keystone import config
 from keystone import exception
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
