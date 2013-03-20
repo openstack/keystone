@@ -92,9 +92,3 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def test_user_enable_attribute_mask(self):
         raise nose.exc.SkipTest('Test is for Active Directory Only')
-
-    def test_configurable_allowed_project_actions(self):
-        raise nose.exc.SkipTest('Blocked by bug 1155234')
-
-    def test_project_crud(self):
-        raise nose.exc.SkipTest('Blocked by bug 1155234')
