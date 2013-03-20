@@ -150,3 +150,54 @@ class AuthTest(test.TestCase):
         body_dict = _build_user_auth(username='FOO', password='0' * 8193)
         self.assertRaises(exception.ValidationSizeError, self.api.authenticate,
                           {}, body_dict)
+
+
+class AuthWithToken(AuthTest):
+    def setUp(self):
+        super(AuthWithToken, self).setUp()
+
+    def test_belongs_to_no_tenant(self):
+        r = self.api.authenticate(
+            {},
+            auth={
+                'passwordCredentials': {
+                    'username': self.user_foo['name'],
+                    'password': self.user_foo['password']
+                }
+            })
+        unscoped_token_id = r['access']['token']['id']
+        self.assertRaises(
+            exception.Unauthorized,
+            self.api.validate_token,
+            dict(is_admin=True, query_string={'belongsTo': 'BAR'}),
+            token_id=unscoped_token_id)
+
+    def test_belongs_to_wrong_tenant(self):
+        body_dict = _build_user_auth(
+            username='FOO',
+            password='foo2',
+            tenant_name="BAR")
+
+        scoped_token = self.api.authenticate({}, body_dict)
+        scoped_token_id = scoped_token['access']['token']['id']
+
+        self.assertRaises(
+            exception.Unauthorized,
+            self.api.validate_token,
+            dict(is_admin=True, query_string={'belongsTo': 'me'}),
+            token_id=scoped_token_id)
+
+    def test_belongs_to(self):
+        body_dict = _build_user_auth(
+            username='FOO',
+            password='foo2',
+            tenant_name="BAR")
+
+        scoped_token = self.api.authenticate({}, body_dict)
+        scoped_token_id = scoped_token['access']['token']['id']
+
+        self.assertRaises(
+            exception.Unauthorized,
+            self.api.validate_token,
+            dict(is_admin=True, query_string={'belongsTo': 'BAR'}),
+            token_id=scoped_token_id)

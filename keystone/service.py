@@ -490,20 +490,13 @@ class TokenController(wsgi.Application):
         """
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
+        data = self.token_api.get_token(context=context, token_id=token_id)
+        if belongs_to:
+            if (not data.get('tenant') or data['tenant'].get('id') !=
+                    belongs_to):
+                raise exception.Unauthorized()
 
-        if cms.is_ans1_token(token_id):
-            data = json.loads(cms.cms_verify(cms.token_to_cms(token_id),
-                                             config.CONF.signing.certfile,
-                                             config.CONF.signing.ca_certs))
-            data['access']['token']['user'] = data['access']['user']
-            data['access']['token']['metadata'] = data['access']['metadata']
-            if belongs_to:
-                assert data['access']['token']['tenant']['id'] == belongs_to
-            token_ref = data['access']['token']
-        else:
-            token_ref = self.token_api.get_token(context=context,
-                                                 token_id=token_id)
-        return token_ref
+        return data
 
     # admin only
     def validate_token_head(self, context, token_id):
