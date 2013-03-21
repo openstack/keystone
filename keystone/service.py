@@ -19,6 +19,7 @@ import routes
 from keystone import auth
 from keystone import catalog
 from keystone import config
+from keystone import controllers
 from keystone.common import logging
 from keystone.common import wsgi
 from keystone.contrib import ec2
@@ -43,6 +44,7 @@ DRIVERS = dict(
 
 @logging.fail_gracefully
 def public_app_factory(global_conf, **local_conf):
+    controllers.register_version('v2.0')
     conf = global_conf.copy()
     conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
@@ -81,6 +83,7 @@ def admin_version_app_factory(global_conf, **local_conf):
 
 @logging.fail_gracefully
 def v3_app_factory(global_conf, **local_conf):
+    controllers.register_version('v3')
     conf = global_conf.copy()
     conf.update(local_conf)
     mapper = routes.Mapper()
