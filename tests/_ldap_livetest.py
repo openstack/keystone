@@ -19,7 +19,9 @@ import ldap.modlist
 import nose.exc
 import subprocess
 
+from keystone.common import ldap as ldap_common
 from keystone import config
+from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap
 from keystone import test
 
@@ -92,3 +94,72 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def test_user_enable_attribute_mask(self):
         raise nose.exc.SkipTest('Test is for Active Directory Only')
+
+    def test_ldap_dereferencing(self):
+        alt_users_ldif = {'objectclass': ['top', 'organizationalUnit'],
+                          'ou': 'alt_users'}
+        alt_fake_user_ldif = {'objectclass': ['person', 'inetOrgPerson'],
+                              'cn': 'alt_fake1',
+                              'sn': 'alt_fake1'}
+        aliased_users_ldif = {'objectclass': ['alias', 'extensibleObject'],
+                              'aliasedobjectname': "ou=alt_users,%s" %
+                              CONF.ldap.suffix}
+        create_object("ou=alt_users,%s" % CONF.ldap.suffix, alt_users_ldif)
+        create_object("%s=alt_fake1,ou=alt_users,%s" %
+                      (CONF.ldap.user_id_attribute, CONF.ldap.suffix),
+                      alt_fake_user_ldif)
+        create_object("ou=alt_users,%s" % CONF.ldap.user_tree_dn,
+                      aliased_users_ldif)
+
+        CONF.ldap.query_scope = 'sub'
+        CONF.ldap.alias_dereferencing = 'never'
+        self.identity_api = identity_ldap.Identity()
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          'alt_fake1')
+
+        CONF.ldap.alias_dereferencing = 'searching'
+        self.identity_api = identity_ldap.Identity()
+        user_ref = self.identity_api.get_user('alt_fake1')
+        self.assertEqual(user_ref['id'], 'alt_fake1')
+
+        CONF.ldap.alias_dereferencing = 'always'
+        self.identity_api = identity_ldap.Identity()
+        user_ref = self.identity_api.get_user('alt_fake1')
+        self.assertEqual(user_ref['id'], 'alt_fake1')
+
+    def test_base_ldap_connection_deref_option(self):
+        deref = ldap_common.parse_deref('default')
+        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
+                                               CONF.ldap.page_size,
+                                               alias_dereferencing=deref)
+        self.assertEqual(ldap.get_option(ldap.OPT_DEREF),
+                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+        deref = ldap_common.parse_deref('always')
+        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
+                                               CONF.ldap.page_size,
+                                               alias_dereferencing=deref)
+        self.assertEqual(ldap.DEREF_ALWAYS,
+                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+        deref = ldap_common.parse_deref('finding')
+        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
+                                               CONF.ldap.page_size,
+                                               alias_dereferencing=deref)
+        self.assertEqual(ldap.DEREF_FINDING,
+                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+        deref = ldap_common.parse_deref('never')
+        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
+                                               CONF.ldap.page_size,
+                                               alias_dereferencing=deref)
+        self.assertEqual(ldap.DEREF_NEVER,
+                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+        deref = ldap_common.parse_deref('searching')
+        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
+                                               CONF.ldap.page_size,
+                                               alias_dereferencing=deref)
+        self.assertEqual(ldap.DEREF_SEARCHING,
+                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
