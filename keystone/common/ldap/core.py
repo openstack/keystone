@@ -104,6 +104,7 @@ class BaseLdap(object):
     DEFAULT_ID_ATTR = 'cn'
     DEFAULT_OBJECTCLASS = None
     DEFAULT_FILTER = None
+    DEFAULT_EXTRA_ATTR_MAPPING = []
     DUMB_MEMBER_DN = 'cn=dumb,dc=nonexistent'
     NotFound = None
     notfound_arg = None
@@ -140,6 +141,12 @@ class BaseLdap(object):
             self.object_class = (getattr(conf.ldap, objclass)
                                  or self.DEFAULT_OBJECTCLASS)
 
+            attr_mapping_opt = ('%s_additional_attribute_mapping' %
+                                self.options_name)
+            attr_mapping = (getattr(conf.ldap, attr_mapping_opt)
+                            or self.DEFAULT_EXTRA_ATTR_MAPPING)
+            self.extra_attr_mapping = self._parse_extra_attrs(attr_mapping)
+
             filter = '%s_filter' % self.options_name
             self.filter = getattr(conf.ldap, filter) or self.DEFAULT_FILTER
 
@@ -168,6 +175,25 @@ class BaseLdap(object):
             return exception.NotFound(target=object_id)
         else:
             return self.NotFound(**{self.notfound_arg: object_id})
+
+    def _parse_extra_attrs(self, option_list):
+        mapping = {}
+        for item in option_list:
+            try:
+                ldap_attr, attr_map = item.split(':')
+            except Exception:
+                LOG.warn(_('Invalid additional attribute mapping: "%s". '
+                           'Format must be ' +
+                           '<ldap_attribute>:<keystone_attribute>') % item)
+                continue
+            if attr_map not in self.attribute_mapping:
+                LOG.warn(_('Invalid additional attribute mapping: "%(item)s". '
+                           'Value "%(attr_map)s" must use one of %(keys)s.') %
+                         {'item': item, 'attr_map': attr_map,
+                          'keys': ', '.join(self.attribute_mapping.keys())})
+                continue
+            mapping[ldap_attr] = attr_map
+        return mapping
 
     def get_connection(self, user=None, password=None):
         if self.LDAP_URL.startswith('fake://'):
@@ -272,6 +298,11 @@ class BaseLdap(object):
             if v is not None:
                 attr_type = self.attribute_mapping.get(k, k)
                 attrs.append((attr_type, [v]))
+                extra_attrs = [attr for attr, name
+                               in self.extra_attr_mapping.iteritems()
+                               if name == k]
+                for attr in extra_attrs:
+                    attrs.append((attr, [v]))
 
         if 'groupOfNames' in object_classes and self.use_dumb_member:
             attrs.append(('member', [self.dumb_member]))
@@ -289,8 +320,9 @@ class BaseLdap(object):
                     'filter': (filter or self.filter or ''),
                     'object_class': self.object_class})
         try:
-            res = conn.search_s(self.tree_dn, self.LDAP_SCOPE, query,
-                                self.attribute_mapping.values())
+            attrs = list(set((self.attribute_mapping.values() +
+                              self.extra_attr_mapping.keys())))
+            res = conn.search_s(self.tree_dn, self.LDAP_SCOPE, query, attrs)
         except ldap.NO_SUCH_OBJECT:
             return None
         try:

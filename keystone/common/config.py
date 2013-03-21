@@ -314,6 +314,8 @@ def configure():
     register_bool('user_allow_delete', group='ldap', default=True)
     register_bool('user_enabled_emulation', group='ldap', default=False)
     register_str('user_enabled_emulation_dn', group='ldap', default=None)
+    register_list(
+        'user_additional_attribute_mapping', group='ldap', default=None)
 
     register_str('tenant_tree_dn', group='ldap', default=None)
     register_str('tenant_filter', group='ldap', default=None)
@@ -331,6 +333,8 @@ def configure():
     register_bool('tenant_allow_delete', group='ldap', default=True)
     register_bool('tenant_enabled_emulation', group='ldap', default=False)
     register_str('tenant_enabled_emulation_dn', group='ldap', default=None)
+    register_list(
+        'tenant_additional_attribute_mapping', group='ldap', default=None)
 
     register_str('role_tree_dn', group='ldap', default=None)
     register_str('role_filter', group='ldap', default=None)
@@ -343,6 +347,8 @@ def configure():
     register_bool('role_allow_create', group='ldap', default=True)
     register_bool('role_allow_update', group='ldap', default=True)
     register_bool('role_allow_delete', group='ldap', default=True)
+    register_list(
+        'role_additional_attribute_mapping', group='ldap', default=None)
 
     register_str('group_tree_dn', group='ldap', default=None)
     register_str('group_filter', group='ldap', default=None)
@@ -357,6 +363,8 @@ def configure():
     register_bool('group_allow_create', group='ldap', default=True)
     register_bool('group_allow_update', group='ldap', default=True)
     register_bool('group_allow_delete', group='ldap', default=True)
+    register_list(
+        'group_additional_attribute_mapping', group='ldap', default=None)
 
     register_str('domain_tree_dn', group='ldap', default=None)
     register_str('domain_filter', group='ldap', default=None)
@@ -372,6 +380,9 @@ def configure():
     register_bool('domain_allow_delete', group='ldap', default=True)
     register_bool('domain_enabled_emulation', group='ldap', default=False)
     register_str('domain_enabled_emulation_dn', group='ldap', default=None)
+    register_list(
+        'domain_additional_attribute_mapping', group='ldap', default=None)
+
     register_str('tls_cacertfile', group='ldap', default=None)
     register_str('tls_cacertdir',  group='ldap', default=None)
     register_bool('use_tls', group='ldap', default=False)
