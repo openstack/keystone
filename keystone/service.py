@@ -18,6 +18,7 @@ import routes
 
 from keystone import auth
 from keystone import catalog
+from keystone import config
 from keystone.common import logging
 from keystone.common import wsgi
 from keystone.contrib import ec2
@@ -28,6 +29,7 @@ from keystone import token
 from keystone import trust
 
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 DRIVERS = dict(
@@ -83,8 +85,12 @@ def v3_app_factory(global_conf, **local_conf):
     conf.update(local_conf)
     mapper = routes.Mapper()
     v3routers = []
-    for module in [auth, catalog, identity, policy, trust]:
+    for module in [auth, catalog, identity, policy]:
         module.routers.append_v3_routers(mapper, v3routers)
+
+    if CONF.trust.enabled:
+        trust.routers.append_v3_routers(mapper, v3routers)
+
     # Add in the v3 version api
     v3routers.append(routers.VersionV3('admin'))
     v3routers.append(routers.VersionV3('public'))

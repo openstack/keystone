@@ -1009,8 +1009,26 @@ class TestAuthXML(TestAuthJSON):
     content_type = 'xml'
 
 
+class TestTrustOptional(test_v3.RestfulTestCase):
+    def setUp(self, *args, **kwargs):
+        self.opt_in_group('trust', enabled=False)
+        super(TestTrustOptional, self).setUp(*args, **kwargs)
+
+    def test_trusts_404(self):
+        self.get('/trusts', body={'trust': {}}, expected_status=404)
+        self.post('/trusts', body={'trust': {}}, expected_status=404)
+
+    def test_auth_with_scope_in_trust_403(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            trust_id=uuid.uuid4().hex)
+        self.post('/auth/tokens', body=auth_data, expected_status=403)
+
+
 class TestTrustAuth(TestAuthInfo):
     def setUp(self):
+        self.opt_in_group('trust', enabled=True)
         super(TestTrustAuth, self).setUp(load_sample_data=True)
 
         # create a trustee to delegate stuff to

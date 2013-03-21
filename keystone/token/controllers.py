@@ -179,7 +179,9 @@ class Auth(controller.V2Controller):
 
         user_ref = old_token_ref['user']
         user_id = user_ref['id']
-        if 'trust_id' in auth:
+        if not CONF.trust.enabled and 'trust_id' in auth:
+            raise exception.Forbidden('Trusts are disabled.')
+        elif CONF.trust.enabled and 'trust_id' in auth:
             trust_ref = self.trust_api.get_trust(context, auth['trust_id'])
             if trust_ref is None:
                 raise exception.Forbidden()
@@ -221,7 +223,7 @@ class Auth(controller.V2Controller):
                                context, user_id, tenant_id))
 
         expiry = old_token_ref['expires']
-        if 'trust_id' in auth:
+        if CONF.trust.enabled and 'trust_id' in auth:
             trust_id = auth['trust_id']
             trust_roles = []
             for role in trust_ref['roles']:
@@ -495,7 +497,7 @@ class Auth(controller.V2Controller):
             # be in the default domain. Furthermore, the delegated project
             # must also be in the default domain
             metadata_ref = token_ref['metadata']
-            if 'trust_id' in metadata_ref:
+            if CONF.trust.enabled and 'trust_id' in metadata_ref:
                 trust_ref = self.trust_api.get_trust(context,
                                                      metadata_ref['trust_id'])
                 trustee_user_ref = self.identity_api.get_user(
@@ -635,7 +637,7 @@ class Auth(controller.V2Controller):
                 o['access']['metadata'] = {'is_admin': 0}
         if 'roles' in metadata_ref:
             o['access']['metadata']['roles'] = metadata_ref['roles']
-        if 'trust_id' in metadata_ref:
+        if CONF.trust.enabled and 'trust_id' in metadata_ref:
             o['access']['trust'] = {'trustee_user_id':
                                     metadata_ref['trustee_user_id'],
                                     'id': metadata_ref['trust_id']

@@ -107,7 +107,7 @@ class TokenDataHelper(object):
                        trust):
         user_ref = self.identity_api.get_user(self.context,
                                               user_id)
-        if trust:
+        if CONF.trust.enabled and trust:
             trustor_user_ref = (self.identity_api.get_user(self.context,
                                 trust['trustor_user_id']))
             if not trustor_user_ref['enabled']:
@@ -129,7 +129,7 @@ class TokenDataHelper(object):
 
     def _populate_roles(self, token_data, user_id, domain_id, project_id,
                         trust):
-        if trust:
+        if CONF.trust.enabled and trust:
             token_user_id = trust['trustor_user_id']
             token_project_id = trust['project_id']
             #trusts do not support domains yet
@@ -144,7 +144,7 @@ class TokenDataHelper(object):
                                              token_domain_id,
                                              token_project_id)
             filtered_roles = []
-            if trust:
+            if CONF.trust.enabled and trust:
                 for trust_role in trust['roles']:
                     match_roles = [x for x in roles
                                    if x['id'] == trust_role['id']]
@@ -160,7 +160,7 @@ class TokenDataHelper(object):
 
     def _populate_service_catalog(self, token_data, user_id,
                                   domain_id, project_id, trust):
-        if trust:
+        if CONF.trust.enabled and trust:
             user_id = trust['trustor_user_id']
         if project_id or domain_id:
             try:
@@ -186,7 +186,7 @@ class TokenDataHelper(object):
                        trust=None):
         token_data = {'methods': method_names,
                       'extras': extras}
-        if trust:
+        if CONF.trust.enabled and trust:
             if user_id != trust['trustee_user_id']:
                 raise exception.Forbidden()
 
