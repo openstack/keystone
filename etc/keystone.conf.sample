@@ -163,6 +163,16 @@
 [assignment]
 # driver =
 
+[oauth1]
+# driver = keystone.contrib.oauth1.backends.sql.OAuth1
+
+# The Identity service may include expire attributes.
+# If no such attribute is included, then the token lasts indefinitely.
+# Specify how quickly the request token will expire (in seconds)
+# request_token_duration = 28800
+# Specify how quickly the access token will expire (in seconds)
+# access_token_duration = 86400
+
 [ssl]
 #enable = True
 #certfile = /etc/keystone/pki/certs/ssl_cert.pem
@@ -289,10 +299,11 @@
 # user_additional_attribute_mapping =
 
 [auth]
-methods = external,password,token
+methods = external,password,token,oauth1
 #external = keystone.auth.plugins.external.ExternalDefault
 password = keystone.auth.plugins.password.Password
 token = keystone.auth.plugins.token.Token
+oauth1 = keystone.auth.plugins.oauth1.OAuth
 
 [paste_deploy]
 # Name of the paste configuration file that defines the available pipelines

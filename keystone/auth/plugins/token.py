@@ -37,6 +37,12 @@ class Token(auth.AuthMethodHandler):
                                                 target=METHOD_NAME)
             token_id = auth_payload['id']
             token_ref = self.token_api.get_token(token_id)
+            if ('OS-TRUST:trust' in token_ref['token_data']['token'] or
+                    'trust' in token_ref['token_data']['token']):
+                raise exception.Forbidden()
+            if 'OS-OAUTH1' in token_ref['token_data']['token']:
+                raise exception.Forbidden()
+
             wsgi.validate_token_bind(context, token_ref)
             user_context.setdefault(
                 'user_id', token_ref['token_data']['token']['user']['id'])
@@ -48,9 +54,6 @@ class Token(auth.AuthMethodHandler):
                 token_ref['token_data']['token']['extras'])
             user_context['method_names'].extend(
                 token_ref['token_data']['token']['methods'])
-            if ('OS-TRUST:trust' in token_ref['token_data']['token'] or
-                    'trust' in token_ref['token_data']['token']):
-                raise exception.Forbidden()
         except AssertionError as e:
             LOG.error(e)
             raise exception.Unauthorized(e)

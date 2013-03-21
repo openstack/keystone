@@ -178,7 +178,8 @@ class Token(token.Driver):
         self._add_to_revocation_list(data)
         return result
 
-    def list_tokens(self, user_id, tenant_id=None, trust_id=None):
+    def list_tokens(self, user_id, tenant_id=None, trust_id=None,
+                    consumer_id=None):
         tokens = []
         user_key = self._prefix_user_id(user_id)
         user_record = self.client.get(user_key) or ""
@@ -198,6 +199,13 @@ class Token(token.Driver):
                     if not trust:
                         continue
                     if trust != trust_id:
+                        continue
+                if consumer_id is not None:
+                    try:
+                        oauth = token_ref['token_data']['token']['OS-OAUTH1']
+                        if oauth.get('consumer_id') != consumer_id:
+                            continue
+                    except KeyError:
                         continue
 
                 tokens.append(token_id)

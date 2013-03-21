@@ -27,6 +27,7 @@ To run these tests against a live database:
 """
 
 from keystone.contrib import example
+from keystone.contrib import oauth1
 
 import test_sql_upgrade
 
@@ -45,3 +46,65 @@ class SqlUpgradeExampleExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableColumns('example', ['id', 'type', 'extra'])
         self.downgrade(0, repository=self.repo_path)
         self.assertTableDoesNotExist('example')
+
+
+class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
+    def repo_package(self):
+        return oauth1
+
+    def test_upgrade(self):
+        self.assertTableDoesNotExist('consumer')
+        self.assertTableDoesNotExist('request_token')
+        self.assertTableDoesNotExist('access_token')
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('consumer',
+                                ['id',
+                                 'description',
+                                 'secret',
+                                 'extra'])
+        self.assertTableColumns('request_token',
+                                ['id',
+                                 'request_secret',
+                                 'verifier',
+                                 'authorizing_user_id',
+                                 'requested_project_id',
+                                 'requested_roles',
+                                 'consumer_id',
+                                 'expires_at'])
+        self.assertTableColumns('access_token',
+                                ['id',
+                                 'access_secret',
+                                 'authorizing_user_id',
+                                 'project_id',
+                                 'requested_roles',
+                                 'consumer_id',
+                                 'expires_at'])
+
+    def test_downgrade(self):
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('consumer',
+                                ['id',
+                                 'description',
+                                 'secret',
+                                 'extra'])
+        self.assertTableColumns('request_token',
+                                ['id',
+                                 'request_secret',
+                                 'verifier',
+                                 'authorizing_user_id',
+                                 'requested_project_id',
+                                 'requested_roles',
+                                 'consumer_id',
+                                 'expires_at'])
+        self.assertTableColumns('access_token',
+                                ['id',
+                                 'access_secret',
+                                 'authorizing_user_id',
+                                 'project_id',
+                                 'requested_roles',
+                                 'consumer_id',
+                                 'expires_at'])
+        self.downgrade(0, repository=self.repo_path)
+        self.assertTableDoesNotExist('consumer')
+        self.assertTableDoesNotExist('request_token')
+        self.assertTableDoesNotExist('access_token')
