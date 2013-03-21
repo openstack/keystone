@@ -501,6 +501,7 @@ class AuthWithRemoteUser(AuthTest):
 class AuthWithTrust(AuthTest):
     def setUp(self):
         super(AuthWithTrust, self).setUp()
+        self.opt_in_group('trust', enabled=True)
 
         trust.Manager()
         self.trust_controller = trust.controllers.TrustV3()

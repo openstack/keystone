@@ -91,6 +91,12 @@
 # exist to order to maintain support for your v2 clients.
 # default_domain_id = default
 
+[trust]
+# driver = keystone.trust.backends.sql.Trust
+
+# delegation and impersonation features can be optionally disabled
+# enabled = True
+
 [catalog]
 # dynamic, sql-based backend (supports API/CLI-based management commands)
 # driver = keystone.catalog.backends.sql.Catalog
