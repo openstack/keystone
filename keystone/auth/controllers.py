@@ -171,9 +171,9 @@ class AuthInfo(object):
             return
         if sum(['project' in self.auth['scope'],
                 'domain' in self.auth['scope'],
-                'trust' in self.auth['scope']]) != 1:
+                'RH-TRUST:trust' in self.auth['scope']]) != 1:
             raise exception.ValidationError(
-                attribute='project, domain, or trust',
+                attribute='project, domain, or RH-TRUST:trust',
                 target='scope')
 
         if 'project' in self.auth['scope']:
@@ -182,10 +182,11 @@ class AuthInfo(object):
         elif 'domain' in self.auth['scope']:
             domain_ref = self._lookup_domain(self.auth['scope']['domain'])
             self._scope_data = (domain_ref['id'], None, None)
-        elif 'trust' in self.auth['scope']:
+        elif 'RH-TRUST:trust' in self.auth['scope']:
             if not CONF.trust.enabled:
                 raise exception.Forbidden('Trusts are disabled.')
-            trust_ref = self._lookup_trust(self.auth['scope']['trust'])
+            trust_ref = self._lookup_trust(
+                self.auth['scope']['RH-TRUST:trust'])
             #TODO ayoung when trusts support domain, Fill in domain data here
             if 'project_id' in trust_ref:
                 project_ref = self._lookup_project(
