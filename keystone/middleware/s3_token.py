@@ -85,15 +85,14 @@ class S3Token(object):
 
     def _json_request(self, creds_json):
         headers = {'Content-Type': 'application/json'}
-
+        if self.auth_protocol == 'http':
+            conn = self.http_client_class(self.auth_host, self.auth_port)
+        else:
+            conn = self.http_client_class(self.auth_host,
+                                          self.auth_port,
+                                          self.key_file,
+                                          self.cert_file)
         try:
-            if self.auth_protocol == 'http':
-                conn = self.http_client_class(self.auth_host, self.auth_port)
-            else:
-                conn = self.http_client_class(self.auth_host,
-                                              self.auth_port,
-                                              self.key_file,
-                                              self.cert_file)
             conn.request('POST', '/v2.0/s3tokens',
                          body=creds_json,
                          headers=headers)
