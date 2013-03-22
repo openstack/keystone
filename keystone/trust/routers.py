@@ -22,37 +22,37 @@ from keystone.common import router
 def append_v3_routers(mapper, routers):
     trust_controller = controllers.TrustV3()
 
-    mapper.connect('/RH-TRUST/trusts',
+    mapper.connect('/OS-TRUST/trusts',
                    controller=trust_controller,
                    action='create_trust',
                    conditions=dict(method=['POST']))
 
-    mapper.connect('/RH-TRUST/trusts',
+    mapper.connect('/OS-TRUST/trusts',
                    controller=trust_controller,
                    action='list_trusts',
                    conditions=dict(method=['GET']))
 
-    mapper.connect('/RH-TRUST/trusts/{trust_id}',
+    mapper.connect('/OS-TRUST/trusts/{trust_id}',
                    controller=trust_controller,
                    action='delete_trust',
                    conditions=dict(method=['DELETE']))
 
-    mapper.connect('/RH-TRUST/trusts/{trust_id}',
+    mapper.connect('/OS-TRUST/trusts/{trust_id}',
                    controller=trust_controller,
                    action='get_trust',
                    conditions=dict(method=['GET']))
 
-    mapper.connect('/RH-TRUST/trusts/{trust_id}/roles',
+    mapper.connect('/OS-TRUST/trusts/{trust_id}/roles',
                    controller=trust_controller,
                    action='list_roles_for_trust',
                    conditions=dict(method=['GET']))
 
-    mapper.connect('/RH-TRUST/trusts/{trust_id}/roles/{role_id}',
+    mapper.connect('/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
                    controller=trust_controller,
                    action='check_role_for_trust',
                    conditions=dict(method=['HEAD']))
 
-    mapper.connect('/RH-TRUST/trusts/{trust_id}/roles/{role_id}',
+    mapper.connect('/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
                    controller=trust_controller,
                    action='get_role_for_trust',
                    conditions=dict(method=['GET']))

@@ -633,7 +633,7 @@ class AuthWithTrust(AuthTest):
                 "methods": ["token"],
                 "token": {"id": token}},
             "scope": {
-                "RH-TRUST:trust": {"id": self.new_trust['id']}}}
+                "OS-TRUST:trust": {"id": self.new_trust['id']}}}
         token_auth_response = (self.auth_v3_controller.authenticate_for_token
                                ({}, v3_req_with_trust))
         return token_auth_response
@@ -644,7 +644,7 @@ class AuthWithTrust(AuthTest):
         trust_token_user = auth_response.json['token']['user']
         self.assertEquals(trust_token_user['id'], self.trustor['id'])
 
-        trust_token_trust = auth_response.json['token']['RH-TRUST:trust']
+        trust_token_trust = auth_response.json['token']['OS-TRUST:trust']
         self.assertEquals(trust_token_trust['id'], self.new_trust['id'])
         self.assertEquals(trust_token_trust['trustor_user']['id'],
                           self.trustor['id'])

@@ -114,7 +114,7 @@ class TokenDataHelper(object):
                 raise exception.Forbidden()
             if trust['impersonation']:
                 user_ref = trustor_user_ref
-            token_data['RH-TRUST:trust'] = (
+            token_data['OS-TRUST:trust'] = (
                 {
                     'id': trust['id'],
                     'trustor_user': {'id': trust['trustor_user_id']},
