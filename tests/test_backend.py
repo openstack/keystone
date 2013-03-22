@@ -134,7 +134,7 @@ class IdentityTests(object):
         user.pop('password')
         self.assertEquals(metadata_ref, {"roles":
                                          [CONF.member_role_id]})
-        self.assertDictContainsSubset(user_ref, user)
+        self.assertDictContainsSubset(user, user_ref)
         self.assertDictEqual(tenant_ref, self.tenant_baz)
 
     def test_password_hashed(self):
@@ -1870,12 +1870,12 @@ class IdentityTests(object):
                  'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, group['id'], group)
         group_ref = self.identity_api.get_group(group['id'])
-        self.assertDictContainsSubset(group_ref, group)
+        self.assertDictContainsSubset(group, group_ref)
 
         group['name'] = uuid.uuid4().hex
         self.identity_api.update_group(group['id'], group)
         group_ref = self.identity_api.get_group(group['id'])
-        self.assertDictContainsSubset(group_ref, group)
+        self.assertDictContainsSubset(group, group_ref)
 
         self.identity_api.delete_group(group['id'])
         self.assertRaises(exception.GroupNotFound,
@@ -1946,12 +1946,12 @@ class IdentityTests(object):
                    'domain_id': domain['id']}
         self.identity_man.create_project({}, project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
-        self.assertDictContainsSubset(project_ref, project)
+        self.assertDictContainsSubset(project, project_ref)
 
         project['name'] = uuid.uuid4().hex
         self.identity_api.update_project(project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
-        self.assertDictContainsSubset(project_ref, project)
+        self.assertDictContainsSubset(project, project_ref)
 
         self.identity_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
@@ -1983,14 +1983,14 @@ class IdentityTests(object):
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
-        self.assertDictContainsSubset(user_ref_dict, user)
+        self.assertDictContainsSubset(user, user_ref_dict)
 
         user['password'] = uuid.uuid4().hex
         self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
-        self.assertDictContainsSubset(user_ref_dict, user)
+        self.assertDictContainsSubset(user, user_ref_dict)
 
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,

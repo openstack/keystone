@@ -343,14 +343,32 @@ class TestCase(NoModule, unittest.TestCase):
     def assertNotEmpty(self, l):
         self.assertTrue(len(l))
 
-    def assertDictContainsSubset(self, dict1, dict2):
-        if len(dict1) < len(dict2):
-            (subset, fullset) = dict1, dict2
-        else:
-            (subset, fullset) = dict2, dict1
-        for x in subset:
-            self.assertIn(x, fullset)
-            self.assertEquals(subset.get(x), fullset.get(x))
+    def assertDictContainsSubset(self, expected, actual, msg=None):
+        """Checks whether actual is a superset of expected."""
+        safe_repr = unittest.util.safe_repr
+        missing = []
+        mismatched = []
+        for key, value in expected.iteritems():
+            if key not in actual:
+                missing.append(key)
+            elif value != actual[key]:
+                mismatched.append('%s, expected: %s, actual: %s' %
+                                  (safe_repr(key), safe_repr(value),
+                                   safe_repr(actual[key])))
+
+        if not (missing or mismatched):
+            return
+
+        standardMsg = ''
+        if missing:
+            standardMsg = 'Missing: %s' % ','.join(safe_repr(m) for m in
+                                                   missing)
+        if mismatched:
+            if standardMsg:
+                standardMsg += '; '
+            standardMsg += 'Mismatched values: %s' % ','.join(mismatched)
+
+        self.fail(self._formatMessage(msg, standardMsg))
 
     @staticmethod
     def skip_if_no_ipv6():
