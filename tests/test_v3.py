@@ -460,7 +460,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def assertValidProjectTrustScopedTokenResponse(self, r, *args, **kwargs):
         token = self.assertValidProjectScopedTokenResponse(r, *args, **kwargs)
 
-        trust = token.get('RH-TRUST:trust')
+        trust = token.get('OS-TRUST:trust')
         self.assertIsNotNone(trust)
         self.assertIsNotNone(trust.get('id'))
         self.assertTrue(isinstance(trust.get('impersonation'), bool))
@@ -816,8 +816,8 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             else:
                 scope_data['domain']['name'] = domain_name
         if trust_id:
-            scope_data['RH-TRUST:trust'] = {}
-            scope_data['RH-TRUST:trust']['id'] = trust_id
+            scope_data['OS-TRUST:trust'] = {}
+            scope_data['OS-TRUST:trust']['id'] = trust_id
         return scope_data
 
     def build_password_auth(self, user_id=None, username=None,
