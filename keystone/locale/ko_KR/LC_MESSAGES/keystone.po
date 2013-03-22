@@ -1,22 +1,23 @@
 # Translations template for keystone.
 # Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the keystone project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
-#
-#, fuzzy
+# 
+# Translators:
+# Sung Jin Gang <potopro@gmail.com>, 2013.
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone "
-"jenkins.keystone.propose.translation.update.148\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-03-22 00:02+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: Keystone\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2013-03-21 21:29+0000\n"
+"PO-Revision-Date: 2013-03-21 18:34+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: ko_KR\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: keystone/clean.py:23
 #, python-format
@@ -30,7 +31,8 @@ msgstr ""
 
 #: keystone/clean.py:29
 #, python-format
-msgid "%(property_name)s should not be greater than %(max_length)s characters."
+msgid ""
+"%(property_name)s should not be greater than %(max_length)s characters."
 msgstr ""
 
 #: keystone/clean.py:36
@@ -111,8 +113,8 @@ msgstr ""
 #: keystone/catalog/core.py:49
 #, python-format
 msgid ""
-"Malformed endpoint %s - incomplete format                   (are you "
-"missing a type notifier ?)"
+"Malformed endpoint %s - incomplete format                   (are you missing"
+" a type notifier ?)"
 msgstr ""
 
 #: keystone/catalog/backends/templated.py:109
@@ -122,7 +124,8 @@ msgstr ""
 
 #: keystone/common/bufferedhttp.py:102
 #, python-format
-msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
+msgid ""
+"HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
 msgstr ""
 
 #: keystone/common/cms.py:44
@@ -351,8 +354,8 @@ msgstr ""
 #: keystone/common/ldap/fakeldap.py:271
 #, python-format
 msgid ""
-"FakeLdap modify item failed: item has no attribute \"%s\" with value "
-"\"%s\" to delete"
+"FakeLdap modify item failed: item has no attribute \"%s\" with value \"%s\" "
+"to delete"
 msgstr ""
 
 #: keystone/common/ldap/fakeldap.py:276
@@ -416,7 +419,7 @@ msgstr ""
 #: keystone/common/sql/nova.py:103
 #, python-format
 msgid "Create role %s"
-msgstr ""
+msgstr "Role %s 생성"
 
 #: keystone/common/sql/nova.py:113
 #, python-format
@@ -491,4 +494,3 @@ msgstr ""
 #: keystone/token/backends/memcache.py:93
 msgid "Unable to add token to revocation list."
 msgstr ""
-
