@@ -84,6 +84,17 @@ class ApplicationTest(BaseWSGITest):
         resp = req.get_response(FakeApp())
         self.assertEqual(jsonutils.loads(resp.body), {'1': '2'})
 
+    def test_headers_available(self):
+        class FakeApp(wsgi.Application):
+            def index(self, context):
+                return context['headers']
+
+        app = FakeApp()
+        req = self._make_request(url='/?1=2')
+        req.headers['X-Foo'] = "bar"
+        resp = req.get_response(app)
+        self.assertIn('X-Foo', eval(resp.body))
+
     def test_render_response(self):
         data = {'attribute': 'value'}
         body = '{"attribute": "value"}'
