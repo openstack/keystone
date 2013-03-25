@@ -212,6 +212,15 @@
 # group_allow_update = True
 # group_allow_delete = True
 
+# ldap TLS options
+# if both tls_cacertfile and tls_cacertdir are set then
+# tls_cacertfile will be used and tls_cacertdir is ignored
+# valid options for tls_req_cert are demand, never, and allow
+# use_tls = False
+# tls_cacertfile =
+# tls_cacertdir =
+# tls_req_cert = demand
+
 [auth]
 methods = password,token
 password = keystone.auth.plugins.password.Password

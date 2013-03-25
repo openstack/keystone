@@ -1082,3 +1082,25 @@ specified classes in the LDAP module so you can configure them like::
   role_name_attribute      = ou
   role_member_attribute    = roleOccupant
   role_attribute_ignore    =
+
+If you are using a directory server to provide the Identity service,
+it is strongly recommended that you utilize a secure connection from
+Keystone to the directory server.  In addition to supporting ldaps,  Keystone
+also provides Transport Layer Security (TLS) support. There are some
+basic configuration options for enabling TLS, identifying a single
+file or directory that contains certificates for all the Certificate
+Authorities that the Keystone LDAP client will recognize, and declaring
+what checks the client should perform on server certificates.  This
+functionality can easily be configured as follows::
+
+  [ldap]
+  use_tls = True
+  tls_cacertfile = /etc/keystone/ssl/certs/cacert.pem
+  tls_cacertdir = /etc/keystone/ssl/certs/
+  tls_req_cert = demand
+
+A few points worth mentioning regarding the above options.  If both
+tls_cacertfile and tls_cacertdir are set then tls_cacertfile will be
+used and tls_cacertdir is ignored.  Furthermore, valid options for
+tls_req_cert are demand, never, and allow.  These correspond to the
+standard options permitted by the TLS_REQCERT TLS option.
