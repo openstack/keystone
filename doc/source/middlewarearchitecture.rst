@@ -20,6 +20,7 @@ Middleware Architecture
 
 Abstract
 ========
+..  _architecture: architecture.rst
 
 The Keystone middleware architecture supports a common authentication protocol
 in use between the OpenStack projects. By using keystone as a common
@@ -32,7 +33,7 @@ authentication middleware which acts as the internal API mechanism for
 OpenStack projects based on the WSGI standard.
 
 For the architecture of keystone and its services, please see
-:doc:`architecture`. This documentation primarily describes the implementation
+architecture_. This documentation primarily describes the implementation
 in ``keystoneclient/middleware/auth_token.py``
 (:py:class:`keystoneclient.middleware.auth_token.AuthProtocol`)
 
@@ -77,7 +78,7 @@ Figure 1. Authentication Component
 
 The middleware may also be configured to operated in a 'delegated mode'.
 In this mode, the decision reject an unauthenticated client is delegated to
-the OpenStack service, as illustrated in :ref:`authComponentDelegated`.
+the OpenStack service, as illustrated below.
 
 Here, requests are forwarded to the OpenStack service with an identity status
 message that indicates whether the client's identity has been confirmed or is
@@ -219,7 +220,7 @@ unsuccessful.
 Extended the request with additional User Information
 -----------------------------------------------------
 
-:py:class:`keystoneclient.middleware.auth_token.AuthProtocol` extends the request
+The keystone client auth_token middleware extends the request
 with additional information if the user has been authenticated.
 
 

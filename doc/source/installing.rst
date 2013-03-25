@@ -18,10 +18,14 @@
 ===================
 Installing Keystone
 ===================
+.. _developing: developing.rst
+.. _setup: setup.rst
+.. _configuration: configuration.rst
+.. _configuring-services: configuringservices.rst
 
 This document describes how to install Keystone in order to use it. If you are
-intending to develop on or with Keystone, please read :doc:`developing` and
-:doc:`setup`
+intending to develop on or with Keystone, please read developing_ and
+setup_.
 
 Installing from Source
 ----------------------
@@ -62,7 +66,7 @@ You will find sample configuration files in ``etc/``
 * policy.json
 * default_catalog.templates
 
-From here, refer to :doc:`configuration` to choose which backend drivers to
+From here, refer to configuration_ to choose which backend drivers to
 enable and use. Once configured, you should be able to run keystone by issuing
 the command::
 
@@ -70,7 +74,7 @@ the command::
 
 which (by default) will show logging on the console from which it was started.
 Once started, you can initialize data in keystone for use with the rest of
-openstack, as described in :doc:`configuringservices`.
+openstack, as described in configuring-services_.
 
 An excellent reference implementation of setting up keystone is DEVSTACK_,
 most commonly used for development and testing setup of not only Keystone,
@@ -98,7 +102,7 @@ options for setting up and running Keystone. As of this writing, the defaults
 for Keystone backends are all SQL based, stored locally in a sqlite.
 
 Once installed, you still need to initialize data in Keystone, which you can
-find described in :doc:`configuringservices`.
+find described in configuring-services_.
 
 Installing from packages: Fedora
 --------------------------------
