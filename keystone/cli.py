@@ -25,6 +25,7 @@ from keystone.common import openssl
 from keystone import config
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
+from keystone.openstack.common import version
 
 CONF = config.CONF
 
@@ -167,6 +168,7 @@ def main(argv=None, config_files=None):
     CONF.register_cli_opt(command_opt)
     CONF(args=argv[1:],
          project='keystone',
+         version=version.VersionInfo('keystone').version_string(),
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
          default_config_files=config_files)
     config.setup_logging(CONF)
