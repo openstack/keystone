@@ -234,6 +234,10 @@ class XmlSerializer(object):
             container = etree.Element(k)
             element.append(container)
             name = 'service'
+        elif k == 'roles' and element.tag == 'user':
+            name = 'role'
+        elif k == 'endpoints' and element.tag == 'service':
+            name = 'endpoint'
         elif k == 'values' and element.tag[-1] == 's':
             # OS convention is to contain lists in a 'values' element,
             # so the list itself can have attributes, which is

@@ -374,7 +374,7 @@ class CoreApiTests(object):
                 },
             },
             expected_status=200)
-        self.assertValidAuthenticationResponse(r)
+        self.assertValidAuthenticationResponse(r, require_service_catalog=True)
 
     def test_authenticate_unscoped(self):
         r = self.public_request(
@@ -410,15 +410,13 @@ class CoreApiTests(object):
         path = ('/v2.0/tokens/%s?belongsTo=%s' % (token,
                                                   self.tenant_bar['id']))
         r = self.admin_request(path=path, token=token)
-        self.assertValidAuthenticationResponse(r,
-                                               require_service_catalog=True)
+        self.assertValidAuthenticationResponse(r, require_service_catalog=True)
 
     def test_validate_token_no_belongs_to_still_returns_catalog(self):
         token = self.get_scoped_token()
         path = ('/v2.0/tokens/%s' % token)
         r = self.admin_request(path=path, token=token)
-        self.assertValidAuthenticationResponse(r,
-                                               require_service_catalog=True)
+        self.assertValidAuthenticationResponse(r, require_service_catalog=True)
 
     def test_validate_token_head(self):
         """The same call as above, except using HEAD.
@@ -578,12 +576,21 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         self.assertIsNotNone(r.body['access']['user'].get('id'))
         self.assertIsNotNone(r.body['access']['user'].get('name'))
 
+        if require_service_catalog:
+            # roles are only provided with a service catalog
+            roles = r.body['access']['user'].get('roles')
+            self.assertTrue(len(roles))
+            for role in roles:
+                self.assertIsNotNone(role.get('name'))
+
         serviceCatalog = r.body['access'].get('serviceCatalog')
         # validate service catalog
         if require_service_catalog:
             self.assertIsNotNone(serviceCatalog)
         if serviceCatalog is not None:
             self.assertTrue(isinstance(serviceCatalog, list))
+            if require_service_catalog:
+                self.assertTrue(len(serviceCatalog))
             for service in r.body['access']['serviceCatalog']:
                 # validate service
                 self.assertIsNotNone(service.get('name'))
@@ -844,19 +851,30 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         self.assertIsNotNone(user.get('id'))
         self.assertIsNotNone(user.get('name'))
 
+        if require_service_catalog:
+            # roles are only provided with a service catalog
+            roles = user.findall(self._tag('role'))
+            self.assertTrue(len(roles))
+            for role in roles:
+                self.assertIsNotNone(role.get('name'))
+
         serviceCatalog = xml.find(self._tag('serviceCatalog'))
         # validate the serviceCatalog
         if require_service_catalog:
             self.assertIsNotNone(serviceCatalog)
         if serviceCatalog is not None:
-            for service in serviceCatalog.findall(self._tag('service')):
+            services = serviceCatalog.findall(self._tag('service'))
+            if require_service_catalog:
+                self.assertTrue(len(services))
+            for service in services:
                 # validate service
                 self.assertIsNotNone(service.get('name'))
                 self.assertIsNotNone(service.get('type'))
 
                 # services contain at least one endpoint
-                self.assertTrue(len(service))
-                for endpoint in service.findall(self._tag('endpoint')):
+                endpoints = service.findall(self._tag('endpoint'))
+                self.assertTrue(len(endpoints))
+                for endpoint in endpoints:
                     # validate service endpoint
                     self.assertIsNotNone(endpoint.get('publicURL'))
 
@@ -871,7 +889,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
 
     def test_authenticate_with_invalid_xml_in_password(self):
         # public_request would auto escape the ampersand
-        r = self.request(
+        self.request(
             port=self._public_port(),
             method='POST',
             path='/v2.0/tokens',
