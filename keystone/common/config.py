@@ -235,7 +235,8 @@ def configure():
     register_str('ca_password', group='signing', default=None)
 
     # sql
-    register_str('connection', group='sql', default='sqlite:///keystone.db')
+    register_str('connection', group='sql', secret=True,
+                 default='sqlite:///keystone.db')
     register_int('idle_timeout', group='sql', default=200)
 
     register_str(
