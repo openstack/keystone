@@ -700,6 +700,16 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
                           self.identity_api.get_domain,
                           domain['id'])
 
+    def test_create_domain_case_sensitivity(self):
+        # domains are read-only, so case sensitivity isn't an issue
+        ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex}
+        self.assertRaises(exception.Forbidden,
+                          self.assignment_api.create_domain,
+                          ref['id'],
+                          ref)
+
     def test_cache_layer_domain_crud(self):
         # TODO(morganfainberg): This also needs to be removed when full LDAP
         # implementation is submitted.  No need to duplicate the above test,
