@@ -17,6 +17,7 @@
 import os
 import shutil
 
+from keystone.common.sql import core
 from keystone.common.sql import migration
 from keystone import config
 
@@ -38,5 +39,7 @@ def setup_test_database():
 
 
 def teardown_test_database():
+    core.set_global_engine(None)
+
     if os.path.exists('test.db.pristine'):
         os.unlink('test.db.pristine')
