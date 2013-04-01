@@ -30,7 +30,6 @@ from keystone.common import logging
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
-from keystone import exception
 
 
 CONF = config.CONF
@@ -98,7 +97,6 @@ def set_global_engine(engine):
 
 
 def get_global_engine():
-    global GLOBAL_ENGINE
     return GLOBAL_ENGINE
 
 
@@ -250,6 +248,8 @@ class Base(object):
         # auto-build the db to support wsgi server w/ in-memory backend
         if allow_global_engine and CONF.sql.connection == 'sqlite://':
             ModelBase.metadata.create_all(bind=engine)
+
+        if allow_global_engine:
             set_global_engine(engine)
 
         return engine
