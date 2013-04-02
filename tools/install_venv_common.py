@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2013 OpenStack, LLC
+# Copyright 2013 OpenStack Foundation
 # Copyright 2013 IBM Corp.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -185,7 +185,8 @@ class Fedora(Distro):
         self.run_command(['sudo', 'yum', 'install', '-y', pkg], **kwargs)
 
     def apply_patch(self, originalfile, patchfile):
-        self.run_command(['patch', originalfile, patchfile])
+        self.run_command(['patch', '-N', originalfile, patchfile],
+                         check_exit_code=False)
 
     def install_virtualenv(self):
         if self.check_cmd('virtualenv'):
