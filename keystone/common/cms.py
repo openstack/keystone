@@ -1,3 +1,5 @@
+import hashlib
+
 from keystone.common import logging
 
 
@@ -116,6 +118,7 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
     Produces a Base64 encoding of a DER formatted CMS Document
     http://en.wikipedia.org/wiki/Cryptographic_Message_Syntax
     """
+
     _ensure_subprocess()
     process = subprocess.Popen(["openssl", "cms", "-sign",
                                 "-signer", signing_cert_file_name,
@@ -128,10 +131,14 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
                                stderr=subprocess.PIPE)
     output, err = process.communicate(text)
     retcode = process.poll()
-    if retcode:
-        LOG.error('Signing error: %s' % err)
-        raise subprocess.CalledProcessError(retcode,
-                                            "openssl", output=output)
+    if retcode or "Error" in err:
+        if retcode == 3:
+            LOG.error(_("Signing error: Unable to load certificate - "
+                      "ensure you've configured PKI with "
+                      "'keystone-manage pki_setup'"))
+        else:
+            LOG.error(_('Signing error: %s') % err)
+        raise subprocess.CalledProcessError(retcode, "openssl")
     return output
 
 
@@ -151,3 +158,18 @@ def cms_to_token(cms_text):
     signed_text = signed_text.replace('\n', '')
 
     return signed_text
+
+
+def cms_hash_token(token_id):
+    """
+    return: for ans1_token, returns the hash of the passed in token
+            otherwise, returns what it was passed in.
+    """
+    if token_id is None:
+        return None
+    if is_ans1_token(token_id):
+        hasher = hashlib.md5()
+        hasher.update(token_id)
+        return hasher.hexdigest()
+    else:
+        return token_id

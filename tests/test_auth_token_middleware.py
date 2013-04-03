@@ -36,6 +36,9 @@ REVOKED_TOKEN_HASH = None
 SIGNED_REVOCATION_LIST = None
 SIGNED_TOKEN_SCOPED = None
 SIGNED_TOKEN_UNSCOPED = None
+SIGNED_TOKEN_SCOPED_KEY = None
+SIGNED_TOKEN_UNSCOPED_KEY = None
+
 VALID_SIGNED_REVOCATION_LIST = None
 
 UUID_TOKEN_DEFAULT = "ec6c0710ec2f471498484c1b53ab4f9d"
@@ -161,11 +164,15 @@ def setUpModule(self):
     with open(os.path.join(signing_path, 'revocation_list.pem')) as f:
         self.VALID_SIGNED_REVOCATION_LIST = jsonutils.dumps(
             {'signed': f.read()})
+    self.SIGNED_TOKEN_SCOPED_KEY =\
+        cms.cms_hash_token(self.SIGNED_TOKEN_SCOPED)
+    self.SIGNED_TOKEN_UNSCOPED_KEY =\
+        cms.cms_hash_token(self.SIGNED_TOKEN_UNSCOPED)
 
-    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_SCOPED] = {
+    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_SCOPED_KEY] = {
         'access': {
             'token': {
-                'id': self.SIGNED_TOKEN_SCOPED,
+                'id': self.SIGNED_TOKEN_SCOPED_KEY,
             },
             'user': {
                 'id': 'user_id1',
@@ -180,10 +187,10 @@ def setUpModule(self):
         },
     }
 
-    self.TOKEN_RESPONSES[self.SIGNED_TOKEN_UNSCOPED] = {
+    self.TOKEN_RESPONSES[SIGNED_TOKEN_UNSCOPED_KEY] = {
         'access': {
             'token': {
-                'id': self.SIGNED_TOKEN_UNSCOPED,
+                'id': SIGNED_TOKEN_UNSCOPED_KEY,
             },
             'user': {
                 'id': 'user_id1',
@@ -204,7 +211,7 @@ class FakeMemcache(object):
         self.token_expiration = None
 
     def get(self, key):
-        data = TOKEN_RESPONSES[SIGNED_TOKEN_SCOPED].copy()
+        data = TOKEN_RESPONSES[SIGNED_TOKEN_SCOPED_KEY].copy()
         if not data or key != "tokens/%s" % (data['access']['token']['id']):
             return
         if not self.token_expiration:
