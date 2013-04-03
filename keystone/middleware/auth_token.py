@@ -99,7 +99,6 @@ import json
 import logging
 import os
 import stat
-import subprocess
 import time
 import webob
 import webob.exc
@@ -736,7 +735,7 @@ class AuthProtocol(object):
             try:
                 output = cms.cms_verify(data, self.signing_cert_file_name,
                                         self.ca_file_name)
-            except subprocess.CalledProcessError as err:
+            except cms.subprocess.CalledProcessError as err:
                 if self.cert_file_missing(err, self.signing_cert_file_name):
                     self.fetch_signing_cert()
                     continue
