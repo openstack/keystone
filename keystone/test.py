@@ -37,6 +37,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common import timeutils
 from keystone import policy
 from keystone import token
 from keystone import trust
@@ -207,6 +208,7 @@ class TestCase(NoModule, unittest.TestCase):
 
     def tearDown(self):
         try:
+            timeutils.clear_time_override()
             self.mox.UnsetStubs()
             self.stubs.UnsetAll()
             self.stubs.SmartUnsetAll()

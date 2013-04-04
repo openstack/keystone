@@ -14,7 +14,6 @@
 
 import copy
 import datetime
-import time
 import uuid
 
 from keystone import auth
@@ -748,6 +747,8 @@ class AuthWithTrust(AuthTest):
 class TokenExpirationTest(AuthTest):
     def _maintain_token_expiration(self):
         """Token expiration should be maintained after re-auth & validation."""
+        timeutils.set_time_override()
+
         r = self.controller.authenticate(
             {},
             auth={
@@ -759,14 +760,14 @@ class TokenExpirationTest(AuthTest):
         unscoped_token_id = r['access']['token']['id']
         original_expiration = r['access']['token']['expires']
 
-        time.sleep(0.5)
+        timeutils.advance_time_seconds(1)
 
         r = self.controller.validate_token(
             dict(is_admin=True, query_string={}),
             token_id=unscoped_token_id)
         self.assertEqual(original_expiration, r['access']['token']['expires'])
 
-        time.sleep(0.5)
+        timeutils.advance_time_seconds(1)
 
         r = self.controller.authenticate(
             {},
@@ -779,7 +780,7 @@ class TokenExpirationTest(AuthTest):
         scoped_token_id = r['access']['token']['id']
         self.assertEqual(original_expiration, r['access']['token']['expires'])
 
-        time.sleep(0.5)
+        timeutils.advance_time_seconds(1)
 
         r = self.controller.validate_token(
             dict(is_admin=True, query_string={}),
