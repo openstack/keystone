@@ -93,6 +93,14 @@ if [ $nokeystoneclient -eq 1 ]; then
     noseopts="$noseopts -I test_keystoneclient*"
 fi
 
+function cleanup_test_db {
+  # Default test settings will leave around some test*.db files
+  # TODO(termie): this could probably be moved into tests/__init__.py
+  #               but there have been some issues with creating that
+  #               file for some users
+  rm -f tests/test*.db
+}
+
 function run_tests {
   # Just run the test suites in current environment
   ${wrapper} $NOSETESTS
@@ -179,7 +187,7 @@ fi
 
 
 if [ $recreate_db -eq 1 ]; then
-    rm -f tests.sqlite
+    cleanup_test_db
 fi
 
 run_tests
