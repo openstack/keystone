@@ -54,23 +54,22 @@ class DbSync(BaseApp):
                 driver.db_sync()
 
 
-class PKISetup(BaseApp):
-    """Set up Key pairs and certificates for token signing and verification."""
-
-    name = 'pki_setup'
+class BaseCertificateSetup(BaseApp):
+    """Common user/group setup for PKI and SSL generation"""
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(PKISetup,
+        parser = super(BaseCertificateSetup,
                        cls).add_argument_parser(subparsers)
         parser.add_argument('--keystone-user')
         parser.add_argument('--keystone-group')
         return parser
 
     @staticmethod
-    def main():
+    def get_user_group():
         keystone_user_id = None
         keystone_group_id = None
+
         try:
             a = CONF.command.keystone_user
             if a:
@@ -85,7 +84,30 @@ class PKISetup(BaseApp):
         except KeyError:
             raise ValueError("Unknown group '%s' in --keystone-group" % a)
 
-        conf_ssl = openssl.ConfigurePKI(keystone_user_id, keystone_group_id)
+        return keystone_user_id, keystone_group_id
+
+
+class PKISetup(BaseCertificateSetup):
+    """Set up Key pairs and certificates for token signing and verification."""
+
+    name = 'pki_setup'
+
+    @classmethod
+    def main(cls):
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        conf_pki = openssl.ConfigurePKI(keystone_user_id, keystone_group_id)
+        conf_pki.run()
+
+
+class SSLSetup(BaseCertificateSetup):
+    """Create key pairs and certificates for HTTPS connections"""
+
+    name = 'ssl_setup'
+
+    @classmethod
+    def main(cls):
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        conf_ssl = openssl.ConfigureSSL(keystone_user_id, keystone_group_id)
         conf_ssl.run()
 
 
@@ -150,6 +172,7 @@ CMDS = [
     ImportLegacy,
     ImportNovaAuth,
     PKISetup,
+    SSLSetup,
 ]
 
 

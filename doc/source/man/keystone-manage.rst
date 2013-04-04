@@ -48,6 +48,7 @@ Available commands:
 * ``import_legacy``: Import a legacy database.
 * ``import_nova_auth``: Import a dump of nova auth data into keystone.
 * ``pki_setup``: Initialize the certificates used to sign tokens.
+* ``ssl_setup``: Generate certificates for SSL.
 
 
 OPTIONS

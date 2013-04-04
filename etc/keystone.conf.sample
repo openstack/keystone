@@ -123,7 +123,11 @@
 #certfile = /etc/keystone/ssl/certs/keystone.pem
 #keyfile = /etc/keystone/ssl/private/keystonekey.pem
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
-#cert_required = True
+#key_size = 1024
+#valid_days = 3650
+#ca_password = None
+#cert_required = False
+#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 [signing]
 #token_format = PKI
@@ -133,6 +137,7 @@
 #key_size = 1024
 #valid_days = 3650
 #ca_password = None
+#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
 
 [ldap]
 # url = ldap://localhost
