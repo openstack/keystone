@@ -159,7 +159,7 @@ class S3TokenMiddlewareTestBad(S3TokenMiddlewareTestBase):
             ret = {"error":
                    {"message": "EC2 access key not found.",
                     "code": 401,
-                    "title": "Not Authorized"}}
+                    "title": "Unauthorized"}}
             body = jsonutils.dumps(ret)
             self.status = 403
             self.resp = FakeHTTPResponse(self.status, body)
