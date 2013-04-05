@@ -90,7 +90,7 @@ fi
 
 if [ $nokeystoneclient -eq 1 ]; then
     # disable the integration tests
-    noseopts="$noseopts -I test_keystoneclient*"
+    noseopts="$noseopts -I test_keystoneclient* -I _test_import_auth_token.py"
 fi
 
 function run_tests {
