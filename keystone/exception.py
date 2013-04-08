@@ -111,7 +111,7 @@ class SecurityError(Error):
 class Unauthorized(SecurityError):
     """The request you have made requires authentication."""
     code = 401
-    title = 'Not Authorized'
+    title = 'Unauthorized'
 
 
 class AuthPluginException(Unauthorized):
