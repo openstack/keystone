@@ -69,7 +69,7 @@ class Trust(kvs.Base, trust.Driver):
         try:
             ref = self.db.get('trust-%s' % trust_id)
         except exception.NotFound:
-            raise exception.TrustNotFound(token_id=token_id)
+            raise exception.TrustNotFound(trust_id=trust_id)
         ref['deleted'] = True
         self.db.set('trust-%s' % trust_id, ref)
 
