@@ -362,11 +362,21 @@ class Middleware(Application):
 
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, request):
-        response = self.process_request(request)
-        if response:
-            return response
-        response = request.get_response(self.application)
-        return self.process_response(request, response)
+        try:
+            response = self.process_request(request)
+            if response:
+                return response
+            response = request.get_response(self.application)
+            return self.process_response(request, response)
+        except exception.Error as e:
+            LOG.warning(e)
+            return render_exception(e)
+        except TypeError as e:
+            LOG.exception(e)
+            return render_exception(exception.ValidationError(e))
+        except Exception as e:
+            LOG.exception(e)
+            return render_exception(exception.UnexpectedError(exception=e))
 
 
 class Debug(Middleware):
