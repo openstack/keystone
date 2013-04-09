@@ -83,6 +83,18 @@ class TestAuthInfo(test_v3.RestfulTestCase):
                           None,
                           auth_data)
 
+    def test_get_method_data_invalid_method(self):
+        auth_data = self.build_authentication_request(
+            user_id='test',
+            password='test')['auth']
+        context = None
+        auth_info = auth.controllers.AuthInfo(context, auth_data)
+
+        method_name = uuid.uuid4().hex
+        self.assertRaises(exception.ValidationError,
+                          auth_info.get_method_data,
+                          method_name)
+
 
 class TestTokenAPIs(test_v3.RestfulTestCase):
     def setUp(self):
