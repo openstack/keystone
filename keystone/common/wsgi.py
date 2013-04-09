@@ -20,6 +20,7 @@
 
 """Utility methods for working with WSGI servers."""
 
+import re
 import socket
 import sys
 
@@ -46,6 +47,34 @@ CONTEXT_ENV = 'openstack.context'
 
 # Environment variable used to pass the request params
 PARAMS_ENV = 'openstack.params'
+
+
+_RE_PASS = re.compile(r'([\'"].*?password[\'"]\s*:\s*u?[\'"]).*?([\'"])',
+                      re.DOTALL)
+
+
+def mask_password(message, is_unicode=False, secret="***"):
+    """Replace password with 'secret' in message.
+
+    :param message: The string which include security information.
+    :param is_unicode: Is unicode string ?
+    :param secret: substitution string default to "***".
+    :returns: The string
+
+    For example:
+       >>> mask_password('"password" : "aaaaa"')
+       '"password" : "***"'
+       >>> mask_password("'original_password' : 'aaaaa'")
+       "'original_password' : '***'"
+       >>> mask_password("u'original_password' :   u'aaaaa'")
+       "u'original_password' :   u'***'"
+    """
+    if is_unicode:
+        message = unicode(message)
+    # Match the group 1,2 and replace all others with 'secret'
+    secret = r"\g<1>" + secret + r"\g<2>"
+    result = _RE_PASS.sub(secret, message)
+    return result
 
 
 class WritableLogger(object):
@@ -379,21 +408,23 @@ class Debug(Middleware):
 
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
-        LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
-        for key, value in req.environ.items():
-            LOG.debug('%s = %s', key, value)
-        LOG.debug('')
-        LOG.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
-        for line in req.body_file:
-            LOG.debug(line)
-        LOG.debug('')
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
+            for key, value in req.environ.items():
+                LOG.debug('%s = %s', key, mask_password(value,
+                                                        is_unicode=True))
+            LOG.debug('')
+            LOG.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
+            for line in req.body_file:
+                LOG.debug(mask_password(line))
+            LOG.debug('')
 
         resp = req.get_response(self.application)
-
-        LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
-        for (key, value) in resp.headers.iteritems():
-            LOG.debug('%s = %s', key, value)
-        LOG.debug('')
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
+            for (key, value) in resp.headers.iteritems():
+                LOG.debug('%s = %s', key, value)
+            LOG.debug('')
 
         resp.app_iter = self.print_generator(resp.app_iter)
 
