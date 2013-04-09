@@ -136,6 +136,15 @@ class IdentityTests(object):
         user_ref = self.identity_api._get_user(self.user_foo['id'])
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
 
+    def test_create_unicode_user_name(self):
+        unicode_name = u'name \u540d\u5b57'
+        user = {'id': uuid.uuid4().hex,
+                'name': unicode_name,
+                'domain_id': DEFAULT_DOMAIN_ID,
+                'password': uuid.uuid4().hex}
+        ref = self.identity_api.create_user(user['id'], user)
+        self.assertEqual(unicode_name, ref['name'])
+
     def test_get_project(self):
         tenant_ref = self.identity_api.get_project(
             tenant_id=self.tenant_bar['id'])

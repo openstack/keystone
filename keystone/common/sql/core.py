@@ -73,8 +73,10 @@ def initialize_decorator(init):
                 if isinstance(attr, InstrumentedAttribute):
                     column = attr.property.columns[0]
                     if isinstance(column.type, String):
+                        if not isinstance(v, unicode):
+                            v = str(v)
                         if column.type.length and \
-                                column.type.length < len(str(v)):
+                                column.type.length < len(v):
                             #if signing.token_format == 'PKI', the id will
                             #store it's public key which is very long.
                             if config.CONF.signing.token_format == 'PKI' and \
