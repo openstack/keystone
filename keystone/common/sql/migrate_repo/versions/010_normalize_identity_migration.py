@@ -37,7 +37,7 @@ def downgrade_user_table(meta, migrate_engine, session):
     for user in session.query(user_table).all():
         extra = json.loads(user.extra)
         extra['password'] = user.password
-        extra['enabled'] = '%r' % user.enabled
+        extra['enabled'] = '%r' % is_enabled(user.enabled)
         values = {'extra': json.dumps(extra)}
         update = user_table.update().\
             where(user_table.c.id == user.id).\
@@ -50,7 +50,7 @@ def downgrade_tenant_table(meta, migrate_engine, session):
     for tenant in session.query(tenant_table).all():
         extra = json.loads(tenant.extra)
         extra['description'] = tenant.description
-        extra['enabled'] = '%r' % tenant.enabled
+        extra['enabled'] = '%r' % is_enabled(tenant.enabled)
         values = {'extra': json.dumps(extra)}
         update = tenant_table.update().\
             where(tenant_table.c.id == tenant.id).\
@@ -63,7 +63,7 @@ def upgrade_user_table(meta, migrate_engine, session):
     for user in session.query(user_table).all():
         extra = json.loads(user.extra)
         values = {'password': extra.pop('password', None),
-                  'enabled': extra.pop('enabled', True),
+                  'enabled': is_enabled(extra.pop('enabled', True)),
                   'extra': json.dumps(extra)}
         update = user_table.update().\
             where(user_table.c.id == user.id).\
@@ -76,7 +76,7 @@ def upgrade_tenant_table(meta, migrate_engine, session):
     for tenant in session.query(tenant_table):
         extra = json.loads(tenant.extra)
         values = {'description': extra.pop('description', None),
-                  'enabled': extra.pop('enabled', True),
+                  'enabled': is_enabled(extra.pop('enabled', True)),
                   'extra': json.dumps(extra)}
         update = tenant_table.update().\
             where(tenant_table.c.id == tenant.id).\

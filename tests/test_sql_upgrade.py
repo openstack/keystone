@@ -155,6 +155,86 @@ class SqlUpgradeTests(test.TestCase):
         session.commit()
         session.close()
 
+    def test_normalized_enabled_states(self):
+        self.upgrade(8)
+
+        users = {
+            'bool_enabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': True})},
+            'bool_disabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': False})},
+            'str_enabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': 'True'})},
+            'str_disabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': 'False'})},
+            'int_enabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': 1})},
+            'int_disabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': 0})},
+            'null_enabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({'enabled': None})},
+            'unset_enabled_user': {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'password': uuid.uuid4().hex,
+                'extra': json.dumps({})}}
+
+        session = self.Session()
+        for user in users.values():
+            self.insert_dict(session, 'user', user)
+        session.commit()
+        session.close()
+
+        self.upgrade(10)
+
+        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
+        q = self.Session().query(user_table, 'enabled')
+
+        user = q.filter_by(id=users['bool_enabled_user']['id']).one()
+        self.assertTrue(user.enabled)
+
+        user = q.filter_by(id=users['bool_disabled_user']['id']).one()
+        self.assertFalse(user.enabled)
+
+        user = q.filter_by(id=users['str_enabled_user']['id']).one()
+        self.assertTrue(user.enabled)
+
+        user = q.filter_by(id=users['str_disabled_user']['id']).one()
+        self.assertFalse(user.enabled)
+
+        user = q.filter_by(id=users['int_enabled_user']['id']).one()
+        self.assertTrue(user.enabled)
+
+        user = q.filter_by(id=users['int_disabled_user']['id']).one()
+        self.assertFalse(user.enabled)
+
+        user = q.filter_by(id=users['null_enabled_user']['id']).one()
+        self.assertTrue(user.enabled)
+
+        user = q.filter_by(id=users['unset_enabled_user']['id']).one()
+        self.assertTrue(user.enabled)
+
     def test_downgrade_10_to_8(self):
         self.upgrade(10)
         self.populate_user_table(with_pass_enab=True)
