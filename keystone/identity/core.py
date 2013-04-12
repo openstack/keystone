@@ -95,15 +95,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_project(self, tenant_id):
-        """Get a tenant by id.
-
-        :returns: tenant_ref
-        :raises: keystone.exception.ProjectNotFound
-
-        """
-        raise exception.NotImplemented()
-
     def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
 
@@ -231,32 +222,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    # tenant crud
-    def create_project(self, tenant_id, tenant):
-        """Creates a new tenant.
-
-        :raises: keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()
-
-    def update_project(self, tenant_id, tenant):
-        """Updates an existing tenant.
-
-        :raises: keystone.exception.ProjectNotFound,
-                 keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()
-
-    def delete_project(self, tenant_id):
-        """Deletes an existing tenant.
-
-        :raises: keystone.exception.ProjectNotFound
-
-        """
-        raise exception.NotImplemented()
-
     # metadata crud
     def get_metadata(self, user_id=None, tenant_id=None,
                      domain_id=None, group_id=None):
@@ -363,10 +328,10 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_project(self):
+    def get_project(self, project_id):
         """Get a project by ID.
 
-        :returns: user_ref
+        :returns: project_ref
         :raises: keystone.exception.ProjectNotFound
 
         """
