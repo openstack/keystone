@@ -194,8 +194,8 @@ def configure():
     register_int('admin_port', default=35357)
     register_int('public_port', default=5000)
     register_str(
-        'public_endpoint', default='http://localhost:%(public_port)d/')
-    register_str('admin_endpoint', default='http://localhost:%(admin_port)d/')
+        'public_endpoint', default='http://localhost:%(public_port)s/')
+    register_str('admin_endpoint', default='http://localhost:%(admin_port)s/')
     register_str('onready')
     register_str('auth_admin_prefix', default='')
     register_str('policy_file', default='policy.json')
