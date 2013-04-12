@@ -171,7 +171,7 @@ Building the Documentation
 ==========================
 
 The documentation is all generated with Sphinx from within the docs directory.
-To generate the full set of HTML documentation:
+To generate the full set of HTML documentation::
 
     cd docs
     make autodoc
