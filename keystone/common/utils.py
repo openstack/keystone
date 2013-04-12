@@ -255,15 +255,8 @@ class LimitingReader(object):
             else:
                 yield chunk
 
-    def read(self, i):
+    def read(self, i=None):
         result = self.data.read(i)
-        self.bytes_read += len(result)
-        if self.bytes_read > self.limit:
-            raise exception.RequestTooLarge()
-        return result
-
-    def read(self):
-        result = self.data.read()
         self.bytes_read += len(result)
         if self.bytes_read > self.limit:
             raise exception.RequestTooLarge()
