@@ -904,3 +904,53 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
                 </auth>
             """,
             expected_status=400)
+
+    def test_add_tenant_xml(self):
+        """
+        verify create a tenant without providing description field
+        """
+        token = self.get_scoped_token()
+        r = self.request(
+            port=self._admin_port(),
+            method='POST',
+            path='/v2.0/tenants',
+            headers={
+                'Content-Type': 'application/xml',
+                'X-Auth-Token': token
+            },
+            body="""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <tenant xmlns="http://docs.openstack.org/identity/api/v2.0"
+                enabled="true" name="ACME Corp">
+                <description></description>
+                </tenant>
+            """)
+        self._from_content_type(r, 'json')
+        self.assertIsNotNone(r.body.get('tenant'))
+        self.assertValidTenant(r.body['tenant'])
+        self.assertEqual(r.body['tenant'].get('description'), "")
+
+    def test_add_tenant_json(self):
+        """
+        verify create a tenant without providing description field
+        """
+        token = self.get_scoped_token()
+        r = self.request(
+            port=self._admin_port(),
+            method='POST',
+            path='/v2.0/tenants',
+            headers={
+                'Content-Type': 'application/json',
+                'X-Auth-Token': token
+            },
+            body="""
+                {"tenant":{
+                    "name":"test1",
+                    "description":"",
+                    "enabled":"true"}
+                }
+            """)
+        self._from_content_type(r, 'json')
+        self.assertIsNotNone(r.body.get('tenant'))
+        self.assertValidTenant(r.body['tenant'])
+        self.assertEqual(r.body['tenant'].get('description'), "")
