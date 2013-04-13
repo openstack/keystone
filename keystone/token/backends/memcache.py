@@ -54,12 +54,12 @@ class Token(token.Driver):
     def get_token(self, token_id):
         if token_id is None:
             raise exception.TokenNotFound(token_id='')
-        ptk = self._prefix_token_id(token_id)
-        token = self.client.get(ptk)
-        if token is None:
+        ptk = self._prefix_token_id(token.unique_id(token_id))
+        token_ref = self.client.get(ptk)
+        if token_ref is None:
             raise exception.TokenNotFound(token_id=token_id)
 
-        return token
+        return token_ref
 
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
@@ -107,7 +107,7 @@ class Token(token.Driver):
         user_record = self.client.get(user_key) or ""
         token_list = jsonutils.loads('[%s]' % user_record)
         for token_id in token_list:
-            ptk = self._prefix_token_id(token_id)
+            ptk = self._prefix_token_id(token.unique_id(token_id))
             token_ref = self.client.get(ptk)
             if token_ref:
                 if tenant_id is not None:
