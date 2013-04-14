@@ -56,14 +56,10 @@ class Error(StandardError):
         :raises: KeyError given insufficient kwargs
 
         """
-        return message or self.__doc__ % kwargs
-
-    def __str__(self):
-        """Cleans up line breaks and indentation from doc strings."""
-        string = super(Error, self).__str__()
-        string = re.sub('[ \n]+', ' ', string)
-        string = string.strip()
-        return string
+        if not message:
+            message = re.sub('[ \n]+', ' ', self.__doc__ % kwargs)
+            message = message.strip()
+        return message
 
 
 class ValidationError(Error):

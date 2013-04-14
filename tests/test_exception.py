@@ -136,3 +136,12 @@ class SecurityErrorTestCase(ExceptionTestCase):
         e = exception.ForbiddenAction(action=risky_info)
         self.assertValidJsonRendering(e)
         self.assertIn(risky_info, str(e))
+
+    def test_unicode_message(self):
+        message = u'Comment \xe7a va'
+        e = exception.Error(message)
+        self.assertEqual(e.message, message)
+        try:
+            unicode(e)
+        except UnicodeEncodeError:
+            self.fail("unicode error message not supported")
