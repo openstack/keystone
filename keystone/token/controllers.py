@@ -241,10 +241,6 @@ class Auth(controller.V2Controller):
             metadata_ref['trustee_user_id'] = trust_ref['trustee_user_id']
             metadata_ref['trust_id'] = trust_id
 
-        auth_token_data = self._get_auth_token_data(current_user_ref,
-                                                    tenant_ref,
-                                                    metadata_ref,
-                                                    expiry)
         return (current_user_ref, tenant_ref, metadata_ref, expiry)
 
     def _authenticate_local(self, context, auth):
