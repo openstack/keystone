@@ -213,22 +213,16 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     DEFAULT_ATTRIBUTE_IGNORE = ['tenant_id', 'tenants']
     NotFound = exception.UserNotFound
     options_name = 'user'
-    attribute_mapping = {'password': 'userPassword',
-                         'email': 'mail',
-                         'name': 'sn',
-                         'enabled': 'enabled',
-                         'domain_id': 'domain_id'}
+    attribute_options_names = {'password': 'pass',
+                               'email': 'mail',
+                               'name': 'name',
+                               'enabled': 'enabled',
+                               'domain_id': 'domain_id'}
 
     model = models.User
 
     def __init__(self, conf):
         super(UserApi, self).__init__(conf)
-        self.attribute_mapping['name'] = conf.ldap.user_name_attribute
-        self.attribute_mapping['email'] = conf.ldap.user_mail_attribute
-        self.attribute_mapping['password'] = conf.ldap.user_pass_attribute
-        self.attribute_mapping['enabled'] = conf.ldap.user_enabled_attribute
-        self.attribute_mapping['domain_id'] = (
-            conf.ldap.user_domain_id_attribute)
         self.enabled_mask = conf.ldap.user_enabled_mask
         self.enabled_default = conf.ldap.user_enabled_default
         self.attribute_ignore = (getattr(conf.ldap, 'user_attribute_ignore')
@@ -280,18 +274,13 @@ class GroupApi(common_ldap.BaseLdap):
     DEFAULT_ATTRIBUTE_IGNORE = []
     NotFound = exception.GroupNotFound
     options_name = 'group'
-    attribute_mapping = {'name': 'ou',
-                         'description': 'description',
-                         'groupId': 'cn',
-                         'domain_id': 'domain_id'}
+    attribute_options_names = {'description': 'desc',
+                               'name': 'name',
+                               'domain_id': 'domain_id'}
     model = models.Group
 
     def __init__(self, conf):
         super(GroupApi, self).__init__(conf)
-        self.attribute_mapping['name'] = conf.ldap.group_name_attribute
-        self.attribute_mapping['description'] = conf.ldap.group_desc_attribute
-        self.attribute_mapping['domain_id'] = (
-            conf.ldap.group_domain_id_attribute)
         self.member_attribute = (getattr(conf.ldap, 'group_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self.attribute_ignore = (getattr(conf.ldap, 'group_attribute_ignore')

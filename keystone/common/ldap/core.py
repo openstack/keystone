@@ -114,7 +114,7 @@ class BaseLdap(object):
     notfound_arg = None
     options_name = None
     model = None
-    attribute_mapping = {}
+    attribute_options_names = {}
     attribute_ignore = []
     tree_dn = None
 
@@ -129,6 +129,7 @@ class BaseLdap(object):
         self.tls_cacertfile = conf.ldap.tls_cacertfile
         self.tls_cacertdir = conf.ldap.tls_cacertdir
         self.tls_req_cert = parse_tls_cert(conf.ldap.tls_req_cert)
+        self.attribute_mapping = {}
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
@@ -144,6 +145,10 @@ class BaseLdap(object):
             objclass = '%s_objectclass' % self.options_name
             self.object_class = (getattr(conf.ldap, objclass)
                                  or self.DEFAULT_OBJECTCLASS)
+
+            for k, v in self.attribute_options_names.iteritems():
+                v = '%s_%s_attribute' % (self.options_name, v)
+                self.attribute_mapping[k] = getattr(conf.ldap, v)
 
             attr_mapping_opt = ('%s_additional_attribute_mapping' %
                                 self.options_name)
