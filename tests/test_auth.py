@@ -19,7 +19,6 @@ import uuid
 from keystone import auth
 from keystone import config
 from keystone import exception
-from keystone import identity
 from keystone.openstack.common import timeutils
 from keystone import test
 from keystone import token

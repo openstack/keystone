@@ -16,8 +16,6 @@
 # limitations under the License.
 
 import httplib
-import os
-import ssl
 
 from keystone import config
 from keystone import test

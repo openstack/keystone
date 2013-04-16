@@ -14,8 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import functools
-
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import exception

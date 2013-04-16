@@ -14,11 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import ldap
 import uuid
 import nose.exc
 
-from keystone.common import ldap as ldap_common
 from keystone.common.ldap import fakeldap
 from keystone import config
 from keystone import exception

@@ -17,7 +17,6 @@
 import datetime
 import default_fixtures
 import uuid
-import nose.exc
 
 from keystone.catalog import core
 from keystone import config

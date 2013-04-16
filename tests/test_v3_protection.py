@@ -15,11 +15,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import tempfile
 import uuid
-
-import nose.exc
 
 from keystone import config
 from keystone import exception
