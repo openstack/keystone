@@ -70,12 +70,11 @@ def downgrade(migrate_engine):
         'metadata',
         meta,
         sql.Column(
-            'user_id',
+            u'user_id',
             sql.String(64),
-            sql.ForeignKey('user.id'),
             primary_key=True),
         sql.Column(
-            'tenant_id',
+            u'tenant_id',
             sql.String(64),
             primary_key=True),
         sql.Column('data',
