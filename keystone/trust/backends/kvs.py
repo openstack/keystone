@@ -18,7 +18,6 @@ An in memory implementation of the trusts API.
 only to be used for testing purposes
 """
 import copy
-import datetime
 
 
 from keystone.common import kvs

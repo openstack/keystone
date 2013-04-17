@@ -15,7 +15,6 @@
 # under the License.
 
 from keystone import clean
-from keystone import config
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone.common import utils

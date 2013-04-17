@@ -15,7 +15,6 @@
 # under the License.
 
 
-from keystone.common import dependency
 from keystone.common import logging
 from keystone import auth
 from keystone import exception

@@ -17,7 +17,6 @@
 import uuid
 
 import ldap
-from ldap import filter as ldap_filter
 
 from keystone import clean
 from keystone.common import ldap as common_ldap

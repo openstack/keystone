@@ -16,7 +16,6 @@
 """WSGI Routers for the Identity service."""
 
 from keystone.trust import controllers
-from keystone.common import router
 
 
 def append_v3_routers(mapper, routers):

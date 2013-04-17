@@ -16,9 +16,7 @@
 
 import uuid
 
-from keystone.common import logging
 from keystone import auth
-from keystone import config
 from keystone import exception
 from keystone import test
 

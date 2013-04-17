@@ -1,8 +1,5 @@
 import uuid
 
-from keystone.common.sql import util as sql_util
-from keystone import test
-
 import test_content_types
 
 

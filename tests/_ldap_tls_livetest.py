@@ -17,17 +17,12 @@
 
 import ldap
 import ldap.modlist
-import nose.exc
-import subprocess
 
-from keystone.common import ldap as ldap_common
 from keystone import config
 from keystone import exception
-from keystone.identity.backends import ldap as identity_ldap
 from keystone import identity
 from keystone import test
 
-import default_fixtures
 import _ldap_livetest
 
 

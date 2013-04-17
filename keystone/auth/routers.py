@@ -15,7 +15,6 @@
 # under the License.
 
 from keystone.auth import controllers
-from keystone.common import router
 
 
 def append_v3_routers(mapper, routers):
