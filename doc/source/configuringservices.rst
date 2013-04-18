@@ -21,9 +21,10 @@ Configuring Services to work with Keystone
 .. toctree::
    :maxdepth: 1
 
-   middlewarearchitecture
+..  _middlewarearchitecture: middlewarearchitecture.rst
+..  _configuration: configuration.rst
 
-Once Keystone is installed and running (see :doc:`configuration`), services
+Once Keystone is installed and running (see configuration_), services
 need to be configured to work with it. To do this, we primarily install and
 configure middleware for the OpenStack service to handle authentication tasks
 or otherwise interact with Keystone.
@@ -38,7 +39,7 @@ In general:
 
 The middleware will pass those data down to the service as headers. More
 details on the architecture of that setup is described in
-:doc:`middlewarearchitecture`
+middlewarearchitecture_
 
 Setting up credentials
 ======================
@@ -70,7 +71,7 @@ be able to use to authenticate users against keystone. The ``auth_token``
 middleware supports using either the shared secret described above as
 `admin_token` or users for each service.
 
-See :doc:`configuration` for a walk through on how to create tenants, users,
+See configuration_ for a walk through on how to create tenants, users,
 and roles.
 
 Setting up services
@@ -113,7 +114,7 @@ up quickly with::
 
 Once you have it, assign the service users to the Admin role. This is all
 assuming that you've already created the basic roles and settings as described
-in :doc:`configuration`::
+in configuration_:
 
     keystone user-role-add --tenant_id=[uuid of the service tenant] \
                            --user=[uuid of the service account] \
@@ -162,7 +163,7 @@ Keystone Auth-Token Middleware
 
 The Keystone auth_token middleware is a WSGI component that can be inserted in
 the WSGI pipeline to handle authenticating tokens with Keystone. You can
-get more details of the middleware in :doc:`middlewarearchitecture`.
+get more details of the middleware in middlewarearchitecture_.
 
 Configuring Nova to use Keystone
 --------------------------------
