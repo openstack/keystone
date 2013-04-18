@@ -28,6 +28,7 @@ from keystone import test
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+NULL_OBJECT = object()
 
 
 class IdentityTests(object):
@@ -1993,6 +1994,8 @@ class TokenTests(object):
                 'user': {'id': 'testuserid'}}
         if tenant_id is not None:
             data['tenant'] = {'id': tenant_id, 'name': tenant_id}
+        if tenant_id is NULL_OBJECT:
+            data['tenant'] = None
         if trust_id is not None:
             data['trust_id'] = trust_id
         self.token_api.create_token(token_id, data)
@@ -2024,12 +2027,15 @@ class TokenTests(object):
         tenant2 = uuid.uuid4().hex
         token_id3 = self.create_token_sample_data(tenant_id=tenant1)
         token_id4 = self.create_token_sample_data(tenant_id=tenant2)
+        # test for existing but empty tenant (LP:1078497)
+        token_id5 = self.create_token_sample_data(tenant_id=NULL_OBJECT)
         tokens = self.token_api.list_tokens('testuserid')
-        self.assertEquals(len(tokens), 2)
+        self.assertEquals(len(tokens), 3)
         self.assertNotIn(token_id1, tokens)
         self.assertNotIn(token_id2, tokens)
         self.assertIn(token_id3, tokens)
         self.assertIn(token_id4, tokens)
+        self.assertIn(token_id5, tokens)
         tokens = self.token_api.list_tokens('testuserid', tenant2)
         self.assertEquals(len(tokens), 1)
         self.assertNotIn(token_id1, tokens)
@@ -2157,7 +2163,7 @@ class TrustTests(object):
         self.assertTrue(timeutils.normalize_time(trust_data['expires_at']) >
                         timeutils.utcnow())
 
-        self.assertEquals([{'id':'member'},
+        self.assertEquals([{'id': 'member'},
                            {'id': 'other'},
                            {'id': 'browser'}], trust_data['roles'])
 
