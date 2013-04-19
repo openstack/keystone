@@ -263,7 +263,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     DEFAULT_OBJECTCLASS = 'groupOfNames'
     DEFAULT_ID_ATTR = 'cn'
     DEFAULT_MEMBER_ATTRIBUTE = 'member'
-    DEFAULT_ATTRIBUTE_IGNORE = []
     NotFound = exception.ProjectNotFound
     notfound_arg = 'project_id'  # NOTE(yorik-sar): while options_name = tenant
     options_name = 'tenant'
@@ -277,8 +276,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         super(ProjectApi, self).__init__(conf)
         self.member_attribute = (getattr(conf.ldap, 'tenant_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
-        self.attribute_ignore = (getattr(conf.ldap, 'tenant_attribute_ignore')
-                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
 
     def create(self, values):
         self.affirm_unique(values)
@@ -375,7 +372,6 @@ class RoleApi(common_ldap.BaseLdap):
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'organizationalRole'
     DEFAULT_MEMBER_ATTRIBUTE = 'roleOccupant'
-    DEFAULT_ATTRIBUTE_IGNORE = []
     NotFound = exception.RoleNotFound
     options_name = 'role'
     attribute_options_names = {'name': 'name'}
@@ -385,8 +381,6 @@ class RoleApi(common_ldap.BaseLdap):
         super(RoleApi, self).__init__(conf)
         self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
-        self.attribute_ignore = (getattr(conf.ldap, 'role_attribute_ignore')
-                                 or self.DEFAULT_ATTRIBUTE_IGNORE)
 
     def get(self, id, filter=None):
         model = super(RoleApi, self).get(id, filter)
