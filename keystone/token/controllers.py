@@ -346,10 +346,10 @@ class Auth(controller.V2Controller):
         return (user_ref, tenant_ref, metadata_ref, expiry)
 
     def _get_auth_token_data(self, user, tenant, metadata, expiry):
-        return dict(dict(user=user,
-                         tenant=tenant,
-                         metadata=metadata,
-                         expires=expiry))
+        return dict(user=user,
+                    tenant=tenant,
+                    metadata=metadata,
+                    expires=expiry)
 
     def _get_project_id_from_auth(self, context, auth):
         """Extract tenant information from auth dict.
