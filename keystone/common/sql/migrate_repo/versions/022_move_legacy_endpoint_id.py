@@ -30,6 +30,7 @@ def upgrade(migrate_engine):
                 endpoint_table.c.extra: json.dumps(extra),
                 endpoint_table.c.legacy_endpoint_id: legacy_endpoint_id})
             migrate_engine.execute(q)
+    session.close()
 
 
 def downgrade(migrate_engine):
@@ -50,3 +51,4 @@ def downgrade(migrate_engine):
                 endpoint_table.c.extra: json.dumps(extra),
                 endpoint_table.c.legacy_endpoint_id: None})
             migrate_engine.execute(q)
+    session.close()
