@@ -349,6 +349,43 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
+    def test_list_groups_for_user(self):
+        """GET /users/{user_id}/groups"""
+
+        self.user1 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user1['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user1['id'], self.user1)
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user2['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user1['id'], self.user2)
+        self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': self.group_id, 'user_id': self.user1['id']})
+
+        #Scenarios below are written to test the default policy configuration
+
+        #One should be allowed to list one's own groups
+        auth = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'])
+        r = self.get('/users/%(user_id)s/groups' % {
+            'user_id': self.user1['id']}, auth=auth)
+        self.assertValidGroupListResponse(r, ref=self.group)
+
+        #Administrator is allowed to list others' groups
+        r = self.get('/users/%(user_id)s/groups' % {
+            'user_id': self.user1['id']})
+        self.assertValidGroupListResponse(r, ref=self.group)
+
+        #Ordinary users should not be allowed to list other's groups
+        auth = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'])
+        r = self.get('/users/%(user_id)s/groups' % {
+            'user_id': self.user1['id']}, auth=auth,
+            expected_status=exception.ForbiddenAction.code)
+
     def test_check_user_in_group(self):
         """HEAD /groups/{group_id}/users/{user_id}"""
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
