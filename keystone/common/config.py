@@ -124,6 +124,13 @@ def setup_logging(conf):
     root_logger.addHandler(handler)
 
 
+def setup_authentication():
+    # register any non-default auth methods here (used by extensions, etc)
+    for method_name in CONF.auth.methods:
+        if method_name not in _DEFAULT_AUTH_METHODS:
+            register_str(method_name, group="auth")
+
+
 def register_str(*args, **kw):
     conf = kw.pop('conf', CONF)
     group = kw.pop('group', None)

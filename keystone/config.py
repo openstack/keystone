@@ -30,3 +30,4 @@ register_bool = config.register_bool
 register_cli_bool = config.register_cli_bool
 register_int = config.register_int
 register_cli_int = config.register_cli_int
+setup_authentication = config.setup_authentication
