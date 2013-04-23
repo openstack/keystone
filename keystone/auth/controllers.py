@@ -237,7 +237,7 @@ class AuthInfo(object):
 
         """
         if method not in self.auth['identity']['methods']:
-            raise exception.ValidationError(attribute=method_name,
+            raise exception.ValidationError(attribute=method,
                                             target='identity')
         return self.auth['identity'][method]
 
