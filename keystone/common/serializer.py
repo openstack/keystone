@@ -153,6 +153,10 @@ class XmlDeserializer(object):
             else:
                 values = dict(values.items() + child.items())
 
+        # set empty and none-list element to None to align with JSON
+        if not values:
+            values = ""
+
         d = {XmlDeserializer._tag_name(element.tag, namespace): values}
 
         if links:

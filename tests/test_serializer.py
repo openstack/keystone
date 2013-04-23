@@ -154,6 +154,29 @@ class XmlSerializerTestCase(test.TestCase):
 
         self.assertSerializeDeserialize(d, xml)
 
+    def test_tenant_crud_no_description(self):
+        d = {
+            "tenant": {
+                "id": "1234",
+                "name": "ACME corp",
+                "description": "",
+                "enabled": True
+            }
+        }
+
+        xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <tenant
+                    xmlns="http://docs.openstack.org/identity/api/v2.0"
+                    enabled="true"
+                    id="1234"
+                    name="ACME corp">
+                <description></description>
+            </tenant>
+        """
+
+        self.assertSerializeDeserialize(d, xml)
+
     def test_policy_list(self):
         d = {"policies": [{"id": "ab12cd"}]}
 
