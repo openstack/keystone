@@ -217,6 +217,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                                'name': 'name',
                                'enabled': 'enabled',
                                'domain_id': 'domain_id'}
+    immutable_attrs = ['id']
 
     model = models.User
 
@@ -273,6 +274,7 @@ class GroupApi(common_ldap.BaseLdap):
     attribute_options_names = {'description': 'desc',
                                'name': 'name',
                                'domain_id': 'domain_id'}
+    immutable_attrs = ['name']
     model = models.Group
 
     def __init__(self, conf):
@@ -313,9 +315,6 @@ class GroupApi(common_ldap.BaseLdap):
 
     def update(self, id, values):
         old_obj = self.get(id)
-        if old_obj['name'] != values['name']:
-            msg = _('Changing Name not supported by LDAP')
-            raise exception.NotImplemented(message=msg)
         return super(GroupApi, self).update(id, values, old_obj)
 
     def add_user(self, user_dn, group_id, user_id):
