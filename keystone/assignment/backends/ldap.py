@@ -279,7 +279,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
     def create(self, values):
-        self.affirm_unique(values)
         data = values.copy()
         if data.get('id') is None:
             data['id'] = uuid.uuid4().hex
