@@ -226,6 +226,18 @@
 # tls_cacertdir =
 # tls_req_cert = demand
 
+# Additional attribute mappings can be used to map ldap attributes to internal
+# keystone attributes. This allows keystone to fulfill ldap objectclass
+# requirements. An example to map the description and gecos attributes to a
+# user's name would be:
+# user_additional_attribute_mapping = description:name, gecos:name
+#
+# domain_additional_attribute_mapping =
+# group_additional_attribute_mapping =
+# role_additional_attribute_mapping =
+# project_additional_attribute_mapping =
+# user_additional_attribute_mapping =
+
 [auth]
 methods = password,token
 password = keystone.auth.plugins.password.Password
