@@ -37,6 +37,17 @@
 # service              ec2       admin
 # service              swift     admin
 
+# By default, passwords used are those in the OpenStack Install and Deploy Manual.
+# One can override these (publicly known, and hence, insecure) passwords by setting the appropriate
+# environment variables. A common default password for all the services can be used by
+# setting the "SERVICE_PASSWORD" environment variable.
+
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-secrete}
+NOVA_PASSWORD=${NOVA_PASSWORD:-${SERVICE_PASSWORD:-nova}}
+GLANCE_PASSWORD=${GLANCE_PASSWORD:-${SERVICE_PASSWORD:-glance}}
+EC2_PASSWORD=${EC2_PASSWORD:-${SERVICE_PASSWORD:-ec2}}
+SWIFT_PASSWORD=${SWIFT_PASSWORD:-${SERVICE_PASSWORD:-swiftpass}}
+
 CONTROLLER_PUBLIC_ADDRESS=${CONTROLLER_PUBLIC_ADDRESS:-localhost}
 CONTROLLER_ADMIN_ADDRESS=${CONTROLLER_ADMIN_ADDRESS:-localhost}
 CONTROLLER_INTERNAL_ADDRESS=${CONTROLLER_INTERNAL_ADDRESS:-localhost}
@@ -80,7 +91,7 @@ DEMO_TENANT=$(get_id keystone tenant-create --name=demo \
                                             --description "Default Tenant")
 
 ADMIN_USER=$(get_id keystone user-create --name=admin \
-                                         --pass=secrete)
+                                         --pass="${ADMIN_PASSWORD}")
 
 ADMIN_ROLE=$(get_id keystone role-create --name=admin)
 
@@ -95,14 +106,14 @@ SERVICE_TENANT=$(get_id keystone tenant-create --name=service \
                                                --description "Service Tenant")
 
 GLANCE_USER=$(get_id keystone user-create --name=glance \
-                                          --pass=glance)
+                                          --pass="${GLANCE_PASSWORD}")
 
 keystone user-role-add --user-id $GLANCE_USER \
                        --role-id $ADMIN_ROLE \
                        --tenant-id $SERVICE_TENANT
 
 NOVA_USER=$(get_id keystone user-create --name=nova \
-                                        --pass=nova \
+                                        --pass="${NOVA_PASSWORD}" \
                                         --tenant-id $SERVICE_TENANT)
 
 keystone user-role-add --user-id $NOVA_USER \
@@ -110,7 +121,7 @@ keystone user-role-add --user-id $NOVA_USER \
                        --tenant-id $SERVICE_TENANT
 
 EC2_USER=$(get_id keystone user-create --name=ec2 \
-                                       --pass=ec2 \
+                                       --pass="${EC2_PASSWORD}" \
                                        --tenant-id $SERVICE_TENANT)
 
 keystone user-role-add --user-id $EC2_USER \
@@ -118,7 +129,7 @@ keystone user-role-add --user-id $EC2_USER \
                        --tenant-id $SERVICE_TENANT
 
 SWIFT_USER=$(get_id keystone user-create --name=swift \
-                                         --pass=swiftpass \
+                                         --pass="${SWIFT_PASSWORD}" \
                                          --tenant-id $SERVICE_TENANT)
 
 keystone user-role-add --user-id $SWIFT_USER \
