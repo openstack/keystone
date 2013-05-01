@@ -114,10 +114,8 @@ class Trust(sql.Base, trust.Driver):
     def delete_trust(self, trust_id):
         session = self.get_session()
         with session.begin():
-            try:
-                trust_ref = (session.query(TrustModel).
-                             filter_by(id=trust_id).one())
-            except sql.NotFound:
+            trust_ref = session.query(TrustModel).get(trust_id)
+            if not trust_ref:
                 raise exception.TrustNotFound(trust_id=trust_id)
             trust_ref.deleted_at = timeutils.utcnow()
             session.flush()

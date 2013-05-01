@@ -60,10 +60,10 @@ class Catalog(sql.Base, catalog.Driver):
         return [s.to_dict() for s in list(services)]
 
     def _get_service(self, session, service_id):
-        try:
-            return session.query(Service).filter_by(id=service_id).one()
-        except sql.NotFound:
+        ref = session.query(Service).get(service_id)
+        if not ref:
             raise exception.ServiceNotFound(service_id=service_id)
+        return ref
 
     def get_service(self, service_id):
         session = self.get_session()
@@ -112,8 +112,8 @@ class Catalog(sql.Base, catalog.Driver):
     def delete_endpoint(self, endpoint_id):
         session = self.get_session()
         with session.begin():
-            if not session.query(Endpoint).filter_by(id=endpoint_id).delete():
-                raise exception.EndpointNotFound(endpoint_id=endpoint_id)
+            ref = self._get_endpoint(session, endpoint_id)
+            session.delete(ref)
             session.flush()
 
     def _get_endpoint(self, session, endpoint_id):

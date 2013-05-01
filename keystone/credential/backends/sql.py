@@ -14,10 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import clean
 from keystone.common import sql
 from keystone.common.sql import migration
-from keystone.common import utils
 from keystone import credential
 from keystone import exception
 
@@ -55,22 +53,21 @@ class Credential(sql.Base, credential.Driver):
         refs = session.query(CredentialModel).all()
         return [ref.to_dict() for ref in refs]
 
-    def get_credential(self, credential_id):
-        session = self.get_session()
-        ref = (session.query(CredentialModel)
-               .filter_by(id=credential_id).first())
+    def _get_credential(self, session, credential_id):
+        ref = session.query(CredentialModel).get(credential_id)
         if ref is None:
             raise exception.CredentialNotFound(credential_id=credential_id)
-        return ref.to_dict()
+        return ref
+
+    def get_credential(self, credential_id):
+        session = self.get_session()
+        return self._get_credential(session, credential_id).to_dict()
 
     @sql.handle_conflicts(type='credential')
     def update_credential(self, credential_id, credential):
         session = self.get_session()
         with session.begin():
-            ref = (session.query(CredentialModel)
-                   .filter_by(id=credential_id).first())
-            if ref is None:
-                raise exception.CredentialNotFound(credential_id=credential_id)
+            ref = self._get_credential(session, credential_id)
             old_dict = ref.to_dict()
             for k in credential:
                 old_dict[k] = credential[k]
@@ -85,12 +82,7 @@ class Credential(sql.Base, credential.Driver):
     def delete_credential(self, credential_id):
         session = self.get_session()
 
-        try:
-            ref = (session.query(CredentialModel)
-                   .filter_by(id=credential_id).one())
-        except sql.NotFound:
-            raise exception.CredentialNotFound(credential_id=credential_id)
-
         with session.begin():
+            ref = self._get_credential(session, credential_id)
             session.delete(ref)
             session.flush()

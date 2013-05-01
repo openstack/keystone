@@ -73,6 +73,11 @@ class SqlTests(test.TestCase, sql.Base):
 
 
 class SqlIdentity(SqlTests, test_backend.IdentityTests):
+    def test_password_hashed(self):
+        session = self.identity_api.get_session()
+        user_ref = self.identity_api._get_user(session, self.user_foo['id'])
+        self.assertNotEqual(user_ref['password'], self.user_foo['password'])
+
     def test_delete_user_with_project_association(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
