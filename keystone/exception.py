@@ -141,7 +141,7 @@ class AdditionalAuthRequired(AuthPluginException):
 class Forbidden(SecurityError):
     """You are not authorized to perform the requested action."""
     code = 403
-    title = 'Not Authorized'
+    title = 'Forbidden'
 
 
 class ForbiddenAction(Forbidden):
