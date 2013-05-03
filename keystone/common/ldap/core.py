@@ -339,6 +339,8 @@ class BaseLdap(object):
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(id)
 
+        return self.get(id)
+
     def delete(self, id):
         if not self.allow_delete:
             action = _('LDAP %s delete') % self.options_name
@@ -572,14 +574,16 @@ class EnabledEmuMixIn(BaseLdap):
         if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
             data = values.copy()
             enabled_value = data.pop('enabled', None)
-            super(EnabledEmuMixIn, self).update(object_id, data, old_obj)
+            ref = super(EnabledEmuMixIn, self).update(object_id, data, old_obj)
             if enabled_value is not None:
                 if enabled_value:
                     self._add_enabled(object_id)
                 else:
                     self._remove_enabled(object_id)
+            return ref
         else:
-            super(EnabledEmuMixIn, self).update(object_id, values, old_obj)
+            return super(EnabledEmuMixIn, self).update(
+                object_id, values, old_obj)
 
     def delete(self, object_id):
         if self.enabled_emulation:
