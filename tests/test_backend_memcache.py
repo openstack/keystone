@@ -19,6 +19,7 @@ import uuid
 import memcache
 
 from keystone.common import utils
+from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import test
 from keystone.token.backends import memcache as token_memcache
@@ -96,3 +97,7 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
     def test_list_tokens_unicode_user_id(self):
         user_id = unicode(uuid.uuid4().hex)
         self.token_api.list_tokens(user_id)
+
+    def test_flush_expired_token(self):
+        with self.assertRaises(exception.NotImplemented):
+            self.token_api.flush_expired_tokens()

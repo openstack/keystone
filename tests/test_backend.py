@@ -2188,6 +2188,32 @@ class TokenTests(object):
         self.check_list_revoked_tokens([self.delete_token()
                                         for x in xrange(2)])
 
+    def test_flush_expired_token(self):
+        token_id = uuid.uuid4().hex
+        expire_time = timeutils.utcnow() - datetime.timedelta(minutes=1)
+        data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
+                'expires': expire_time,
+                'trust_id': None,
+                'user': {'id': 'testuserid'}}
+        data_ref = self.token_api.create_token(token_id, data)
+        data_ref.pop('user_id')
+        self.assertDictEqual(data_ref, data)
+
+        token_id = uuid.uuid4().hex
+        expire_time = timeutils.utcnow() + datetime.timedelta(minutes=1)
+        data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
+                'expires': expire_time,
+                'trust_id': None,
+                'user': {'id': 'testuserid'}}
+        data_ref = self.token_api.create_token(token_id, data)
+        data_ref.pop('user_id')
+        self.assertDictEqual(data_ref, data)
+
+        self.token_api.flush_expired_tokens()
+        tokens = self.token_api.list_tokens('testuserid')
+        self.assertEqual(len(tokens), 1)
+        self.assertIn(token_id, tokens)
+
 
 class TrustTests(object):
     def create_sample_trust(self, new_id):

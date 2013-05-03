@@ -131,3 +131,12 @@ class Token(sql.Base, token.Driver):
             }
             tokens.append(record)
         return tokens
+
+    def flush_expired_tokens(self):
+        session = self.get_session()
+
+        query = session.query(TokenModel)
+        query = query.filter(TokenModel.expires < timeutils.utcnow())
+        query.delete(synchronize_session=False)
+
+        session.flush()

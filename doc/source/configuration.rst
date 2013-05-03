@@ -975,6 +975,19 @@ example::
     $ keystone service-delete 08741d8ed88242ca88d1f61484a0fe3b
 
 
+
+Removing Expired Tokens
+===========================================================
+
+In the SQL and KVS token stores expired tokens are not automatically
+removed. These tokens can be removed with::
+
+    $ keystone-manage token_flush
+
+The memcache backend automatically discards expired tokens and so flushing
+is unnecessary and if attempted will fail with a NotImplemented error.
+
+
 Configuring the LDAP Identity Provider
 ===========================================================
 

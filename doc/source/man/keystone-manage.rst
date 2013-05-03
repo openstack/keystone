@@ -49,6 +49,7 @@ Available commands:
 * ``import_nova_auth``: Import a dump of nova auth data into keystone.
 * ``pki_setup``: Initialize the certificates used to sign tokens.
 * ``ssl_setup``: Generate certificates for SSL.
+* ``token_flush``: Purge expired tokens.
 
 
 OPTIONS
