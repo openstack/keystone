@@ -270,6 +270,10 @@ def configure():
         default='keystone.identity.backends.sql.Identity')
     register_str(
         'driver',
+        group='credential',
+        default='keystone.credential.backends.sql.Credential')
+    register_str(
+        'driver',
         group='policy',
         default='keystone.policy.backends.sql.Policy')
     register_str(

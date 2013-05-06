@@ -48,7 +48,7 @@ class DbSync(BaseApp):
 
     @staticmethod
     def main():
-        for k in ['identity', 'catalog', 'policy', 'token']:
+        for k in ['identity', 'catalog', 'policy', 'token', 'credential']:
             driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
                 driver.db_sync()
