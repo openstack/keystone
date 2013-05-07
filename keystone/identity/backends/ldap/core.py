@@ -21,6 +21,7 @@ import ldap
 from keystone import clean
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import fakeldap
+from keystone.common import logging
 from keystone.common import models
 from keystone.common import utils
 from keystone import config
@@ -28,6 +29,8 @@ from keystone import exception
 from keystone import identity
 
 CONF = config.CONF
+
+LOG = logging.getLogger(__name__)
 
 
 class Identity(identity.Driver):
@@ -922,8 +925,14 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
             for user_dn in user_dns:
                 if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
-                user_id = self.user_api._dn_to_id(user_dn)
-                users.append(self.user_api.get(user_id))
+                try:
+                    user_id = self.user_api._dn_to_id(user_dn)
+                    users.append(self.user_api.get(user_id))
+                except exception.UserNotFound:
+                    LOG.debug(_("Group member '%(user_dn)s' not found in"
+                                " '%(group_dn)s'. The user should be removed"
+                                " from the group. The user will be ignored.") %
+                              dict(user_dn=user_dn, group_dn=group_dn))
         return users
 
 
