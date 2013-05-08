@@ -219,15 +219,20 @@ class AuthProtocol(object):
             self.signing_dirname = '%s/keystone-signing' % os.environ['HOME']
         LOG.info('Using %s as cache directory for signing certificate' %
                  self.signing_dirname)
-        if (os.path.exists(self.signing_dirname) and
-                not os.access(self.signing_dirname, os.W_OK)):
-                raise ConfigurationError("unable to access signing dir %s" %
-                                         self.signing_dirname)
-
-        if not os.path.exists(self.signing_dirname):
-            os.makedirs(self.signing_dirname)
-        #will throw IOError  if it cannot change permissions
-        os.chmod(self.signing_dirname, stat.S_IRWXU)
+        if os.path.exists(self.signing_dirname):
+            if not os.access(self.signing_dirname, os.W_OK):
+                raise ConfigurationError(
+                    'unable to access signing_dir %s' % self.signing_dirname)
+            if os.stat(self.signing_dirname).st_uid != os.getuid():
+                LOG.warning(
+                    'signing_dir is not owned by %s' % os.getlogin())
+            current_mode = stat.S_IMODE(os.stat(self.signing_dirname).st_mode)
+            if current_mode != stat.S_IRWXU:
+                LOG.warning(
+                    'signing_dir mode is %s instead of %s' %
+                    (oct(current_mode), oct(stat.S_IRWXU)))
+        else:
+            os.makedirs(self.signing_dirname, stat.S_IRWXU)
 
         val = '%s/signing_cert.pem' % self.signing_dirname
         self.signing_cert_file_name = val
