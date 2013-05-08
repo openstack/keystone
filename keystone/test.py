@@ -22,6 +22,7 @@ import subprocess
 import sys
 import time
 
+import gettext
 import mox
 import nose.exc
 from paste import deploy
@@ -46,6 +47,8 @@ from keystone import trust
 
 wsgi_server.monkey_patch_eventlet()
 
+
+gettext.install('keystone', unicode=1)
 
 LOG = logging.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.abspath(os.curdir))

@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import gettext
 import os
 import sys
 
@@ -22,8 +21,6 @@ from oslo.config import cfg
 
 from keystone.common import logging
 
-
-gettext.install('keystone', unicode=1)
 
 _DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"

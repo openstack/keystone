@@ -20,14 +20,31 @@ gettext for openstack-common modules.
 
 Usual usage in an openstack.common module:
 
-    from nova.openstack.common.gettextutils import _
+    from keystone.openstack.common.gettextutils import _
 """
 
 import gettext
+import os
 
-
-t = gettext.translation('openstack-common', 'locale', fallback=True)
+_localedir = os.environ.get('keystone'.upper() + '_LOCALEDIR')
+_t = gettext.translation('keystone', localedir=_localedir, fallback=True)
 
 
 def _(msg):
-    return t.ugettext(msg)
+    return _t.ugettext(msg)
+
+
+def install(domain):
+    """Install a _() function using the given translation domain.
+
+    Given a translation domain, install a _() function using gettext's
+    install() function.
+
+    The main difference from gettext.install() is that we allow
+    overriding the default localedir (e.g. /usr/share/locale) using
+    a translation-domain-specific environment variable (e.g.
+    NOVA_LOCALEDIR).
+    """
+    gettext.install(domain,
+                    localedir=os.environ.get(domain.upper() + '_LOCALEDIR'),
+                    unicode=True)
