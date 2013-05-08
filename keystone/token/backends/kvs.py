@@ -43,6 +43,7 @@ class Token(kvs.Base, token.Driver):
     def create_token(self, token_id, data):
         token_id = token.unique_id(token_id)
         data_copy = copy.deepcopy(data)
+        data_copy['id'] = token_id
         if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
         if not data_copy.get('user_id'):

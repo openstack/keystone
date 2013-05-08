@@ -47,6 +47,7 @@ String = sql.String
 ForeignKey = sql.ForeignKey
 DateTime = sql.DateTime
 IntegrityError = sql.exc.IntegrityError
+OperationalError = sql.exc.OperationalError
 NotFound = sql.orm.exc.NoResultFound
 Boolean = sql.Boolean
 Text = sql.Text
@@ -272,7 +273,7 @@ def handle_conflicts(type='object'):
         def wrapper(*args, **kwargs):
             try:
                 return method(*args, **kwargs)
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 raise exception.Conflict(type=type, details=str(e.orig))
         return wrapper
     return decorator

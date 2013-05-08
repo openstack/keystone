@@ -711,7 +711,7 @@ class IdentityTests(object):
     def test_get_and_remove_role_grant_by_group_and_project(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(new_domain['id'], new_domain)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
@@ -1568,9 +1568,11 @@ class IdentityTests(object):
             self.assertTrue(x for x in users if x['id'] == test_user['id'])
 
     def test_list_groups(self):
-        group1 = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        group1 = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                   'name': uuid.uuid4().hex}
-        group2 = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        group2 = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                   'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, group1['id'], group1)
         self.identity_man.create_group({}, group2['id'], group2)
@@ -1688,7 +1690,7 @@ class IdentityTests(object):
     def test_add_user_to_group(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
@@ -1717,7 +1719,7 @@ class IdentityTests(object):
                           new_user['id'],
                           uuid.uuid4().hex)
 
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         self.assertRaises(exception.UserNotFound,
@@ -1728,7 +1730,7 @@ class IdentityTests(object):
     def test_check_user_in_group(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
@@ -1740,7 +1742,9 @@ class IdentityTests(object):
         self.identity_api.check_user_in_group(new_user['id'], new_group['id'])
 
     def test_check_user_not_in_group(self):
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         self.assertRaises(exception.UserNotFound,
@@ -1751,7 +1755,7 @@ class IdentityTests(object):
     def test_list_users_in_group(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
@@ -1770,7 +1774,7 @@ class IdentityTests(object):
     def test_remove_user_from_group(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
@@ -1793,7 +1797,7 @@ class IdentityTests(object):
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
         self.identity_man.create_user({}, new_user['id'], new_user)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, new_group['id'], new_group)
         self.assertRaises(exception.NotFound,
@@ -1812,7 +1816,9 @@ class IdentityTests(object):
                           uuid.uuid4().hex)
 
     def test_group_crud(self):
-        group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                  'name': uuid.uuid4().hex}
         self.identity_man.create_group({}, group['id'], group)
         group_ref = self.identity_api.get_group(group['id'])
@@ -1885,8 +1891,11 @@ class IdentityTests(object):
                           group1)
 
     def test_project_crud(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        self.identity_api.create_domain(domain['id'], domain)
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                   'domain_id': uuid.uuid4().hex}
+                   'domain_id': domain['id']}
         self.identity_man.create_project({}, project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
         self.assertDictContainsSubset(project_ref, project)
@@ -1919,7 +1928,9 @@ class IdentityTests(object):
                           domain['id'])
 
     def test_user_crud(self):
-        user = {'domain_id': uuid.uuid4().hex, 'id': uuid.uuid4().hex,
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        user = {'domain_id': domain['id'], 'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex, 'password': 'passw0rd'}
         self.identity_api.create_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
@@ -1940,8 +1951,10 @@ class IdentityTests(object):
                           user['id'])
 
     def test_list_user_projects(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                 'password': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
                  'enabled': True}
         self.identity_man.create_user({}, user1['id'], user1)
         user_projects = self.identity_api.list_user_projects(user1['id'])
@@ -1958,7 +1971,9 @@ class IdentityTests(object):
 
 class TokenTests(object):
     def _create_token_id(self):
-        token_id = ""
+        # Token must start with MII here otherwise it fails the asn1 test
+        # and is not hashed in a SQL backend.
+        token_id = "MII"
         for i in range(1, 20):
             token_id += uuid.uuid4().hex
         return token_id
@@ -1972,13 +1987,16 @@ class TokenTests(object):
         expires = data_ref.pop('expires')
         data_ref.pop('user_id')
         self.assertTrue(isinstance(expires, datetime.datetime))
+        data_ref.pop('id')
+        data.pop('id')
         self.assertDictEqual(data_ref, data)
 
         new_data_ref = self.token_api.get_token(token_id)
         expires = new_data_ref.pop('expires')
-        new_data_ref.pop('user_id')
-
         self.assertTrue(isinstance(expires, datetime.datetime))
+        new_data_ref.pop('user_id')
+        new_data_ref.pop('id')
+
         self.assertEquals(new_data_ref, data)
 
         self.token_api.delete_token(token_id)
@@ -1995,8 +2013,8 @@ class TokenTests(object):
             data['tenant'] = {'id': tenant_id, 'name': tenant_id}
         if trust_id is not None:
             data['trust_id'] = trust_id
-        self.token_api.create_token(token_id, data)
-        return token_id
+        new_token = self.token_api.create_token(token_id, data)
+        return new_token['id']
 
     def test_token_list(self):
         tokens = self.token_api.list_tokens('testuserid')
@@ -2077,6 +2095,12 @@ class TokenTests(object):
         data_ref = self.token_api.create_token(token_id, data)
         self.assertIsNotNone(data_ref['expires'])
         new_data_ref = self.token_api.get_token(token_id)
+
+        # MySQL doesn't store microseconds, so discard them before testing
+        data_ref['expires'] = data_ref['expires'].replace(microsecond=0)
+        new_data_ref['expires'] = new_data_ref['expires'].replace(
+            microsecond=0)
+
         self.assertEqual(data_ref, new_data_ref)
 
     def check_list_revoked_tokens(self, token_ids):
