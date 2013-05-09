@@ -49,6 +49,34 @@ CONTEXT_ENV = 'openstack.context'
 PARAMS_ENV = 'openstack.params'
 
 
+_RE_PASS = re.compile(r'([\'"].*?password[\'"]\s*:\s*u?[\'"]).*?([\'"])',
+                      re.DOTALL)
+
+
+def mask_password(message, is_unicode=False, secret="***"):
+    """Replace password with 'secret' in message.
+
+    :param message: The string which include security information.
+    :param is_unicode: Is unicode string ?
+    :param secret: substitution string default to "***".
+    :returns: The string
+
+    For example:
+       >>> mask_password('"password" : "aaaaa"')
+       '"password" : "***"'
+       >>> mask_password("'original_password' : 'aaaaa'")
+       "'original_password' : '***'"
+       >>> mask_password("u'original_password' :   u'aaaaa'")
+       "u'original_password' :   u'***'"
+    """
+    if is_unicode:
+        message = unicode(message)
+    # Match the group 1,2 and replace all others with 'secret'
+    secret = r"\g<1>" + secret + r"\g<2>"
+    result = _RE_PASS.sub(secret, message)
+    return result
+
+
 class WritableLogger(object):
     """A thin wrapper that responds to `write` and logs."""
 
@@ -583,31 +611,3 @@ def render_exception(error):
     if isinstance(error, exception.AuthPluginException):
         body['error']['identity'] = error.authentication
     return render_response(status=(error.code, error.title), body=body)
-
-
-_RE_PASS = re.compile(r'([\'"].*?password[\'"]\s*:\s*u?[\'"]).*?([\'"])',
-                      re.DOTALL)
-
-
-def mask_password(message, is_unicode=False, secret="***"):
-    """Replace password with 'secret' in message.
-
-    :param message: The string which include security information.
-    :param is_unicode: Is unicode string ?
-    :param secret: substitution string default to "***".
-    :returns: The string
-
-    For example:
-       >>> mask_password('"password" : "aaaaa"')
-       '"password" : "***"'
-       >>> mask_password("'original_password' : 'aaaaa'")
-       "'original_password' : '***'"
-       >>> mask_password("u'original_password' :   u'aaaaa'")
-       "u'original_password' :   u'***'"
-    """
-    if is_unicode:
-        message = unicode(message)
-    # Match the group 1,2 and replace all others with 'secret'
-    secret = r"\g<1>" + secret + r"\g<2>"
-    result = _RE_PASS.sub(secret, message)
-    return result
