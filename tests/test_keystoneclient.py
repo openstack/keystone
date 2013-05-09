@@ -396,6 +396,30 @@ class KeystoneClientTests(object):
                           self.get_client,
                           self.user_foo)
 
+    def test_delete_user_invalidates_token(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        admin_client = self.get_client(admin=True)
+        client = self.get_client(admin=False)
+
+        username = uuid.uuid4().hex
+        password = uuid.uuid4().hex
+        user_id = admin_client.users.create(
+            name=username, password=password, email=uuid.uuid4().hex).id
+
+        token_id = client.tokens.authenticate(
+            username=username, password=password).id
+
+        # token should be usable before the user is deleted
+        client.tokens.authenticate(token=token_id)
+
+        admin_client.users.delete(user=user_id)
+
+        # authenticate with a token should not work after the user is deleted
+        self.assertRaises(client_exceptions.Unauthorized,
+                          client.tokens.authenticate,
+                          token=token_id)
+
     def test_token_expiry_maintained(self):
         foo_client = self.get_client(self.user_foo)
 

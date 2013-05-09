@@ -223,6 +223,7 @@ class User(controller.V2Controller):
     def delete_user(self, context, user_id):
         self.assert_admin(context)
         self.identity_api.delete_user(context, user_id)
+        self._delete_tokens_for_user(context, user_id)
 
     def set_user_enabled(self, context, user_id, user):
         return self.update_user(context, user_id, user)
