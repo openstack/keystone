@@ -14,12 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
+import os
+import sys
+
 import datetime
 import errno
-import os
 import socket
 import subprocess
-import sys
 import time
 
 import eventlet
@@ -350,10 +352,6 @@ class TestCase(NoModule, unittest.TestCase):
 
     @staticmethod
     def skip_if_no_ipv6():
-
-        # TODO(blk-u): lp 1176204. At this time, eventlet address resolution
-        # doesn't support IPv6. Once it does, remove the next line.
-        raise nose.exc.SkipTest("Eventlet doesn't support IPv6, lp 1176204")
 
         try:
             s = socket.socket(socket.AF_INET6)
