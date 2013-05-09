@@ -389,7 +389,6 @@ def configure():
     register_str('tls_req_cert', group='ldap', default='demand')
 
     # pam
-    register_str('url', group='pam', default=None)
     register_str('userid', group='pam', default=None)
     register_str('password', group='pam', default=None)
 
