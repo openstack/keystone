@@ -27,7 +27,7 @@ requests>=1.0.0 # replaces httplib2 in keystoneclient >=0.2.1
 keyring
 
 # swift_auth test dependencies
-http://tarballs.openstack.org/swift/swift-master.tar.gz#egg=swift
+http://tarballs.openstack.org/swift/swift-stable-grizzly.tar.gz#egg=swift
 netifaces
 
 # For translations processing
