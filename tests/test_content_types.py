@@ -121,7 +121,7 @@ class RestfulTestCase(test.TestCase):
 
         example::
 
-            >>> self.assertResponseSuccessful(response, 203)
+             self.assertResponseSuccessful(response, 203)
         """
         self.assertTrue(
             response.status >= 200 and response.status <= 299,
@@ -136,7 +136,7 @@ class RestfulTestCase(test.TestCase):
 
         example::
 
-            >>> self.assertResponseStatus(response, 203)
+            self.assertResponseStatus(response, 203)
         """
         self.assertEqual(
             response.status,
