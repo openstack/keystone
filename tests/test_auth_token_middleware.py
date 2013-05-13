@@ -154,6 +154,9 @@ def setUpModule(self):
     signing_path = os.path.join(os.path.dirname(__file__), 'signing')
     with open(os.path.join(signing_path, 'auth_token_scoped.pem')) as f:
         self.SIGNED_TOKEN_SCOPED = cms.cms_to_token(f.read())
+    with open(os.path.join(signing_path,
+                           'auth_token_scoped_expired.pem')) as f:
+        self.SIGNED_TOKEN_SCOPED_EXPIRED = cms.cms_to_token(f.read())
     with open(os.path.join(signing_path, 'auth_token_unscoped.pem')) as f:
         self.SIGNED_TOKEN_UNSCOPED = cms.cms_to_token(f.read())
     with open(os.path.join(signing_path, 'auth_token_revoked.pem')) as f:
@@ -611,6 +614,13 @@ class AuthTokenMiddlewareTest(BaseAuthTokenMiddlewareTest):
         self.middleware._cache = FakeMemcache()
         self.middleware(req.environ, self.start_fake_response)
         self.assertEqual(self.middleware._cache.set_value, None)
+
+    def test_expired(self):
+        req = webob.Request.blank('/')
+        token = SIGNED_TOKEN_SCOPED_EXPIRED
+        req.headers['X-Auth-Token'] = token
+        self.middleware(req.environ, self.start_fake_response)
+        self.assertEqual(self.response_status, 401)
 
     def test_memcache_set_invalid(self):
         req = webob.Request.blank('/')

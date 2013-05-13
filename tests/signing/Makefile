@@ -19,7 +19,7 @@
 
 .SUFFIXES:  .json .pem
 
-SOURCES=auth_token_unscoped.json auth_token_scoped.json revocation_list.json
+SOURCES=auth_token_unscoped.json auth_token_scoped.json auth_token_scoped.json auth_token_scoped_expired.json revocation_list.json
 SIGNED=$(SOURCES:.json=.pem)
 TARGETS=$(SIGNED)
 

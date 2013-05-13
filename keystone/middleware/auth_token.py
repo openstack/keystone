@@ -95,6 +95,7 @@ HTTP_X_ROLE
 
 import datetime
 import httplib
+import iso8601
 import json
 import logging
 import os
@@ -259,13 +260,12 @@ class AuthProtocol(object):
         self._token_revocation_list_fetched_time = None
         self.token_revocation_list_cache_timeout = \
             datetime.timedelta(seconds=0)
+        self._iso8601 = iso8601
         if memcache_servers:
             try:
                 import memcache
-                import iso8601
                 LOG.info('Using memcache for caching token')
                 self._cache = memcache.Client(memcache_servers.split(','))
-                self._iso8601 = iso8601
             except ImportError as e:
                 LOG.warn('disabled caching due to missing libraries %s', e)
 
@@ -512,7 +512,8 @@ class AuthProtocol(object):
                 data = json.loads(verified)
             else:
                 data = self.verify_uuid_token(user_token, retry)
-            self._cache_put(token_id, data)
+            expires = self._confirm_token_not_expired(data)
+            self._cache_put(token_id, data, expires)
             return data
         except Exception as e:
             LOG.debug('Token validation failure.', exc_info=True)
@@ -642,7 +643,19 @@ class AuthProtocol(object):
                 else:
                     LOG.debug('Cached Token %s seems expired', token)
 
-    def _cache_put(self, token, data):
+    def _confirm_token_not_expired(self, data):
+        if 'token' in data.get('access', {}):
+            timestamp = data['access']['token']['expires']
+            expires = self._iso8601.parse_date(timestamp).strftime('%s')
+        else:
+            LOG.error('invalid token format')
+            raise InvalidUserToken('Token authorization failed')
+        if time.time() >= float(expires):
+            self.LOG.debug('Token expired a %s', timestamp)
+            raise InvalidUserToken('Token authorization failed')
+        return expires
+
+    def _cache_put(self, token, data, expires):
         """Put token data into the cache.
 
         Stores the parsed expire date in cache allowing
@@ -650,12 +663,6 @@ class AuthProtocol(object):
         """
         if self._cache and data:
             key = 'tokens/%s' % token
-            if 'token' in data.get('access', {}):
-                timestamp = data['access']['token']['expires']
-                expires = self._iso8601.parse_date(timestamp).strftime('%s')
-            else:
-                LOG.error('invalid token format')
-                return
             LOG.debug('Storing %s token in memcache', token)
             self._cache.set(key,
                             (data, expires),
@@ -693,7 +700,8 @@ class AuthProtocol(object):
                                             additional_headers=headers)
 
         if response.status == 200:
-            self._cache_put(user_token, data)
+            expires = self._confirm_token_not_expired(data)
+            self._cache_put(user_token, data, expires)
             return data
         if response.status == 404:
             # FIXME(ja): I'm assuming the 404 status means that user_token is
