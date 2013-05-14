@@ -31,10 +31,10 @@ class V2CatalogTestCase(test_content_types.RestfulTestCase):
 
     def _get_token_id(self, r):
         """Applicable only to JSON."""
-        return r.body['access']['token']['id']
+        return r.result['access']['token']['id']
 
     def assertValidErrorResponse(self, response):
-        self.assertEqual(response.status, 400)
+        self.assertEqual(response.status_code, 400)
 
     def _endpoint_create(self, expected_status=200, missing_param=None):
         path = '/v2.0/endpoints'
@@ -56,20 +56,20 @@ class V2CatalogTestCase(test_content_types.RestfulTestCase):
 
     def test_endpoint_create(self):
         req_body, response = self._endpoint_create(expected_status=200)
-        self.assertTrue('endpoint' in response.body)
-        self.assertTrue('id' in response.body['endpoint'])
+        self.assertTrue('endpoint' in response.result)
+        self.assertTrue('id' in response.result['endpoint'])
         for field, value in req_body['endpoint'].iteritems():
-            self.assertEqual(response.body['endpoint'][field], value)
+            self.assertEqual(response.result['endpoint'][field], value)
 
     def test_endpoint_create_with_missing_adminurl(self):
         req_body, response = self._endpoint_create(expected_status=200,
                                                    missing_param='adminurl')
-        self.assertEqual(response.status, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_endpoint_create_with_missing_internalurl(self):
         req_body, response = self._endpoint_create(expected_status=200,
                                                    missing_param='internalurl')
-        self.assertEqual(response.status, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_endpoint_create_with_missing_publicurl(self):
         req_body, response = self._endpoint_create(expected_status=400,
