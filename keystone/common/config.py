@@ -384,7 +384,7 @@ def configure():
         'domain_additional_attribute_mapping', group='ldap', default=None)
 
     register_str('tls_cacertfile', group='ldap', default=None)
-    register_str('tls_cacertdir',  group='ldap', default=None)
+    register_str('tls_cacertdir', group='ldap', default=None)
     register_bool('use_tls', group='ldap', default=False)
     register_str('tls_req_cert', group='ldap', default='demand')
 

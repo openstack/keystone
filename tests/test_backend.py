@@ -2187,7 +2187,7 @@ class TrustTests(object):
         self.assertTrue(timeutils.normalize_time(trust_data['expires_at']) >
                         timeutils.utcnow())
 
-        self.assertEquals([{'id':'member'},
+        self.assertEquals([{'id': 'member'},
                            {'id': 'other'},
                            {'id': 'browser'}], trust_data['roles'])
 
