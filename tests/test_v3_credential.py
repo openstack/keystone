@@ -16,8 +16,6 @@
 
 import uuid
 
-from keystone import exception
-
 import test_v3
 
 

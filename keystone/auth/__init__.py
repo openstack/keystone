@@ -1,4 +1,5 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
+# flake8: noqa
 
 # Copyright 2013 OpenStack LLC
 #
@@ -14,6 +15,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.auth.core import AuthMethodHandler
 from keystone.auth import controllers
+from keystone.auth.core import *
 from keystone.auth import routers

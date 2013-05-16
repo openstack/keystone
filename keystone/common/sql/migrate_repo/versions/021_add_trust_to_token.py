@@ -14,12 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 import sqlalchemy
 from sqlalchemy import exc
-from sqlalchemy.orm import sessionmaker
-
-from keystone import config
 
 
 def downgrade_token_table_with_column_drop(meta, migrate_engine):

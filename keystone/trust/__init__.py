@@ -1,4 +1,5 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
+# flake8: noqa
 
 # Copyright 2012 OpenStack LLC
 #
@@ -14,6 +15,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.trust.core import Manager, Driver
 from keystone.trust import controllers
+from keystone.trust.core import *
 from keystone.trust import routers

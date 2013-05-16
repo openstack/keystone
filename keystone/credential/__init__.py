@@ -1,4 +1,5 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
+# flake8: noqa
 
 # Copyright 2013 OpenStack LLC
 #

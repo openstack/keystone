@@ -17,7 +17,6 @@
 
 from sqlalchemy import Column, MetaData, String, Table, Text, types
 from sqlalchemy.orm import sessionmaker
-from keystone import config
 
 
 #sqlite doesn't support dropping columns. Copy to a new table instead
