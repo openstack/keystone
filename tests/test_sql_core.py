@@ -38,3 +38,13 @@ class TestBase(test.TestCase):
         engine1 = base.get_engine()
         engine2 = base.get_engine(allow_global_engine=False)
         self.assertIsNot(engine1, engine2)
+
+    def test_get_session(self):
+        # autocommit and expire_on_commit flags to get_session() are passed on
+        # to the session created.
+
+        base = sql.Base()
+        session = base.get_session(autocommit=False, expire_on_commit=True)
+
+        self.assertFalse(session.autocommit)
+        self.assertTrue(session.expire_on_commit)
