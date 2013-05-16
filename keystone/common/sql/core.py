@@ -99,10 +99,6 @@ def set_global_engine(engine):
     GLOBAL_ENGINE = engine
 
 
-def get_global_engine():
-    return GLOBAL_ENGINE
-
-
 # Special Fields
 class JsonBlob(sql_types.TypeDecorator):
 
@@ -244,14 +240,19 @@ class Base(object):
 
             return sql.create_engine(CONF.sql.connection, **engine_config)
 
-        engine = get_global_engine() or new_engine()
+        if not allow_global_engine:
+            return new_engine()
+
+        if GLOBAL_ENGINE:
+            return GLOBAL_ENGINE
+
+        engine = new_engine()
 
         # auto-build the db to support wsgi server w/ in-memory backend
-        if allow_global_engine and CONF.sql.connection == 'sqlite://':
+        if CONF.sql.connection == 'sqlite://':
             ModelBase.metadata.create_all(bind=engine)
 
-        if allow_global_engine:
-            set_global_engine(engine)
+        set_global_engine(engine)
 
         return engine
 
