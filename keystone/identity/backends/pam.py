@@ -58,18 +58,20 @@ class PamIdentity(identity.Driver):
     Tenant is always the same as User, root user has admin role.
     """
 
-    def authenticate(self, user_id, tenant_id, password):
+    def authenticate_user(self, user_id=None, password=None):
         auth = pam.authenticate if pam else PAM_authenticate
-        if auth(user_id, password):
-            metadata = {}
-            if user_id == 'root':
-                metadata['is_admin'] = True
+        if not auth(user_id, password):
+            raise AssertionError('Invalid user / password')
+        user = {'id': user_id, 'name': user_id}
+        return user
 
-            tenant = {'id': user_id, 'name': user_id}
-
-            user = {'id': user_id, 'name': user_id}
-
-            return (user, tenant, metadata)
+    def authorize_for_project(self, user_ref, tenant_id=None):
+        user_id = user_ref['id']
+        metadata = {}
+        if user_id == 'root':
+            metadata['is_admin'] = True
+        tenant = {'id': user_id, 'name': user_id}
+        return (user_ref, tenant, metadata)
 
     def get_project(self, tenant_id):
         return {'id': tenant_id, 'name': tenant_id}
