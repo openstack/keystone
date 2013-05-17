@@ -639,6 +639,7 @@ class Identity(sql.Base, identity.Driver):
     @sql.handle_conflicts(type='user')
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
+        user['enabled'] = clean.user_enabled(user.get('enabled', True))
         user = utils.hash_user_password(user)
         session = self.get_session()
         with session.begin():
@@ -681,6 +682,8 @@ class Identity(sql.Base, identity.Driver):
     def update_user(self, user_id, user):
         if 'name' in user:
             user['name'] = clean.user_name(user['name'])
+        if 'enabled' in user:
+            user['enabled'] = clean.user_enabled(user['enabled'])
         session = self.get_session()
         if 'id' in user and user_id != user['id']:
             raise exception.ValidationError('Cannot change user ID')

@@ -1526,6 +1526,18 @@ class IdentityTests(object):
                           'fake1',
                           user)
 
+    def test_create_user_invalid_enabled_type(self):
+        user = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'domain_id': DEFAULT_DOMAIN_ID,
+                'password': uuid.uuid4().hex,
+                # invalid string value
+                'enabled': "true"}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_man.create_user, {},
+                          user['id'],
+                          user)
+
     def test_update_user_long_name_fails(self):
         user = {'id': 'fake1', 'name': 'fake1',
                 'domain_id': DEFAULT_DOMAIN_ID}
@@ -1666,10 +1678,45 @@ class IdentityTests(object):
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
+        # If not present, enabled field should not be updated
+        del user['enabled']
+        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], False)
+
         user['enabled'] = True
         self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
+
+        del user['enabled']
+        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], True)
+
+        # Integers are valid Python's booleans. Explicitly test it.
+        user['enabled'] = 0
+        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], False)
+
+        # Any integers other than 0 are interpreted as True
+        user['enabled'] = -42
+        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], True)
+
+    def test_update_user_enable_fails(self):
+        user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
+                'domain_id': DEFAULT_DOMAIN_ID}
+        self.identity_api.create_user('fake1', user)
+        user_ref = self.identity_api.get_user('fake1')
+        self.assertEqual(user_ref['enabled'], True)
+
+        # Strings are not valid boolean values
+        user['enabled'] = "false"
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_user, 'fake1', user)
 
     def test_update_project_enable(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True,

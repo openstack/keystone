@@ -190,6 +190,7 @@ class Identity(kvs.Base, identity.Driver):
     # CRUD
     def create_user(self, user_id, user):
         user['name'] = clean.user_name(user['name'])
+        user['enabled'] = clean.user_enabled(user.get('enabled', True))
         try:
             self.get_user(user_id)
         except exception.UserNotFound:
@@ -225,6 +226,8 @@ class Identity(kvs.Base, identity.Driver):
             if existing and user_id != existing['id']:
                 msg = 'Duplicate name, %s.' % user['name']
                 raise exception.Conflict(type='user', details=msg)
+        if 'enabled' in user:
+            user['enabled'] = clean.user_enabled(user['enabled'])
         # get the old name and delete it too
         try:
             old_user = self.db.get('user-%s' % user_id)

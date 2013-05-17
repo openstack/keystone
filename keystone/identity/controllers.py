@@ -194,6 +194,9 @@ class User(controller.V2Controller):
         if 'name' not in user or not user['name']:
             msg = 'Name field is required and cannot be empty'
             raise exception.ValidationError(message=msg)
+        if 'enabled' in user and not isinstance(user['enabled'], bool):
+            msg = 'Enabled field must be a boolean'
+            raise exception.ValidationError(message=msg)
 
         default_tenant_id = user.get('tenantId', None)
         if (default_tenant_id is not None
@@ -213,6 +216,11 @@ class User(controller.V2Controller):
     def update_user(self, context, user_id, user):
         # NOTE(termie): this is really more of a patch than a put
         self.assert_admin(context)
+
+        if 'enabled' in user and not isinstance(user['enabled'], bool):
+            msg = 'Enabled field should be a boolean'
+            raise exception.ValidationError(message=msg)
+
         user_ref = self.identity_api.update_user(context, user_id, user)
 
         if user.get('password') or not user.get('enabled', True):
