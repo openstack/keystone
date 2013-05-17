@@ -36,8 +36,6 @@ config.register_int('crypt_strength', default=40000)
 
 LOG = logging.getLogger(__name__)
 
-MAX_PASSWORD_LENGTH = 4096
-
 
 def read_cached_file(filename, cache_info, reload_func=None):
     """Read from a file if it has been modified.
@@ -68,12 +66,13 @@ class SmarterEncoder(json.JSONEncoder):
 
 
 def trunc_password(password):
-    """Truncate passwords to the MAX_PASSWORD_LENGTH."""
+    """Truncate passwords to the max_length."""
+    max_length = CONF.identity.max_password_length
     try:
-        if len(password) > MAX_PASSWORD_LENGTH:
-            return password[:MAX_PASSWORD_LENGTH]
-        else:
-            return password
+        if len(password) > max_length:
+            LOG.warning(
+                _('Truncating user password to %s characters.') % max_length)
+        return password[:max_length]
     except TypeError:
         raise exception.ValidationError(attribute='string', target='password')
 

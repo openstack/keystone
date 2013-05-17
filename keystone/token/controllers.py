@@ -4,7 +4,6 @@ from keystone.common import cms
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import logging
-from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
@@ -215,10 +214,9 @@ class Auth(controller.V2Controller):
                 attribute='password', target='passwordCredentials')
 
         password = auth['passwordCredentials']['password']
-        max_pw_size = utils.MAX_PASSWORD_LENGTH
-        if password and len(password) > max_pw_size:
-            raise exception.ValidationSizeError(attribute='password',
-                                                size=max_pw_size)
+        if password and len(password) > CONF.identity.max_password_length:
+            raise exception.ValidationSizeError(
+                attribute='password', size=CONF.identity.max_password_length)
 
         if ("userId" not in auth['passwordCredentials'] and
                 "username" not in auth['passwordCredentials']):

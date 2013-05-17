@@ -210,6 +210,7 @@ def configure():
 
     # identity
     register_str('default_domain_id', group='identity', default='default')
+    register_int('max_password_length', group='identity', default=4096)
 
     # trust
     register_bool('enabled', group='trust', default=True)

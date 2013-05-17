@@ -179,7 +179,8 @@ class AuthBadRequests(AuthTest):
 
     def test_authenticate_password_too_large(self):
         """Verify sending large 'password' raises the right exception."""
-        body_dict = _build_user_auth(username='FOO', password='0' * 8193)
+        length = CONF.identity.max_password_length + 1
+        body_dict = _build_user_auth(username='FOO', password='0' * length)
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
                           {}, body_dict)
