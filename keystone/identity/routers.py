@@ -107,10 +107,6 @@ def append_v3_routers(mapper, routers):
                    action='list_groups_for_user',
                    conditions=dict(method=['GET']))
 
-    routers.append(
-        router.Router(controllers.CredentialV3(),
-                      'credentials', 'credential'))
-
     role_controller = controllers.RoleV3()
     routers.append(router.Router(role_controller, 'roles', 'role'))
     mapper.connect('/projects/{project_id}/users/{user_id}/roles/{role_id}',

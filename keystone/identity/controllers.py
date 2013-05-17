@@ -580,9 +580,9 @@ class ProjectV3(controller.V3Controller):
 
     def _delete_project(self, context, project_id):
         # Delete any credentials that reference this project
-        for cred in self.identity_api.list_credentials(context):
+        for cred in self.credential_api.list_credentials(context):
             if cred['project_id'] == project_id:
-                self.identity_api.delete_credential(context, cred['id'])
+                self.credential_api.delete_credential(context, cred['id'])
         # Finally delete the project itself - the backend is
         # responsible for deleting any role assignments related
         # to this project
@@ -651,9 +651,9 @@ class UserV3(controller.V3Controller):
 
     def _delete_user(self, context, user_id):
         # Delete any credentials that reference this user
-        for cred in self.identity_api.list_credentials(context):
+        for cred in self.credential_api.list_credentials(context):
             if cred['user_id'] == user_id:
-                self.identity_api.delete_credential(context, cred['id'])
+                self.credential_api.delete_credential(context, cred['id'])
 
         # Make sure any tokens are marked as deleted
         self._delete_tokens_for_user(context, user_id)
@@ -715,44 +715,6 @@ class GroupV3(controller.V3Controller):
     @controller.protected
     def delete_group(self, context, group_id):
         return self._delete_group(context, group_id)
-
-
-class CredentialV3(controller.V3Controller):
-    collection_name = 'credentials'
-    member_name = 'credential'
-
-    @controller.protected
-    def create_credential(self, context, credential):
-        ref = self._assign_unique_id(self._normalize_dict(credential))
-        ref = self.identity_api.create_credential(context, ref['id'], ref)
-        return CredentialV3.wrap_member(context, ref)
-
-    @controller.protected
-    def list_credentials(self, context):
-        refs = self.identity_api.list_credentials(context)
-        return CredentialV3.wrap_collection(context, refs)
-
-    @controller.protected
-    def get_credential(self, context, credential_id):
-        ref = self.identity_api.get_credential(context, credential_id)
-        return CredentialV3.wrap_member(context, ref)
-
-    @controller.protected
-    def update_credential(self, context, credential_id, credential):
-        self._require_matching_id(credential_id, credential)
-
-        ref = self.identity_api.update_credential(
-            context,
-            credential_id,
-            credential)
-        return CredentialV3.wrap_member(context, ref)
-
-    def _delete_credential(self, context, credential_id):
-        return self.identity_api.delete_credential(context, credential_id)
-
-    @controller.protected
-    def delete_credential(self, context, credential_id):
-        return self._delete_credential(context, credential_id)
 
 
 class RoleV3(controller.V3Controller):

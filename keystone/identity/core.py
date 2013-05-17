@@ -432,50 +432,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    # credential crud
-
-    def create_credential(self, credential_id, credential):
-        """Creates a new credential.
-
-        :raises: keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()
-
-    def list_credentials(self):
-        """List all credentials in the system.
-
-        :returns: a list of credential_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()
-
-    def get_credential(self, credential_id):
-        """Get a credential by ID.
-
-        :returns: credential_ref
-        :raises: keystone.exception.CredentialNotFound
-
-        """
-        raise exception.NotImplemented()
-
-    def update_credential(self, credential_id, credential):
-        """Updates an existing credential.
-
-        :raises: keystone.exception.CredentialNotFound,
-                 keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()
-
-    def delete_credential(self, credential_id):
-        """Deletes an existing credential.
-
-        :raises: keystone.exception.CredentialNotFound
-
-        """
-        raise exception.NotImplemented()
-
     # role crud
 
     def create_role(self, role_id, role):

@@ -51,19 +51,6 @@ class Group(sql.ModelBase, sql.DictBase):
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
-class Credential(sql.ModelBase, sql.DictBase):
-    __tablename__ = 'credential'
-    attributes = ['id', 'user_id', 'project_id', 'blob', 'type']
-    id = sql.Column(sql.String(64), primary_key=True)
-    user_id = sql.Column(sql.String(64),
-                         sql.ForeignKey('user.id'),
-                         nullable=False)
-    project_id = sql.Column(sql.String(64), sql.ForeignKey('project.id'))
-    blob = sql.Column(sql.JsonBlob(), nullable=False)
-    type = sql.Column(sql.String(255), nullable=False)
-    extra = sql.Column(sql.JsonBlob())
-
-
 class Domain(sql.ModelBase, sql.DictBase):
     __tablename__ = 'domain'
     attributes = ['id', 'name', 'enabled']
@@ -857,59 +844,6 @@ class Identity(sql.Base, identity.Driver):
             if not session.query(Group).filter_by(id=group_id).delete(False):
                 raise exception.GroupNotFound(group_id=group_id)
 
-            session.delete(ref)
-            session.flush()
-
-    # credential crud
-
-    @sql.handle_conflicts(type='credential')
-    def create_credential(self, credential_id, credential):
-        session = self.get_session()
-        with session.begin():
-            ref = Credential.from_dict(credential)
-            session.add(ref)
-            session.flush()
-        return ref.to_dict()
-
-    def list_credentials(self):
-        session = self.get_session()
-        refs = session.query(Credential).all()
-        return [ref.to_dict() for ref in refs]
-
-    def get_credential(self, credential_id):
-        session = self.get_session()
-        ref = session.query(Credential).filter_by(id=credential_id).first()
-        if ref is None:
-            raise exception.CredentialNotFound(credential_id=credential_id)
-        return ref.to_dict()
-
-    @sql.handle_conflicts(type='credential')
-    def update_credential(self, credential_id, credential):
-        session = self.get_session()
-        with session.begin():
-            ref = session.query(Credential).filter_by(id=credential_id).first()
-            if ref is None:
-                raise exception.CredentialNotFound(credential_id=credential_id)
-            old_dict = ref.to_dict()
-            for k in credential:
-                old_dict[k] = credential[k]
-            new_credential = Credential.from_dict(old_dict)
-            for attr in Credential.attributes:
-                if attr != 'id':
-                    setattr(ref, attr, getattr(new_credential, attr))
-            ref.extra = new_credential.extra
-            session.flush()
-        return ref.to_dict()
-
-    def delete_credential(self, credential_id):
-        session = self.get_session()
-
-        try:
-            ref = session.query(Credential).filter_by(id=credential_id).one()
-        except sql.NotFound:
-            raise exception.CredentialNotFound(credential_id=credential_id)
-
-        with session.begin():
             session.delete(ref)
             session.flush()
 
