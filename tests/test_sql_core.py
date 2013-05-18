@@ -172,3 +172,11 @@ class TestBase(test.TestCase):
 
         self.assertFalse(session.autocommit)
         self.assertTrue(session.expire_on_commit)
+
+    def test_get_session_invalidated(self):
+        # If clear the global engine, a new engine is used for get_session().
+        base = sql.Base()
+        session1 = base.get_session()
+        sql.set_global_engine(None)
+        session2 = base.get_session()
+        self.assertIsNot(session1.bind, session2.bind)

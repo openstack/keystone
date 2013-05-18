@@ -250,9 +250,10 @@ class Base(object):
 
     def get_session(self, autocommit=True, expire_on_commit=False):
         """Return a SQLAlchemy session."""
-        self._engine = self._engine or self.get_engine()
-        self._sessionmaker = self._sessionmaker or self.get_sessionmaker(
-            self._engine)
+        if not self._engine:
+            self._engine = self.get_engine()
+            self._sessionmaker = self.get_sessionmaker(self._engine)
+            register_global_engine_callback(self.clear_engine)
         return self._sessionmaker(autocommit=autocommit,
                                   expire_on_commit=expire_on_commit)
 
@@ -306,6 +307,10 @@ class Base(object):
             bind=engine,
             autocommit=autocommit,
             expire_on_commit=expire_on_commit)
+
+    def clear_engine(self):
+        self._engine = None
+        self._sessionmaker = None
 
 
 def handle_conflicts(type='object'):
