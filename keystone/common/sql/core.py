@@ -32,10 +32,12 @@ from keystone import exception
 from keystone.openstack.common import jsonutils
 
 
+LOG = logging.getLogger(__name__)
 CONF = config.CONF
 
-# maintain a single engine reference for sqlite in-memory
+# maintain a single engine reference for sqlalchemy engine
 GLOBAL_ENGINE = None
+GLOBAL_ENGINE_CALLBACKS = set()
 
 
 ModelBase = declarative.declarative_base()
@@ -95,8 +97,48 @@ ModelBase.__init__ = initialize_decorator(ModelBase.__init__)
 
 
 def set_global_engine(engine):
+    """Set the global engine.
+
+    This sets the current global engine, which is returned by
+    Base.get_engine(allow_global_engine=True).
+
+    When the global engine is changed, all of the callbacks registered via
+    register_global_engine_callback since the last time set_global_engine was
+    changed are called. The callback functions are invoked with no arguments.
+
+    """
+
     global GLOBAL_ENGINE
+    global GLOBAL_ENGINE_CALLBACKS
+
+    if engine is GLOBAL_ENGINE:
+        # It's the same engine so nothing to do.
+        return
+
     GLOBAL_ENGINE = engine
+
+    cbs = GLOBAL_ENGINE_CALLBACKS
+    GLOBAL_ENGINE_CALLBACKS = set()
+    for cb in cbs:
+        try:
+            cb()
+        except Exception:
+            LOG.exception(_("Global engine callback raised."))
+            # Just logging the exception so can process other callbacks.
+
+
+def register_global_engine_callback(cb_fn):
+    """Register a function to be called when the global engine is set.
+
+    Note that the callback will be called only once or not at all, so to get
+    called each time the global engine is changed the function must be
+    re-registered.
+
+    """
+
+    global GLOBAL_ENGINE_CALLBACKS
+
+    GLOBAL_ENGINE_CALLBACKS.add(cb_fn)
 
 
 # Special Fields
