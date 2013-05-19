@@ -22,7 +22,6 @@ import subprocess
 import sys
 import time
 
-import eventlet
 import mox
 import nose.exc
 from paste import deploy
@@ -34,6 +33,7 @@ from keystone.common import kvs
 from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
+from keystone.common import wsgi_server
 from keystone import config
 from keystone import credential
 from keystone import exception
@@ -44,9 +44,8 @@ from keystone import token
 from keystone import trust
 
 
-do_monkeypatch = not os.getenv('STANDARD_THREADS')
-eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
-                              thread=do_monkeypatch)
+wsgi_server.monkey_patch_eventlet()
+
 
 LOG = logging.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.abspath(os.curdir))
@@ -316,7 +315,7 @@ class TestCase(NoModule, unittest.TestCase):
     def serveapp(self, config, name=None, cert=None, key=None, ca=None,
                  cert_required=None, host="127.0.0.1", port=0):
         app = self.loadapp(config, name=name)
-        server = wsgi.Server(app, host, port)
+        server = wsgi_server.Server(app, host, port)
         if cert is not None and ca is not None and key is not None:
             server.set_ssl(certfile=cert, keyfile=key, ca_certs=ca,
                            cert_required=cert_required)
