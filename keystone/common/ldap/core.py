@@ -444,7 +444,7 @@ class LdapWrapper(object):
 
         if use_tls:
             if not ldap.TLS_AVAIL:
-                raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS'
+                raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
                                    'not available') % ldap.TLS_AVAIL)
             if tls_cacertfile:
                 #NOTE(topol)
