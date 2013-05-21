@@ -1,18 +1,18 @@
-# Translations template for keystone.
+# Georgian (Georgia) translations for keystone.
 # Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the keystone project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
 #
-#, fuzzy
+# Translators:
+# Nika Chkhikvishvili <frrrredo@gmail.com>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone "
-"jenkins.keystone.propose.translation.update.208\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Project-Id-Version:  Keystone\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
 "POT-Creation-Date: 2013-05-21 17:06+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2013-05-17 16:06+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"Language-Team: ka_GE <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,7 +21,7 @@ msgstr ""
 #: keystone/clean.py:23
 #, python-format
 msgid "%s cannot be empty."
-msgstr ""
+msgstr "%s არ შეიძლება იყოს ცარიელი."
 
 #: keystone/clean.py:25
 #, python-format
@@ -51,7 +51,7 @@ msgstr ""
 #: keystone/auth/controllers.py:78 keystone/auth/plugins/password.py:40
 #, python-format
 msgid "Domain is disabled: %s"
-msgstr ""
+msgstr "დომენი გათიშულია:  %s"
 
 #: keystone/auth/controllers.py:84 keystone/auth/plugins/password.py:46
 #, python-format
@@ -77,11 +77,11 @@ msgstr ""
 
 #: keystone/auth/controllers.py:363
 msgid "User not found"
-msgstr ""
+msgstr "მომხმარებელი ვერ მოიძებნა"
 
 #: keystone/auth/token_factory.py:81
 msgid "User have no access to project"
-msgstr ""
+msgstr "მომხმარებელს არ აქვს წვდომა პროექტზე"
 
 #: keystone/auth/token_factory.py:96
 msgid "User have no access to domain"
@@ -254,17 +254,17 @@ msgstr ""
 #: keystone/common/ldap/core.py:289
 #, python-format
 msgid "LDAP %s create"
-msgstr ""
+msgstr "LDAP %s შექმნა"
 
 #: keystone/common/ldap/core.py:367
 #, python-format
 msgid "LDAP %s update"
-msgstr ""
+msgstr "LDAP %s განახლება"
 
 #: keystone/common/ldap/core.py:398
 #, python-format
 msgid "LDAP %s delete"
-msgstr ""
+msgstr "LDAP %s წაშლა"
 
 #: keystone/common/ldap/core.py:423
 #, python-format
@@ -454,7 +454,7 @@ msgstr ""
 #: keystone/common/sql/nova.py:79
 #, python-format
 msgid "Create user %s"
-msgstr ""
+msgstr "მომხმარებლის შექმნა %s"
 
 #: keystone/common/sql/nova.py:88
 #, python-format
@@ -493,7 +493,7 @@ msgstr ""
 #: keystone/identity/backends/ldap/core.py:659
 #, python-format
 msgid "Role %s not found"
-msgstr ""
+msgstr "როლი %s ვერ მოიძებნა"
 
 #: keystone/identity/backends/ldap/core.py:879
 #: keystone/identity/backends/ldap/core.py:995
