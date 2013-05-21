@@ -341,6 +341,9 @@ class TestCase(NoModule, unittest.TestCase):
         """
         self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=delta))
 
+    def assertNotEmpty(self, l):
+        self.assertTrue(len(l))
+
     def assertDictContainsSubset(self, dict1, dict2):
         if len(dict1) < len(dict2):
             (subset, fullset) = dict1, dict2
