@@ -44,6 +44,7 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
+from keystone.contrib import ec2
 from keystone import credential
 from keystone import exception
 from keystone import identity
@@ -252,7 +253,7 @@ class TestCase(NoModule, unittest.TestCase):
 
     def load_backends(self):
         """Initializes each manager and assigns them to an attribute."""
-        for manager in [assignment, catalog, credential, identity, policy,
+        for manager in [assignment, catalog, credential, ec2, identity, policy,
                         token, trust]:
             manager_name = '%s_api' % manager.__name__.split('.')[-1]
             setattr(self, manager_name, manager.Manager())
