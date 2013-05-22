@@ -2,6 +2,7 @@ import datetime
 import uuid
 
 from lxml import etree
+import webtest
 
 from keystone import auth
 from keystone.common import serializer
@@ -37,6 +38,11 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
         sql_util.setup_test_database()
         self.load_backends()
+
+        self.public_app = webtest.TestApp(
+            self.loadapp('keystone', name='main'))
+        self.admin_app = webtest.TestApp(
+            self.loadapp('keystone', name='admin'))
 
         if load_sample_data:
             self.domain_id = uuid.uuid4().hex
@@ -204,8 +210,8 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
         """
         r = super(RestfulTestCase, self).admin_request(*args, **kwargs)
-        if r.getheader('Content-Type') == 'application/xml':
-            r.body = serializer.from_xml(etree.tostring(r.body))
+        if r.headers.get('Content-Type') == 'application/xml':
+            r.result = serializer.from_xml(etree.tostring(r.result))
         return r
 
     def get_scoped_token(self):
@@ -234,7 +240,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
                     }
                 }
             })
-        return r.getheader('X-Subject-Token')
+        return r.headers.get('X-Subject-Token')
 
     def get_requested_token(self, auth):
         """Request the specific token we want."""
@@ -243,7 +249,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             method='POST',
             path='/v3/auth/tokens',
             body=auth)
-        return r.getheader('X-Subject-Token')
+        return r.headers.get('X-Subject-Token')
 
     def v3_request(self, path, **kwargs):
         # Check if the caller has passed in auth details for
@@ -296,15 +302,15 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         return r
 
     def assertValidErrorResponse(self, r):
-        if r.getheader('Content-Type') == 'application/xml':
-            resp = serializer.from_xml(etree.tostring(r.body))
+        if r.headers.get('Content-Type') == 'application/xml':
+            resp = serializer.from_xml(etree.tostring(r.result))
         else:
-            resp = r.body
+            resp = r.result
         self.assertIsNotNone(resp.get('error'))
         self.assertIsNotNone(resp['error'].get('code'))
         self.assertIsNotNone(resp['error'].get('title'))
         self.assertIsNotNone(resp['error'].get('message'))
-        self.assertEqual(int(resp['error']['code']), r.status)
+        self.assertEqual(int(resp['error']['code']), r.status_code)
 
     def assertValidListLinks(self, links):
         self.assertIsNotNone(links)
@@ -331,7 +337,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         response, and asserted to be equal.
 
         """
-        entities = resp.body.get(key)
+        entities = resp.result.get(key)
         self.assertIsNotNone(entities)
 
         if expected_length is not None:
@@ -341,7 +347,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.assertNotEmpty(entities)
 
         # collections should have relational links
-        self.assertValidListLinks(resp.body.get('links'))
+        self.assertValidListLinks(resp.result.get('links'))
 
         for entity in entities:
             self.assertIsNotNone(entity)
@@ -356,7 +362,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def assertValidResponse(self, resp, key, entity_validator, *args,
                             **kwargs):
         """Make assertions common to all API responses."""
-        entity = resp.body.get(key)
+        entity = resp.result.get(key)
         self.assertIsNotNone(entity)
         self.assertValidEntity(entity, *args, **kwargs)
         entity_validator(entity, *args, **kwargs)
@@ -397,8 +403,8 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.assertTrue(isinstance(dt, datetime.datetime))
 
     def assertValidTokenResponse(self, r, user=None):
-        self.assertTrue(r.getheader('X-Subject-Token'))
-        token = r.body['token']
+        self.assertTrue(r.headers.get('X-Subject-Token'))
+        token = r.result['token']
 
         self.assertIsNotNone(token.get('expires_at'))
         expires_at = self.assertValidISO8601ExtendedFormatDatetime(

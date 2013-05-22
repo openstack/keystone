@@ -104,9 +104,9 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             user_domain_id=self.domain_id,
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
-        self.token_data = resp.body
-        self.token = resp.getheader('X-Subject-Token')
-        self.headers = {'X-Subject-Token': resp.getheader('X-Subject-Token')}
+        self.token_data = resp.result
+        self.token = resp.headers.get('X-Subject-Token')
+        self.headers = {'X-Subject-Token': resp.headers.get('X-Subject-Token')}
 
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
@@ -117,8 +117,8 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             user_id=self.user['id'],
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token_id = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
         token_signed = cms.cms_sign_token(json.dumps(token_data),
                                           CONF.signing.certfile,
@@ -131,8 +131,8 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             user_id=self.user['id'],
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -152,8 +152,8 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             password=self.user['password'],
             domain_id=self.domain['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -168,8 +168,8 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             password=self.default_domain_user['password'],
             project_id=self.project['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -184,15 +184,15 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             user_id=self.default_domain_user['id'],
             password=self.default_domain_user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
                                   token='ADMIN',
                                   method='GET')
-        v2_token = resp.body
+        v2_token = resp.result
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -206,15 +206,15 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             user_id=self.default_domain_user['id'],
             password=self.default_domain_user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
                                   token='ADMIN',
                                   method='GET')
-        v2_token = resp.body
+        v2_token = resp.result
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -231,15 +231,15 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             password=self.default_domain_user['password'],
             project_id=self.default_domain_project['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
                                   token='ADMIN',
                                   method='GET')
-        v2_token = resp.body
+        v2_token = resp.result
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -258,15 +258,15 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             password=self.default_domain_user['password'],
             project_id=self.default_domain_project['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.body
-        token = resp.getheader('X-Subject-Token')
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
                                   token='ADMIN',
                                   method='GET')
-        v2_token = resp.body
+        v2_token = resp.result
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -288,11 +288,11 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         resp = self.admin_request(path='/v2.0/tokens',
                                   method='POST',
                                   body=body)
-        v2_token_data = resp.body
+        v2_token_data = resp.result
         v2_token = v2_token_data['access']['token']['id']
         headers = {'X-Subject-Token': v2_token}
         resp = self.get('/auth/tokens', headers=headers)
-        token_data = resp.body
+        token_data = resp.result
         self.assertEqual(v2_token_data['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -312,11 +312,11 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         resp = self.admin_request(path='/v2.0/tokens',
                                   method='POST',
                                   body=body)
-        v2_token_data = resp.body
+        v2_token_data = resp.result
         v2_token = v2_token_data['access']['token']['id']
         headers = {'X-Subject-Token': v2_token}
         resp = self.get('/auth/tokens', headers=headers)
-        token_data = resp.body
+        token_data = resp.result
         self.assertEqual(v2_token_data['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -337,11 +337,11 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         resp = self.admin_request(path='/v2.0/tokens',
                                   method='POST',
                                   body=body)
-        v2_token_data = resp.body
+        v2_token_data = resp.result
         v2_token = v2_token_data['access']['token']['id']
         headers = {'X-Subject-Token': v2_token}
         resp = self.get('/auth/tokens', headers=headers)
-        token_data = resp.body
+        token_data = resp.result
         self.assertEqual(v2_token_data['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -364,11 +364,11 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         resp = self.admin_request(path='/v2.0/tokens',
                                   method='POST',
                                   body=body)
-        v2_token_data = resp.body
+        v2_token_data = resp.result
         v2_token = v2_token_data['access']['token']['id']
         headers = {'X-Subject-Token': v2_token}
         resp = self.get('/auth/tokens', headers=headers)
-        token_data = resp.body
+        token_data = resp.result
         self.assertEqual(v2_token_data['access']['user']['id'],
                          token_data['token']['user']['id'])
         # v2 token time has not fraction of second precision so
@@ -386,7 +386,7 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectScopedTokenResponse(r)
         # make sure expires stayed the same
-        self.assertEqual(expires, r.body['token']['expires_at'])
+        self.assertEqual(expires, r.result['token']['expires_at'])
 
     def test_check_token(self):
         self.head('/auth/tokens', headers=self.headers, expected_status=204)
@@ -402,7 +402,7 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
 
         # make sure we have a CRL
         r = self.get('/auth/tokens/OS-PKI/revoked')
-        self.assertIn('signed', r.body)
+        self.assertIn('signed', r.result)
 
 
 class TestTokenRevoking(test_v3.RestfulTestCase):
@@ -517,7 +517,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
             password=self.user1['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token = resp.getheader('X-Subject-Token')
+        token = resp.headers.get('X-Subject-Token')
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
@@ -548,7 +548,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
             password=self.user1['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token = resp.getheader('X-Subject-Token')
+        token = resp.headers.get('X-Subject-Token')
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
@@ -583,19 +583,19 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
             password=self.user1['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token1 = resp.getheader('X-Subject-Token')
+        token1 = resp.headers.get('X-Subject-Token')
         auth_data = self.build_authentication_request(
             user_id=self.user2['id'],
             password=self.user2['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token2 = resp.getheader('X-Subject-Token')
+        token2 = resp.headers.get('X-Subject-Token')
         auth_data = self.build_authentication_request(
             user_id=self.user3['id'],
             password=self.user3['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token3 = resp.getheader('X-Subject-Token')
+        token3 = resp.headers.get('X-Subject-Token')
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
@@ -640,7 +640,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
             password=self.user1['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token = resp.getheader('X-Subject-Token')
+        token = resp.headers.get('X-Subject-Token')
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
@@ -676,13 +676,13 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
             password=self.user1['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token1 = resp.getheader('X-Subject-Token')
+        token1 = resp.headers.get('X-Subject-Token')
         auth_data = self.build_authentication_request(
             user_id=self.user2['id'],
             password=self.user2['password'],
             project_id=self.projectA['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token2 = resp.getheader('X-Subject-Token')
+        token2 = resp.headers.get('X-Subject-Token')
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
@@ -771,7 +771,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
             password=self.user['password'])
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectScopedTokenResponse(r)
-        self.assertEqual(r.body['token']['project']['id'], project['id'])
+        self.assertEqual(r.result['token']['project']['id'], project['id'])
 
     def test_default_project_id_scoped_token_with_user_id_401(self):
         # create a second project to work with
@@ -950,8 +950,8 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidUnscopedTokenResponse(r)
 
-        token = r.getheader('X-Subject-Token')
-        headers = {'X-Subject-Token': r.getheader('X-Subject-Token')}
+        token = r.headers.get('X-Subject-Token')
+        headers = {'X-Subject-Token': r.headers.get('X-Subject-Token')}
 
         # test token auth
         auth_data = self.build_authentication_request(token=token)
@@ -1195,7 +1195,7 @@ class TestTrustAuth(TestAuthInfo):
         self.assertValidProjectTrustScopedTokenResponse(
             r, self.default_domain_user)
 
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -1219,7 +1219,7 @@ class TestTrustAuth(TestAuthInfo):
             password=self.default_domain_user['password'],
             project_id=self.default_domain_project_id)
         r = self.post('/auth/tokens', body=auth_data)
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
@@ -1231,7 +1231,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectTrustScopedTokenResponse(
             r, self.trustee_user)
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -1261,7 +1261,7 @@ class TestTrustAuth(TestAuthInfo):
             password=self.default_domain_user['password'],
             project_id=self.default_domain_project_id)
         r = self.post('/auth/tokens', body=auth_data)
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
@@ -1273,7 +1273,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectTrustScopedTokenResponse(
             r, trustee_user)
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -1302,7 +1302,7 @@ class TestTrustAuth(TestAuthInfo):
             password=self.default_domain_user['password'],
             project_id=self.default_domain_project_id)
         r = self.post('/auth/tokens', body=auth_data)
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
@@ -1314,7 +1314,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectTrustScopedTokenResponse(
             r, trustee_user)
-        token = r.getheader('X-Subject-Token')
+        token = r.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
@@ -1342,16 +1342,17 @@ class TestTrustAuth(TestAuthInfo):
             trust_id=trust['id'])
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectTrustScopedTokenResponse(r, self.trustee_user)
-        self.assertEqual(r.body['token']['user']['id'],
+        self.assertEqual(r.result['token']['user']['id'],
                          self.trustee_user['id'])
-        self.assertEqual(r.body['token']['user']['name'],
+        self.assertEqual(r.result['token']['user']['name'],
                          self.trustee_user['name'])
-        self.assertEqual(r.body['token']['user']['domain']['id'],
+        self.assertEqual(r.result['token']['user']['domain']['id'],
                          self.domain['id'])
-        self.assertEqual(r.body['token']['user']['domain']['name'],
+        self.assertEqual(r.result['token']['user']['domain']['name'],
                          self.domain['name'])
-        self.assertEqual(r.body['token']['project']['id'], self.project['id'])
-        self.assertEqual(r.body['token']['project']['name'],
+        self.assertEqual(r.result['token']['project']['id'],
+                         self.project['id'])
+        self.assertEqual(r.result['token']['project']['name'],
                          self.project['name'])
 
     def test_exercise_trust_scoped_token_with_impersonation(self):
@@ -1373,14 +1374,15 @@ class TestTrustAuth(TestAuthInfo):
             trust_id=trust['id'])
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidProjectTrustScopedTokenResponse(r, self.user)
-        self.assertEqual(r.body['token']['user']['id'], self.user['id'])
-        self.assertEqual(r.body['token']['user']['name'], self.user['name'])
-        self.assertEqual(r.body['token']['user']['domain']['id'],
+        self.assertEqual(r.result['token']['user']['id'], self.user['id'])
+        self.assertEqual(r.result['token']['user']['name'], self.user['name'])
+        self.assertEqual(r.result['token']['user']['domain']['id'],
                          self.domain['id'])
-        self.assertEqual(r.body['token']['user']['domain']['name'],
+        self.assertEqual(r.result['token']['user']['domain']['name'],
                          self.domain['name'])
-        self.assertEqual(r.body['token']['project']['id'], self.project['id'])
-        self.assertEqual(r.body['token']['project']['name'],
+        self.assertEqual(r.result['token']['project']['id'],
+                         self.project['id'])
+        self.assertEqual(r.result['token']['project']['name'],
                          self.project['name'])
 
     def test_delete_trust(self):
@@ -1431,12 +1433,12 @@ class TestTrustAuth(TestAuthInfo):
 
         r = self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                      self.user_id, expected_status=200)
-        trusts = r.body['trusts']
+        trusts = r.result['trusts']
         self.assertEqual(len(trusts), 3)
 
         r = self.get('/OS-TRUST/trusts?trustee_user_id=%s' %
                      self.user_id, expected_status=200)
-        trusts = r.body['trusts']
+        trusts = r.result['trusts']
         self.assertEqual(len(trusts), 0)
 
     def test_change_password_invalidates_trust_tokens(self):
@@ -1459,7 +1461,7 @@ class TestTrustAuth(TestAuthInfo):
         r = self.post('/auth/tokens', body=auth_data)
 
         self.assertValidProjectTrustScopedTokenResponse(r, self.user)
-        trust_token = r.getheader('X-Subject-Token')
+        trust_token = r.headers.get('X-Subject-Token')
 
         self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.user_id, expected_status=200,

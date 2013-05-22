@@ -142,7 +142,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """
         self._set_policy({"identity:list_users": []})
         r = self.get('/users', auth=self.auth)
-        id_list = self._get_id_list_from_ref_list(r.body.get('users'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('users'))
         self.assertIn(self.user1['id'], id_list)
         self.assertIn(self.user2['id'], id_list)
         self.assertIn(self.user3['id'], id_list)
@@ -160,7 +160,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         url_by_name = '/users?domain_id=%s' % self.domainB['id']
         r = self.get(url_by_name, auth=self.auth)
         # We should  get back two users, those in DomainB
-        id_list = self._get_id_list_from_ref_list(r.body.get('users'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('users'))
         self.assertIn(self.user2['id'], id_list)
         self.assertIn(self.user3['id'], id_list)
 
@@ -181,8 +181,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self._set_policy(new_policy)
         url_by_name = '/users/%s' % self.user1['id']
         r = self.get(url_by_name, auth=self.auth)
-        body = r.body
-        self.assertEquals(self.user1['id'], body['user']['id'])
+        self.assertEquals(self.user1['id'], r.result['user']['id'])
 
     def test_list_users_protected_by_domain(self):
         """GET /users?domain_id=mydomain (protected)
@@ -205,7 +204,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         url_by_name = '/users?domain_id=%s' % self.domainA['id']
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back one user, the one in DomainA
-        id_list = self._get_id_list_from_ref_list(r.body.get('users'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('users'))
         self.assertEqual(len(id_list), 1)
         self.assertIn(self.user1['id'], id_list)
 
@@ -234,7 +233,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         url_by_name = '/groups?domain_id=%s' % self.domainA['id']
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back two groups, the ones in DomainA
-        id_list = self._get_id_list_from_ref_list(r.body.get('groups'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('groups'))
         self.assertEqual(len(id_list), 2)
         self.assertIn(self.group1['id'], id_list)
         self.assertIn(self.group2['id'], id_list)
@@ -266,7 +265,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back one user, the one in DomainA that matches
         # the name supplied
-        id_list = self._get_id_list_from_ref_list(r.body.get('groups'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('groups'))
         self.assertEqual(len(id_list), 1)
         self.assertIn(self.group2['id'], id_list)
 
@@ -285,21 +284,21 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         new_policy = {"identity:list_domains": []}
         self._set_policy(new_policy)
         r = self.get('/domains?enabled=0', auth=self.auth)
-        id_list = self._get_id_list_from_ref_list(r.body.get('domains'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
         self.assertEqual(len(id_list), 1)
         self.assertIn(self.domainC['id'], id_list)
 
         # Now try a few ways of specifying 'true' when we should get back
         # the other two domains, plus the default domain
         r = self.get('/domains?enabled=1', auth=self.auth)
-        id_list = self._get_id_list_from_ref_list(r.body.get('domains'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
         self.assertEqual(len(id_list), 3)
         self.assertIn(self.domainA['id'], id_list)
         self.assertIn(self.domainB['id'], id_list)
         self.assertIn(DEFAULT_DOMAIN_ID, id_list)
 
         r = self.get('/domains?enabled', auth=self.auth)
-        id_list = self._get_id_list_from_ref_list(r.body.get('domains'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
         self.assertEqual(len(id_list), 3)
         self.assertIn(self.domainA['id'], id_list)
         self.assertIn(self.domainB['id'], id_list)
@@ -319,6 +318,6 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         my_url = '/domains?enableds&name=%s' % self.domainA['name']
         r = self.get(my_url, auth=self.auth)
-        id_list = self._get_id_list_from_ref_list(r.body.get('domains'))
+        id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
         self.assertEqual(len(id_list), 1)
         self.assertIn(self.domainA['id'], id_list)

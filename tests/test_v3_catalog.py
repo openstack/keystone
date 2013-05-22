@@ -84,7 +84,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidEndpointResponse(r, ref)
 
     def assertValidErrorResponse(self, response):
-        self.assertTrue(response.status in [400])
+        self.assertTrue(response.status_code in [400])
 
     def test_create_endpoint_400(self):
         """POST /endpoints"""
@@ -135,7 +135,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             path='/v2.0/endpoints',
             token=self.get_scoped_token(),
             body={'endpoint': ref})
-        endpoint_v2 = r.body['endpoint']
+        endpoint_v2 = r.result['endpoint']
 
         # test the endpoint on v3
         r = self.get('/endpoints')
