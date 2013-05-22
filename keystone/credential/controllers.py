@@ -47,9 +47,6 @@ class CredentialV3(controller.V3Controller):
             credential)
         return CredentialV3.wrap_member(context, ref)
 
-    def _delete_credential(self, context, credential_id):
-        return self.credential_api.delete_credential(context, credential_id)
-
     @controller.protected
     def delete_credential(self, context, credential_id):
-        return self._delete_credential(context, credential_id)
+        return self.credential_api.delete_credential(context, credential_id)
