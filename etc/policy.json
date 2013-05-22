@@ -38,6 +38,7 @@
 
     "identity:get_group": [["rule:admin_required"]],
     "identity:list_groups": [["rule:admin_required"]],
+    "identity:list_groups_for_user": [["rule:admin_or_owner"]],
     "identity:create_group": [["rule:admin_required"]],
     "identity:update_group": [["rule:admin_required"]],
     "identity:delete_group": [["rule:admin_required"]],
