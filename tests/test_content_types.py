@@ -609,14 +609,14 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
 
         self.assertIsNotNone(extension.get('description'))
         self.assertIsNotNone(extension.get('links'))
-        self.assertTrue(len(extension.get('links')))
+        self.assertNotEmpty(extension.get('links'))
         for link in extension.get('links'):
             self.assertValidExtensionLink(link)
 
     def assertValidExtensionListResponse(self, r):
         self.assertIsNotNone(r.body.get('extensions'))
         self.assertIsNotNone(r.body['extensions'].get('values'))
-        self.assertTrue(len(r.body['extensions'].get('values')))
+        self.assertNotEmpty(r.body['extensions'].get('values'))
         for extension in r.body['extensions']['values']:
             self.assertValidExtension(extension)
 
@@ -645,7 +645,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         if require_service_catalog:
             # roles are only provided with a service catalog
             roles = r.body['access']['user'].get('roles')
-            self.assertTrue(len(roles))
+            self.assertNotEmpty(roles)
             for role in roles:
                 self.assertIsNotNone(role.get('name'))
 
@@ -656,7 +656,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         if serviceCatalog is not None:
             self.assertTrue(isinstance(serviceCatalog, list))
             if require_service_catalog:
-                self.assertTrue(len(serviceCatalog))
+                self.assertNotEmpty(serviceCatalog)
             for service in r.body['access']['serviceCatalog']:
                 # validate service
                 self.assertIsNotNone(service.get('name'))
@@ -664,14 +664,14 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
 
                 # services contain at least one endpoint
                 self.assertIsNotNone(service.get('endpoints'))
-                self.assertTrue(len(service['endpoints']))
+                self.assertNotEmpty(service['endpoints'])
                 for endpoint in service['endpoints']:
                     # validate service endpoint
                     self.assertIsNotNone(endpoint.get('publicURL'))
 
     def assertValidTenantListResponse(self, r):
         self.assertIsNotNone(r.body.get('tenants'))
-        self.assertTrue(len(r.body['tenants']))
+        self.assertNotEmpty(r.body['tenants'])
         for tenant in r.body['tenants']:
             self.assertValidTenant(tenant)
             self.assertIsNotNone(tenant.get('enabled'))
@@ -687,7 +687,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
 
     def assertValidRoleListResponse(self, r):
         self.assertIsNotNone(r.body.get('roles'))
-        self.assertTrue(len(r.body['roles']))
+        self.assertNotEmpty(r.body['roles'])
         for role in r.body['roles']:
             self.assertValidRole(role)
 
@@ -695,13 +695,13 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         super(JsonTestCase, self).assertValidVersion(version)
 
         self.assertIsNotNone(version.get('links'))
-        self.assertTrue(len(version.get('links')))
+        self.assertNotEmpty(version.get('links'))
         for link in version.get('links'):
             self.assertIsNotNone(link.get('rel'))
             self.assertIsNotNone(link.get('href'))
 
         self.assertIsNotNone(version.get('media-types'))
-        self.assertTrue(len(version.get('media-types')))
+        self.assertNotEmpty(version.get('media-types'))
         for media in version.get('media-types'):
             self.assertIsNotNone(media.get('base'))
             self.assertIsNotNone(media.get('type'))
@@ -709,7 +709,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
     def assertValidMultipleChoiceResponse(self, r):
         self.assertIsNotNone(r.body.get('versions'))
         self.assertIsNotNone(r.body['versions'].get('values'))
-        self.assertTrue(len(r.body['versions']['values']))
+        self.assertNotEmpty(r.body['versions']['values'])
         for version in r.body['versions']['values']:
             self.assertValidVersion(version)
 
@@ -718,7 +718,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
 
     def assertValidEndpointListResponse(self, r):
         self.assertIsNotNone(r.body.get('endpoints'))
-        self.assertTrue(len(r.body['endpoints']))
+        self.assertNotEmpty(r.body['endpoints'])
         for endpoint in r.body['endpoints']:
             self.assertIsNotNone(endpoint.get('id'))
             self.assertIsNotNone(endpoint.get('name'))
@@ -850,7 +850,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         self.assertIsNotNone(extension.find(self._tag('description')))
         self.assertTrue(extension.find(self._tag('description')).text)
         links = extension.find(self._tag('links'))
-        self.assertTrue(len(links.findall(self._tag('link'))))
+        self.assertNotEmpty(links.findall(self._tag('link')))
         for link in links.findall(self._tag('link')):
             self.assertValidExtensionLink(link)
 
@@ -858,7 +858,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('extensions'))
 
-        self.assertTrue(len(xml.findall(self._tag('extension'))))
+        self.assertNotEmpty(xml.findall(self._tag('extension')))
         for extension in xml.findall(self._tag('extension')):
             self.assertValidExtension(extension)
 
@@ -873,14 +873,14 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
 
         links = version.find(self._tag('links'))
         self.assertIsNotNone(links)
-        self.assertTrue(len(links.findall(self._tag('link'))))
+        self.assertNotEmpty(links.findall(self._tag('link')))
         for link in links.findall(self._tag('link')):
             self.assertIsNotNone(link.get('rel'))
             self.assertIsNotNone(link.get('href'))
 
         media_types = version.find(self._tag('media-types'))
         self.assertIsNotNone(media_types)
-        self.assertTrue(len(media_types.findall(self._tag('media-type'))))
+        self.assertNotEmpty(media_types.findall(self._tag('media-type')))
         for media in media_types.findall(self._tag('media-type')):
             self.assertIsNotNone(media.get('base'))
             self.assertIsNotNone(media.get('type'))
@@ -889,7 +889,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('versions'))
 
-        self.assertTrue(len(xml.findall(self._tag('version'))))
+        self.assertNotEmpty(xml.findall(self._tag('version')))
         for version in xml.findall(self._tag('version')):
             self.assertValidVersion(version)
 
@@ -903,7 +903,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('endpoints'))
 
-        self.assertTrue(len(xml.findall(self._tag('endpoint'))))
+        self.assertNotEmpty(xml.findall(self._tag('endpoint')))
         for endpoint in xml.findall(self._tag('endpoint')):
             self.assertIsNotNone(endpoint.get('id'))
             self.assertIsNotNone(endpoint.get('name'))
@@ -928,7 +928,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('roles'))
 
-        self.assertTrue(len(r.body.findall(self._tag('role'))))
+        self.assertNotEmpty(r.body.findall(self._tag('role')))
         for role in r.body.findall(self._tag('role')):
             self.assertValidRole(role)
 
@@ -956,7 +956,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         if require_service_catalog:
             # roles are only provided with a service catalog
             roles = user.findall(self._tag('role'))
-            self.assertTrue(len(roles))
+            self.assertNotEmpty(roles)
             for role in roles:
                 self.assertIsNotNone(role.get('name'))
 
@@ -967,7 +967,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         if serviceCatalog is not None:
             services = serviceCatalog.findall(self._tag('service'))
             if require_service_catalog:
-                self.assertTrue(len(services))
+                self.assertNotEmpty(services)
             for service in services:
                 # validate service
                 self.assertIsNotNone(service.get('name'))
@@ -975,7 +975,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
 
                 # services contain at least one endpoint
                 endpoints = service.findall(self._tag('endpoint'))
-                self.assertTrue(len(endpoints))
+                self.assertNotEmpty(endpoints)
                 for endpoint in endpoints:
                     # validate service endpoint
                     self.assertIsNotNone(endpoint.get('publicURL'))
@@ -984,7 +984,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         xml = r.body
         self.assertEqual(xml.tag, self._tag('tenants'))
 
-        self.assertTrue(len(r.body))
+        self.assertNotEmpty(r.body)
         for tenant in r.body.findall(self._tag('tenant')):
             self.assertValidTenant(tenant)
             self.assertIn(tenant.get('enabled'), ['true', 'false'])

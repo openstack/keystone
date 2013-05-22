@@ -338,7 +338,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.assertEqual(len(entities), expected_length)
         elif ref is not None:
             # we're at least expecting the ref
-            self.assertTrue(len(entities))
+            self.assertNotEmpty(entities)
 
         # collections should have relational links
         self.assertValidListLinks(resp.body.get('links'))
