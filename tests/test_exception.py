@@ -75,6 +75,13 @@ class ExceptionTestCase(test.TestCase):
         self.assertValidJsonRendering(e)
         self.assertIn(target, str(e))
 
+    def test_403_title(self):
+        e = exception.Forbidden()
+        resp = wsgi.render_exception(e)
+        j = jsonutils.loads(resp.body)
+        self.assertEqual('Forbidden', e.title)
+        self.assertEqual('Forbidden', j['error'].get('title'))
+
 
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
