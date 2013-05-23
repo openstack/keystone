@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-05-21 17:06+0000\n"
+"POT-Creation-Date: 2013-05-22 17:05+0000\n"
 "PO-Revision-Date: 2012-11-02 18:30+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Portuguese (Brazil) "
@@ -261,17 +261,17 @@ msgstr ""
 msgid "LDAP %s update"
 msgstr ""
 
-#: keystone/common/ldap/core.py:398
+#: keystone/common/ldap/core.py:400
 #, python-format
 msgid "LDAP %s delete"
 msgstr ""
 
-#: keystone/common/ldap/core.py:423
+#: keystone/common/ldap/core.py:425
 #, python-format
 msgid "LDAP init: url=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:424
+#: keystone/common/ldap/core.py:426
 #, python-format
 msgid ""
 "LDAP init: use_tls=%(use_tls)s\n"
@@ -281,62 +281,62 @@ msgid ""
 "tls_avail=%(tls_avail)s\n"
 msgstr ""
 
-#: keystone/common/ldap/core.py:443
+#: keystone/common/ldap/core.py:445
 msgid "Invalid TLS / LDAPS combination"
 msgstr ""
 
-#: keystone/common/ldap/core.py:447
+#: keystone/common/ldap/core.py:449
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLSnot available"
 msgstr ""
 
-#: keystone/common/ldap/core.py:457
+#: keystone/common/ldap/core.py:459
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr ""
 
-#: keystone/common/ldap/core.py:469
+#: keystone/common/ldap/core.py:471
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr ""
 
-#: keystone/common/ldap/core.py:476
+#: keystone/common/ldap/core.py:478
 #, python-format
 msgid "LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:490
+#: keystone/common/ldap/core.py:492
 #, python-format
 msgid "LDAP bind: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:501
+#: keystone/common/ldap/core.py:503
 #, python-format
 msgid "LDAP add: dn=%s, attrs=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:506
+#: keystone/common/ldap/core.py:508
 #, python-format
 msgid "LDAP search: dn=%s, scope=%s, query=%s, attrs=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:557
+#: keystone/common/ldap/core.py:559
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
 msgstr ""
 
-#: keystone/common/ldap/core.py:574
+#: keystone/common/ldap/core.py:576
 #, python-format
 msgid "LDAP modify: dn=%s, modlist=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:579
+#: keystone/common/ldap/core.py:581
 #, python-format
 msgid "LDAP delete: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:583
+#: keystone/common/ldap/core.py:585
 #, python-format
 msgid "LDAP delete_ext: dn=%s, serverctrls=%s"
 msgstr ""
@@ -490,22 +490,26 @@ msgstr ""
 msgid "Cannot remove role that has not been granted, %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:659
+#: keystone/identity/backends/ldap/core.py:95
+#, python-format
+msgid "Expected dict or list: %s"
+msgstr ""
+
+#: keystone/identity/backends/ldap/core.py:692
 #, python-format
 msgid "Role %s not found"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:879
-#: keystone/identity/backends/ldap/core.py:995
+#: keystone/identity/backends/ldap/core.py:912
 msgid "Changing Name not supported by LDAP"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:893
+#: keystone/identity/backends/ldap/core.py:926
 #, python-format
 msgid "User %s is already a member of group %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:935
+#: keystone/identity/backends/ldap/core.py:968
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_dn)s'. The user should "
