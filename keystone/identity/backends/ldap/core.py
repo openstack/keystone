@@ -672,8 +672,6 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
         return model
 
     def create(self, values):
-        #values['id'] = values['name']
-        #delattr(values, 'name')
         return super(RoleApi, self).create(values)
 
     def add_user(self, role_id, user_id, tenant_id=None):
