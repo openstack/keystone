@@ -110,8 +110,8 @@ class TrustV3(controller.V3Controller):
         The user creating the trust must be trustor
         """
 
-        #TODO instead of raising  ValidationError on the first problem,
-        #return a collection of all the problems.
+        # TODO(ayoung): instead of raising ValidationError on the first
+        # problem, return a collection of all the problems.
         if not trust:
             raise exception.ValidationError(attribute='trust',
                                             target='request')

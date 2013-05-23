@@ -178,11 +178,11 @@ class TokenDataHelper(object):
             try:
                 service_catalog = self.catalog_api.get_v3_catalog(
                     self.context, user_id, project_id)
-            #TODO KVS backend needs a sample implementation
+            # TODO(ayoung): KVS backend needs a sample implementation
             except exception.NotImplemented:
                 service_catalog = {}
             # TODO(gyee): v3 service catalog is not quite completed yet
-            #TODO Enforce Endpoints for trust
+            # TODO(ayoung): Enforce Endpoints for trust
             token_data['catalog'] = service_catalog
 
     def _populate_token(self, token_data, expires=None, trust=None):

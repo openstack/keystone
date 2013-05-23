@@ -386,7 +386,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         expected_dict = {'description': 'name', 'gecos': 'password'}
         self.assertDictEqual(expected_dict, mapping)
 
-# TODO (henry-nash) These need to be removed when the full LDAP implementation
+# TODO(henry-nash): These need to be removed when the full LDAP implementation
 # is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
 
     # (spzala)The group and domain crud tests below override the standard ones

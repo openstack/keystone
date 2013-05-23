@@ -472,7 +472,7 @@ class DomainV3(controller.V3Controller):
         """
         # Start by disabling all the users in this domain, to minimize the
         # the risk that things are changing under our feet.
-        # TODO(henry-nash) In theory this step should not be necessary, since
+        # TODO(henry-nash): In theory this step should not be necessary, since
         # users of a disabled domain are prevented from authenticating.
         # However there are some existing bugs in this area (e.g. 1130236).
         # Consider removing this code once these have been fixed.

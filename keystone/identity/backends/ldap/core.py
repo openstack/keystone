@@ -840,7 +840,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             pass
         super(RoleApi, self).delete(id)
 
-# TODO (spzala) - this is only placeholder for group and domain role support
+# TODO(spzala): this is only placeholder for group and domain role support
 # which will be added under bug 1101287
     def roles_delete_subtree_by_type(self, id, type):
         conn = self.get_connection()

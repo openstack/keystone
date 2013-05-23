@@ -215,8 +215,8 @@ class Auth(controller.V2Controller):
         tenant_ref = self._get_project_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
 
-        # TODO (henry-nash) If no tenant was specified, instead check
-        # for a domain and find any related user/group roles
+        # TODO(henry-nash): If no tenant was specified, instead check for a
+        # domain and find any related user/group roles
 
         self._append_roles(metadata_ref,
                            self._get_group_metadata_ref(
@@ -303,8 +303,8 @@ class Auth(controller.V2Controller):
         # specified, we will have obtained its metadata.  In this case
         # we just need to add in any group roles.
         #
-        # TODO (henry-nash) If no tenant was specified, instead check
-        # for a domain and find any related user/group roles
+        # TODO(henry-nash): If no tenant was specified, instead check for a
+        # domain and find any related user/group roles
 
         self._append_roles(metadata_ref,
                            self._get_group_metadata_ref(
@@ -335,8 +335,8 @@ class Auth(controller.V2Controller):
         tenant_ref = self._get_project_ref(context, user_id, tenant_id)
         metadata_ref = self._get_metadata_ref(context, user_id, tenant_id)
 
-        # TODO (henry-nash) If no tenant was specified, instead check
-        # for a domain and find any related user/group roles
+        # TODO(henry-nash): If no tenant was specified, instead check for a
+        # domain and find any related user/group roles
 
         self._append_roles(metadata_ref,
                            self._get_group_metadata_ref(

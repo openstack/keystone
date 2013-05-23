@@ -596,7 +596,7 @@ class AuthWithTrust(AuthTest):
         self.assertEquals(token_user['id'],
                           self.new_trust['trustee_user_id'])
 
-        #TODO Endpoints
+        # TODO(ayoung): Endpoints
 
     def test_token_from_trust_wrong_user_fails(self):
         request_body = self.build_v2_token_request('FOO', 'foo2')

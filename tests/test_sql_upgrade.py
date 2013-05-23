@@ -703,12 +703,11 @@ class SqlUpgradeTests(test.TestCase):
         user['domain_id'] = domain2['id']
         cmd = this_table.insert().values(user)
         self.engine.execute(cmd)
-        # TODO(henry-nash).  For now, as part of clean-up we
-        # delete one of these users.  Although not part of this test,
-        # unless we do so the downgrade(16->15) that is part of
-        # teardown with fail due to having two uses with clashing
-        # name as we try to revert to a single global name space.  This
-        # limitation is raised as Bug #1125046 and the delete
+        # TODO(henry-nash): For now, as part of clean-up we delete one of these
+        # users.  Although not part of this test, unless we do so the
+        # downgrade(16->15) that is part of teardown with fail due to having
+        # two uses with clashing name as we try to revert to a single global
+        # name space.  This limitation is raised as Bug #1125046 and the delete
         # could be removed depending on how that bug is resolved.
         cmd = this_table.delete(id=user['id'])
         self.engine.execute(cmd)
@@ -731,9 +730,9 @@ class SqlUpgradeTests(test.TestCase):
         project['domain_id'] = domain2['id']
         cmd = this_table.insert().values(project)
         self.engine.execute(cmd)
-        # TODO(henry-nash) For now, we delete one of the projects for
-        # the same reason as we delete one of the users (Bug #1125046).
-        # This delete could be removed depending on that bug resolution.
+        # TODO(henry-nash): For now, we delete one of the projects for the same
+        # reason as we delete one of the users (Bug #1125046). This delete
+        # could be removed depending on that bug resolution.
         cmd = this_table.delete(id=project['id'])
         self.engine.execute(cmd)
 

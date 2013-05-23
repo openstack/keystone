@@ -107,7 +107,7 @@ class Password(auth.AuthMethodHandler):
         """ Try to authenticate against the identity backend. """
         user_info = UserAuthInfo(context, auth_payload)
 
-        # FIXME: identity.authenticate() can use some refactoring since
+        # FIXME(gyee): identity.authenticate() can use some refactoring since
         # all we care is password matches
         self.identity_api.authenticate(
             context=context,

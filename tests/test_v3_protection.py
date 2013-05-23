@@ -159,7 +159,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
           payload
 
         """
-        # TODO (henry-nash, ayoung): It would be good to expand this
+        # TODO(henry-nash, ayoung): It would be good to expand this
         # test for further test flattening, e.g. protect on, say, an
         # attribute of an object being created
         new_policy = {"identity:get_user": [["user_id:%(user_id)s"]]}
