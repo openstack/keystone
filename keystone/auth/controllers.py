@@ -17,15 +17,15 @@
 import json
 
 from keystone.auth import token_factory
-from keystone.common import controller
 from keystone.common import cms
+from keystone.common import controller
 from keystone.common import logging
 from keystone import config
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common import importutils
 from keystone import token
 from keystone import trust
-from keystone.openstack.common import importutils
 
 
 LOG = logging.getLogger(__name__)

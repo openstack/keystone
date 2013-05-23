@@ -19,10 +19,9 @@ only to be used for testing purposes
 """
 import copy
 
-
 from keystone.common import kvs
-from keystone.openstack.common import timeutils
 from keystone import exception
+from keystone.openstack.common import timeutils
 from keystone import trust
 
 

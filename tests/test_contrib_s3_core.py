@@ -16,8 +16,8 @@
 
 import uuid
 
-from keystone.contrib import s3
 from keystone.contrib import ec2
+from keystone.contrib import s3
 
 from keystone import exception
 from keystone import test

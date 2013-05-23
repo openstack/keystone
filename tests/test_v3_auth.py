@@ -17,8 +17,8 @@ import uuid
 
 import nose.exc
 
-from keystone.common import cms
 from keystone import auth
+from keystone.common import cms
 from keystone import config
 from keystone import exception
 

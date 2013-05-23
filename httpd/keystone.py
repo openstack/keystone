@@ -2,8 +2,8 @@ import os
 
 from paste import deploy
 
-from keystone import config
 from keystone.common import logging
+from keystone import config
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF

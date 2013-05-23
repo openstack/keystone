@@ -39,6 +39,7 @@ of integrity constraints.
 
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
+
 from keystone import config
 
 

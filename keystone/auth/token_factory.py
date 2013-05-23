@@ -21,17 +21,17 @@ import subprocess
 import uuid
 import webob
 
+from keystone import catalog
 from keystone.common import cms
 from keystone.common import logging
 from keystone.common import utils
-from keystone import catalog
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone import token as token_module
-from keystone import trust
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
+from keystone import token as token_module
+from keystone import trust
 
 
 CONF = config.CONF

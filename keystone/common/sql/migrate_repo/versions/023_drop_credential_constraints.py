@@ -14,10 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+from migrate import ForeignKeyConstraint
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
-from migrate import ForeignKeyConstraint
 
 MYSQL_FKEY_QUERY = ("select CONSTRAINT_NAME from "
                     "INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS "

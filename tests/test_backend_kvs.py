@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import uuid
+
 import nose.exc
 
 from keystone import catalog

@@ -16,6 +16,7 @@
 # under the License.
 
 import uuid
+
 import nose.exc
 
 from keystone.common.ldap import fakeldap

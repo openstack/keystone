@@ -18,11 +18,11 @@ import routes
 
 from keystone import auth
 from keystone import catalog
-from keystone import config
-from keystone import controllers
 from keystone.common import logging
 from keystone.common import wsgi
+from keystone import config
 from keystone.contrib import ec2
+from keystone import controllers
 from keystone import credential
 from keystone import identity
 from keystone import policy

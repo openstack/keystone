@@ -19,9 +19,9 @@ import webob
 
 import nose.exc
 
+from keystone import config
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
-from keystone import config
 from keystone import test
 
 import default_fixtures

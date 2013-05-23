@@ -14,9 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from keystone.common import logging
 from keystone import auth
+from keystone.common import logging
 from keystone import exception
 from keystone import token
 

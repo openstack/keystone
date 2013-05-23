@@ -14,10 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import wsgi
 from keystone.common import logging
+from keystone.common import wsgi
 from keystone import config
 from keystone import exception
+
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF

@@ -1,11 +1,11 @@
 import uuid
 
-from keystone import config
-from keystone import exception
-from keystone import identity
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import logging
+from keystone import config
+from keystone import exception
+from keystone import identity
 from keystone.openstack.common import timeutils
 
 

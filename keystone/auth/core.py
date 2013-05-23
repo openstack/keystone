@@ -14,8 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import exception
 from keystone.common import dependency
+from keystone import exception
 
 
 @dependency.requires('identity_api')
