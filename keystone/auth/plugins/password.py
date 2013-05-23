@@ -109,7 +109,7 @@ class Password(auth.AuthMethodHandler):
 
         # FIXME: identity.authenticate() can use some refactoring since
         # all we care is password matches
-        user_auth_data = self.identity_api.authenticate(
+        self.identity_api.authenticate(
             context=context,
             user_id=user_info.user_id,
             password=user_info.password)

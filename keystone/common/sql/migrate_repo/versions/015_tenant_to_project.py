@@ -17,7 +17,7 @@ def downgrade_with_rename(meta, migrate_engine):
 
 
 def upgrade_with_copy(meta, migrate_engine):
-    legacy_table = sql.Table('user', meta, autoload=True)
+    sql.Table('user', meta, autoload=True)
     project_table = sql.Table(
         'project',
         meta,
@@ -69,7 +69,7 @@ def upgrade_with_copy(meta, migrate_engine):
 
 
 def downgrade_with_copy(meta, migrate_engine):
-    legacy_table = sql.Table('user', meta, autoload=True)
+    sql.Table('user', meta, autoload=True)
     tenant_table = sql.Table(
         'tenant',
         meta,

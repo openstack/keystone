@@ -75,7 +75,6 @@ class Token(kvs.Base, token.Driver):
         for token, ref in self.db.items():
             if not token.startswith('token-') or self.is_expired(now, ref):
                 continue
-            ref_trust_id = ref.get('trust_id')
             if self.trust_matches(trust_id, ref):
                 tokens.append(token.split('-', 1)[1])
         return tokens

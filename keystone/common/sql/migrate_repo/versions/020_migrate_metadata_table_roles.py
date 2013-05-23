@@ -12,9 +12,9 @@ def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
 
-    user_table = sql.Table('user', meta, autoload=True)
-    role_table = sql.Table('role', meta, autoload=True)
-    project_table = sql.Table('project', meta, autoload=True)
+    sql.Table('user', meta, autoload=True)
+    sql.Table('role', meta, autoload=True)
+    sql.Table('project', meta, autoload=True)
     new_metadata_table = sql.Table('user_project_metadata',
                                    meta,
                                    autoload=True)
@@ -60,8 +60,8 @@ def downgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
 
-    user_table = sql.Table('user', meta, autoload=True)
-    project_table = sql.Table('project', meta, autoload=True)
+    sql.Table('user', meta, autoload=True)
+    sql.Table('project', meta, autoload=True)
 
     metadata_table = sql.Table(
         'metadata',
@@ -92,9 +92,8 @@ def downgrade(migrate_engine):
 
     for metadata in session.query(user_project_metadata_table):
         if 'roles' in metadata:
-            roles = json.loads(metadata.data)
-            ins = (metadata_table.insert()
-                   .values(user_id=metadata.user_id,
-                           tenant_id=metadata.project_id))
+            metadata_table.insert().values(
+                user_id=metadata.user_id,
+                tenant_id=metadata.project_id)
 
     session.close()
