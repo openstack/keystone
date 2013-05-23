@@ -1832,12 +1832,12 @@ class IdentityTests(object):
         self.identity_man.create_user({}, new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
-        agroups = self.identity_api.list_groups_for_user(new_user['id'])
+        groups = self.identity_api.list_groups_for_user(new_user['id'])
+        self.assertIn(new_group['id'], [x['id'] for x in groups])
         self.identity_api.remove_user_from_group(new_user['id'],
                                                  new_group['id'])
         groups = self.identity_api.list_groups_for_user(new_user['id'])
-        for x in groups:
-            self.assertFalse(x['id'] == new_group['id'])
+        self.assertNotIn(new_group['id'], [x['id'] for x in groups])
 
     def test_remove_user_from_group_404(self):
         domain = self._get_domain_fixture()
@@ -2271,7 +2271,7 @@ class TrustTests(object):
 
     def test_list_trust_by_trustee(self):
         for i in range(0, 3):
-            trust_data = self.create_sample_trust(uuid.uuid4().hex)
+            self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts_for_trustee(self.trustee['id'])
         self.assertEqual(len(trusts), 3)
         self.assertEqual(trusts[0]["trustee_user_id"], self.trustee['id'])
@@ -2280,7 +2280,7 @@ class TrustTests(object):
 
     def test_list_trust_by_trustor(self):
         for i in range(0, 3):
-            trust_data = self.create_sample_trust(uuid.uuid4().hex)
+            self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts_for_trustor(self.trustor['id'])
         self.assertEqual(len(trusts), 3)
         self.assertEqual(trusts[0]["trustor_user_id"], self.trustor['id'])
@@ -2289,7 +2289,7 @@ class TrustTests(object):
 
     def test_list_trusts(self):
         for i in range(0, 3):
-            trust_data = self.create_sample_trust(uuid.uuid4().hex)
+            self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 3)
 

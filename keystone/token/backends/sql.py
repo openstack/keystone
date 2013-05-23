@@ -88,7 +88,7 @@ class Token(sql.Base, token.Driver):
         token_references = query.filter_by(valid=True)
         for token_ref in token_references:
             token_ref_dict = token_ref.to_dict()
-            tokens.append(token_ref['id'])
+            tokens.append(token_ref_dict['id'])
         return tokens
 
     def _list_tokens_for_user(self, user_id, tenant_id=None):

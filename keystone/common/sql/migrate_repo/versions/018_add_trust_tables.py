@@ -23,9 +23,9 @@ def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
 
-    user_table = sql.Table('user', meta, autoload=True)
-    role_table = sql.Table('role', meta, autoload=True)
-    tenant_table = sql.Table('project', meta, autoload=True)
+    sql.Table('user', meta, autoload=True)
+    sql.Table('role', meta, autoload=True)
+    sql.Table('project', meta, autoload=True)
 
     trust_table = sql.Table(
         'trust',

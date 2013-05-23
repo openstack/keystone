@@ -422,7 +422,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
             self.identity_api.create_domain(
                 CONF.identity.default_domain_id, domain)
         with self.assertRaises(exception.DomainNotFound):
-            domain_ref = self.identity_api.get_domain(domain['id'])
+            self.identity_api.get_domain(domain['id'])
         with self.assertRaises(exception.DomainNotFound):
             domain['description'] = uuid.uuid4().hex
             self.identity_api.update_domain(domain['id'], domain)

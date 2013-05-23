@@ -599,7 +599,6 @@ class AuthWithTrust(AuthTest):
         #TODO Endpoints
 
     def test_token_from_trust_wrong_user_fails(self):
-        new_trust = self.create_trust()
         request_body = self.build_v2_token_request('FOO', 'foo2')
         self.assertRaises(
             exception.Forbidden,
@@ -681,7 +680,7 @@ class AuthWithTrust(AuthTest):
 
     def test_delete_tokens_for_user_invalidates_tokens_from_trust(self):
         self.assert_token_count_for_trust(0)
-        auth_response = self.fetch_v2_token_from_trust()
+        self.fetch_v2_token_from_trust()
         self.assert_token_count_for_trust(1)
         self.trust_controller._delete_tokens_for_user(
             {},
@@ -699,9 +698,8 @@ class AuthWithTrust(AuthTest):
 
     def test_delete_trust_revokes_token(self):
         context = {'token_id': self.unscoped_token['access']['token']['id']}
-        auth_response = self.fetch_v2_token_from_trust()
+        self.fetch_v2_token_from_trust()
         trust_id = self.new_trust['id']
-        trust_token_id = auth_response['access']['token']['id']
         tokens = self.token_api.list_tokens(self.trustor['id'],
                                             trust_id=trust_id)
         self.assertEquals(len(tokens), 1)

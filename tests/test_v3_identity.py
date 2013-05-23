@@ -106,15 +106,13 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                 'tenantId': self.project2['id']
             }
         }
-        resp = self.admin_request(path='/v2.0/tokens',
-                                  method='POST',
-                                  body=body)
+        self.admin_request(path='/v2.0/tokens', method='POST', body=body)
 
         auth_data = self.build_authentication_request(
             user_id=self.user2['id'],
             password=self.user2['password'],
             project_id=self.project2['id'])
-        resp = self.post('/auth/tokens', body=auth_data)
+        self.post('/auth/tokens', body=auth_data)
 
         # Now disable the domain
         self.domain2['enabled'] = False
@@ -134,26 +132,22 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                 'tenantId': self.project2['id']
             }
         }
-        resp = self.admin_request(path='/v2.0/tokens',
-                                  method='POST',
-                                  body=body,
-                                  expected_status=401)
+        self.admin_request(
+            path='/v2.0/tokens', method='POST', body=body, expected_status=401)
 
         # Try looking up in v3 by name and id
         auth_data = self.build_authentication_request(
             user_id=self.user2['id'],
             password=self.user2['password'],
             project_id=self.project2['id'])
-        resp = self.post('/auth/tokens', body=auth_data,
-                         expected_status=401)
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
 
         auth_data = self.build_authentication_request(
             username=self.user2['name'],
             user_domain_id=self.domain2['id'],
             password=self.user2['password'],
             project_id=self.project2['id'])
-        resp = self.post('/auth/tokens', body=auth_data,
-                         expected_status=401)
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
 
     def test_delete_enabled_domain_fails(self):
         """DELETE /domains/{domain_id}...(when domain enabled)"""

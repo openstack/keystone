@@ -54,49 +54,34 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         super(IdentityTestProtectedCase, self).setUp(load_sample_data=False)
         # Start by creating a couple of domains
         self.domainA = self.new_domain_ref()
-        domainA_ref = self.identity_api.create_domain(self.domainA['id'],
-                                                      self.domainA)
+        self.identity_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
-        domainB_ref = self.identity_api.create_domain(self.domainB['id'],
-                                                      self.domainB)
+        self.identity_api.create_domain(self.domainB['id'], self.domainB)
         self.domainC = self.new_domain_ref()
         self.domainC['enabled'] = False
-        domainC_ref = self.identity_api.create_domain(self.domainC['id'],
-                                                      self.domainC)
+        self.identity_api.create_domain(self.domainC['id'], self.domainC)
 
         # Now create some users, one in domainA and two of them in domainB
-        self.user1 = self.new_user_ref(
-            domain_id=self.domainA['id'])
+        self.user1 = self.new_user_ref(domain_id=self.domainA['id'])
         self.user1['password'] = uuid.uuid4().hex
-        user_ref = self.identity_api.create_user(self.user1['id'],
-                                                 self.user1)
+        self.identity_api.create_user(self.user1['id'], self.user1)
 
-        self.user2 = self.new_user_ref(
-            domain_id=self.domainB['id'])
+        self.user2 = self.new_user_ref(domain_id=self.domainB['id'])
         self.user2['password'] = uuid.uuid4().hex
-        user_ref = self.identity_api.create_user(self.user2['id'],
-                                                 self.user2)
+        self.identity_api.create_user(self.user2['id'], self.user2)
 
-        self.user3 = self.new_user_ref(
-            domain_id=self.domainB['id'])
+        self.user3 = self.new_user_ref(domain_id=self.domainB['id'])
         self.user3['password'] = uuid.uuid4().hex
-        user_ref = self.identity_api.create_user(self.user3['id'],
-                                                 self.user3)
+        self.identity_api.create_user(self.user3['id'], self.user3)
 
-        self.group1 = self.new_group_ref(
-            domain_id=self.domainA['id'])
-        user_ref = self.identity_api.create_group(self.group1['id'],
-                                                  self.group1)
+        self.group1 = self.new_group_ref(domain_id=self.domainA['id'])
+        self.identity_api.create_group(self.group1['id'], self.group1)
 
-        self.group2 = self.new_group_ref(
-            domain_id=self.domainA['id'])
-        user_ref = self.identity_api.create_group(self.group2['id'],
-                                                  self.group2)
+        self.group2 = self.new_group_ref(domain_id=self.domainA['id'])
+        self.identity_api.create_group(self.group2['id'], self.group2)
 
-        self.group3 = self.new_group_ref(
-            domain_id=self.domainB['id'])
-        user_ref = self.identity_api.create_group(self.group3['id'],
-                                                  self.group3)
+        self.group3 = self.new_group_ref(domain_id=self.domainB['id'])
+        self.identity_api.create_group(self.group3['id'], self.group3)
 
         self.role = self.new_role_ref()
         self.identity_api.create_role(self.role['id'], self.role)

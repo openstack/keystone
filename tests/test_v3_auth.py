@@ -131,7 +131,6 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             user_id=self.user['id'],
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.result
         token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
@@ -152,7 +151,6 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             password=self.user['password'],
             domain_id=self.domain['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.result
         token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
@@ -168,7 +166,6 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
             password=self.default_domain_user['password'],
             project_id=self.project['id'])
         resp = self.post('/auth/tokens', body=auth_data)
-        token_data = resp.result
         token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
@@ -429,51 +426,41 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
 
         # Start by creating a couple of domains and projects
         self.domainA = self.new_domain_ref()
-        domainA_ref = self.identity_api.create_domain(self.domainA['id'],
-                                                      self.domainA)
+        self.identity_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
-        domainB_ref = self.identity_api.create_domain(self.domainB['id'],
-                                                      self.domainB)
+        self.identity_api.create_domain(self.domainB['id'], self.domainB)
         self.projectA = self.new_project_ref(domain_id=self.domainA['id'])
-        projectA_ref = self.identity_api.create_project(self.projectA['id'],
-                                                        self.projectA)
+        self.identity_api.create_project(self.projectA['id'], self.projectA)
         self.projectB = self.new_project_ref(domain_id=self.domainA['id'])
-        projectB_ref = self.identity_api.create_project(self.projectB['id'],
-                                                        self.projectB)
+        self.identity_api.create_project(self.projectB['id'], self.projectB)
 
         # Now create some users, one in domainA and two of them in domainB
         self.user1 = self.new_user_ref(
             domain_id=self.domainA['id'])
         self.user1['password'] = uuid.uuid4().hex
-        user_ref = self.identity_api.create_user(self.user1['id'],
-                                                 self.user1)
+        self.identity_api.create_user(self.user1['id'], self.user1)
 
         self.user2 = self.new_user_ref(
             domain_id=self.domainB['id'])
         self.user2['password'] = uuid.uuid4().hex
-        user_ref = self.identity_api.create_user(self.user2['id'],
-                                                 self.user2)
+        self.identity_api.create_user(self.user2['id'], self.user2)
 
         self.user3 = self.new_user_ref(
             domain_id=self.domainB['id'])
         self.user3['password'] = uuid.uuid4().hex
-        user_ref = self.identity_api.create_user(self.user3['id'],
-                                                 self.user3)
+        self.identity_api.create_user(self.user3['id'], self.user3)
 
         self.group1 = self.new_group_ref(
             domain_id=self.domainA['id'])
-        user_ref = self.identity_api.create_group(self.group1['id'],
-                                                  self.group1)
+        self.identity_api.create_group(self.group1['id'], self.group1)
 
         self.group2 = self.new_group_ref(
             domain_id=self.domainA['id'])
-        user_ref = self.identity_api.create_group(self.group2['id'],
-                                                  self.group2)
+        self.identity_api.create_group(self.group2['id'], self.group2)
 
         self.group3 = self.new_group_ref(
             domain_id=self.domainB['id'])
-        user_ref = self.identity_api.create_group(self.group3['id'],
-                                                  self.group3)
+        self.identity_api.create_group(self.group3['id'], self.group3)
 
         self.identity_api.add_user_to_group(self.user1['id'],
                                             self.group1['id'])
@@ -951,7 +938,6 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertValidUnscopedTokenResponse(r)
 
         token = r.headers.get('X-Subject-Token')
-        headers = {'X-Subject-Token': r.headers.get('X-Subject-Token')}
 
         # test token auth
         auth_data = self.build_authentication_request(token=token)
@@ -1199,10 +1185,8 @@ class TestTrustAuth(TestAuthInfo):
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
-        resp = self.admin_request(path=path,
-                                  token='ADMIN',
-                                  method='GET',
-                                  expected_status=401)
+        self.admin_request(
+            path=path, token='ADMIN', method='GET', expected_status=401)
 
     def test_v3_v2_intermix_trustor_not_in_default_domaini_failed(self):
         ref = self.new_trust_ref(
@@ -1235,10 +1219,8 @@ class TestTrustAuth(TestAuthInfo):
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
-        resp = self.admin_request(path=path,
-                                  token='ADMIN',
-                                  method='GET',
-                                  expected_status=401)
+        self.admin_request(
+            path=path, token='ADMIN', method='GET', expected_status=401)
 
     def test_v3_v2_intermix_project_not_in_default_domaini_failed(self):
         # create a trustee in default domain to delegate stuff to
@@ -1277,10 +1259,8 @@ class TestTrustAuth(TestAuthInfo):
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
-        resp = self.admin_request(path=path,
-                                  token='ADMIN',
-                                  method='GET',
-                                  expected_status=401)
+        self.admin_request(
+            path=path, token='ADMIN', method='GET', expected_status=401)
 
     def test_v3_v2_intermix(self):
         # create a trustee in default domain to delegate stuff to
@@ -1318,10 +1298,8 @@ class TestTrustAuth(TestAuthInfo):
 
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
-        resp = self.admin_request(path=path,
-                                  token='ADMIN',
-                                  method='GET',
-                                  expected_status=200)
+        self.admin_request(
+            path=path, token='ADMIN', method='GET', expected_status=200)
 
     def test_exercise_trust_scoped_token_without_impersonation(self):
         ref = self.new_trust_ref(
@@ -1429,7 +1407,7 @@ class TestTrustAuth(TestAuthInfo):
 
         for i in range(0, 3):
             r = self.post('/OS-TRUST/trusts', body={'trust': ref})
-            trust = self.assertValidTrustResponse(r, ref)
+            self.assertValidTrustResponse(r, ref)
 
         r = self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                      self.user_id, expected_status=200)

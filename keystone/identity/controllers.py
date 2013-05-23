@@ -395,8 +395,6 @@ class Role(controller.V2Controller):
         role_id = role_ref_ref.get('roleId')[0]
         self.identity_api.remove_role_from_user_and_project(
             context, user_id, tenant_id, role_id)
-        roles = self.identity_api.get_roles_for_user_and_project(
-            context, user_id, tenant_id)
         self._delete_tokens_for_user(context, user_id)
 
 
