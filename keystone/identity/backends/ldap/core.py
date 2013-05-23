@@ -855,10 +855,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
                                       query, ['%s' % '1.1'])
                 for role_dn, _ in roles:
-                    try:
-                        conn.delete_s(role_dn)
-                    except:
-                        raise Exception
+                    conn.delete_s(role_dn)
             except ldap.NO_SUCH_OBJECT:
                 pass
 

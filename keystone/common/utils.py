@@ -228,7 +228,7 @@ def setup_remote_pydev_debug():
                             stdoutToServer=True,
                             stderrToServer=True)
             return True
-        except:
+        except Exception:
             LOG.exception(_(
                 'Error setting up the debug environment. Verify that the '
                 'option --debug-url has the format <host>:<port> and that a '
