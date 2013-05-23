@@ -2,7 +2,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 import greenlet
-import eventlet
 import logging
 import os
 import signal
@@ -23,6 +22,7 @@ from paste import deploy
 
 from keystone import config
 from keystone.common import wsgi
+from keystone.common import wsgi_server
 from keystone.common import utils
 from keystone.openstack.common import importutils
 from keystone.openstack.common import version
@@ -33,7 +33,7 @@ CONF = config.CONF
 
 def create_server(conf, name, host, port):
     app = deploy.loadapp('config:%s' % conf, name=name)
-    server = wsgi.Server(app, host=host, port=port)
+    server = wsgi_server.Server(app, host=host, port=port)
     if CONF.ssl.enable:
         server.set_ssl(CONF.ssl.certfile, CONF.ssl.keyfile,
                        CONF.ssl.ca_certs, CONF.ssl.cert_required)
@@ -106,8 +106,7 @@ if __name__ == '__main__':
         # http://lists.openstack.org/pipermail/openstack-dev/2012-August/
         # 000794.html
         monkeypatch_thread = False
-    eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
-                                  thread=monkeypatch_thread)
+    wsgi_server.monkey_patch_eventlet(monkeypatch_thread=monkeypatch_thread)
 
     options = deploy.appconfig('config:%s' % paste_config)
 
