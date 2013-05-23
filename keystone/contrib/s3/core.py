@@ -24,9 +24,8 @@ for the EC2 module for how to generate the required credentials.
 """
 
 import base64
+import hashlib
 import hmac
-
-from hashlib import sha1
 
 from keystone.common import utils
 from keystone.common import wsgi
@@ -51,7 +50,8 @@ class S3Controller(ec2.Ec2Controller):
     def check_signature(self, creds_ref, credentials):
         msg = base64.urlsafe_b64decode(str(credentials['token']))
         key = str(creds_ref['secret'])
-        signed = base64.encodestring(hmac.new(key, msg, sha1).digest()).strip()
+        signed = base64.encodestring(
+            hmac.new(key, msg, hashlib.sha1).digest()).strip()
 
         if not utils.auth_str_equal(credentials['signature'], signed):
             raise exception.Unauthorized('Credential signature mismatch')

@@ -21,11 +21,10 @@ from __future__ import absolute_import
 import functools
 import logging
 import logging.config
+import logging.handlers
 import pprint
 import traceback
 
-from logging.handlers import SysLogHandler
-from logging.handlers import WatchedFileHandler
 
 # A list of things we want to replicate from logging.
 # levels
@@ -57,8 +56,8 @@ Formatter = logging.Formatter
 
 # handlers
 StreamHandler = logging.StreamHandler
-WatchedFileHandler = WatchedFileHandler
-SysLogHandler = SysLogHandler
+WatchedFileHandler = logging.handlers.WatchedFileHandler
+SysLogHandler = logging.handlers.SysLogHandler
 
 
 def log_debug(f):

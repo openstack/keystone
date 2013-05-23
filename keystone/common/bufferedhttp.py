@@ -29,7 +29,7 @@ BufferedHTTPResponse.
 """
 
 import time
-from urllib import quote
+import urllib
 
 from eventlet.green import httplib
 
@@ -130,7 +130,7 @@ def http_connect(ipaddr, port, device, partition, method, path,
     :returns: HTTPConnection object
 
     """
-    path = quote('/' + device + '/' + str(partition) + path)
+    path = urllib.quote('/' + device + '/' + str(partition) + path)
     return http_connect_raw(ipaddr, port, device, partition, method, path,
                             headers, query_string, ssl, key_file, cert_file)
 
