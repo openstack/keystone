@@ -1,6 +1,7 @@
 include AUTHORS
 include babel.cfg
 include ChangeLog
+include CONTRIBUTING.txt
 include LICENSE
 include HACKING.rst
 include README.rst
