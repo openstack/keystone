@@ -421,9 +421,9 @@ class Identity(sql.Base, identity.Driver):
             metadata_ref = self.get_metadata(user_id, tenant_id)
             roles = set(metadata_ref.get('roles', []))
             if role_id not in roles:
-                msg = _('Cannot remove role that has not been granted, %s' %
-                        role_id)
-                raise exception.RoleNotFound(message=msg)
+                raise exception.RoleNotFound(message=_(
+                    'Cannot remove role that has not been granted, %s') %
+                    role_id)
             roles.remove(role_id)
             metadata_ref['roles'] = list(roles)
             if len(roles):

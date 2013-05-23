@@ -15,10 +15,9 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):
-
-    LOG.debug(_('RBAC: Authorizing %s(%s)') % (
-        action,
-        ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])))
+    LOG.debug(_('RBAC: Authorizing %(action)s(%(kwargs)s)') % {
+        'action': action,
+        'kwargs': ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])})
 
     try:
         token_ref = self.token_api.get_token(

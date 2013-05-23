@@ -922,9 +922,9 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
                   self.member_attribute,
                   self.user_api._id_to_dn(user_id))])
         except ldap.TYPE_OR_VALUE_EXISTS:
-            msg = _('User %s is already a member of group %s'
-                    % (user_id, group_id))
-            raise exception.Conflict(msg)
+            raise exception.Conflict(_(
+                'User %(user_id)s is already a member of group %(group_id)s') %
+                {'user_id': user_id, 'group_id': group_id})
 
     def remove_user(self, user_id, group_id):
         conn = self.get_connection()

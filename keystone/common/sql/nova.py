@@ -85,7 +85,8 @@ def _create_memberships(api, memberships, user_map, tenant_map):
     for membership in memberships:
         user_id = user_map[membership['user_id']]
         tenant_id = tenant_map[membership['tenant_id']]
-        LOG.debug(_('Add user %s to tenant %s') % (user_id, tenant_id))
+        LOG.debug(_('Add user %(user_id)s to tenant %(tenant_id)s') % {
+            'user_id': user_id, 'tenant_id': tenant_id})
         api.add_user_to_project(tenant_id, user_id)
 
 
@@ -110,8 +111,12 @@ def _assign_roles(api, assignments, role_map, user_map, tenant_map):
         role_id = role_map[assignment['role']]
         user_id = user_map[assignment['user_id']]
         tenant_id = tenant_map[assignment['tenant_id']]
-        LOG.debug(_('Assign role %s to user %s on tenant %s') %
-                  (role_id, user_id, tenant_id))
+        LOG.debug(_(
+            'Assign role %(role_id)s to user %(user_id)s on tenant '
+            '%(tenant_id)s') % {
+                'role_id': role_id,
+                'user_id': user_id,
+                'tenant_id': tenant_id})
         api.add_role_to_user_and_project(user_id, tenant_id, role_id)
 
 
@@ -125,6 +130,8 @@ def _create_ec2_creds(ec2_api, identity_api, ec2_creds, user_map):
                 'user_id': user_id,
                 'tenant_id': tenant_id,
             }
-            LOG.debug(_('Creating ec2 cred for user %s and tenant %s') %
-                      (user_id, tenant_id))
+            LOG.debug(_(
+                'Creating ec2 cred for user %(user_id)s and tenant '
+                '%(tenant_id)s') % {
+                    'user_id': user_id, 'tenant_id': tenant_id})
             ec2_api.create_credential(None, cred_dict)

@@ -187,7 +187,8 @@ class FakeLdap(object):
             raise ldap.SERVER_DOWN
 
         key = '%s%s' % (self.__prefix, dn)
-        LOG.debug(_('FakeLdap add item: dn=%s, attrs=%s'), dn, attrs)
+        LOG.debug(_('FakeLdap add item: dn=%(dn)s, attrs=%(attrs)s') % {
+            'dn': dn, 'attrs': attrs})
         if key in self.db:
             LOG.debug(_('FakeLdap add item failed: dn=%s is'
                       ' already in store.'), dn)
@@ -236,7 +237,8 @@ class FakeLdap(object):
             raise ldap.SERVER_DOWN
 
         key = '%s%s' % (self.__prefix, dn)
-        LOG.debug(_('FakeLdap modify item: dn=%s attrs=%s'), dn, attrs)
+        LOG.debug(_('FakeLdap modify item: dn=%(dn)s attrs=%(attrs)s') % {
+            'dn': dn, 'attrs': attrs})
         try:
             entry = self.db[key]
         except KeyError:
@@ -268,9 +270,10 @@ class FakeLdap(object):
                         try:
                             values.remove(val)
                         except ValueError:
-                            LOG.debug(_('FakeLdap modify item failed:'
-                                      ' item has no attribute "%s" with'
-                                      ' value "%s" to delete'), k, val)
+                            LOG.debug(_('FakeLdap modify item failed: '
+                                      'item has no attribute "%(k)s" with '
+                                      'value "%(v)s" to delete') % {
+                                          'k': k, 'v': val})
                             raise ldap.NO_SUCH_ATTRIBUTE
             else:
                 LOG.debug(_('FakeLdap modify item failed: unknown'
@@ -293,8 +296,9 @@ class FakeLdap(object):
         if server_fail:
             raise ldap.SERVER_DOWN
 
-        LOG.debug(_('FakeLdap search at dn=%s scope=%s query=%s'),
-                  dn, SCOPE_NAMES.get(scope, scope), query)
+        LOG.debug(
+            _('FakeLdap search at dn=%(dn)s scope=%(scope)s query=%(query)s') %
+            {'dn': dn, 'scope': SCOPE_NAMES.get(scope, scope), 'query': query})
         if scope == ldap.SCOPE_BASE:
             try:
                 item_dict = self.db['%s%s' % (self.__prefix, dn)]

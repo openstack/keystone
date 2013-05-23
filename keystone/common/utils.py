@@ -217,10 +217,6 @@ def hash_signed_token(signed_text):
 
 def setup_remote_pydev_debug():
     if CONF.pydev_debug_host and CONF.pydev_debug_port:
-        error_msg = ('Error setting up the debug environment.  Verify that the'
-                     ' option --debug-url has the format <host>:<port> and '
-                     'that a debugger processes is listening on that port.')
-
         try:
             try:
                 from pydevd import pydevd
@@ -233,7 +229,10 @@ def setup_remote_pydev_debug():
                             stderrToServer=True)
             return True
         except:
-            LOG.exception(_(error_msg))
+            LOG.exception(_(
+                'Error setting up the debug environment. Verify that the '
+                'option --debug-url has the format <host>:<port> and that a '
+                'debugger processes is listening on that port.'))
             raise
 
 
