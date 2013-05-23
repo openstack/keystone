@@ -25,7 +25,7 @@ def upgrade(migrate_engine):
     session = sql.orm.sessionmaker(bind=migrate_engine)()
 
     for metadata in session.query(old_metadata_table):
-        if not config.CONF.member_role_id in metadata.data:
+        if config.CONF.member_role_id not in metadata.data:
             data = json.loads(metadata.data)
             data['roles'].append(config.CONF.member_role_id)
         else:

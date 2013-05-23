@@ -64,7 +64,7 @@ class TrustV3(controller.V3Controller):
                                    (trust['expires_at'],
                                     subsecond=True))
 
-        if not 'roles' in trust:
+        if 'roles' not in trust:
             trust['roles'] = []
         trust_full_roles = []
         for trust_role in trust['roles']:
