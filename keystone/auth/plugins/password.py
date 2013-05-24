@@ -103,7 +103,7 @@ class UserAuthInfo(object):
 
 class Password(auth.AuthMethodHandler):
     def authenticate(self, context, auth_payload, user_context):
-        """ Try to authenticate against the identity backend. """
+        """Try to authenticate against the identity backend."""
         user_info = UserAuthInfo(context, auth_payload)
 
         # FIXME(gyee): identity.authenticate() can use some refactoring since

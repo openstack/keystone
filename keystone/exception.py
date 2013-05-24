@@ -76,8 +76,12 @@ class ValidationError(Error):
 
 
 class StringLengthExceeded(ValidationError):
-    """The length of string "%(string)s" exceeded the limit of column
-    %(type)s(CHAR(%(length)d))."""
+    """String length exceeded.
+
+    The length of string "%(string)s" exceeded the limit of column
+    %(type)s(CHAR(%(length)d)).
+
+    """
 
 
 class ValidationSizeError(Error):
@@ -111,7 +115,7 @@ class Unauthorized(SecurityError):
 
 
 class AuthPluginException(Unauthorized):
-    """ Authentication plugin error. """
+    """Authentication plugin error."""
 
     def __init__(self, *args, **kwargs):
         super(AuthPluginException, self).__init__(*args, **kwargs)
@@ -119,7 +123,7 @@ class AuthPluginException(Unauthorized):
 
 
 class AuthMethodNotSupported(AuthPluginException):
-    """ Attempted to authenticate with an unsupported method. """
+    """Attempted to authenticate with an unsupported method."""
 
     def __init__(self, *args, **kwargs):
         super(AuthMethodNotSupported, self).__init__(*args, **kwargs)
@@ -127,7 +131,7 @@ class AuthMethodNotSupported(AuthPluginException):
 
 
 class AdditionalAuthRequired(AuthPluginException):
-    """ Additional authentications steps required. """
+    """Additional authentications steps required."""
 
     def __init__(self, auth_response=None, **kwargs):
         super(AdditionalAuthRequired, self).__init__(message=None, **kwargs)
@@ -141,17 +145,17 @@ class Forbidden(SecurityError):
 
 
 class ForbiddenAction(Forbidden):
-    """You are not authorized to perform the requested action: %(action)s"""
+    """You are not authorized to perform the requested action, %(action)s."""
 
 
 class NotFound(Error):
-    """Could not find: %(target)s"""
+    """Could not find, %(target)s."""
     code = 404
     title = 'Not Found'
 
 
 class EndpointNotFound(NotFound):
-    """Could not find endpoint: %(endpoint_id)s"""
+    """Could not find endpoint, %(endpoint_id)s."""
 
 
 class MetadataNotFound(NotFound):
@@ -161,47 +165,47 @@ class MetadataNotFound(NotFound):
 
 
 class PolicyNotFound(NotFound):
-    """Could not find policy: %(policy_id)s"""
+    """Could not find policy, %(policy_id)s."""
 
 
 class RoleNotFound(NotFound):
-    """Could not find role: %(role_id)s"""
+    """Could not find role, %(role_id)s."""
 
 
 class ServiceNotFound(NotFound):
-    """Could not find service: %(service_id)s"""
+    """Could not find service, %(service_id)s."""
 
 
 class DomainNotFound(NotFound):
-    """Could not find domain: %(domain_id)s"""
+    """Could not find domain, %(domain_id)s."""
 
 
 class ProjectNotFound(NotFound):
-    """Could not find project: %(project_id)s"""
+    """Could not find project, %(project_id)s."""
 
 
 class TokenNotFound(NotFound):
-    """Could not find token: %(token_id)s"""
+    """Could not find token, %(token_id)s."""
 
 
 class UserNotFound(NotFound):
-    """Could not find user: %(user_id)s"""
+    """Could not find user, %(user_id)s."""
 
 
 class GroupNotFound(NotFound):
-    """Could not find group: %(group_id)s"""
+    """Could not find group, %(group_id)s."""
 
 
 class TrustNotFound(NotFound):
-    """Could not find trust: %(trust_id)s"""
+    """Could not find trust, %(trust_id)s."""
 
 
 class CredentialNotFound(NotFound):
-    """Could not find credential: %(credential_id)s"""
+    """Could not find credential, %(credential_id)s."""
 
 
 class VersionNotFound(NotFound):
-    """Could not find version: %(version)s"""
+    """Could not find version, %(version)s."""
 
 
 class Conflict(Error):
@@ -231,7 +235,7 @@ class UnexpectedError(Error):
 
 
 class MalformedEndpoint(UnexpectedError):
-    """Malformed endpoint URL (see ERROR log for details): %(endpoint)s"""
+    """Malformed endpoint URL (%(endpoint)s), see ERROR log for details."""
 
 
 class NotImplemented(Error):

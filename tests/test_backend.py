@@ -511,7 +511,7 @@ class IdentityTests(object):
         self.assertIn('member', roles_ref)
 
     def test_get_roles_for_user_and_domain(self):
-        """ Test for getting roles for user on a domain.
+        """Test for getting roles for user on a domain.
 
         Test Plan:
         - Create a domain, with 2 users
@@ -567,7 +567,7 @@ class IdentityTests(object):
         self.assertEquals(len(roles_ref), 0)
 
     def test_get_roles_for_user_and_domain_404(self):
-        """ Test errors raised when getting roles for user on a domain.
+        """Test errors raised when getting roles for user on a domain.
 
         Test Plan:
         - Check non-existing user gives UserNotFound

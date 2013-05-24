@@ -22,7 +22,7 @@ import test_v3
 
 
 class IdentityTestCase(test_v3.RestfulTestCase):
-    """Test domains, projects, users, groups, & role CRUD"""
+    """Test domains, projects, users, groups, & role CRUD."""
 
     def setUp(self):
         super(IdentityTestCase, self).setUp()
@@ -45,7 +45,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     # domain crud tests
 
     def test_create_domain(self):
-        """POST /domains"""
+        """Call ``POST /domains``."""
         ref = self.new_domain_ref()
         r = self.post(
             '/domains',
@@ -53,23 +53,23 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         return self.assertValidDomainResponse(r, ref)
 
     def test_list_domains(self):
-        """GET /domains"""
+        """Call ``GET /domains``."""
         r = self.get('/domains')
         self.assertValidDomainListResponse(r, ref=self.domain)
 
     def test_list_domains_xml(self):
-        """GET /domains (xml data)"""
+        """Call ``GET /domains (xml data)``."""
         r = self.get('/domains', content_type='xml')
         self.assertValidDomainListResponse(r, ref=self.domain)
 
     def test_get_domain(self):
-        """GET /domains/{domain_id}"""
+        """Call ``GET /domains/{domain_id}``."""
         r = self.get('/domains/%(domain_id)s' % {
             'domain_id': self.domain_id})
         self.assertValidDomainResponse(r, self.domain)
 
     def test_update_domain(self):
-        """PATCH /domains/{domain_id}"""
+        """Call ``PATCH /domains/{domain_id}``."""
         ref = self.new_domain_ref()
         del ref['id']
         r = self.patch('/domains/%(domain_id)s' % {
@@ -78,7 +78,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidDomainResponse(r, ref)
 
     def test_disable_domain(self):
-        """PATCH /domains/{domain_id} (set enabled=False)"""
+        """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = self.new_domain_ref()
         self.identity_api.create_domain(self.domain2['id'], self.domain2)
@@ -150,7 +150,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.post('/auth/tokens', body=auth_data, expected_status=401)
 
     def test_delete_enabled_domain_fails(self):
-        """DELETE /domains/{domain_id}...(when domain enabled)"""
+        """Call ``DELETE /domains/{domain_id}`` (when domain enabled)."""
 
         # Try deleting an enabled domain, which should fail
         self.delete('/domains/%(domain_id)s' % {
@@ -158,7 +158,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             expected_status=exception.ForbiddenAction.code)
 
     def test_delete_domain(self):
-        """DELETE /domains/{domain_id}
+        """Call ``DELETE /domains/{domain_id}``.
 
         The sample data set up already has a user, group, project
         and credential that is part of self.domain. Since the user
@@ -243,17 +243,17 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     # project crud tests
 
     def test_list_projects(self):
-        """GET /projects"""
+        """Call ``GET /projects``."""
         r = self.get('/projects')
         self.assertValidProjectListResponse(r, ref=self.project)
 
     def test_list_projects_xml(self):
-        """GET /projects (xml data)"""
+        """Call ``GET /projects`` (xml data)."""
         r = self.get('/projects', content_type='xml')
         self.assertValidProjectListResponse(r, ref=self.project)
 
     def test_create_project(self):
-        """POST /projects"""
+        """Call ``POST /projects``."""
         ref = self.new_project_ref(domain_id=self.domain_id)
         r = self.post(
             '/projects',
@@ -261,14 +261,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidProjectResponse(r, ref)
 
     def test_get_project(self):
-        """GET /projects/{project_id}"""
+        """Call ``GET /projects/{project_id}``."""
         r = self.get(
             '/projects/%(project_id)s' % {
                 'project_id': self.project_id})
         self.assertValidProjectResponse(r, self.project)
 
     def test_update_project(self):
-        """PATCH /projects/{project_id}"""
+        """Call ``PATCH /projects/{project_id}``."""
         ref = self.new_project_ref(domain_id=self.domain_id)
         del ref['id']
         r = self.patch(
@@ -278,7 +278,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidProjectResponse(r, ref)
 
     def test_delete_project(self):
-        """DELETE /projects/{project_id}
+        """Call ``DELETE /projects/{project_id}
 
         As well as making sure the delete succeeds, we ensure
         that any credentials that reference this projects are
@@ -316,7 +316,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     # user crud tests
 
     def test_create_user(self):
-        """POST /users"""
+        """Call ``POST /users``."""
         ref = self.new_user_ref(domain_id=self.domain_id)
         r = self.post(
             '/users',
@@ -324,28 +324,28 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         return self.assertValidUserResponse(r, ref)
 
     def test_list_users(self):
-        """GET /users"""
+        """Call ``GET /users``."""
         r = self.get('/users')
         self.assertValidUserListResponse(r, ref=self.user)
 
     def test_list_users_xml(self):
-        """GET /users (xml data)"""
+        """Call ``GET /users`` (xml data)."""
         r = self.get('/users', content_type='xml')
         self.assertValidUserListResponse(r, ref=self.user)
 
     def test_get_user(self):
-        """GET /users/{user_id}"""
+        """Call ``GET /users/{user_id}``."""
         r = self.get('/users/%(user_id)s' % {
             'user_id': self.user['id']})
         self.assertValidUserResponse(r, self.user)
 
     def test_add_user_to_group(self):
-        """PUT /groups/{group_id}/users/{user_id}"""
+        """Call ``PUT /groups/{group_id}/users/{user_id}``."""
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
     def test_list_groups_for_user(self):
-        """GET /users/{user_id}/groups"""
+        """Call ``GET /users/{user_id}/groups``."""
 
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
@@ -382,14 +382,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             expected_status=exception.ForbiddenAction.code)
 
     def test_check_user_in_group(self):
-        """HEAD /groups/{group_id}/users/{user_id}"""
+        """Call ``HEAD /groups/{group_id}/users/{user_id}``."""
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
         self.head('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
     def test_list_users_in_group(self):
-        """GET /groups/{group_id}/users"""
+        """Call ``GET /groups/{group_id}/users``."""
         r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
         r = self.get('/groups/%(group_id)s/users' % {
@@ -399,14 +399,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             'group_id': self.group_id}, r.result['links']['self'])
 
     def test_remove_user_from_group(self):
-        """DELETE /groups/{group_id}/users/{user_id}"""
+        """Call ``DELETE /groups/{group_id}/users/{user_id}``."""
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
         self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
     def test_update_user(self):
-        """PATCH /users/{user_id}"""
+        """Call ``PATCH /users/{user_id}``."""
         user = self.new_user_ref(domain_id=self.domain_id)
         del user['id']
         r = self.patch('/users/%(user_id)s' % {
@@ -415,7 +415,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidUserResponse(r, user)
 
     def test_delete_user(self):
-        """DELETE /users/{user_id}
+        """Call ``DELETE /users/{user_id}``.
 
         As well as making sure the delete succeeds, we ensure
         that any credentials that reference this user are
@@ -469,7 +469,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     # group crud tests
 
     def test_create_group(self):
-        """POST /groups"""
+        """Call ``POST /groups``."""
         ref = self.new_group_ref(domain_id=self.domain_id)
         r = self.post(
             '/groups',
@@ -477,23 +477,23 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         return self.assertValidGroupResponse(r, ref)
 
     def test_list_groups(self):
-        """GET /groups"""
+        """Call ``GET /groups``."""
         r = self.get('/groups')
         self.assertValidGroupListResponse(r, ref=self.group)
 
     def test_list_groups_xml(self):
-        """GET /groups (xml data)"""
+        """Call ``GET /groups`` (xml data)."""
         r = self.get('/groups', content_type='xml')
         self.assertValidGroupListResponse(r, ref=self.group)
 
     def test_get_group(self):
-        """GET /groups/{group_id}"""
+        """Call ``GET /groups/{group_id}``."""
         r = self.get('/groups/%(group_id)s' % {
             'group_id': self.group_id})
         self.assertValidGroupResponse(r, self.group)
 
     def test_update_group(self):
-        """PATCH /groups/{group_id}"""
+        """Call ``PATCH /groups/{group_id}``."""
         group = self.new_group_ref(domain_id=self.domain_id)
         del group['id']
         r = self.patch('/groups/%(group_id)s' % {
@@ -502,14 +502,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidGroupResponse(r, group)
 
     def test_delete_group(self):
-        """DELETE /groups/{group_id}"""
+        """Call ``DELETE /groups/{group_id}``."""
         self.delete('/groups/%(group_id)s' % {
             'group_id': self.group_id})
 
     # role crud tests
 
     def test_create_role(self):
-        """POST /roles"""
+        """Call ``POST /roles``."""
         ref = self.new_role_ref()
         r = self.post(
             '/roles',
@@ -517,23 +517,23 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         return self.assertValidRoleResponse(r, ref)
 
     def test_list_roles(self):
-        """GET /roles"""
+        """Call ``GET /roles``."""
         r = self.get('/roles')
         self.assertValidRoleListResponse(r, ref=self.role)
 
     def test_list_roles_xml(self):
-        """GET /roles (xml data)"""
+        """Call ``GET /roles`` (xml data)."""
         r = self.get('/roles', content_type='xml')
         self.assertValidRoleListResponse(r, ref=self.role)
 
     def test_get_role(self):
-        """GET /roles/{role_id}"""
+        """Call ``GET /roles/{role_id}``."""
         r = self.get('/roles/%(role_id)s' % {
             'role_id': self.role_id})
         self.assertValidRoleResponse(r, self.role)
 
     def test_update_role(self):
-        """PATCH /roles/{role_id}"""
+        """Call ``PATCH /roles/{role_id}``."""
         ref = self.new_role_ref()
         del ref['id']
         r = self.patch('/roles/%(role_id)s' % {
@@ -542,7 +542,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleResponse(r, ref)
 
     def test_delete_role(self):
-        """DELETE /roles/{role_id}"""
+        """Call ``DELETE /roles/{role_id}``."""
         self.delete('/roles/%(role_id)s' % {
             'role_id': self.role_id})
 

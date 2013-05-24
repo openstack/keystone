@@ -219,7 +219,7 @@ class TokenDataHelper(object):
 
 def recreate_token_data(context, token_data=None, expires=None,
                         user_ref=None, project_ref=None):
-    """ Recreate token from an existing token.
+    """Recreate token from an existing token.
 
     Repopulate the ephemeral data and return the new token data.
 
@@ -351,7 +351,7 @@ def create_token(context, auth_context, auth_info):
 
 
 def render_token_data_response(token_id, token_data, created=False):
-    """ Render token data HTTP response.
+    """Render token data HTTP response.
 
     Stash token ID into the X-Auth-Token header.
 

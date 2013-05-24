@@ -20,7 +20,7 @@ import test_v3
 
 
 class CredentialTestCase(test_v3.RestfulTestCase):
-    """Test credential CRUD"""
+    """Test credential CRUD."""
     def setUp(self):
 
         super(CredentialTestCase, self).setUp()
@@ -35,17 +35,17 @@ class CredentialTestCase(test_v3.RestfulTestCase):
             self.credential)
 
     def test_list_credentials(self):
-        """GET /credentials"""
+        """Call ``GET /credentials``."""
         r = self.get('/credentials')
         self.assertValidCredentialListResponse(r, ref=self.credential)
 
     def test_list_credentials_xml(self):
-        """GET /credentials (xml data)"""
+        """Call ``GET /credentials`` (xml data)."""
         r = self.get('/credentials', content_type='xml')
         self.assertValidCredentialListResponse(r, ref=self.credential)
 
     def test_create_credential(self):
-        """POST /credentials"""
+        """Call ``POST /credentials``."""
         ref = self.new_credential_ref(user_id=self.user['id'])
         r = self.post(
             '/credentials',
@@ -53,14 +53,14 @@ class CredentialTestCase(test_v3.RestfulTestCase):
         self.assertValidCredentialResponse(r, ref)
 
     def test_get_credential(self):
-        """GET /credentials/{credential_id}"""
+        """Call ``GET /credentials/{credential_id}``."""
         r = self.get(
             '/credentials/%(credential_id)s' % {
                 'credential_id': self.credential_id})
         self.assertValidCredentialResponse(r, self.credential)
 
     def test_update_credential(self):
-        """PATCH /credentials/{credential_id}"""
+        """Call ``PATCH /credentials/{credential_id}``."""
         ref = self.new_credential_ref(
             user_id=self.user['id'],
             project_id=self.project_id)
@@ -72,7 +72,7 @@ class CredentialTestCase(test_v3.RestfulTestCase):
         self.assertValidCredentialResponse(r, ref)
 
     def test_delete_credential(self):
-        """DELETE /credentials/{credential_id}"""
+        """Call ``DELETE /credentials/{credential_id}``."""
         self.delete(
             '/credentials/%(credential_id)s' % {
                 'credential_id': self.credential_id})

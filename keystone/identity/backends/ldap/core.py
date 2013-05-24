@@ -933,14 +933,14 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
             raise exception.UserNotFound(user_id=user_id)
 
     def list_user_groups(self, user_id):
-        """Returns a list of groups a user has access to"""
+        """Return a list of groups for which the user is a member."""
         user_dn = self.user_api._id_to_dn(user_id)
         query = '(%s=%s)' % (self.member_attribute, user_dn)
         memberships = self.get_all(query)
         return memberships
 
     def list_group_users(self, group_id):
-        """Returns a list of users that belong to a group"""
+        """Return a list of users which are members of a group."""
         query = '(objectClass=%s)' % self.object_class
         conn = self.get_connection()
         group_dn = self._id_to_dn(group_id)

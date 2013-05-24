@@ -31,7 +31,7 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 class IdentityTestProtectedCase(test_v3.RestfulTestCase):
-    """Test policy protection of a sample of v3 identity apis"""
+    """Test policy enforcement on the v3 Identity API."""
 
     def setUp(self):
         """Setup for Identity Protection Test Cases.

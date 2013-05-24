@@ -40,7 +40,7 @@ LOG = logging.getLogger(__name__)
 
 
 class BufferedHTTPResponse(httplib.HTTPResponse):
-    """HTTPResponse class that buffers reading of headers"""
+    """HTTPResponse class that buffers reading of headers."""
 
     def __init__(self, sock, debuglevel=0, strict=0,
                  method=None):          # pragma: no cover
@@ -77,7 +77,7 @@ class BufferedHTTPResponse(httplib.HTTPResponse):
 
 
 class BufferedHTTPConnection(httplib.HTTPConnection):
-    """HTTPConnection class that uses BufferedHTTPResponse"""
+    """HTTPConnection class that uses BufferedHTTPResponse."""
     response_class = BufferedHTTPResponse
 
     def connect(self):
@@ -111,10 +111,11 @@ class BufferedHTTPConnection(httplib.HTTPConnection):
 def http_connect(ipaddr, port, device, partition, method, path,
                  headers=None, query_string=None, ssl=False, key_file=None,
                  cert_file=None):
-    """
-    Helper function to create an HTTPConnection object. If ssl is set True,
-    HTTPSConnection will be used. However, if ssl=False, BufferedHTTPConnection
-    will be used, which is buffered for backend Swift services.
+    """Helper function to create an HTTPConnection object.
+
+    If ssl is set True, HTTPSConnection will be used. However, if ssl=False,
+    BufferedHTTPConnection will be used, which is buffered for backend Swift
+    services.
 
     :param ipaddr: IPv4 address to connect to
     :param port: port to connect to
@@ -138,10 +139,11 @@ def http_connect(ipaddr, port, device, partition, method, path,
 def http_connect_raw(ipaddr, port, method, path, headers=None,
                      query_string=None, ssl=False, key_file=None,
                      cert_file=None):
-    """
-    Helper function to create an HTTPConnection object. If ssl is set True,
-    HTTPSConnection will be used. However, if ssl=False, BufferedHTTPConnection
-    will be used, which is buffered for backend Swift services.
+    """Helper function to create an HTTPConnection object.
+
+    If ssl is set True, HTTPSConnection will be used. However, if ssl=False,
+    BufferedHTTPConnection will be used, which is buffered for backend Swift
+    services.
 
     :param ipaddr: IPv4 address to connect to
     :param port: port to connect to

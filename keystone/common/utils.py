@@ -79,7 +79,7 @@ def trunc_password(password):
 
 
 def hash_user_password(user):
-    """Hash a user dict's password without modifying the passed-in dict"""
+    """Hash a user dict's password without modifying the passed-in dict."""
     try:
         password = user['password']
     except KeyError:
@@ -89,7 +89,7 @@ def hash_user_password(user):
 
 
 def hash_ldap_user_password(user):
-    """Hash a user dict's password without modifying the passed-in dict"""
+    """Hash a user dict's password without modifying the passed-in dict."""
     try:
         password = user['password']
     except KeyError:
@@ -239,7 +239,8 @@ def setup_remote_pydev_debug():
 class LimitingReader(object):
     """Reader to limit the size of an incoming request."""
     def __init__(self, data, limit):
-        """
+        """Create an iterator on the underlying data.
+
         :param data: Underlying data object
         :param limit: maximum number of bytes the reader should allow
         """

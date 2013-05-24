@@ -403,7 +403,7 @@ class TestTokenAPIs(test_v3.RestfulTestCase):
 
 
 class TestTokenRevoking(test_v3.RestfulTestCase):
-    """Test token revoking for relevant v3 identity apis"""
+    """Test token revocation on the v3 Identity API."""
 
     def setUp(self):
         """Setup for Token Revoking Test Cases.

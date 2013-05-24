@@ -56,7 +56,7 @@ class DbSync(BaseApp):
 
 
 class BaseCertificateSetup(BaseApp):
-    """Common user/group setup for PKI and SSL generation"""
+    """Common user/group setup for PKI and SSL generation."""
 
     @classmethod
     def add_argument_parser(cls, subparsers):
@@ -101,7 +101,7 @@ class PKISetup(BaseCertificateSetup):
 
 
 class SSLSetup(BaseCertificateSetup):
-    """Create key pairs and certificates for HTTPS connections"""
+    """Create key pairs and certificates for HTTPS connections."""
 
     name = 'ssl_setup'
 

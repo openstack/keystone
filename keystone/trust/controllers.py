@@ -106,8 +106,10 @@ class TrustV3(controller.V3Controller):
 
     @controller.protected
     def create_trust(self, context, trust=None):
-        """
-        The user creating the trust must be trustor
+        """Create a new trust.
+
+        The user creating the trust must be the trustor.
+
         """
 
         # TODO(ayoung): instead of raising ValidationError on the first

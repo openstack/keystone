@@ -36,8 +36,11 @@ def file_exists(file_path):
 
 
 class BaseCertificateConfigure(object):
-    """Create a certificate signing environment from a config section
-    and reasonable OpenSSL defaults"""
+    """Create a certificate signing environment.
+
+    This is based on a config section and reasonable OpenSSL defaults.
+
+    """
 
     def __init__(self, conf_obj, keystone_user, keystone_group, **kwargs):
         self.conf_dir = os.path.dirname(conf_obj.ca_certs)

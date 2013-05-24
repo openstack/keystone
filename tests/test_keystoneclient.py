@@ -1128,8 +1128,7 @@ class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
         raise nose.exc.SkipTest('N/A')
 
     def test_policy_crud(self):
-        """Due to lack of endpoint CRUD"""
-        raise nose.exc.SkipTest('N/A')
+        raise nose.exc.SkipTest('N/A due to lack of endpoint CRUD')
 
 
 class Kc11TestCase(CompatTestCase, KeystoneClientTests):

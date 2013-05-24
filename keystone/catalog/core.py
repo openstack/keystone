@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 def format_url(url, data):
-    """Helper Method for all Backend Catalog's to Deal with URLS"""
+    """Safely string formats a user-defined URL with the given data."""
     try:
         result = url.replace('$(', '%(') % data
     except AttributeError:

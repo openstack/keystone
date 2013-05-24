@@ -78,8 +78,7 @@ CONF = cfg.CONF
 
 
 def setup_logging(conf):
-    """
-    Sets up the logging options for a log with supplied name
+    """Sets up the logging options for a log with supplied name
 
     :param conf: a cfg.ConfOpts object
     """

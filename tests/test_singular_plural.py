@@ -27,7 +27,7 @@ from keystone import service
 
 class TestSingularPlural(object):
     def test_keyword_arg_condition_or_methods(self):
-        """Raise if we see a keyword arg called 'condition' or 'methods'"""
+        """Raise if we see a keyword arg called 'condition' or 'methods'."""
         modules = [admin_crud_core, ec2_core, s3_core, stats_core,
                    user_crud_core, identity_core, service]
         for module in modules:

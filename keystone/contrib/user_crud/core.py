@@ -70,11 +70,7 @@ class UserController(identity.controllers.User):
 
 
 class CrudExtension(wsgi.ExtensionRouter):
-    """
-
-    Provides a subset of CRUD operations for internal data types.
-
-    """
+    """Provides a subset of CRUD operations for internal data types."""
 
     def add_routes(self, mapper):
         user_controller = UserController()

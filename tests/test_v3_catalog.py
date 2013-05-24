@@ -4,7 +4,7 @@ import test_v3
 
 
 class CatalogTestCase(test_v3.RestfulTestCase):
-    """Test service & endpoint CRUD"""
+    """Test service & endpoint CRUD."""
 
     def setUp(self):
         super(CatalogTestCase, self).setUp()
@@ -26,7 +26,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     # service crud tests
 
     def test_create_service(self):
-        """POST /services"""
+        """Call ``POST /services``."""
         ref = self.new_service_ref()
         r = self.post(
             '/services',
@@ -34,23 +34,23 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         return self.assertValidServiceResponse(r, ref)
 
     def test_list_services(self):
-        """GET /services"""
+        """Call ``GET /services``."""
         r = self.get('/services')
         self.assertValidServiceListResponse(r, ref=self.service)
 
     def test_list_services_xml(self):
-        """GET /services (xml data)"""
+        """Call ``GET /services (xml data)``."""
         r = self.get('/services', content_type='xml')
         self.assertValidServiceListResponse(r, ref=self.service)
 
     def test_get_service(self):
-        """GET /services/{service_id}"""
+        """Call ``GET /services/{service_id}``."""
         r = self.get('/services/%(service_id)s' % {
             'service_id': self.service_id})
         self.assertValidServiceResponse(r, self.service)
 
     def test_update_service(self):
-        """PATCH /services/{service_id}"""
+        """Call ``PATCH /services/{service_id}``."""
         service = self.new_service_ref()
         del service['id']
         r = self.patch('/services/%(service_id)s' % {
@@ -59,24 +59,24 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidServiceResponse(r, service)
 
     def test_delete_service(self):
-        """DELETE /services/{service_id}"""
+        """Call ``DELETE /services/{service_id}``."""
         self.delete('/services/%(service_id)s' % {
             'service_id': self.service_id})
 
     # endpoint crud tests
 
     def test_list_endpoints(self):
-        """GET /endpoints"""
+        """Call ``GET /endpoints``."""
         r = self.get('/endpoints')
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
 
     def test_list_endpoints_xml(self):
-        """GET /endpoints (xml data)"""
+        """Call ``GET /endpoints`` (xml data)."""
         r = self.get('/endpoints', content_type='xml')
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
 
     def test_create_endpoint(self):
-        """POST /endpoints"""
+        """Call ``POST /endpoints``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
         r = self.post(
             '/endpoints',
@@ -87,20 +87,20 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertTrue(response.status_code in [400])
 
     def test_create_endpoint_400(self):
-        """POST /endpoints"""
+        """Call ``POST /endpoints``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
         ref["region"] = "0" * 256
         self.post('/endpoints', body={'endpoint': ref}, expected_status=400)
 
     def test_get_endpoint(self):
-        """GET /endpoints/{endpoint_id}"""
+        """Call ``GET /endpoints/{endpoint_id}``."""
         r = self.get(
             '/endpoints/%(endpoint_id)s' % {
                 'endpoint_id': self.endpoint_id})
         self.assertValidEndpointResponse(r, self.endpoint)
 
     def test_update_endpoint(self):
-        """PATCH /endpoints/{endpoint_id}"""
+        """Call ``PATCH /endpoints/{endpoint_id}``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
         del ref['id']
         r = self.patch(
@@ -110,7 +110,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidEndpointResponse(r, ref)
 
     def test_delete_endpoint(self):
-        """DELETE /endpoints/{endpoint_id}"""
+        """Call ``DELETE /endpoints/{endpoint_id}``."""
         self.delete(
             '/endpoints/%(endpoint_id)s' % {
                 'endpoint_id': self.endpoint_id})

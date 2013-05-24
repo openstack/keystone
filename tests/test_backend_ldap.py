@@ -338,7 +338,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEqual(user_ref['enabled'], True)
 
     def test_user_api_get_connection_no_user_password(self):
-        """Don't bind in case the user and password are blank"""
+        """Don't bind in case the user and password are blank."""
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf')])
         CONF.ldap.url = "fake://memory"

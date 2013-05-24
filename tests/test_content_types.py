@@ -989,9 +989,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
             convert=False)
 
     def test_add_tenant_xml(self):
-        """
-        verify create a tenant without providing description field
-        """
+        """Create a tenant without providing description field."""
         token = self.get_scoped_token()
         r = self.admin_request(
             method='POST',
@@ -1014,9 +1012,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         self.assertEqual(r.result['tenant'].get('description'), "")
 
     def test_add_tenant_json(self):
-        """
-        verify create a tenant without providing description field
-        """
+        """Create a tenant without providing description field."""
         token = self.get_scoped_token()
         r = self.admin_request(
             method='POST',
