@@ -23,6 +23,7 @@ from oslo.config import cfg
 import pbr.version
 
 from keystone.common import openssl
+from keystone.common.sql import migration
 from keystone import config
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
@@ -63,6 +64,16 @@ class DbSync(BaseApp):
             driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
                 driver.db_sync(CONF.command.version)
+
+
+class DbVersion(BaseApp):
+    """Print the current migration version of the database."""
+
+    name = 'db_version'
+
+    @staticmethod
+    def main():
+        print migration.db_version()
 
 
 class BaseCertificateSetup(BaseApp):
@@ -190,6 +201,7 @@ class ImportNovaAuth(BaseApp):
 
 CMDS = [
     DbSync,
+    DbVersion,
     ExportLegacyCatalog,
     ImportLegacy,
     ImportNovaAuth,
