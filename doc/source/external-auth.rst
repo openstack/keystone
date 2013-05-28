@@ -96,7 +96,7 @@ Pipeline configuration
 Once you have your WSGI middleware component developed you have to add it to
 your pipeline. The first step is to add the middleware to your configuration file.
 Assuming that your middleware module is ``keystone.middleware.MyMiddlewareAuth``,
-you can configure it in your ``keystone.conf`` as::
+you can configure it in your ``keystone-paste.ini`` as::
 
     [filter:my_auth]
     paste.filter_factory = keystone.middleware.MyMiddlewareAuth.factory

@@ -25,8 +25,8 @@ Configuring Keystone
    man/keystone-all
 
 Once Keystone is installed, it is configured via a primary configuration file
-(``etc/keystone.conf``), possibly a separate logging configuration file, and
-initializing data into keystone using the command line client.
+(``etc/keystone.conf``), a PasteDeploy configuration file (``etc/keystone-paste.ini``),
+possibly a separate logging configuration file, and initializing data into Keystone using the command line client.
 
 Starting and Stopping Keystone
 ==============================
@@ -37,7 +37,7 @@ Start Keystone services using the command::
 
 Invoking this command starts up two ``wsgi.Server`` instances, ``admin`` (the
 administration API) and ``main`` (the primary/public API interface). Both
-services are configured by ``keystone.conf`` as run in a single process.
+services are configured to run in a single process.
 
 Stop the process using ``Control-C``.
 
@@ -60,10 +60,13 @@ match if key expiry is to behave as expected.
 Configuration Files
 ===================
 
-The keystone configuration file is an ``ini`` file based on Paste_, a
-common system used to configure python WSGI based applications. In addition to
-the paste configuration entries, general and driver-specific configuration
-values are organized into the following sections:
+The Keystone configuration files are an ``ini`` file format based on Paste_, a
+common system used to configure Python WSGI based applications.
+The PasteDeploy configuration entries (WSGI pipeline definitions)
+can be provided in a separate ``keystone-paste.ini`` file, while general and
+driver-specific configuration parameters are in the primary configuration file
+``keystone.conf``. The primary configuration file is organized into the
+following sections:
 
 * ``[DEFAULT]`` - general configuration
 * ``[sql]`` - optional storage backend configuration
@@ -76,11 +79,12 @@ values are organized into the following sections:
 * ``[signing]`` - cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL configuration
 * ``[auth]`` - Authentication plugin configuration
+* ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
 
-The Keystone configuration file is expected to be named ``keystone.conf``.
-When starting keystone, you can specify a different configuration file to
+The Keystone primary configuration file is expected to be named ``keystone.conf``.
+When starting Keystone, you can specify a different configuration file to
 use with ``--config-file``. If you do **not** specify a configuration file,
-keystone will look in the following directories for a configuration file, in
+Keystone will look in the following directories for a configuration file, in
 order:
 
 * ``~/.keystone/``
@@ -88,6 +92,8 @@ order:
 * ``/etc/keystone/``
 * ``/etc/``
 
+PasteDeploy configuration file is specified by the ``config_file`` parameter in ``[paste_deploy]`` section of the primary configuration file. If the parameter
+is not an absolute path, then Keystone looks for it in the same directories as above. If not specified, WSGI pipeline definitions are loaded from the primary configuration file.
 
 Authentication Plugins
 ----------------------
@@ -440,7 +446,7 @@ pipeline. This user crud filter allows users to use a HTTP PATCH to change
 their own password. To enable this extension you should define a
 user_crud_extension filter, insert it after the ``*_body`` middleware
 and before the ``public_service`` app in the public_api WSGI pipeline in
-keystone.conf e.g.::
+``keystone-paste.ini`` e.g.::
 
     [filter:user_crud_extension]
     paste.filter_factory = keystone.contrib.user_crud:CrudExtension.factory
@@ -463,7 +469,8 @@ Sample Configuration Files
 The ``etc/`` folder distributed with Keystone contains example configuration
 files for each Server application.
 
-* ``etc/keystone.conf``
+* ``etc/keystone.conf.sample``
+* ``etc/keystone-paste.ini``
 * ``etc/logging.conf.sample``
 * ``etc/default_catalog.templates``
 
