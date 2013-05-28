@@ -31,8 +31,8 @@ class PolicyModel(sql.ModelBase, sql.DictBase):
 
 class Policy(sql.Base, rules.Policy):
     # Internal interface to manage the database
-    def db_sync(self):
-        migration.db_sync()
+    def db_sync(self, version=None):
+        migration.db_sync(version=version)
 
     @sql.handle_conflicts(type='policy')
     def create_policy(self, policy_id, policy):

@@ -47,12 +47,22 @@ class DbSync(BaseApp):
 
     name = 'db_sync'
 
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(DbSync, cls).add_argument_parser(subparsers)
+        parser.add_argument('version', default=None, nargs='?',
+                            help=('Migrate the database up to a specified '
+                                  'version. If not provided, db_sync will '
+                                  'migrate the database to the latest known '
+                                  'version.'))
+        return parser
+
     @staticmethod
     def main():
         for k in ['identity', 'catalog', 'policy', 'token', 'credential']:
             driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
-                driver.db_sync()
+                driver.db_sync(CONF.command.version)
 
 
 class BaseCertificateSetup(BaseApp):
