@@ -99,6 +99,7 @@ import json
 import logging
 import os
 import stat
+import tempfile
 import time
 import webob
 import webob.exc
@@ -213,10 +214,10 @@ class AuthProtocol(object):
         self.cert_file = self._conf_get('certfile')
         self.key_file = self._conf_get('keyfile')
 
-        #signing
+        # signing
         self.signing_dirname = self._conf_get('signing_dir')
         if self.signing_dirname is None:
-            self.signing_dirname = '%s/keystone-signing' % os.environ['HOME']
+            self.signing_dirname = tempfile.mkdtemp(prefix='keystone-signing-')
         LOG.info('Using %s as cache directory for signing certificate' %
                  self.signing_dirname)
         if os.path.exists(self.signing_dirname):
