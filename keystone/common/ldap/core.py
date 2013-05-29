@@ -513,7 +513,7 @@ class LdapWrapper(object):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug(_(
                 'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
-                'attrs=%(attrs)s') % {
+                'attrs=%(attrlist)s') % {
                     'dn': dn,
                     'scope': scope,
                     'query': query,
