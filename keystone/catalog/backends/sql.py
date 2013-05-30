@@ -50,8 +50,8 @@ class Endpoint(sql.ModelBase, sql.DictBase):
 
 
 class Catalog(sql.Base, catalog.Driver):
-    def db_sync(self):
-        migration.db_sync()
+    def db_sync(self, version=None):
+        migration.db_sync(version=version)
 
     # Services
     def list_services(self):

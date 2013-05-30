@@ -34,8 +34,8 @@ class CredentialModel(sql.ModelBase, sql.DictBase):
 
 class Credential(sql.Base, credential.Driver):
     # Internal interface to manage the database
-    def db_sync(self):
-        migration.db_sync()
+    def db_sync(self, version=None):
+        migration.db_sync(version=version)
 
     # credential crud
 
