@@ -45,6 +45,12 @@ TENANTS = [
         'description': 'description',
         'enabled': True,
         'domain_id': DEFAULT_DOMAIN_ID
+    }, {
+        'id': 'service',
+        'name': 'service',
+        'description': 'description',
+        'enabled': True,
+        'domain_id': DEFAULT_DOMAIN_ID
     }
 ]
 
@@ -115,7 +121,11 @@ ROLES = [
     }, {
         'id': 'writer',
         'name': 'Writer',
+    }, {
+        'id': 'service',
+        'name': 'Service',
     }
+
 
 ]
 

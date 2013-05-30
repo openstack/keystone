@@ -1619,7 +1619,7 @@ class IdentityTests(object):
 
     def test_list_projects(self):
         projects = self.identity_api.list_projects()
-        self.assertEquals(len(projects), 3)
+        self.assertEquals(len(projects), 4)
         project_ids = []
         for project in projects:
             project_ids.append(project.get('id'))

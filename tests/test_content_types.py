@@ -214,8 +214,10 @@ class RestfulTestCase(test.TestCase):
     def admin_request(self, **kwargs):
         return self._request(app=self.admin_app, **kwargs)
 
-    def get_scoped_token(self):
+    def get_scoped_token(self, tenant_id=None):
         """Convenience method so that we can test authenticated requests."""
+        if not tenant_id:
+            tenant_id = self.tenant_bar['id']
         r = self.public_request(
             method='POST',
             path='/v2.0/tokens',
@@ -225,7 +227,7 @@ class RestfulTestCase(test.TestCase):
                         'username': self.user_foo['name'],
                         'password': self.user_foo['password'],
                     },
-                    'tenantId': self.tenant_bar['id'],
+                    'tenantId': tenant_id,
                 },
             })
         return self._get_token_id(r)
@@ -384,6 +386,18 @@ class CoreApiTests(object):
             path='/v2.0/tokens/%(token_id)s' % {
                 'token_id': token,
             },
+            token=token)
+        self.assertValidAuthenticationResponse(r)
+
+    def test_validate_token_service_role(self):
+        self.metadata_foobar = self.identity_api.update_metadata(
+            self.user_foo['id'],
+            self.tenant_service['id'],
+            dict(roles=[self.role_service['id']]))
+
+        token = self.get_scoped_token(tenant_id='service')
+        r = self.admin_request(
+            path='/v2.0/tokens/%s' % token,
             token=token)
         self.assertValidAuthenticationResponse(r)
 
