@@ -14,12 +14,37 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
+import json
+
 from keystone.common import controller
+from keystone import exception
 
 
 class CredentialV3(controller.V3Controller):
     collection_name = 'credentials'
     member_name = 'credential'
+
+    def _assign_unique_id(self, ref):
+        # Generates and assigns a unique identifer to
+        # a credential reference.
+        if ref.get('type', '').lower() == 'ec2':
+            try:
+                blob = json.loads(ref.get('blob'))
+            except (ValueError, TypeError):
+                raise exception.ValidationError(
+                    message=_('Invalid blob in credential'))
+            if not blob or not isinstance(blob, dict):
+                raise exception.ValidationError(attribute='blob',
+                                                target='credential')
+            if blob.get('access') is None:
+                raise exception.ValidationError(attribute='access',
+                                                target='blob')
+            ref = ref.copy()
+            ref['id'] = hashlib.sha256(blob['access']).hexdigest()
+            return ref
+        else:
+            return super(CredentialV3, self)._assign_unique_id(ref)
 
     @controller.protected
     def create_credential(self, context, credential):
