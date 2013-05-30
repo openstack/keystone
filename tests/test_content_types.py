@@ -21,9 +21,10 @@ from lxml import etree
 import nose.exc
 import webtest
 
+from keystone import test
+
 from keystone.common import serializer
 from keystone.openstack.common import jsonutils
-from keystone import test
 
 import default_fixtures
 

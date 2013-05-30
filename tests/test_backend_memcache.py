@@ -20,11 +20,12 @@ import uuid
 
 import memcache
 
+from keystone import test
+
 from keystone.common import utils
 from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
-from keystone import test
 from keystone import token
 from keystone.token.backends import memcache as token_memcache
 

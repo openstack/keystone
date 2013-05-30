@@ -15,10 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from keystone import test
+
 from keystone import config
 from keystone import controllers
 from keystone.openstack.common import jsonutils
-from keystone import test
 
 
 CONF = config.CONF

@@ -29,8 +29,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.common import utils
 from keystone import test
+
+from keystone.common import utils
 
 
 class UtilsTestCase(test.TestCase):

@@ -16,9 +16,10 @@
 
 import uuid
 
+from keystone import test
+
 from keystone import auth
 from keystone import exception
-from keystone import test
 
 
 # for testing purposes only

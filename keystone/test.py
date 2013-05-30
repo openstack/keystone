@@ -19,7 +19,6 @@ import errno
 import os
 import socket
 import StringIO
-import subprocess
 import sys
 import time
 
@@ -31,12 +30,16 @@ from paste import deploy
 import stubout
 import unittest2 as unittest
 
+gettext.install('keystone', unicode=1)
+
+from keystone.common import environment
+environment.use_eventlet()
+
 from keystone import catalog
 from keystone.common import kvs
 from keystone.common import logging
 from keystone.common import utils
 from keystone.common import wsgi
-from keystone.common import wsgi_server
 from keystone import config
 from keystone import credential
 from keystone import exception
@@ -46,11 +49,6 @@ from keystone import policy
 from keystone import token
 from keystone import trust
 
-
-wsgi_server.monkey_patch_eventlet()
-
-
-gettext.install('keystone', unicode=1)
 
 LOG = logging.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.abspath(os.curdir))
@@ -115,7 +113,7 @@ def checkout_vendor(repo, rev):
         # write out a modified time
         with open(modcheck, 'w') as fd:
             fd.write('1')
-    except subprocess.CalledProcessError:
+    except environment.subprocess.CalledProcessError:
         LOG.warning(_('Failed to checkout %s'), repo)
     cd(working_dir)
     return revdir
@@ -320,7 +318,7 @@ class TestCase(NoModule, unittest.TestCase):
     def serveapp(self, config, name=None, cert=None, key=None, ca=None,
                  cert_required=None, host="127.0.0.1", port=0):
         app = self.loadapp(config, name=name)
-        server = wsgi_server.Server(app, host, port)
+        server = environment.Server(app, host, port)
         if cert is not None and ca is not None and key is not None:
             server.set_ssl(certfile=cert, keyfile=key, ca_certs=ca,
                            cert_required=cert_required)

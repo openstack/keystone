@@ -16,9 +16,10 @@
 
 import uuid
 
+from keystone import test
+
 from keystone import config
 from keystone.identity.backends import pam as identity_pam
-from keystone import test
 
 
 CONF = config.CONF

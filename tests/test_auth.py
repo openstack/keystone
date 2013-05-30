@@ -16,11 +16,12 @@ import copy
 import datetime
 import uuid
 
+from keystone import test
+
 from keystone import auth
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
-from keystone import test
 from keystone import token
 from keystone import trust
 

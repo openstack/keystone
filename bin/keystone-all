@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-import greenlet
 import logging
 import os
 import signal
@@ -21,8 +20,8 @@ if os.path.exists(os.path.join(possible_topdir,
 from paste import deploy
 import pbr.version
 
+from keystone.common import environment
 from keystone.common import utils
-from keystone.common import wsgi_server
 from keystone import config
 from keystone.openstack.common import gettextutils
 from keystone.openstack.common import importutils
@@ -33,7 +32,7 @@ CONF = config.CONF
 
 def create_server(conf, name, host, port):
     app = deploy.loadapp('config:%s' % conf, name=name)
-    server = wsgi_server.Server(app, host=host, port=port)
+    server = environment.Server(app, host=host, port=port)
     if CONF.ssl.enable:
         server.set_ssl(CONF.ssl.certfile, CONF.ssl.keyfile,
                        CONF.ssl.ca_certs, CONF.ssl.cert_required)
@@ -64,10 +63,7 @@ def serve(*servers):
                 logging.exception('Failed to execute onready command')
 
     for server in servers:
-        try:
-            server.wait()
-        except greenlet.GreenletExit:
-            pass
+        server.wait()
 
 
 if __name__ == '__main__':
@@ -100,7 +96,7 @@ if __name__ == '__main__':
         # http://lists.openstack.org/pipermail/openstack-dev/2012-August/
         # 000794.html
         monkeypatch_thread = False
-    wsgi_server.monkey_patch_eventlet(monkeypatch_thread=monkeypatch_thread)
+    environment.use_eventlet(monkeypatch_thread)
 
     servers = []
     servers.append(create_server(paste_config,

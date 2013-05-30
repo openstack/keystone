@@ -16,13 +16,14 @@
 
 import uuid
 
+from keystone import test
+
 from keystone import catalog
 from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import policy
-from keystone import test
 from keystone import token
 from keystone import trust
 

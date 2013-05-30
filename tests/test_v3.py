@@ -4,13 +4,14 @@ import uuid
 from lxml import etree
 import webtest
 
+from keystone import test
+
 from keystone import auth
 from keystone.common import serializer
 from keystone.common.sql import util as sql_util
 from keystone import config
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
-from keystone import test
 
 import test_content_types
 

@@ -21,12 +21,12 @@
 import hashlib
 import json
 import os
-import subprocess
 import time
 
 import passlib.hash
 
 from keystone.common import config
+from keystone.common import environment
 from keystone.common import logging
 from keystone import exception
 
@@ -160,14 +160,15 @@ def check_output(*popenargs, **kwargs):
     if 'stdout' in kwargs:
         raise ValueError('stdout argument not allowed, it will be overridden.')
     LOG.debug(' '.join(popenargs[0]))
-    process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
+    process = environment.subprocess.Popen(stdout=environment.subprocess.PIPE,
+                                           *popenargs, **kwargs)
     output, unused_err = process.communicate()
     retcode = process.poll()
     if retcode:
         cmd = kwargs.get('args')
         if cmd is None:
             cmd = popenargs[0]
-        raise subprocess.CalledProcessError(retcode, cmd)
+        raise environment.subprocess.CalledProcessError(retcode, cmd)
     return output
 
 

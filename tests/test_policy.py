@@ -19,11 +19,12 @@ import StringIO
 import tempfile
 import urllib2
 
+from keystone import test
+
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import policy as common_policy
 from keystone.policy.backends import rules
-from keystone import test
 
 
 CONF = config.CONF

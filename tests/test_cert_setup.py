@@ -18,9 +18,10 @@
 import os
 import shutil
 
+from keystone import test
+
 from keystone.common import openssl
 from keystone import exception
-from keystone import test
 from keystone import token
 
 import default_fixtures

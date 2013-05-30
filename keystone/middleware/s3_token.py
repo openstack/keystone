@@ -33,12 +33,12 @@ This WSGI component:
 
 """
 
-import httplib
-
 import webob
 
-from keystone.openstack.common import jsonutils
 from swift.common import utils as swift_utils
+
+from keystone.common import environment
+from keystone.openstack.common import jsonutils
 
 
 PROTOCOL_NAME = 'S3 Token Authentication'
@@ -62,9 +62,9 @@ class S3Token(object):
         self.auth_port = int(conf.get('auth_port', 35357))
         self.auth_protocol = conf.get('auth_protocol', 'https')
         if self.auth_protocol == 'http':
-            self.http_client_class = httplib.HTTPConnection
+            self.http_client_class = environment.httplib.HTTPConnection
         else:
-            self.http_client_class = httplib.HTTPSConnection
+            self.http_client_class = environment.httplib.HTTPSConnection
         # SSL
         self.cert_file = conf.get('certfile')
         self.key_file = conf.get('keyfile')

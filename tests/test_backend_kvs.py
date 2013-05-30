@@ -17,11 +17,12 @@ import uuid
 
 import nose.exc
 
+from keystone import test
+
 from keystone import catalog
 from keystone.catalog.backends import kvs as catalog_kvs
 from keystone import exception
 from keystone import identity
-from keystone import test
 from keystone.token.backends import kvs as token_kvs
 from keystone.trust.backends import kvs as trust_kvs
 
