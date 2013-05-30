@@ -174,7 +174,7 @@ class Driver(object):
         user_id will be ignored.
 
         :param user_id: identity of user
-        :type token_id: string
+        :type user_id: string
         :param tenant_id: identity of the tenant
         :type tenant_id: string
         :param trust_id: identified of the trust
