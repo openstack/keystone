@@ -50,11 +50,18 @@ class SqlUpgradeTests(test.TestCase):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
 
+    _config_file_list = [test.etcdir('keystone.conf.sample'),
+                         test.testsdir('test_overrides.conf'),
+                         test.testsdir('backend_sql.conf')]
+
+    #override this to sepcify the complete list of configuration files
+    def config_files(self):
+        return self._config_file_list
+
     def setUp(self):
         super(SqlUpgradeTests, self).setUp()
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_sql.conf')])
+
+        self.config(self.config_files())
         self.base = sql.Base()
 
         # create and share a single sqlalchemy engine for testing
