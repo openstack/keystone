@@ -219,7 +219,7 @@ def setup_remote_pydev_debug():
     if CONF.pydev_debug_host and CONF.pydev_debug_port:
         try:
             try:
-                from pydevd import pydevd
+                from pydev import pydevd
             except ImportError:
                 import pydevd
 
