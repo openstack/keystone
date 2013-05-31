@@ -34,6 +34,15 @@
 # member_role_id = 9fe2ff9ee4384b1894a90878d3e92bab
 # member_role_name = _member_
 
+# enforced by optional sizelimit middleware (keystone.middleware:RequestBodySizeLimiter)
+# max_request_body_size = 114688
+
+# limit the sizes of user & tenant ID/names
+# max_param_size = 64
+
+# similar to max_param_size, but provides an exception for token values
+# max_token_size = 8192
+
 # === Logging Options ===
 # Print debugging output
 # (includes plaintext request logging, potentially including passwords)
