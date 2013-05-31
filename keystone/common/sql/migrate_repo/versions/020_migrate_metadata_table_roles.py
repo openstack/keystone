@@ -22,8 +22,6 @@ def upgrade(migrate_engine):
                                    meta,
                                    autoload=True)
 
-    conn = migrate_engine.connect()
-
     old_metadata_table = sql.Table('metadata', meta, autoload=True)
     session = sql.orm.sessionmaker(bind=migrate_engine)()
 
@@ -44,18 +42,18 @@ def upgrade(migrate_engine):
             new_roles = json.loads(r.data)['roles']
             data['roles'] = list(set(old_roles) | set(new_roles))
             q = new_metadata_table.update().where(
-                new_metadata_table.c.user_id == metadata.user_id and
-                new_metadata_table.c.project_id == metadata.tenant_id).values(
-                    data=json.dumps(data))
+                new_metadata_table.c.user_id == metadata.user_id).where(
+                    new_metadata_table.c.project_id ==
+                    metadata.tenant_id).values(data=json.dumps(data))
         else:
             q = new_metadata_table.insert().values(
                 user_id=metadata.user_id,
                 project_id=metadata.tenant_id,
                 data=json.dumps(data))
 
-        conn.execute(q)
+        session.execute(q)
 
-    session.close()
+    session.commit()
     old_metadata_table.drop()
 
 
