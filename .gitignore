@@ -18,7 +18,6 @@ doc/build
 doc/source/modules.rst
 doc/source/keystone.*
 ChangeLog
-requirements.txt
 AUTHORS
 build/
 dist/
