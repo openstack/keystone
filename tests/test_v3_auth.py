@@ -491,6 +491,48 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                                        group_id=self.group1['id'],
                                        project_id=self.projectA['id'])
 
+    def test_unscoped_token_remains_valid_after_role_assignment(self):
+        r = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password']))
+        unscoped_token = r.getheader('X-Subject-Token')
+
+        r = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                token=unscoped_token,
+                project_id=self.projectA['id']))
+        scoped_token = r.getheader('X-Subject-Token')
+
+        # confirm both tokens are valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': unscoped_token},
+                  expected_status=204)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': scoped_token},
+                  expected_status=204)
+
+        # create a new role
+        role = self.new_role_ref()
+        self.identity_api.create_role(role['id'], role)
+
+        # assign a new role
+        self.put(
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'project_id': self.projectA['id'],
+                'user_id': self.user1['id'],
+                'role_id': role['id']})
+
+        # both tokens should remain valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': unscoped_token},
+                  expected_status=204)
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': scoped_token},
+                  expected_status=204)
+
     def test_deleting_user_grant_revokes_token(self):
         """Test deleting a user grant revokes token.
 
@@ -522,13 +564,13 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                   headers={'X-Subject-Token': token},
                   expected_status=401)
 
-    def test_creating_user_grant_revokes_token(self):
-        """Test creating a user grant revokes token.
+    def test_domain_user_role_assignment_maintains_token(self):
+        """Test user-domain role assignment maintains existing token.
 
         Test Plan:
         - Get a token for user1, scoped to ProjectA
         - Create a grant for user1 on DomainB
-        - Check token is no longer valid
+        - Check token is still valid
 
         """
         auth_data = self.build_authentication_request(
@@ -541,7 +583,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
                   expected_status=204)
-        # Delete the grant, which should invalidate the token
+        # Assign a role, which should not affect the token
         grant_url = (
             '/domains/%(domain_id)s/users/%(user_id)s/'
             'roles/%(role_id)s' % {
@@ -551,7 +593,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         self.put(grant_url)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=401)
+                  expected_status=204)
 
     def test_deleting_group_grant_revokes_tokens(self):
         """Test deleting a group grant revokes tokens.
@@ -614,13 +656,13 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                   headers={'X-Subject-Token': token3},
                   expected_status=204)
 
-    def test_creating_group_grant_revokes_token(self):
-        """Test creating a group grant revokes token.
+    def test_domain_group_role_assignment_maintains_token(self):
+        """Test domain-group role assignment maintains existing token.
 
         Test Plan:
         - Get a token for user1, scoped to ProjectA
         - Create a grant for group1 on DomainB
-        - Check token is no longer valid
+        - Check token is still longer valid
 
         """
         auth_data = self.build_authentication_request(
@@ -643,7 +685,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         self.put(grant_url)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=401)
+                  expected_status=204)
 
     def test_group_membership_changes_revokes_token(self):
         """Test add/removal to/from group revokes token.

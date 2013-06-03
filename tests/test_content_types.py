@@ -232,21 +232,35 @@ class RestfulTestCase(test.TestCase):
         self.assertValidResponseHeaders(response)
         return response
 
-    def get_scoped_token(self):
+    def _get_token(self, body):
         """Convenience method so that we can test authenticated requests."""
-        r = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'username': self.user_foo['name'],
-                        'password': self.user_foo['password'],
-                    },
-                    'tenantId': self.tenant_bar['id'],
-                },
-            })
+        r = self.public_request(method='POST', path='/v2.0/tokens', body=body)
         return self._get_token_id(r)
+
+    def get_unscoped_token(self):
+        """Convenience method so that we can test authenticated requests."""
+        return self._get_token({
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user_foo['name'],
+                    'password': self.user_foo['password'],
+                },
+            },
+        })
+
+    def get_scoped_token(self, tenant_id=None):
+        """Convenience method so that we can test authenticated requests."""
+        if not tenant_id:
+            tenant_id = self.tenant_bar['id']
+        return self._get_token({
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user_foo['name'],
+                    'password': self.user_foo['password'],
+                },
+                'tenantId': tenant_id,
+            },
+        })
 
     def _get_token_id(self, r):
         """Helper method to return a token ID from a response.

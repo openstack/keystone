@@ -305,7 +305,6 @@ class Role(controller.V2Controller):
 
         self.identity_api.add_role_to_user_and_project(
             context, user_id, tenant_id, role_id)
-        self._delete_tokens_for_user(context, user_id)
 
         role_ref = self.identity_api.get_role(context, role_id)
         return {'role': role_ref}
@@ -802,14 +801,6 @@ class RoleV3(controller.V3Controller):
 
         self.identity_api.create_grant(
             context, role_id, user_id, group_id, domain_id, project_id)
-
-        # So that existing tokens don't stop the use of this grant
-        # delete any tokens for this user or, in the case of a group,
-        # tokens from all the uses who are members of this group.
-        if user_id:
-            self._delete_tokens_for_user(context, user_id)
-        else:
-            self._delete_tokens_for_group(context, group_id)
 
     @controller.protected
     def list_grants(self, context, user_id=None, group_id=None,
