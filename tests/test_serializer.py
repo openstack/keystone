@@ -15,38 +15,12 @@
 # under the License.
 
 import copy
-import StringIO
-
-from lxml import etree
 
 from keystone.common import serializer
 from keystone import test
 
 
 class XmlSerializerTestCase(test.TestCase):
-    def assertEqualXML(self, a, b):
-        """Parses two XML documents from strings and compares the results.
-
-        This provides easy-to-read failures from nose.
-
-        """
-        parser = etree.XMLParser(remove_blank_text=True)
-
-        def canonical_xml(s):
-            s = s.strip()
-
-            fp = StringIO.StringIO()
-            dom = etree.fromstring(s, parser)
-            dom.getroottree().write_c14n(fp)
-            s = fp.getvalue()
-
-            dom = etree.fromstring(s, parser)
-            return etree.tostring(dom, pretty_print=True)
-
-        a = canonical_xml(a)
-        b = canonical_xml(b)
-        self.assertEqual(a.split('\n'), b.split('\n'))
-
     def assertSerializeDeserialize(self, d, xml, xmlns=None):
         self.assertEqualXML(
             serializer.to_xml(copy.deepcopy(d), xmlns),
