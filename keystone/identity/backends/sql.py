@@ -434,6 +434,7 @@ class Identity(sql.Base, identity.Driver):
             else:
                 session = self.get_session()
                 q = session.query(UserProjectGrant)
+                q = q.filter_by(user_id=user_id)
                 q = q.filter_by(project_id=tenant_id)
                 q.delete()
         except exception.MetadataNotFound:

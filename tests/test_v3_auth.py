@@ -698,6 +698,59 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                   headers={'X-Subject-Token': token2},
                   expected_status=401)
 
+    def test_removing_role_assignment_does_not_affect_other_users(self):
+        """Revoking a role from one user should not affect other users."""
+        r = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password'],
+                project_id=self.projectA['id']))
+        user1_token = r.getheader('X-Subject-Token')
+
+        r = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user3['id'],
+                password=self.user3['password'],
+                project_id=self.projectA['id']))
+        user3_token = r.getheader('X-Subject-Token')
+
+        # delete relationships between user1 and projectA from setUp
+        self.delete(
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'project_id': self.projectA['id'],
+                'user_id': self.user1['id'],
+                'role_id': self.role1['id']})
+        self.delete(
+            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s' %
+            {'project_id': self.projectA['id'],
+             'group_id': self.group1['id'],
+             'role_id': self.role1['id']})
+
+        # authorization for the first user should now fail
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': user1_token},
+                  expected_status=401)
+        self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password'],
+                project_id=self.projectA['id']),
+            expected_status=401)
+
+        # authorization for the second user should still succeed
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': user3_token},
+                  expected_status=204)
+        self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user3['id'],
+                password=self.user3['password'],
+                project_id=self.projectA['id']))
+
 
 class TestAuthJSON(test_v3.RestfulTestCase):
     content_type = 'json'
