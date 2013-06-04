@@ -14,64 +14,36 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from migrate import ForeignKeyConstraint
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker
 
-MYSQL_FKEY_QUERY = ("select CONSTRAINT_NAME from "
-                    "INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS "
-                    "where table_name = 'credential'")
+from keystone.common.sql import migration_helpers
 
 
-def drop_constraint_mysql(migrate_engine):
-    session = sessionmaker(bind=migrate_engine)()
-    #http://bugs.mysql.com/bug.php?id=10333
-    #MySQL varies from the SQL norm in naming
-    #Foreign Keys.  The mapping from the column name
-    #to the actual foreign key is stored in
-    #INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
-    #SQLAlchemy expects the constraint name to be
-    # the column name.
-    for constraint in session.execute(MYSQL_FKEY_QUERY):
-        session.execute('ALTER TABLE credential DROP FOREIGN KEY %s;'
-                        % constraint[0])
-    session.commit()
-
-
-def remove_constraints(migrate_engine):
-    if migrate_engine.name == 'sqlite':
-        return
-    if migrate_engine.name == 'mysql':
-        drop_constraint_mysql(migrate_engine)
-        return
+def list_constraints(migrate_engine):
     meta = sqlalchemy.MetaData()
     meta.bind = migrate_engine
     user_table = sqlalchemy.Table('user', meta, autoload=True)
     proj_table = sqlalchemy.Table('project', meta, autoload=True)
     cred_table = sqlalchemy.Table('credential', meta, autoload=True)
-    ForeignKeyConstraint(columns=[cred_table.c.user_id],
-                         refcolumns=[user_table.c.id]).drop()
-    ForeignKeyConstraint(columns=[cred_table.c.project_id],
-                         refcolumns=[proj_table.c.id]).drop()
 
-
-def add_constraints(migrate_engine):
-    if migrate_engine.name == 'sqlite':
-        return
-    meta = sqlalchemy.MetaData()
-    meta.bind = migrate_engine
-    user_table = sqlalchemy.Table('user', meta, autoload=True)
-    proj_table = sqlalchemy.Table('project', meta, autoload=True)
-    cred_table = sqlalchemy.Table('credential', meta, autoload=True)
-    ForeignKeyConstraint(columns=[cred_table.c.user_id],
-                         refcolumns=[user_table.c.id]).create()
-    ForeignKeyConstraint(columns=[cred_table.c.project_id],
-                         refcolumns=[proj_table.c.id]).create()
+    constraints = [{'table': cred_table,
+                    'fk_column': 'user_id',
+                    'ref_column': user_table.c.id},
+                   {'table': cred_table,
+                    'fk_column': 'project_id',
+                    'ref_column': proj_table.c.id}]
+    return constraints
 
 
 def upgrade(migrate_engine):
-    remove_constraints(migrate_engine)
+    # SQLite does not support constraints, and querying the constraints
+    # raises an exception
+    if migrate_engine.name == 'sqlite':
+        return
+    migration_helpers.remove_constraints(list_constraints(migrate_engine))
 
 
 def downgrade(migrate_engine):
-    add_constraints(migrate_engine)
+    if migrate_engine.name == 'sqlite':
+        return
+    migration_helpers.add_constraints(list_constraints(migrate_engine))
