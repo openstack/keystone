@@ -596,6 +596,25 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
               'name': 'Default',
               'enabled': True}])
 
+    def test_authenticate_requires_simple_bind(self):
+        user = {
+            'id': 'no_meta',
+            'name': 'NO_META',
+            'domain_id': test_backend.DEFAULT_DOMAIN_ID,
+            'password': 'no_meta2',
+            'enabled': True,
+        }
+        self.identity_man.create_user({}, user['id'], user)
+        self.identity_api.add_user_to_project(self.tenant_baz['id'],
+                                              user['id'])
+        self.identity_api.user.LDAP_USER = None
+        self.identity_api.user.LDAP_PASSWORD = None
+
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate_user,
+                          user_id=user['id'],
+                          password=None)
+
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):

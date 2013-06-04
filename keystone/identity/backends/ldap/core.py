@@ -20,7 +20,6 @@ import ldap
 
 from keystone import clean
 from keystone.common import ldap as common_ldap
-from keystone.common.ldap import fakeldap
 from keystone.common import logging
 from keystone.common import models
 from keystone.common import utils
@@ -51,18 +50,6 @@ class Identity(identity.Driver):
         self.project = ProjectApi(CONF)
         self.role = RoleApi(CONF)
         self.group = GroupApi(CONF)
-
-    def get_connection(self, user=None, password=None):
-        if self.LDAP_URL.startswith('fake://'):
-            conn = fakeldap.FakeLdap(self.LDAP_URL)
-        else:
-            conn = common_ldap.LdapWrapper(self.LDAP_URL)
-        if user is None:
-            user = self.LDAP_USER
-        if password is None:
-            password = self.LDAP_PASSWORD
-        conn.simple_bind_s(user, password)
-        return conn
 
     def _validate_domain(self, ref):
         """Validate that either the default domain or nothing is specified.
@@ -100,6 +87,8 @@ class Identity(identity.Driver):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
+            raise AssertionError('Invalid user / password')
+        if not user_id or not password:
             raise AssertionError('Invalid user / password')
         try:
             conn = self.user.get_connection(self.user._id_to_dn(user_id),
