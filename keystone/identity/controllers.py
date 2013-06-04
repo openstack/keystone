@@ -242,10 +242,15 @@ class User(controller.V2Controller):
     def update_user_project(self, context, user_id, user):
         """Update the default tenant."""
         self.assert_admin(context)
-        # ensure that we're a member of that tenant
-        default_tenant_id = user.get('tenantId')
-        self.identity_api.add_user_to_project(context,
-                                              default_tenant_id, user_id)
+
+        try:
+            # ensure that we're a member of that tenant
+            self.identity_api.add_user_to_project(
+                context, user.get('tenantId'), user_id)
+        except exception.Conflict:
+            # we're already a member of that tenant
+            pass
+
         return self.update_user(context, user_id, user)
 
 

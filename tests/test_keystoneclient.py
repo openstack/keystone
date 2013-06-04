@@ -482,6 +482,19 @@ class KeystoneClientTests(object):
                                     tenant_id='bar')
         self.assertEquals(user2.name, test_username)
 
+    def test_update_default_tenant_to_existing_value(self):
+        client = self.get_client(admin=True)
+
+        user = client.users.create(
+            name=uuid.uuid4().hex,
+            password=uuid.uuid4().hex,
+            email=uuid.uuid4().hex,
+            tenant_id=self.tenant_bar['id'])
+
+        # attempting to update the tenant with the existing value should work
+        user = client.users.update_tenant(
+            user=user, tenant=self.tenant_bar['id'])
+
     def test_user_create_no_name(self):
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
