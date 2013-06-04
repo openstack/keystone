@@ -96,10 +96,8 @@ class BaseGrant(sql.DictBase):
 class UserProjectGrant(sql.ModelBase, BaseGrant):
     __tablename__ = 'user_project_metadata'
     user_id = sql.Column(sql.String(64),
-                         sql.ForeignKey('user.id'),
                          primary_key=True)
     project_id = sql.Column(sql.String(64),
-                            sql.ForeignKey('project.id'),
                             primary_key=True)
     data = sql.Column(sql.JsonBlob())
 
@@ -208,15 +206,24 @@ class Identity(sql.Base, identity.Driver):
             raise exception.ProjectNotFound(project_id=tenant_name)
         return project_ref.to_dict()
 
+    def get_project_user_ids(self, tenant_id):
+        session = self.get_session()
+        self.get_project(tenant_id)
+        query = session.query(UserProjectGrant)
+        query = query.filter(UserProjectGrant.project_id == tenant_id)
+        project_refs = query.all()
+        return [project_ref.user_id for project_ref in project_refs]
+
     def get_project_users(self, tenant_id):
         session = self.get_session()
         self.get_project(tenant_id)
-        query = session.query(User)
-        query = query.join(UserProjectGrant)
-        query = query.filter(UserProjectGrant.project_id == tenant_id)
-        user_refs = query.all()
-        return [identity.filter_user(user_ref.to_dict())
-                for user_ref in user_refs]
+        user_refs = []
+        for user_id in self.get_project_user_ids(tenant_id):
+            query = session.query(User)
+            query = query.filter(User.id == user_id)
+            user_ref = query.first()
+            user_refs.append(identity.filter_user(user_ref.to_dict()))
+        return user_refs
 
     def get_metadata(self, user_id=None, tenant_id=None,
                      domain_id=None, group_id=None):
