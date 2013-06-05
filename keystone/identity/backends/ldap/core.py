@@ -167,37 +167,86 @@ class Identity(identity.Driver):
 
     def get_projects_for_user(self, user_id):
         self.get_user(user_id)
-        return [p['id'] for p in self.project.get_user_projects(user_id)]
+        user_dn = self.user._id_to_dn(user_id)
+        associations = (self.role.list_project_roles_for_user
+                        (user_dn, self.project.tree_dn))
+        return [p['id'] for p in
+                self.project.get_user_projects(user_dn, associations)]
 
     def get_project_users(self, tenant_id):
         self.get_project(tenant_id)
-        user_refs = self.project.get_users(tenant_id)
-        users = []
-        for user_ref in user_refs:
-            users.append(identity.filter_user(user_ref))
+        tenant_dn = self.project._id_to_dn(tenant_id)
+        rolegrants = self.role.get_role_assignments(tenant_dn)
+        users = [self.user.get_filtered(self.user._dn_to_id(user_id))
+                 for user_id in
+                 self.project.get_user_dns(tenant_id, rolegrants)]
         return self._set_default_domain(users)
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         self.get_user(user_id)
         self.get_project(tenant_id)
-        return [a.role_id for a in self.role.get_role_assignments(tenant_id)
-                if a.user_id == user_id]
+        user_dn = self.user._id_to_dn(user_id)
+        return [self.role._dn_to_id(a.role_dn)
+                for a in self.role.get_role_assignments
+                (self.project._id_to_dn(tenant_id))
+                if a.user_dn == user_dn]
+
+    def _subrole_id_to_dn(self, role_id, tenant_id):
+        if tenant_id is None:
+            return self.role._id_to_dn(role_id)
+        else:
+            return '%s=%s,%s' % (self.role.id_attr,
+                                 ldap.dn.escape_dn_chars(role_id),
+                                 self.project._id_to_dn(tenant_id))
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
         self.get_project(tenant_id)
         self.get_role(role_id)
-        self.role.add_user(role_id, user_id, tenant_id)
+        user_dn = self.user._id_to_dn(user_id)
+        role_dn = self._subrole_id_to_dn(role_id, tenant_id)
+        self.role.add_user(role_id, role_dn, user_dn, user_id, tenant_id)
+        tenant_dn = self.project._id_to_dn(tenant_id)
+        return UserRoleAssociation(
+            role_dn=role_dn,
+            user_dn=user_dn,
+            tenant_dn=tenant_dn)
 
     # CRUD
     def create_user(self, user_id, user):
         user = self._validate_domain(user)
         user_ref = self.user.create(user)
+        tenant_id = user.get('tenant_id')
+        user_dn = self.user._id_to_dn(user['id'])
+        if tenant_id is not None:
+            self.project.add_user(tenant_id, user_dn)
         return self._set_default_domain(identity.filter_user(user_ref))
 
     def update_user(self, user_id, user):
         user = self._validate_domain(user)
-        return self._set_default_domain(self.user.update(user_id, user))
+        if 'id' in user and user['id'] != user_id:
+            raise exception.ValidationError('Cannot change user ID')
+        old_obj = self.user.get(user_id)
+        if 'name' in user and old_obj.get('name') != user['name']:
+            raise exception.Conflict('Cannot change user name')
+
+        if 'tenant_id' in user and \
+                old_obj.get('tenant_id') != user['tenant_id']:
+            if old_obj['tenant_id']:
+                self.project.remove_user(old_obj['tenant_id'],
+                                         self.user._id_to_dn(user_id),
+                                         user_id)
+            if user['tenant_id']:
+                self.project.add_user(user['tenant_id'],
+                                      self.user._id_to_dn(user_id),
+                                      user_id)
+
+        user = utils.hash_ldap_user_password(user)
+        if self.user.enabled_mask:
+            user['enabled_nomask'] = old_obj['enabled_nomask']
+            self.user.mask_enabled_attribute(user)
+        self.user.update(user_id, user, old_obj)
+        return self._set_default_domain(self.user.get_filtered(user_id))
 
     def create_project(self, tenant_id, tenant):
         tenant = self._validate_domain(tenant)
@@ -238,16 +287,42 @@ class Identity(identity.Driver):
         return self.role.create(role)
 
     def delete_role(self, role_id):
-        return self.role.delete(role_id)
+        return self.role.delete(role_id, self.project.tree_dn)
 
     def delete_project(self, tenant_id):
-        return self.project.delete(tenant_id)
+        if self.project.subtree_delete_enabled:
+            self.project.deleteTree(id)
+        else:
+            tenant_dn = self.project._id_to_dn(tenant_id)
+            self.role.roles_delete_subtree_by_project(tenant_dn)
+            self.project.delete(tenant_id)
 
     def delete_user(self, user_id):
-        return self.user.delete(user_id)
+        user_dn = self.user._id_to_dn(user_id)
+        for ref in self.role.list_global_roles_for_user(user_dn):
+            self.role.delete_user(ref.role_dn, ref.user_dn, ref.project_dn,
+                                  user_id, self.role._dn_to_id(ref.role_dn))
+        for ref in self.role.list_project_roles_for_user(user_dn,
+                                                         self.project.tree_dn):
+            self.role.delete_user(ref.role_dn, ref.user_dn, ref.project_dn,
+                                  user_id, self.role._dn_to_id(ref.role_dn))
+
+        groups = self.group.list_user_groups(user_dn)
+        for group in groups:
+            self.group.remove_user(user_dn, group['id'], user_id)
+
+        user = self.user.get(user_id)
+        if hasattr(user, 'tenant_id'):
+            self.project.remove_user(user.tenant_id,
+                                     self.user._id_to_dn(user_id))
+        self.user.delete(user_id)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        return self.role.delete_user(role_id, user_id, tenant_id)
+        role_dn = self._subrole_id_to_dn(role_id, tenant_id)
+        return self.role.delete_user(role_dn,
+                                     self.user._id_to_dn(user_id),
+                                     self.project._id_to_dn(tenant_id),
+                                     user_id, role_id)
 
     def update_role(self, role_id, role):
         self.get_role(role_id)
@@ -273,23 +348,30 @@ class Identity(identity.Driver):
     def add_user_to_group(self, user_id, group_id):
         self.get_user(user_id)
         self.get_group(group_id)
-        self.group.add_user(user_id, group_id)
+        user_dn = self.user._id_to_dn(user_id)
+        self.group.add_user(user_dn, group_id, user_id)
 
     def remove_user_from_group(self, user_id, group_id):
         self.get_user(user_id)
         self.get_group(group_id)
-        self.group.remove_user(user_id, group_id)
+        user_dn = self.user._id_to_dn(user_id)
+        self.group.remove_user(user_dn, group_id, user_id)
 
     def list_groups_for_user(self, user_id):
         self.get_user(user_id)
-        return self._set_default_domain(self.group.list_user_groups(user_id))
+        user_dn = self.user._id_to_dn(user_id)
+        return self._set_default_domain(self.group.list_user_groups(user_dn))
 
     def list_groups(self):
         return self._set_default_domain(self.group.get_all())
 
     def list_users_in_group(self, group_id):
         self.get_group(group_id)
-        return self._set_default_domain(self.group.list_group_users(group_id))
+        users = []
+        for user_dn in self.group.list_group_users(group_id):
+            user_id = self.user._dn_to_id(user_dn)
+            users.append(self.user.get(user_id))
+        return self._set_default_domain(users)
 
     def check_user_in_group(self, user_id, group_id):
         self.get_user(user_id)
@@ -324,75 +406,8 @@ class Identity(identity.Driver):
         return [DEFAULT_DOMAIN]
 
 
-# TODO(termie): remove this and move cross-api calls into driver
-class ApiShim(object):
-    """Quick singleton-y shim to get around recursive dependencies.
-
-    NOTE(termie): this should be removed and the cross-api code
-    should be moved into the driver itself.
-    """
-
-    _role = None
-    _project = None
-    _user = None
-    _group = None
-    _domain = None
-
-    def __init__(self, conf):
-        self.conf = conf
-
-    @property
-    def role(self):
-        if not self._role:
-            self._role = RoleApi(self.conf)
-        return self._role
-
-    @property
-    def project(self):
-        if not self._project:
-            self._project = ProjectApi(self.conf)
-        return self._project
-
-    @property
-    def user(self):
-        if not self._user:
-            self._user = UserApi(self.conf)
-        return self._user
-
-    @property
-    def group(self):
-        if not self._group:
-            self._group = GroupApi(self.conf)
-        return self._group
-
-
-# TODO(termie): remove this and move cross-api calls into driver
-class ApiShimMixin(object):
-    """Mixin to share some ApiShim code. Remove me."""
-
-    @property
-    def role_api(self):
-        return self.api.role
-
-    @property
-    def project_api(self):
-        return self.api.project
-
-    @property
-    def user_api(self):
-        return self.api.user
-
-    @property
-    def group_api(self):
-        return self.api.group
-
-    @property
-    def domain_api(self):
-        return self.api.domain
-
-
 # TODO(termie): turn this into a data object and move logic to driver
-class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
+class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     DEFAULT_OU = 'ou=Users'
     DEFAULT_STRUCTURAL_CLASSES = ['person']
     DEFAULT_ID_ATTR = 'cn'
@@ -420,7 +435,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
         self.enabled_default = conf.ldap.user_enabled_default
         self.attribute_ignore = (getattr(conf.ldap, 'user_attribute_ignore')
                                  or self.DEFAULT_ATTRIBUTE_IGNORE)
-        self.api = ApiShim(conf)
 
     def _ldap_res_to_model(self, res):
         obj = super(UserApi, self)._ldap_res_to_model(res)
@@ -445,53 +459,19 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
         if self.enabled_mask:
             self.mask_enabled_attribute(values)
         values = super(UserApi, self).create(values)
-        tenant_id = values.get('tenant_id')
-        if tenant_id is not None:
-            self.project_api.add_user(values['tenant_id'], values['id'])
         return values
-
-    def update(self, id, values):
-        if 'id' in values and values['id'] != id:
-            raise exception.ValidationError('Cannot change user ID')
-        old_obj = self.get(id)
-        if 'name' in values and old_obj.get('name') != values['name']:
-            raise exception.Conflict('Cannot change user name')
-
-        if 'tenant_id' in values and \
-                old_obj.get('tenant_id') != values['tenant_id']:
-            if old_obj['tenant_id']:
-                self.project_api.remove_user(old_obj['tenant_id'], id)
-            if values['tenant_id']:
-                self.project_api.add_user(values['tenant_id'], id)
-
-        values = utils.hash_ldap_user_password(values)
-        if self.enabled_mask:
-            values['enabled_nomask'] = old_obj['enabled_nomask']
-            self.mask_enabled_attribute(values)
-        super(UserApi, self).update(id, values, old_obj)
-        return self.get(id)
-
-    def delete(self, id):
-        user = self.get(id)
-        if hasattr(user, 'tenant_id'):
-            self.project_api.remove_user(user.tenant_id, id)
-
-        super(UserApi, self).delete(id)
-
-        for ref in self.role_api.list_global_roles_for_user(id):
-            self.role_api.delete_user(ref.role_id, ref.user_id, ref.project_id)
-
-        for ref in self.role_api.list_project_roles_for_user(id):
-            self.role_api.delete_user(ref.role_id, ref.user_id, ref.project_id)
 
     def check_password(self, user_id, password):
         user = self.get(user_id)
         return utils.check_password(password, user.password)
 
+    def get_filtered(self, user_id):
+        user = self.get(user_id)
+        return identity.filter_user(user)
+
 
 # TODO(termie): turn this into a data object and move logic to driver
-class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
-                 ApiShimMixin):
+class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     DEFAULT_OU = 'ou=Projects'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'
@@ -510,7 +490,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
 
     def __init__(self, conf):
         super(ProjectApi, self).__init__(conf)
-        self.api = ApiShim(conf)
         self.attribute_mapping['name'] = conf.ldap.tenant_name_attribute
         self.attribute_mapping['description'] = conf.ldap.tenant_desc_attribute
         self.attribute_mapping['enabled'] = conf.ldap.tenant_enabled_attribute
@@ -528,13 +507,13 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
             data['id'] = uuid.uuid4().hex
         return super(ProjectApi, self).create(data)
 
-    def get_user_projects(self, user_id):
+    def get_user_projects(self, user_dn, associations):
         """Returns list of tenants a user has access to
         """
-        associations = self.role_api.list_project_roles_for_user(user_id)
+
         project_ids = set()
         for assoc in associations:
-            project_ids.add(assoc.project_id)
+            project_ids.add(self._dn_to_id(assoc.project_dn))
         projects = []
         for project_id in project_ids:
             #slower to get them one at a time, but a huge list could blow out
@@ -542,56 +521,45 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
             projects.append(self.get(project_id))
         return projects
 
-    def get_role_assignments(self, tenant_id):
-        return self.role_api.get_role_assignments(tenant_id)
-
-    def add_user(self, tenant_id, user_id):
+    def add_user(self, tenant_id, user_dn):
         conn = self.get_connection()
         try:
             conn.modify_s(
                 self._id_to_dn(tenant_id),
                 [(ldap.MOD_ADD,
                   self.member_attribute,
-                  self.user_api._id_to_dn(user_id))])
+                  user_dn)])
         except ldap.TYPE_OR_VALUE_EXISTS:
             # As adding a user to a tenant is done implicitly in several
             # places, and is not part of the exposed API, it's easier for us to
             # just ignore this instead of raising exception.Conflict.
             pass
 
-    def remove_user(self, tenant_id, user_id):
+    def remove_user(self, tenant_id, user_dn, user_id):
         conn = self.get_connection()
         try:
             conn.modify_s(self._id_to_dn(tenant_id),
                           [(ldap.MOD_DELETE,
                             self.member_attribute,
-                            self.user_api._id_to_dn(user_id))])
+                            user_dn)])
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.NotFound(user_id)
 
-    def get_users(self, tenant_id, role_id=None):
+    def get_user_dns(self, tenant_id, rolegrants, role_dn=None):
         tenant = self._ldap_get(tenant_id)
         res = set()
-        if not role_id:
+        if not role_dn:
             # Get users who have default tenant mapping
             for user_dn in tenant[1].get(self.member_attribute, []):
                 if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
-                res.add(self.user_api.get(self.user_api._dn_to_id(user_dn)))
+                res.add(user_dn)
 
         # Get users who are explicitly mapped via a tenant
-        rolegrants = self.role_api.get_role_assignments(tenant_id)
         for rolegrant in rolegrants:
-            if role_id is None or rolegrant.role_id == role_id:
-                res.add(self.user_api.get(rolegrant.user_id))
+            if role_dn is None or rolegrant.role_dn == role_dn:
+                res.add(rolegrant.user_dn)
         return list(res)
-
-    def delete(self, id):
-        if self.subtree_delete_enabled:
-            super(ProjectApi, self).deleteTree(id)
-        else:
-            self.role_api.roles_delete_subtree_by_project(id)
-            super(ProjectApi, self).delete(id)
 
     def update(self, id, values):
         old_obj = self.get(id)
@@ -604,25 +572,25 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
 class UserRoleAssociation(object):
     """Role Grant model."""
 
-    def __init__(self, user_id=None, role_id=None, tenant_id=None,
+    def __init__(self, user_dn=None, role_dn=None, tenant_dn=None,
                  *args, **kw):
-        self.user_id = str(user_id)
-        self.role_id = role_id
-        self.project_id = str(tenant_id)
+        self.user_dn = user_dn
+        self.role_dn = role_dn
+        self.project_dn = tenant_dn
 
 
 class GroupRoleAssociation(object):
     """Role Grant model."""
 
-    def __init__(self, group_id=None, role_id=None, tenant_id=None,
+    def __init__(self, group_dn=None, role_dn=None, tenant_dn=None,
                  *args, **kw):
-        self.group_id = str(group_id)
-        self.role_id = role_id
-        self.project_id = str(tenant_id)
+        self.group_dn = group_dn
+        self.role_dn = role_dn
+        self.project_dn = tenant_dn
 
 
 # TODO(termie): turn this into a data object and move logic to driver
-class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
+class RoleApi(common_ldap.BaseLdap):
     DEFAULT_OU = 'ou=Roles'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'organizationalRole'
@@ -637,20 +605,11 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def __init__(self, conf):
         super(RoleApi, self).__init__(conf)
-        self.api = ApiShim(conf)
         self.attribute_mapping['name'] = conf.ldap.role_name_attribute
         self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self.attribute_ignore = (getattr(conf.ldap, 'role_attribute_ignore')
                                  or self.DEFAULT_ATTRIBUTE_IGNORE)
-
-    def _subrole_id_to_dn(self, role_id, tenant_id):
-        if tenant_id is None:
-            return self._id_to_dn(role_id)
-        else:
-            return '%s=%s,%s' % (self.id_attr,
-                                 ldap.dn.escape_dn_chars(role_id),
-                                 self.project_api._id_to_dn(tenant_id))
 
     def get(self, id, filter=None):
         model = super(RoleApi, self).get(id, filter)
@@ -659,10 +618,8 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     def create(self, values):
         return super(RoleApi, self).create(values)
 
-    def add_user(self, role_id, user_id, tenant_id=None):
-        role_dn = self._subrole_id_to_dn(role_id, tenant_id)
+    def add_user(self, role_id, role_dn, user_dn, user_id, tenant_id=None):
         conn = self.get_connection()
-        user_dn = self.user_api._id_to_dn(user_id)
         try:
             conn.modify_s(role_dn, [(ldap.MOD_ADD,
                                      self.member_attribute, user_dn)])
@@ -684,20 +641,14 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             except Exception as inst:
                     raise inst
 
-        return UserRoleAssociation(
-            role_id=role_id,
-            user_id=user_id,
-            tenant_id=tenant_id)
-
-    def delete_user(self, role_id, user_id, tenant_id):
-        role_dn = self._subrole_id_to_dn(role_id, tenant_id)
+    def delete_user(self, role_dn, user_dn, tenant_dn,
+                    user_id, role_id):
         conn = self.get_connection()
-        user_dn = self.user_api._id_to_dn(user_id)
         try:
             conn.modify_s(role_dn, [(ldap.MOD_DELETE,
                                      self.member_attribute, user_dn)])
         except ldap.NO_SUCH_OBJECT:
-            if tenant_id is None or self.get(role_id) is None:
+            if tenant_dn is None:
                 raise exception.RoleNotFound(role_id=role_id)
             attrs = [('objectClass', [self.object_class]),
                      (self.member_attribute, [user_dn])]
@@ -708,14 +659,12 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
                 conn.add_s(role_dn, attrs)
             except Exception as inst:
                 raise inst
-
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.UserNotFound(user_id=user_id)
 
-    def get_role_assignments(self, tenant_id):
+    def get_role_assignments(self, tenant_dn):
         conn = self.get_connection()
         query = '(objectClass=%s)' % self.object_class
-        tenant_dn = self.project_api._id_to_dn(tenant_id)
 
         try:
             roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
@@ -731,64 +680,49 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             for user_dn in user_dns:
                 if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
-                user_id = self.user_api._dn_to_id(user_dn)
-                role_id = self._dn_to_id(role_dn)
                 res.append(UserRoleAssociation(
-                    user_id=user_id,
-                    role_id=role_id,
-                    tenant_id=tenant_id))
+                    user_dn=user_dn,
+                    role_dn=role_dn,
+                    tenant_dn=tenant_dn))
 
         return res
 
-    def list_global_roles_for_user(self, user_id):
-        user_dn = self.user_api._id_to_dn(user_id)
+    def list_global_roles_for_user(self, user_dn):
         roles = self.get_all('(%s=%s)' % (self.member_attribute, user_dn))
         return [UserRoleAssociation(
-                role_id=role.id,
-                user_id=user_id) for role in roles]
+                role_dn=role.dn,
+                user_dn=user_dn) for role in roles]
 
-    def list_project_roles_for_user(self, user_id, tenant_id=None):
+    def list_project_roles_for_user(self, user_dn, project_subtree):
         conn = self.get_connection()
-        user_dn = self.user_api._id_to_dn(user_id)
         query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
                                                 self.member_attribute,
                                                 user_dn)
-        if tenant_id is not None:
-            tenant_dn = self.project_api._id_to_dn(tenant_id)
-            try:
-                roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
-            except ldap.NO_SUCH_OBJECT:
-                return []
+        try:
+            roles = conn.search_s(project_subtree,
+                                  ldap.SCOPE_SUBTREE,
+                                  query)
+        except ldap.NO_SUCH_OBJECT:
+            return []
 
-            res = []
-            for role_dn, _ in roles:
-                role_id = self._dn_to_id(role_dn)
-                res.append(UserRoleAssociation(
-                    user_id=user_id,
-                    role_id=role_id,
-                    tenant_id=tenant_id))
-        else:
-            try:
-                roles = conn.search_s(self.project_api.tree_dn,
-                                      ldap.SCOPE_SUBTREE,
-                                      query)
-            except ldap.NO_SUCH_OBJECT:
-                return []
-
-            res = []
-            for role_dn, _ in roles:
-                role_id = self._dn_to_id(role_dn)
-                tenant_id = ldap.dn.str2dn(role_dn)[1][0][1]
-                res.append(UserRoleAssociation(
-                    user_id=user_id,
-                    role_id=role_id,
-                    tenant_id=tenant_id))
+        res = []
+        for role_dn, _ in roles:
+            #ldap.dn.dn2str returns an array, where the first
+            #element is the first segment.
+            #For a role assignment, this contains the role ID,
+            #The remainder is the DN of the tenant.
+            tenant = ldap.dn.str2dn(role_dn)
+            tenant.pop(0)
+            tenant_dn = ldap.dn.dn2str(tenant)
+            res.append(UserRoleAssociation(
+                user_dn=user_dn,
+                role_dn=role_dn,
+                tenant_dn=tenant_dn))
         return res
 
-    def roles_delete_subtree_by_project(self, tenant_id):
+    def roles_delete_subtree_by_project(self, tenant_dn):
         conn = self.get_connection()
         query = '(objectClass=%s)' % self.object_class
-        tenant_dn = self.project_api._id_to_dn(tenant_id)
         try:
             roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
             for role_dn, _ in roles:
@@ -809,11 +743,10 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             pass
         return super(RoleApi, self).update(role_id, role)
 
-    def delete(self, id):
+    def delete(self, id, tenant_dn):
         conn = self.get_connection()
         query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
                                                 self.id_attr, id)
-        tenant_dn = self.project_api.tree_dn
         try:
             for role_dn, _ in conn.search_s(tenant_dn,
                                             ldap.SCOPE_SUBTREE,
@@ -823,27 +756,8 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
             pass
         super(RoleApi, self).delete(id)
 
-# TODO(spzala): this is only placeholder for group and domain role support
-# which will be added under bug 1101287
-    def roles_delete_subtree_by_type(self, id, type):
-        conn = self.get_connection()
-        query = '(objectClass=%s)' % self.object_class
-        dn = None
-        if type == 'Group':
-            dn = self.group_api._id_to_dn(id)
-        if type == 'Domain':
-            dn = self.domain_api._id_to_dn(id)
-        if dn:
-            try:
-                roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
-                                      query, ['%s' % '1.1'])
-                for role_dn, _ in roles:
-                    conn.delete_s(role_dn)
-            except ldap.NO_SUCH_OBJECT:
-                pass
 
-
-class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
+class GroupApi(common_ldap.BaseLdap):
     DEFAULT_OU = 'ou=UserGroups'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'
@@ -860,7 +774,6 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
 
     def __init__(self, conf):
         super(GroupApi, self).__init__(conf)
-        self.api = ApiShim(conf)
         self.attribute_mapping['name'] = conf.ldap.group_name_attribute
         self.attribute_mapping['description'] = conf.ldap.group_desc_attribute
         self.attribute_mapping['domain_id'] = (
@@ -883,7 +796,22 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
         if self.subtree_delete_enabled:
             super(GroupApi, self).deleteTree(id)
         else:
-            self.role_api.roles_delete_subtree_by_type(id, 'Group')
+            # TODO(spzala): this is only placeholder for group and domain
+            # role support which will be added under bug 1101287
+
+            conn = self.get_connection()
+            query = '(objectClass=%s)' % self.object_class
+            dn = None
+            dn = self._id_to_dn(id)
+            if dn:
+                try:
+                    roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
+                                          query, ['%s' % '1.1'])
+                    for role_dn, _ in roles:
+                        conn.delete_s(role_dn)
+                except ldap.NO_SUCH_OBJECT:
+                    pass
+
             super(GroupApi, self).delete(id)
 
     def update(self, id, values):
@@ -893,39 +821,39 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
             raise exception.NotImplemented(message=msg)
         return super(GroupApi, self).update(id, values, old_obj)
 
-    def add_user(self, user_id, group_id):
+    def add_user(self, user_dn, group_id, user_id):
         conn = self.get_connection()
         try:
             conn.modify_s(
                 self._id_to_dn(group_id),
                 [(ldap.MOD_ADD,
                   self.member_attribute,
-                  self.user_api._id_to_dn(user_id))])
+                  user_dn)])
         except ldap.TYPE_OR_VALUE_EXISTS:
             raise exception.Conflict(_(
                 'User %(user_id)s is already a member of group %(group_id)s') %
                 {'user_id': user_id, 'group_id': group_id})
 
-    def remove_user(self, user_id, group_id):
+    def remove_user(self, user_dn, group_id, user_id):
         conn = self.get_connection()
         try:
             conn.modify_s(
                 self._id_to_dn(group_id),
                 [(ldap.MOD_DELETE,
                   self.member_attribute,
-                  self.user_api._id_to_dn(user_id))])
+                  user_dn)])
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.UserNotFound(user_id=user_id)
 
-    def list_user_groups(self, user_id):
+    def list_user_groups(self, user_dn):
         """Return a list of groups for which the user is a member."""
-        user_dn = self.user_api._id_to_dn(user_id)
+
         query = '(%s=%s)' % (self.member_attribute, user_dn)
         memberships = self.get_all(query)
         return memberships
 
     def list_group_users(self, group_id):
-        """Return a list of users which are members of a group."""
+        """Return a list of user dns which are members of a group."""
         query = '(objectClass=%s)' % self.object_class
         conn = self.get_connection()
         group_dn = self._id_to_dn(group_id)
@@ -942,8 +870,7 @@ class GroupApi(common_ldap.BaseLdap, ApiShimMixin):
                 if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
                 try:
-                    user_id = self.user_api._dn_to_id(user_dn)
-                    users.append(self.user_api.get(user_id))
+                    users.append(user_dn)
                 except exception.UserNotFound:
                     LOG.debug(_("Group member '%(user_dn)s' not found in"
                                 " '%(group_dn)s'. The user should be removed"
