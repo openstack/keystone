@@ -95,20 +95,12 @@ class Identity(identity.Driver):
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
     # Identity interface
-    def authenticate(self, user_id=None, tenant_id=None, password=None):
-        """Authenticate based on a user, tenant and password.
 
-        Expects the user object to have a password field and the tenant to be
-        in the list of tenants on the user.
-        """
-        tenant_ref = None
-        metadata_ref = {}
-
+    def authenticate_user(self, user_id=None, password=None):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
             raise AssertionError('Invalid user / password')
-
         try:
             conn = self.user.get_connection(self.user._id_to_dn(user_id),
                                             password)
@@ -116,6 +108,12 @@ class Identity(identity.Driver):
                 raise AssertionError('Invalid user / password')
         except Exception:
             raise AssertionError('Invalid user / password')
+        return user_ref
+
+    def authorize_for_project(self, user_ref, tenant_id=None):
+        user_id = user_ref['id']
+        tenant_ref = None
+        metadata_ref = {}
 
         if tenant_id is not None:
             if tenant_id not in self.get_projects_for_user(user_id):

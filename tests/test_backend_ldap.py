@@ -624,7 +624,8 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         self.identity_man.create_user({}, user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+            {},
             user_id=user['id'],
             tenant_id=self.tenant_baz['id'],
             password=user['password'])
