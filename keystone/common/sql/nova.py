@@ -18,10 +18,11 @@
 
 import uuid
 
+from keystone import assignment
 from keystone.common import logging
 from keystone import config
 from keystone.contrib.ec2.backends import sql as ec2_sql
-from keystone.identity.backends import sql as identity_sql
+from keystone import identity
 
 
 LOG = logging.getLogger(__name__)
@@ -30,18 +31,20 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def import_auth(data):
-    identity_api = identity_sql.Identity()
-    tenant_map = _create_projects(identity_api, data['tenants'])
+    identity_api = identity.Manager()
+    assignment_api = assignment.Manager()
+
+    tenant_map = _create_projects(assignment_api, data['tenants'])
     user_map = _create_users(identity_api, data['users'])
-    _create_memberships(identity_api, data['user_tenant_list'],
+    _create_memberships(assignment_api, data['user_tenant_list'],
                         user_map, tenant_map)
-    role_map = _create_roles(identity_api, data['roles'])
-    _assign_roles(identity_api, data['role_user_tenant_list'],
+    role_map = _create_roles(assignment_api, data['roles'])
+    _assign_roles(assignment_api, data['role_user_tenant_list'],
                   role_map, user_map, tenant_map)
 
     ec2_api = ec2_sql.Ec2()
     ec2_creds = data['ec2_credentials']
-    _create_ec2_creds(ec2_api, identity_api, ec2_creds, user_map)
+    _create_ec2_creds(ec2_api, assignment_api, ec2_creds, user_map)
 
 
 def _generate_uuid():
@@ -120,10 +123,10 @@ def _assign_roles(api, assignments, role_map, user_map, tenant_map):
         api.add_role_to_user_and_project(user_id, tenant_id, role_id)
 
 
-def _create_ec2_creds(ec2_api, identity_api, ec2_creds, user_map):
+def _create_ec2_creds(ec2_api, assignment_api, ec2_creds, user_map):
     for ec2_cred in ec2_creds:
         user_id = user_map[ec2_cred['user_id']]
-        for tenant_id in identity_api.get_projects_for_user(user_id):
+        for tenant_id in assignment_api.get_projects_for_user(user_id):
             cred_dict = {
                 'access': '%s:%s' % (tenant_id, ec2_cred['access_key']),
                 'secret': ec2_cred['secret_key'],

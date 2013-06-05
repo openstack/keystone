@@ -259,6 +259,12 @@ def configure():
                  default='sqlite:///keystone.db')
     register_int('idle_timeout', group='sql', default=200)
 
+    #assignment has no default for backward compatibility reasons.
+    #If assignment is not specified, the identity driver chooses the backend
+    register_str(
+        'driver',
+        group='assignment',
+        default=None)
     register_str(
         'driver',
         group='catalog',

@@ -50,6 +50,8 @@ class Base(object):
     def __init__(self, db=None):
         if db is None:
             db = INMEMDB
+        elif isinstance(db, DictKvs):
+            db = db
         elif isinstance(db, dict):
             db = DictKvs(db)
         self.db = db

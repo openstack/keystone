@@ -4,7 +4,6 @@ import uuid
 
 from keystone.common import cms
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import logging
 from keystone.common import utils
@@ -23,7 +22,6 @@ class ExternalAuthNotApplicable(Exception):
     pass
 
 
-@dependency.requires('catalog_api', 'trust_api', 'token_api')
 class Auth(controller.V2Controller):
     def ca_cert(self, context, auth=None):
         ca_file = open(CONF.signing.ca_certs, 'r')
