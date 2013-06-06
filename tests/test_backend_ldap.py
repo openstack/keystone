@@ -65,3 +65,19 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         user_api = identity_ldap.UserApi(CONF)
         self.assertTrue(user_api)
         self.assertEquals(user_api.tree_dn, "ou=Users,%s" % CONF.ldap.suffix)
+
+    def test_authenticate_requires_simple_bind(self):
+        user = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'password': uuid.uuid4().hex,
+            'enabled': True,
+        }
+        self.identity_api.create_user(user['id'], user)
+        self.identity_api.user.LDAP_USER = None
+        self.identity_api.user.LDAP_PASSWORD = None
+
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id=user['id'],
+                          password=None)

@@ -58,18 +58,6 @@ class Identity(identity.Driver):
         self.tenant = TenantApi(CONF)
         self.role = RoleApi(CONF)
 
-    def get_connection(self, user=None, password=None):
-        if self.LDAP_URL.startswith('fake://'):
-            conn = fakeldap.FakeLdap(self.LDAP_URL)
-        else:
-            conn = common_ldap.LdapWrapper(self.LDAP_URL)
-        if user is None:
-            user = self.LDAP_USER
-        if password is None:
-            password = self.LDAP_PASSWORD
-        conn.simple_bind_s(user, password)
-        return conn
-
     # Identity interface
     def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate based on a user, tenant and password.
@@ -85,6 +73,8 @@ class Identity(identity.Driver):
         except exception.UserNotFound:
             raise AssertionError('Invalid user / password')
 
+        if not user_id or not password:
+            raise AssertionError('Invalid user / password')
         try:
             conn = self.user.get_connection(self.user._id_to_dn(user_id),
                                             password)
