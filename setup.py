@@ -26,7 +26,7 @@ project = 'keystone'
 
 setuptools.setup(
     name=project,
-    version=setup.get_version(project, '2013.1.2'),
+    version=setup.get_version(project, '2013.1.3'),
     description="Authentication service for OpenStack",
     license='Apache License (2.0)',
     author='OpenStack, LLC.',
