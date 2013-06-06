@@ -50,9 +50,9 @@ function process_option {
     -n|--no-recreate-db) recreate_db=0;;
     -f|--force) force=1;;
     -u|--update) update=1;;
-    -p|--pep8) just_pep8=1;;
-    -8|--8) short_pep8=1;;
-    -P|--no-pep8) no_pep8=1;;
+    -p|--pep8) just_flake8=1;;
+    -8|--8) short_flake8=1;;
+    -P|--no-pep8) no_flake8=1;;
     -c|--coverage) coverage=1;;
     -xintegration) nokeystoneclient=1;;
     --standard-threads)
@@ -71,9 +71,9 @@ force=0
 noseargs=
 noseopts="--with-openstack --openstack-color"
 wrapper=""
-just_pep8=0
-short_pep8=0
-no_pep8=0
+just_flake8=0
+short_flake8=0
+no_flake8=0
 coverage=0
 nokeystoneclient=0
 recreate_db=1
@@ -117,24 +117,25 @@ function run_tests {
   return $RESULT
 }
 
-function run_pep8 {
+function run_flake8 {
   FLAGS=--show-pep8
-  echo $#
   if [ $# -gt 0 ] && [ 'short' == ''$1 ]
   then
       FLAGS=''
   fi
 
 
-  echo "Running pep8 ..."
-  # Opt-out files from pep8
+  echo "Running flake8 ..."
+  # Opt-out files from flake8
   ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
   ignore_files="*.txt"
   ignore_dirs=".venv,.tox,dist,doc,openstack,vendor,*egg"
   ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
   srcfiles="."
-  # Just run PEP8 in current environment
-  ${wrapper} pep8 --repeat $FLAGS --show-source \
+  # Just run flake8 in current environment
+  echo ${wrapper} flake8 $FLAGS --show-source \
+    --exclude=${ignore} ${srcfiles} | tee pep8.txt
+  ${wrapper} flake8 $FLAGS --show-source \
     --exclude=${ignore} ${srcfiles} | tee pep8.txt
 }
 
@@ -175,13 +176,13 @@ if [ $coverage -eq 1 ]; then
     ${wrapper} coverage erase
 fi
 
-if [ $just_pep8 -eq 1 ]; then
-    run_pep8
+if [ $just_flake8 -eq 1 ]; then
+    run_flake8
     exit
 fi
 
-if [ $short_pep8 -eq 1 ]; then
-     run_pep8 short
+if [ $short_flake8 -eq 1 ]; then
+     run_flake8 short
      exit
 fi
 
@@ -192,13 +193,13 @@ fi
 
 run_tests
 
-# NOTE(sirp): we only want to run pep8 when we're running the full-test suite,
-# not when we're running tests individually. To handle this, we need to
-# distinguish between options (noseopts), which begin with a '-', and
-# arguments (noseargs).
+# NOTE(sirp): we only want to run flake8 when we're running the full-test
+# suite, not when we're running tests individually. To handle this, we need to
+# distinguish between options (noseopts), which begin with a '-', and arguments
+# (noseargs).
 if [ -z "$noseargs" ]; then
-  if [ $no_pep8 -eq 0 ]; then
-    run_pep8
+  if [ $no_flake8 -eq 0 ]; then
+    run_flake8
   fi
 fi
 
