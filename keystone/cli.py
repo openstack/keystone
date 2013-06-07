@@ -17,6 +17,7 @@
 from __future__ import absolute_import
 
 import grp
+import os
 import pwd
 
 from oslo.config import cfg
@@ -83,8 +84,9 @@ class BaseCertificateSetup(BaseApp):
     def add_argument_parser(cls, subparsers):
         parser = super(BaseCertificateSetup,
                        cls).add_argument_parser(subparsers)
-        parser.add_argument('--keystone-user')
-        parser.add_argument('--keystone-group')
+        running_as_root = (os.geteuid() == 0)
+        parser.add_argument('--keystone-user', required=running_as_root)
+        parser.add_argument('--keystone-group', required=running_as_root)
         return parser
 
     @staticmethod
