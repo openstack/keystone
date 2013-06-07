@@ -20,7 +20,6 @@ Middleware Architecture
 
 Abstract
 ========
-..  _architecture: architecture.rst
 
 The Keystone middleware architecture supports a common authentication protocol
 in use between the OpenStack projects. By using keystone as a common
@@ -33,7 +32,7 @@ authentication middleware which acts as the internal API mechanism for
 OpenStack projects based on the WSGI standard.
 
 For the architecture of keystone and its services, please see
-architecture_. This documentation primarily describes the implementation
+:doc:`architecture`. This documentation primarily describes the implementation
 in ``keystoneclient/middleware/auth_token.py``
 (:py:class:`keystoneclient.middleware.auth_token.AuthProtocol`)
 
