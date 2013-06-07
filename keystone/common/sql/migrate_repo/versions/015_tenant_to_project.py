@@ -1,19 +1,66 @@
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 
+from keystone.common.sql import migration_helpers
+
+
+def rename_with_constraints(meta, legacy_project_table_name,
+                            new_project_table_name,
+                            legacy_user_project_membership_table_name,
+                            new_user_project_membership_table_name):
+    # Not all RDBMSs support renaming a table that has foreign key constraints
+    # on it, so drop FK constraints before renaming and then replace FKs
+    # afterwards.
+
+    credential_table = sql.Table('credential', meta, autoload=True)
+    group_project_meta_table = sql.Table('group_project_metadata', meta,
+                                         autoload=True)
+    project_table = sql.Table(legacy_project_table_name, meta, autoload=True)
+    user_project_membership_table = sql.Table(
+        legacy_user_project_membership_table_name, meta, autoload=True)
+    user_table = sql.Table('user', meta, autoload=True)
+
+    constraints = [{'table': credential_table,
+                    'fk_column': 'project_id',
+                    'ref_column': project_table.c.id},
+                   {'table': group_project_meta_table,
+                    'fk_column': 'project_id',
+                    'ref_column': project_table.c.id},
+                   {'table': user_project_membership_table,
+                    'fk_column': 'tenant_id',
+                    'ref_column': project_table.c.id},
+                   {'table': user_project_membership_table,
+                    'fk_column': 'user_id',
+                    'ref_column': user_table.c.id}]
+
+    renames = {
+        new_project_table_name: project_table,
+        new_user_project_membership_table_name: user_project_membership_table}
+
+    migration_helpers.rename_tables_with_constraints(renames, constraints,
+                                                     meta.bind)
+
 
 def upgrade_with_rename(meta, migrate_engine):
-    legacy_table = sql.Table('tenant', meta, autoload=True)
-    legacy_table.rename('project')
-    legacy_table = sql.Table('user_tenant_membership', meta, autoload=True)
-    legacy_table.rename('user_project_membership')
+    legacy_project_table_name = 'tenant'
+    new_project_table_name = 'project'
+    legacy_user_project_membership_table_name = 'user_tenant_membership'
+    new_user_project_membership_table_name = 'user_project_membership'
+    rename_with_constraints(meta, legacy_project_table_name,
+                            new_project_table_name,
+                            legacy_user_project_membership_table_name,
+                            new_user_project_membership_table_name)
 
 
 def downgrade_with_rename(meta, migrate_engine):
-    upgrade_table = sql.Table('project', meta, autoload=True)
-    upgrade_table.rename('tenant')
-    upgrade_table = sql.Table('user_project_membership', meta, autoload=True)
-    upgrade_table.rename('user_tenant_membership')
+    legacy_project_table_name = 'project'
+    new_project_table_name = 'tenant'
+    legacy_user_project_membership_table_name = 'user_project_membership'
+    new_user_project_membership_table_name = 'user_tenant_membership'
+    rename_with_constraints(meta, legacy_project_table_name,
+                            new_project_table_name,
+                            legacy_user_project_membership_table_name,
+                            new_user_project_membership_table_name)
 
 
 def upgrade_with_copy(meta, migrate_engine):

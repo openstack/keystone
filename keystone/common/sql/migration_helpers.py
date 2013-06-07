@@ -56,3 +56,27 @@ def add_constraints(constraints):
             columns=[getattr(constraint_def['table'].c,
                              constraint_def['fk_column'])],
             refcolumns=[constraint_def['ref_column']]).create()
+
+
+def rename_tables_with_constraints(renames, constraints, engine):
+    """Renames tables with foreign key constraints.
+
+    Tables are renamed after first removing constraints. The constraints are
+    replaced after the rename is complete.
+
+    This works on databases that don't support renaming tables that have
+    constraints on them (DB2).
+
+    `renames` is a dict, mapping {'to_table_name': from_table, ...}
+    """
+
+    if engine.name != 'sqlite':
+        # Sqlite doesn't support constraints, so nothing to remove.
+        remove_constraints(constraints)
+
+    for to_table_name in renames:
+        from_table = renames[to_table_name]
+        from_table.rename(to_table_name)
+
+    if engine != 'sqlite':
+        add_constraints(constraints)

@@ -54,12 +54,28 @@ def upgrade(migrate_engine):
         sql.Column('name', sql.String(255), unique=True, nullable=False))
     role_table.create(migrate_engine, checkfirst=True)
 
-    tenant_table = sql.Table(
-        'tenant',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(64), unique=True, nullable=False),
-        sql.Column('extra', sql.Text()))
+    if migrate_engine.name == 'ibm_db_sa':
+        # NOTE(blk-u): SQLAlchemy for PostgreSQL picks the name tenant_name_key
+        # for the unique constraint, but for DB2 doesn't give the UC a name
+        # unless we tell it to and there is no DDL to alter a column to drop
+        # an unnamed unique constraint, so this code creates a named unique
+        # constraint on the name column rather than an unnamed one.
+        # (This is used in migration 16.)
+        tenant_table = sql.Table(
+            'tenant',
+            meta,
+            sql.Column('id', sql.String(64), primary_key=True),
+            sql.Column('name', sql.String(64), nullable=False),
+            sql.Column('extra', sql.Text()),
+            sql.UniqueConstraint('name', name='tenant_name_key'))
+    else:
+        tenant_table = sql.Table(
+            'tenant',
+            meta,
+            sql.Column('id', sql.String(64), primary_key=True),
+            sql.Column('name', sql.String(64), unique=True, nullable=False),
+            sql.Column('extra', sql.Text()))
+
     tenant_table.create(migrate_engine, checkfirst=True)
 
     metadata_table = sql.Table(
@@ -79,12 +95,28 @@ def upgrade(migrate_engine):
         sql.Column('tenant_id', sql.String(64)))
     ec2_credential_table.create(migrate_engine, checkfirst=True)
 
-    user_table = sql.Table(
-        'user',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(64), unique=True, nullable=False),
-        sql.Column('extra', sql.Text()))
+    if migrate_engine.name == 'ibm_db_sa':
+        # NOTE(blk-u): SQLAlchemy for PostgreSQL picks the name user_name_key
+        # for the unique constraint, but for DB2 doesn't give the UC a name
+        # unless we tell it to and there is no DDL to alter a column to drop
+        # an unnamed unique constraint, so this code creates a named unique
+        # constraint on the name column rather than an unnamed one.
+        # (This is used in migration 16.)
+        user_table = sql.Table(
+            'user',
+            meta,
+            sql.Column('id', sql.String(64), primary_key=True),
+            sql.Column('name', sql.String(64), nullable=False),
+            sql.Column('extra', sql.Text()),
+            sql.UniqueConstraint('name', name='user_name_key'))
+    else:
+        user_table = sql.Table(
+            'user',
+            meta,
+            sql.Column('id', sql.String(64), primary_key=True),
+            sql.Column('name', sql.String(64), unique=True, nullable=False),
+            sql.Column('extra', sql.Text()))
+
     user_table.create(migrate_engine, checkfirst=True)
 
     user_tenant_membership_table = sql.Table(

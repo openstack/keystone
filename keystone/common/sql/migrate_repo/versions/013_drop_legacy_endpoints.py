@@ -16,6 +16,8 @@
 
 import sqlalchemy as sql
 
+from keystone.common.sql import migration_helpers
+
 
 def upgrade(migrate_engine):
     """Replace API-version specific endpoint tables with one based on v3."""
@@ -26,7 +28,14 @@ def upgrade(migrate_engine):
     legacy_table.drop()
 
     new_table = sql.Table('endpoint_v3', meta, autoload=True)
-    new_table.rename('endpoint')
+
+    renames = {'endpoint': new_table}
+    service_table = sql.Table('service', meta, autoload=True)
+    constraints = [{'table': new_table,
+                    'fk_column': 'service_id',
+                    'ref_column': service_table.c.id}]
+    migration_helpers.rename_tables_with_constraints(renames, constraints,
+                                                     migrate_engine)
 
 
 def downgrade(migrate_engine):
@@ -35,7 +44,14 @@ def downgrade(migrate_engine):
     meta.bind = migrate_engine
 
     new_table = sql.Table('endpoint', meta, autoload=True)
-    new_table.rename('endpoint_v3')
+
+    renames = {'endpoint_v3': new_table}
+    service_table = sql.Table('service', meta, autoload=True)
+    constraints = [{'table': new_table,
+                    'fk_column': 'service_id',
+                    'ref_column': service_table.c.id}]
+    migration_helpers.rename_tables_with_constraints(renames, constraints,
+                                                     migrate_engine)
 
     sql.Table('service', meta, autoload=True)
     legacy_table = sql.Table(

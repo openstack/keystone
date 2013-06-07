@@ -597,17 +597,19 @@ class SqlUpgradeTests(test.TestCase):
         user_project_metadata_table = sqlalchemy.Table(
             'user_project_metadata', self.metadata, autoload=True)
 
-        r = session.execute('select data from metadata where '
-                            'user_id=:user and tenant_id=:tenant',
-                            {'user': user['id'], 'tenant': project['id']})
+        s = sqlalchemy.select([metadata_table.c.data]).where(
+            (metadata_table.c.user_id == user['id']) &
+            (metadata_table.c.tenant_id == project['id']))
+        r = session.execute(s)
         test_project1 = json.loads(r.fetchone()['data'])
         self.assertEqual(len(test_project1['roles']), 1)
         self.assertIn(role['id'], test_project1['roles'])
 
         # Test user in project2 has role2
-        r = session.execute('select data from metadata where '
-                            'user_id=:user and tenant_id=:tenant',
-                            {'user': user['id'], 'tenant': project2['id']})
+        s = sqlalchemy.select([metadata_table.c.data]).where(
+            (metadata_table.c.user_id == user['id']) &
+            (metadata_table.c.tenant_id == project2['id']))
+        r = session.execute(s)
         test_project2 = json.loads(r.fetchone()['data'])
         self.assertEqual(len(test_project2['roles']), 1)
         self.assertIn(role2['id'], test_project2['roles'])
@@ -615,9 +617,10 @@ class SqlUpgradeTests(test.TestCase):
         # Test for user in project has role in user_project_metadata
         # Migration 17 does not properly migrate this data, so this should
         # be None.
-        r = session.execute('select data from user_project_metadata where '
-                            'user_id=:user and project_id=:project',
-                            {'user': user['id'], 'project': project['id']})
+        s = sqlalchemy.select([user_project_metadata_table.c.data]).where(
+            (user_project_metadata_table.c.user_id == user['id']) &
+            (user_project_metadata_table.c.project_id == project['id']))
+        r = session.execute(s)
         self.assertIsNone(r.fetchone())
 
         # Create a conflicting user-project in user_project_metadata with
@@ -638,9 +641,10 @@ class SqlUpgradeTests(test.TestCase):
         # The user-project pairs should have all roles from the previous
         # metadata table in addition to any roles currently in
         # user_project_metadata
-        r = session.execute('select data from user_project_metadata where '
-                            'user_id=:user and project_id=:project',
-                            {'user': user['id'], 'project': project['id']})
+        s = sqlalchemy.select([user_project_metadata_table.c.data]).where(
+            (user_project_metadata_table.c.user_id == user['id']) &
+            (user_project_metadata_table.c.project_id == project['id']))
+        r = session.execute(s)
         role_ids = json.loads(r.fetchone()['data'])['roles']
         self.assertEqual(len(role_ids), 3)
         self.assertIn(CONF.member_role_id, role_ids)
@@ -649,9 +653,10 @@ class SqlUpgradeTests(test.TestCase):
 
         # pairs that only existed in old metadata table should be in
         # user_project_metadata
-        r = session.execute('select data from user_project_metadata where '
-                            'user_id=:user and project_id=:project',
-                            {'user': user['id'], 'project': project2['id']})
+        s = sqlalchemy.select([user_project_metadata_table.c.data]).where(
+            (user_project_metadata_table.c.user_id == user['id']) &
+            (user_project_metadata_table.c.project_id == project2['id']))
+        r = session.execute(s)
         role_ids = json.loads(r.fetchone()['data'])['roles']
         self.assertEqual(len(role_ids), 2)
         self.assertIn(CONF.member_role_id, role_ids)
