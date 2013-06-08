@@ -36,7 +36,7 @@ packages, instead using the source for the code and the Python Package Index
 
 .. _PyPi: http://pypi.python.org/pypi
 
-Its expected that your system already has python_, pip_, and git_ available.
+It's expected that your system already has python_, pip_, and git_ available.
 
 .. _python: http://www.python.org
 .. _pip: http://www.pip-installer.org/en/latest/installing.html
