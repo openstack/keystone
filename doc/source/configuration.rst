@@ -168,7 +168,7 @@ The values that specify where to read the certificates are under the
 * ``keyfile`` - Location of private key used to sign tokens.  Default is ``/etc/keystone/ssl/private/signing_key.pem``
 * ``ca_certs`` - Location of certificate for the authority that issued the above certificate. Default is ``/etc/keystone/ssl/certs/ca.pem``
 * ``ca_key`` - Default is ``/etc/keystone/ssl/certs/cakey.pem``
-* ``key_size`` - Default is ``1024``
+* ``key_size`` - Default is ``2048``
 * ``valid_days`` - Default is ``3650``
 * ``ca_password``  - Password required to read the ca_file. Default is None
 
@@ -202,9 +202,9 @@ generate a PKCS #10 Certificate Request Syntax (CRS) using OpenSSL CLI.
 First create a certificate request configuration file (e.g. ``cert_req.conf``)::
 
     [ req ]
-    default_bits            = 1024
+    default_bits            = 2048
     default_keyfile         = keystonekey.pem
-    default_md              = sha1
+    default_md              = default
 
     prompt                  = no
     distinguished_name      = distinguished_name
@@ -223,7 +223,7 @@ key. Must use the -nodes option.**
 
 For example::
 
-    openssl req -newkey rsa:1024 -keyout signing_key.pem -keyform PEM -out signing_cert_req.pem -outform PEM -config cert_req.conf -nodes
+    openssl req -newkey rsa:2048 -keyout signing_key.pem -keyform PEM -out signing_cert_req.pem -outform PEM -config cert_req.conf -nodes
 
 
 If everything is successfully, you should end up with ``signing_cert_req.pem``
