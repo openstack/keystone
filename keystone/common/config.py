@@ -273,7 +273,7 @@ def configure():
         group='policy',
         default='keystone.policy.backends.sql.Policy')
     register_str(
-        'driver', group='token', default='keystone.token.backends.kvs.Token')
+        'driver', group='token', default='keystone.token.backends.sql.Token')
     register_str(
         'driver', group='trust', default='keystone.trust.backends.sql.Trust')
     register_str(

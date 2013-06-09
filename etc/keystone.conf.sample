@@ -119,7 +119,7 @@
 # template_file = default_catalog.templates
 
 [token]
-# driver = keystone.token.backends.kvs.Token
+# driver = keystone.token.backends.sql.Token
 
 # Amount of time a token should remain valid (in seconds)
 # expiration = 86400
