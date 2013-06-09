@@ -121,9 +121,9 @@ class StatsMiddleware(wsgi.Middleware):
         return super(StatsMiddleware, self).__init__(*args, **kwargs)
 
     def _resolve_api(self, host):
-        if str(CONF.admin_port) in host:
+        if host.endswith(':%s' % (CONF.admin_port)):
             return 'admin'
-        elif str(CONF.public_port) in host:
+        elif host.endswith(':%s' % (CONF.public_port)):
             return 'public'
         else:
             # NOTE(dolph): I don't think this is actually reachable, but hey
