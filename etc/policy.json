@@ -28,7 +28,7 @@
     "identity:get_project": [["rule:admin_required"]],
     "identity:list_projects": [["rule:admin_required"]],
     "identity:list_user_projects": [["rule:admin_or_owner"]],
-    "identity:create_project": [["rule:admin_or_owner"]],
+    "identity:create_project": [["rule:admin_required"]],
     "identity:update_project": [["rule:admin_required"]],
     "identity:delete_project": [["rule:admin_required"]],
 
