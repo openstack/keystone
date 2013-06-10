@@ -3,6 +3,7 @@
 vendor
 .ksl-venv
 .venv
+.update-venv/
 .tox
 keystone.egg-info/
 *.log
