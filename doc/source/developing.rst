@@ -33,11 +33,8 @@ To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workfl
 
 Setup
 -----
-.. _setup: setup.rst
-.. _configuration: configuration.rst
-.. _keystonemanage: man/keystone-manage.rst
 
-Get your development environment set up according to setup_. The
+Get your development environment set up according to :doc:`setup`. The
 instructions from here will assume that you have installed keystone into a
 virtualenv. If you chose not to, simply exclude "tools/with_venv.sh" from the
 example commands below.
@@ -63,7 +60,7 @@ To run the keystone Admin and API server instances, use::
     $ tools/with_venv.sh bin/keystone-all
 
 this runs keystone with the configuration the etc/ directory of the project.
-See configuration_ for details on how Keystone is configured. By default,
+See :doc:`configuration` for details on how Keystone is configured. By default,
 keystone is configured with KVS backends, so any data entered into keystone run
 in this fashion will not persist across restarts.
 
@@ -72,7 +69,7 @@ Interacting with Keystone
 -------------------------
 
 You can interact with Keystone through the command line using
-keystonemanage_ which allows you to initialize keystone, etc.
+:doc:`man/keystonemanage` which allows you to initialize keystone, etc.
 
 You can also interact with Keystone through its REST API. There is a python
 keystone client library `python-keystoneclient`_ which interacts exclusively
