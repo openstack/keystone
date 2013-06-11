@@ -102,7 +102,7 @@ Deployment Strategy
 ===================
 
 The middleware is intended to be used inline with OpenStack wsgi components,
-based on the openstack-common WSGI middleware class. It is typically deployed
+based on the oslo WSGI middleware class. It is typically deployed
 as a configuration element in a paste configuration pipeline of other
 middleware components, with the pipeline terminating in the service
 application. The middleware conforms to the python WSGI standard [PEP-333]_.
