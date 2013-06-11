@@ -347,6 +347,8 @@ def upgrade_user_table_with_col_create(meta, migrate_engine, session):
     session.execute('ALTER TABLE "user" ADD CONSTRAINT user_dom_name_unique '
                     'UNIQUE (domain_id, name);')
 
+    session.commit()
+
 
 def upgrade_project_table_with_col_create(meta, migrate_engine, session):
     # Create the domain_id column.  We want this to be not nullable
