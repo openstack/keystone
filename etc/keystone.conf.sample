@@ -135,6 +135,7 @@
 #certfile = /etc/keystone/ssl/certs/keystone.pem
 #keyfile = /etc/keystone/ssl/private/keystonekey.pem
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
+#ca_key = /etc/keystone/ssl/certs/cakey.pem
 #key_size = 1024
 #valid_days = 3650
 #ca_password = None
@@ -146,6 +147,7 @@
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
+#ca_key = /etc/keystone/ssl/certs/cakey.pem
 #key_size = 2048
 #valid_days = 3650
 #ca_password = None
