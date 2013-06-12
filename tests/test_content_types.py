@@ -1051,7 +1051,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
                 {"tenant":{
                     "name":"test1",
                     "description":"",
-                    "enabled":"true"}
+                    "enabled":true}
                 }
             """,
             convert=False)
