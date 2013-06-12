@@ -2,7 +2,7 @@
 d2to1>=0.2.10,<0.3
 pbr>=0.5,<0.6
 pam>=0.1.4
-WebOb==1.2.3
+WebOb>=1.0.8
 eventlet
 greenlet
 PasteDeploy
