@@ -69,7 +69,7 @@ Interacting with Keystone
 -------------------------
 
 You can interact with Keystone through the command line using
-:doc:`man/keystonemanage` which allows you to initialize keystone, etc.
+:doc:`man/keystone-manage` which allows you to initialize keystone, etc.
 
 You can also interact with Keystone through its REST API. There is a python
 keystone client library `python-keystoneclient`_ which interacts exclusively
