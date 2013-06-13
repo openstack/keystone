@@ -1002,23 +1002,23 @@ As an alternative to the SQL Database backing store, Keystone can use a
 directory server to provide the Identity service.  An example Schema
 for openstack would look like this::
 
-  dn: cn=openstack,cn=org
+  dn: dc=openstack,dc=org
   dc: openstack
   objectClass: dcObject
   objectClass: organizationalUnit
   ou: openstack
 
-  dn: ou=Groups,cn=openstack,cn=org
+  dn: ou=Groups,dc=openstack,dc=org
   objectClass: top
   objectClass: organizationalUnit
   ou: groups
 
-  dn: ou=Users,cn=openstack,cn=org
+  dn: ou=Users,dc=openstack,dc=org
   objectClass: top
   objectClass: organizationalUnit
   ou: users
 
-  dn: ou=Roles,cn=openstack,cn=org
+  dn: ou=Roles,dc=openstack,dc=org
   objectClass: top
   objectClass: organizationalUnit
   ou: roles
@@ -1033,13 +1033,13 @@ The corresponding entries in the Keystone configuration file are::
   use_dumb_member = False
   allow_subtree_delete = False
 
-  user_tree_dn = ou=Users,dc=openstack,dc=com
+  user_tree_dn = ou=Users,dc=openstack,dc=org
   user_objectclass = inetOrgPerson
 
-  tenant_tree_dn = ou=Groups,dc=openstack,dc=com
+  tenant_tree_dn = ou=Groups,dc=openstack,dc=org
   tenant_objectclass = groupOfNames
 
-  role_tree_dn = ou=Roles,dc=example,dc=com
+  role_tree_dn = ou=Roles,dc=openstack,dc=org
   role_objectclass = organizationalRole
 
 The default object classes and attributes are intentionally simplistic.  They
