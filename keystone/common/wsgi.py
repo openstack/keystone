@@ -173,6 +173,8 @@ class Application(BaseApplication):
             del context['REMOTE_USER']
         params.update(arg_dict)
 
+        context.setdefault('is_admin', False)
+
         # TODO(termie): do some basic normalization on methods
         method = getattr(self, action)
 
