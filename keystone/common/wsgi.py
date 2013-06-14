@@ -161,9 +161,10 @@ class Application(BaseApplication):
         del arg_dict['controller']
         LOG.debug(_('arg_dict: %s'), arg_dict)
 
-        # allow middleware up the stack to provide context & params
+        # allow middleware up the stack to provide context, params and headers.
         context = req.environ.get(CONTEXT_ENV, {})
         context['query_string'] = dict(req.params.iteritems())
+        context['headers'] = dict(req.headers.iteritems())
         context['path'] = req.environ['PATH_INFO']
         params = req.environ.get(PARAMS_ENV, {})
         if 'REMOTE_USER' in req.environ:
