@@ -1553,7 +1553,19 @@ class IdentityTests(object):
                           'fake1',
                           user)
 
-    def test_create_user_invalid_enabled_type(self):
+    def test_create_project_invalid_enabled_type_string(self):
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
+                   'domain_id': DEFAULT_DOMAIN_ID,
+                   # invalid string value
+                   'enabled': "true"}
+        self.assertRaises(exception.ValidationError,
+                          self.identity_man.create_project,
+                          EMPTY_CONTEXT,
+                          project['id'],
+                          project)
+
+    def test_create_user_invalid_enabled_type_string(self):
         user = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
@@ -1561,7 +1573,8 @@ class IdentityTests(object):
                 # invalid string value
                 'enabled': "true"}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           user['id'],
                           user)
 

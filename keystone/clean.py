@@ -59,6 +59,10 @@ def project_name(name):
     return check_name('Project', name)
 
 
+def project_enabled(enabled):
+    return check_enabled('Project', enabled)
+
+
 def user_name(name):
     return check_name('User', name)
 

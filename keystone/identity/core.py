@@ -16,6 +16,7 @@
 
 """Main entry point into the Identity service."""
 
+from keystone import clean
 from keystone.common import dependency
 from keystone.common import logging
 from keystone.common import manager
@@ -74,8 +75,8 @@ class Manager(manager.Manager):
 
     def create_user(self, context, user_id, user_ref):
         user = user_ref.copy()
-        if 'enabled' not in user:
-            user['enabled'] = True
+        user.setdefault('enabled', True)
+        user['enabled'] = clean.user_enabled(user['enabled'])
         return self.driver.create_user(user_id, user)
 
     def create_group(self, context, group_id, group_ref):
@@ -86,8 +87,8 @@ class Manager(manager.Manager):
 
     def create_project(self, context, tenant_id, tenant_ref):
         tenant = tenant_ref.copy()
-        if 'enabled' not in tenant:
-            tenant['enabled'] = True
+        tenant.setdefault('enabled', True)
+        tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         if 'description' not in tenant:
             tenant['description'] = ''
         return self.driver.create_project(tenant_id, tenant)
