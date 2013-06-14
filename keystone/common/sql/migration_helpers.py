@@ -52,6 +52,19 @@ def remove_constraints(constraints):
 
 def add_constraints(constraints):
     for constraint_def in constraints:
+
+        if constraint_def['table'].kwargs.get('mysql_engine') == 'MyISAM':
+            # Don't try to create constraint when using MyISAM because it's
+            # not supported.
+            continue
+
+        ref_col = constraint_def['ref_column']
+        ref_engine = ref_col.table.kwargs.get('mysql_engine')
+        if ref_engine == 'MyISAM':
+            # Don't try to create constraint when using MyISAM because it's
+            # not supported.
+            continue
+
         migrate.ForeignKeyConstraint(
             columns=[getattr(constraint_def['table'].c,
                              constraint_def['fk_column'])],
