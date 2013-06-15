@@ -632,7 +632,7 @@ class RoleApi(common_ldap.BaseLdap, ApiShimMixin):
     DEFAULT_ATTRIBUTE_IGNORE = []
     NotFound = exception.RoleNotFound
     options_name = 'role'
-    attribute_mapping = {'name': 'cn',
+    attribute_mapping = {'name': 'ou',
                          #'serviceId': 'service_id',
                          }
     model = models.Role
