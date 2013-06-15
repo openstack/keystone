@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-05-30 17:05+0000\n"
+"POT-Creation-Date: 2013-06-14 17:05+0000\n"
 "PO-Revision-Date: 2013-05-21 06:08+0000\n"
 "Last-Translator: daisy.ycguo <daisy.ycguo@gmail.com>\n"
 "Language-Team: Chinese (China) "
@@ -120,11 +120,6 @@ msgstr "端点 %s 的格式不正确 - 格式不完整（您遗漏了类型通�
 msgid "Unable to open template file %s"
 msgstr "无法打开模板文件 %s"
 
-#: keystone/common/bufferedhttp.py:101
-#, python-format
-msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
-msgstr "HTTP 性能：%(time).5f 秒，至 %(method)s %(host)s:%(port)s %(path)s)"
-
 #: keystone/common/cms.py:42
 #, python-format
 msgid "Verify error: %s"
@@ -184,7 +179,7 @@ msgstr "RBAC：已授予权限"
 msgid "RBAC: Adding query filter params (%s)"
 msgstr "RBAC：正在添加查询过滤器参数 (%s)"
 
-#: keystone/common/controller.py:331
+#: keystone/common/controller.py:322
 msgid "Invalid token in normalize_domain_id"
 msgstr "normalize_domain_id 中的令牌无效"
 
@@ -200,21 +195,21 @@ msgstr ""
 msgid "arg_dict: %s"
 msgstr "arg_dict：%s"
 
-#: keystone/common/wsgi.py:185
+#: keystone/common/wsgi.py:186
 #, fuzzy, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr "授权失败。%s 来自 %s"
 
-#: keystone/common/wsgi.py:428
+#: keystone/common/wsgi.py:429
 msgid "The resource could not be found."
 msgstr "找不到该资源。"
 
-#: keystone/common/wsgi_server.py:59
+#: keystone/common/wsgi_server.py:72
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr "正在 %(host)s:%(port)s 上启动 %(arg0)s"
 
-#: keystone/common/wsgi_server.py:119
+#: keystone/common/wsgi_server.py:132
 msgid "Server error"
 msgstr "服务器错误"
 
@@ -247,13 +242,13 @@ msgid ""
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:603
-#: keystone/identity/backends/kvs.py:631
+#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:596
+#: keystone/identity/backends/kvs.py:624
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "名称 %s 重复。"
 
-#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:596
+#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:589
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "标识 %s 重复。"
@@ -490,35 +485,35 @@ msgstr "请将角色 %s 分配给用户 %s（在租户 %s 上）"
 msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
 msgstr "正在为用户 %s 和租户 %s 创建 ec2 凭证"
 
-#: keystone/identity/backends/kvs.py:257 keystone/identity/backends/kvs.py:266
+#: keystone/identity/backends/kvs.py:250 keystone/identity/backends/kvs.py:259
 msgid "User not found in group"
 msgstr "在组中找不到用户"
 
-#: keystone/identity/backends/sql.py:424
+#: keystone/identity/backends/sql.py:425
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "无法除去尚未授予的角色 %s"
 
-#: keystone/identity/backends/ldap/core.py:95
+#: keystone/identity/backends/ldap/core.py:82
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:690
+#: keystone/identity/backends/ldap/core.py:677
 #, python-format
 msgid "Role %s not found"
 msgstr "找不到角色 %s"
 
-#: keystone/identity/backends/ldap/core.py:907
+#: keystone/identity/backends/ldap/core.py:894
 msgid "Changing Name not supported by LDAP"
 msgstr "更改名称不受 LDAP 支持"
 
-#: keystone/identity/backends/ldap/core.py:920
+#: keystone/identity/backends/ldap/core.py:907
 #, fuzzy, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "用户 %s 已是组 %s 的成员"
 
-#: keystone/identity/backends/ldap/core.py:963
+#: keystone/identity/backends/ldap/core.py:950
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_dn)s'. The user should "
@@ -557,23 +552,31 @@ msgstr "非缺省域不受支持"
 msgid "Domain scoped token is not supported"
 msgstr "作用域限定到域的令牌不受支持"
 
-#: keystone/token/backends/memcache.py:83
-msgid "Unable to add token user list."
-msgstr "无法添加令牌用户列表。"
+#: keystone/token/backends/memcache.py:144
+#, python-format
+msgid ""
+"Successful set of token-index-list for user-key \"%(user_key)s\", "
+"#%(count)d records"
+msgstr ""
 
-#: keystone/token/backends/memcache.py:93
+#: keystone/token/backends/memcache.py:154
+#, python-format
+msgid ""
+"Failed to set token-index-list for user-key \"%(user_key)s\". Attempt "
+"%(cas_retry)d of %(cas_retry_max)d"
+msgstr ""
+
+#: keystone/token/backends/memcache.py:163
+msgid "Unable to add token user list"
+msgstr ""
+
+#: keystone/token/backends/memcache.py:172
 msgid "Unable to add token to revocation list."
 msgstr "无法将令牌添加至撤销列表。"
 
-#~ msgid "RBAC: Authorizing %s(%s)"
-#~ msgstr "RBAC：正在授权 %s(%s)"
+#~ msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
+#~ msgstr "HTTP 性能：%(time).5f 秒，至 %(method)s %(host)s:%(port)s %(path)s)"
 
-#~ msgid "Invalid LDAP tls certs option: %s. Choose one of: "
-#~ msgstr ""
-
-#~ msgid "Invalid LDAP TLS_AVAIL option: %s. TLSnot available"
-#~ msgstr ""
-
-#~ msgid "enforce %s: %s"
-#~ msgstr "请强制执行 %s：%s"
+#~ msgid "Unable to add token user list."
+#~ msgstr "无法添加令牌用户列表。"
 

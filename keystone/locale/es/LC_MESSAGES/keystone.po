@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-05-30 17:05+0000\n"
+"POT-Creation-Date: 2013-06-14 17:05+0000\n"
 "PO-Revision-Date: 2013-05-21 09:13+0000\n"
 "Last-Translator: daisy.ycguo <daisy.ycguo@gmail.com>\n"
 "Language-Team: Spanish "
@@ -128,11 +128,6 @@ msgstr ""
 msgid "Unable to open template file %s"
 msgstr "No se puede abrir el archivo de plantilla %s"
 
-#: keystone/common/bufferedhttp.py:101
-#, python-format
-msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
-msgstr "PERF HTTP: %(time).5f segundos en %(method)s %(host)s:%(port)s %(path)s)"
-
 #: keystone/common/cms.py:42
 #, python-format
 msgid "Verify error: %s"
@@ -196,7 +191,7 @@ msgstr "RBAC: Autorización otorgada"
 msgid "RBAC: Adding query filter params (%s)"
 msgstr "RBAC: añadiendo parámetros de filtro de consultas (%s)"
 
-#: keystone/common/controller.py:331
+#: keystone/common/controller.py:322
 msgid "Invalid token in normalize_domain_id"
 msgstr "Señal no válida en normalize_domain_id"
 
@@ -212,21 +207,21 @@ msgstr ""
 msgid "arg_dict: %s"
 msgstr "arg_dict: %s"
 
-#: keystone/common/wsgi.py:185
+#: keystone/common/wsgi.py:186
 #, fuzzy, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr "Ha fallado la autorización. %s de %s"
 
-#: keystone/common/wsgi.py:428
+#: keystone/common/wsgi.py:429
 msgid "The resource could not be found."
 msgstr "El recurso no se ha podido encontrar."
 
-#: keystone/common/wsgi_server.py:59
+#: keystone/common/wsgi_server.py:72
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr "Iniciando %(arg0)s en %(host)s:%(port)s"
 
-#: keystone/common/wsgi_server.py:119
+#: keystone/common/wsgi_server.py:132
 msgid "Server error"
 msgstr "Error de servidor"
 
@@ -259,13 +254,13 @@ msgid ""
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:603
-#: keystone/identity/backends/kvs.py:631
+#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:596
+#: keystone/identity/backends/kvs.py:624
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Nombre duplicado, %s."
 
-#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:596
+#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:589
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "ID duplicado, %s."
@@ -515,35 +510,35 @@ msgstr "Asignar el rol %s al usuario %s en el arrendatario %s"
 msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
 msgstr "Creando credencial ec2 para el usuario %s y el arrendatario %s"
 
-#: keystone/identity/backends/kvs.py:257 keystone/identity/backends/kvs.py:266
+#: keystone/identity/backends/kvs.py:250 keystone/identity/backends/kvs.py:259
 msgid "User not found in group"
 msgstr "Usuario no encontrado en grupo"
 
-#: keystone/identity/backends/sql.py:424
+#: keystone/identity/backends/sql.py:425
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "No se puede eliminar un rol que no se ha otorgado, %s"
 
-#: keystone/identity/backends/ldap/core.py:95
+#: keystone/identity/backends/ldap/core.py:82
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:690
+#: keystone/identity/backends/ldap/core.py:677
 #, python-format
 msgid "Role %s not found"
 msgstr "No se ha encontrado el rol %s"
 
-#: keystone/identity/backends/ldap/core.py:907
+#: keystone/identity/backends/ldap/core.py:894
 msgid "Changing Name not supported by LDAP"
 msgstr "LDAP no soporta el cambio de nombre"
 
-#: keystone/identity/backends/ldap/core.py:920
+#: keystone/identity/backends/ldap/core.py:907
 #, fuzzy, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "El usuario %s ya es miembro del grupo %s"
 
-#: keystone/identity/backends/ldap/core.py:963
+#: keystone/identity/backends/ldap/core.py:950
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_dn)s'. The user should "
@@ -582,23 +577,33 @@ msgstr "El dominio no predeterminado no está soportado"
 msgid "Domain scoped token is not supported"
 msgstr "La señal con ámbito de dominio no está soportada"
 
-#: keystone/token/backends/memcache.py:83
-msgid "Unable to add token user list."
-msgstr "No se puede añadir lista de usuarios de señal."
+#: keystone/token/backends/memcache.py:144
+#, python-format
+msgid ""
+"Successful set of token-index-list for user-key \"%(user_key)s\", "
+"#%(count)d records"
+msgstr ""
 
-#: keystone/token/backends/memcache.py:93
+#: keystone/token/backends/memcache.py:154
+#, python-format
+msgid ""
+"Failed to set token-index-list for user-key \"%(user_key)s\". Attempt "
+"%(cas_retry)d of %(cas_retry_max)d"
+msgstr ""
+
+#: keystone/token/backends/memcache.py:163
+msgid "Unable to add token user list"
+msgstr ""
+
+#: keystone/token/backends/memcache.py:172
 msgid "Unable to add token to revocation list."
 msgstr "No se puede añadir señal a lista de revocación. "
 
-#~ msgid "RBAC: Authorizing %s(%s)"
-#~ msgstr "RBAC: Autorizando %s(%s)"
-
-#~ msgid "Invalid LDAP tls certs option: %s. Choose one of: "
+#~ msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
 #~ msgstr ""
+#~ "PERF HTTP: %(time).5f segundos en "
+#~ "%(method)s %(host)s:%(port)s %(path)s)"
 
-#~ msgid "Invalid LDAP TLS_AVAIL option: %s. TLSnot available"
-#~ msgstr ""
-
-#~ msgid "enforce %s: %s"
-#~ msgstr "imponer %s: %s"
+#~ msgid "Unable to add token user list."
+#~ msgstr "No se puede añadir lista de usuarios de señal."
 
