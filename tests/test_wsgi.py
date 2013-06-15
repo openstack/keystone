@@ -21,13 +21,55 @@ from keystone.openstack.common import jsonutils
 from keystone import test
 
 
-class ApplicationTest(test.TestCase):
+class FakeApp(wsgi.Application):
+    def index(self, context):
+        return {'a': 'b'}
+
+
+class BaseWSGITest(test.TestCase):
+    def setUp(self):
+        self.app = FakeApp()
+        super(BaseWSGITest, self).setUp()
+
     def _make_request(self, url='/'):
         req = webob.Request.blank(url)
         args = {'action': 'index', 'controller': None}
         req.environ['wsgiorg.routing_args'] = [None, args]
         return req
 
+    def test_mask_password(self):
+        message = ("test = 'password': 'aaaaaa', 'param1': 'value1', "
+                   "\"new_password\": 'bbbbbb'")
+        self.assertEqual(wsgi.mask_password(message, True),
+                         u"test = 'password': '***', 'param1': 'value1', "
+                         "\"new_password\": '***'")
+
+        message = "test = 'password'  :   'aaaaaa'"
+        self.assertEqual(wsgi.mask_password(message, False, '111'),
+                         "test = 'password'  :   '111'")
+
+        message = u"test = u'password' : u'aaaaaa'"
+        self.assertEqual(wsgi.mask_password(message, True),
+                         u"test = u'password' : u'***'")
+
+        message = 'test = "password" : "aaaaaaaaa"'
+        self.assertEqual(wsgi.mask_password(message),
+                         'test = "password" : "***"')
+
+        message = 'test = "original_password" : "aaaaaaaaa"'
+        self.assertEqual(wsgi.mask_password(message),
+                         'test = "original_password" : "***"')
+
+        message = 'test = "original_password" : ""'
+        self.assertEqual(wsgi.mask_password(message),
+                         'test = "original_password" : "***"')
+
+        message = 'test = "param1" : "value"'
+        self.assertEqual(wsgi.mask_password(message),
+                         'test = "param1" : "value"')
+
+
+class ApplicationTest(BaseWSGITest):
     def test_response_content_type(self):
         class FakeApp(wsgi.Application):
             def index(self, context):
