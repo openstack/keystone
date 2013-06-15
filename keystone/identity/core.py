@@ -93,6 +93,12 @@ class Manager(manager.Manager):
             tenant['description'] = ''
         return self.driver.create_project(tenant_id, tenant)
 
+    def update_project(self, context, tenant_id, tenant_ref):
+        tenant = tenant_ref.copy()
+        if 'enabled' in tenant:
+            tenant['enabled'] = clean.project_enabled(tenant['enabled'])
+        return self.driver.update_project(tenant_id, tenant)
+
 
 class Driver(object):
     """Interface description for an Identity driver."""

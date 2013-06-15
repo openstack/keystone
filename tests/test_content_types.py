@@ -1059,3 +1059,42 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         self.assertIsNotNone(r.result.get('tenant'))
         self.assertValidTenant(r.result['tenant'])
         self.assertEqual(r.result['tenant'].get('description'), "")
+
+    def test_create_project_invalid_enabled_type_string(self):
+        # Forbidden usage of string for 'enabled' field in JSON and XML
+        token = self.get_scoped_token()
+
+        r = self.admin_request(
+            method='POST',
+            path='/v2.0/tenants',
+            body={
+                'tenant': {
+                    'name': uuid.uuid4().hex,
+                    # In XML, only "true|false" are converted to boolean.
+                    'enabled': "False",
+                },
+            },
+            token=token,
+            expected_status=400)
+        self.assertValidErrorResponse(r)
+
+    def test_update_project_invalid_enabled_type_string(self):
+        # Forbidden usage of string for 'enabled' field in JSON and XML
+        token = self.get_scoped_token()
+
+        path = '/v2.0/tenants/%(tenant_id)s' % {
+               'tenant_id': self.tenant_bar['id'],
+        }
+
+        r = self.admin_request(
+            method='PUT',
+            path=path,
+            body={
+                'tenant': {
+                    # In XML, only "true|false" are converted to boolean.
+                    'enabled': "False",
+                },
+            },
+            token=token,
+            expected_status=400)
+        self.assertValidErrorResponse(r)

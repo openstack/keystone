@@ -1553,6 +1553,25 @@ class IdentityTests(object):
                           'fake1',
                           user)
 
+    def test_update_project_invalid_enabled_type_string(self):
+            project = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex,
+                       'enabled': True,
+                       'domain_id': DEFAULT_DOMAIN_ID}
+            self.identity_man.create_project(EMPTY_CONTEXT,
+                                             project['id'],
+                                             project)
+            project_ref = self.identity_api.get_project(project['id'])
+            self.assertEqual(project_ref['enabled'], True)
+
+            # Strings are not valid boolean values
+            project['enabled'] = "false"
+            self.assertRaises(exception.ValidationError,
+                              self.identity_man.update_project,
+                              EMPTY_CONTEXT,
+                              project['id'],
+                              project)
+
     def test_create_project_invalid_enabled_type_string(self):
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
@@ -1773,10 +1792,21 @@ class IdentityTests(object):
         tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])
 
+        # If not present, enabled field should not be updated
+        del tenant['enabled']
+        self.identity_api.update_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
+        self.assertEqual(tenant_ref['enabled'], False)
+
         tenant['enabled'] = True
         self.identity_api.update_project('fake1', tenant)
         tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['enabled'], tenant['enabled'])
+
+        del tenant['enabled']
+        self.identity_api.update_project('fake1', tenant)
+        tenant_ref = self.identity_api.get_project('fake1')
+        self.assertEqual(tenant_ref['enabled'], True)
 
     def test_add_user_to_group(self):
         domain = self._get_domain_fixture()
