@@ -285,7 +285,7 @@ class V3TokenDataHelper(object):
 
     def get_token_data(self, user_id, method_names, extras,
                        domain_id=None, project_id=None, expires=None,
-                       trust=None, token=None):
+                       trust=None, token=None, include_catalog=True):
         token_data = {'methods': method_names,
                       'extras': extras}
 
@@ -302,8 +302,9 @@ class V3TokenDataHelper(object):
         self._populate_scope(token_data, domain_id, project_id)
         self._populate_user(token_data, user_id, domain_id, project_id, trust)
         self._populate_roles(token_data, user_id, domain_id, project_id, trust)
-        self._populate_service_catalog(token_data, user_id, domain_id,
-                                       project_id, trust)
+        if include_catalog:
+            self._populate_service_catalog(token_data, user_id, domain_id,
+                                           project_id, trust)
         self._populate_token_dates(token_data, expires=expires, trust=trust)
         return {'token': token_data}
 
@@ -367,6 +368,7 @@ class Provider(token.provider.Provider):
         auth_context = kwargs.get('auth_context')
         trust = kwargs.get('trust')
         metadata_ref = kwargs.get('metadata_ref')
+        include_catalog = kwargs.get('include_catalog')
         # for V2, trust is stashed in metadata_ref
         if (CONF.trust.enabled and not trust and metadata_ref and
                 'trust_id' in metadata_ref):
@@ -378,7 +380,8 @@ class Provider(token.provider.Provider):
             domain_id=domain_id,
             project_id=project_id,
             expires=expires_at,
-            trust=trust)
+            trust=trust,
+            include_catalog=include_catalog)
 
         token_id = self._get_token_id(token_data)
         try:

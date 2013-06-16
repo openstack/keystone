@@ -451,9 +451,14 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         return token
 
     def assertValidScopedTokenResponse(self, r, *args, **kwargs):
+        require_catalog = kwargs.pop('require_catalog', True)
         token = self.assertValidTokenResponse(r, *args, **kwargs)
 
-        self.assertIn('catalog', token)
+        if require_catalog:
+            self.assertIn('catalog', token)
+        else:
+            self.assertNotIn('catalog', token)
+
         self.assertIn('roles', token)
         self.assertTrue(token['roles'])
         for role in token['roles']:

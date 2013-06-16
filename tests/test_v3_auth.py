@@ -845,6 +845,45 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertValidProjectScopedTokenResponse(r)
         self.assertEqual(r.result['token']['project']['id'], project['id'])
 
+    def test_default_project_id_scoped_token_with_user_id_no_catalog(self):
+        # create a second project to work with
+        ref = self.new_project_ref(domain_id=self.domain_id)
+        r = self.post('/projects', body={'project': ref})
+        project = self.assertValidProjectResponse(r, ref)
+
+        # grant the user a role on the project
+        self.put(
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'user_id': self.user['id'],
+                'project_id': project['id'],
+                'role_id': self.role['id']})
+
+        # set the user's preferred project
+        body = {'user': {'default_project_id': project['id']}}
+        r = self.patch('/users/%(user_id)s' % {
+            'user_id': self.user['id']},
+            body=body)
+        self.assertValidUserResponse(r)
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.post('/auth/tokens?nocatalog', body=auth_data)
+        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
+        self.assertEqual(r.result['token']['project']['id'], project['id'])
+
+    def test_implicit_project_id_scoped_token_with_user_id_no_catalog(self):
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.post('/auth/tokens?nocatalog', body=auth_data)
+        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
+        self.assertEqual(r.result['token']['project']['id'],
+                         self.project['id'])
+
     def test_default_project_id_scoped_token_with_user_id_401(self):
         # create a second project to work with
         ref = self.new_project_ref(domain_id=self.domain['id'])
