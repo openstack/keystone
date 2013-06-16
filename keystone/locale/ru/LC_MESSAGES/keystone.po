@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-06-14 17:05+0000\n"
+"POT-Creation-Date: 2013-06-16 17:05+0000\n"
 "PO-Revision-Date: 2013-05-17 16:06+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Russian "
@@ -574,10 +574,4 @@ msgstr ""
 #: keystone/token/backends/memcache.py:172
 msgid "Unable to add token to revocation list."
 msgstr ""
-
-#~ msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
-#~ msgstr ""
-
-#~ msgid "Unable to add token user list."
-#~ msgstr ""
 
