@@ -171,7 +171,11 @@ class Identity(identity.Driver):
 
     def get_project_users(self, tenant_id):
         self.get_project(tenant_id)
-        return self._set_default_domain(self.project.get_users(tenant_id))
+        user_refs = self.project.get_users(tenant_id)
+        users = []
+        for user_ref in user_refs:
+            users.append(identity.filter_user(user_ref))
+        return self._set_default_domain(users)
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         self.get_user(user_id)

@@ -518,9 +518,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_list_user_projects(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
 
-    def test_get_project_users(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
     def test_create_duplicate_user_name_in_different_domains(self):
         raise nose.exc.SkipTest('Blocked by bug 1101276')
 
