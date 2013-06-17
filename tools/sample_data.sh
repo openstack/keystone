@@ -91,7 +91,8 @@ DEMO_TENANT=$(get_id keystone tenant-create --name=demo \
                                             --description "Default Tenant")
 
 ADMIN_USER=$(get_id keystone user-create --name=admin \
-                                         --pass="${ADMIN_PASSWORD}")
+                                         --pass="${ADMIN_PASSWORD}" \
+                                         --tenant-id $DEMO_TENANT)
 
 ADMIN_ROLE=$(get_id keystone role-create --name=admin)
 
@@ -106,7 +107,8 @@ SERVICE_TENANT=$(get_id keystone tenant-create --name=service \
                                                --description "Service Tenant")
 
 GLANCE_USER=$(get_id keystone user-create --name=glance \
-                                          --pass="${GLANCE_PASSWORD}")
+                                          --pass="${GLANCE_PASSWORD}" \
+                                          --tenant-id $SERVICE_TENANT)
 
 keystone user-role-add --user-id $GLANCE_USER \
                        --role-id $ADMIN_ROLE \
