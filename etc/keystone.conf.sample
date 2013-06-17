@@ -133,6 +133,15 @@
 # Amount of time a token should remain valid (in seconds)
 # expiration = 86400
 
+# External auth mechanisms that should add bind information to token.
+# eg kerberos, x509
+# bind =
+
+# Enforcement policy on tokens presented to keystone with bind information.
+# One of disabled, permissive, strict, required or a specifically required bind
+# mode e.g. kerberos or x509 to require binding to that authentication.
+# enforce_token_bind = permissive
+
 [policy]
 # driver = keystone.policy.backends.sql.Policy
 

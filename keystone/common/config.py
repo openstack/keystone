@@ -217,6 +217,10 @@ def configure():
     # os_inherit
     register_bool('enabled', group='os_inherit', default=False)
 
+    # binding
+    register_list('bind', group='token', default=[])
+    register_str('enforce_token_bind', group='token', default='permissive')
+
     # ssl
     register_bool('enable', group='ssl', default=False)
     register_str('certfile', group='ssl',

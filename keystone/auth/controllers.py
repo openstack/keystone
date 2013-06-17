@@ -283,7 +283,7 @@ class Auth(controller.V3Controller):
 
         try:
             auth_info = AuthInfo(context, auth=auth)
-            auth_context = {'extras': {}, 'method_names': []}
+            auth_context = {'extras': {}, 'method_names': [], 'bind': {}}
             self.authenticate(context, auth_info, auth_context)
             self._check_and_set_default_scoping(auth_info, auth_context)
             (domain_id, project_id, trust) = auth_info.get_scope()

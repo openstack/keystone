@@ -373,6 +373,33 @@ class AuthWithToken(AuthTest):
             dict(is_admin=True, query_string={'belongsTo': 'BAR'}),
             token_id=scoped_token_id)
 
+    def test_token_auth_with_binding(self):
+        CONF.token.bind = ['kerberos']
+        body_dict = _build_user_auth()
+        context = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
+        unscoped_token = self.controller.authenticate(context, body_dict)
+
+        # the token should have bind information in it
+        bind = unscoped_token['access']['token']['bind']
+        self.assertEqual(bind['kerberos'], 'FOO')
+
+        body_dict = _build_user_auth(
+            token=unscoped_token['access']['token'],
+            tenant_name='BAR')
+
+        # using unscoped token without remote user context fails
+        self.assertRaises(
+            exception.Unauthorized,
+            self.controller.authenticate,
+            {}, body_dict)
+
+        # using token with remote user context succeeds
+        scoped_token = self.controller.authenticate(context, body_dict)
+
+        # the bind information should be carried over from the original token
+        bind = scoped_token['access']['token']['bind']
+        self.assertEqual(bind['kerberos'], 'FOO')
+
 
 class AuthWithPasswordCredentials(AuthTest):
     def setUp(self):
@@ -430,6 +457,13 @@ class AuthWithPasswordCredentials(AuthTest):
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,
                           {}, body_dict)
+
+    def test_bind_without_remote_user(self):
+        CONF.token.bind = ['kerberos']
+        body_dict = _build_user_auth(username='FOO', password='foo2',
+                                     tenant_name='BAR')
+        token = self.controller.authenticate({}, body_dict)
+        self.assertNotIn('bind', token['access']['token'])
 
 
 class AuthWithRemoteUser(AuthTest):
@@ -497,6 +531,20 @@ class AuthWithRemoteUser(AuthTest):
             self.controller.authenticate,
             {'REMOTE_USER': uuid.uuid4().hex},
             body_dict)
+
+    def test_bind_with_kerberos(self):
+        CONF.token.bind = ['kerberos']
+        kerb = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
+        body_dict = _build_user_auth(tenant_name="BAR")
+        token = self.controller.authenticate(kerb, body_dict)
+        self.assertEqual(token['access']['token']['bind']['kerberos'], 'FOO')
+
+    def test_bind_without_config_opt(self):
+        CONF.token.bind = ['x509']
+        kerb = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
+        body_dict = _build_user_auth(tenant_name='BAR')
+        token = self.controller.authenticate(kerb, body_dict)
+        self.assertNotIn('bind', token['access']['token'])
 
 
 class AuthWithTrust(AuthTest):

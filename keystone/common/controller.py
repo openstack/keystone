@@ -25,6 +25,10 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         LOG.warning(_('RBAC: Invalid token'))
         raise exception.Unauthorized()
 
+    # NOTE(jamielennox): whilst this maybe shouldn't be within this function
+    # it would otherwise need to reload the token_ref from backing store.
+    wsgi.validate_token_bind(context, token_ref)
+
     creds = {}
     if 'token_data' in token_ref and 'token' in token_ref['token_data']:
         #V3 Tokens
