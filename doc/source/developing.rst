@@ -18,19 +18,6 @@
 Developing with Keystone
 ========================
 
-Contributing Code
-=================
-
-To contribute code, sign up for a Launchpad account and sign a contributor
-license agreement, available on the `<http://wiki.openstack.org/CLA>`_. Once
-the CLA is signed you can contribute code through the Gerrit version control
-system which is related to your Launchpad account.
-
-
-To contribute tests, docs, code, etc, refer to our `Gerrit-Jenkins-Github Workflow`_.
-
-.. _`Gerrit-Jenkins-Github Workflow`: http://wiki.openstack.org/GerritJenkinsGithub
-
 Setup
 -----
 
