@@ -1008,7 +1008,7 @@ for openstack would look like this::
   objectClass: organizationalUnit
   ou: openstack
 
-  dn: ou=Groups,dc=openstack,dc=org
+  dn: ou=Projects,dc=openstack,dc=org
   objectClass: top
   objectClass: organizationalUnit
   ou: groups
@@ -1036,7 +1036,7 @@ The corresponding entries in the Keystone configuration file are::
   user_tree_dn = ou=Users,dc=openstack,dc=org
   user_objectclass = inetOrgPerson
 
-  tenant_tree_dn = ou=Groups,dc=openstack,dc=org
+  tenant_tree_dn = ou=Projects,dc=openstack,dc=org
   tenant_objectclass = groupOfNames
 
   role_tree_dn = ou=Roles,dc=openstack,dc=org

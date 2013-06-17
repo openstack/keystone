@@ -498,7 +498,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap, ApiShimMixin):
 # TODO(termie): turn this into a data object and move logic to driver
 class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap,
                  ApiShimMixin):
-    DEFAULT_OU = 'ou=Groups'
+    DEFAULT_OU = 'ou=Projects'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'
     DEFAULT_ID_ATTR = 'cn'
