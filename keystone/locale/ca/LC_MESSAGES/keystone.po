@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-06-14 17:05+0000\n"
+"POT-Creation-Date: 2013-06-16 17:05+0000\n"
 "PO-Revision-Date: 2012-11-03 03:08+0000\n"
 "Last-Translator: Sergi Almacellas <pokoli@gmail.com>\n"
 "Language-Team: ca <LL@li.org>\n"
@@ -574,10 +574,4 @@ msgstr ""
 #: keystone/token/backends/memcache.py:172
 msgid "Unable to add token to revocation list."
 msgstr "No es pot afegir el token a la llista de revocats."
-
-#~ msgid "HTTP PERF: %(time).5f seconds to %(method)s %(host)s:%(port)s %(path)s)"
-#~ msgstr ""
-
-#~ msgid "Unable to add token user list."
-#~ msgstr "No es pot afegir el token a la llista d'usuaris."
 
