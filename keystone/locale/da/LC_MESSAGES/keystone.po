@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-06-16 17:05+0000\n"
+"POT-Creation-Date: 2013-06-17 17:09+0000\n"
 "PO-Revision-Date: 2013-05-17 16:06+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Danish "
@@ -499,21 +499,21 @@ msgstr ""
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:677
+#: keystone/identity/backends/ldap/core.py:681
 #, python-format
 msgid "Role %s not found"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:894
+#: keystone/identity/backends/ldap/core.py:898
 msgid "Changing Name not supported by LDAP"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:907
+#: keystone/identity/backends/ldap/core.py:911
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:950
+#: keystone/identity/backends/ldap/core.py:954
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_dn)s'. The user should "
