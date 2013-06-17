@@ -113,7 +113,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
 
-        tenant['enabled'] = 'False'
+        tenant['enabled'] = False
         self.identity_api.update_project('fake1', tenant)
 
         self.identity_api.delete_project('fake1')
@@ -133,7 +133,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           'fake1',
                           tenant)
 
-        self.tenant_bar['enabled'] = 'False'
+        self.tenant_bar['enabled'] = False
         self.assertRaises(exception.ForbiddenAction,
                           self.identity_api.update_project,
                           self.tenant_bar['id'],
