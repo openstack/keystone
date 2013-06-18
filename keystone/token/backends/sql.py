@@ -80,6 +80,40 @@ class Token(sql.Base, token.Driver):
             token_ref.valid = False
             session.flush()
 
+    def delete_tokens(self, user_id, tenant_id=None, trust_id=None):
+        """Deletes all tokens in one session
+
+        The user_id will be ignored if the trust_id is specified. user_id
+        will always be specified.
+        If using a trust, the token's user_id is set to the trustee's user ID
+        or the trustor's user ID, so will use trust_id to query the tokens.
+
+        """
+        session = self.get_session()
+        with session.begin():
+            now = timeutils.utcnow()
+            query = session.query(TokenModel)
+            query = query.filter_by(valid=True)
+            query = query.filter(TokenModel.expires > now)
+            if trust_id:
+                query = query.filter(TokenModel.trust_id == trust_id)
+            else:
+                query = query.filter(TokenModel.user_id == user_id)
+
+            for token_ref in query.all():
+                if tenant_id:
+                    token_ref_dict = token_ref.to_dict()
+                    if not self._tenant_matches(tenant_id, token_ref_dict):
+                        continue
+                token_ref.valid = False
+
+            session.flush()
+
+    def _tenant_matches(self, tenant_id, token_ref_dict):
+        return ((tenant_id is None) or
+                (token_ref_dict.get('tenant') and
+                 token_ref_dict['tenant'].get('id') == tenant_id))
+
     def _list_tokens_for_trust(self, trust_id):
         session = self.get_session()
         tokens = []
@@ -95,11 +129,6 @@ class Token(sql.Base, token.Driver):
         return tokens
 
     def _list_tokens_for_user(self, user_id, tenant_id=None):
-        def tenant_matches(tenant_id, token_ref_dict):
-            return ((tenant_id is None) or
-                    (token_ref_dict.get('tenant') and
-                     token_ref_dict['tenant'].get('id') == tenant_id))
-
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
@@ -110,7 +139,7 @@ class Token(sql.Base, token.Driver):
         token_references = query.filter_by(valid=True)
         for token_ref in token_references:
             token_ref_dict = token_ref.to_dict()
-            if tenant_matches(tenant_id, token_ref_dict):
+            if self._tenant_matches(tenant_id, token_ref_dict):
                 tokens.append(token_ref['id'])
         return tokens
 

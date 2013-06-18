@@ -166,6 +166,32 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    def delete_tokens(self, user_id, tenant_id=None, trust_id=None):
+        """Deletes tokens by user.
+        If the tenant_id is not None, only delete the tokens by user id under
+        the specified tenant.
+        If the trust_id is not None, it will be used to query tokens and the
+        user_id will be ignored.
+
+        :param user_id: identity of user
+        :type token_id: string
+        :param tenant_id: identity of the tenant
+        :type tenant_id: string
+        :param trust_id: identified of the trust
+        :type trust_id: string
+        :returns: None.
+        :raises: keystone.exception.TokenNotFound
+
+        """
+        token_list = self.list_tokens(user_id,
+                                      tenant_id=tenant_id,
+                                      trust_id=trust_id)
+        for token in token_list:
+            try:
+                self.delete_token(token)
+            except exception.NotFound:
+                pass
+
     def list_tokens(self, user_id, tenant_id=None, trust_id=None):
         """Returns a list of current token_id's for a user
 
