@@ -128,7 +128,7 @@ class IdentityTests(object):
             'domain_id': DEFAULT_DOMAIN_ID,
             'password': 'no_meta2',
         }
-        self.identity_api.create_user(user['id'], user)
+        self.identity_man.create_user(EMPTY_CONTEXT, user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
         user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
@@ -155,7 +155,7 @@ class IdentityTests(object):
                 'name': unicode_name,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        ref = self.identity_api.create_user(user['id'], user)
+        ref = self.identity_man.create_user(EMPTY_CONTEXT, user['id'], user)
         self.assertEqual(unicode_name, ref['name'])
 
     def test_get_project(self):
@@ -290,7 +290,8 @@ class IdentityTests(object):
         self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user['name'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -303,7 +304,8 @@ class IdentityTests(object):
         self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           'fake2',
                           user)
 
@@ -332,7 +334,7 @@ class IdentityTests(object):
                 'password': uuid.uuid4().hex}
         self.identity_man.create_user(EMPTY_CONTEXT, user['id'], user)
         user['domain_id'] = domain2['id']
-        self.identity_api.update_user(user['id'], user)
+        self.identity_man.update_user(EMPTY_CONTEXT, user['id'], user)
 
     def test_move_user_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -356,7 +358,8 @@ class IdentityTests(object):
         # fail since the names clash
         user1['domain_id'] = domain2['id']
         self.assertRaises(exception.Conflict,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           user1['id'],
                           user1)
 
@@ -371,11 +374,12 @@ class IdentityTests(object):
                  'domain_id': DEFAULT_DOMAIN_ID,
                  'password': 'fakepass',
                  'tenants': ['bar']}
-        self.identity_api.create_user('fake1', user1)
-        self.identity_api.create_user('fake2', user2)
+        self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user1)
+        self.identity_man.create_user(EMPTY_CONTEXT, 'fake2', user2)
         user2['name'] = 'fake1'
         self.assertRaises(exception.Conflict,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           'fake2',
                           user2)
 
@@ -385,10 +389,11 @@ class IdentityTests(object):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'fakepass',
                 'tenants': ['bar']}
-        self.identity_api.create_user('fake1', user)
+        self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user['id'] = 'fake2'
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
         user_ref = self.identity_api.get_user('fake1')
@@ -538,11 +543,15 @@ class IdentityTests(object):
         new_user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_api.create_user(new_user1['id'], new_user1)
+        self.identity_man.create_user(EMPTY_CONTEXT,
+                                      new_user1['id'],
+                                      new_user1)
         new_user2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_api.create_user(new_user2['id'], new_user2)
+        self.identity_man.create_user(EMPTY_CONTEXT,
+                                      new_user2['id'],
+                                      new_user2)
         roles_ref = self.identity_api.list_grants(
             user_id=new_user1['id'],
             domain_id=new_domain['id'])
@@ -588,7 +597,9 @@ class IdentityTests(object):
         new_user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_api.create_user(new_user1['id'], new_user1)
+        self.identity_man.create_user(EMPTY_CONTEXT,
+                                      new_user1['id'],
+                                      new_user1)
 
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_roles_for_user_and_domain,
@@ -1414,7 +1425,8 @@ class IdentityTests(object):
     def test_update_user_404(self):
         user_id = uuid.uuid4().hex
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           user_id,
                           {'id': user_id})
 
@@ -1423,7 +1435,7 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        self.identity_api.create_user(user['id'], user)
+        self.identity_man.create_user(EMPTY_CONTEXT, user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
                                               user['id'])
         self.identity_api.delete_user(user['id'])
@@ -1436,7 +1448,7 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        self.identity_api.create_user(user['id'], user)
+        self.identity_man.create_user(EMPTY_CONTEXT, user['id'], user)
         self.identity_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
@@ -1526,7 +1538,8 @@ class IdentityTests(object):
         user = {'id': 'fake1', 'name': 'a' * 65,
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -1534,7 +1547,8 @@ class IdentityTests(object):
         user = {'id': 'fake1', 'name': '',
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -1542,14 +1556,16 @@ class IdentityTests(object):
         user = {'id': 'fake1', 'name': None,
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
         user = {'id': 'fake1', 'name': 123,
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user, EMPTY_CONTEXT,
+                          self.identity_man.create_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -1603,7 +1619,8 @@ class IdentityTests(object):
         self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user['name'] = 'a' * 65
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -1613,7 +1630,8 @@ class IdentityTests(object):
         self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user['name'] = ''
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -1624,13 +1642,15 @@ class IdentityTests(object):
 
         user['name'] = None
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
         user['name'] = 123
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
                           'fake1',
                           user)
 
@@ -1731,54 +1751,57 @@ class IdentityTests(object):
     def test_update_user_enable(self):
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_api.create_user('fake1', user)
+        self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
         user['enabled'] = False
-        self.identity_api.update_user('fake1', user)
+        self.identity_man.update_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
         # If not present, enabled field should not be updated
         del user['enabled']
-        self.identity_api.update_user('fake1', user)
+        self.identity_man.update_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], False)
 
         user['enabled'] = True
-        self.identity_api.update_user('fake1', user)
+        self.identity_man.update_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
         del user['enabled']
-        self.identity_api.update_user('fake1', user)
+        self.identity_man.update_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
         # Integers are valid Python's booleans. Explicitly test it.
         user['enabled'] = 0
-        self.identity_api.update_user('fake1', user)
+        self.identity_man.update_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], False)
 
         # Any integers other than 0 are interpreted as True
         user['enabled'] = -42
-        self.identity_api.update_user('fake1', user)
+        self.identity_man.update_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
     def test_update_user_enable_fails(self):
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_api.create_user('fake1', user)
+        self.identity_man.create_user(EMPTY_CONTEXT, 'fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
         # Strings are not valid boolean values
         user['enabled'] = "false"
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user, 'fake1', user)
+                          self.identity_man.update_user,
+                          EMPTY_CONTEXT,
+                          'fake1',
+                          user)
 
     def test_update_project_enable(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
@@ -2055,14 +2078,14 @@ class IdentityTests(object):
         user = {'domain_id': CONF.identity.default_domain_id,
                 'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex, 'password': 'passw0rd'}
-        self.identity_api.create_user(user['id'], user)
+        self.identity_man.create_user(EMPTY_CONTEXT, user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
         self.assertDictContainsSubset(user, user_ref_dict)
 
         user['password'] = uuid.uuid4().hex
-        self.identity_api.update_user(user['id'], user)
+        self.identity_man.update_user(EMPTY_CONTEXT, user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
