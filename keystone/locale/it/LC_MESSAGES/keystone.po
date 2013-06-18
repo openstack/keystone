@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-06-16 17:05+0000\n"
+"POT-Creation-Date: 2013-06-17 17:09+0000\n"
 "PO-Revision-Date: 2013-05-17 16:06+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Italian "
@@ -513,21 +513,21 @@ msgstr "Impossibile rimuovere un ruolo che non è stato concesso, %s"
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:677
+#: keystone/identity/backends/ldap/core.py:681
 #, python-format
 msgid "Role %s not found"
 msgstr "Ruolo %s non trovato"
 
-#: keystone/identity/backends/ldap/core.py:894
+#: keystone/identity/backends/ldap/core.py:898
 msgid "Changing Name not supported by LDAP"
 msgstr "Modifica nome non supportato da LDAP"
 
-#: keystone/identity/backends/ldap/core.py:907
+#: keystone/identity/backends/ldap/core.py:911
 #, fuzzy, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "L'utente %s è già membro del gruppo %s"
 
-#: keystone/identity/backends/ldap/core.py:950
+#: keystone/identity/backends/ldap/core.py:954
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_dn)s'. The user should "
