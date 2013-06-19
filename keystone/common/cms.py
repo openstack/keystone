@@ -1,46 +1,31 @@
 import hashlib
 
+from keystone.common import environment
 from keystone.common import logging
 
 
-subprocess = None
 LOG = logging.getLogger(__name__)
 PKI_ANS1_PREFIX = 'MII'
 
 
-def _ensure_subprocess():
-    # NOTE(vish): late loading subprocess so we can
-    #             use the green version if we are in
-    #             eventlet.
-    global subprocess
-    if not subprocess:
-        try:
-            from eventlet import patcher
-            if patcher.already_patched.get('os'):
-                from eventlet.green import subprocess
-            else:
-                import subprocess
-        except ImportError:
-            import subprocess  # nopep8
-
-
 def cms_verify(formatted, signing_cert_file_name, ca_file_name):
     """Verifies the signature of the contents IAW CMS syntax."""
-    _ensure_subprocess()
-    process = subprocess.Popen(["openssl", "cms", "-verify",
-                                "-certfile", signing_cert_file_name,
-                                "-CAfile", ca_file_name,
-                                "-inform", "PEM",
-                                "-nosmimecap", "-nodetach",
-                                "-nocerts", "-noattr"],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+    process = environment.subprocess.Popen(["openssl", "cms", "-verify",
+                                            "-certfile",
+                                            signing_cert_file_name,
+                                            "-CAfile", ca_file_name,
+                                            "-inform", "PEM",
+                                            "-nosmimecap", "-nodetach",
+                                            "-nocerts", "-noattr"],
+                                           stdin=environment.subprocess.PIPE,
+                                           stdout=environment.subprocess.PIPE,
+                                           stderr=environment.subprocess.PIPE)
     output, err = process.communicate(formatted)
     retcode = process.poll()
     if retcode:
         LOG.error(_('Verify error: %s') % err)
-        raise subprocess.CalledProcessError(retcode, "openssl", output=err)
+        raise environment.subprocess.CalledProcessError(retcode,
+                                                        "openssl", output=err)
     return output
 
 
@@ -117,16 +102,15 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
     Produces a Base64 encoding of a DER formatted CMS Document
     http://en.wikipedia.org/wiki/Cryptographic_Message_Syntax
     """
-    _ensure_subprocess()
-    process = subprocess.Popen(["openssl", "cms", "-sign",
-                                "-signer", signing_cert_file_name,
-                                "-inkey", signing_key_file_name,
-                                "-outform", "PEM",
-                                "-nosmimecap", "-nodetach",
-                                "-nocerts", "-noattr"],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+    process = environment.subprocess.Popen(["openssl", "cms", "-sign",
+                                            "-signer", signing_cert_file_name,
+                                            "-inkey", signing_key_file_name,
+                                            "-outform", "PEM",
+                                            "-nosmimecap", "-nodetach",
+                                            "-nocerts", "-noattr"],
+                                           stdin=environment.subprocess.PIPE,
+                                           stdout=environment.subprocess.PIPE,
+                                           stderr=environment.subprocess.PIPE)
     output, err = process.communicate(text)
     retcode = process.poll()
     if retcode or "Error" in err:
@@ -136,7 +120,7 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
                       "'keystone-manage pki_setup'"))
         else:
             LOG.error(_('Signing error: %s') % err)
-        raise subprocess.CalledProcessError(retcode, "openssl")
+        raise environment.subprocess.CalledProcessError(retcode, "openssl")
     return output
 
 

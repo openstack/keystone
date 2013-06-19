@@ -32,10 +32,11 @@ import uuid
 from migrate.versioning import api as versioning_api
 import sqlalchemy
 
+from keystone import test
+
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import config
-from keystone import test
 
 import default_fixtures
 

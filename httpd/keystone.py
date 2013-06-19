@@ -2,6 +2,7 @@ import os
 
 from paste import deploy
 
+from keystone.common import environment
 from keystone.common import logging
 from keystone import config
 
@@ -9,6 +10,7 @@ LOG = logging.getLogger(__name__)
 CONF = config.CONF
 CONF(project='keystone')
 
+environment.use_stdlib()
 name = os.path.basename(__file__)
 
 if CONF.debug:

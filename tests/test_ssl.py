@@ -15,13 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import httplib
 import os
 import ssl
 
-from keystone import config
 from keystone import test
 
+from keystone.common import environment
+from keystone import config
 
 CONF = config.CONF
 
@@ -45,12 +45,14 @@ class SSLTestCase(test.TestCase):
         self.admin_server = self.serveapp('keystone', name='admin',
                                           cert=CERT, key=KEY, ca=CA)
         # Verify Admin
-        conn = httplib.HTTPSConnection('127.0.0.1', CONF.admin_port)
+        conn = environment.httplib.HTTPSConnection('127.0.0.1',
+                                                   CONF.admin_port)
         conn.request('GET', '/')
         resp = conn.getresponse()
         self.assertEqual(resp.status, 300)
         # Verify Public
-        conn = httplib.HTTPSConnection('127.0.0.1', CONF.public_port)
+        conn = environment.httplib.HTTPSConnection('127.0.0.1',
+                                                   CONF.public_port)
         conn.request('GET', '/')
         resp = conn.getresponse()
         self.assertEqual(resp.status, 300)
@@ -67,13 +69,13 @@ class SSLTestCase(test.TestCase):
             'keystone', name='admin', cert=CERT,
             key=KEY, ca=CA, cert_required=True)
         # Verify Admin
-        conn = httplib.HTTPSConnection(
+        conn = environment.httplib.HTTPSConnection(
             '127.0.0.1', CONF.admin_port, CLIENT, CLIENT)
         conn.request('GET', '/')
         resp = conn.getresponse()
         self.assertEqual(resp.status, 300)
         # Verify Public
-        conn = httplib.HTTPSConnection(
+        conn = environment.httplib.HTTPSConnection(
             '127.0.0.1', CONF.public_port, CLIENT, CLIENT)
         conn.request('GET', '/')
         resp = conn.getresponse()
@@ -89,12 +91,12 @@ class SSLTestCase(test.TestCase):
                                           cert=CERT, key=KEY, ca=CA,
                                           host="::1", port=0)
         # Verify Admin
-        conn = httplib.HTTPSConnection('::1', CONF.admin_port)
+        conn = environment.httplib.HTTPSConnection('::1', CONF.admin_port)
         conn.request('GET', '/')
         resp = conn.getresponse()
         self.assertEqual(resp.status, 300)
         # Verify Public
-        conn = httplib.HTTPSConnection('::1', CONF.public_port)
+        conn = environment.httplib.HTTPSConnection('::1', CONF.public_port)
         conn.request('GET', '/')
         resp = conn.getresponse()
         self.assertEqual(resp.status, 300)
@@ -114,13 +116,13 @@ class SSLTestCase(test.TestCase):
             key=KEY, ca=CA, cert_required=True,
             host="::1", port=0)
         # Verify Admin
-        conn = httplib.HTTPSConnection(
+        conn = environment.httplib.HTTPSConnection(
             '::1', CONF.admin_port, CLIENT, CLIENT)
         conn.request('GET', '/')
         resp = conn.getresponse()
         self.assertEqual(resp.status, 300)
         # Verify Public
-        conn = httplib.HTTPSConnection(
+        conn = environment.httplib.HTTPSConnection(
             '::1', CONF.public_port, CLIENT, CLIENT)
         conn.request('GET', '/')
         resp = conn.getresponse()
@@ -135,14 +137,16 @@ class SSLTestCase(test.TestCase):
             'keystone', name='admin', cert=CERT,
             key=KEY, ca=CA, cert_required=True)
         # Verify Admin
-        conn = httplib.HTTPSConnection('127.0.0.1', CONF.admin_port)
+        conn = environment.httplib.HTTPSConnection('127.0.0.1',
+                                                   CONF.admin_port)
         try:
             conn.request('GET', '/')
             self.fail('Admin API shoulda failed with SSL handshake!')
         except ssl.SSLError:
             pass
         # Verify Public
-        conn = httplib.HTTPSConnection('127.0.0.1', CONF.public_port)
+        conn = environment.httplib.HTTPSConnection('127.0.0.1',
+                                                   CONF.public_port)
         try:
             conn.request('GET', '/')
             self.fail('Public API shoulda failed with SSL handshake!')

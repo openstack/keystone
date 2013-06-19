@@ -16,11 +16,12 @@
 
 import uuid
 
+from keystone import test
+
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
-from keystone import test
 
 
 CONF = config.CONF

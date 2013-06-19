@@ -16,8 +16,9 @@
 
 import webob
 
-from keystone import middleware
 from keystone import test
+
+from keystone import middleware
 
 
 class FakeApp(object):

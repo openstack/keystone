@@ -1,10 +1,10 @@
 import json
-import subprocess
 import uuid
 
 from keystone.common import cms
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import environment
 from keystone.common import logging
 from keystone.common import utils
 from keystone import config
@@ -117,7 +117,7 @@ class Auth(controller.V2Controller):
                 token_id = cms.cms_sign_token(json.dumps(token_data),
                                               CONF.signing.certfile,
                                               CONF.signing.keyfile)
-            except subprocess.CalledProcessError:
+            except environment.subprocess.CalledProcessError:
                 raise exception.UnexpectedError(_(
                     'Unable to sign token.'))
         else:

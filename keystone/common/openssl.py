@@ -16,8 +16,8 @@
 
 import os
 import stat
-import subprocess
 
+from keystone.common import environment
 from keystone.common import logging
 from keystone import config
 
@@ -77,7 +77,7 @@ class BaseCertificateConfigure(object):
     def exec_command(self, command):
         to_exec = command % self.ssl_dictionary
         LOG.info(to_exec)
-        subprocess.check_call(to_exec.rsplit(' '))
+        environment.subprocess.check_call(to_exec.rsplit(' '))
 
     def build_ssl_config_file(self):
         if not file_exists(self.ssl_config_file_name):

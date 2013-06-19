@@ -18,40 +18,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 import socket
 import ssl
 import sys
 
-# NOTE(mikal): All of this is because if dnspython is present in your
-# environment then eventlet monkeypatches socket.getaddrinfo() with an
-# implementation which doesn't work for IPv6. What we're checking here is
-# that the magic environment variable was set when the import happened.
-if ('eventlet' in sys.modules and
-        os.environ.get('EVENTLET_NO_GREENDNS', '').lower() != 'yes'):
-    raise ImportError('eventlet imported before '
-                      'keystone.common.wsgi_server '
-                      '(EVENTLET_NO_GREENDNS env var set to %s)'
-                      % os.environ.get('EVENTLET_NO_GREENDNS'))
-
-os.environ['EVENTLET_NO_GREENDNS'] = 'yes'
-
 import eventlet
 import eventlet.wsgi
+import greenlet
 
 from keystone.common import logging
 from keystone.common import wsgi
 
 
 LOG = logging.getLogger(__name__)
-
-
-def monkey_patch_eventlet(monkeypatch_thread=None):
-    if monkeypatch_thread is None:
-        monkeypatch_thread = not os.getenv('STANDARD_THREADS')
-
-    eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
-                                  thread=monkeypatch_thread)
 
 
 class Server(object):
@@ -120,6 +99,8 @@ class Server(object):
         try:
             self.pool.waitall()
         except KeyboardInterrupt:
+            pass
+        except greenlet.GreenletExit:
             pass
 
     def _run(self, application, socket):

@@ -19,11 +19,12 @@ import uuid
 
 import nose.exc
 
+from keystone import test
+
 from keystone.common.ldap import fakeldap
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone import test
 
 import default_fixtures
 import test_backend

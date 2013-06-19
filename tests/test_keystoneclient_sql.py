@@ -18,9 +18,10 @@ import uuid
 
 import nose.exc
 
+from keystone import test
+
 from keystone.common import sql
 from keystone import config
-from keystone import test
 
 import test_keystoneclient
 

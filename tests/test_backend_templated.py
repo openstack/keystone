@@ -16,10 +16,11 @@
 
 import os
 
+from keystone import test
+
 from keystone import catalog
 from keystone.catalog.backends import templated as catalog_templated
 from keystone import exception
-from keystone import test
 
 import default_fixtures
 import test_backend
