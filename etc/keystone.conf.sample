@@ -192,7 +192,7 @@
 # user_enabled_emulation = False
 # user_enabled_emulation_dn =
 
-# tenant_tree_dn = ou=Groups,dc=example,dc=com
+# tenant_tree_dn = ou=Projects,dc=example,dc=com
 # tenant_filter =
 # tenant_objectclass = groupOfNames
 # tenant_domain_id_attribute = businessCategory
