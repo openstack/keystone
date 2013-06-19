@@ -76,8 +76,7 @@
     "identity:validate_token": [["rule:service_or_admin"]],
     "identity:validate_token_head": [["rule:service_or_admin"]],
     "identity:revocation_list": [["rule:service_or_admin"]],
-    "identity:revoke_token": [["rule:admin_required"],
-                              ["user_id:%(user_id)s"]],
+    "identity:revoke_token": [["rule:admin_or_owner"]],
 
     "identity:create_trust": [["user_id:%(trust.trustor_user_id)s"]],
     "identity:get_trust": [["rule:admin_or_owner"]],
