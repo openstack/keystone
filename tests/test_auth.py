@@ -68,6 +68,10 @@ class AuthTest(test.TestCase):
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
+        # need to register the token provider first because auth controller
+        # depends on it
+        token.provider.Manager()
+
         self.controller = token.controllers.Auth()
 
     def assertEqualTokens(self, a, b):
@@ -653,12 +657,12 @@ class AuthWithTrust(AuthTest):
     def test_v3_trust_token_get_token_fails(self):
         auth_response = self.fetch_v3_token_from_trust()
         trust_token = auth_response.headers['X-Subject-Token']
-        v3_token_data = {
-            "methods": ["token"],
-            "token": {"id": trust_token}
-        }
+        v3_token_data = {'identity': {
+            'methods': ['token'],
+            'token': {'id': trust_token}
+        }}
         self.assertRaises(
-            exception.Unauthorized,
+            exception.Forbidden,
             self.auth_v3_controller.authenticate_for_token,
             {}, v3_token_data)
 

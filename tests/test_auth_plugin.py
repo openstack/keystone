@@ -20,6 +20,7 @@ from keystone import test
 
 from keystone import auth
 from keystone import exception
+from keystone import token
 
 
 # for testing purposes only
@@ -49,6 +50,11 @@ class TestAuthPlugin(test.TestCase):
             test.testsdir('test_auth_plugin.conf')])
         self.load_backends()
         auth.controllers.AUTH_METHODS[METHOD_NAME] = SimpleChallengeResponse()
+
+        # need to register the token provider first because auth controller
+        # depends on it
+        token.provider.Manager()
+
         self.api = auth.controllers.Auth()
 
     def test_unsupported_auth_method(self):

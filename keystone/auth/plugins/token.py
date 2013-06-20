@@ -46,7 +46,8 @@ class Token(auth.AuthMethodHandler):
                 token_ref['token_data']['token']['extras'])
             user_context['method_names'].extend(
                 token_ref['token_data']['token']['methods'])
-            if 'trust' in token_ref['token_data']:
+            if ('OS-TRUST:trust' in token_ref['token_data']['token'] or
+                    'trust' in token_ref['token_data']['token']):
                 raise exception.Forbidden()
         except AssertionError as e:
             LOG.error(e)

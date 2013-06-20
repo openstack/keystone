@@ -14,12 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 
-from keystone.auth import token_factory
-from keystone.common import cms
 from keystone.common import controller
+from keystone.common import dependency
 from keystone.common import logging
+from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone import identity
@@ -190,6 +189,10 @@ class AuthInfo(object):
                 self._scope_data = (None, None, trust_ref)
 
     def _validate_auth_methods(self):
+        if 'identity' not in self.auth:
+            raise exception.ValidationError(attribute='identity',
+                                            target='auth')
+
         # make sure auth methods are provided
         if 'methods' not in self.auth['identity']:
             raise exception.ValidationError(attribute='methods',
@@ -267,6 +270,7 @@ class AuthInfo(object):
         self._scope_data = (domain_id, project_id, trust)
 
 
+@dependency.requires('token_provider_api')
 class Auth(controller.V3Controller):
     def __init__(self, *args, **kw):
         super(Auth, self).__init__(*args, **kw)
@@ -280,14 +284,22 @@ class Auth(controller.V3Controller):
             auth_context = {'extras': {}, 'method_names': []}
             self.authenticate(context, auth_info, auth_context)
             self._check_and_set_default_scoping(auth_info, auth_context)
-            (token_id, token_data) = token_factory.create_token(
-                auth_context, auth_info)
-            return token_factory.render_token_data_response(
-                token_id, token_data, created=True)
-        except exception.SecurityError:
-            raise
-        except Exception as e:
-            LOG.exception(e)
+            (domain_id, project_id, trust) = auth_info.get_scope()
+            method_names = auth_info.get_method_names()
+            method_names += auth_context.get('method_names', [])
+            # make sure the list is unique
+            method_names = list(set(method_names))
+            (token_id, token_data) = self.token_provider_api.issue_token(
+                user_id=auth_context['user_id'],
+                method_names=method_names,
+                expires_at=auth_context.get('expires_at'),
+                project_id=project_id,
+                domain_id=domain_id,
+                auth_context=auth_context,
+                trust=trust)
+            return render_token_data_response(token_id, token_data,
+                                              created=True)
+        except exception.TrustNotFound as e:
             raise exception.Unauthorized(e)
 
     def _check_and_set_default_scoping(self, auth_info, auth_context):
@@ -355,44 +367,41 @@ class Auth(controller.V3Controller):
             msg = _('User not found')
             raise exception.Unauthorized(msg)
 
-    def _get_token_ref(self, context, token_id, belongs_to=None):
-        token_ref = self.token_api.get_token(token_id)
-        if cms.is_ans1_token(token_id):
-            verified_token = cms.cms_verify(cms.token_to_cms(token_id),
-                                            CONF.signing.certfile,
-                                            CONF.signing.ca_certs)
-            token_ref = json.loads(verified_token)
-        if belongs_to:
-            assert token_ref['project']['id'] == belongs_to
-        return token_ref
-
     @controller.protected
     def check_token(self, context):
-        try:
-            token_id = context.get('subject_token_id')
-            belongs_to = context['query_string'].get('belongsTo')
-            assert self._get_token_ref(context, token_id, belongs_to)
-        except Exception as e:
-            LOG.error(e)
-            raise exception.Unauthorized(e)
+        token_id = context.get('subject_token_id')
+        self.token_provider_api.check_token(token_id)
 
     @controller.protected
     def revoke_token(self, context):
         token_id = context.get('subject_token_id')
-        return self.token_controllers_ref.delete_token(context, token_id)
+        return self.token_provider_api.revoke_token(token_id)
 
     @controller.protected
     def validate_token(self, context):
         token_id = context.get('subject_token_id')
-        self.check_token(context)
-        token_ref = self.token_api.get_token(token_id)
-        token_data = token_factory.recreate_token_data(
-            token_ref.get('token_data'),
-            token_ref['expires'],
-            token_ref.get('user'),
-            token_ref.get('tenant'))
-        return token_factory.render_token_data_response(token_id, token_data)
+        token_data = self.token_provider_api.validate_token(token_id)
+        return render_token_data_response(token_id, token_data)
 
     @controller.protected
     def revocation_list(self, context, auth=None):
         return self.token_controllers_ref.revocation_list(context, auth)
+
+
+#FIXME(gyee): not sure if it belongs here or keystone.common. Park it here
+# for now.
+def render_token_data_response(token_id, token_data, created=False):
+    """Render token data HTTP response.
+
+    Stash token ID into the X-Subject-Token header.
+
+    """
+    headers = [('X-Subject-Token', token_id)]
+
+    if created:
+        status = (201, 'Created')
+    else:
+        status = (200, 'OK')
+
+    return wsgi.render_response(body=token_data,
+                                status=status, headers=headers)

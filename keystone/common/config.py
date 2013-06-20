@@ -399,3 +399,9 @@ def configure():
 
     # PasteDeploy config file
     register_str('config_file', group='paste_deploy', default=None)
+
+    # token provider
+    register_str(
+        'provider',
+        group='token',
+        default='keystone.token.providers.pki.Provider')

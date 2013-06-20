@@ -103,8 +103,14 @@ class Password(auth.AuthMethodHandler):
 
         # FIXME(gyee): identity.authenticate() can use some refactoring since
         # all we care is password matches
-        self.identity_api.authenticate(
-            user_id=user_info.user_id,
-            password=user_info.password)
+        try:
+            self.identity_api.authenticate(
+                user_id=user_info.user_id,
+                password=user_info.password)
+        except AssertionError:
+            # authentication failed because of invalid username or password
+            msg = _('Invalid username or password')
+            raise exception.Unauthorized(msg)
+
         if 'user_id' not in user_context:
             user_context['user_id'] = user_info.user_id

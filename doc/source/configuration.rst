@@ -74,7 +74,7 @@ following sections:
 * ``[s3]`` - Amazon S3 authentication driver configuration.
 * ``[identity]`` - identity system driver configuration
 * ``[catalog]`` - service catalog driver configuration
-* ``[token]`` - token driver configuration
+* ``[token]`` - token driver & token provider configuration
 * ``[policy]`` - policy system driver configuration for RBAC
 * ``[signing]`` - cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL configuration
@@ -148,6 +148,26 @@ invoked, all plugins must succeed in order to for the entire
 authentication to be successful. Furthermore, all the plugins invoked must
 agree on the ``user_id`` in the ``auth_context``.
 
+Token Provider
+--------------
+
+Keystone supports customizable token provider and it is specified in the
+``[token]`` section of the configuration file. Keystone provides both UUID and
+PKI token providers, with PKI token provider enabled as default. However, users
+may register their own token provider by configuring the following property.
+
+* ``provider`` - token provider driver. Defaults to
+  ``keystone.token.providers.pki.Provider``
+
+Note that ``token_format`` in the ``[signing]`` section is deprecated but still
+being supported for backward compatibility. Therefore, if ``provider`` is set
+to ``keystone.token.providers.pki.Provider``, ``token_format`` must be ``PKI``.
+Conversely, if ``provider`` is ``keystone.token.providers.uuid.Provider``,
+``token_format`` must be ``UUID``.
+
+For a customized provider, ``token_format`` must not set to ``PKI`` or
+``UUID``.
+
 Certificates for PKI
 --------------------
 
@@ -163,7 +183,9 @@ private key should only be readable by the system user that will run Keystone.
 The values that specify where to read the certificates are under the
 ``[signing]`` section of the configuration file.  The configuration values are:
 
-* ``token_format`` - Determines the algorithm used to generate tokens.  Can be either ``UUID`` or ``PKI``. Defaults to ``PKI``
+* ``token_format`` - Determines the algorithm used to generate tokens.  Can be
+  either ``UUID`` or ``PKI``. Defaults to ``PKI``. This option must be used in
+  conjunction with ``provider`` configuration in the ``[token]`` section.
 * ``certfile`` - Location of certificate used to verify tokens.  Default is ``/etc/keystone/ssl/certs/signing_cert.pem``
 * ``keyfile`` - Location of private key used to sign tokens.  Default is ``/etc/keystone/ssl/private/signing_key.pem``
 * ``ca_certs`` - Location of certificate for the authority that issued the above certificate. Default is ``/etc/keystone/ssl/certs/ca.pem``

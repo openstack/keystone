@@ -16,6 +16,7 @@
 
 """Main entry point into the Token service."""
 
+import copy
 import datetime
 
 from keystone.common import cms
@@ -30,19 +31,6 @@ from keystone.openstack.common import timeutils
 CONF = config.CONF
 config.register_int('expiration', group='token', default=86400)
 LOG = logging.getLogger(__name__)
-
-
-def unique_id(token_id):
-    """Return a unique ID for a token.
-
-    The returned value is useful as the primary key of a database table,
-    memcache store, or other lookup table.
-
-    :returns: Given a PKI token, returns it's hashed value. Otherwise, returns
-              the passed-in value (such as a UUID token ID or an existing
-              hash).
-    """
-    return cms.cms_hash_token(token_id)
 
 
 def default_expire_time():
@@ -113,6 +101,29 @@ class Manager(manager.Manager):
 
     def __init__(self):
         super(Manager, self).__init__(CONF.token.driver)
+
+    def _unique_id(self, token_id):
+        """Return a unique ID for a token.
+
+        The returned value is useful as the primary key of a database table,
+        memcache store, or other lookup table.
+
+        :returns: Given a PKI token, returns it's hashed value. Otherwise,
+                  returns the passed-in value (such as a UUID token ID or an
+                  existing hash).
+        """
+        return cms.cms_hash_token(token_id)
+
+    def get_token(self, token_id):
+        return self.driver.get_token(self._unique_id(token_id))
+
+    def create_token(self, token_id, data):
+        data_copy = copy.deepcopy(data)
+        data_copy['id'] = self._unique_id(token_id)
+        return self.driver.create_token(self._unique_id(token_id), data_copy)
+
+    def delete_token(self, token_id):
+        return self.driver.delete_token(self._unique_id(token_id))
 
 
 class Driver(object):

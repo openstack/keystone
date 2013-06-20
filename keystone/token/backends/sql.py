@@ -41,7 +41,7 @@ class Token(sql.Base, token.Driver):
         if token_id is None:
             raise exception.TokenNotFound(token_id=token_id)
         session = self.get_session()
-        token_ref = session.query(TokenModel).get(token.unique_id(token_id))
+        token_ref = session.query(TokenModel).get(token_id)
         now = datetime.datetime.utcnow()
         if not token_ref or not token_ref.valid:
             raise exception.TokenNotFound(token_id=token_id)
@@ -59,7 +59,6 @@ class Token(sql.Base, token.Driver):
             data_copy['user_id'] = data_copy['user']['id']
 
         token_ref = TokenModel.from_dict(data_copy)
-        token_ref.id = token.unique_id(token_id)
         token_ref.valid = True
         session = self.get_session()
         with session.begin():
@@ -69,9 +68,8 @@ class Token(sql.Base, token.Driver):
 
     def delete_token(self, token_id):
         session = self.get_session()
-        key = token.unique_id(token_id)
         with session.begin():
-            token_ref = session.query(TokenModel).get(key)
+            token_ref = session.query(TokenModel).get(token_id)
             if not token_ref or not token_ref.valid:
                 raise exception.TokenNotFound(token_id=token_id)
             token_ref.valid = False
