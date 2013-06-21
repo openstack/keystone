@@ -16,6 +16,7 @@
 
 """Workflow Logic the Identity service."""
 
+import copy
 import urllib
 import urlparse
 import uuid
@@ -794,3 +795,195 @@ class RoleV3(controller.V3Controller):
             self._delete_tokens_for_user(user_id)
         else:
             self._delete_tokens_for_group(group_id)
+
+
+class RoleAssignmentV3(controller.V3Controller):
+
+    # TODO(henry-nash): The current implementation does not provide a full
+    # first class entity for role-assignment. There is no role_assignment_id
+    # and only the list_role_assignment call is supported. Further, since it
+    # is not a first class entity, the links for the individual entities
+    # reference the individual role grant APIs.
+
+    collection_name = 'role_assignments'
+    member_name = 'role_assignment'
+
+    @classmethod
+    def wrap_member(cls, context, ref):
+        # NOTE(henry-nash): Since we are not yet a true collection, we override
+        # the wrapper as have already included the links in the entities
+        pass
+
+    def _format_entity(self, entity):
+        formatted_entity = {}
+        if 'user_id' in entity:
+            formatted_entity['user'] = {'id': entity['user_id']}
+            actor_link = '/users/%s' % entity['user_id']
+        if 'group_id' in entity:
+            formatted_entity['group'] = {'id': entity['group_id']}
+            actor_link = '/groups/%s' % entity['group_id']
+        if 'role_id' in entity:
+            formatted_entity['role'] = {'id': entity['role_id']}
+        if 'project_id' in entity:
+            formatted_entity['scope'] = (
+                {'project': {'id': entity['project_id']}})
+            target_link = '/projects/%s' % entity['project_id']
+        if 'domain_id' in entity:
+            formatted_entity['scope'] = (
+                {'domain': {'id': entity['domain_id']}})
+            target_link = '/domains/%s' % entity['domain_id']
+
+        formatted_entity.setdefault('links', {})
+        formatted_entity['links']['assignment'] = (
+            self.base_url(target_link + actor_link +
+                          '/roles/%s' % entity['role_id']))
+        return formatted_entity
+
+    def _expand_indirect_assignments(self, refs):
+        """Processes entity list into all-direct assignments.
+
+        For any group role assignments in the list, create a role assignment
+        entity for each member of that group, and then remove the group
+        assignment entity itself from the list.
+
+        For any new entity created by virtue of group membership, add in an
+        additional link to that membership.
+
+        """
+        def _get_group_members(ref):
+            """Get a list of group members.
+
+            Get the list of group members.  If this fails with
+            GroupNotFound, then log this as a warning, but allow
+            overall processing to continue.
+
+            """
+            try:
+                members = self.identity_api.list_users_in_group(
+                    ref['group']['id'])
+            except exception.GroupNotFound:
+                members = []
+                # The group is missing, which should not happen since
+                # group deletion should remove any related assignments, so
+                # log a warning
+                if 'domain' in ref:
+                    target = 'Domain: %s' % ref['domain'].get('domain_id')
+                elif 'project' in ref:
+                    target = 'Project: %s' % ref['project'].get('project_id')
+                else:
+                    # Should always be a domain or project, but since to get
+                    # here things have gone astray, let's be cautious.
+                    target = 'Unknown'
+                LOG.warning(
+                    _('Group %(group)s not found for role-assignment - '
+                      '%(target)s with Role: %(role)s') % {
+                          'group': ref['group_id'], 'target': target,
+                          'role': ref.get('role_id')})
+            return members
+
+        def _build_equivalent_user_assignment(user, group_id, template):
+            """Create a user assignment equivalent to the group one.
+
+            The template has had the 'group' entity removed, so
+            substitute a 'user' one, modify the 'assignment' link
+            to match, and add a 'membership' link.
+
+            """
+            user_entry = copy.deepcopy(template)
+            user_entry['user'] = {'id': user['id']}
+            scope = user_entry.get('scope')
+            if 'domain' in scope:
+                target_link = (
+                    '/domains/%s' % scope['domain']['id'])
+            else:
+                target_link = (
+                    '/projects/%s' % scope['project']['id'])
+            user_entry['links']['assignment'] = (
+                self.base_url('%s/users/%s/roles/%s' %
+                              (target_link, m['id'],
+                               user_entry['role']['id'])))
+            user_entry['links']['membership'] = (
+                self.base_url('/groups/%s/users/%s' %
+                              (group_id, user['id'])))
+            return user_entry
+
+        # Scan the list of entities for any group assignments, expanding
+        # them into equivalent user entities.  Due to potential large
+        # expansion of group entities, rather than modify the
+        # list we are enumerating, we build a new one as we go.
+        new_refs = []
+        for r in refs:
+            if 'group' in r:
+                # As it is a group role assignment, first get the list of
+                # members.
+
+                members = _get_group_members(r)
+
+                # Now replace that group role assignment entry with an
+                # equivalent user role assignment for each of the group members
+
+                base_entry = copy.deepcopy(r)
+                group_id = base_entry['group']['id']
+                base_entry.pop('group')
+                for m in members:
+                    user_entry = _build_equivalent_user_assignment(
+                        m, group_id, base_entry)
+                    new_refs.append(user_entry)
+            else:
+                new_refs.append(r)
+
+        return new_refs
+
+    def _query_filter_is_true(self, filter_value):
+        """Determine if bool query param is 'True'.
+
+        We treat this the same way as we do for policy
+        enforcement:
+
+        {bool_param}=0 is treated as False
+
+        Any other value is considered to be equivalent to
+        True, including the absence of a value
+
+        """
+
+        if (isinstance(filter_value, basestring) and
+                filter_value == '0'):
+            val = False
+        else:
+            val = True
+        return val
+
+    @controller.filterprotected('group.id', 'role.id',
+                                'scope.domain.id', 'scope.project.id',
+                                'user.id')
+    def list_role_assignments(self, context, filters):
+
+        # TODO(henry-nash): This implementation uses the standard filtering
+        # in the V3.wrap_collection. Given the large number of individual
+        # assignments, this is pretty inefficient.  An alternative would be
+        # to pass the filters into the driver call, so that the list size is
+        # kept a minimum.
+
+        refs = self.identity_api.list_role_assignments()
+        formatted_refs = [self._format_entity(x) for x in refs]
+
+        if ('effective' in context['query_string'] and
+                self._query_filter_is_true(
+                    context['query_string']['effective'])):
+
+            formatted_refs = self._expand_indirect_assignments(formatted_refs)
+
+        return self.wrap_collection(context, formatted_refs, filters)
+
+    @controller.protected
+    def get_role_assignment(self, context):
+        raise exception.NotImplemented()
+
+    @controller.protected
+    def update_role_assignment(self, context):
+        raise exception.NotImplemented()
+
+    @controller.protected
+    def delete_role_assignment(self, context):
+        raise exception.NotImplemented()

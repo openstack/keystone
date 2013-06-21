@@ -458,6 +458,9 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
         raise nose.exc.SkipTest('Blocked by bug 1101287')
 
+    def test_list_role_assignments_unfiltered(self):
+        raise nose.exc.SkipTest('Blocked by bug 1195019')
+
     def test_project_crud(self):
         # NOTE(topol): LDAP implementation does not currently support the
         #              updating of a project name so this method override

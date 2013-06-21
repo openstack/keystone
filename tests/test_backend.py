@@ -482,6 +482,72 @@ class IdentityTests(object):
                           self.identity_api.get_project,
                           'fake2')
 
+    def test_list_role_assignments_unfiltered(self):
+        """Test for unfiltered listing role assignments.
+
+        Test Plan:
+        - Create a domain, with a user, group & project
+        - Find how many role assignments already exist (from default
+          fixtures)
+        - Create a grant of each type (user/group on project/domain)
+        - Check the number of assignments has gone up by 4 and that
+          the entries we added are in the list returned
+
+        """
+        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(new_domain['id'], new_domain)
+        new_user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'password': uuid.uuid4().hex, 'enabled': True,
+                    'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user['id'],
+                                      new_user)
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_project = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex,
+                       'domain_id': new_domain['id']}
+        self.identity_api.create_project(new_project['id'], new_project)
+
+        # First check how many role grant already exist
+        existing_assignments = len(self.identity_api.list_role_assignments())
+
+        # Now create the grants (roles are defined in default_fixtures)
+        self.identity_api.create_grant(user_id=new_user['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='member')
+        self.identity_api.create_grant(user_id=new_user['id'],
+                                       project_id=new_project['id'],
+                                       role_id='other')
+        self.identity_api.create_grant(group_id=new_group['id'],
+                                       domain_id=new_domain['id'],
+                                       role_id='admin')
+        self.identity_api.create_grant(group_id=new_group['id'],
+                                       project_id=new_project['id'],
+                                       role_id='admin')
+
+        # Read back the list of assignments - check it is gone up by 4
+        assignment_list = self.identity_api.list_role_assignments()
+        self.assertEquals(len(assignment_list), existing_assignments + 4)
+
+        # Now check that each of our four new entries are in the list
+        self.assertIn(
+            {'user_id': new_user['id'], 'domain_id': new_domain['id'],
+             'role_id': 'member'},
+            assignment_list)
+        self.assertIn(
+            {'user_id': new_user['id'], 'project_id': new_project['id'],
+             'role_id': 'other'},
+            assignment_list)
+        self.assertIn(
+            {'group_id': new_group['id'], 'domain_id': new_domain['id'],
+             'role_id': 'admin'},
+            assignment_list)
+        self.assertIn(
+            {'group_id': new_group['id'], 'project_id': new_project['id'],
+             'role_id': 'admin'},
+            assignment_list)
+
     def test_add_duplicate_role_grant(self):
         roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])

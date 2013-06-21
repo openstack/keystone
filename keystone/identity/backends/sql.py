@@ -355,6 +355,43 @@ class Identity(sql.Base, identity.Driver):
             self.update_metadata(user_id, project_id, metadata_ref,
                                  domain_id, group_id)
 
+    def list_role_assignments(self):
+
+        # TODO(henry-nash): The current implementation is really simulating
+        # us having a common role assignment table, rather than having the
+        # four different grant tables we have today.  When we move to role
+        # assignment as a first class entity, we should create the single
+        # assignment table, simplifying the logic of this (and many other)
+        # functions.
+
+        session = self.get_session()
+        assignment_list = []
+        refs = session.query(UserDomainGrant).all()
+        for x in refs:
+            for r in x.data.get('roles', []):
+                assignment_list.append({'user_id': x.user_id,
+                                        'domain_id': x.domain_id,
+                                        'role_id': r})
+        refs = session.query(UserProjectGrant).all()
+        for x in refs:
+            for r in x.data.get('roles', []):
+                assignment_list.append({'user_id': x.user_id,
+                                        'project_id': x.project_id,
+                                        'role_id': r})
+        refs = session.query(GroupDomainGrant).all()
+        for x in refs:
+            for r in x.data.get('roles', []):
+                assignment_list.append({'group_id': x.group_id,
+                                        'domain_id': x.domain_id,
+                                        'role_id': r})
+        refs = session.query(GroupProjectGrant).all()
+        for x in refs:
+            for r in x.data.get('roles', []):
+                assignment_list.append({'group_id': x.group_id,
+                                        'project_id': x.project_id,
+                                        'role_id': r})
+        return assignment_list
+
     def list_projects(self):
         session = self.get_session()
         tenant_refs = session.query(Project).all()

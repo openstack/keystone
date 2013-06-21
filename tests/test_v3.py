@@ -715,6 +715,87 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.assertEqual(ref['name'], entity['name'])
         return entity
 
+    def assertValidRoleAssignmentListResponse(self, resp, ref=None,
+                                              expected_length=None):
+
+        entities = resp.result.get('role_assignments')
+
+        if expected_length is not None:
+            self.assertEqual(len(entities), expected_length)
+        elif ref is not None:
+            # we're at least expecting the ref
+            self.assertNotEmpty(entities)
+
+        # collections should have relational links
+        self.assertValidListLinks(resp.result.get('links'))
+
+        for entity in entities:
+            self.assertIsNotNone(entity)
+            self.assertValidRoleAssignment(entity)
+        if ref:
+            self.assertValidRoleAssignment(entity, ref)
+        return entities
+
+    def assertValidRoleAssignment(self, entity, ref=None, url=None):
+        self.assertIsNotNone(entity.get('role'))
+        self.assertIsNotNone(entity.get('scope'))
+
+        # Only one of user or group should be present
+        self.assertIsNotNone(entity.get('user') or
+                             entity.get('group'))
+        self.assertIsNone(entity.get('user') and
+                          entity.get('group'))
+
+        # Only one of domain or project should be present
+        self.assertIsNotNone(entity['scope'].get('project') or
+                             entity['scope'].get('domain'))
+        self.assertIsNone(entity['scope'].get('project') and
+                          entity['scope'].get('domain'))
+
+        if entity['scope'].get('project'):
+            self.assertIsNotNone(entity['scope']['project'].get('id'))
+        else:
+            self.assertIsNotNone(entity['scope']['domain'].get('id'))
+        self.assertIsNotNone(entity.get('links'))
+        self.assertIsNotNone(entity['links'].get('assignment'))
+
+        if ref:
+            if ref.get('user'):
+                self.assertEqual(ref['user']['id'], entity['user']['id'])
+            if ref.get('group'):
+                self.assertEqual(ref['group']['id'], entity['group']['id'])
+            if ref.get('role'):
+                self.assertEqual(ref['role']['id'], entity['role']['id'])
+            if ref['scope'].get('project'):
+                self.assertEqual(ref['scope']['project']['id'],
+                                 entity['scope']['project']['id'])
+            if ref['scope'].get('domain'):
+                self.assertEqual(ref['scope']['domain']['id'],
+                                 entity['scope']['domain']['id'])
+        if url:
+            self.assertIn(url, entity['links']['assignment'])
+
+    def assertRoleAssignmentInListResponse(
+            self, resp, ref, link_url=None, expected=1):
+
+        found_count = 0
+        for entity in resp.result.get('role_assignments'):
+            try:
+                self.assertValidRoleAssignment(
+                    entity, ref=ref, url=link_url)
+            except Exception:
+                # It doesn't match, so let's go onto the next one
+                pass
+            else:
+                found_count += 1
+        self.assertEqual(found_count, expected)
+
+    def assertRoleAssignmentNotInListResponse(
+            self, resp, ref, link_url=None):
+
+        self.assertRoleAssignmentInListResponse(
+            resp, ref=ref, link_url=link_url, expected=0)
+
     # policy validation
 
     def assertValidPolicyListResponse(self, resp, *args, **kwargs):
