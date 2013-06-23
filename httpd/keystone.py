@@ -9,6 +9,7 @@ from keystone import config
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
 CONF(project='keystone')
+config.setup_logging(CONF)
 
 environment.use_stdlib()
 name = os.path.basename(__file__)
