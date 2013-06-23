@@ -288,7 +288,7 @@ class Middleware(Application):
         def _factory(app):
             conf = global_config.copy()
             conf.update(local_config)
-            return cls(app)
+            return cls(app, **local_config)
         return _factory
 
     def __init__(self, application):

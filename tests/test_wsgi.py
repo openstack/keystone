@@ -176,3 +176,13 @@ class MiddlewareTest(BaseWSGITest):
         resp = FakeMiddleware(self.app)(req)
         self.assertEquals(resp.status_int, exception.UnexpectedError.code)
         self.assertIn("EXCEPTIONERROR", resp.body)
+
+    def test_middleware_local_config(self):
+        class FakeMiddleware(wsgi.Middleware):
+            def __init__(self, *args, **kwargs):
+                self.kwargs = kwargs
+
+        factory = FakeMiddleware.factory({}, testkey="test")
+        app = factory(self.app)
+        self.assertIn("testkey", app.kwargs)
+        self.assertEquals("test", app.kwargs["testkey"])
