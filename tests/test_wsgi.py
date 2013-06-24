@@ -125,6 +125,27 @@ class ApplicationTest(BaseWSGITest):
         self.assertEqual(resp.headers.get('Content-Length'), '0')
         self.assertEqual(resp.headers.get('Content-Type'), None)
 
+    def test_application_local_config(self):
+        class FakeApp(wsgi.Application):
+            def __init__(self, *args, **kwargs):
+                self.kwargs = kwargs
+
+        app = FakeApp.factory({}, testkey="test")
+        self.assertIn("testkey", app.kwargs)
+        self.assertEquals("test", app.kwargs["testkey"])
+
+
+class ExtensionRouterTest(BaseWSGITest):
+    def test_extensionrouter_local_config(self):
+        class FakeRouter(wsgi.ExtensionRouter):
+            def __init__(self, *args, **kwargs):
+                self.kwargs = kwargs
+
+        factory = FakeRouter.factory({}, testkey="test")
+        app = factory(self.app)
+        self.assertIn("testkey", app.kwargs)
+        self.assertEquals("test", app.kwargs["testkey"])
+
 
 class MiddlewareTest(BaseWSGITest):
     def test_middleware_request(self):

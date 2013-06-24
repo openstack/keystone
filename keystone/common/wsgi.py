@@ -103,18 +103,18 @@ class BaseApplication(object):
 
             [app:wadl]
             latest_version = 1.3
-            paste.app_factory = nova.api.fancy_api:Wadl.factory
+            paste.app_factory = keystone.fancy_api:Wadl.factory
 
         which would result in a call to the `Wadl` class as
 
-            import nova.api.fancy_api
-            fancy_api.Wadl(latest_version='1.3')
+            import keystone.fancy_api
+            keystone.fancy_api.Wadl(latest_version='1.3')
 
         You could of course re-implement the `factory` method in subclasses,
         but using the kwarg passing it shouldn't be necessary.
 
         """
-        return cls()
+        return cls(**local_config)
 
     def __call__(self, environ, start_response):
         r"""Subclasses will probably want to implement __call__ like this:
@@ -276,12 +276,12 @@ class Middleware(Application):
 
             [filter:analytics]
             redis_host = 127.0.0.1
-            paste.filter_factory = nova.api.analytics:Analytics.factory
+            paste.filter_factory = keystone.analytics:Analytics.factory
 
         which would result in a call to the `Analytics` class as
 
-            import nova.api.analytics
-            analytics.Analytics(app_from_paste, redis_host='127.0.0.1')
+            import keystone.analytics
+            keystone.analytics.Analytics(app, redis_host='127.0.0.1')
 
         You could of course re-implement the `factory` method in subclasses,
         but using the kwarg passing it shouldn't be necessary.
@@ -486,12 +486,12 @@ class ExtensionRouter(Router):
 
             [filter:analytics]
             redis_host = 127.0.0.1
-            paste.filter_factory = nova.api.analytics:Analytics.factory
+            paste.filter_factory = keystone.analytics:Analytics.factory
 
         which would result in a call to the `Analytics` class as
 
-            import nova.api.analytics
-            analytics.Analytics(app_from_paste, redis_host='127.0.0.1')
+            import keystone.analytics
+            keystone.analytics.Analytics(app, redis_host='127.0.0.1')
 
         You could of course re-implement the `factory` method in subclasses,
         but using the kwarg passing it shouldn't be necessary.
@@ -500,7 +500,7 @@ class ExtensionRouter(Router):
         def _factory(app):
             conf = global_config.copy()
             conf.update(local_config)
-            return cls(app)
+            return cls(app, **local_config)
         return _factory
 
 
