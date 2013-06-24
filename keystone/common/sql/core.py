@@ -176,8 +176,7 @@ class DictBase(object):
         #return local.iteritems()
 
 
-class MySQLPingListener(object):
-
+def mysql_on_checkout(dbapi_conn, connection_rec, connection_proxy):
     """Ensures that MySQL connections checked out of the pool are alive.
 
     Borrowed from:
@@ -192,16 +191,14 @@ class MySQLPingListener(object):
 
     from http://dev.mysql.com/doc/refman/5.6/en/error-messages-client.html
     """
-
-    def checkout(self, dbapi_con, con_record, con_proxy):
-        try:
-            dbapi_con.cursor().execute('select 1')
-        except dbapi_con.OperationalError as e:
-            if e.args[0] in (2006, 2013, 2014, 2045, 2055):
-                logging.warn(_('Got mysql server has gone away: %s'), e)
-                raise DisconnectionError("Database server went away")
-            else:
-                raise
+    try:
+        dbapi_conn.cursor().execute('select 1')
+    except dbapi_conn.OperationalError as e:
+        if e.args[0] in (2006, 2013, 2014, 2045, 2055):
+            logging.warn(_('Got mysql server has gone away: %s'), e)
+            raise DisconnectionError("Database server went away")
+        else:
+            raise
 
 
 # Backends
@@ -235,10 +232,13 @@ class Base(object):
 
             if 'sqlite' in connection_dict.drivername:
                 engine_config['poolclass'] = sqlalchemy.pool.StaticPool
-            elif 'mysql' in connection_dict.drivername:
-                engine_config['listeners'] = [MySQLPingListener()]
 
-            return sql.create_engine(CONF.sql.connection, **engine_config)
+            engine = sql.create_engine(CONF.sql.connection, **engine_config)
+
+            if engine.name == 'mysql':
+                sql.event.listen(engine, 'checkout', mysql_on_checkout)
+
+            return engine
 
         if not allow_global_engine:
             return new_engine()
