@@ -19,12 +19,8 @@ import nose.exc
 
 from keystone import test
 
-from keystone import catalog
-from keystone.catalog.backends import kvs as catalog_kvs
 from keystone import exception
 from keystone import identity
-from keystone.token.backends import kvs as token_kvs
-from keystone.trust.backends import kvs as trust_kvs
 
 import default_fixtures
 import test_backend
@@ -33,10 +29,9 @@ import test_backend
 class KvsIdentity(test.TestCase, test_backend.IdentityTests):
     def setUp(self):
         super(KvsIdentity, self).setUp()
-        identity.CONF.identity.driver = \
-            'keystone.identity.backends.kvs.Identity'
-        self.identity_man = identity.Manager()
-        self.identity_api = self.identity_man.driver
+        identity.CONF.identity.driver = (
+            'keystone.identity.backends.kvs.Identity')
+        self.load_backends()
         self.load_fixtures(default_fixtures)
 
     def test_list_user_projects(self):
@@ -74,31 +69,38 @@ class KvsIdentity(test.TestCase, test_backend.IdentityTests):
 class KvsToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
-        self.token_api = token_kvs.Token(db={})
+        identity.CONF.identity.driver = (
+            'keystone.identity.backends.kvs.Identity')
+        self.load_backends()
 
 
 class KvsTrust(test.TestCase, test_backend.TrustTests):
     def setUp(self):
         super(KvsTrust, self).setUp()
-        identity.CONF.identity.driver = \
-            'keystone.identity.backends.kvs.Identity'
-        self.identity_man = identity.Manager()
-        self.identity_api = self.identity_man.driver
-        self.trust_api = trust_kvs.Trust(db={})
-        self.catalog_api = catalog_kvs.Catalog(db={})
+        identity.CONF.identity.driver = (
+            'keystone.identity.backends.kvs.Identity')
+        identity.CONF.trust.driver = (
+            'keystone.trust.backends.kvs.Trust')
+        identity.CONF.catalog.driver = (
+            'keystone.catalog.backends.kvs.Catalog')
+        self.load_backends()
         self.load_fixtures(default_fixtures)
 
 
 class KvsCatalog(test.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(KvsCatalog, self).setUp()
-        self.catalog_api = catalog_kvs.Catalog(db={})
-        self.catalog_man = catalog.Manager()
-        self.load_fixtures(default_fixtures)
+        identity.CONF.identity.driver = (
+            'keystone.identity.backends.kvs.Identity')
+        identity.CONF.trust.driver = (
+            'keystone.trust.backends.kvs.Trust')
+        identity.CONF.catalog.driver = (
+            'keystone.catalog.backends.kvs.Catalog')
+        self.load_backends()
         self._load_fake_catalog()
 
     def _load_fake_catalog(self):
-        self.catalog_foobar = self.catalog_api._create_catalog(
+        self.catalog_foobar = self.catalog_api.driver._create_catalog(
             'foo', 'bar',
             {'RegionFoo': {'service_bar': {'foo': 'bar'}}})
 
