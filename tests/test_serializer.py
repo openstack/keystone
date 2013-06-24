@@ -250,3 +250,48 @@ class XmlSerializerTestCase(test.TestCase):
             </object>
         """
         self.assertSerializeDeserialize(d, xml)
+
+    def test_v2_links_special_case(self):
+        # There's special-case code (for backward compatibility) where if the
+        # data is the v2 version data, the link elements are also added to the
+        # main element.
+
+        d = {
+            "object": {
+                "id": "v2.0",
+                "status": "stable",
+                "updated": "2013-03-06T00:00:00Z",
+                "links": [{"href": "http://localhost:5000/v2.0/",
+                           "rel": "self"},
+                          {"href": "http://docs.openstack.org/api/openstack-"
+                                   "identity-service/2.0/content/",
+                           "type": "text/html", "rel": "describedby"},
+                          {"href": "http://docs.openstack.org/api/openstack-"
+                                   "identity-service/2.0/"
+                                   "identity-dev-guide-2.0.pdf",
+                           "type": "application/pdf", "rel": "describedby"}]
+            }}
+
+        xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <object xmlns="http://docs.openstack.org/identity/api/v2.0"
+                id="v2.0" status="stable" updated="2013-03-06T00:00:00Z">
+                    <links>
+                        <link rel="self" href="http://localhost:5000/v2.0/"/>
+                        <link rel="describedby"
+                              href="http://docs.openstack.org/api/openstack-\
+identity-service/2.0/content/" type="text/html"/>
+                        <link rel="describedby"
+                              href="http://docs.openstack.org/api/openstack-\
+identity-service/2.0/identity-dev-guide-2.0.pdf" type="application/pdf"/>
+                    </links>
+                    <link rel="self" href="http://localhost:5000/v2.0/"/>
+                    <link rel="describedby"
+                          href="http://docs.openstack.org/api/openstack-\
+identity-service/2.0/content/" type="text/html"/>
+                    <link rel="describedby"
+                          href="http://docs.openstack.org/api/openstack-\
+identity-service/2.0/identity-dev-guide-2.0.pdf" type="application/pdf"/>
+            </object>
+        """
+        self.assertEqualXML(serializer.to_xml(d), xml)

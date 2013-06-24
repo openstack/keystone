@@ -300,6 +300,18 @@ class XmlSerializer(object):
             self._populate_sequence(element, value)
         elif isinstance(value, dict):
             self._populate_tree(element, value)
+
+            # NOTE(blk-u): For compatibility with Folsom, when serializing the
+            # v2.0 version element also add the links to the base element.
+            if (value.get('id') == 'v2.0' and
+                    value.get('status') == 'stable' and
+                    value.get('updated') == '2013-03-06T00:00:00Z'):
+
+                for item in value['links']:
+                    child = etree.Element('link')
+                    self.populate_element(child, item)
+                    element.append(child)
+
         elif isinstance(value, basestring):
             element.text = unicode(value)
 
