@@ -577,8 +577,10 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
         self.identity_api.add_user_to_group(user_2_id, group_id)
 
-        # Delete user 2.
-        self.identity_api.delete_user(user_2_id)
+        # Delete user 2
+        # NOTE(blk-u): need to go directly to user interface to keep from
+        # updating the group.
+        self.identity_api.user.delete(user_2_id)
 
         # List group users and verify only user 1.
         res = self.identity_api.list_users_in_group(group_id)

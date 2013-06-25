@@ -370,7 +370,13 @@ class Identity(identity.Driver):
         users = []
         for user_dn in self.group.list_group_users(group_id):
             user_id = self.user._dn_to_id(user_dn)
-            users.append(self.user.get(user_id))
+            try:
+                users.append(self.user.get(user_id))
+            except exception.UserNotFound:
+                LOG.debug(_("Group member '%(user_dn)s' not found in"
+                            " '%(group_id)s'. The user should be removed"
+                            " from the group. The user will be ignored.") %
+                          dict(user_dn=user_dn, group_id=group_id))
         return self._set_default_domain(users)
 
     def check_user_in_group(self, user_id, group_id):
@@ -869,11 +875,5 @@ class GroupApi(common_ldap.BaseLdap):
             for user_dn in user_dns:
                 if self.use_dumb_member and user_dn == self.dumb_member:
                     continue
-                try:
-                    users.append(user_dn)
-                except exception.UserNotFound:
-                    LOG.debug(_("Group member '%(user_dn)s' not found in"
-                                " '%(group_dn)s'. The user should be removed"
-                                " from the group. The user will be ignored.") %
-                              dict(user_dn=user_dn, group_dn=group_dn))
+                users.append(user_dn)
         return users
