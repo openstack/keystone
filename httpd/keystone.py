@@ -17,4 +17,8 @@ name = os.path.basename(__file__)
 if CONF.debug:
     CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
 
-deploy.loadapp('config:%s' % config.find_paste_config(), name=name)
+# NOTE(ldbragst): 'application' is required in this context by WSGI spec.
+# The following is a reference to Python Paste Deploy documentation
+# http://pythonpaste.org/deploy/
+application = deploy.loadapp('config:%s' % config.find_paste_config(),
+                             name=name)
