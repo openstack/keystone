@@ -20,6 +20,7 @@ import webob
 import nose.exc
 
 from keystone import test
+from keystone import token
 
 from keystone import config
 from keystone.openstack.common import jsonutils
@@ -42,6 +43,7 @@ class CompatTestCase(test.TestCase):
         self.clear_module('keystoneclient')
 
         self.load_backends()
+        self.token_provider_api = token.provider.Manager()
         self.load_fixtures(default_fixtures)
 
         self.public_server = self.serveapp('keystone', name='main')
@@ -838,6 +840,28 @@ class KeystoneClientTests(object):
 class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
     def get_checkout(self):
         return KEYSTONECLIENT_REPO, 'master'
+
+    def test_ec2_auth(self):
+        client = self.get_client()
+        cred = client.ec2.create(user_id=self.user_foo['id'],
+                                 tenant_id=self.tenant_bar['id'])
+
+        from keystoneclient.contrib.ec2 import utils as ec2_utils
+        signer = ec2_utils.Ec2Signer(cred.secret)
+        credentials = {'params': {'SignatureVersion': '2'},
+                       'access': cred.access,
+                       'verb': 'GET',
+                       'host': 'localhost',
+                       'path': '/thisisgoingtowork'}
+        signature = signer.generate(credentials)
+        credentials['signature'] = signature
+        url = '%s/ec2tokens' % (client.auth_url)
+        (resp, token) = client.request(url=url,
+                                       method='POST',
+                                       body={'credentials': credentials})
+        # make sure we have a v2 token
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('access', token)
 
     def test_tenant_add_and_remove_user(self):
         client = self.get_client(admin=True)

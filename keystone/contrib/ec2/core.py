@@ -97,7 +97,7 @@ class Ec2Extension(wsgi.ExtensionRouter):
             conditions=dict(method=['DELETE']))
 
 
-@dependency.requires('catalog_api', 'ec2_api')
+@dependency.requires('catalog_api', 'ec2_api', 'token_provider_api')
 class Ec2Controller(controller.V2Controller):
     def check_signature(self, creds_ref, credentials):
         signer = ec2_utils.Ec2Signer(creds_ref['secret'])
@@ -172,17 +172,16 @@ class Ec2Controller(controller.V2Controller):
             tenant_id=tenant_ref['id'],
             metadata=metadata_ref)
 
-        token_ref = self.token_api.create_token(
-            token_id, dict(id=token_id,
-                           user=user_ref,
-                           tenant=tenant_ref,
-                           metadata=metadata_ref))
-
-        # TODO(termie): i don't think the ec2 middleware currently expects a
-        #               full return, but it contains a note saying that it
-        #               would be better to expect a full return
-        return token.controllers.Auth.format_authenticate(
-            token_ref, roles_ref, catalog_ref)
+        auth_token_data = dict(user=user_ref,
+                               tenant=tenant_ref,
+                               metadata=metadata_ref,
+                               id='placeholder')
+        (token_id, token_data) = self.token_provider_api.issue_token(
+            version=token.provider.V2,
+            token_ref=auth_token_data,
+            roles_ref=roles_ref,
+            catalog_ref=catalog_ref)
+        return token_data
 
     def create_credential(self, context, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
