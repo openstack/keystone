@@ -17,6 +17,7 @@
 """Token Factory"""
 
 import json
+import sys
 import uuid
 import webob
 
@@ -338,14 +339,14 @@ def create_token(context, auth_context, auth_info):
                     token_data=token_data,
                     trust_id=trust['id'] if trust else None)
         token_api.create_token(context, token_id, data)
-    except Exception as e:
+    except Exception:
+        exc_info = sys.exc_info()
         # an identical token may have been created already.
         # if so, return the token_data as it is also identical
         try:
-            token_api.get_token(context=context,
-                                token_id=token_id)
+            token_api.get_token(context=context, token_id=token_id)
         except exception.TokenNotFound:
-            raise e
+            raise exc_info[0], exc_info[1], exc_info[2]
 
     return (token_id, token_data)
 
