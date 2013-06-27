@@ -492,7 +492,7 @@ Each user can then change their own password with a HTTP PATCH ::
     -H "X_Auth_Token: <authtokenid>" -d '{"user": {"password": "ABCD", "original_password": "DCBA"}}'
 
 In addition to changing their password all of the users current tokens will be
-deleted (if the backend used is kvs or sql)
+deleted (if the backend used is sql)
 
 
 Inherited Role Assignment Extension
