@@ -26,9 +26,8 @@ LOG = logging.getLogger(__name__)
 
 
 class UserAuthInfo(object):
-    def __init__(self, context, auth_payload):
+    def __init__(self, auth_payload):
         self.identity_api = identity.Manager()
-        self.context = context
         self.user_id = None
         self.password = None
         self.user_ref = None
@@ -55,11 +54,9 @@ class UserAuthInfo(object):
                                             target='domain')
         try:
             if domain_name:
-                domain_ref = self.identity_api.get_domain_by_name(
-                    context=self.context, domain_name=domain_name)
+                domain_ref = self.identity_api.get_domain_by_name(domain_name)
             else:
-                domain_ref = self.identity_api.get_domain(
-                    context=self.context, domain_id=domain_id)
+                domain_ref = self.identity_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
@@ -85,13 +82,11 @@ class UserAuthInfo(object):
                                                     target='user')
                 domain_ref = self._lookup_domain(user_info['domain'])
                 user_ref = self.identity_api.get_user_by_name(
-                    context=self.context, user_name=user_name,
-                    domain_id=domain_ref['id'])
+                    user_name, domain_ref['id'])
             else:
-                user_ref = self.identity_api.get_user(
-                    context=self.context, user_id=user_id)
+                user_ref = self.identity_api.get_user(user_id)
                 domain_ref = self.identity_api.get_domain(
-                    context=self.context, domain_id=user_ref['domain_id'])
+                    user_ref['domain_id'])
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:
             LOG.exception(e)
@@ -104,12 +99,11 @@ class UserAuthInfo(object):
 class Password(auth.AuthMethodHandler):
     def authenticate(self, context, auth_payload, user_context):
         """Try to authenticate against the identity backend."""
-        user_info = UserAuthInfo(context, auth_payload)
+        user_info = UserAuthInfo(auth_payload)
 
         # FIXME(gyee): identity.authenticate() can use some refactoring since
         # all we care is password matches
         self.identity_api.authenticate(
-            context=context,
             user_id=user_info.user_id,
             password=user_info.password)
         if 'user_id' not in user_context:

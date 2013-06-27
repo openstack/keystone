@@ -145,26 +145,20 @@ class Ec2Controller(controller.V2Controller):
         if 'access' not in credentials:
             raise exception.Unauthorized(message='EC2 signature not supplied.')
 
-        creds_ref = self._get_credentials(context,
-                                          credentials['access'])
+        creds_ref = self._get_credentials(credentials['access'])
         self.check_signature(creds_ref, credentials)
 
         # TODO(termie): don't create new tokens every time
         # TODO(termie): this is copied from TokenController.authenticate
         token_id = uuid.uuid4().hex
-        tenant_ref = self.identity_api.get_project(
-            context=context,
-            tenant_id=creds_ref['tenant_id'])
-        user_ref = self.identity_api.get_user(
-            context=context,
-            user_id=creds_ref['user_id'])
+        tenant_ref = self.identity_api.get_project(creds_ref['tenant_id'])
+        user_ref = self.identity_api.get_user(creds_ref['user_id'])
         metadata_ref = self.identity_api.get_metadata(
-            context=context,
             user_id=user_ref['id'],
             tenant_id=tenant_ref['id'])
 
         # Validate that the auth info is valid and nothing is disabled
-        token.validate_auth_info(self, context, user_ref, tenant_ref)
+        token.validate_auth_info(self, user_ref, tenant_ref)
 
         # TODO(termie): optimize this call at some point and put it into the
         #               the return for metadata
@@ -172,20 +166,19 @@ class Ec2Controller(controller.V2Controller):
         roles = metadata_ref.get('roles', [])
         if not roles:
             raise exception.Unauthorized(message='User not valid for tenant.')
-        roles_ref = [self.identity_api.get_role(context, role_id)
+        roles_ref = [self.identity_api.get_role(role_id)
                      for role_id in roles]
 
         catalog_ref = self.catalog_api.get_catalog(
-            context=context,
             user_id=user_ref['id'],
             tenant_id=tenant_ref['id'],
             metadata=metadata_ref)
 
         token_ref = self.token_api.create_token(
-            context, token_id, dict(id=token_id,
-                                    user=user_ref,
-                                    tenant=tenant_ref,
-                                    metadata=metadata_ref))
+            token_id, dict(id=token_id,
+                           user=user_ref,
+                           tenant=tenant_ref,
+                           metadata=metadata_ref))
 
         # TODO(termie): i don't think the ec2 middleware currently expects a
         #               full return, but it contains a note saying that it
@@ -207,14 +200,14 @@ class Ec2Controller(controller.V2Controller):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
 
-        self._assert_valid_user_id(context, user_id)
-        self._assert_valid_project_id(context, tenant_id)
+        self._assert_valid_user_id(user_id)
+        self._assert_valid_project_id(tenant_id)
 
         cred_ref = {'user_id': user_id,
                     'tenant_id': tenant_id,
                     'access': uuid.uuid4().hex,
                     'secret': uuid.uuid4().hex}
-        self.ec2_api.create_credential(context, cred_ref['access'], cred_ref)
+        self.ec2_api.create_credential(cred_ref['access'], cred_ref)
         return {'credential': cred_ref}
 
     def get_credentials(self, context, user_id):
@@ -226,8 +219,8 @@ class Ec2Controller(controller.V2Controller):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
-        self._assert_valid_user_id(context, user_id)
-        return {'credentials': self.ec2_api.list_credentials(context, user_id)}
+        self._assert_valid_user_id(user_id)
+        return {'credentials': self.ec2_api.list_credentials(user_id)}
 
     def get_credential(self, context, user_id, credential_id):
         """Retrieve a user's access/secret pair by the access key.
@@ -241,8 +234,8 @@ class Ec2Controller(controller.V2Controller):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
-        self._assert_valid_user_id(context, user_id)
-        creds = self._get_credentials(context, credential_id)
+        self._assert_valid_user_id(user_id)
+        creds = self._get_credentials(credential_id)
         return {'credential': creds}
 
     def delete_credential(self, context, user_id, credential_id):
@@ -257,22 +250,20 @@ class Ec2Controller(controller.V2Controller):
         """
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
-            self._assert_owner(context, user_id, credential_id)
+            self._assert_owner(user_id, credential_id)
 
-        self._assert_valid_user_id(context, user_id)
-        self._get_credentials(context, credential_id)
-        return self.ec2_api.delete_credential(context, credential_id)
+        self._assert_valid_user_id(user_id)
+        self._get_credentials(credential_id)
+        return self.ec2_api.delete_credential(credential_id)
 
-    def _get_credentials(self, context, credential_id):
+    def _get_credentials(self, credential_id):
         """Return credentials from an ID.
 
-        :param context: standard context
         :param credential_id: id of credential
         :raises exception.Unauthorized: when credential id is invalid
         :returns: credential: dict of ec2 credential.
         """
-        creds = self.ec2_api.get_credential(context,
-                                            credential_id)
+        creds = self.ec2_api.get_credential(credential_id)
         if not creds:
             raise exception.Unauthorized(message='EC2 access key not found.')
         return creds
@@ -286,9 +277,7 @@ class Ec2Controller(controller.V2Controller):
 
         """
         try:
-            token_ref = self.token_api.get_token(
-                context=context,
-                token_id=context['token_id'])
+            token_ref = self.token_api.get_token(context['token_id'])
         except exception.TokenNotFound as e:
             raise exception.Unauthorized(e)
 
@@ -308,20 +297,19 @@ class Ec2Controller(controller.V2Controller):
         except exception.Forbidden:
             return False
 
-    def _assert_owner(self, context, user_id, credential_id):
+    def _assert_owner(self, user_id, credential_id):
         """Ensure the provided user owns the credential.
 
-        :param context: standard context
         :param user_id: expected credential owner
         :param credential_id: id of credential object
         :raises exception.Forbidden: on failure
 
         """
-        cred_ref = self.ec2_api.get_credential(context, credential_id)
+        cred_ref = self.ec2_api.get_credential(credential_id)
         if not user_id == cred_ref['user_id']:
             raise exception.Forbidden('Credential belongs to another user')
 
-    def _assert_valid_user_id(self, context, user_id):
+    def _assert_valid_user_id(self, user_id):
         """Ensure a valid user id.
 
         :param context: standard context
@@ -329,13 +317,11 @@ class Ec2Controller(controller.V2Controller):
         :raises exception.UserNotFound: on failure
 
         """
-        user_ref = self.identity_api.get_user(
-            context=context,
-            user_id=user_id)
+        user_ref = self.identity_api.get_user(user_id)
         if not user_ref:
             raise exception.UserNotFound(user_id=user_id)
 
-    def _assert_valid_project_id(self, context, tenant_id):
+    def _assert_valid_project_id(self, tenant_id):
         """Ensure a valid tenant id.
 
         :param context: standard context
@@ -343,8 +329,6 @@ class Ec2Controller(controller.V2Controller):
         :raises exception.ProjectNotFound: on failure
 
         """
-        tenant_ref = self.identity_api.get_project(
-            context=context,
-            tenant_id=tenant_id)
+        tenant_ref = self.identity_api.get_project(tenant_id)
         if not tenant_ref:
             raise exception.ProjectNotFound(project_id=tenant_id)

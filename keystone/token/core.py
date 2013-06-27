@@ -57,7 +57,7 @@ def default_expire_time():
     return timeutils.utcnow() + expire_delta
 
 
-def validate_auth_info(self, context, user_ref, tenant_ref):
+def validate_auth_info(self, user_ref, tenant_ref):
     """Validate user and tenant auth info.
 
     Validate the user and tenant auth into in order to ensure that user and
@@ -66,7 +66,6 @@ def validate_auth_info(self, context, user_ref, tenant_ref):
     Consolidate the checks here to ensure consistency between token auth and
     ec2 auth.
 
-    :params context: keystone's request context
     :params user_ref: the authenticating user
     :params tenant_ref: the scope of authorization, if any
     :raises Unauthorized: if any of the user, user's domain, tenant or
@@ -80,7 +79,6 @@ def validate_auth_info(self, context, user_ref, tenant_ref):
 
     # If the user's domain is disabled don't allow them to authenticate
     user_domain_ref = self.identity_api.get_domain(
-        context,
         user_ref['domain_id'])
     if user_domain_ref and not user_domain_ref.get('enabled', True):
         msg = 'Domain is disabled: %s' % user_domain_ref['id']
@@ -96,7 +94,6 @@ def validate_auth_info(self, context, user_ref, tenant_ref):
 
         # If the project's domain is disabled don't allow them to authenticate
         project_domain_ref = self.identity_api.get_domain(
-            context,
             tenant_ref['domain_id'])
         if (project_domain_ref and
                 not project_domain_ref.get('enabled', True)):

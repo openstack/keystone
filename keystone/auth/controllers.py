@@ -94,11 +94,9 @@ class AuthInfo(object):
                                             target='domain')
         try:
             if domain_name:
-                domain_ref = self.identity_api.get_domain_by_name(
-                    context=self.context, domain_name=domain_name)
+                domain_ref = self.identity_api.get_domain_by_name(domain_name)
             else:
-                domain_ref = self.identity_api.get_domain(
-                    context=self.context, domain_id=domain_id)
+                domain_ref = self.identity_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
@@ -119,11 +117,9 @@ class AuthInfo(object):
                                                     target='project')
                 domain_ref = self._lookup_domain(project_info['domain'])
                 project_ref = self.identity_api.get_project_by_name(
-                    context=self.context, tenant_name=project_name,
-                    domain_id=domain_ref['id'])
+                    project_name, domain_ref['id'])
             else:
-                project_ref = self.identity_api.get_project(
-                    context=self.context, tenant_id=project_id)
+                project_ref = self.identity_api.get_project(project_id)
         except exception.ProjectNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
@@ -135,7 +131,7 @@ class AuthInfo(object):
         if not trust_id:
             raise exception.ValidationError(attribute='trust_id',
                                             target='trust')
-        trust = self.trust_api.get_trust(self.context, trust_id)
+        trust = self.trust_api.get_trust(trust_id)
         if not trust:
             raise exception.TrustNotFound(trust_id=trust_id)
         return trust
@@ -154,11 +150,9 @@ class AuthInfo(object):
                                                     target='user')
                 domain_ref = self._lookup_domain(user_info['domain'])
                 user_ref = self.identity_api.get_user_by_name(
-                    context=self.context, user_name=user_name,
-                    domain_id=domain_ref['id'])
+                    user_name, domain_ref['id'])
             else:
-                user_ref = self.identity_api.get_user(
-                    context=self.context, user_id=user_id)
+                user_ref = self.identity_api.get_user(user_id)
         except exception.UserNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
@@ -285,10 +279,9 @@ class Auth(controller.V3Controller):
             auth_info = AuthInfo(context, auth=auth)
             auth_context = {'extras': {}, 'method_names': []}
             self.authenticate(context, auth_info, auth_context)
-            self._check_and_set_default_scoping(context, auth_info,
-                                                auth_context)
+            self._check_and_set_default_scoping(auth_info, auth_context)
             (token_id, token_data) = token_factory.create_token(
-                context, auth_context, auth_info)
+                auth_context, auth_info)
             return token_factory.render_token_data_response(
                 token_id, token_data, created=True)
         except exception.SecurityError:
@@ -297,7 +290,7 @@ class Auth(controller.V3Controller):
             LOG.exception(e)
             raise exception.Unauthorized(e)
 
-    def _check_and_set_default_scoping(self, context, auth_info, auth_context):
+    def _check_and_set_default_scoping(self, auth_info, auth_context):
         (domain_id, project_id, trust) = auth_info.get_scope()
         if trust:
             project_id = trust['project_id']
@@ -307,8 +300,7 @@ class Auth(controller.V3Controller):
 
         # fill in default_project_id if it is available
         try:
-            user_ref = self.identity_api.get_user(
-                context=context, user_id=auth_context['user_id'])
+            user_ref = self.identity_api.get_user(auth_context['user_id'])
             default_project_id = user_ref.get('default_project_id')
             if default_project_id:
                 auth_info.set_scope(domain_id=None,
@@ -364,8 +356,7 @@ class Auth(controller.V3Controller):
             raise exception.Unauthorized(msg)
 
     def _get_token_ref(self, context, token_id, belongs_to=None):
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=token_id)
+        token_ref = self.token_api.get_token(token_id)
         if cms.is_ans1_token(token_id):
             verified_token = cms.cms_verify(cms.token_to_cms(token_id),
                                             CONF.signing.certfile,
@@ -394,9 +385,8 @@ class Auth(controller.V3Controller):
     def validate_token(self, context):
         token_id = context.get('subject_token_id')
         self.check_token(context)
-        token_ref = self.token_api.get_token(context, token_id)
+        token_ref = self.token_api.get_token(token_id)
         token_data = token_factory.recreate_token_data(
-            context,
             token_ref.get('token_data'),
             token_ref['expires'],
             token_ref.get('user'),

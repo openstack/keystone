@@ -64,38 +64,38 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
 
-    def get_service(self, context, service_id):
+    def get_service(self, service_id):
         try:
             return self.driver.get_service(service_id)
         except exception.NotFound:
             raise exception.ServiceNotFound(service_id=service_id)
 
-    def delete_service(self, context, service_id):
+    def delete_service(self, service_id):
         try:
             return self.driver.delete_service(service_id)
         except exception.NotFound:
             raise exception.ServiceNotFound(service_id=service_id)
 
-    def create_endpoint(self, context, endpoint_id, endpoint_ref):
+    def create_endpoint(self, endpoint_id, endpoint_ref):
         try:
             return self.driver.create_endpoint(endpoint_id, endpoint_ref)
         except exception.NotFound:
             service_id = endpoint_ref.get('service_id')
             raise exception.ServiceNotFound(service_id=service_id)
 
-    def delete_endpoint(self, context, endpoint_id):
+    def delete_endpoint(self, endpoint_id):
         try:
             return self.driver.delete_endpoint(endpoint_id)
         except exception.NotFound:
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
-    def get_endpoint(self, context, endpoint_id):
+    def get_endpoint(self, endpoint_id):
         try:
             return self.driver.get_endpoint(endpoint_id)
         except exception.NotFound:
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
-    def get_catalog(self, context, user_id, tenant_id, metadata=None):
+    def get_catalog(self, user_id, tenant_id, metadata=None):
         try:
             return self.driver.get_catalog(user_id, tenant_id, metadata)
         except exception.NotFound:

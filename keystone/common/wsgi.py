@@ -227,7 +227,7 @@ class Application(BaseApplication):
         if not context['is_admin']:
             try:
                 user_token_ref = self.token_api.get_token(
-                    context=context, token_id=context['token_id'])
+                    token_id=context['token_id'])
             except exception.TokenNotFound as e:
                 raise exception.Unauthorized(e)
 
@@ -246,10 +246,10 @@ class Application(BaseApplication):
                 raise exception.Unauthorized()
 
             # NOTE(vish): this is pretty inefficient
-            creds['roles'] = [self.identity_api.get_role(context, role)['name']
+            creds['roles'] = [self.identity_api.get_role(role)['name']
                               for role in creds.get('roles', [])]
             # Accept either is_admin or the admin role
-            self.policy_api.enforce(context, creds, 'admin_required', {})
+            self.policy_api.enforce(creds, 'admin_required', {})
 
 
 class Middleware(Application):

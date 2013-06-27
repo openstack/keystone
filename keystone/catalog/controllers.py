@@ -29,17 +29,17 @@ INTERFACES = ['public', 'internal', 'admin']
 class Service(controller.V2Controller):
     def get_services(self, context):
         self.assert_admin(context)
-        service_list = self.catalog_api.list_services(context)
+        service_list = self.catalog_api.list_services()
         return {'OS-KSADM:services': service_list}
 
     def get_service(self, context, service_id):
         self.assert_admin(context)
-        service_ref = self.catalog_api.get_service(context, service_id)
+        service_ref = self.catalog_api.get_service(service_id)
         return {'OS-KSADM:service': service_ref}
 
     def delete_service(self, context, service_id):
         self.assert_admin(context)
-        self.catalog_api.delete_service(context, service_id)
+        self.catalog_api.delete_service(service_id)
 
     def create_service(self, context, OS_KSADM_service):
         self.assert_admin(context)
@@ -47,7 +47,7 @@ class Service(controller.V2Controller):
         service_ref = OS_KSADM_service.copy()
         service_ref['id'] = service_id
         new_service_ref = self.catalog_api.create_service(
-            context, service_id, service_ref)
+            service_id, service_ref)
         return {'OS-KSADM:service': new_service_ref}
 
 
@@ -57,7 +57,7 @@ class Endpoint(controller.V2Controller):
         """Merge matching v3 endpoint refs into legacy refs."""
         self.assert_admin(context)
         legacy_endpoints = {}
-        for endpoint in self.catalog_api.list_endpoints(context):
+        for endpoint in self.catalog_api.list_endpoints():
             if not endpoint.get('legacy_endpoint_id'):
                 # endpoints created in v3 should not appear on the v2 API
                 continue
@@ -104,8 +104,7 @@ class Endpoint(controller.V2Controller):
             endpoint_ref['interface'] = interface
             endpoint_ref['url'] = url
 
-            self.catalog_api.create_endpoint(
-                context, endpoint_ref['id'], endpoint_ref)
+            self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
 
         legacy_endpoint_ref['id'] = legacy_endpoint_id
         return {'endpoint': legacy_endpoint_ref}
@@ -115,9 +114,9 @@ class Endpoint(controller.V2Controller):
         self.assert_admin(context)
 
         deleted_at_least_one = False
-        for endpoint in self.catalog_api.list_endpoints(context):
+        for endpoint in self.catalog_api.list_endpoints():
             if endpoint['legacy_endpoint_id'] == endpoint_id:
-                self.catalog_api.delete_endpoint(context, endpoint['id'])
+                self.catalog_api.delete_endpoint(endpoint['id'])
                 deleted_at_least_one = True
 
         if not deleted_at_least_one:
@@ -134,29 +133,29 @@ class ServiceV3(controller.V3Controller):
         ref = self._assign_unique_id(self._normalize_dict(service))
         self._require_attribute(ref, 'type')
 
-        ref = self.catalog_api.create_service(context, ref['id'], ref)
+        ref = self.catalog_api.create_service(ref['id'], ref)
         return ServiceV3.wrap_member(context, ref)
 
     @controller.filterprotected('type')
     def list_services(self, context, filters):
-        refs = self.catalog_api.list_services(context)
+        refs = self.catalog_api.list_services()
         return ServiceV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_service(self, context, service_id):
-        ref = self.catalog_api.get_service(context, service_id)
+        ref = self.catalog_api.get_service(service_id)
         return ServiceV3.wrap_member(context, ref)
 
     @controller.protected
     def update_service(self, context, service_id, service):
         self._require_matching_id(service_id, service)
 
-        ref = self.catalog_api.update_service(context, service_id, service)
+        ref = self.catalog_api.update_service(service_id, service)
         return ServiceV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_service(self, context, service_id):
-        return self.catalog_api.delete_service(context, service_id)
+        return self.catalog_api.delete_service(service_id)
 
 
 @dependency.requires('catalog_api')
@@ -180,19 +179,19 @@ class EndpointV3(controller.V3Controller):
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         self._require_attribute(ref, 'service_id')
         self._require_attribute(ref, 'interface')
-        self.catalog_api.get_service(context, ref['service_id'])
+        self.catalog_api.get_service(ref['service_id'])
 
-        ref = self.catalog_api.create_endpoint(context, ref['id'], ref)
+        ref = self.catalog_api.create_endpoint(ref['id'], ref)
         return EndpointV3.wrap_member(context, ref)
 
     @controller.filterprotected('interface', 'service_id')
     def list_endpoints(self, context, filters):
-        refs = self.catalog_api.list_endpoints(context)
+        refs = self.catalog_api.list_endpoints()
         return EndpointV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_endpoint(self, context, endpoint_id):
-        ref = self.catalog_api.get_endpoint(context, endpoint_id)
+        ref = self.catalog_api.get_endpoint(endpoint_id)
         return EndpointV3.wrap_member(context, ref)
 
     @controller.protected
@@ -200,11 +199,11 @@ class EndpointV3(controller.V3Controller):
         self._require_matching_id(endpoint_id, endpoint)
 
         if 'service_id' in endpoint:
-            self.catalog_api.get_service(context, endpoint['service_id'])
+            self.catalog_api.get_service(endpoint['service_id'])
 
-        ref = self.catalog_api.update_endpoint(context, endpoint_id, endpoint)
+        ref = self.catalog_api.update_endpoint(endpoint_id, endpoint)
         return EndpointV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_endpoint(self, context, endpoint_id):
-        return self.catalog_api.delete_endpoint(context, endpoint_id)
+        return self.catalog_api.delete_endpoint(endpoint_id)

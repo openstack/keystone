@@ -38,13 +38,13 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.policy.driver)
 
-    def get_policy(self, context, policy_id):
+    def get_policy(self, policy_id):
         try:
             return self.driver.get_policy(policy_id)
         except exception.NotFound:
             raise exception.PolicyNotFound(policy_id=policy_id)
 
-    def update_policy(self, context, policy_id, policy):
+    def update_policy(self, policy_id, policy):
         if 'id' in policy and policy_id != policy['id']:
             raise exception.ValidationError('Cannot change policy ID')
         try:
@@ -52,7 +52,7 @@ class Manager(manager.Manager):
         except exception.NotFound:
             raise exception.PolicyNotFound(policy_id=policy_id)
 
-    def delete_policy(self, context, policy_id):
+    def delete_policy(self, policy_id):
         try:
             return self.driver.delete_policy(policy_id)
         except exception.NotFound:

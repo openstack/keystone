@@ -74,7 +74,7 @@ class ImportLegacy(test.TestCase):
 
         # check password hashing
         user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
-            {}, user_id=admin_id, password='secrete')
+            user_id=admin_id, password='secrete')
 
         # check catalog
         self._check_catalog(migration)
@@ -91,7 +91,7 @@ class ImportLegacy(test.TestCase):
 
         # check password hashing
         user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
-            {}, user_id=admin_id, password='secrete')
+            user_id=admin_id, password='secrete')
 
         # check catalog
         self._check_catalog(migration)
@@ -108,7 +108,7 @@ class ImportLegacy(test.TestCase):
 
         # check password hashing
         user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
-            {}, user_id=admin_id, password='secrete')
+            user_id=admin_id, password='secrete')
 
         # check catalog
         self._check_catalog(migration)

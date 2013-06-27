@@ -35,7 +35,7 @@ class Token(auth.AuthMethodHandler):
                 raise exception.ValidationError(attribute='id',
                                                 target=METHOD_NAME)
             token_id = auth_payload['id']
-            token_ref = self.token_api.get_token(context, token_id)
+            token_ref = self.token_api.get_token(token_id)
             user_context.setdefault(
                 'user_id', token_ref['token_data']['token']['user']['id'])
             # to support Grizzly-3 to Grizzly-RC1 transition

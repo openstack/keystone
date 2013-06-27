@@ -38,14 +38,14 @@ class TrustV3(controller.V3Controller):
     def _get_user_id(self, context):
         if 'token_id' in context:
             token_id = context['token_id']
-            token = self.token_api.get_token(context, token_id)
+            token = self.token_api.get_token(token_id)
             user_id = token['user']['id']
             return user_id
         return None
 
     def get_trust(self, context, trust_id):
         user_id = self._get_user_id(context)
-        trust = self.trust_api.get_trust(context, trust_id)
+        trust = self.trust_api.get_trust(trust_id)
         if not trust:
             raise exception.TrustNotFound(trust_id)
         _admin_trustor_trustee_only(context, trust, user_id)
@@ -55,7 +55,7 @@ class TrustV3(controller.V3Controller):
                 user_id != trust['trustee_user_id']):
             raise exception.Forbidden()
         self._fill_in_roles(context, trust,
-                            self.identity_api.list_roles(context))
+                            self.identity_api.list_roles())
         return TrustV3.wrap_member(context, trust)
 
     def _fill_in_roles(self, context, trust, global_roles):
@@ -121,15 +121,14 @@ class TrustV3(controller.V3Controller):
             user_id = self._get_user_id(context)
             _trustor_only(context, trust, user_id)
             #confirm that the trustee exists
-            trustee_ref = self.identity_api.get_user(context,
-                                                     trust['trustee_user_id'])
+            trustee_ref = self.identity_api.get_user(trust['trustee_user_id'])
             if not trustee_ref:
                 raise exception.UserNotFound(user_id=trust['trustee_user_id'])
-            global_roles = self.identity_api.list_roles(context)
+            global_roles = self.identity_api.list_roles()
             clean_roles = self._clean_role_list(context, trust, global_roles)
             if trust.get('project_id'):
                 user_roles = self.identity_api.get_roles_for_user_and_project(
-                    context, user_id, trust['project_id'])
+                    user_id, trust['project_id'])
             else:
                 user_roles = []
             for trust_role in clean_roles:
@@ -143,7 +142,6 @@ class TrustV3(controller.V3Controller):
                 trust['expires_at'] = (timeutils.parse_isotime
                                        (trust['expires_at']))
             new_trust = self.trust_api.create_trust(
-                context=context,
                 trust_id=uuid.uuid4().hex,
                 trust=trust,
                 roles=clean_roles)
@@ -161,41 +159,38 @@ class TrustV3(controller.V3Controller):
         trusts = []
         if not query:
             self.assert_admin(context)
-            trusts += self.trust_api.list_trusts(context)
+            trusts += self.trust_api.list_trusts()
         if 'trustor_user_id' in query:
             user_id = query['trustor_user_id']
             calling_user_id = self._get_user_id(context)
             if user_id != calling_user_id:
                 raise exception.Forbidden()
             trusts += (self.trust_api.
-                       list_trusts_for_trustor(context, user_id))
+                       list_trusts_for_trustor(user_id))
         if 'trustee_user_id' in query:
             user_id = query['trustee_user_id']
             calling_user_id = self._get_user_id(context)
             if user_id != calling_user_id:
                 raise exception.Forbidden()
-            trusts += (self.trust_api.
-                       list_trusts_for_trustee(context, user_id))
-        global_roles = self.identity_api.list_roles(context)
+            trusts += self.trust_api.list_trusts_for_trustee(user_id)
+        global_roles = self.identity_api.list_roles()
         for trust in trusts:
             self._fill_in_roles(context, trust, global_roles)
         return TrustV3.wrap_collection(context, trusts)
 
     @controller.protected
     def delete_trust(self, context, trust_id):
-        trust = self.trust_api.get_trust(context, trust_id)
+        trust = self.trust_api.get_trust(trust_id)
         if not trust:
             raise exception.TrustNotFound(trust_id)
 
         user_id = self._get_user_id(context)
         _admin_trustor_only(context, trust, user_id)
-        self.trust_api.delete_trust(context, trust_id)
+        self.trust_api.delete_trust(trust_id)
         userid = trust['trustor_user_id']
-        token_list = self.token_api.list_tokens(context,
-                                                userid,
-                                                trust_id=trust_id)
+        token_list = self.token_api.list_tokens(userid, trust_id=trust_id)
         for token in token_list:
-            self.token_api.delete_token(context, token)
+            self.token_api.delete_token(token)
 
     @controller.protected
     def list_roles_for_trust(self, context, trust_id):
@@ -210,7 +205,7 @@ class TrustV3(controller.V3Controller):
     @controller.protected
     def check_role_for_trust(self, context, trust_id, role_id):
         """Checks if a role has been assigned to a trust."""
-        trust = self.trust_api.get_trust(context, trust_id)
+        trust = self.trust_api.get_trust(trust_id)
         if not trust:
             raise exception.TrustNotFound(trust_id)
         user_id = self._get_user_id(context)
@@ -223,7 +218,7 @@ class TrustV3(controller.V3Controller):
     @controller.protected
     def get_role_for_trust(self, context, trust_id, role_id):
         """Checks if a role has been assigned to a trust."""
-        trust = self.trust_api.get_trust(context, trust_id)
+        trust = self.trust_api.get_trust(trust_id)
         if not trust:
             raise exception.TrustNotFound(trust_id)
 
@@ -233,7 +228,7 @@ class TrustV3(controller.V3Controller):
                           if x['id'] == role_id]
         if not matching_roles:
             raise exception.RoleNotFound(role_id=role_id)
-        global_roles = self.identity_api.list_roles(context)
+        global_roles = self.identity_api.list_roles()
         matching_roles = [x for x in global_roles
                           if x['id'] == role_id]
         if matching_roles:

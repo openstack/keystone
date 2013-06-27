@@ -63,8 +63,7 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
 
-    def authenticate(self, context, user_id=None,
-                     tenant_id=None, password=None):
+    def authenticate(self, user_id=None, tenant_id=None, password=None):
         """Authenticate a given user and password and
         authorize them for a tenant.
         :returns: (user_ref, tenant_ref, metadata_ref)
@@ -73,14 +72,14 @@ class Manager(manager.Manager):
         user_ref = self.driver.authenticate_user(user_id, password)
         return self.driver.authorize_for_project(user_ref, tenant_id)
 
-    def create_user(self, context, user_id, user_ref):
+    def create_user(self, user_id, user_ref):
         user = user_ref.copy()
         user['name'] = clean.user_name(user['name'])
         user.setdefault('enabled', True)
         user['enabled'] = clean.user_enabled(user['enabled'])
         return self.driver.create_user(user_id, user)
 
-    def update_user(self, context, user_id, user_ref):
+    def update_user(self, user_id, user_ref):
         user = user_ref.copy()
         if 'name' in user:
             user['name'] = clean.user_name(user['name'])
@@ -88,19 +87,19 @@ class Manager(manager.Manager):
             user['enabled'] = clean.user_enabled(user['enabled'])
         return self.driver.update_user(user_id, user)
 
-    def create_group(self, context, group_id, group_ref):
+    def create_group(self, group_id, group_ref):
         group = group_ref.copy()
         group.setdefault('description', '')
         return self.driver.create_group(group_id, group)
 
-    def create_project(self, context, tenant_id, tenant_ref):
+    def create_project(self, tenant_id, tenant_ref):
         tenant = tenant_ref.copy()
         tenant.setdefault('enabled', True)
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         tenant.setdefault('description', '')
         return self.driver.create_project(tenant_id, tenant)
 
-    def update_project(self, context, tenant_id, tenant_ref):
+    def update_project(self, tenant_id, tenant_ref):
         tenant = tenant_ref.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])

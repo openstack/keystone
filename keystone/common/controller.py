@@ -20,8 +20,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         'kwargs': ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])})
 
     try:
-        token_ref = self.token_api.get_token(
-            context=context, token_id=context['token_id'])
+        token_ref = self.token_api.get_token(context['token_id'])
     except exception.TokenNotFound:
         LOG.warning(_('RBAC: Invalid token'))
         raise exception.Unauthorized()
@@ -61,7 +60,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         except AttributeError:
             LOG.debug(_('RBAC: Proceeding without tenant'))
         # NOTE(vish): this is pretty inefficient
-        creds['roles'] = [self.identity_api.get_role(context, role)['name']
+        creds['roles'] = [self.identity_api.get_role(role)['name']
                           for role in creds.get('roles', [])]
 
     return creds
@@ -97,7 +96,7 @@ def protected(f):
             # Simply use the passed kwargs as the target dict, which
             # would typically include the prime key of a get/update/delete
             # call.
-            self.policy_api.enforce(context, creds, action, flatten(kwargs))
+            self.policy_api.enforce(creds, action, flatten(kwargs))
             LOG.debug(_('RBAC: Authorization granted'))
 
         return f(self, context, *args, **kwargs)
@@ -136,8 +135,7 @@ def filterprotected(*filters):
                 for key in kwargs:
                     target[key] = kwargs[key]
 
-                self.policy_api.enforce(context, creds, action,
-                                        flatten(target))
+                self.policy_api.enforce(creds, action, flatten(target))
 
                 LOG.debug(_('RBAC: Authorization granted'))
             else:
@@ -152,22 +150,18 @@ def filterprotected(*filters):
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
 
-    def _delete_tokens_for_trust(self, context, user_id, trust_id):
-        self.token_api.delete_tokens(context, user_id,
-                                     trust_id=trust_id)
+    def _delete_tokens_for_trust(self, user_id, trust_id):
+        self.token_api.delete_tokens(user_id, trust_id=trust_id)
 
-    def _delete_tokens_for_user(self, context, user_id, project_id=None):
+    def _delete_tokens_for_user(self, user_id, project_id=None):
         #First delete tokens that could get other tokens.
-        self.token_api.delete_tokens(context,
-                                     user_id,
-                                     tenant_id=project_id)
+        self.token_api.delete_tokens(user_id, tenant_id=project_id)
 
         #delete tokens generated from trusts
-        for trust in self.trust_api.list_trusts_for_trustee(context, user_id):
-            self._delete_tokens_for_trust(context, user_id, trust['id'])
-        for trust in self.trust_api.list_trusts_for_trustor(context, user_id):
-            self._delete_tokens_for_trust(context,
-                                          trust['trustee_user_id'],
+        for trust in self.trust_api.list_trusts_for_trustee(user_id):
+            self._delete_tokens_for_trust(user_id, trust['id'])
+        for trust in self.trust_api.list_trusts_for_trustor(user_id):
+            self._delete_tokens_for_trust(trust['trustee_user_id'],
                                           trust['id'])
 
     def _require_attribute(self, ref, attr):
@@ -205,10 +199,10 @@ class V3Controller(V2Controller):
     collection_name = 'entities'
     member_name = 'entity'
 
-    def _delete_tokens_for_group(self, context, group_id):
-        user_refs = self.identity_api.list_users_in_group(context, group_id)
+    def _delete_tokens_for_group(self, group_id):
+        user_refs = self.identity_api.list_users_in_group(group_id)
         for user in user_refs:
-            self._delete_tokens_for_user(context, user['id'])
+            self._delete_tokens_for_user(user['id'])
 
     @classmethod
     def base_url(cls, path=None):

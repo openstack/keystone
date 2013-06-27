@@ -121,8 +121,7 @@ class MigrateNovaAuth(test.TestCase):
                 for _user in FIXTURE['users']:
                     if _user['id'] == old_user:
                         password = _user['password']
-                self.identity_man.authenticate({}, user['id'],
-                                               tenant_id, password)
+                self.identity_man.authenticate(user['id'], tenant_id, password)
 
         for ec2_cred in FIXTURE['ec2_credentials']:
             user_id = users[ec2_cred['user_id']]['id']

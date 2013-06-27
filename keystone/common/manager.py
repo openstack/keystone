@@ -37,13 +37,10 @@ class Manager(object):
 
     def __getattr__(self, name):
         """Forward calls to the underlying driver."""
-        # NOTE(termie): context is the first argument, we're going to strip
-        #               that for now, in the future we'll probably do some
-        #               logging and whatnot in this class
         f = getattr(self.driver, name)
 
         @functools.wraps(f)
-        def _wrapper(context, *args, **kw):
+        def _wrapper(*args, **kw):
             return f(*args, **kw)
         setattr(self, name, _wrapper)
         return _wrapper

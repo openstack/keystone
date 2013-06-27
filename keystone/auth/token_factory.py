@@ -42,15 +42,13 @@ LOG = logging.getLogger(__name__)
 
 class TokenDataHelper(object):
     """Token data helper."""
-    def __init__(self, context):
+    def __init__(self):
         self.identity_api = identity.Manager()
         self.catalog_api = catalog.Manager()
         self.trust_api = trust.Manager()
-        self.context = context
 
     def _get_filtered_domain(self, domain_id):
-        domain_ref = self.identity_api.get_domain(self.context,
-                                                  domain_id)
+        domain_ref = self.identity_api.get_domain(domain_id)
         return {'id': domain_ref['id'], 'name': domain_ref['name']}
 
     def _populate_scope(self, token_data, domain_id, project_id):
@@ -60,8 +58,7 @@ class TokenDataHelper(object):
         if domain_id:
             token_data['domain'] = self._get_filtered_domain(domain_id)
         if project_id:
-            project_ref = self.identity_api.get_project(
-                self.context, project_id)
+            project_ref = self.identity_api.get_project(project_id)
             filtered_project = {
                 'id': project_ref['id'],
                 'name': project_ref['name']}
@@ -71,10 +68,10 @@ class TokenDataHelper(object):
 
     def _get_project_roles_for_user(self, user_id, project_id):
         roles = self.identity_api.get_roles_for_user_and_project(
-            self.context, user_id, project_id)
+            user_id, project_id)
         roles_ref = []
         for role_id in roles:
-            role_ref = self.identity_api.get_role(self.context, role_id)
+            role_ref = self.identity_api.get_role(role_id)
             role_ref.setdefault('project_id', project_id)
             roles_ref.append(role_ref)
         # user have no project roles, therefore access denied
@@ -86,10 +83,10 @@ class TokenDataHelper(object):
 
     def _get_domain_roles_for_user(self, user_id, domain_id):
         roles = self.identity_api.get_roles_for_user_and_domain(
-            self.context, user_id, domain_id)
+            user_id, domain_id)
         roles_ref = []
         for role_id in roles:
-            role_ref = self.identity_api.get_role(self.context, role_id)
+            role_ref = self.identity_api.get_role(role_id)
             role_ref.setdefault('domain_id', domain_id)
             roles_ref.append(role_ref)
         # user have no domain roles, therefore access denied
@@ -112,11 +109,10 @@ class TokenDataHelper(object):
         if 'user' in token_data:
             return
 
-        user_ref = self.identity_api.get_user(self.context,
-                                              user_id)
+        user_ref = self.identity_api.get_user(user_id)
         if CONF.trust.enabled and trust:
-            trustor_user_ref = (self.identity_api.get_user(self.context,
-                                trust['trustor_user_id']))
+            trustor_user_ref = self.identity_api.get_user(
+                trust['trustor_user_id'])
             if not trustor_user_ref['enabled']:
                 raise exception.Forbidden()
             if trust['impersonation']:
@@ -178,7 +174,7 @@ class TokenDataHelper(object):
         if project_id or domain_id:
             try:
                 service_catalog = self.catalog_api.get_v3_catalog(
-                    self.context, user_id, project_id)
+                    user_id, project_id)
             # TODO(ayoung): KVS backend needs a sample implementation
             except exception.NotImplemented:
                 service_catalog = {}
@@ -218,7 +214,7 @@ class TokenDataHelper(object):
         return {'token': token_data}
 
 
-def recreate_token_data(context, token_data=None, expires=None,
+def recreate_token_data(token_data=None, expires=None,
                         user_ref=None, project_ref=None):
     """Recreate token from an existing token.
 
@@ -280,7 +276,7 @@ def recreate_token_data(context, token_data=None, expires=None,
         token = None
         project_id = project_ref['id'] if project_ref else None
         user_id = user_ref['id']
-    token_data_helper = TokenDataHelper(context)
+    token_data_helper = TokenDataHelper()
     return token_data_helper.get_token_data(user_id,
                                             methods,
                                             extras,
@@ -290,8 +286,8 @@ def recreate_token_data(context, token_data=None, expires=None,
                                             token=token)
 
 
-def create_token(context, auth_context, auth_info):
-    token_data_helper = TokenDataHelper(context)
+def create_token(auth_context, auth_info):
+    token_data_helper = TokenDataHelper()
     (domain_id, project_id, trust) = auth_info.get_scope()
     method_names = list(set(auth_info.get_method_names() +
                             auth_context.get('method_names', [])))
@@ -338,13 +334,13 @@ def create_token(context, auth_context, auth_info):
                     metadata=metadata_ref,
                     token_data=token_data,
                     trust_id=trust['id'] if trust else None)
-        token_api.create_token(context, token_id, data)
+        token_api.create_token(token_id, data)
     except Exception:
         exc_info = sys.exc_info()
         # an identical token may have been created already.
         # if so, return the token_data as it is also identical
         try:
-            token_api.get_token(context=context, token_id=token_id)
+            token_api.get_token(token_id)
         except exception.TokenNotFound:
             raise exc_info[0], exc_info[1], exc_info[2]
 

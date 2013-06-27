@@ -31,8 +31,7 @@ class UserController(identity.controllers.User):
         token_id = context.get('token_id')
         original_password = user.get('original_password')
 
-        token_ref = self.token_api.get_token(context=context,
-                                             token_id=token_id)
+        token_ref = self.token_api.get_token(token_id)
         user_id_from_token = token_ref['user']['id']
 
         if user_id_from_token != user_id:
@@ -43,7 +42,6 @@ class UserController(identity.controllers.User):
 
         try:
             user_ref = self.identity_api.authenticate(
-                context=context,
                 user_id=user_id_from_token,
                 password=original_password)[0]
             if not user_ref.get('enabled', True):
@@ -63,8 +61,7 @@ class UserController(identity.controllers.User):
         token_id = uuid.uuid4().hex
         new_token_ref = copy.copy(token_ref)
         new_token_ref['id'] = token_id
-        self.token_api.create_token(context=context, token_id=token_id,
-                                    data=new_token_ref)
+        self.token_api.create_token(token_id, new_token_ref)
         logging.debug('TOKEN_REF %s', new_token_ref)
         return {'access': {'token': new_token_ref}}
 

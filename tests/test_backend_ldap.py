@@ -604,7 +604,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
             'password': 'no_meta2',
             'enabled': True,
         }
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_man.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
         self.identity_api.user.LDAP_USER = None
@@ -640,11 +640,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'password': 'no_meta2',
             'enabled': True,
         }
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_man.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
         user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
-            {},
             user_id=user['id'],
             tenant_id=self.tenant_baz['id'],
             password=user['password'])
@@ -692,7 +691,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex,
             'password': uuid.uuid4().hex}
-        self.identity_man.create_user({}, user['id'], user)
+        self.identity_man.create_user(user['id'], user)
         user['enabled'] = True
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']

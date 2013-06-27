@@ -27,24 +27,24 @@ class PolicyV3(controller.V3Controller):
         self._require_attribute(ref, 'blob')
         self._require_attribute(ref, 'type')
 
-        ref = self.policy_api.create_policy(context, ref['id'], ref)
+        ref = self.policy_api.create_policy(ref['id'], ref)
         return PolicyV3.wrap_member(context, ref)
 
     @controller.filterprotected('type')
     def list_policies(self, context, filters):
-        refs = self.policy_api.list_policies(context)
+        refs = self.policy_api.list_policies()
         return PolicyV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_policy(self, context, policy_id):
-        ref = self.policy_api.get_policy(context, policy_id)
+        ref = self.policy_api.get_policy(policy_id)
         return PolicyV3.wrap_member(context, ref)
 
     @controller.protected
     def update_policy(self, context, policy_id, policy):
-        ref = self.policy_api.update_policy(context, policy_id, policy)
+        ref = self.policy_api.update_policy(policy_id, policy)
         return PolicyV3.wrap_member(context, ref)
 
     @controller.protected
     def delete_policy(self, context, policy_id):
-        return self.policy_api.delete_policy(context, policy_id)
+        return self.policy_api.delete_policy(policy_id)
