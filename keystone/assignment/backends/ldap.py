@@ -76,41 +76,11 @@ class Assignment(assignment.Driver):
         return self._set_default_domain(self.project.get_all())
 
     def get_project_by_name(self, tenant_name, domain_id):
-        self._validate_domain_id(domain_id)
+        self._validate_default_domain_id(domain_id)
         return self._set_default_domain(self.project.get_by_name(tenant_name))
 
-    def _validate_domain(self, ref):
-        """Validate that either the default domain or nothing is specified.
-
-        Also removes the domain from the ref so that LDAP doesn't have to
-        persist the attribute.
-
-        """
-        ref = ref.copy()
-        domain_id = ref.pop('domain_id', CONF.identity.default_domain_id)
-        self._validate_domain_id(domain_id)
-        return ref
-
-    def _validate_domain_id(self, domain_id):
-        """Validate that the domain ID specified belongs to the default domain.
-
-        """
-        if domain_id != CONF.identity.default_domain_id:
-            raise exception.DomainNotFound(domain_id=domain_id)
-
-    def _set_default_domain(self, ref):
-        """Overrides any domain reference with the default domain."""
-        if isinstance(ref, dict):
-            ref = ref.copy()
-            ref['domain_id'] = CONF.identity.default_domain_id
-            return ref
-        elif isinstance(ref, list):
-            return [self._set_default_domain(x) for x in ref]
-        else:
-            raise ValueError(_('Expected dict or list: %s') % type(ref))
-
     def create_project(self, tenant_id, tenant):
-        tenant = self._validate_domain(tenant)
+        tenant = self._validate_default_domain(tenant)
         tenant['name'] = clean.project_name(tenant['name'])
         data = tenant.copy()
         if 'id' not in data or data['id'] is None:
@@ -120,7 +90,7 @@ class Assignment(assignment.Driver):
         return self._set_default_domain(self.project.create(data))
 
     def update_project(self, tenant_id, tenant):
-        tenant = self._validate_domain(tenant)
+        tenant = self._validate_default_domain(tenant)
         if 'name' in tenant:
             tenant['name'] = clean.project_name(tenant['name'])
         return self._set_default_domain(self.project.update(tenant_id, tenant))
@@ -244,19 +214,19 @@ class Assignment(assignment.Driver):
         raise exception.Forbidden('Domains are read-only against LDAP')
 
     def get_domain(self, domain_id):
-        self._validate_domain_id(domain_id)
+        self._validate_default_domain_id(domain_id)
         return DEFAULT_DOMAIN
 
     def update_domain(self, domain_id, domain):
-        self._validate_domain_id(domain_id)
+        self._validate_default_domain_id(domain_id)
         raise exception.Forbidden('Domains are read-only against LDAP')
 
     def delete_domain(self, domain_id):
-        self._validate_domain_id(domain_id)
+        self._validate_default_domain_id(domain_id)
         raise exception.Forbidden('Domains are read-only against LDAP')
 
     def list_domains(self):
-        return [DEFAULT_DOMAIN]
+        return [assignment.DEFAULT_DOMAIN]
 
 #Bulk actions on User From identity
     def delete_user(self, user_id):

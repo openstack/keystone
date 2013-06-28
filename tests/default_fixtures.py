@@ -17,6 +17,7 @@
 # NOTE(dolph): please try to avoid additional fixtures if possible; test suite
 #              performance may be negatively affected.
 
+from keystone import assignment
 from keystone import config
 
 
@@ -120,12 +121,4 @@ ROLES = [
     }
 ]
 
-DOMAINS = [
-    {
-        'id': DEFAULT_DOMAIN_ID,
-        'name': 'Default',
-        'enabled': True,
-        'description': 'Owns users and tenants (i.e. projects) available '
-                       'on Identity API v2.'
-    }
-]
+DOMAINS = [assignment.DEFAULT_DOMAIN]

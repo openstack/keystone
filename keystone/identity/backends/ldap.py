@@ -88,13 +88,13 @@ class Identity(identity.Driver):
         return self.assignment._set_default_domain(self.user.get_all())
 
     def get_user_by_name(self, user_name, domain_id):
-        self.assignment._validate_domain_id(domain_id)
+        self.assignment._validate_default_domain_id(domain_id)
         ref = identity.filter_user(self.user.get_by_name(user_name))
         return self.assignment._set_default_domain(ref)
 
     # CRUD
     def create_user(self, user_id, user):
-        user = self.assignment._validate_domain(user)
+        user = self.assignment._validate_default_domain(user)
         user_ref = self.user.create(user)
         tenant_id = user.get('tenant_id')
         if tenant_id is not None:
@@ -103,7 +103,7 @@ class Identity(identity.Driver):
                 (identity.filter_user(user_ref)))
 
     def update_user(self, user_id, user):
-        user = self.assignment._validate_domain(user)
+        user = self.assignment._validate_default_domain(user)
         if 'id' in user and user['id'] != user_id:
             raise exception.ValidationError('Cannot change user ID')
         old_obj = self.user.get(user_id)
@@ -143,7 +143,7 @@ class Identity(identity.Driver):
         self.user.delete(user_id)
 
     def create_group(self, group_id, group):
-        group = self.assignment._validate_domain(group)
+        group = self.assignment._validate_default_domain(group)
         group['name'] = clean.group_name(group['name'])
         return self.assignment._set_default_domain(self.group.create(group))
 
@@ -151,7 +151,7 @@ class Identity(identity.Driver):
         return self.assignment._set_default_domain(self.group.get(group_id))
 
     def update_group(self, group_id, group):
-        group = self.assignment._validate_domain(group)
+        group = self.assignment._validate_default_domain(group)
         if 'name' in group:
             group['name'] = clean.group_name(group['name'])
         return (self.assignment._set_default_domain
