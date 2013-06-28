@@ -15,16 +15,22 @@
 # under the License.
 """
 To run these tests against a live database:
-1. Modify the file `keystone/tests/backend_sql.conf` to use the connection for
-   your live database
-2. Set up a blank, live database.
-3. run the tests using
-    ./run_tests.sh -N  test_sql_upgrade
-    WARNING::
-        Your database will be wiped.
-    Do not do this against a Database with valuable data as
-    all data will be lost.
+
+1. Modify the file ``keystone/tests/backend_sql.conf`` to use the connection
+   for your live database
+2. Set up a blank, live database
+3. Run the tests using::
+
+    tox keystone.tests.test_sql_upgrade
+
+WARNING::
+
+    Your database will be wiped.
+
+    Do not do this against a database with valuable data as all data will be
+    lost.
 """
+
 import copy
 import json
 import uuid
