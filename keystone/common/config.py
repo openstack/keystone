@@ -179,10 +179,13 @@ def configure():
     CONF.register_cli_opts(COMMON_CLI_OPTS)
     CONF.register_cli_opts(LOGGING_CLI_OPTS)
 
-    register_cli_bool('standard-threads', default=False)
+    register_cli_bool('standard-threads', default=False,
+                      help='Do not monkey-patch threading system modules.')
 
-    register_cli_str('pydev-debug-host', default=None)
-    register_cli_int('pydev-debug-port', default=None)
+    register_cli_str('pydev-debug-host', default=None,
+                     help='Host to connect to for remote debugger.')
+    register_cli_int('pydev-debug-port', default=None,
+                     help='Port to connect to for remote debugger.')
 
     register_str('admin_token', secret=True, default='ADMIN')
     register_str('bind_host', default='0.0.0.0')
