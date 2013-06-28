@@ -51,8 +51,8 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         super(LDAPIdentity, self).setUp()
         self._set_config()
         self.clear_database()
-        self.identity_man = identity.Manager()
-        self.identity_api = self.identity_man.driver
+
+        self.load_backends()
         self.load_fixtures(default_fixtures)
 
     def test_build_tree(self):
@@ -63,8 +63,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertEquals(user_api.tree_dn, "ou=Users,%s" % CONF.ldap.suffix)
 
     def test_configurable_allowed_user_actions(self):
-        self.identity_api = identity.backends.ldap.Identity()
-
         user = {'id': 'fake1',
                 'name': 'fake1',
                 'password': 'fakepass1',
@@ -85,7 +83,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.user_allow_create = False
         CONF.ldap.user_allow_update = False
         CONF.ldap.user_allow_delete = False
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
 
         user = {'id': 'fake1',
                 'name': 'fake1',
@@ -107,8 +105,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.user_foo['id'])
 
     def test_configurable_allowed_project_actions(self):
-        self.identity_api = identity.backends.ldap.Identity()
-
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
         self.identity_api.create_project('fake1', tenant)
         tenant_ref = self.identity_api.get_project('fake1')
@@ -126,7 +122,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.tenant_allow_create = False
         CONF.ldap.tenant_allow_update = False
         CONF.ldap.tenant_allow_delete = False
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
 
         tenant = {'id': 'fake1', 'name': 'fake1'}
         self.assertRaises(exception.ForbiddenAction,
@@ -144,8 +140,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.tenant_bar['id'])
 
     def test_configurable_allowed_role_actions(self):
-        self.identity_api = identity.backends.ldap.Identity()
-
         role = {'id': 'fake1', 'name': 'fake1'}
         self.identity_api.create_role('fake1', role)
         role_ref = self.identity_api.get_role('fake1')
@@ -163,7 +157,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.role_allow_create = False
         CONF.ldap.role_allow_update = False
         CONF.ldap.role_allow_delete = False
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
 
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assertRaises(exception.ForbiddenAction,
@@ -187,7 +181,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertDictEqual(user_ref, self.user_foo)
 
         CONF.ldap.user_filter = '(CN=DOES_NOT_MATCH)'
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           self.user_foo['id'])
@@ -197,7 +191,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
         CONF.ldap.tenant_filter = '(CN=DOES_NOT_MATCH)'
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           self.tenant_bar['id'])
@@ -207,7 +201,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertDictEqual(role_ref, self.role_member)
 
         CONF.ldap.role_filter = '(CN=DOES_NOT_MATCH)'
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.get_role,
                           self.role_member['id'])
@@ -216,7 +210,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.use_dumb_member = True
         CONF.ldap.dumb_member = 'cn=dumb,cn=example,cn=com'
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
@@ -227,7 +221,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.user_mail_attribute = 'mail'
         CONF.ldap.user_enabled_attribute = 'enabled'
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         user_ref = self.identity_api.get_user(self.user_two['id'])
         self.assertEqual(user_ref['id'], self.user_two['id'])
@@ -236,7 +230,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
         CONF.ldap.user_name_attribute = 'mail'
         CONF.ldap.user_mail_attribute = 'sn'
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         user_ref = self.identity_api.get_user(self.user_two['id'])
         self.assertEqual(user_ref['id'], self.user_two['id'])
         self.assertEqual(user_ref['name'], self.user_two['email'])
@@ -246,7 +240,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.user_attribute_ignore = ['email', 'password',
                                            'tenant_id', 'enabled', 'tenants']
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         user_ref = self.identity_api.get_user(self.user_two['id'])
         self.assertEqual(user_ref['id'], self.user_two['id'])
@@ -261,7 +255,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.tenant_desc_attribute = 'description'
         CONF.ldap.tenant_enabled_attribute = 'enabled'
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
@@ -273,7 +267,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
         CONF.ldap.tenant_name_attribute = 'description'
         CONF.ldap.tenant_desc_attribute = 'ou'
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertEqual(tenant_ref['name'], self.tenant_baz['description'])
@@ -285,7 +279,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                                              'description',
                                              'enabled']
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
@@ -296,14 +290,14 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_role_attribute_mapping(self):
         CONF.ldap.role_name_attribute = 'ou'
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertEqual(role_ref['name'], self.role_member['name'])
 
         CONF.ldap.role_name_attribute = 'sn'
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertNotIn('name', role_ref)
@@ -311,7 +305,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
     def test_role_attribute_ignore(self):
         CONF.ldap.role_attribute_ignore = ['name']
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertEqual(role_ref['id'], self.role_member['id'])
@@ -322,7 +316,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         CONF.ldap.user_enabled_mask = 2
         CONF.ldap.user_enabled_default = 512
         self.clear_database()
-        self.identity_api = identity.backends.ldap.Identity()
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
         self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
@@ -370,21 +363,21 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_user_extra_attribute_mapping(self):
         CONF.ldap.user_additional_attribute_mapping = ['description:name']
-        self.identity_api = identity.backends.ldap.Identity()
+        self.load_backends()
         user = {
             'id': 'extra_attributes',
             'name': 'EXTRA_ATTRIBUTES',
             'password': 'extra',
         }
         self.identity_api.create_user(user['id'], user)
-        dn, attrs = self.identity_api.user._ldap_get(user['id'])
+        dn, attrs = self.identity_api.driver.user._ldap_get(user['id'])
         self.assertTrue(user['name'] in attrs['description'])
 
     def test_parse_extra_attribute_mapping(self):
         option_list = ['description:name', 'gecos:password',
                        'fake:invalid', 'invalid1', 'invalid2:',
                        'description:name:something']
-        mapping = self.identity_api.user._parse_extra_attrs(option_list)
+        mapping = self.identity_api.driver.user._parse_extra_attrs(option_list)
         expected_dict = {'description': 'name', 'gecos': 'password'}
         self.assertDictEqual(expected_dict, mapping)
 
@@ -473,12 +466,12 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                    'domain_id': CONF.identity.default_domain_id,
                    'description': uuid.uuid4().hex
                    }
-        self.identity_api.create_project(project['id'], project)
-        project_ref = self.identity_api.get_project(project['id'])
+        self.identity_api.driver.create_project(project['id'], project)
+        project_ref = self.identity_api.driver.get_project(project['id'])
 
         # NOTE(crazed): If running live test with emulation, there will be
         #               an enabled key in the project_ref.
-        if self.identity_api.project.enabled_emulation:
+        if self.identity_api.driver.project.enabled_emulation:
             project['enabled'] = True
         self.assertDictEqual(project_ref, project)
 
@@ -580,7 +573,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         # Delete user 2
         # NOTE(blk-u): need to go directly to user interface to keep from
         # updating the group.
-        self.identity_api.user.delete(user_2_id)
+        self.identity_api.driver.user.delete(user_2_id)
 
         # List group users and verify only user 1.
         res = self.identity_api.list_users_in_group(group_id)
@@ -604,11 +597,11 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
             'password': 'no_meta2',
             'enabled': True,
         }
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
-        self.identity_api.user.LDAP_USER = None
-        self.identity_api.user.LDAP_PASSWORD = None
+        self.identity_api.driver.user.LDAP_USER = None
+        self.identity_api.driver.user.LDAP_PASSWORD = None
 
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate_user,
@@ -625,8 +618,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         CONF.ldap.user_enabled_emulation = True
         CONF.ldap.tenant_enabled_emulation = True
         self.clear_database()
-        self.identity_man = identity.Manager()
-        self.identity_api = self.identity_man.driver
+        self.load_backends()
         self.load_fixtures(default_fixtures)
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
@@ -640,10 +632,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'password': 'no_meta2',
             'enabled': True,
         }
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=user['id'],
             tenant_id=self.tenant_baz['id'],
             password=user['password'])
@@ -691,7 +683,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex,
             'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         user['enabled'] = True
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']

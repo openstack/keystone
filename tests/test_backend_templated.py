@@ -18,8 +18,6 @@ import os
 
 from keystone import test
 
-from keystone import catalog
-from keystone.catalog.backends import templated as catalog_templated
 from keystone import exception
 
 import default_fixtures
@@ -54,8 +52,7 @@ class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(TestTemplatedCatalog, self).setUp()
         self.opt_in_group('catalog', template_file=DEFAULT_CATALOG_TEMPLATES)
-        self.catalog_api = catalog_templated.TemplatedCatalog()
-        self.catalog_man = catalog.Manager()
+        self.load_backends()
         self.load_fixtures(default_fixtures)
 
     def test_get_catalog(self):
@@ -63,7 +60,8 @@ class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
         self.assertDictEqual(catalog_ref, self.DEFAULT_FIXTURE)
 
     def test_malformed_catalog_throws_error(self):
-        self.catalog_api.templates['RegionOne']['compute']['adminURL'] = \
+        (self.catalog_api.driver.templates
+         ['RegionOne']['compute']['adminURL']) = \
             'http://localhost:$(compute_port)s/v1.1/$(tenant)s'
         with self.assertRaises(exception.MalformedEndpoint):
             self.catalog_api.get_catalog('fake-user', 'fake-tenant')

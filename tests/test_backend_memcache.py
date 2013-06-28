@@ -113,7 +113,9 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(MemcacheToken, self).setUp()
         fake_client = MemcacheClient()
-        self.token_api = token_memcache.Token(client=fake_client)
+        self.token_man = token.Manager()
+        self.token_man.driver = token_memcache.Token(client=fake_client)
+        self.token_api = self.token_man
 
     def test_create_unicode_token_id(self):
         token_id = unicode(self._create_token_id())
@@ -157,28 +159,28 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
         # NOTE(morganfainberg): Directly access the data cache since we need to
         # get expired tokens as well as valid tokens. token_api.list_tokens()
         # will not return any expired tokens in the list.
-        user_key = self.token_api._prefix_user_id(user_id)
-        user_record = self.token_api.client.get(user_key)
+        user_key = self.token_api.driver._prefix_user_id(user_id)
+        user_record = self.token_api.driver.client.get(user_key)
         user_token_list = jsonutils.loads('[%s]' % user_record)
         self.assertEquals(len(user_token_list), 2)
-        expired_token_ptk = self.token_api._prefix_token_id(
+        expired_token_ptk = self.token_api.driver._prefix_token_id(
             token.unique_id(expired_token_id))
-        expired_token = self.token_api.client.get(expired_token_ptk)
+        expired_token = self.token_api.driver.client.get(expired_token_ptk)
         expired_token['expires'] = (timeutils.utcnow() - expire_delta)
-        self.token_api.client.set(expired_token_ptk, expired_token)
+        self.token_api.driver.client.set(expired_token_ptk, expired_token)
 
         self.token_api.create_token(second_valid_token_id, second_valid_data)
-        user_record = self.token_api.client.get(user_key)
+        user_record = self.token_api.driver.client.get(user_key)
         user_token_list = jsonutils.loads('[%s]' % user_record)
         self.assertEquals(len(user_token_list), 2)
 
     def test_cas_failure(self):
-        self.token_api.client.reject_cas = True
+        self.token_api.driver.client.reject_cas = True
         token_id = uuid.uuid4().hex
         user_id = unicode(uuid.uuid4().hex)
-        user_key = self.token_api._prefix_user_id(user_id)
+        user_key = self.token_api.driver._prefix_user_id(user_id)
         token_data = jsonutils.dumps(token_id)
         self.assertRaises(
             exception.UnexpectedError,
-            self.token_api._update_user_list_with_cas,
+            self.token_api.driver._update_user_list_with_cas,
             user_key, token_data)

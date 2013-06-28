@@ -60,27 +60,27 @@ class IdentityTests(object):
 
     def test_authenticate_bad_user(self):
         self.assertRaises(AssertionError,
-                          self.identity_man.authenticate,
+                          self.identity_api.authenticate,
                           user_id=uuid.uuid4().hex,
                           tenant_id=self.tenant_bar['id'],
                           password=self.user_foo['password'])
 
     def test_authenticate_bad_password(self):
         self.assertRaises(AssertionError,
-                          self.identity_man.authenticate,
+                          self.identity_api.authenticate,
                           user_id=self.user_foo['id'],
                           tenant_id=self.tenant_bar['id'],
                           password=uuid.uuid4().hex)
 
     def test_authenticate_bad_project(self):
         self.assertRaises(AssertionError,
-                          self.identity_man.authenticate,
+                          self.identity_api.authenticate,
                           user_id=self.user_foo['id'],
                           tenant_id=uuid.uuid4().hex,
                           password=self.user_foo['password'])
 
     def test_authenticate_no_project(self):
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=self.user_foo['id'],
             password=self.user_foo['password'])
         # NOTE(termie): the password field is left in user_foo to make
@@ -92,7 +92,7 @@ class IdentityTests(object):
         self.assert_(not metadata_ref)
 
     def test_authenticate(self):
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=self.user_sna['id'],
             tenant_id=self.tenant_bar['id'],
             password=self.user_sna['password'])
@@ -109,7 +109,7 @@ class IdentityTests(object):
     def test_authenticate_role_return(self):
         self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_baz['id'], self.role_admin['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=self.user_foo['id'],
             tenant_id=self.tenant_baz['id'],
             password=self.user_foo['password'])
@@ -123,10 +123,10 @@ class IdentityTests(object):
             'domain_id': DEFAULT_DOMAIN_ID,
             'password': 'no_meta2',
         }
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
             user_id=user['id'],
             tenant_id=self.tenant_baz['id'],
             password=user['password'])
@@ -149,7 +149,7 @@ class IdentityTests(object):
                 'name': unicode_name,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        ref = self.identity_man.create_user(user['id'], user)
+        ref = self.identity_api.create_user(user['id'], user)
         self.assertEqual(unicode_name, ref['name'])
 
     def test_get_project(self):
@@ -281,10 +281,10 @@ class IdentityTests(object):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'fakepass',
                 'tenants': ['bar']}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user['name'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           'fake1',
                           user)
 
@@ -294,10 +294,10 @@ class IdentityTests(object):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'fakepass',
                 'tenants': ['bar']}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           'fake2',
                           user)
 
@@ -312,8 +312,8 @@ class IdentityTests(object):
                  'name': user1['name'],
                  'domain_id': new_domain['id'],
                  'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user1['id'], user1)
-        self.identity_man.create_user(user2['id'], user2)
+        self.identity_api.create_user(user1['id'], user1)
+        self.identity_api.create_user(user2['id'], user2)
 
     def test_move_user_between_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -324,9 +324,9 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': domain1['id'],
                 'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         user['domain_id'] = domain2['id']
-        self.identity_man.update_user(user['id'], user)
+        self.identity_api.update_user(user['id'], user)
 
     def test_move_user_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -338,19 +338,19 @@ class IdentityTests(object):
                  'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         # Now create a user in domain2 with a potentially clashing
         # name - which should work since we have domain separation
         user2 = {'id': uuid.uuid4().hex,
                  'name': user1['name'],
                  'domain_id': domain2['id'],
                  'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user2['id'], user2)
+        self.identity_api.create_user(user2['id'], user2)
         # Now try and move user1 into the 2nd domain - which should
         # fail since the names clash
         user1['domain_id'] = domain2['id']
         self.assertRaises(exception.Conflict,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           user1['id'],
                           user1)
 
@@ -365,11 +365,11 @@ class IdentityTests(object):
                  'domain_id': DEFAULT_DOMAIN_ID,
                  'password': 'fakepass',
                  'tenants': ['bar']}
-        self.identity_man.create_user('fake1', user1)
-        self.identity_man.create_user('fake2', user2)
+        self.identity_api.create_user('fake1', user1)
+        self.identity_api.create_user('fake2', user2)
         user2['name'] = 'fake1'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake2',
                           user2)
 
@@ -379,10 +379,10 @@ class IdentityTests(object):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'fakepass',
                 'tenants': ['bar']}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user['id'] = 'fake2'
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake1',
                           user)
         user_ref = self.identity_api.get_user('fake1')
@@ -394,20 +394,20 @@ class IdentityTests(object):
     def test_create_duplicate_project_id_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           'fake1',
                           tenant)
 
     def test_create_duplicate_project_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           'fake1',
                           tenant)
 
@@ -418,8 +418,8 @@ class IdentityTests(object):
                    'domain_id': DEFAULT_DOMAIN_ID}
         tenant2 = {'id': uuid.uuid4().hex, 'name': tenant1['name'],
                    'domain_id': new_domain['id']}
-        self.identity_man.create_project(tenant1['id'], tenant1)
-        self.identity_man.create_project(tenant2['id'], tenant2)
+        self.identity_api.create_project(tenant1['id'], tenant1)
+        self.identity_api.create_project(tenant2['id'], tenant2)
 
     def test_move_project_between_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -429,7 +429,7 @@ class IdentityTests(object):
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
                    'domain_id': domain1['id']}
-        self.identity_man.create_project(project['id'], project)
+        self.identity_api.create_project(project['id'], project)
         project['domain_id'] = domain2['id']
         self.identity_api.update_project(project['id'], project)
 
@@ -442,13 +442,13 @@ class IdentityTests(object):
         project1 = {'id': uuid.uuid4().hex,
                     'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
         # Now create a project in domain2 with a potentially clashing
         # name - which should work since we have domain separation
         project2 = {'id': uuid.uuid4().hex,
                     'name': project1['name'],
                     'domain_id': domain2['id']}
-        self.identity_man.create_project(project2['id'], project2)
+        self.identity_api.create_project(project2['id'], project2)
         # Now try and move project1 into the 2nd domain - which should
         # fail since the names clash
         project1['domain_id'] = domain2['id']
@@ -462,8 +462,8 @@ class IdentityTests(object):
                    'domain_id': DEFAULT_DOMAIN_ID}
         tenant2 = {'id': 'fake2', 'name': 'fake2',
                    'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project('fake1', tenant1)
-        self.identity_man.create_project('fake2', tenant2)
+        self.identity_api.create_project('fake1', tenant1)
+        self.identity_api.create_project('fake2', tenant2)
         tenant2['name'] = 'fake1'
         self.assertRaises(exception.Error,
                           self.identity_api.update_project,
@@ -530,11 +530,11 @@ class IdentityTests(object):
         new_user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user1['id'], new_user1)
+        self.identity_api.create_user(new_user1['id'], new_user1)
         new_user2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user2['id'], new_user2)
+        self.identity_api.create_user(new_user2['id'], new_user2)
         roles_ref = self.identity_api.list_grants(
             user_id=new_user1['id'],
             domain_id=new_domain['id'])
@@ -580,7 +580,7 @@ class IdentityTests(object):
         new_user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user1['id'], new_user1)
+        self.identity_api.create_user(new_user1['id'], new_user1)
 
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_roles_for_user_and_domain,
@@ -720,11 +720,11 @@ class IdentityTests(object):
         self.identity_api.create_domain(new_domain['id'], new_domain)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': 'secret', 'enabled': True,
                     'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
         roles_ref = self.identity_api.list_grants(
@@ -757,11 +757,11 @@ class IdentityTests(object):
         self.identity_api.create_domain(new_domain['id'], new_domain)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
 
@@ -797,21 +797,21 @@ class IdentityTests(object):
         self.identity_api.create_domain(new_domain['id'], new_domain)
         new_project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
-        self.identity_man.create_project(new_project['id'], new_project)
+        self.identity_api.create_project(new_project['id'], new_project)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_group2 = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
                       'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group2['id'], new_group2)
+        self.identity_api.create_group(new_group2['id'], new_group2)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         new_user2 = {'id': uuid.uuid4().hex, 'name': 'new_user2',
                      'password': uuid.uuid4().hex, 'enabled': True,
                      'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user2['id'], new_user2)
+        self.identity_api.create_user(new_user2['id'], new_user2)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
         # First check we have no grants
@@ -859,7 +859,7 @@ class IdentityTests(object):
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': 'secret', 'enabled': True,
                     'domain_id': new_domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         roles_ref = self.identity_api.list_grants(
             user_id=new_user['id'],
             domain_id=new_domain['id'])
@@ -900,7 +900,7 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain2['id'], domain2)
         group1 = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
                   'name': uuid.uuid4().hex}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         roles_ref = self.identity_api.list_grants(
             group_id=group1['id'],
             domain_id=domain1['id'])
@@ -953,7 +953,7 @@ class IdentityTests(object):
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         roles_ref = self.identity_api.list_grants(
             user_id=user1['id'],
             domain_id=domain1['id'])
@@ -1001,10 +1001,10 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain2['id'], domain2)
         group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': domain1['id'], 'enabled': True}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
         roles_ref = self.identity_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
@@ -1046,10 +1046,10 @@ class IdentityTests(object):
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
         roles_ref = self.identity_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
@@ -1090,13 +1090,13 @@ class IdentityTests(object):
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': domain1['id'], 'enabled': True}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
 
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
@@ -1157,14 +1157,14 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': domain1['id'], 'enabled': True}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         self.identity_api.create_grant(user_id=user1['id'],
                                        project_id=project1['id'],
                                        role_id=role1['id'])
@@ -1218,14 +1218,14 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': domain1['id'], 'enabled': True}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         self.identity_api.create_grant(user_id=user1['id'],
                                        project_id=project1['id'],
                                        role_id=role1['id'])
@@ -1266,14 +1266,14 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.identity_man.create_project(project1['id'], project1)
+        self.identity_api.create_project(project1['id'], project1)
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': domain1['id'], 'enabled': True}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         self.identity_api.create_grant(group_id=group1['id'],
                                        project_id=project1['id'],
                                        role_id=role1['id'])
@@ -1393,7 +1393,7 @@ class IdentityTests(object):
     def test_update_user_404(self):
         user_id = uuid.uuid4().hex
         self.assertRaises(exception.UserNotFound,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           user_id,
                           {'id': user_id})
 
@@ -1402,7 +1402,7 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
                                               user['id'])
         self.identity_api.delete_user(user['id'])
@@ -1415,7 +1415,7 @@ class IdentityTests(object):
                 'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         self.identity_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
@@ -1439,7 +1439,7 @@ class IdentityTests(object):
         tenant = {'id': 'fake1', 'name': 'a' * 65,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
 
@@ -1447,7 +1447,7 @@ class IdentityTests(object):
         tenant = {'id': 'fake1', 'name': '',
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
 
@@ -1455,20 +1455,20 @@ class IdentityTests(object):
         tenant = {'id': 'fake1', 'name': None,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
         tenant = {'id': 'fake1', 'name': 123,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           tenant['id'],
                           tenant)
 
     def test_update_project_blank_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = ''
         self.assertRaises(exception.ValidationError,
                           self.identity_api.update_project,
@@ -1478,7 +1478,7 @@ class IdentityTests(object):
     def test_update_project_long_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = 'a' * 65
         self.assertRaises(exception.ValidationError,
                           self.identity_api.update_project,
@@ -1488,7 +1488,7 @@ class IdentityTests(object):
     def test_update_project_invalid_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_project('fake1', tenant)
+        self.identity_api.create_project('fake1', tenant)
         tenant['name'] = None
         self.assertRaises(exception.ValidationError,
                           self.identity_api.update_project,
@@ -1505,7 +1505,7 @@ class IdentityTests(object):
         user = {'id': 'fake1', 'name': 'a' * 65,
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           'fake1',
                           user)
 
@@ -1513,7 +1513,7 @@ class IdentityTests(object):
         user = {'id': 'fake1', 'name': '',
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           'fake1',
                           user)
 
@@ -1521,14 +1521,14 @@ class IdentityTests(object):
         user = {'id': 'fake1', 'name': None,
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           'fake1',
                           user)
 
         user = {'id': 'fake1', 'name': 123,
                 'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           'fake1',
                           user)
 
@@ -1537,14 +1537,14 @@ class IdentityTests(object):
                        'name': uuid.uuid4().hex,
                        'enabled': True,
                        'domain_id': DEFAULT_DOMAIN_ID}
-            self.identity_man.create_project(project['id'], project)
+            self.identity_api.create_project(project['id'], project)
             project_ref = self.identity_api.get_project(project['id'])
             self.assertEqual(project_ref['enabled'], True)
 
             # Strings are not valid boolean values
             project['enabled'] = "false"
             self.assertRaises(exception.ValidationError,
-                              self.identity_man.update_project,
+                              self.identity_api.update_project,
                               project['id'],
                               project)
 
@@ -1555,7 +1555,7 @@ class IdentityTests(object):
                    # invalid string value
                    'enabled': "true"}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_project,
+                          self.identity_api.create_project,
                           project['id'],
                           project)
 
@@ -1567,44 +1567,44 @@ class IdentityTests(object):
                 # invalid string value
                 'enabled': "true"}
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.create_user,
+                          self.identity_api.create_user,
                           user['id'],
                           user)
 
     def test_update_user_long_name_fails(self):
         user = {'id': 'fake1', 'name': 'fake1',
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user['name'] = 'a' * 65
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake1',
                           user)
 
     def test_update_user_blank_name_fails(self):
         user = {'id': 'fake1', 'name': 'fake1',
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user['name'] = ''
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake1',
                           user)
 
     def test_update_user_invalid_name_fails(self):
         user = {'id': 'fake1', 'name': 'fake1',
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
 
         user['name'] = None
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake1',
                           user)
 
         user['name'] = 123
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake1',
                           user)
 
@@ -1622,8 +1622,8 @@ class IdentityTests(object):
             'id': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex}
-        self.identity_man.create_group(group1['id'], group1)
-        self.identity_man.create_group(group2['id'], group2)
+        self.identity_api.create_group(group1['id'], group1)
+        self.identity_api.create_group(group2['id'], group2)
         groups = self.identity_api.list_groups()
         self.assertEquals(len(groups), 2)
         group_ids = []
@@ -1690,7 +1690,7 @@ class IdentityTests(object):
         new_project = {'id': 'tenant_id', 'name': uuid.uuid4().hex,
                        'domain_id': DEFAULT_DOMAIN_ID}
         original_project = new_project.copy()
-        self.identity_man.create_project('tenant_id', new_project)
+        self.identity_api.create_project('tenant_id', new_project)
         self.assertDictEqual(original_project, new_project)
 
     def test_create_user_doesnt_modify_passed_in_dict(self):
@@ -1698,60 +1698,60 @@ class IdentityTests(object):
                     'password': uuid.uuid4().hex,
                     'domain_id': DEFAULT_DOMAIN_ID}
         original_user = new_user.copy()
-        self.identity_man.create_user('user_id', new_user)
+        self.identity_api.create_user('user_id', new_user)
         self.assertDictEqual(original_user, new_user)
 
     def test_update_user_enable(self):
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
         user['enabled'] = False
-        self.identity_man.update_user('fake1', user)
+        self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
         # If not present, enabled field should not be updated
         del user['enabled']
-        self.identity_man.update_user('fake1', user)
+        self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], False)
 
         user['enabled'] = True
-        self.identity_man.update_user('fake1', user)
+        self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], user['enabled'])
 
         del user['enabled']
-        self.identity_man.update_user('fake1', user)
+        self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
         # Integers are valid Python's booleans. Explicitly test it.
         user['enabled'] = 0
-        self.identity_man.update_user('fake1', user)
+        self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], False)
 
         # Any integers other than 0 are interpreted as True
         user['enabled'] = -42
-        self.identity_man.update_user('fake1', user)
+        self.identity_api.update_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
     def test_update_user_enable_fails(self):
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                 'domain_id': DEFAULT_DOMAIN_ID}
-        self.identity_man.create_user('fake1', user)
+        self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
         self.assertEqual(user_ref['enabled'], True)
 
         # Strings are not valid boolean values
         user['enabled'] = "false"
         self.assertRaises(exception.ValidationError,
-                          self.identity_man.update_user,
+                          self.identity_api.update_user,
                           'fake1',
                           user)
 
@@ -1787,11 +1787,11 @@ class IdentityTests(object):
         domain = self._get_domain_fixture()
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
         groups = self.identity_api.list_groups_for_user(new_user['id'])
@@ -1807,7 +1807,7 @@ class IdentityTests(object):
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.add_user_to_group,
                           new_user['id'],
@@ -1815,7 +1815,7 @@ class IdentityTests(object):
 
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.add_user_to_group,
                           uuid.uuid4().hex,
@@ -1825,11 +1825,11 @@ class IdentityTests(object):
         domain = self._get_domain_fixture()
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
         self.identity_api.check_user_in_group(new_user['id'], new_group['id'])
@@ -1839,7 +1839,7 @@ class IdentityTests(object):
             'id': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.check_user_in_group,
                           uuid.uuid4().hex,
@@ -1849,11 +1849,11 @@ class IdentityTests(object):
         domain = self._get_domain_fixture()
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
         user_refs = self.identity_api.list_users_in_group(new_group['id'])
@@ -1867,11 +1867,11 @@ class IdentityTests(object):
         domain = self._get_domain_fixture()
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         self.identity_api.add_user_to_group(new_user['id'],
                                             new_group['id'])
         groups = self.identity_api.list_groups_for_user(new_user['id'])
@@ -1886,10 +1886,10 @@ class IdentityTests(object):
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
-        self.identity_man.create_user(new_user['id'], new_user)
+        self.identity_api.create_user(new_user['id'], new_user)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
-        self.identity_man.create_group(new_group['id'], new_group)
+        self.identity_api.create_group(new_group['id'], new_group)
         self.assertRaises(exception.NotFound,
                           self.identity_api.remove_user_from_group,
                           new_user['id'],
@@ -1910,7 +1910,7 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain['id'], domain)
         group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                  'name': uuid.uuid4().hex}
-        self.identity_man.create_group(group['id'], group)
+        self.identity_api.create_group(group['id'], group)
         group_ref = self.identity_api.get_group(group['id'])
         self.assertDictContainsSubset(group, group_ref)
 
@@ -1929,9 +1929,9 @@ class IdentityTests(object):
                   'name': uuid.uuid4().hex}
         group2 = {'id': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
                   'name': group1['name']}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         self.assertRaises(exception.Conflict,
-                          self.identity_man.create_group,
+                          self.identity_api.create_group,
                           group2['id'], group2)
 
     def test_create_duplicate_group_name_in_different_domains(self):
@@ -1941,8 +1941,8 @@ class IdentityTests(object):
                   'name': uuid.uuid4().hex}
         group2 = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
                   'name': group1['name']}
-        self.identity_man.create_group(group1['id'], group1)
-        self.identity_man.create_group(group2['id'], group2)
+        self.identity_api.create_group(group1['id'], group1)
+        self.identity_api.create_group(group2['id'], group2)
 
     def test_move_group_between_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -1952,7 +1952,7 @@ class IdentityTests(object):
         group = {'id': uuid.uuid4().hex,
                  'name': uuid.uuid4().hex,
                  'domain_id': domain1['id']}
-        self.identity_man.create_group(group['id'], group)
+        self.identity_api.create_group(group['id'], group)
         group['domain_id'] = domain2['id']
         self.identity_api.update_group(group['id'], group)
 
@@ -1965,13 +1965,13 @@ class IdentityTests(object):
         group1 = {'id': uuid.uuid4().hex,
                   'name': uuid.uuid4().hex,
                   'domain_id': domain1['id']}
-        self.identity_man.create_group(group1['id'], group1)
+        self.identity_api.create_group(group1['id'], group1)
         # Now create a group in domain2 with a potentially clashing
         # name - which should work since we have domain separation
         group2 = {'id': uuid.uuid4().hex,
                   'name': group1['name'],
                   'domain_id': domain2['id']}
-        self.identity_man.create_group(group2['id'], group2)
+        self.identity_api.create_group(group2['id'], group2)
         # Now try and move group1 into the 2nd domain - which should
         # fail since the names clash
         group1['domain_id'] = domain2['id']
@@ -1986,7 +1986,7 @@ class IdentityTests(object):
         self.identity_api.create_domain(domain['id'], domain)
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': domain['id']}
-        self.identity_man.create_project(project['id'], project)
+        self.identity_api.create_project(project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
         self.assertDictContainsSubset(project, project_ref)
 
@@ -2021,14 +2021,14 @@ class IdentityTests(object):
         user = {'domain_id': CONF.identity.default_domain_id,
                 'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex, 'password': 'passw0rd'}
-        self.identity_man.create_user(user['id'], user)
+        self.identity_api.create_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
         self.assertDictContainsSubset(user, user_ref_dict)
 
         user['password'] = uuid.uuid4().hex
-        self.identity_man.update_user(user['id'], user)
+        self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
         del user['password']
         user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
@@ -2045,7 +2045,7 @@ class IdentityTests(object):
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'password': uuid.uuid4().hex, 'domain_id': domain['id'],
                  'enabled': True}
-        self.identity_man.create_user(user1['id'], user1)
+        self.identity_api.create_user(user1['id'], user1)
         user_projects = self.identity_api.list_user_projects(user1['id'])
         self.assertEquals(len(user_projects), 0)
         self.identity_api.create_grant(user_id=user1['id'],
@@ -2413,10 +2413,10 @@ class CatalogTests(object):
         # delete
         self.catalog_api.delete_service(service_id)
         self.assertRaises(exception.ServiceNotFound,
-                          self.catalog_man.delete_service,
+                          self.catalog_api.delete_service,
                           service_id)
         self.assertRaises(exception.ServiceNotFound,
-                          self.catalog_man.get_service,
+                          self.catalog_api.get_service,
                           service_id)
 
     def test_delete_service_with_endpoint(self):
@@ -2442,20 +2442,20 @@ class CatalogTests(object):
         # deleting the service should also delete the endpoint
         self.catalog_api.delete_service(service['id'])
         self.assertRaises(exception.EndpointNotFound,
-                          self.catalog_man.get_endpoint,
+                          self.catalog_api.get_endpoint,
                           endpoint['id'])
         self.assertRaises(exception.EndpointNotFound,
-                          self.catalog_man.delete_endpoint,
+                          self.catalog_api.delete_endpoint,
                           endpoint['id'])
 
     def test_get_service_404(self):
         self.assertRaises(exception.ServiceNotFound,
-                          self.catalog_man.get_service,
+                          self.catalog_api.get_service,
                           uuid.uuid4().hex)
 
     def test_delete_service_404(self):
         self.assertRaises(exception.ServiceNotFound,
-                          self.catalog_man.delete_service,
+                          self.catalog_api.delete_service,
                           uuid.uuid4().hex)
 
     def test_create_endpoint_404(self):
@@ -2464,18 +2464,18 @@ class CatalogTests(object):
             'service_id': uuid.uuid4().hex,
         }
         self.assertRaises(exception.ServiceNotFound,
-                          self.catalog_man.create_endpoint,
+                          self.catalog_api.create_endpoint,
                           endpoint['id'],
                           endpoint)
 
     def test_get_endpoint_404(self):
         self.assertRaises(exception.EndpointNotFound,
-                          self.catalog_man.get_endpoint,
+                          self.catalog_api.get_endpoint,
                           uuid.uuid4().hex)
 
     def test_delete_endpoint_404(self):
         self.assertRaises(exception.EndpointNotFound,
-                          self.catalog_man.delete_endpoint,
+                          self.catalog_api.delete_endpoint,
                           uuid.uuid4().hex)
 
     def test_create_endpoint(self):
@@ -2541,7 +2541,7 @@ class PolicyTests(object):
 
         # (cannot change policy ID)
         self.assertRaises(exception.ValidationError,
-                          self.policy_man.update_policy,
+                          self.policy_api.update_policy,
                           orig['id'],
                           ref)
 
@@ -2555,27 +2555,27 @@ class PolicyTests(object):
 
         self.policy_api.delete_policy(ref['id'])
         self.assertRaises(exception.PolicyNotFound,
-                          self.policy_man.delete_policy,
+                          self.policy_api.delete_policy,
                           ref['id'])
         self.assertRaises(exception.PolicyNotFound,
-                          self.policy_man.get_policy,
+                          self.policy_api.get_policy,
                           ref['id'])
         res = self.policy_api.list_policies()
         self.assertFalse(len([x for x in res if x['id'] == ref['id']]))
 
     def test_get_policy_404(self):
         self.assertRaises(exception.PolicyNotFound,
-                          self.policy_man.get_policy,
+                          self.policy_api.get_policy,
                           uuid.uuid4().hex)
 
     def test_update_policy_404(self):
         ref = self._new_policy_ref()
         self.assertRaises(exception.PolicyNotFound,
-                          self.policy_man.update_policy,
+                          self.policy_api.update_policy,
                           ref['id'],
                           ref)
 
     def test_delete_policy_404(self):
         self.assertRaises(exception.PolicyNotFound,
-                          self.policy_man.delete_policy,
+                          self.policy_api.delete_policy,
                           uuid.uuid4().hex)
