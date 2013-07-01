@@ -5,6 +5,9 @@ from paste import deploy
 from keystone.common import environment
 from keystone.common import logging
 from keystone import config
+from keystone.openstack.common import gettextutils
+
+gettextutils.install('keystone')
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
