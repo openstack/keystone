@@ -14,7 +14,7 @@ def _generate_paste_config():
 
     new_contents = contents.replace(' admin_token_auth ', ' ')
 
-    with open('no_admin_token_auth-paste.ini', 'w') as f:
+    with open(test.tmpdir('no_admin_token_auth-paste.ini'), 'w') as f:
         f.write(new_contents)
 
 
@@ -26,12 +26,12 @@ class TestNoAdminTokenAuth(test.TestCase):
         _generate_paste_config()
 
         self.admin_app = webtest.TestApp(
-            self.loadapp('no_admin_token_auth', name='admin'),
+            self.loadapp(test.tmpdir('no_admin_token_auth'), name='admin'),
             extra_environ=dict(REMOTE_ADDR='127.0.0.1'))
 
     def tearDown(self):
         self.admin_app = None
-        os.remove('no_admin_token_auth-paste.ini')
+        os.remove(test.tmpdir('no_admin_token_auth-paste.ini'))
 
     def test_request_no_admin_token_auth(self):
         # This test verifies that if the admin_token_auth middleware isn't

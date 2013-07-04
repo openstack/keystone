@@ -8,7 +8,6 @@ from keystone import test
 
 from keystone import auth
 from keystone.common import serializer
-from keystone.common.sql import util as sql_util
 from keystone import config
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
@@ -37,7 +36,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             test.testsdir('backend_sql.conf'),
             test.testsdir('backend_sql_disk.conf')])
 
-        sql_util.setup_test_database()
+        test.setup_test_database()
         self.load_backends()
 
         self.public_app = webtest.TestApp(
@@ -102,7 +101,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.admin_server.kill()
         self.public_server = None
         self.admin_server = None
-        sql_util.teardown_test_database()
+        test.teardown_test_database()
         # need to reset the plug-ins
         auth.controllers.AUTH_METHODS = {}
         #drop the policy rules

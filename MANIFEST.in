@@ -20,4 +20,4 @@ graft tests
 graft tools
 graft examples
 recursive-include keystone *.json *.xml *.cfg *.pem README *.po *.pot *.sql
-global-exclude *.pyc *.sdx *.log *.db *.swp
+global-exclude *.pyc *.sdx *.log *.db *.swp tests/tmp/*
