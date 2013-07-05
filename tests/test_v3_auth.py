@@ -847,6 +847,137 @@ class TestAuthJSON(test_v3.RestfulTestCase):
             project_id=project['id'])
         self.post('/auth/tokens', body=auth_data, expected_status=401)
 
+    def test_user_and_group_roles_scoped_token(self):
+        """Test correct roles are returned in scoped token.
+
+        Test Plan:
+        - Create a domain, with 1 project, 2 users (user1 and user2)
+          and 2 groups (group1 and group2)
+        - Make user1 a member of group1, user2 a member of group2
+        - Create 8 roles, assigning them to each of the 8 combinations
+          of users/groups on domain/project
+        - Get a project scoped token for user1, checking that the right
+          two roles are returned (one directly assigned, one by virtue
+          of group membership)
+        - Repeat this for a domain scoped token
+        - Make user1 also a member of group2
+        - Get another scoped token making sure the additional role
+          shows up
+        - User2 is just here as a spoiler, to make sure we don't get
+          any roles uniquely assigned to it returned in any of our
+          tokens
+
+        """
+
+        domainA = self.new_domain_ref()
+        self.identity_api.create_domain(domainA['id'], domainA)
+        projectA = self.new_project_ref(domain_id=domainA['id'])
+        self.identity_api.create_project(projectA['id'], projectA)
+
+        user1 = self.new_user_ref(
+            domain_id=domainA['id'])
+        user1['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(user1['id'], user1)
+
+        user2 = self.new_user_ref(
+            domain_id=domainA['id'])
+        user2['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(user2['id'], user2)
+
+        group1 = self.new_group_ref(
+            domain_id=domainA['id'])
+        self.identity_api.create_group(group1['id'], group1)
+
+        group2 = self.new_group_ref(
+            domain_id=domainA['id'])
+        self.identity_api.create_group(group2['id'], group2)
+
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group1['id'])
+        self.identity_api.add_user_to_group(user2['id'],
+                                            group2['id'])
+
+        # Now create all the roles and assign them
+        role_list = []
+        for _ in range(8):
+            role = self.new_role_ref()
+            self.identity_api.create_role(role['id'], role)
+            role_list.append(role)
+
+        self.identity_api.create_grant(role_list[0]['id'],
+                                       user_id=user1['id'],
+                                       domain_id=domainA['id'])
+        self.identity_api.create_grant(role_list[1]['id'],
+                                       user_id=user1['id'],
+                                       project_id=projectA['id'])
+        self.identity_api.create_grant(role_list[2]['id'],
+                                       user_id=user2['id'],
+                                       domain_id=domainA['id'])
+        self.identity_api.create_grant(role_list[3]['id'],
+                                       user_id=user2['id'],
+                                       project_id=projectA['id'])
+        self.identity_api.create_grant(role_list[4]['id'],
+                                       group_id=group1['id'],
+                                       domain_id=domainA['id'])
+        self.identity_api.create_grant(role_list[5]['id'],
+                                       group_id=group1['id'],
+                                       project_id=projectA['id'])
+        self.identity_api.create_grant(role_list[6]['id'],
+                                       group_id=group2['id'],
+                                       domain_id=domainA['id'])
+        self.identity_api.create_grant(role_list[7]['id'],
+                                       group_id=group2['id'],
+                                       project_id=projectA['id'])
+
+        # First, get a project scoped token - which should
+        # contain the direct user role and the one by virtue
+        # of group membership
+        auth_data = self.build_authentication_request(
+            user_id=user1['id'],
+            password=user1['password'],
+            project_id=projectA['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        token = self.assertValidScopedTokenResponse(r)
+        roles_ids = []
+        for i, ref in enumerate(token['roles']):
+            roles_ids.append(ref['id'])
+        self.assertEqual(len(token['roles']), 2)
+        self.assertIn(role_list[1]['id'], roles_ids)
+        self.assertIn(role_list[5]['id'], roles_ids)
+
+        # Now the same thing for a domain scoped token
+        auth_data = self.build_authentication_request(
+            user_id=user1['id'],
+            password=user1['password'],
+            domain_id=domainA['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        token = self.assertValidScopedTokenResponse(r)
+        roles_ids = []
+        for i, ref in enumerate(token['roles']):
+            roles_ids.append(ref['id'])
+        self.assertEqual(len(token['roles']), 2)
+        self.assertIn(role_list[0]['id'], roles_ids)
+        self.assertIn(role_list[4]['id'], roles_ids)
+
+        # Finally, add user1 to the 2nd group, and get a new
+        # scoped token - the extra role should now be included
+        # by virtue of the 2nd group
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group2['id'])
+        auth_data = self.build_authentication_request(
+            user_id=user1['id'],
+            password=user1['password'],
+            project_id=projectA['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        token = self.assertValidScopedTokenResponse(r)
+        roles_ids = []
+        for i, ref in enumerate(token['roles']):
+            roles_ids.append(ref['id'])
+        self.assertEqual(len(token['roles']), 3)
+        self.assertIn(role_list[1]['id'], roles_ids)
+        self.assertIn(role_list[5]['id'], roles_ids)
+        self.assertIn(role_list[7]['id'], roles_ids)
+
     def test_project_id_scoped_token_with_user_domain_id(self):
         auth_data = self.build_authentication_request(
             username=self.user['name'],

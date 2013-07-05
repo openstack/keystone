@@ -372,31 +372,6 @@ class Identity(sql.Base, identity.Driver):
         membership_refs = query.all()
         return [x.project_id for x in membership_refs]
 
-    def _get_user_group_project_roles(self, metadata_ref, user_id, project_id):
-        group_refs = self.list_groups_for_user(user_id=user_id)
-        for x in group_refs:
-            try:
-                metadata_ref.update(
-                    self.get_metadata(group_id=x['id'],
-                                      tenant_id=project_id))
-            except exception.MetadataNotFound:
-                # no group grant, skip
-                pass
-
-    def _get_user_project_roles(self, metadata_ref, user_id, project_id):
-        try:
-            metadata_ref.update(self.get_metadata(user_id, project_id))
-        except exception.MetadataNotFound:
-            pass
-
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        self.get_user(user_id)
-        self.get_project(tenant_id)
-        metadata_ref = {}
-        self._get_user_project_roles(metadata_ref, user_id, tenant_id)
-        self._get_user_group_project_roles(metadata_ref, user_id, tenant_id)
-        return list(set(metadata_ref.get('roles', [])))
-
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
         self.get_project(tenant_id)

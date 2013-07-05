@@ -1070,7 +1070,7 @@ class IdentityTests(object):
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         role_list = []
-        for _ in range(8):
+        for _ in range(10):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
             self.identity_api.create_role(role['id'], role)
             role_list.append(role)
@@ -1138,6 +1138,105 @@ class IdentityTests(object):
         self.assertEquals(len(roles_ref), 2)
         self.assertIn(role_list[6], roles_ref)
         self.assertIn(role_list[7], roles_ref)
+
+        # Now test the alternate way of getting back lists of grants,
+        # where user and group roles are combined.  These should match
+        # the above results.
+        combined_role_list = self.identity_api.get_roles_for_user_and_project(
+            user1['id'], project1['id'])
+        self.assertEquals(len(combined_role_list), 4)
+        self.assertIn(role_list[4]['id'], combined_role_list)
+        self.assertIn(role_list[5]['id'], combined_role_list)
+        self.assertIn(role_list[6]['id'], combined_role_list)
+        self.assertIn(role_list[7]['id'], combined_role_list)
+
+        combined_role_list = self.identity_api.get_roles_for_user_and_domain(
+            user1['id'], domain1['id'])
+        self.assertEquals(len(combined_role_list), 4)
+        self.assertIn(role_list[0]['id'], combined_role_list)
+        self.assertIn(role_list[1]['id'], combined_role_list)
+        self.assertIn(role_list[2]['id'], combined_role_list)
+        self.assertIn(role_list[3]['id'], combined_role_list)
+
+    def test_multi_group_grants_on_project_domain(self):
+        """Test multiple group roles for user on project and domain.
+
+        Test Plan:
+        - Create 6 roles
+        - Create a domain, with a project, user and two groups
+        - Make the user a member of both groups
+        - Check no roles yet exit
+        - Assign a role to each user and both groups on both the
+          project and domain
+        - Get a list of effective roles for the user on both the
+          project and domain, checking we get back the correct three
+          roles
+
+        """
+        role_list = []
+        for _ in range(6):
+            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            self.identity_api.create_role(role['id'], role)
+            role_list.append(role)
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain1['id'], 'enabled': True}
+        self.identity_api.create_group(group1['id'], group1)
+        group2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain1['id'], 'enabled': True}
+        self.identity_api.create_group(group2['id'], group2)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.identity_api.create_project(project1['id'], project1)
+
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group1['id'])
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group2['id'])
+
+        roles_ref = self.identity_api.list_grants(
+            user_id=user1['id'],
+            project_id=project1['id'])
+        self.assertEquals(len(roles_ref), 0)
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[0]['id'])
+        self.identity_api.create_grant(group_id=group1['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[1]['id'])
+        self.identity_api.create_grant(group_id=group2['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[2]['id'])
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=project1['id'],
+                                       role_id=role_list[3]['id'])
+        self.identity_api.create_grant(group_id=group1['id'],
+                                       project_id=project1['id'],
+                                       role_id=role_list[4]['id'])
+        self.identity_api.create_grant(group_id=group2['id'],
+                                       project_id=project1['id'],
+                                       role_id=role_list[5]['id'])
+
+        # Read by the roles, ensuring we get the correct 3 roles for
+        # both project and domain
+        combined_role_list = self.identity_api.get_roles_for_user_and_project(
+            user1['id'], project1['id'])
+        self.assertEquals(len(combined_role_list), 3)
+        self.assertIn(role_list[3]['id'], combined_role_list)
+        self.assertIn(role_list[4]['id'], combined_role_list)
+        self.assertIn(role_list[5]['id'], combined_role_list)
+
+        combined_role_list = self.identity_api.get_roles_for_user_and_domain(
+            user1['id'], domain1['id'])
+        self.assertEquals(len(combined_role_list), 3)
+        self.assertIn(role_list[0]['id'], combined_role_list)
+        self.assertIn(role_list[1]['id'], combined_role_list)
+        self.assertIn(role_list[2]['id'], combined_role_list)
 
     def test_delete_role_with_user_and_group_grants(self):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -2195,7 +2294,7 @@ class TrustTests(object):
         self.assertTrue(timeutils.normalize_time(trust_data['expires_at']) >
                         timeutils.utcnow())
 
-        self.assertEquals([{'id':'member'},
+        self.assertEquals([{'id': 'member'},
                            {'id': 'other'},
                            {'id': 'browser'}], trust_data['roles'])
 

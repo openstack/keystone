@@ -138,15 +138,6 @@ class Identity(kvs.Base, identity.Driver):
         user_ref = self._get_user(user_id)
         return user_ref.get('tenants', [])
 
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        self.get_user(user_id)
-        self.get_project(tenant_id)
-        try:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
-        except exception.MetadataNotFound:
-            metadata_ref = {}
-        return metadata_ref.get('roles', [])
-
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_user(user_id)
         self.get_project(tenant_id)

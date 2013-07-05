@@ -167,50 +167,88 @@ class Driver(object):
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given tenant.
 
+        This includes roles directly assigned to the user on the
+        project, as well as those by virtue of group membership.
+
         :returns: a list of role ids.
         :raises: keystone.exception.UserNotFound,
                  keystone.exception.ProjectNotFound
 
         """
-        raise exception.NotImplemented()
+        def _get_group_project_roles(user_id, tenant_id):
+            role_list = []
+            group_refs = self.list_groups_for_user(user_id=user_id)
+            for x in group_refs:
+                try:
+                    metadata_ref = self.get_metadata(group_id=x['id'],
+                                                     tenant_id=tenant_id)
+                    role_list += metadata_ref.get('roles', [])
+                except exception.MetadataNotFound:
+                    # no group grant, skip
+                    pass
+            return role_list
+
+        def _get_user_project_roles(user_id, tenant_id):
+            metadata_ref = {}
+            try:
+                metadata_ref = self.get_metadata(user_id=user_id,
+                                                 tenant_id=tenant_id)
+            except exception.MetadataNotFound:
+                pass
+            return metadata_ref.get('roles', [])
+
+        self.get_user(user_id)
+        self.get_project(tenant_id)
+        user_role_list = _get_user_project_roles(user_id, tenant_id)
+        group_role_list = _get_group_project_roles(user_id, tenant_id)
+        # Use set() to process the list to remove any duplicates
+        return list(set(user_role_list + group_role_list))
 
     def get_roles_for_user_and_domain(self, user_id, domain_id):
         """Get the roles associated with a user within given domain.
 
+        This includes roles directly assigned to the user on the
+        domain, as well as those by virtue of group membership.
+
         :returns: a list of role ids.
         :raises: keystone.exception.UserNotFound,
-                 keystone.exception.ProjectNotFound
+                 keystone.exception.DomainNotFound
 
         """
 
-        def update_metadata_for_group_domain_roles(self, metadata_ref,
-                                                   user_id, domain_id):
+        def _get_group_domain_roles(user_id, domain_id):
+            role_list = []
             group_refs = self.list_groups_for_user(user_id=user_id)
             for x in group_refs:
                 try:
-                    metadata_ref.update(
-                        self.get_metadata(group_id=x['id'],
-                                          domain_id=domain_id))
-                except exception.MetadataNotFound:
-                    # no group grant, skip
+                    metadata_ref = self.get_metadata(group_id=x['id'],
+                                                     domain_id=domain_id)
+                    role_list += metadata_ref.get('roles', [])
+                except (exception.MetadataNotFound, exception.NotImplemented):
+                    # MetadataNotFound implies no group grant, so skip.
+                    # Ignore NotImplemented since not all backends support
+                    # domains.
                     pass
+            return role_list
 
-        def update_metadata_for_user_domain_roles(self, metadata_ref,
-                                                  user_id, domain_id):
+        def _get_user_domain_roles(user_id, domain_id):
+            metadata_ref = {}
             try:
-                metadata_ref.update(self.get_metadata(user_id=user_id,
-                                                      domain_id=domain_id))
-            except exception.MetadataNotFound:
+                metadata_ref = self.get_metadata(user_id=user_id,
+                                                 domain_id=domain_id)
+            except (exception.MetadataNotFound, exception.NotImplemented):
+                # MetadataNotFound implies no user grants.
+                # Ignore NotImplemented since not all backends support
+                # domains.
                 pass
+            return metadata_ref.get('roles', [])
 
         self.get_user(user_id)
         self.get_domain(domain_id)
-        metadata_ref = {}
-        update_metadata_for_user_domain_roles(self, metadata_ref,
-                                              user_id, domain_id)
-        update_metadata_for_group_domain_roles(self, metadata_ref,
-                                               user_id, domain_id)
-        return list(set(metadata_ref.get('roles', [])))
+        user_role_list = _get_user_domain_roles(user_id, domain_id)
+        group_role_list = _get_group_domain_roles(user_id, domain_id)
+        # Use set() to process the list to remove any duplicates
+        return list(set(user_role_list + group_role_list))
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant.
