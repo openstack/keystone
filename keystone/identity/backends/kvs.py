@@ -28,7 +28,7 @@ class Identity(kvs.Base, identity.Driver):
         return "keystone.assignment.backends.kvs.Assignment"
 
     # Public interface
-    def authenticate_user(self, user_id=None, password=None):
+    def authenticate(self, user_id=None, password=None):
         user_ref = None
         try:
             user_ref = self._get_user(user_id)
@@ -36,7 +36,7 @@ class Identity(kvs.Base, identity.Driver):
             raise AssertionError('Invalid user / password')
         if not utils.check_password(password, user_ref.get('password')):
             raise AssertionError('Invalid user / password')
-        return user_ref
+        return identity.filter_user(user_ref)
 
     def _get_user(self, user_id):
         try:

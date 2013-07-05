@@ -58,20 +58,12 @@ class PamIdentity(identity.Driver):
     Tenant is always the same as User, root user has admin role.
     """
 
-    def authenticate_user(self, user_id=None, password=None):
+    def authenticate(self, user_id=None, password=None):
         auth = pam.authenticate if pam else PAM_authenticate
         if not auth(user_id, password):
             raise AssertionError('Invalid user / password')
         user = {'id': user_id, 'name': user_id}
         return user
-
-    def authorize_for_project(self, user_ref, tenant_id=None):
-        user_id = user_ref['id']
-        metadata = {}
-        if user_id == 'root':
-            metadata['is_admin'] = True
-        tenant = {'id': user_id, 'name': user_id}
-        return (user_ref, tenant, metadata)
 
     def get_project(self, tenant_id):
         return {'id': tenant_id, 'name': tenant_id}
@@ -134,16 +126,16 @@ class PamIdentity(identity.Driver):
     def delete_project(self, tenant_id, tenant):
         raise NotImplementedError()
 
-    def get_metadata(self, user_id, tenant_id):
+    def _get_metadata(self, user_id, tenant_id):
         metadata = {}
         if user_id == 'root':
             metadata['is_admin'] = True
         return metadata
 
-    def create_metadata(self, user_id, tenant_id, metadata):
+    def _create_metadata(self, user_id, tenant_id, metadata):
         raise NotImplementedError()
 
-    def update_metadata(self, user_id, tenant_id, metadata):
+    def _update_metadata(self, user_id, tenant_id, metadata):
         raise NotImplementedError()
 
     def create_role(self, role_id, role):

@@ -19,7 +19,6 @@ from keystone import clean
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import exception
-from keystone import identity
 
 
 class Assignment(sql.Base, assignment.Driver):
@@ -30,26 +29,6 @@ class Assignment(sql.Base, assignment.Driver):
     # Internal interface to manage the database
     def db_sync(self, version=None):
         migration.db_sync(version=version)
-
-    def authorize_for_project(self, user_ref, tenant_id=None):
-        user_id = user_ref['id']
-        tenant_ref = None
-        metadata_ref = {}
-        if tenant_id is not None:
-            # FIXME(gyee): this should really be
-            # get_roles_for_user_and_project() after the dusts settle
-            if tenant_id not in self.get_projects_for_user(user_id):
-                raise AssertionError('Invalid project')
-            try:
-                tenant_ref = self.get_project(tenant_id)
-                metadata_ref = self.get_metadata(user_id, tenant_id)
-            except exception.ProjectNotFound:
-                tenant_ref = None
-                metadata_ref = {}
-            except exception.MetadataNotFound:
-                metadata_ref = {}
-        user_ref = identity.filter_user(user_ref.to_dict())
-        return (user_ref, tenant_ref, metadata_ref)
 
     def _get_project(self, session, project_id):
         project_ref = session.query(Project).get(project_id)
@@ -91,8 +70,8 @@ class Assignment(sql.Base, assignment.Driver):
             user_refs.append(user_ref)
         return user_refs
 
-    def get_metadata(self, user_id=None, tenant_id=None,
-                     domain_id=None, group_id=None):
+    def _get_metadata(self, user_id=None, tenant_id=None,
+                      domain_id=None, group_id=None):
         session = self.get_session()
 
         if user_id:
@@ -130,8 +109,8 @@ class Assignment(sql.Base, assignment.Driver):
             self._get_project(session, project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
             is_new = False
         except exception.MetadataNotFound:
             metadata_ref = {}
@@ -140,11 +119,11 @@ class Assignment(sql.Base, assignment.Driver):
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
         if is_new:
-            self.create_metadata(user_id, project_id, metadata_ref,
-                                 domain_id, group_id)
+            self._create_metadata(user_id, project_id, metadata_ref,
+                                  domain_id, group_id)
         else:
-            self.update_metadata(user_id, project_id, metadata_ref,
-                                 domain_id, group_id)
+            self._update_metadata(user_id, project_id, metadata_ref,
+                                  domain_id, group_id)
 
     def list_grants(self, user_id=None, group_id=None,
                     domain_id=None, project_id=None):
@@ -159,8 +138,8 @@ class Assignment(sql.Base, assignment.Driver):
             self._get_project(session, project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         return [self.get_role(x) for x in metadata_ref.get('roles', [])]
@@ -179,8 +158,8 @@ class Assignment(sql.Base, assignment.Driver):
             self._get_project(session, project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         role_ids = set(metadata_ref.get('roles', []))
@@ -202,8 +181,8 @@ class Assignment(sql.Base, assignment.Driver):
             self._get_project(session, project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
             is_new = False
         except exception.MetadataNotFound:
             metadata_ref = {}
@@ -215,11 +194,11 @@ class Assignment(sql.Base, assignment.Driver):
             raise exception.RoleNotFound(role_id=role_id)
         metadata_ref['roles'] = list(roles)
         if is_new:
-            self.create_metadata(user_id, project_id, metadata_ref,
-                                 domain_id, group_id)
+            self._create_metadata(user_id, project_id, metadata_ref,
+                                  domain_id, group_id)
         else:
-            self.update_metadata(user_id, project_id, metadata_ref,
-                                 domain_id, group_id)
+            self._update_metadata(user_id, project_id, metadata_ref,
+                                  domain_id, group_id)
 
     def list_projects(self):
         session = self.get_session()
@@ -234,39 +213,13 @@ class Assignment(sql.Base, assignment.Driver):
         membership_refs = query.all()
         return [x.project_id for x in membership_refs]
 
-    def _get_user_group_project_roles(self, metadata_ref, user_id, project_id):
-        group_refs = self.identity_api.list_groups_for_user(user_id=user_id)
-        for x in group_refs:
-            try:
-                metadata_ref.update(
-                    self.get_metadata(group_id=x['id'],
-                                      tenant_id=project_id))
-            except exception.MetadataNotFound:
-                # no group grant, skip
-                pass
-
-    def _get_user_project_roles(self, metadata_ref, user_id, project_id):
-        try:
-            metadata_ref.update(self.get_metadata(user_id, project_id))
-        except exception.MetadataNotFound:
-            pass
-
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        session = self.get_session()
-        self.identity_api._get_user(session, user_id)
-        self._get_project(session, tenant_id)
-        metadata_ref = {}
-        self._get_user_project_roles(metadata_ref, user_id, tenant_id)
-        self._get_user_group_project_roles(metadata_ref, user_id, tenant_id)
-        return list(set(metadata_ref.get('roles', [])))
-
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         session = self.get_session()
         self.identity_api._get_user(session, user_id)
         self._get_project(session, tenant_id)
         self._get_role(session, role_id)
         try:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
+            metadata_ref = self._get_metadata(user_id, tenant_id)
             is_new = False
         except exception.MetadataNotFound:
             metadata_ref = {}
@@ -279,13 +232,13 @@ class Assignment(sql.Base, assignment.Driver):
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
         if is_new:
-            self.create_metadata(user_id, tenant_id, metadata_ref)
+            self._create_metadata(user_id, tenant_id, metadata_ref)
         else:
-            self.update_metadata(user_id, tenant_id, metadata_ref)
+            self._update_metadata(user_id, tenant_id, metadata_ref)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         try:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
+            metadata_ref = self._get_metadata(user_id, tenant_id)
             roles = set(metadata_ref.get('roles', []))
             if role_id not in roles:
                 raise exception.RoleNotFound(message=_(
@@ -294,7 +247,7 @@ class Assignment(sql.Base, assignment.Driver):
             roles.remove(role_id)
             metadata_ref['roles'] = list(roles)
             if len(roles):
-                self.update_metadata(user_id, tenant_id, metadata_ref)
+                self._update_metadata(user_id, tenant_id, metadata_ref)
             else:
                 session = self.get_session()
                 q = session.query(UserProjectGrant)
@@ -396,8 +349,8 @@ class Assignment(sql.Base, assignment.Driver):
             session.flush()
 
     @sql.handle_conflicts(type='metadata')
-    def create_metadata(self, user_id, tenant_id, metadata,
-                        domain_id=None, group_id=None):
+    def _create_metadata(self, user_id, tenant_id, metadata,
+                         domain_id=None, group_id=None):
         session = self.get_session()
         with session.begin():
             if user_id:
@@ -426,8 +379,8 @@ class Assignment(sql.Base, assignment.Driver):
         return metadata
 
     @sql.handle_conflicts(type='metadata')
-    def update_metadata(self, user_id, tenant_id, metadata,
-                        domain_id=None, group_id=None):
+    def _update_metadata(self, user_id, tenant_id, metadata,
+                         domain_id=None, group_id=None):
         session = self.get_session()
         with session.begin():
             if user_id:

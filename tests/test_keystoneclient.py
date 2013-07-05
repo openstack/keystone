@@ -47,13 +47,12 @@ class CompatTestCase(test.TestCase):
         self.public_server = self.serveapp('keystone', name='main')
         self.admin_server = self.serveapp('keystone', name='admin')
 
-        # TODO(termie): is_admin is being deprecated once the policy stuff
-        #               is all working
         # TODO(termie): add an admin user to the fixtures and use that user
         # override the fixtures, for now
-        self.metadata_foobar = self.identity_api.update_metadata(
-            self.user_foo['id'], self.tenant_bar['id'],
-            dict(roles=[self.role_admin['id']], is_admin='1'))
+        self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            self.role_admin['id'])
 
     def tearDown(self):
         self.public_server.kill()

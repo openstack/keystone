@@ -278,19 +278,6 @@ class TestCase(NoModule, unittest.TestCase):
                         pass
                 setattr(self, 'user_%s' % user['id'], user_copy)
 
-            for metadata in fixtures.METADATA:
-                metadata_ref = metadata.copy()
-                # TODO(termie): these will probably end up in the model anyway,
-                #               so this may be futile
-                del metadata_ref['user_id']
-                del metadata_ref['tenant_id']
-                rv = self.identity_api.create_metadata(metadata['user_id'],
-                                                       metadata['tenant_id'],
-                                                       metadata_ref)
-                setattr(self,
-                        'metadata_%s%s' % (metadata['user_id'],
-                                           metadata['tenant_id']), rv)
-
     def _paste_config(self, config):
         if not config.startswith('config:'):
             test_path = os.path.join(TESTSDIR, config)

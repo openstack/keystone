@@ -26,7 +26,6 @@ from keystone.common import logging
 from keystone.common import models
 from keystone import config
 from keystone import exception
-from keystone import identity
 from keystone.identity.backends import ldap as ldap_identity
 
 
@@ -69,29 +68,6 @@ class Assignment(assignment.Driver):
         #TODO(ayoung): only left here to prevent unit test from breaking
         #once we remove here. the getter and setter can be removed as well.
         self._identity_api.driver.project = self.project
-
-    def authorize_for_project(self, user_ref, tenant_id=None):
-        user_id = user_ref['id']
-        tenant_ref = None
-        metadata_ref = {}
-
-        if tenant_id is not None:
-            if tenant_id not in self.get_projects_for_user(user_id):
-                raise AssertionError('Invalid tenant')
-
-            try:
-                tenant_ref = self.get_project(tenant_id)
-                # TODO(termie): this should probably be made into a
-                #               get roles call
-                metadata_ref = self.get_metadata(user_id, tenant_id)
-            except exception.ProjectNotFound:
-                tenant_ref = None
-                metadata_ref = {}
-            except exception.MetadataNotFound:
-                metadata_ref = {}
-
-        user_ref = self._set_default_domain(identity.filter_user(user_ref))
-        return (user_ref, tenant_ref, metadata_ref)
 
     def get_project(self, tenant_id):
         return self._set_default_domain(self.project.get(tenant_id))
@@ -149,8 +125,9 @@ class Assignment(assignment.Driver):
             tenant['name'] = clean.project_name(tenant['name'])
         return self._set_default_domain(self.project.update(tenant_id, tenant))
 
-    def get_metadata(self, user_id=None, tenant_id=None,
-                     domain_id=None, group_id=None):
+    def _get_metadata(self, user_id=None, tenant_id=None,
+                      domain_id=None, group_id=None):
+
         def _get_roles_for_just_user_and_project(user_id, tenant_id):
             self.identity_api.get_user(user_id)
             self.get_project(tenant_id)
@@ -216,7 +193,7 @@ class Assignment(assignment.Driver):
             user_dn=user_dn,
             tenant_dn=tenant_dn)
 
-    def create_metadata(self, user_id, tenant_id, metadata):
+    def _create_metadata(self, user_id, tenant_id, metadata):
         return {}
 
     def create_role(self, role_id, role):

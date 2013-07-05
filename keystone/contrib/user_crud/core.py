@@ -43,7 +43,7 @@ class UserController(identity.controllers.User):
         try:
             user_ref = self.identity_api.authenticate(
                 user_id=user_id_from_token,
-                password=original_password)[0]
+                password=original_password)
             if not user_ref.get('enabled', True):
                 # NOTE(dolph): why can't you set a disabled user's password?
                 raise exception.Unauthorized('User is disabled')
