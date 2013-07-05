@@ -93,7 +93,7 @@ Create a tenant for the services, typically named 'service' (however, the name c
 This returns a UUID of the tenant - keep that, you'll need it when creating
 the users and specifying the roles.
 
-Create service users for nova, glance, swift, and quantum (or whatever
+Create service users for nova, glance, swift, and neutron (or whatever
 subset is relevant to your deployment)::
 
     keystone user-create --name=nova \
