@@ -59,33 +59,72 @@ class Manager(manager.Manager):
         self.identity_api.assignment_api = self
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
-        def _get_group_project_roles(user_id, tenant_id):
+        """Get the roles associated with a user within given project.
+
+        This includes roles directly assigned to the user on the
+        project, as well as those by virtue of group membership. If
+        the OS-INHERIT extension is enabled, then this will also
+        include roles inherited from the domain.
+
+        :returns: a list of role ids.
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.ProjectNotFound
+
+        """
+        def _get_group_project_roles(user_id, project_ref):
             role_list = []
             group_refs = (self.identity_api.list_groups_for_user
                           (user_id=user_id))
             for x in group_refs:
                 try:
-                    metadata_ref = self._get_metadata(group_id=x['id'],
-                                                      tenant_id=tenant_id)
-                    role_list += metadata_ref.get('roles', [])
+                    metadata_ref = self._get_metadata(
+                        group_id=x['id'], tenant_id=project_ref['id'])
+                    role_list += self._roles_from_role_dicts(
+                        metadata_ref.get('roles', {}), False)
                 except exception.MetadataNotFound:
                     # no group grant, skip
                     pass
+
+                if CONF.os_inherit.enabled:
+                    # Now get any inherited group roles for the owning domain
+                    try:
+                        metadata_ref = self._get_metadata(
+                            group_id=x['id'],
+                            domain_id=project_ref['domain_id'])
+                        role_list += self._roles_from_role_dicts(
+                            metadata_ref.get('roles', {}), True)
+                    except (exception.MetadataNotFound,
+                            exception.NotImplemented):
+                        pass
+
             return role_list
 
-        def _get_user_project_roles(user_id, tenant_id):
-            metadata_ref = {}
+        def _get_user_project_roles(user_id, project_ref):
+            role_list = []
             try:
                 metadata_ref = self._get_metadata(user_id=user_id,
-                                                  tenant_id=tenant_id)
+                                                  tenant_id=project_ref['id'])
+                role_list = self._roles_from_role_dicts(
+                    metadata_ref.get('roles', {}), False)
             except exception.MetadataNotFound:
                 pass
-            return metadata_ref.get('roles', [])
+
+            if CONF.os_inherit.enabled:
+                # Now get any inherited roles for the owning domain
+                try:
+                    metadata_ref = self._get_metadata(
+                        user_id=user_id, domain_id=project_ref['domain_id'])
+                    role_list += self._roles_from_role_dicts(
+                        metadata_ref.get('roles', {}), True)
+                except (exception.MetadataNotFound, exception.NotImplemented):
+                    pass
+
+            return role_list
 
         self.identity_api.get_user(user_id)
-        self.get_project(tenant_id)
-        user_role_list = _get_user_project_roles(user_id, tenant_id)
-        group_role_list = _get_group_project_roles(user_id, tenant_id)
+        project_ref = self.get_project(tenant_id)
+        user_role_list = _get_user_project_roles(user_id, project_ref)
+        group_role_list = _get_group_project_roles(user_id, project_ref)
         # Use set() to process the list to remove any duplicates
         return list(set(user_role_list + group_role_list))
 
@@ -106,11 +145,12 @@ class Manager(manager.Manager):
                 try:
                     metadata_ref = self._get_metadata(group_id=x['id'],
                                                       domain_id=domain_id)
-                    role_list += metadata_ref.get('roles', [])
+                    role_list += self._roles_from_role_dicts(
+                        metadata_ref.get('roles', {}), False)
                 except (exception.MetadataNotFound, exception.NotImplemented):
                     # MetadataNotFound implies no group grant, so skip.
                     # Ignore NotImplemented since not all backends support
-                    # domains.                    pass
+                    # domains.
                     pass
             return role_list
 
@@ -124,7 +164,8 @@ class Manager(manager.Manager):
                 # Ignore NotImplemented since not all backends support
                 # domains
                 pass
-            return metadata_ref.get('roles', [])
+            return self._roles_from_role_dicts(
+                metadata_ref.get('roles', {}), False)
 
         self.identity_api.get_user(user_id)
         self.get_domain(domain_id)
@@ -159,6 +200,40 @@ class Manager(manager.Manager):
 
 
 class Driver(object):
+
+    def _role_to_dict(self, role_id, inherited):
+        role_dict = {'id': role_id}
+        if inherited:
+            role_dict['inherited_to'] = 'projects'
+        return role_dict
+
+    def _roles_from_role_dicts(self, dict_list, inherited):
+        role_list = []
+        for d in dict_list:
+            if ((not d.get('inherited_to') and not inherited) or
+               (d.get('inherited_to') == 'projects' and inherited)):
+                role_list.append(d['id'])
+        return role_list
+
+    def _add_role_to_role_dicts(self, role_id, inherited, dict_list,
+                                allow_existing=True):
+        # There is a difference in error semantics when trying to
+        # assign a role that already exists between the coded v2 and v3
+        # API calls.  v2 will error if the assignment already exists,
+        # while v3 is silent. Setting the 'allow_existing' parameter
+        # appropriately lets this call be used for both.
+        role_set = set([frozenset(r.items()) for r in dict_list])
+        key = frozenset(self._role_to_dict(role_id, inherited).items())
+        if not allow_existing and key in role_set:
+            raise KeyError
+        role_set.add(key)
+        return [dict(r) for r in role_set]
+
+    def _remove_role_from_role_dicts(self, role_id, inherited, dict_list):
+        role_set = set([frozenset(r.items()) for r in dict_list])
+        role_set.remove(frozenset(self._role_to_dict(role_id,
+                                                     inherited).items()))
+        return [dict(r) for r in role_set]
 
     def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
@@ -209,8 +284,13 @@ class Driver(object):
     # assignment/grant crud
 
     def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         """Creates a new assignment/grant.
+
+        If the assignment is to a domain, then optionally it may be
+        specified as inherited to owned projects (this requires
+        the OS-INHERIT extension to be enabled).
 
         :raises: keystone.exception.UserNotFound,
                  keystone.exception.GroupNotFound,
@@ -223,7 +303,8 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None):
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
         """Lists assignments/grants.
 
         :raises: keystone.exception.UserNotFound,
@@ -237,7 +318,8 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None):
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
         """Lists assignments/grants.
 
         :raises: keystone.exception.UserNotFound,
@@ -251,7 +333,8 @@ class Driver(object):
         raise exception.NotImplemented()
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         """Lists assignments/grants.
 
         :raises: keystone.exception.UserNotFound,
@@ -329,7 +412,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def list_projects(self):
+    def list_projects(self, domain_id=None):
         """List all projects in the system.
 
         :returns: a list of project_refs or an empty list.

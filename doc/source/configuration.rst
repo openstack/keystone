@@ -79,6 +79,7 @@ following sections:
 * ``[signing]`` - cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL configuration
 * ``[auth]`` - Authentication plugin configuration
+* ``[os_inherit]`` - Inherited Role Assignment extension
 * ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
 
 The Keystone primary configuration file is expected to be named ``keystone.conf``.
@@ -483,6 +484,17 @@ Each user can then change their own password with a HTTP PATCH ::
 
 In addition to changing their password all of the users current tokens will be
 deleted (if the backend used is kvs or sql)
+
+
+Inherited Role Assignment Extension
+-----------------------------------
+
+Keystone provides an optional extension that adds the capability to assign roles to a domain that, rather than
+affect the domain itself, are instead inherited to all projects owned by theat domain.  This extension is disabled by
+default, but can be enabled by including the following in ``keystone.conf``.
+
+    [os_inherit]
+    enabled = True
 
 
 Sample Configuration Files

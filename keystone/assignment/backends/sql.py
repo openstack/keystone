@@ -96,7 +96,8 @@ class Assignment(sql.Base, assignment.Driver):
             raise exception.MetadataNotFound()
 
     def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         if user_id:
             self.identity_api.get_user(user_id)
         if group_id:
@@ -110,6 +111,10 @@ class Assignment(sql.Base, assignment.Driver):
         if project_id:
             self._get_project(session, project_id)
 
+        if project_id and inherited_to_projects:
+            msg = _('Inherited roles can only be assigned to domains')
+            raise exception.Conflict(type='role grant', details=msg)
+
         try:
             metadata_ref = self._get_metadata(user_id, project_id,
                                               domain_id, group_id)
@@ -117,9 +122,10 @@ class Assignment(sql.Base, assignment.Driver):
         except exception.MetadataNotFound:
             metadata_ref = {}
             is_new = True
-        roles = set(metadata_ref.get('roles', []))
-        roles.add(role_id)
-        metadata_ref['roles'] = list(roles)
+
+        metadata_ref['roles'] = self._add_role_to_role_dicts(
+            role_id, inherited_to_projects, metadata_ref.get('roles', []))
+
         if is_new:
             self._create_metadata(user_id, project_id, metadata_ref,
                                   domain_id, group_id)
@@ -128,7 +134,8 @@ class Assignment(sql.Base, assignment.Driver):
                                   domain_id, group_id)
 
     def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None):
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
         if user_id:
             self.identity_api.get_user(user_id)
         if group_id:
@@ -144,10 +151,14 @@ class Assignment(sql.Base, assignment.Driver):
                                               domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        return [self.get_role(x) for x in metadata_ref.get('roles', [])]
+
+        return [self.get_role(x) for x in
+                self._roles_from_role_dicts(metadata_ref.get('roles', []),
+                                            inherited_to_projects)]
 
     def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None):
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
         if user_id:
             self.identity_api.get_user(user_id)
         if group_id:
@@ -166,13 +177,15 @@ class Assignment(sql.Base, assignment.Driver):
                                               domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        role_ids = set(metadata_ref.get('roles', []))
+        role_ids = set(self._roles_from_role_dicts(
+            metadata_ref.get('roles', []), inherited_to_projects))
         if role_id not in role_ids:
             raise exception.RoleNotFound(role_id=role_id)
         return role_ref.to_dict()
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         if user_id:
             self.identity_api.get_user(user_id)
         if group_id:
@@ -193,25 +206,43 @@ class Assignment(sql.Base, assignment.Driver):
         except exception.MetadataNotFound:
             metadata_ref = {}
             is_new = True
-        roles = set(metadata_ref.get('roles', []))
+
         try:
-            roles.remove(role_id)
+            metadata_ref['roles'] = self._remove_role_from_role_dicts(
+                role_id, inherited_to_projects, metadata_ref.get('roles', []))
         except KeyError:
             raise exception.RoleNotFound(role_id=role_id)
-        metadata_ref['roles'] = list(roles)
+
         if is_new:
+            # TODO(henry-nash) It seems odd that you would create a new
+            # entry in response to trying to delete a role that was not
+            # assigned.  Although benign, this should probably be removed.
             self._create_metadata(user_id, project_id, metadata_ref,
                                   domain_id, group_id)
         else:
             self._update_metadata(user_id, project_id, metadata_ref,
                                   domain_id, group_id)
 
-    def list_projects(self):
+    def list_projects(self, domain_id=None):
         session = self.get_session()
-        tenant_refs = session.query(Project).all()
-        return [tenant_ref.to_dict() for tenant_ref in tenant_refs]
+        if domain_id:
+            self._get_domain(session, domain_id)
+
+        query = session.query(Project)
+        if domain_id:
+            query = query.filter_by(domain_id=domain_id)
+        project_refs = query.all()
+        return [project_ref.to_dict() for project_ref in project_refs]
 
     def get_projects_for_user(self, user_id):
+
+        # FIXME(henry-nash) The following should take into account
+        # both group and inherited roles. In fact, I don't see why this
+        # call can't be handled at the controller level like we do
+        # with 'get_roles_for_user_and_project()'.  Further, this
+        # call seems essentially the same as 'list_user_projects()'
+        # later in this driver.  Both should be removed.
+
         self.identity_api.get_user(user_id)
         session = self.get_session()
         query = session.query(UserProjectGrant)
@@ -230,13 +261,16 @@ class Assignment(sql.Base, assignment.Driver):
         except exception.MetadataNotFound:
             metadata_ref = {}
             is_new = True
-        roles = set(metadata_ref.get('roles', []))
-        if role_id in roles:
+
+        try:
+            metadata_ref['roles'] = self._add_role_to_role_dicts(
+                role_id, False, metadata_ref.get('roles', []),
+                allow_existing=False)
+        except KeyError:
             msg = ('User %s already has role %s in tenant %s'
                    % (user_id, role_id, tenant_id))
             raise exception.Conflict(type='role grant', details=msg)
-        roles.add(role_id)
-        metadata_ref['roles'] = list(roles)
+
         if is_new:
             self._create_metadata(user_id, tenant_id, metadata_ref)
         else:
@@ -245,14 +279,15 @@ class Assignment(sql.Base, assignment.Driver):
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         try:
             metadata_ref = self._get_metadata(user_id, tenant_id)
-            roles = set(metadata_ref.get('roles', []))
-            if role_id not in roles:
+            try:
+                metadata_ref['roles'] = self._remove_role_from_role_dicts(
+                    role_id, False, metadata_ref.get('roles', []))
+            except KeyError:
                 raise exception.RoleNotFound(message=_(
                     'Cannot remove role that has not been granted, %s') %
                     role_id)
-            roles.remove(role_id)
-            metadata_ref['roles'] = list(roles)
-            if len(roles):
+
+            if len(metadata_ref['roles']):
                 self._update_metadata(user_id, tenant_id, metadata_ref)
             else:
                 session = self.get_session()
@@ -277,28 +312,44 @@ class Assignment(sql.Base, assignment.Driver):
         assignment_list = []
         refs = session.query(UserDomainGrant).all()
         for x in refs:
-            for r in x.data.get('roles', []):
-                assignment_list.append({'user_id': x.user_id,
-                                        'domain_id': x.domain_id,
-                                        'role_id': r})
+            for r in self._roles_from_role_dicts(
+                    x.data.get('roles', {}), False):
+                        assignment_list.append({'user_id': x.user_id,
+                                                'domain_id': x.domain_id,
+                                                'role_id': r})
+            for r in self._roles_from_role_dicts(
+                    x.data.get('roles', {}), True):
+                        assignment_list.append({'user_id': x.user_id,
+                                                'domain_id': x.domain_id,
+                                                'role_id': r,
+                                                'inherited_to_projects': True})
         refs = session.query(UserProjectGrant).all()
         for x in refs:
-            for r in x.data.get('roles', []):
-                assignment_list.append({'user_id': x.user_id,
-                                        'project_id': x.project_id,
-                                        'role_id': r})
+            for r in self._roles_from_role_dicts(
+                    x.data.get('roles', {}), False):
+                        assignment_list.append({'user_id': x.user_id,
+                                                'project_id': x.project_id,
+                                                'role_id': r})
         refs = session.query(GroupDomainGrant).all()
         for x in refs:
-            for r in x.data.get('roles', []):
-                assignment_list.append({'group_id': x.group_id,
-                                        'domain_id': x.domain_id,
-                                        'role_id': r})
+            for r in self._roles_from_role_dicts(
+                    x.data.get('roles', {}), False):
+                        assignment_list.append({'group_id': x.group_id,
+                                                'domain_id': x.domain_id,
+                                                'role_id': r})
+            for r in self._roles_from_role_dicts(
+                    x.data.get('roles', {}), True):
+                        assignment_list.append({'group_id': x.group_id,
+                                                'domain_id': x.domain_id,
+                                                'role_id': r,
+                                                'inherited_to_projects': True})
         refs = session.query(GroupProjectGrant).all()
         for x in refs:
-            for r in x.data.get('roles', []):
-                assignment_list.append({'group_id': x.group_id,
-                                        'project_id': x.project_id,
-                                        'role_id': r})
+            for r in self._roles_from_role_dicts(
+                    x.data.get('roles', {}), False):
+                        assignment_list.append({'group_id': x.group_id,
+                                                'project_id': x.project_id,
+                                                'role_id': r})
         return assignment_list
 
     # CRUD
@@ -473,6 +524,14 @@ class Assignment(sql.Base, assignment.Driver):
             session.flush()
 
     def list_user_projects(self, user_id):
+
+        # FIXME(henry-nash) The following should take into account
+        # both group and inherited roles. In fact, I don't see why this
+        # call can't be handled at the controller level like we do
+        # with 'get_roles_for_user_and_project()'.  Further, this
+        # call seems essentially the same as 'get_projects_for_user()'
+        # earlier in this driver.  Both should be removed.
+
         session = self.get_session()
         user = self.identity_api.get_user(user_id)
         metadata_refs = session\
@@ -627,6 +686,29 @@ class Role(sql.ModelBase, sql.DictBase):
 
 
 class BaseGrant(sql.DictBase):
+    """Base Grant class.
+
+    There are four grant tables in the current implementation, one for
+    each type of grant:
+
+    - User for Project
+    - User for Domain
+    - Group for Project
+    - Group for Domain
+
+    Each is a table with the two attributes above as a combined primary key,
+    with the data field holding all roles for that combination.  The data
+    field is a list of dicts.  For regular role assignments each dict in
+    the list of of the form:
+
+    {'id': role_id}
+
+    If the OS-INHERIT extension is enabled and the role on a domain is an
+    inherited role, the dict will be of the form:
+
+    {'id': role_id, 'inherited_to': 'projects'}
+
+    """
     def to_dict(self):
         """Override parent to_dict() method with a simpler implementation.
 

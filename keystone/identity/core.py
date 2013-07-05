@@ -107,8 +107,8 @@ class Manager(manager.Manager):
     def get_project(self, tenant_id):
         return self.assignment.get_project(tenant_id)
 
-    def list_projects(self):
-        return self.assignment.list_projects()
+    def list_projects(self, domain_id=None):
+        return self.assignment.list_projects(domain_id)
 
     def get_role(self, role_id):
         return self.assignment.get_role(role_id)
@@ -156,24 +156,32 @@ class Manager(manager.Manager):
         return self.assignment.update_role(role_id, role)
 
     def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         return (self.assignment.create_grant
-                (role_id, user_id, group_id, domain_id, project_id))
+                (role_id, user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
 
     def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None):
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
         return (self.assignment.list_grants
-                (user_id, group_id, domain_id, project_id))
+                (user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
 
     def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None):
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
         return (self.assignment.get_grant
-                (role_id, user_id, group_id, domain_id, project_id))
+                (role_id, user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         return (self.assignment.delete_grant
-                (role_id, user_id, group_id, domain_id, project_id))
+                (role_id, user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
 
     def create_domain(self, domain_id, domain):
         return self.assignment.create_domain(domain_id, domain)
@@ -214,6 +222,7 @@ class Driver(object):
         :raises: AssertionError
         """
         raise exception.NotImplemented()
+
     # user crud
 
     def create_user(self, user_id, user):

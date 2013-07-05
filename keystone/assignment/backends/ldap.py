@@ -72,7 +72,9 @@ class Assignment(assignment.Driver):
     def get_project(self, tenant_id):
         return self._set_default_domain(self.project.get(tenant_id))
 
-    def list_projects(self):
+    def list_projects(self, domain_id=None):
+        # We don't support multiple domains within this driver, so ignore
+        # any domain passed.
         return self._set_default_domain(self.project.get_all())
 
     def get_project_by_name(self, tenant_name, domain_id):
@@ -117,7 +119,7 @@ class Assignment(assignment.Driver):
         metadata_ref = _get_roles_for_just_user_and_project(user_id, tenant_id)
         if not metadata_ref:
             return {}
-        return {'roles': metadata_ref}
+        return {'roles': [self._role_to_dict(r, False) for r in metadata_ref]}
 
     def get_role(self, role_id):
         return self.role.get(role_id)

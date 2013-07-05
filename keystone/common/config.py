@@ -214,6 +214,9 @@ def configure():
     # trust
     register_bool('enabled', group='trust', default=True)
 
+    # os_inherit
+    register_bool('enabled', group='os_inherit', default=False)
+
     # ssl
     register_bool('enable', group='ssl', default=False)
     register_str('certfile', group='ssl',

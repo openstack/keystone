@@ -33,10 +33,16 @@ class Assignment(kvs.Base, assignment.Driver):
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
 
-    def list_projects(self):
-        tenant_keys = filter(lambda x: x.startswith("tenant-"),
-                             self.db.keys())
-        return [self.db.get(key) for key in tenant_keys]
+    def list_projects(self, domain_id=None):
+        project_keys = filter(lambda x: x.startswith("tenant-"),
+                              self.db.keys())
+        project_refs = [self.db.get(key) for key in project_keys]
+
+        if domain_id:
+            self.get_domain(domain_id)
+            project_refs = filter(lambda x: domain_id in x['domain_id'],
+                                  project_refs)
+        return project_refs
 
     def get_project_by_name(self, tenant_name, domain_id):
         try:
@@ -105,13 +111,16 @@ class Assignment(kvs.Base, assignment.Driver):
             metadata_ref = self._get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        roles = set(metadata_ref.get('roles', []))
-        if role_id in roles:
+
+        try:
+            metadata_ref['roles'] = self._add_role_to_role_dicts(
+                role_id, False, metadata_ref.get('roles', []),
+                allow_existing=False)
+        except KeyError:
             msg = ('User %s already has role %s in tenant %s'
                    % (user_id, role_id, tenant_id))
             raise exception.Conflict(type='role grant', details=msg)
-        roles.add(role_id)
-        metadata_ref['roles'] = list(roles)
+
         self._update_metadata(user_id, tenant_id, metadata_ref)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
@@ -119,23 +128,25 @@ class Assignment(kvs.Base, assignment.Driver):
             metadata_ref = self._get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        roles = set(metadata_ref.get('roles', []))
-        if role_id not in roles:
-            msg = 'Cannot remove role that has not been granted, %s' % role_id
-            raise exception.RoleNotFound(message=msg)
 
-        roles.remove(role_id)
-        metadata_ref['roles'] = list(roles)
+        try:
+            metadata_ref['roles'] = self._remove_role_from_role_dicts(
+                role_id, False, metadata_ref.get('roles', []))
+        except KeyError:
+            raise exception.RoleNotFound(message=_(
+                'Cannot remove role that has not been granted, %s') %
+                role_id)
 
-        if not len(roles):
+        if len(metadata_ref['roles']):
+            self._update_metadata(user_id, tenant_id, metadata_ref)
+        else:
+
             self.db.delete('metadata-%s-%s' % (tenant_id, user_id))
             user_ref = self._get_user(user_id)
             tenants = set(user_ref.get('tenants', []))
             tenants.remove(tenant_id)
             user_ref['tenants'] = list(tenants)
             self.identity_api.update_user(user_id, user_ref)
-        else:
-            self._update_metadata(user_id, tenant_id, metadata_ref)
 
     def list_role_assignments(self):
         """List the role assignments.
@@ -144,7 +155,7 @@ class Assignment(kvs.Base, assignment.Driver):
 
         "metadata-{target}-{actor}", with the value being a role list
 
-        i.e. "metadata-MyProjectID-MyUserID" [role1, role2]
+        i.e. "metadata-MyProjectID-MyUserID" [{'id': role1}, {'id': role2}]
 
         ...so we enumerate the list and extract the targets, actors
         and roles.
@@ -169,7 +180,8 @@ class Assignment(kvs.Base, assignment.Driver):
                 template['group_id'] = meta_id2
 
             entry = self.db.get(key)
-            for r in entry.get('roles', []):
+            for r in self._roles_from_role_dicts(entry.get('roles', {}),
+                                                 False):
                 role_assignment = template.copy()
                 role_assignment['role_id'] = r
                 assignment_list.append(role_assignment)
@@ -324,7 +336,8 @@ class Assignment(kvs.Base, assignment.Driver):
         self.db.set('role_list', list(role_list))
 
     def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
 
         self.get_role(role_id)
         if user_id:
@@ -341,14 +354,16 @@ class Assignment(kvs.Base, assignment.Driver):
                                               domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        roles = set(metadata_ref.get('roles', []))
-        roles.add(role_id)
-        metadata_ref['roles'] = list(roles)
+
+        metadata_ref['roles'] = self._add_role_to_role_dicts(
+            role_id, inherited_to_projects, metadata_ref.get('roles', []))
+
         self._update_metadata(user_id, project_id, metadata_ref,
                               domain_id, group_id)
 
     def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None):
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
         if user_id:
             self.identity_api.get_user(user_id)
         if group_id:
@@ -363,10 +378,14 @@ class Assignment(kvs.Base, assignment.Driver):
                                               domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        return [self.get_role(x) for x in metadata_ref.get('roles', [])]
+
+        return [self.get_role(x) for x in
+                self._roles_from_role_dicts(metadata_ref.get('roles', []),
+                                            inherited_to_projects)]
 
     def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None):
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
         self.get_role(role_id)
         if user_id:
             self.identity_api.get_user(user_id)
@@ -382,13 +401,17 @@ class Assignment(kvs.Base, assignment.Driver):
                                               domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        role_ids = set(metadata_ref.get('roles', []))
+
+        role_ids = set(self._roles_from_role_dicts(
+            metadata_ref.get('roles', []), inherited_to_projects))
+
         if role_id not in role_ids:
             raise exception.RoleNotFound(role_id=role_id)
         return self.get_role(role_id)
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None):
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
         self.get_role(role_id)
         if user_id:
             self.identity_api.get_user(user_id)
@@ -404,12 +427,13 @@ class Assignment(kvs.Base, assignment.Driver):
                                               domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
-        roles = set(metadata_ref.get('roles', []))
+
         try:
-            roles.remove(role_id)
+            metadata_ref['roles'] = self._remove_role_from_role_dicts(
+                role_id, inherited_to_projects, metadata_ref.get('roles', []))
         except KeyError:
             raise exception.RoleNotFound(role_id=role_id)
-        metadata_ref['roles'] = list(roles)
+
         self._update_metadata(user_id, project_id, metadata_ref,
                               domain_id, group_id)
 

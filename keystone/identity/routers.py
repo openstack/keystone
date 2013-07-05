@@ -16,6 +16,7 @@
 """WSGI Routers for the Identity service."""
 from keystone.common import router
 from keystone.common import wsgi
+from keystone import config
 from keystone.identity import controllers
 
 
@@ -174,6 +175,47 @@ def append_v3_routers(mapper, routers):
                    action='revoke_grant',
                    conditions=dict(method=['DELETE']))
 
+    if config.CONF.os_inherit.enabled:
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
+                        '/roles/{role_id}/inherited_to_projects'),
+                       controller=role_controller,
+                       action='create_grant',
+                       conditions=dict(method=['PUT']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
+                        '/roles/{role_id}/inherited_to_projects'),
+                       controller=role_controller,
+                       action='create_grant',
+                       conditions=dict(method=['PUT']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
+                        '/roles/{role_id}/inherited_to_projects'),
+                       controller=role_controller,
+                       action='check_grant',
+                       conditions=dict(method=['HEAD']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
+                        '/roles/{role_id}/inherited_to_projects'),
+                       controller=role_controller,
+                       action='check_grant',
+                       conditions=dict(method=['HEAD']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
+                        '/roles/inherited_to_projects'),
+                       controller=role_controller,
+                       action='list_grants',
+                       conditions=dict(method=['GET']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
+                        '/roles/inherited_to_projects'),
+                       controller=role_controller,
+                       action='list_grants',
+                       conditions=dict(method=['GET']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
+                        '/roles/{role_id}/inherited_to_projects'),
+                       controller=role_controller,
+                       action='revoke_grant',
+                       conditions=dict(method=['DELETE']))
+        mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
+                        '/roles/{role_id}/inherited_to_projects'),
+                       controller=role_controller,
+                       action='revoke_grant',
+                       conditions=dict(method=['DELETE']))
     routers.append(
         router.Router(controllers.RoleAssignmentV3(),
                       'role_assignments', 'role_assignment'))

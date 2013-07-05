@@ -1106,12 +1106,17 @@ class IdentityTests(object):
         group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': domain1['id'], 'enabled': True}
         self.identity_api.create_group(group1['id'], group1)
+        group2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain1['id'], 'enabled': True}
+        self.identity_api.create_group(group2['id'], group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
         self.identity_api.create_project(project1['id'], project1)
 
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group2['id'])
 
         roles_ref = self.identity_api.list_grants(
             user_id=user1['id'],
@@ -1765,6 +1770,30 @@ class IdentityTests(object):
             project_ids.append(project.get('id'))
         self.assertIn(self.tenant_bar['id'], project_ids)
         self.assertIn(self.tenant_baz['id'], project_ids)
+
+    def test_list_projects_for_domain(self):
+        project_ids = ([x['id'] for x in
+                       self.assignment_api.list_projects(DEFAULT_DOMAIN_ID)])
+        self.assertEquals(len(project_ids), 4)
+        self.assertIn(self.tenant_bar['id'], project_ids)
+        self.assertIn(self.tenant_baz['id'], project_ids)
+        self.assertIn(self.tenant_mtu['id'], project_ids)
+        self.assertIn(self.tenant_service['id'], project_ids)
+
+    def test_list_projects_for_alternate_domain(self):
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain1['id'], domain1)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.assignment_api.create_project(project2['id'], project2)
+        project_ids = ([x['id'] for x in
+                       self.assignment_api.list_projects(domain1['id'])])
+        self.assertEquals(len(project_ids), 2)
+        self.assertIn(project1['id'], project_ids)
+        self.assertIn(project2['id'], project_ids)
 
     def test_list_roles(self):
         roles = self.identity_api.list_roles()
@@ -2690,3 +2719,164 @@ class PolicyTests(object):
         self.assertRaises(exception.PolicyNotFound,
                           self.policy_api.delete_policy,
                           uuid.uuid4().hex)
+
+
+class InheritanceTests(object):
+
+    def test_inherited_role_grants_for_user(self):
+        """Test inherited user roles.
+
+        Test Plan:
+        - Enable OS-INHERIT extension
+        - Create 3 roles
+        - Create a domain, with a project and a user
+        - Check no roles yet exit
+        - Assign a direct user role to the project and a (non-inherited)
+          user role to the domain
+        - Get a list of effective roles - should only get the one direct role
+        - Now add an inherited user role to the domain
+        - Get a list of effective roles - should have two roles, one
+          direct and one by virtue of the inherited user role
+        - Also get effective roles for the domain - the role marked as
+          inherited should not show up
+
+        """
+        self.opt_in_group('os_inherit', enabled=True)
+        role_list = []
+        for _ in range(3):
+            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            self.identity_api.create_role(role['id'], role)
+            role_list.append(role)
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.identity_api.create_project(project1['id'], project1)
+
+        roles_ref = self.identity_api.list_grants(
+            user_id=user1['id'],
+            project_id=project1['id'])
+        self.assertEquals(len(roles_ref), 0)
+
+        # Create the first two roles - the domain one is not inherited
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=project1['id'],
+                                       role_id=role_list[0]['id'])
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[1]['id'])
+
+        # Now get the effective roles for the user and project, this
+        # should only include the direct role assignment on the project
+        combined_role_list = self.identity_api.get_roles_for_user_and_project(
+            user1['id'], project1['id'])
+        self.assertEquals(len(combined_role_list), 1)
+        self.assertIn(role_list[0]['id'], combined_role_list)
+
+        # Now add an inherited role on the domain
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[2]['id'],
+                                       inherited_to_projects=True)
+
+        # Now get the effective roles for the user and project again, this
+        # should now include the inherited role on the domain
+        combined_role_list = self.identity_api.get_roles_for_user_and_project(
+            user1['id'], project1['id'])
+        self.assertEquals(len(combined_role_list), 2)
+        self.assertIn(role_list[0]['id'], combined_role_list)
+        self.assertIn(role_list[2]['id'], combined_role_list)
+
+        # Finally, check that the inherited role does not appear as a valid
+        # directly assigned role on the domain itself
+        combined_role_list = self.identity_api.get_roles_for_user_and_domain(
+            user1['id'], domain1['id'])
+        self.assertEquals(len(combined_role_list), 1)
+        self.assertIn(role_list[1]['id'], combined_role_list)
+
+    def test_inherited_role_grants_for_group(self):
+        """Test inherited group roles.
+
+        Test Plan:
+        - Enable OS-INHERIT extension
+        - Create 4 roles
+        - Create a domain, with a project, user and two groups
+        - Make the user a member of both groups
+        - Check no roles yet exit
+        - Assign a direct user role to the project and a (non-inherited)
+          group role on the domain
+        - Get a list of effective roles - should only get the one direct role
+        - Now add two inherited group roles to the domain
+        - Get a list of effective roles - should have three roles, one
+          direct and two by virtue of inherited group roles
+
+        """
+        self.opt_in_group('os_inherit', enabled=True)
+        role_list = []
+        for _ in range(4):
+            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            self.identity_api.create_role(role['id'], role)
+            role_list.append(role)
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'domain_id': domain1['id'], 'password': uuid.uuid4().hex,
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain1['id'], 'enabled': True}
+        self.identity_api.create_group(group1['id'], group1)
+        group2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain1['id'], 'enabled': True}
+        self.identity_api.create_group(group2['id'], group2)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.identity_api.create_project(project1['id'], project1)
+
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group1['id'])
+        self.identity_api.add_user_to_group(user1['id'],
+                                            group2['id'])
+
+        roles_ref = self.identity_api.list_grants(
+            user_id=user1['id'],
+            project_id=project1['id'])
+        self.assertEquals(len(roles_ref), 0)
+
+        # Create two roles - the domain one is not inherited
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=project1['id'],
+                                       role_id=role_list[0]['id'])
+        self.identity_api.create_grant(group_id=group1['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[1]['id'])
+
+        # Now get the effective roles for the user and project, this
+        # should only include the direct role assignment on the project
+        combined_role_list = self.identity_api.get_roles_for_user_and_project(
+            user1['id'], project1['id'])
+        self.assertEquals(len(combined_role_list), 1)
+        self.assertIn(role_list[0]['id'], combined_role_list)
+
+        # Now add to more group roles, both inherited, to the domain
+        self.identity_api.create_grant(group_id=group2['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[2]['id'],
+                                       inherited_to_projects=True)
+        self.identity_api.create_grant(group_id=group2['id'],
+                                       domain_id=domain1['id'],
+                                       role_id=role_list[3]['id'],
+                                       inherited_to_projects=True)
+
+        # Now get the effective roles for the user and project again, this
+        # should now include the inherited roles on the domain
+        combined_role_list = self.identity_api.get_roles_for_user_and_project(
+            user1['id'], project1['id'])
+        self.assertEquals(len(combined_role_list), 3)
+        self.assertIn(role_list[0]['id'], combined_role_list)
+        self.assertIn(role_list[2]['id'], combined_role_list)
+        self.assertIn(role_list[3]['id'], combined_role_list)

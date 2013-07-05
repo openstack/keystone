@@ -109,6 +109,11 @@
 # delegation and impersonation features can be optionally disabled
 # enabled = True
 
+[os_inherit]
+# role-assignment inheritance to projects from owning domain can be
+# optionally enabled
+# enabled = False
+
 [catalog]
 # dynamic, sql-based backend (supports API/CLI-based management commands)
 # driver = keystone.catalog.backends.sql.Catalog

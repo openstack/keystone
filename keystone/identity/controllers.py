@@ -748,6 +748,11 @@ class RoleV3(controller.V3Controller):
             msg = 'Specify a user or group, not both'
             raise exception.ValidationError(msg)
 
+    def _check_if_inherited(self, context):
+        return (CONF.os_inherit.enabled and
+                context['path'].startswith('/OS-INHERIT') and
+                context['path'].endswith('/inherited_to_projects'))
+
     @controller.protected
     def create_grant(self, context, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None):
@@ -756,7 +761,8 @@ class RoleV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         self.identity_api.create_grant(
-            role_id, user_id, group_id, domain_id, project_id)
+            role_id, user_id, group_id, domain_id, project_id,
+            self._check_if_inherited(context))
 
     @controller.protected
     def list_grants(self, context, user_id=None, group_id=None,
@@ -766,7 +772,8 @@ class RoleV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         refs = self.identity_api.list_grants(
-            user_id, group_id, domain_id, project_id)
+            user_id, group_id, domain_id, project_id,
+            self._check_if_inherited(context))
         return RoleV3.wrap_collection(context, refs)
 
     @controller.protected
@@ -777,7 +784,8 @@ class RoleV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         self.identity_api.get_grant(
-            role_id, user_id, group_id, domain_id, project_id)
+            role_id, user_id, group_id, domain_id, project_id,
+            self._check_if_inherited(context))
 
     @controller.protected
     def revoke_grant(self, context, role_id, user_id=None, group_id=None,
@@ -787,7 +795,8 @@ class RoleV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         self.identity_api.delete_grant(
-            role_id, user_id, group_id, domain_id, project_id)
+            role_id, user_id, group_id, domain_id, project_id,
+            self._check_if_inherited(context))
 
         # Now delete any tokens for this user or, in the case of a group,
         # tokens from all the uses who are members of this group.
@@ -815,13 +824,55 @@ class RoleAssignmentV3(controller.V3Controller):
         pass
 
     def _format_entity(self, entity):
+        """Format an assignment entity for API response.
+
+        The driver layer returns entities as dicts containing the ids of the
+        actor (e.g. user or group), target (e.g. domain or project) and role.
+        If it is an inherited role, then this is also indicated. Examples:
+
+        {'user_id': user_id,
+         'project_id': domain_id,
+         'role_id': role_id}
+
+        or, for an inherited role:
+
+        {'user_id': user_id,
+         'domain_id': domain_id,
+         'role_id': role_id,
+         'inherited_to_projects': true}
+
+        This function maps this into the format to be returned via the API,
+        e.g. for the second example above:
+
+        {
+            'user': {
+                {'id': user_id}
+            },
+            'scope': {
+                'domain': {
+                    {'id': domain_id}
+                },
+                'OS-INHERIT:inherited_to': 'projects
+            },
+            'role': {
+                {'id': role_id}
+            },
+            'links': {
+                'assignment': '/domains/domain_id/users/user_id/roles/'
+                              'role_id/inherited_to_projects'
+            }
+        }
+
+        """
+
         formatted_entity = {}
+        suffix = ""
         if 'user_id' in entity:
             formatted_entity['user'] = {'id': entity['user_id']}
-            actor_link = '/users/%s' % entity['user_id']
+            actor_link = 'users/%s' % entity['user_id']
         if 'group_id' in entity:
             formatted_entity['group'] = {'id': entity['group_id']}
-            actor_link = '/groups/%s' % entity['group_id']
+            actor_link = 'groups/%s' % entity['group_id']
         if 'role_id' in entity:
             formatted_entity['role'] = {'id': entity['role_id']}
         if 'project_id' in entity:
@@ -831,12 +882,21 @@ class RoleAssignmentV3(controller.V3Controller):
         if 'domain_id' in entity:
             formatted_entity['scope'] = (
                 {'domain': {'id': entity['domain_id']}})
-            target_link = '/domains/%s' % entity['domain_id']
-
+            if 'inherited_to_projects' in entity:
+                formatted_entity['scope']['OS-INHERIT:inherited_to'] = (
+                    'projects')
+                target_link = '/OS-INHERIT/domains/%s' % entity['domain_id']
+                suffix = '/inherited_to_projects'
+            else:
+                target_link = '/domains/%s' % entity['domain_id']
         formatted_entity.setdefault('links', {})
         formatted_entity['links']['assignment'] = (
-            self.base_url(target_link + actor_link +
-                          '/roles/%s' % entity['role_id']))
+            self.base_url('%(target)s/%(actor)s/roles/%(role)s%(suffix)s' % {
+                'target': target_link,
+                'actor': actor_link,
+                'role': entity['role_id'],
+                'suffix': suffix}))
+
         return formatted_entity
 
     def _expand_indirect_assignments(self, refs):
@@ -845,6 +905,10 @@ class RoleAssignmentV3(controller.V3Controller):
         For any group role assignments in the list, create a role assignment
         entity for each member of that group, and then remove the group
         assignment entity itself from the list.
+
+        If the OS-INHERIT extension is enabled, then honor any inherited
+        roles on the domain by creating the equivalent on all projects
+        owned by the domain.
 
         For any new entity created by virtue of group membership, add in an
         additional link to that membership.
@@ -881,7 +945,8 @@ class RoleAssignmentV3(controller.V3Controller):
                           'role': ref.get('role_id')})
             return members
 
-        def _build_equivalent_user_assignment(user, group_id, template):
+        def _build_user_assignment_equivalent_of_group(
+                user, group_id, template):
             """Create a user assignment equivalent to the group one.
 
             The template has had the 'group' entity removed, so
@@ -900,33 +965,112 @@ class RoleAssignmentV3(controller.V3Controller):
                     '/projects/%s' % scope['project']['id'])
             user_entry['links']['assignment'] = (
                 self.base_url('%s/users/%s/roles/%s' %
-                              (target_link, m['id'],
+                              (target_link, user['id'],
                                user_entry['role']['id'])))
             user_entry['links']['membership'] = (
                 self.base_url('/groups/%s/users/%s' %
                               (group_id, user['id'])))
             return user_entry
 
-        # Scan the list of entities for any group assignments, expanding
-        # them into equivalent user entities.  Due to potential large
-        # expansion of group entities, rather than modify the
+        def _build_project_equivalent_of_user_domain_role(
+                project_id, domain_id, template):
+            """Create a user project assignment equivalent to the domain one.
+
+            The template has had the 'domain' entity removed, so
+            substitute a 'project' one, modifying the 'assignment' link
+            to match.
+
+            """
+            project_entry = copy.deepcopy(template)
+            project_entry['scope']['project'] = {'id': project_id}
+            project_entry['links']['assignment'] = (
+                self.base_url(
+                    '/OS-INHERIT/domains/%s/users/%s/roles/%s'
+                    '/inherited_to_projects' % (
+                        domain_id, project_entry['user']['id'],
+                        project_entry['role']['id'])))
+            return project_entry
+
+        def _build_project_equivalent_of_group_domain_role(
+                user_id, group_id, project_id, domain_id, template):
+            """Create a user project equivalent to the domain group one.
+
+            The template has had the 'domain' and 'group' entities removed, so
+            substitute a 'user-project' one, modifying the 'assignment' link
+            to match.
+
+            """
+            project_entry = copy.deepcopy(template)
+            project_entry['user'] = {'id': user_id}
+            project_entry['scope']['project'] = {'id': project_id}
+            project_entry['links']['assignment'] = (
+                self.base_url('/OS-INHERIT/domains/%s/groups/%s/roles/%s'
+                              '/inherited_to_projects' % (
+                                  domain_id, group_id,
+                                  project_entry['role']['id'])))
+            project_entry['links']['membership'] = (
+                self.base_url('/groups/%s/users/%s' %
+                              (group_id, user_id)))
+            return project_entry
+
+        # Scan the list of entities for any assignments that need to be
+        # expanded.
+        #
+        # If the OS-INERIT extension is enabled, the refs lists may
+        # contain roles to be inherited from domain to project, so expand
+        # these as well into project equivalents
+        #
+        # For any regular group entries, expand these into user entries based
+        # on membership of that group.
+        #
+        # Due to the potentially large expansions, rather than modify the
         # list we are enumerating, we build a new one as we go.
+        #
+
         new_refs = []
         for r in refs:
-            if 'group' in r:
-                # As it is a group role assignment, first get the list of
-                # members.
-
+            if 'OS-INHERIT:inherited_to' in r['scope']:
+                # It's an inherited domain role - so get the list of projects
+                # owned by this domain. A domain scope is guaranteed since we
+                # checked this when we built the refs list
+                project_ids = (
+                    [x['id'] for x in self.assignment_api.list_projects(
+                        r['scope']['domain']['id'])])
+                base_entry = copy.deepcopy(r)
+                domain_id = base_entry['scope']['domain']['id']
+                base_entry['scope'].pop('domain')
+                # For each project, create an equivalent role assignment
+                for p in project_ids:
+                    # If it's a group assignment, then create equivalent user
+                    # roles based on membership of the group
+                    if 'group' in base_entry:
+                        members = _get_group_members(base_entry)
+                        sub_entry = copy.deepcopy(base_entry)
+                        group_id = sub_entry['group']['id']
+                        sub_entry.pop('group')
+                        for m in members:
+                            new_entry = (
+                                _build_project_equivalent_of_group_domain_role(
+                                    m['id'], group_id, p,
+                                    domain_id, sub_entry))
+                            new_refs.append(new_entry)
+                    else:
+                        new_entry = (
+                            _build_project_equivalent_of_user_domain_role(
+                                p, domain_id, base_entry))
+                        new_refs.append(new_entry)
+            elif 'group' in r:
+                # It's a non-inherited group role assignment, so get the list
+                # of members.
                 members = _get_group_members(r)
 
                 # Now replace that group role assignment entry with an
                 # equivalent user role assignment for each of the group members
-
                 base_entry = copy.deepcopy(r)
                 group_id = base_entry['group']['id']
                 base_entry.pop('group')
                 for m in members:
-                    user_entry = _build_equivalent_user_assignment(
+                    user_entry = _build_user_assignment_equivalent_of_group(
                         m, group_id, base_entry)
                     new_refs.append(user_entry)
             else:
@@ -954,9 +1098,16 @@ class RoleAssignmentV3(controller.V3Controller):
             val = True
         return val
 
+    def _filter_inherited(self, entry):
+        if ('inherited_to_projects' in entry and
+                not CONF.os_inherit.enabled):
+                    return False
+        else:
+            return True
+
     @controller.filterprotected('group.id', 'role.id',
                                 'scope.domain.id', 'scope.project.id',
-                                'user.id')
+                                'scope.OS-INHERIT:inherited_to', 'user.id')
     def list_role_assignments(self, context, filters):
 
         # TODO(henry-nash): This implementation uses the standard filtering
@@ -966,7 +1117,9 @@ class RoleAssignmentV3(controller.V3Controller):
         # kept a minimum.
 
         refs = self.identity_api.list_role_assignments()
-        formatted_refs = [self._format_entity(x) for x in refs]
+        formatted_refs = (
+            [self._format_entity(x) for x in refs
+             if self._filter_inherited(x)])
 
         if ('effective' in context['query_string'] and
                 self._query_filter_is_true(

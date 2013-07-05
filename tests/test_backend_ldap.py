@@ -630,6 +630,10 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
             user1['id'], CONF.identity.default_domain_id)
         self.assertEquals(len(combined_role_list), 0)
 
+    def test_list_projects_for_alternate_domain(self):
+        raise nose.exc.SkipTest(
+            'N/A: LDAP does not support multiple domains')
+
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):
