@@ -311,7 +311,7 @@ class V3Controller(V2Controller):
                 # worth the duplication of state
                 try:
                     token_ref = self.token_api.get_token(
-                        context=context, token_id=context['token_id'])
+                        token_id=context['token_id'])
                 except exception.TokenNotFound:
                     LOG.warning(_('Invalid token in normalize_domain_id'))
                     raise exception.Unauthorized()
