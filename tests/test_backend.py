@@ -1131,7 +1131,7 @@ class IdentityTests(object):
             project_id=project1['id'])
 
         roles_ref_ids = []
-        for i, ref in enumerate(roles_ref):
+        for ref in roles_ref:
             roles_ref_ids.append(ref['id'])
         self.assertIn(role1['id'], roles_ref_ids)
         self.assertIn(role2['id'], roles_ref_ids)
