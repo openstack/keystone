@@ -369,23 +369,6 @@ def configure():
     register_list(
         'group_additional_attribute_mapping', group='ldap', default=None)
 
-    register_str('domain_tree_dn', group='ldap', default=None)
-    register_str('domain_filter', group='ldap', default=None)
-    register_str('domain_objectclass', group='ldap', default='groupOfNames')
-    register_str('domain_id_attribute', group='ldap', default='cn')
-    register_str('domain_name_attribute', group='ldap', default='ou')
-    register_str('domain_member_attribute', group='ldap', default='member')
-    register_str('domain_desc_attribute', group='ldap', default='description')
-    register_str('domain_enabled_attribute', group='ldap', default='enabled')
-    register_list('domain_attribute_ignore', group='ldap', default='')
-    register_bool('domain_allow_create', group='ldap', default=True)
-    register_bool('domain_allow_update', group='ldap', default=True)
-    register_bool('domain_allow_delete', group='ldap', default=True)
-    register_bool('domain_enabled_emulation', group='ldap', default=False)
-    register_str('domain_enabled_emulation_dn', group='ldap', default=None)
-    register_list(
-        'domain_additional_attribute_mapping', group='ldap', default=None)
-
     register_str('tls_cacertfile', group='ldap', default=None)
     register_str('tls_cacertdir', group='ldap', default=None)
     register_bool('use_tls', group='ldap', default=False)
