@@ -149,12 +149,23 @@ class Identity(identity.Driver):
 
     def get_metadata(self, user_id=None, tenant_id=None,
                      domain_id=None, group_id=None):
+
+        def _get_roles_for_just_user_and_project(user_id, tenant_id):
+            self.get_user(user_id)
+            self.get_project(tenant_id)
+            user_dn = self.user._id_to_dn(user_id)
+            return [self.role._dn_to_id(a.role_dn)
+                    for a in self.role.get_role_assignments
+                    (self.project._id_to_dn(tenant_id))
+                    if a.user_dn == user_dn]
+
         if domain_id is not None:
-            raise NotImplemented('Domain metadata not supported by LDAP.')
+            msg = 'Domain metadata not supported by LDAP'
+            raise exception.NotImplemented(message=msg)
         if not self.get_project(tenant_id) or not self.get_user(user_id):
             return {}
 
-        metadata_ref = self.get_roles_for_user_and_project(user_id, tenant_id)
+        metadata_ref = _get_roles_for_just_user_and_project(user_id, tenant_id)
         if not metadata_ref:
             return {}
         return {'roles': metadata_ref}
@@ -181,15 +192,6 @@ class Identity(identity.Driver):
                  for user_id in
                  self.project.get_user_dns(tenant_id, rolegrants)]
         return self._set_default_domain(users)
-
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        self.get_user(user_id)
-        self.get_project(tenant_id)
-        user_dn = self.user._id_to_dn(user_id)
-        return [self.role._dn_to_id(a.role_dn)
-                for a in self.role.get_role_assignments
-                (self.project._id_to_dn(tenant_id))
-                if a.user_dn == user_dn]
 
     def _subrole_id_to_dn(self, role_id, tenant_id):
         if tenant_id is None:
