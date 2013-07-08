@@ -11,22 +11,31 @@ pysqlite
 python-memcached
 
 # Optional backend: LDAP
-python-ldap==2.3.13 # authenticate against an existing LDAP server
+# authenticate against an existing LDAP server
+python-ldap==2.3.13
 
 # Testing
-coverage # computes code coverage percentages
-mox # mock object framework
-nose # for test discovery and console feedback
+# computes code coverage percentages
+coverage
+# mock object framework
+mox
+# for test discovery and console feedback
+nose
 nosexcover
 openstack.nose_plugin
 nosehtmloutput
-Sphinx>=1.1.2 # required to build documentation
-unittest2 # backport of unittest lib in python 2.7
-webtest # test wsgi apps without starting an http server
+# required to build documentation
+Sphinx>=1.1.2
+# backport of unittest lib in python 2.7
+unittest2
+# test wsgi apps without starting an http server
+webtest
 
 # for python-keystoneclient
-httplib2 # keystoneclient <0.2.1
-requests>=1.0.0 # replaces httplib2 in keystoneclient >=0.2.1
+# keystoneclient <0.2.1
+httplib2
+# replaces httplib2 in keystoneclient >=0.2.1
+requests>=1.0.0
 keyring
 
 # swift_auth test dependencies
