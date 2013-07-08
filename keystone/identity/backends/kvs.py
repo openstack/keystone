@@ -180,6 +180,45 @@ class Identity(kvs.Base, identity.Driver):
         else:
             self.update_metadata(user_id, tenant_id, metadata_ref)
 
+    def list_role_assignments(self):
+        """List the role assignments.
+
+        The kvs backend stores role assignments as key-values:
+
+        "metadata-{target}-{actor}", with the value being a role list
+
+        i.e. "metadata-MyProjectID-MyUserID" [role1, role2]
+
+        ...so we enumerate the list and extract the targets, actors
+        and roles.
+
+        """
+        assignment_list = []
+        metadata_keys = filter(lambda x: x.startswith("metadata-"),
+                               self.db.keys())
+        for key in metadata_keys:
+            template = {}
+            meta_id1 = key.split('-')[1]
+            meta_id2 = key.split('-')[2]
+            try:
+                self.get_project(meta_id1)
+                template['project_id'] = meta_id1
+            except exception.NotFound:
+                template['domain_id'] = meta_id1
+            try:
+                self._get_user(meta_id2)
+                template['user_id'] = meta_id2
+            except exception.NotFound:
+                template['group_id'] = meta_id2
+
+            entry = self.db.get(key)
+            for r in entry.get('roles', []):
+                role_assignment = template.copy()
+                role_assignment['role_id'] = r
+                assignment_list.append(role_assignment)
+
+        return assignment_list
+
     # CRUD
     def create_user(self, user_id, user):
         try:

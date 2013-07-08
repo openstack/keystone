@@ -627,3 +627,444 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0)
         self.assertIn(collection_url, r.result['links']['self'])
+
+    def _build_role_assignment_url_and_entity(
+            self, role_id, user_id=None, group_id=None, domain_id=None,
+            project_id=None):
+
+        if user_id and domain_id:
+            url = ('/domains/%(domain_id)s/users/%(user_id)s'
+                   '/roles/%(role_id)s' % {
+                       'domain_id': domain_id,
+                       'user_id': user_id,
+                       'role_id': role_id})
+            entity = {'role': {'id': role_id},
+                      'user': {'id': user_id},
+                      'scope': {'domain': {'id': domain_id}}}
+        elif user_id and project_id:
+            url = ('/projects/%(project_id)s/users/%(user_id)s'
+                   '/roles/%(role_id)s' % {
+                       'project_id': project_id,
+                       'user_id': user_id,
+                       'role_id': role_id})
+            entity = {'role': {'id': role_id},
+                      'user': {'id': user_id},
+                      'scope': {'project': {'id': project_id}}}
+        if group_id and domain_id:
+            url = ('/domains/%(domain_id)s/groups/%(group_id)s'
+                   '/roles/%(role_id)s' % {
+                       'domain_id': domain_id,
+                       'group_id': group_id,
+                       'role_id': role_id})
+            entity = {'role': {'id': role_id},
+                      'group': {'id': group_id},
+                      'scope': {'domain': {'id': domain_id}}}
+        elif group_id and project_id:
+            url = ('/projects/%(project_id)s/groups/%(group_id)s'
+                   '/roles/%(role_id)s' % {
+                       'project_id': project_id,
+                       'group_id': group_id,
+                       'role_id': role_id})
+            entity = {'role': {'id': role_id},
+                      'group': {'id': group_id},
+                      'scope': {'project': {'id': project_id}}}
+        return (url, entity)
+
+    def test_get_role_assignments(self):
+        """Call ``GET /role_assignments``.
+
+        The sample data set up already has a user, group and project
+        that is part of self.domain. We use these plus a new user
+        we create as our data set, making sure we ignore any
+        role assignments that are already in existence.
+
+        Since we don't yet support a first class entity for role
+        assignments, we are only testing the LIST API.  To create
+        and delete the role assignments we use the old grant APIs.
+
+        Test Plan:
+        - Create extra user for tests
+        - Get a list of all existing role assignments
+        - Add a new assignment for each of the four combinations, i.e.
+          group+domain, user+domain, group+project, user+project, using
+          the same role each time
+        - Get a new list of all role assignments, checking these four new
+          ones have been added
+        - Then delete the four we added
+        - Get a new list of all role assignments, checking the four have
+          been removed
+
+        """
+
+        # Since the default fixtures already assign some roles to the
+        # user it creates, we also need a new user that will not have any
+        # existing assignments
+        self.user1 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user1['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user1['id'], self.user1)
+
+        collection_url = '/role_assignments'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertIn(collection_url, r.result['links']['self'])
+        existing_assignments = len(r.result.get('role_assignments'))
+
+        # Now add one of each of the four types of assignment, making sure
+        # that we get them all back.
+        gd_url, gd_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, group_id=self.group_id,
+            role_id=self.role_id)
+        self.put(gd_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 1)
+        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+
+        ud_url, ud_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=self.user1['id'],
+            role_id=self.role_id)
+        self.put(ud_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 2)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+
+        gp_url, gp_entity = self._build_role_assignment_url_and_entity(
+            project_id=self.project_id, group_id=self.group_id,
+            role_id=self.role_id)
+        self.put(gp_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 3)
+        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+
+        up_url, up_entity = self._build_role_assignment_url_and_entity(
+            project_id=self.project_id, user_id=self.user1['id'],
+            role_id=self.role_id)
+        self.put(up_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 4)
+        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+
+        # Now delete the four we added and make sure they are removed
+        # from the collection.
+
+        self.delete(gd_url)
+        self.delete(ud_url)
+        self.delete(gp_url)
+        self.delete(up_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments)
+        self.assertRoleAssignmentNotInListResponse(r, gd_entity)
+        self.assertRoleAssignmentNotInListResponse(r, ud_entity)
+        self.assertRoleAssignmentNotInListResponse(r, gp_entity)
+        self.assertRoleAssignmentNotInListResponse(r, up_entity)
+
+    def test_get_effective_role_assignments(self):
+        """Call ``GET /role_assignments?effective``.
+
+        Test Plan:
+        - Create two extra user for tests
+        - Add these users to a group
+        - Add a role assignment for the group on a domain
+        - Get a list of all role assignments, checking one has been added
+        - Then get a list of all effective role assignments - the group
+          assignment should have turned into assignments on the domain
+          for each of the group members.
+
+        """
+        self.user1 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user1['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user1['id'], self.user1)
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user2['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user2['id'], self.user2)
+        self.identity_api.add_user_to_group(self.user1['id'], self.group['id'])
+        self.identity_api.add_user_to_group(self.user2['id'], self.group['id'])
+
+        collection_url = '/role_assignments'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertIn(collection_url, r.result['links']['self'])
+        existing_assignments = len(r.result.get('role_assignments'))
+
+        gd_url, gd_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, group_id=self.group_id,
+            role_id=self.role_id)
+        self.put(gd_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 1)
+        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+
+        # Now re-read the collection asking for effective roles - this
+        # should mean the group assignment is translated into the two
+        # member user assignments
+        collection_url = '/role_assignments?effective'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 2)
+        ud_url, ud_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=self.user1['id'],
+            role_id=self.role_id)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        ud_url, ud_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=self.user2['id'],
+            role_id=self.role_id)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+
+    def test_check_effective_values_for_role_assignments(self):
+        """Call ``GET /role_assignments?effective=value``.
+
+        Check the various ways of specifying the 'effective'
+        query parameter.  If the 'effective' query parameter
+        is included then this should always be treated as
+        as meaning 'True' unless it is specified as:
+
+        {url}?effective=0
+
+        This is by design to match the agreed way of handling
+        policy checking on query/filter parameters.
+
+        Test Plan:
+        - Create two extra user for tests
+        - Add these users to a group
+        - Add a role assignment for the group on a domain
+        - Get a list of all role assignments, checking one has been added
+        - Then issue various request with different ways of defining
+          the 'effective' query parameter. As we have tested the
+          correctness of the data coming back when we get effective roles
+          in other tests, here we just use the count of entities to
+          know if we are getting effective roles or not
+
+        """
+        self.user1 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user1['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user1['id'], self.user1)
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user2['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user2['id'], self.user2)
+        self.identity_api.add_user_to_group(self.user1['id'], self.group['id'])
+        self.identity_api.add_user_to_group(self.user2['id'], self.group['id'])
+
+        collection_url = '/role_assignments'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        existing_assignments = len(r.result.get('role_assignments'))
+
+        gd_url, gd_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, group_id=self.group_id,
+            role_id=self.role_id)
+        self.put(gd_url)
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 1)
+        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+
+        # Now re-read the collection asking for effective roles,
+        # using the most common way of defining "effective'. This
+        # should mean the group assignment is translated into the two
+        # member user assignments
+        collection_url = '/role_assignments?effective'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 2)
+        # Now set 'effective' to false explicitly - should get
+        # back the regular roles
+        collection_url = '/role_assignments?effective=0'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 1)
+        # Now try setting  'effective' to 'False' explicitly- this is
+        # NOT supported as a way of setting a query or filter
+        # parameter to false by design. Hence we should get back
+        # effective roles.
+        collection_url = '/role_assignments?effective=False'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 2)
+        # Now set 'effective' to True explicitly
+        collection_url = '/role_assignments?effective=True'
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')),
+                         existing_assignments + 2)
+
+    def test_filtered_role_assignments(self):
+        """Call ``GET /role_assignments?filters``.
+
+        Test Plan:
+        - Create extra users, group, role and project for tests
+        - Make the following assignments:
+          Give group1, role1 on project1 and domain
+          Give user1, role2 on project1 and domain
+          Make User1 a member of Group1
+        - Test a series of single filter list calls, checking that
+          the correct results are obtained
+        - Test a multi-filtered list call
+        - Test listing all effective roles for a given user
+        - Test the equivalent of the list of roles in a project scoped
+          token (all effective roles for a user on a project)
+
+        """
+
+        # Since the default fixtures already assign some roles to the
+        # user it creates, we also need a new user that will not have any
+        # existing assignments
+        self.user1 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user1['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user1['id'], self.user1)
+        self.user2 = self.new_user_ref(
+            domain_id=self.domain['id'])
+        self.user2['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.user2['id'], self.user2)
+        self.group1 = self.new_group_ref(
+            domain_id=self.domain['id'])
+        self.identity_api.create_group(self.group1['id'], self.group1)
+        self.identity_api.add_user_to_group(self.user1['id'],
+                                            self.group1['id'])
+        self.identity_api.add_user_to_group(self.user2['id'],
+                                            self.group1['id'])
+        self.project1 = self.new_project_ref(
+            domain_id=self.domain['id'])
+        self.identity_api.create_project(self.project1['id'], self.project1)
+        self.role1 = self.new_role_ref()
+        self.identity_api.create_role(self.role1['id'], self.role1)
+        self.role2 = self.new_role_ref()
+        self.identity_api.create_role(self.role2['id'], self.role2)
+
+        # Now add one of each of the four types of assignment
+
+        gd_url, gd_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, group_id=self.group1['id'],
+            role_id=self.role1['id'])
+        self.put(gd_url)
+
+        ud_url, ud_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=self.user1['id'],
+            role_id=self.role2['id'])
+        self.put(ud_url)
+
+        gp_url, gp_entity = self._build_role_assignment_url_and_entity(
+            project_id=self.project1['id'], group_id=self.group1['id'],
+            role_id=self.role1['id'])
+        self.put(gp_url)
+
+        up_url, up_entity = self._build_role_assignment_url_and_entity(
+            project_id=self.project1['id'], user_id=self.user1['id'],
+            role_id=self.role2['id'])
+        self.put(up_url)
+
+        # Now list by various filters to make sure we get back the right ones
+
+        collection_url = ('/role_assignments?scope.project.id=%s' %
+                          self.project1['id'])
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 2)
+        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+
+        collection_url = ('/role_assignments?scope.domain.id=%s' %
+                          self.domain['id'])
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 2)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+
+        collection_url = '/role_assignments?user.id=%s' % self.user1['id']
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 2)
+        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+
+        collection_url = '/role_assignments?group.id=%s' % self.group1['id']
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 2)
+        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+
+        collection_url = '/role_assignments?role.id=%s' % self.role1['id']
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 2)
+        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+
+        # Let's try combining two filers together....
+
+        collection_url = (
+            '/role_assignments?user.id=%(user_id)s'
+            '&scope.project.id=%(project_id)s' % {
+            'user_id': self.user1['id'],
+            'project_id': self.project1['id']})
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 1)
+        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+
+        # Now for a harder one - filter for user with effective
+        # roles - this should return role assignment that were directly
+        # assigned as well as by virtue of group membership
+
+        collection_url = ('/role_assignments?effective&user.id=%s' %
+                          self.user1['id'])
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 4)
+        # Should have the two direct roles...
+        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        # ...and the two via group membership...
+        up1_url, up1_entity = self._build_role_assignment_url_and_entity(
+            project_id=self.project1['id'], user_id=self.user1['id'],
+            role_id=self.role1['id'])
+        ud1_url, ud1_entity = self._build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=self.user1['id'],
+            role_id=self.role1['id'])
+        self.assertRoleAssignmentInListResponse(r, up1_entity,
+                                                link_url=up1_url)
+        self.assertRoleAssignmentInListResponse(r, ud1_entity,
+                                                link_url=ud1_url)
+
+        # ...and for the grand-daddy of them all, simulate the request
+        # that would generate the list of effective roles in a project
+        # scoped token.
+
+        collection_url = (
+            '/role_assignments?effective&user.id=%(user_id)s'
+            '&scope.project.id=%(project_id)s' % {
+            'user_id': self.user1['id'],
+            'project_id': self.project1['id']})
+        r = self.get(collection_url)
+        self.assertValidRoleAssignmentListResponse(r)
+        self.assertEqual(len(r.result.get('role_assignments')), 2)
+        # Should have one direct role and one from group membership...
+        up1_url, up1_entity = self._build_role_assignment_url_and_entity(
+            project_id=self.project1['id'], user_id=self.user1['id'],
+            role_id=self.role1['id'])
+        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+        self.assertRoleAssignmentInListResponse(r, up1_entity,
+                                                link_url=up1_url)

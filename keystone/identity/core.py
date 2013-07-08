@@ -504,6 +504,10 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    def list_role_assignments(self):
+
+        raise exception.NotImplemented()
+
     # group crud
 
     def create_group(self, group_id, group):

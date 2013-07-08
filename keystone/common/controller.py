@@ -280,7 +280,8 @@ class V3Controller(V2Controller):
 
         if attr in context['query_string']:
             value = context['query_string'][attr]
-            return [r for r in refs if _attr_match(r[attr], value)]
+            return [r for r in refs if _attr_match(
+                flatten(r).get(attr), value)]
         return refs
 
     def _require_matching_id(self, value, ref):

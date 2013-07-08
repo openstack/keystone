@@ -173,3 +173,7 @@ def append_v3_routers(mapper, routers):
                    controller=role_controller,
                    action='revoke_grant',
                    conditions=dict(method=['DELETE']))
+
+    routers.append(
+        router.Router(controllers.RoleAssignmentV3(),
+                      'role_assignments', 'role_assignment'))
