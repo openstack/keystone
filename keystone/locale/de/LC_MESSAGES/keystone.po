@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-06-17 17:09+0000\n"
+"POT-Creation-Date: 2013-07-08 17:06+0000\n"
 "PO-Revision-Date: 2013-05-22 03:45+0000\n"
 "Last-Translator: daisy.ycguo <daisy.ycguo@gmail.com>\n"
 "Language-Team: German "
@@ -38,7 +38,7 @@ msgstr "%(property_name)s sollte nicht größer als %(max_length)s Zeichen sein.
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr ""
 
-#: keystone/test.py:117
+#: keystone/test.py:105
 #, python-format
 msgid "Failed to checkout %s"
 msgstr "%s wurde nicht ausgecheckt"
@@ -48,50 +48,50 @@ msgstr "%s wurde nicht ausgecheckt"
 msgid "Project is disabled: %s"
 msgstr "Projekt ist inaktiviert: %s"
 
-#: keystone/auth/controllers.py:78 keystone/auth/plugins/password.py:39
+#: keystone/auth/controllers.py:78 keystone/auth/plugins/password.py:38
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "Domäne ist inaktiviert: %s"
 
-#: keystone/auth/controllers.py:84 keystone/auth/plugins/password.py:45
+#: keystone/auth/controllers.py:84 keystone/auth/plugins/password.py:44
 #, python-format
 msgid "User is disabled: %s"
 msgstr "Benutzer ist inaktiviert: %s"
 
-#: keystone/auth/controllers.py:265
+#: keystone/auth/controllers.py:259
 msgid "Scoping to both domain and project is not allowed"
 msgstr "Scoping sowohl auf 'domain' als auch auf 'project' ist nicht zulässig"
 
-#: keystone/auth/controllers.py:268
+#: keystone/auth/controllers.py:262
 msgid "Scoping to both domain and trust is not allowed"
 msgstr "Scoping sowohl auf 'domain' als auch auf 'trust' ist nicht zulässig"
 
-#: keystone/auth/controllers.py:271
+#: keystone/auth/controllers.py:265
 msgid "Scoping to both project and trust is not allowed"
 msgstr "Scoping sowohl auf 'project' als auch auf 'trust' ist nicht zulässig"
 
-#: keystone/auth/controllers.py:333
+#: keystone/auth/controllers.py:325
 #, python-format
 msgid "Unable to lookup user %s"
 msgstr "Suche nach Benutzer %s nicht möglich"
 
-#: keystone/auth/controllers.py:363
+#: keystone/auth/controllers.py:355
 msgid "User not found"
 msgstr "Benutzer nicht gefunden"
 
-#: keystone/auth/token_factory.py:81
+#: keystone/auth/token_factory.py:79
 msgid "User have no access to project"
 msgstr "Benutzer hat keinen Zugriff auf Projekt"
 
-#: keystone/auth/token_factory.py:96
+#: keystone/auth/token_factory.py:94
 msgid "User have no access to domain"
 msgstr "Benutzer hat keinen Zugriff auf Domäne"
 
-#: keystone/auth/token_factory.py:314 keystone/token/controllers.py:121
+#: keystone/auth/token_factory.py:311 keystone/token/controllers.py:121
 msgid "Unable to sign token."
 msgstr "Token kann nicht unterzeichnet werden."
 
-#: keystone/auth/token_factory.py:317 keystone/token/controllers.py:124
+#: keystone/auth/token_factory.py:314 keystone/token/controllers.py:124
 #, python-format
 msgid "Invalid value for token_format: %s.  Allowed values are PKI or UUID."
 msgstr ""
@@ -126,12 +126,12 @@ msgstr ""
 msgid "Unable to open template file %s"
 msgstr "Vorlagendatei %s kann nicht geöffnet werden"
 
-#: keystone/common/cms.py:42
+#: keystone/common/cms.py:26
 #, python-format
 msgid "Verify error: %s"
 msgstr "Fehler überprüfen: %s"
 
-#: keystone/common/cms.py:134
+#: keystone/common/cms.py:118
 msgid ""
 "Signing error: Unable to load certificate - ensure you've configured PKI "
 "with 'keystone-manage pki_setup'"
@@ -139,7 +139,7 @@ msgstr ""
 "Unterzeichnungsfehler: Zertifikat kann nicht geladen werden - stellen Sie"
 " sicher, dass Sie PKI mit 'keystone-manage pki_setup' konfiguriert haben"
 
-#: keystone/common/cms.py:138
+#: keystone/common/cms.py:122
 #, python-format
 msgid "Signing error: %s"
 msgstr "Unterzeichnungsfehler: %s"
@@ -158,42 +158,42 @@ msgstr "Ungültige 'syslog'-Funktion"
 msgid "RBAC: Authorizing %(action)s(%(kwargs)s)"
 msgstr ""
 
-#: keystone/common/controller.py:26
+#: keystone/common/controller.py:25
 msgid "RBAC: Invalid token"
 msgstr "Rollenbasierte Zugriffssteuerung: Ungültiges Token"
 
-#: keystone/common/controller.py:36 keystone/common/controller.py:57
+#: keystone/common/controller.py:35 keystone/common/controller.py:56
 msgid "RBAC: Invalid user"
 msgstr "Rollenbasierte Zugriffssteuerung: Ungültiger Benutzer"
 
-#: keystone/common/controller.py:42
+#: keystone/common/controller.py:41
 msgid "RBAC: Proceeding without project"
 msgstr "Rollenbasierte Zugriffssteuerung: Fortfahren ohne Projekt"
 
-#: keystone/common/controller.py:62
+#: keystone/common/controller.py:61
 msgid "RBAC: Proceeding without tenant"
 msgstr "Rollenbasierte Zugriffssteuerung: Fortsetzung ohne Nutzer"
 
-#: keystone/common/controller.py:92 keystone/common/controller.py:144
+#: keystone/common/controller.py:91 keystone/common/controller.py:142
 msgid "RBAC: Bypassing authorization"
 msgstr "Rollenbasierte Zugriffssteuerung: Umgehen von Autorisierung"
 
-#: keystone/common/controller.py:101 keystone/common/controller.py:142
+#: keystone/common/controller.py:100 keystone/common/controller.py:140
 msgid "RBAC: Authorization granted"
 msgstr "Rollenbasierte Zugriffssteuerung: Autorisierung erteilt"
 
-#: keystone/common/controller.py:131
+#: keystone/common/controller.py:130
 #, python-format
 msgid "RBAC: Adding query filter params (%s)"
 msgstr ""
 "Rollenbasierte Zugriffssteuerung: Hinzufügen von Abfragefilterparametern "
 "(%s)"
 
-#: keystone/common/controller.py:322
+#: keystone/common/controller.py:317
 msgid "Invalid token in normalize_domain_id"
 msgstr "Ungültiges Token in 'normalize_domain_id'"
 
-#: keystone/common/utils.py:232
+#: keystone/common/utils.py:233
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
@@ -214,12 +214,17 @@ msgstr "Autorisierung fehlgeschlagen. %s von %s"
 msgid "The resource could not be found."
 msgstr "Die Ressource konnte nicht gefunden werden."
 
-#: keystone/common/wsgi_server.py:72
+#: keystone/common/environment/__init__.py:37
+#, python-format
+msgid "Environment configured as: %s"
+msgstr ""
+
+#: keystone/common/environment/eventlet_server.py:51
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr "Starten von %(arg0)s auf %(host)s:%(port)s"
 
-#: keystone/common/wsgi_server.py:132
+#: keystone/common/environment/eventlet_server.py:113
 msgid "Server error"
 msgstr "Serverfehler"
 
@@ -252,13 +257,13 @@ msgid ""
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:596
-#: keystone/identity/backends/kvs.py:624
+#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:630
+#: keystone/identity/backends/kvs.py:658
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Doppelter Name, %s."
 
-#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:589
+#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:623
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "Doppelte ID, %s."
@@ -452,7 +457,7 @@ msgstr "FakeLdap-Suche fehlgeschlagen: dn für 'SCOPE_BASE' nicht gefunden"
 msgid "Search scope %s not implemented."
 msgstr "Suchbereich %s nicht implementiert."
 
-#: keystone/common/sql/core.py:205
+#: keystone/common/sql/core.py:198
 #, python-format
 msgid "Got mysql server has gone away: %s"
 msgstr ""
@@ -503,40 +508,47 @@ msgstr "Rolle %s Benutzer %s auf Nutzer %s zuweisen"
 msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
 msgstr "Erstellen von EC2-Berechtigungsnachweis für Benutzer %s und Nutzer %s"
 
-#: keystone/identity/backends/kvs.py:250 keystone/identity/backends/kvs.py:259
+#: keystone/identity/controllers.py:878
+#, python-format
+msgid ""
+"Group %(group)s not found for role-assignment - %(target)s with Role: "
+"%(role)s"
+msgstr ""
+
+#: keystone/identity/backends/kvs.py:284 keystone/identity/backends/kvs.py:293
 msgid "User not found in group"
 msgstr "Benutzer nicht in Gruppe gefunden"
 
-#: keystone/identity/backends/sql.py:425
-#, python-format
-msgid "Cannot remove role that has not been granted, %s"
-msgstr "Nicht gewährte Rolle kann nicht entfernt werden, %s"
-
-#: keystone/identity/backends/ldap/core.py:82
+#: keystone/identity/backends/ldap.py:82
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/identity/backends/ldap/core.py:681
+#: keystone/identity/backends/ldap.py:376
+#, python-format
+msgid ""
+"Group member '%(user_dn)s' not found in '%(group_id)s'. The user should "
+"be removed from the group. The user will be ignored."
+msgstr ""
+
+#: keystone/identity/backends/ldap.py:638
 #, python-format
 msgid "Role %s not found"
 msgstr "Rolle %s nicht gefunden"
 
-#: keystone/identity/backends/ldap/core.py:898
+#: keystone/identity/backends/ldap.py:826
 msgid "Changing Name not supported by LDAP"
 msgstr "Änderung von Namen wird von LDAP nicht unterstützt"
 
-#: keystone/identity/backends/ldap/core.py:911
+#: keystone/identity/backends/ldap.py:839
 #, fuzzy, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "Benutzer %s ist bereits Mitglied der Gruppe %s."
 
-#: keystone/identity/backends/ldap/core.py:954
+#: keystone/identity/backends/sql.py:462
 #, python-format
-msgid ""
-"Group member '%(user_dn)s' not found in '%(group_dn)s'. The user should "
-"be removed from the group. The user will be ignored."
-msgstr ""
+msgid "Cannot remove role that has not been granted, %s"
+msgstr "Nicht gewährte Rolle kann nicht entfernt werden, %s"
 
 #: keystone/openstack/common/policy.py:394
 #, python-format
@@ -558,15 +570,15 @@ msgstr "Regel '%(rule)r' konnte nicht verstanden werden"
 msgid "enforce %(action)s: %(credentials)s"
 msgstr ""
 
-#: keystone/token/controllers.py:465 keystone/token/controllers.py:468
+#: keystone/token/controllers.py:453 keystone/token/controllers.py:456
 msgid "Token does not belong to specified tenant."
 msgstr "Token gehört nicht zu angegebenem Nutzer."
 
-#: keystone/token/controllers.py:475
+#: keystone/token/controllers.py:463
 msgid "Non-default domain is not supported"
 msgstr "Nicht-Standard-Domäne wird nicht unterstützt"
 
-#: keystone/token/controllers.py:483
+#: keystone/token/controllers.py:471
 msgid "Domain scoped token is not supported"
 msgstr "Bereichsorientiertes Token der Domäne wird nicht unterstützt"
 
@@ -591,4 +603,11 @@ msgstr ""
 #: keystone/token/backends/memcache.py:172
 msgid "Unable to add token to revocation list."
 msgstr "Token kann nicht zu Widerrufsliste hinzugefügt werden."
+
+#~ msgid ""
+#~ "Group member '%(user_dn)s' not found in"
+#~ " '%(group_dn)s'. The user should be "
+#~ "removed from the group. The user "
+#~ "will be ignored."
+#~ msgstr ""
 
