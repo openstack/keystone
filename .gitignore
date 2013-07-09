@@ -25,5 +25,6 @@ dist/
 etc/keystone.conf
 etc/logging.conf
 tests/test.db.pristine
+tests/no_admin_token_auth-paste.ini
 .project
 .pydevproject
