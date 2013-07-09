@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.common import extension
 from keystone.common import logging
 from keystone.common import wsgi
 from keystone import config
@@ -32,10 +33,10 @@ _VERSIONS = []
 class Extensions(wsgi.Application):
     """Base extensions controller to be extended by public and admin API's."""
 
-    def __init__(self, extensions=None):
-        super(Extensions, self).__init__()
-
-        self.extensions = extensions or {}
+    #extend in subclass to specify the set of extensions
+    @property
+    def extensions(self):
+        return None
 
     def get_extensions_info(self, context):
         return {'extensions': {'values': self.extensions.values()}}
@@ -48,34 +49,15 @@ class Extensions(wsgi.Application):
 
 
 class AdminExtensions(Extensions):
-    def __init__(self, *args, **kwargs):
-        super(AdminExtensions, self).__init__(*args, **kwargs)
-
-        # TODO(dolph): Extensions should obviously provide this information
-        #               themselves, but hardcoding it here allows us to match
-        #               the API spec in the short term with minimal complexity.
-        self.extensions['OS-KSADM'] = {
-            'name': 'Openstack Keystone Admin',
-            'namespace': 'http://docs.openstack.org/identity/api/ext/'
-                         'OS-KSADM/v1.0',
-            'alias': 'OS-KSADM',
-            'updated': '2011-08-19T13:25:27-06:00',
-            'description': 'Openstack extensions to Keystone v2.0 API '
-                           'enabling Admin Operations.',
-            'links': [
-                {
-                    'rel': 'describedby',
-                    # TODO(dolph): link needs to be revised after
-                    #              bug 928059 merges
-                    'type': 'text/html',
-                    'href': 'https://github.com/openstack/identity-api',
-                }
-            ]
-        }
+    @property
+    def extensions(self):
+        return extension.ADMIN_EXTENSIONS
 
 
 class PublicExtensions(Extensions):
-    pass
+    @property
+    def extensions(self):
+        return extension.PUBLIC_EXTENSIONS
 
 
 def register_version(version):

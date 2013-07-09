@@ -40,6 +40,7 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import extension
 from keystone.common import manager
 from keystone.common import utils
 from keystone.common import wsgi
@@ -49,6 +50,25 @@ from keystone import token
 
 
 CONF = config.CONF
+
+
+EXTENSION_DATA = {
+    'name': 'OpenStack EC2 API',
+    'namespace': 'http://docs.openstack.org/identity/api/ext/'
+                 'OS-EC2/v1.0',
+    'alias': 'OS-EC2',
+    'updated': '2013-07-07T12:00:0-00:00',
+    'description': 'OpenStack EC2 Credentials backend.',
+    'links': [
+        {
+            'rel': 'describedby',
+            # TODO(ayoung): needs a description
+            'type': 'text/html',
+            'href': 'https://github.com/openstack/identity-api',
+        }
+    ]}
+extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
+extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 
 @dependency.provider('ec2_api')

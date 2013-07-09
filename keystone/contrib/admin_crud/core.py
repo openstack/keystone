@@ -14,8 +14,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from keystone import catalog
+from keystone.common import extension
 from keystone.common import wsgi
 from keystone import identity
+
+
+extension.register_admin_extension(
+    'OS-KSADM', {
+        'name': 'OpenStack Keystone Admin',
+        'namespace': 'http://docs.openstack.org/identity/api/ext/'
+                     'OS-KSADM/v1.0',
+        'alias': 'OS-KSADM',
+        'updated': '2013-07-11T17:14:00-00:00',
+        'description': 'OpenStack extensions to Keystone v2.0 API '
+                       'enabling Administrative Operations.',
+        'links': [
+            {
+                'rel': 'describedby',
+                # TODO(dolph): link needs to be revised after
+                #              bug 928059 merges
+                'type': 'text/html',
+                'href': 'https://github.com/openstack/identity-api',
+            }
+        ]})
 
 
 class CrudExtension(wsgi.ExtensionRouter):
