@@ -74,7 +74,7 @@ class DbVersion(BaseApp):
 
     @staticmethod
     def main():
-        print migration.db_version()
+        print(migration.db_version())
 
 
 class BaseCertificateSetup(BaseApp):
@@ -180,7 +180,7 @@ class ExportLegacyCatalog(BaseApp):
     def main():
         from keystone.common.sql import legacy
         migration = legacy.LegacyMigration(CONF.command.old_db)
-        print '\n'.join(migration.dump_catalog())
+        print('\n'.join(migration.dump_catalog()))
 
 
 class ImportNovaAuth(BaseApp):
