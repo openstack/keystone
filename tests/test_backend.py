@@ -2518,7 +2518,7 @@ class TrustTests(object):
                            {'id': 'browser'}], trust_data['roles'])
 
     def test_list_trust_by_trustee(self):
-        for i in range(0, 3):
+        for i in range(3):
             self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts_for_trustee(self.trustee['id'])
         self.assertEqual(len(trusts), 3)
@@ -2527,7 +2527,7 @@ class TrustTests(object):
         self.assertEqual(len(trusts), 0)
 
     def test_list_trust_by_trustor(self):
-        for i in range(0, 3):
+        for i in range(3):
             self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts_for_trustor(self.trustor['id'])
         self.assertEqual(len(trusts), 3)
@@ -2536,7 +2536,7 @@ class TrustTests(object):
         self.assertEqual(len(trusts), 0)
 
     def test_list_trusts(self):
-        for i in range(0, 3):
+        for i in range(3):
             self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 3)
