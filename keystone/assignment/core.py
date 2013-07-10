@@ -58,8 +58,8 @@ class Manager(manager.Manager):
                           (user_id=user_id))
             for x in group_refs:
                 try:
-                    metadata_ref = self.get_metadata(group_id=x['id'],
-                                                     tenant_id=tenant_id)
+                    metadata_ref = self._get_metadata(group_id=x['id'],
+                                                      tenant_id=tenant_id)
                     role_list += metadata_ref.get('roles', [])
                 except exception.MetadataNotFound:
                     # no group grant, skip
@@ -69,8 +69,8 @@ class Manager(manager.Manager):
         def _get_user_project_roles(user_id, tenant_id):
             metadata_ref = {}
             try:
-                metadata_ref = self.get_metadata(user_id=user_id,
-                                                 tenant_id=tenant_id)
+                metadata_ref = self._get_metadata(user_id=user_id,
+                                                  tenant_id=tenant_id)
             except exception.MetadataNotFound:
                 pass
             return metadata_ref.get('roles', [])
@@ -97,8 +97,8 @@ class Manager(manager.Manager):
                           list_groups_for_user(user_id=user_id))
             for x in group_refs:
                 try:
-                    metadata_ref = self.get_metadata(group_id=x['id'],
-                                                     domain_id=domain_id)
+                    metadata_ref = self._get_metadata(group_id=x['id'],
+                                                      domain_id=domain_id)
                     role_list += metadata_ref.get('roles', [])
                 except (exception.MetadataNotFound, exception.NotImplemented):
                     # MetadataNotFound implies no group grant, so skip.
@@ -110,8 +110,8 @@ class Manager(manager.Manager):
         def _get_user_domain_roles(user_id, domain_id):
             metadata_ref = {}
             try:
-                metadata_ref = self.get_metadata(user_id=user_id,
-                                                 domain_id=domain_id)
+                metadata_ref = self._get_metadata(user_id=user_id,
+                                                  domain_id=domain_id)
             except (exception.MetadataNotFound, exception.NotImplemented):
                 # MetadataNotFound implies no user grants.
                 # Ignore NotImplemented since not all backends support
@@ -152,12 +152,6 @@ class Manager(manager.Manager):
 
 
 class Driver(object):
-    def authorize_for_project(self, tenant_id, user_ref):
-        """Authenticate a given user for a tenant.
-        :returns: (user_ref, tenant_ref, metadata_ref)
-        :raises: AssertionError
-        """
-        raise exception.NotImplemented()
 
     def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
@@ -205,37 +199,66 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    # assignment/grant crud
+
+    def create_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None):
+        """Creates a new assignment/grant.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.GroupNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.DomainNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def list_grants(self, user_id=None, group_id=None,
+                    domain_id=None, project_id=None):
+        """Lists assignments/grants.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.GroupNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.DomainNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def get_grant(self, role_id, user_id=None, group_id=None,
+                  domain_id=None, project_id=None):
+        """Lists assignments/grants.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.GroupNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.DomainNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None):
+        """Lists assignments/grants.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.GroupNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.DomainNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()
+
     def list_role_assignments(self):
 
-        raise exception.NotImplemented()
-
-    # metadata crud
-    def get_metadata(self, user_id=None, tenant_id=None,
-                     domain_id=None, group_id=None):
-        """Gets the metadata for the specified user/group on project/domain.
-
-        :raises: keystone.exception.MetadataNotFound
-        :returns: metadata
-
-        """
-        raise exception.NotImplemented()
-
-    def create_metadata(self, user_id, tenant_id, metadata,
-                        domain_id=None, group_id=None):
-        """Creates the metadata for the specified user/group on project/domain.
-
-        :returns: metadata created
-
-        """
-        raise exception.NotImplemented()
-
-    def update_metadata(self, user_id, tenant_id, metadata,
-                        domain_id=None, group_id=None):
-        """Updates the metadata for the specified user/group on project/domain.
-
-        :returns: metadata updated
-
-        """
         raise exception.NotImplemented()
 
     # domain crud

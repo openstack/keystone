@@ -153,16 +153,14 @@ class Ec2Controller(controller.V2Controller):
         token_id = uuid.uuid4().hex
         tenant_ref = self.identity_api.get_project(creds_ref['tenant_id'])
         user_ref = self.identity_api.get_user(creds_ref['user_id'])
-        metadata_ref = self.identity_api.get_metadata(
-            user_id=user_ref['id'],
-            tenant_id=tenant_ref['id'])
+        metadata_ref = {}
+        metadata_ref['roles'] = (
+            self.identity_api.get_roles_for_user_and_project(
+                user_ref['id'], tenant_ref['id']))
 
         # Validate that the auth info is valid and nothing is disabled
         token.validate_auth_info(self, user_ref, tenant_ref)
 
-        # TODO(termie): optimize this call at some point and put it into the
-        #               the return for metadata
-        # fill out the roles in the metadata
         roles = metadata_ref.get('roles', [])
         if not roles:
             raise exception.Unauthorized(message='User not valid for tenant.')

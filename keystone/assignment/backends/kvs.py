@@ -26,22 +26,6 @@ class Assignment(kvs.Base, assignment.Driver):
         super(Assignment, self).__init__()
 
     # Public interface
-    def authorize_for_project(self, user_ref, tenant_id=None):
-        user_id = user_ref['id']
-        tenant_ref = None
-        metadata_ref = {}
-        if tenant_id is not None:
-            if tenant_id not in self.get_projects_for_user(user_id):
-                raise AssertionError('Invalid tenant')
-            try:
-                tenant_ref = self.get_project(tenant_id)
-                metadata_ref = self.get_metadata(user_id, tenant_id)
-            except exception.ProjectNotFound:
-                tenant_ref = None
-                metadata_ref = {}
-            except exception.MetadataNotFound:
-                metadata_ref = {}
-        return (identity.filter_user(user_ref), tenant_ref, metadata_ref)
 
     def get_project(self, tenant_id):
         try:
@@ -79,8 +63,8 @@ class Assignment(kvs.Base, assignment.Driver):
         except exception.NotFound:
             raise exception.UserNotFound(user_id=user_name)
 
-    def get_metadata(self, user_id=None, tenant_id=None,
-                     domain_id=None, group_id=None):
+    def _get_metadata(self, user_id=None, tenant_id=None,
+                      domain_id=None, group_id=None):
         try:
             if user_id:
                 if tenant_id:
@@ -113,21 +97,12 @@ class Assignment(kvs.Base, assignment.Driver):
         user_ref = self._get_user(user_id)
         return user_ref.get('tenants', [])
 
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        self.identity_api.get_user(user_id)
-        self.get_project(tenant_id)
-        try:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
-        except exception.MetadataNotFound:
-            metadata_ref = {}
-        return metadata_ref.get('roles', [])
-
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.identity_api.get_user(user_id)
         self.get_project(tenant_id)
         self.get_role(role_id)
         try:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
+            metadata_ref = self._get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         roles = set(metadata_ref.get('roles', []))
@@ -137,11 +112,11 @@ class Assignment(kvs.Base, assignment.Driver):
             raise exception.Conflict(type='role grant', details=msg)
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
-        self.update_metadata(user_id, tenant_id, metadata_ref)
+        self._update_metadata(user_id, tenant_id, metadata_ref)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         try:
-            metadata_ref = self.get_metadata(user_id, tenant_id)
+            metadata_ref = self._get_metadata(user_id, tenant_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         roles = set(metadata_ref.get('roles', []))
@@ -160,7 +135,7 @@ class Assignment(kvs.Base, assignment.Driver):
             user_ref['tenants'] = list(tenants)
             self.identity_api.update_user(user_id, user_ref)
         else:
-            self.update_metadata(user_id, tenant_id, metadata_ref)
+            self._update_metadata(user_id, tenant_id, metadata_ref)
 
     def list_role_assignments(self):
         """List the role assignments.
@@ -255,14 +230,14 @@ class Assignment(kvs.Base, assignment.Driver):
         self.db.delete('tenant_name-%s' % old_project['name'])
         self.db.delete('tenant-%s' % tenant_id)
 
-    def create_metadata(self, user_id, tenant_id, metadata,
-                        domain_id=None, group_id=None):
+    def _create_metadata(self, user_id, tenant_id, metadata,
+                         domain_id=None, group_id=None):
 
-        return self.update_metadata(user_id, tenant_id, metadata,
-                                    domain_id, group_id)
+        return self._update_metadata(user_id, tenant_id, metadata,
+                                     domain_id, group_id)
 
-    def update_metadata(self, user_id, tenant_id, metadata,
-                        domain_id=None, group_id=None):
+    def _update_metadata(self, user_id, tenant_id, metadata,
+                         domain_id=None, group_id=None):
         if user_id:
             if tenant_id:
                 self.db.set('metadata-%s-%s' % (tenant_id, user_id), metadata)
@@ -362,15 +337,15 @@ class Assignment(kvs.Base, assignment.Driver):
             self.get_project(project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         roles = set(metadata_ref.get('roles', []))
         roles.add(role_id)
         metadata_ref['roles'] = list(roles)
-        self.update_metadata(user_id, project_id, metadata_ref,
-                             domain_id, group_id)
+        self._update_metadata(user_id, project_id, metadata_ref,
+                              domain_id, group_id)
 
     def list_grants(self, user_id=None, group_id=None,
                     domain_id=None, project_id=None):
@@ -384,8 +359,8 @@ class Assignment(kvs.Base, assignment.Driver):
             self.get_project(project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         return [self.get_role(x) for x in metadata_ref.get('roles', [])]
@@ -403,8 +378,8 @@ class Assignment(kvs.Base, assignment.Driver):
             self.get_project(project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         role_ids = set(metadata_ref.get('roles', []))
@@ -425,8 +400,8 @@ class Assignment(kvs.Base, assignment.Driver):
             self.get_project(project_id)
 
         try:
-            metadata_ref = self.get_metadata(user_id, project_id,
-                                             domain_id, group_id)
+            metadata_ref = self._get_metadata(user_id, project_id,
+                                              domain_id, group_id)
         except exception.MetadataNotFound:
             metadata_ref = {}
         roles = set(metadata_ref.get('roles', []))
@@ -435,8 +410,8 @@ class Assignment(kvs.Base, assignment.Driver):
         except KeyError:
             raise exception.RoleNotFound(role_id=role_id)
         metadata_ref['roles'] = list(roles)
-        self.update_metadata(user_id, project_id, metadata_ref,
-                             domain_id, group_id)
+        self._update_metadata(user_id, project_id, metadata_ref,
+                              domain_id, group_id)
 
     # domain crud
 

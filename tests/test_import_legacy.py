@@ -73,7 +73,7 @@ class ImportLegacy(test.TestCase):
         self.assertEquals(user_ref['enabled'], True)
 
         # check password hashing
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref = self.identity_man.authenticate(
             user_id=admin_id, password='secrete')
 
         # check catalog
@@ -90,7 +90,7 @@ class ImportLegacy(test.TestCase):
         self.assertEquals(user_ref['enabled'], True)
 
         # check password hashing
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref = self.identity_man.authenticate(
             user_id=admin_id, password='secrete')
 
         # check catalog
@@ -107,7 +107,7 @@ class ImportLegacy(test.TestCase):
         self.assertEquals(user_ref['enabled'], True)
 
         # check password hashing
-        user_ref, tenant_ref, metadata_ref = self.identity_man.authenticate(
+        user_ref = self.identity_man.authenticate(
             user_id=admin_id, password='secrete')
 
         # check catalog

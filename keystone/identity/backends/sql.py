@@ -84,7 +84,7 @@ class Identity(sql.Base, identity.Driver):
         return utils.check_password(password, user_ref.password)
 
     # Identity interface
-    def authenticate_user(self, user_id=None, password=None):
+    def authenticate(self, user_id=None, password=None):
         session = self.get_session()
         user_ref = None
         try:
@@ -93,7 +93,7 @@ class Identity(sql.Base, identity.Driver):
             raise AssertionError('Invalid user / password')
         if not self._check_password(password, user_ref):
             raise AssertionError('Invalid user / password')
-        return user_ref
+        return identity.filter_user(user_ref.to_dict())
 
     # user crud
 

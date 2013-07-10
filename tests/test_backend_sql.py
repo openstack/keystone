@@ -132,33 +132,51 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         tenants = self.identity_api.get_projects_for_user(user['id'])
         self.assertEquals(tenants, [])
 
-    def test_delete_user_with_metadata(self):
-        user = {'id': 'fake',
-                'name': 'fakeuser',
+    def test_metadata_removed_on_delete_user(self):
+        # A test to check that the internal representation
+        # or roles is correctly updated when a user is deleted
+        user = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'passwd'}
-        self.identity_api.create_user('fake', user)
-        self.identity_api.create_metadata(user['id'],
-                                          self.tenant_bar['id'],
-                                          {'extra': 'extra'})
+        self.identity_api.create_user(user['id'], user)
+        role = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex}
+        self.identity_api.create_role(role['id'], role)
+        self.identity_api.add_role_to_user_and_project(
+            user['id'],
+            self.tenant_bar['id'],
+            role['id'])
         self.identity_api.delete_user(user['id'])
+
+        # Now check whether the internal representation of roles
+        # has been deleted
         self.assertRaises(exception.MetadataNotFound,
-                          self.identity_api.get_metadata,
+                          self.assignment_api._get_metadata,
                           user['id'],
                           self.tenant_bar['id'])
 
-    def test_delete_project_with_metadata(self):
-        user = {'id': 'fake',
-                'name': 'fakeuser',
+    def test_metadata_removed_on_delete_project(self):
+        # A test to check that the internal representation
+        # or roles is correctly updated when a project is deleted
+        user = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'passwd'}
-        self.identity_api.create_user('fake', user)
-        self.identity_api.create_metadata(user['id'],
-                                          self.tenant_bar['id'],
-                                          {'extra': 'extra'})
+        self.identity_api.create_user(user['id'], user)
+        role = {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex}
+        self.identity_api.create_role(role['id'], role)
+        self.identity_api.add_role_to_user_and_project(
+            user['id'],
+            self.tenant_bar['id'],
+            role['id'])
         self.identity_api.delete_project(self.tenant_bar['id'])
+
+        # Now check whether the internal representation of roles
+        # has been deleted
         self.assertRaises(exception.MetadataNotFound,
-                          self.identity_api.get_metadata,
+                          self.assignment_api._get_metadata,
                           user['id'],
                           self.tenant_bar['id'])
 

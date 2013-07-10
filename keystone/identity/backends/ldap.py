@@ -60,7 +60,7 @@ class Identity(identity.Driver):
     def get_project(self, project_id):
         return self.assignment.get_project(project_id)
 
-    def authenticate_user(self, user_id=None, password=None):
+    def authenticate(self, user_id=None, password=None):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
@@ -74,7 +74,8 @@ class Identity(identity.Driver):
                 raise AssertionError('Invalid user / password')
         except Exception:
             raise AssertionError('Invalid user / password')
-        return user_ref
+        return self.assignment._set_default_domain(
+            identity.filter_user(user_ref))
 
     def _get_user(self, user_id):
         return self.user.get(user_id)

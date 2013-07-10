@@ -656,7 +656,7 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.identity_api.driver.user.LDAP_PASSWORD = None
 
         self.assertRaises(AssertionError,
-                          self.identity_api.authenticate_user,
+                          self.identity_api.authenticate,
                           user_id=user['id'],
                           password=None)
 
@@ -675,30 +675,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
             obj.setdefault('enabled', True)
-
-    def test_authenticate_no_metadata(self):
-        user = {
-            'id': 'no_meta',
-            'name': 'NO_META',
-            'domain_id': test_backend.DEFAULT_DOMAIN_ID,
-            'password': 'no_meta2',
-            'enabled': True,
-        }
-        self.identity_api.create_user(user['id'], user)
-        self.identity_api.add_user_to_project(self.tenant_baz['id'],
-                                              user['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-            user_id=user['id'],
-            tenant_id=self.tenant_baz['id'],
-            password=user['password'])
-        # NOTE(termie): the password field is left in user_foo to make
-        #               it easier to authenticate in tests, but should
-        #               not be returned by the api
-        user.pop('password')
-        self.assertEquals(metadata_ref, {"roles":
-                                         [CONF.member_role_id]})
-        self.assertDictEqual(user_ref, user)
-        self.assertDictEqual(tenant_ref, self.tenant_baz)
 
     def test_project_crud(self):
         # NOTE(topol): LDAPIdentityEnabledEmulation will create an

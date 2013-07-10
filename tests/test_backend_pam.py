@@ -57,12 +57,12 @@ class PamIdentity(test.TestCase):
         self.assertDictEqual(self.user_in, user_out)
 
     def test_get_metadata_for_non_root(self):
-        metadata_out = self.identity_api.get_metadata(self.user_in['id'],
-                                                      self.tenant_in['id'])
+        metadata_out = self.identity_api._get_metadata(self.user_in['id'],
+                                                       self.tenant_in['id'])
         self.assertDictEqual({}, metadata_out)
 
     def test_get_metadata_for_root(self):
         metadata = {'is_admin': True}
-        metadata_out = self.identity_api.get_metadata('root',
-                                                      self.tenant_in['id'])
+        metadata_out = self.identity_api._get_metadata('root',
+                                                       self.tenant_in['id'])
         self.assertDictEqual(metadata, metadata_out)

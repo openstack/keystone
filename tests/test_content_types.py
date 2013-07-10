@@ -70,14 +70,12 @@ class RestfulTestCase(test.TestCase):
         self.admin_app = webtest.TestApp(
             self.loadapp('keystone', name='admin'))
 
-        # TODO(termie): is_admin is being deprecated once the policy stuff
-        #               is all working
         # TODO(termie): add an admin user to the fixtures and use that user
         # override the fixtures, for now
-        self.metadata_foobar = self.identity_api.update_metadata(
+        self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
-            dict(roles=[self.role_admin['id']], is_admin='1'))
+            self.role_admin['id'])
 
     def tearDown(self):
         """Kill running servers and release references to avoid leaks."""
@@ -403,10 +401,10 @@ class CoreApiTests(object):
         self.assertValidAuthenticationResponse(r)
 
     def test_validate_token_service_role(self):
-        self.metadata_foobar = self.identity_api.update_metadata(
+        self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_service['id'],
-            dict(roles=[self.role_service['id']]))
+            self.role_service['id'])
 
         token = self.get_scoped_token(tenant_id='service')
         r = self.admin_request(

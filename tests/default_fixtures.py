@@ -54,7 +54,7 @@ TENANTS = [
     }
 ]
 
-# NOTE(ja): a role of keystone_admin and attribute "is_admin" is done in setUp
+# NOTE(ja): a role of keystone_admin is done in setUp
 USERS = [
     {
         'id': 'foo',
@@ -95,13 +95,6 @@ USERS = [
     }
 ]
 
-METADATA = [
-    {
-        'user_id': 'sna',
-        'tenant_id': 'mtu',
-    }
-]
-
 ROLES = [
     {
         'id': 'admin',
@@ -125,8 +118,6 @@ ROLES = [
         'id': 'service',
         'name': 'Service',
     }
-
-
 ]
 
 DOMAINS = [

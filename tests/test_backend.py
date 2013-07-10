@@ -62,39 +62,17 @@ class IdentityTests(object):
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
                           user_id=uuid.uuid4().hex,
-                          tenant_id=self.tenant_bar['id'],
                           password=self.user_foo['password'])
 
     def test_authenticate_bad_password(self):
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
                           user_id=self.user_foo['id'],
-                          tenant_id=self.tenant_bar['id'],
                           password=uuid.uuid4().hex)
 
-    def test_authenticate_bad_project(self):
-        self.assertRaises(AssertionError,
-                          self.identity_api.authenticate,
-                          user_id=self.user_foo['id'],
-                          tenant_id=uuid.uuid4().hex,
-                          password=self.user_foo['password'])
-
-    def test_authenticate_no_project(self):
-        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-            user_id=self.user_foo['id'],
-            password=self.user_foo['password'])
-        # NOTE(termie): the password field is left in user_foo to make
-        #               it easier to authenticate in tests, but should
-        #               not be returned by the api
-        self.user_foo.pop('password')
-        self.assertDictEqual(user_ref, self.user_foo)
-        self.assert_(tenant_ref is None)
-        self.assert_(not metadata_ref)
-
     def test_authenticate(self):
-        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+        user_ref = self.identity_api.authenticate(
             user_id=self.user_sna['id'],
-            tenant_id=self.tenant_bar['id'],
             password=self.user_sna['password'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
@@ -102,21 +80,8 @@ class IdentityTests(object):
         self.user_sna.pop('password')
         self.user_sna['enabled'] = True
         self.assertDictEqual(user_ref, self.user_sna)
-        self.assertDictEqual(tenant_ref, self.tenant_bar)
-        metadata_ref.pop('roles')
-        self.assertDictEqual(metadata_ref, self.metadata_snamtu)
 
-    def test_authenticate_role_return(self):
-        self.identity_api.add_role_to_user_and_project(
-            self.user_foo['id'], self.tenant_baz['id'], self.role_admin['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
-            user_id=self.user_foo['id'],
-            tenant_id=self.tenant_baz['id'],
-            password=self.user_foo['password'])
-        self.assertIn('roles', metadata_ref)
-        self.assertIn(self.role_admin['id'], metadata_ref['roles'])
-
-    def test_authenticate_no_metadata(self):
+    def test_authenticate_and_get_roles_no_metadata(self):
         user = {
             'id': 'no_meta',
             'name': 'NO_META',
@@ -126,18 +91,18 @@ class IdentityTests(object):
         self.identity_api.create_user(user['id'], user)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               user['id'])
-        user_ref, tenant_ref, metadata_ref = self.identity_api.authenticate(
+        user_ref = self.identity_api.authenticate(
             user_id=user['id'],
-            tenant_id=self.tenant_baz['id'],
             password=user['password'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         user.pop('password')
-        self.assertEquals(metadata_ref, {"roles":
-                                         [CONF.member_role_id]})
         self.assertDictContainsSubset(user, user_ref)
-        self.assertDictEqual(tenant_ref, self.tenant_baz)
+        role_list = self.identity_api.get_roles_for_user_and_project(
+            user['id'], self.tenant_baz['id'])
+        self.assertEqual(len(role_list), 1)
+        self.assertIn(CONF.member_role_id, role_list)
 
     def test_password_hashed(self):
         user_ref = self.identity_api._get_user(self.user_foo['id'])
@@ -217,25 +182,6 @@ class IdentityTests(object):
                           self.identity_api.get_user_by_name,
                           user_name=uuid.uuid4().hex,
                           domain_id=DEFAULT_DOMAIN_ID)
-
-    def test_get_metadata(self):
-        metadata_ref = self.identity_api.get_metadata(
-            user_id=self.user_sna['id'],
-            tenant_id=self.tenant_bar['id'])
-        metadata_ref.pop('roles')
-        self.assertDictEqual(metadata_ref, self.metadata_snamtu)
-
-    def test_get_metadata_404(self):
-        # FIXME(dolph): these exceptions could be more specific
-        self.assertRaises(exception.NotFound,
-                          self.identity_api.get_metadata,
-                          user_id=uuid.uuid4().hex,
-                          tenant_id=self.tenant_bar['id'])
-
-        self.assertRaises(exception.NotFound,
-                          self.identity_api.get_metadata,
-                          user_id=self.user_foo['id'],
-                          tenant_id=uuid.uuid4().hex)
 
     def test_get_role(self):
         role_ref = self.identity_api.get_role(
