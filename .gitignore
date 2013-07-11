@@ -13,7 +13,6 @@ cover/*
 covhtml
 pep8.txt
 nosetests.xml
-*.db
 doc/build
 .DS_Store
 doc/source/modules.rst
@@ -24,7 +23,6 @@ build/
 dist/
 etc/keystone.conf
 etc/logging.conf
-tests/test.db.pristine
-tests/no_admin_token_auth-paste.ini
+tests/tmp/
 .project
 .pydevproject
