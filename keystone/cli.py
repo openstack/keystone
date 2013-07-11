@@ -20,12 +20,15 @@ import grp
 import os
 import pwd
 
+from migrate import exceptions
+
 from oslo.config import cfg
 import pbr.version
 
 from keystone.common import openssl
 from keystone.common.sql import migration
 from keystone import config
+from keystone import contrib
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone import token
@@ -57,14 +60,35 @@ class DbSync(BaseApp):
                                   'version. If not provided, db_sync will '
                                   'migrate the database to the latest known '
                                   'version.'))
+        parser.add_argument('--extension', default=None,
+                            help=('Migrate the database for the specified '
+                                  'extension. If not provided, db_sync will '
+                                  'migrate the common repository.'))
+
         return parser
 
     @staticmethod
     def main():
-        for k in ['identity', 'catalog', 'policy', 'token', 'credential']:
-            driver = importutils.import_object(getattr(CONF, k).driver)
-            if hasattr(driver, 'db_sync'):
-                driver.db_sync(CONF.command.version)
+        version = CONF.command.version
+        extension = CONF.command.extension
+        if not extension:
+            migration.db_sync(version=version)
+        else:
+            package_name = "%s.%s.migrate_repo" % (contrib.__name__, extension)
+            try:
+                package = importutils.import_module(package_name)
+                repo_path = os.path.abspath(os.path.dirname(package.__file__))
+            except ImportError:
+                print _("This extension does not provide migrations.")
+                exit(0)
+            try:
+                # Register the repo with the version control API
+                # If it already knows about the repo, it will throw
+                # an exception that we can safely ignore
+                migration.db_version_control(version=None, repo_path=repo_path)
+            except exceptions.DatabaseAlreadyControlledError:
+                pass
+            migration.db_sync(version=None, repo_path=repo_path)
 
 
 class DbVersion(BaseApp):
@@ -72,9 +96,29 @@ class DbVersion(BaseApp):
 
     name = 'db_version'
 
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(DbVersion, cls).add_argument_parser(subparsers)
+        parser.add_argument('--extension', default=None,
+                            help=('Migrate the database for the specified '
+                                  'extension. If not provided, db_sync will '
+                                  'migrate the common repository.'))
+
     @staticmethod
     def main():
-        print(migration.db_version())
+        extension = CONF.command.extension
+        if extension:
+            try:
+                package_name = ("%s.%s.migrate_repo" %
+                                (contrib.__name__, extension))
+                package = importutils.import_module(package_name)
+                repo_path = os.path.abspath(os.path.dirname(package.__file__))
+                print(migration.db_version(repo_path))
+            except ImportError:
+                print _("This extension does not provide migrations.")
+                exit(1)
+        else:
+            print(migration.db_version())
 
 
 class BaseCertificateSetup(BaseApp):
