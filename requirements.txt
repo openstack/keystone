@@ -13,5 +13,5 @@ sqlalchemy-migrate>=0.7.2
 passlib
 lxml
 iso8601>=0.1.4
-python-keystoneclient>=0.2.1,<0.3
+python-keystoneclient>=0.3.0
 oslo.config>=1.1.0
