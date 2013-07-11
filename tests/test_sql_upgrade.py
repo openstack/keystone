@@ -506,6 +506,10 @@ class SqlUpgradeTests(test.TestCase):
 
     def test_downgrade_to_0(self):
         self.upgrade(self.max_version)
+
+        if self.engine.name == 'mysql':
+            self._mysql_check_all_tables_innodb()
+
         self.downgrade(0)
         for table_name in ["user", "token", "role", "user_tenant_membership",
                            "metadata"]:
@@ -961,3 +965,26 @@ class SqlUpgradeTests(test.TestCase):
         for ver, change in changeset:
             self.schema.runchange(ver, change, changeset.step)
         self.assertEqual(self.schema.version, version)
+
+    def _mysql_check_all_tables_innodb(self):
+        database = self.engine.url.database
+
+        connection = self.engine.connect()
+        # sanity check
+        total = connection.execute("SELECT count(*) "
+                                   "from information_schema.TABLES "
+                                   "where TABLE_SCHEMA='%(database)s'" %
+                                   locals())
+        self.assertTrue(total.scalar() > 0, "No tables found. Wrong schema?")
+
+        noninnodb = connection.execute("SELECT table_name "
+                                       "from information_schema.TABLES "
+                                       "where TABLE_SCHEMA='%(database)s' "
+                                       "and ENGINE!='InnoDB' "
+                                       "and TABLE_NAME!='migrate_version'" %
+                                       locals())
+        names = [x[0] for x in noninnodb]
+        self.assertEqual(names, [],
+                         "Non-InnoDB tables exist")
+
+        connection.close()
