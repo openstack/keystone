@@ -1,6 +1,7 @@
 import inspect
 import unittest2 as unittest
 
+from keystone import assignment
 from keystone import catalog
 from keystone import exception
 from keystone import identity
@@ -34,6 +35,10 @@ class TestDrivers(unittest.TestCase):
             method = getattr(interface, name)
             if name[0] != '_' and callable(method):
                 self.assertMethodNotImplemented(method)
+
+    def test_assignment_driver_unimplemented(self):
+        interface = assignment.Driver()
+        self.assertInterfaceNotImplemented(interface)
 
     def test_catalog_driver_unimplemented(self):
         interface = catalog.Driver()

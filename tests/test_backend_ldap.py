@@ -19,12 +19,13 @@ import uuid
 
 import nose.exc
 
-from keystone import test
-
+from keystone import assignment
 from keystone.common.ldap import fakeldap
+from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone import identity
+from keystone import test
 
 import default_fixtures
 import test_backend
@@ -33,7 +34,7 @@ import test_backend
 CONF = config.CONF
 
 
-class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
+class BaseLDAPIdentity(test_backend.IdentityTests):
     def _get_domain_fixture(self):
         """Domains in LDAP are read-only, so just return the static one."""
         return self.identity_api.get_domain(CONF.identity.default_domain_id)
@@ -46,14 +47,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.config([test.etcdir('keystone.conf.sample'),
                      test.testsdir('test_overrides.conf'),
                      test.testsdir('backend_ldap.conf')])
-
-    def setUp(self):
-        super(LDAPIdentity, self).setUp()
-        self._set_config()
-        self.clear_database()
-
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
 
     def test_build_tree(self):
         """Regression test for building the tree names
@@ -103,6 +96,202 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertRaises(exception.ForbiddenAction,
                           self.identity_api.delete_user,
                           self.user_foo['id'])
+
+    def test_user_filter(self):
+        user_ref = self.identity_api.get_user(self.user_foo['id'])
+        self.user_foo.pop('password')
+        self.assertDictEqual(user_ref, self.user_foo)
+
+        CONF.ldap.user_filter = '(CN=DOES_NOT_MATCH)'
+        self.load_backends()
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user,
+                          self.user_foo['id'])
+
+    def test_get_role_grant_by_user_and_project(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_get_role_grants_for_user_and_project_404(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_add_role_grant_to_user_and_project_404(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_remove_role_grant_from_user_and_project(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_get_and_remove_role_grant_by_group_and_project(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_get_and_remove_role_grant_by_group_and_domain(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_and_remove_role_grant_by_user_and_domain(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_and_remove_correct_role_grant_from_a_mix(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_role_grant_by_group_and_cross_domain_project(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_role_grant_by_user_and_cross_domain_project(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_multi_role_grant_by_user_group_on_project_domain(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_delete_role_with_user_and_group_grants(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_delete_user_with_group_project_domain_links(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_delete_group_with_user_project_domain_links(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_list_user_projects(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_create_duplicate_user_name_in_different_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_create_duplicate_project_name_in_different_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_create_duplicate_group_name_in_different_domains(self):
+        raise nose.exc.SkipTest(
+            'N/A: LDAP does not support multiple domains')
+
+    def test_move_user_between_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_user_between_domains_with_clashing_names_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_group_between_domains(self):
+        raise nose.exc.SkipTest(
+            'N/A: LDAP does not support multiple domains')
+
+    def test_move_group_between_domains_with_clashing_names_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_project_between_domains(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_move_project_between_domains_with_clashing_names_fails(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101276')
+
+    def test_get_roles_for_user_and_domain(self):
+        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
+
+    def test_list_role_assignments_unfiltered(self):
+        raise nose.exc.SkipTest('Blocked by bug 1195019')
+
+    def test_multi_group_grants_on_project_domain(self):
+        raise nose.exc.SkipTest('Blocked by bug 1101287')
+
+    def test_list_group_members_missing_entry(self):
+        """List group members with deleted user.
+
+        If a group has a deleted entry for a member, the non-deleted members
+        are returned.
+
+        """
+
+        # Create a group
+        group_id = None
+        group = dict(name=uuid.uuid4().hex)
+        group_id = self.identity_api.create_group(group_id, group)['id']
+
+        # Create a couple of users and add them to the group.
+        user_id = None
+        user = dict(name=uuid.uuid4().hex, id=uuid.uuid4().hex)
+        user_1_id = self.identity_api.create_user(user_id, user)['id']
+
+        self.identity_api.add_user_to_group(user_1_id, group_id)
+
+        user_id = None
+        user = dict(name=uuid.uuid4().hex, id=uuid.uuid4().hex)
+        user_2_id = self.identity_api.create_user(user_id, user)['id']
+
+        self.identity_api.add_user_to_group(user_2_id, group_id)
+
+        # Delete user 2
+        # NOTE(blk-u): need to go directly to user interface to keep from
+        # updating the group.
+        self.identity_api.driver.user.delete(user_2_id)
+
+        # List group users and verify only user 1.
+        res = self.identity_api.list_users_in_group(group_id)
+
+        self.assertEqual(len(res), 1, "Expected 1 entry (user_1)")
+        self.assertEqual(res[0]['id'], user_1_id, "Expected user 1 id")
+
+    def test_list_domains(self):
+        domains = self.identity_api.list_domains()
+        self.assertEquals(
+            domains,
+            [assignment.DEFAULT_DOMAIN])
+
+    def test_authenticate_requires_simple_bind(self):
+        user = {
+            'id': 'no_meta',
+            'name': 'NO_META',
+            'domain_id': test_backend.DEFAULT_DOMAIN_ID,
+            'password': 'no_meta2',
+            'enabled': True,
+        }
+        self.identity_api.create_user(user['id'], user)
+        self.identity_api.add_user_to_project(self.tenant_baz['id'],
+                                              user['id'])
+        self.identity_api.driver.user.LDAP_USER = None
+        self.identity_api.driver.user.LDAP_PASSWORD = None
+
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id=user['id'],
+                          password=None)
+
+    # (spzala)The group and domain crud tests below override the standard ones
+    # in test_backend.py so that we can exclude the update name test, since we
+    # do not yet support the update of either group or domain names with LDAP.
+    # In the tests below, the update is demonstrated by updating description.
+    # Refer to bug 1136403 for more detail.
+    def test_group_crud(self):
+        group = {
+            'id': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex}
+        self.identity_api.create_group(group['id'], group)
+        group_ref = self.identity_api.get_group(group['id'])
+        self.assertDictEqual(group_ref, group)
+        group['description'] = uuid.uuid4().hex
+        self.identity_api.update_group(group['id'], group)
+        group_ref = self.identity_api.get_group(group['id'])
+        self.assertDictEqual(group_ref, group)
+
+        self.identity_api.delete_group(group['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group,
+                          group['id'])
+
+
+class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
+    def setUp(self):
+        super(LDAPIdentity, self).setUp()
+        self._set_config()
+        self.clear_database()
+
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
 
     def test_configurable_allowed_project_actions(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
@@ -175,17 +364,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
                           self.identity_api.delete_role,
                           self.role_member['id'])
 
-    def test_user_filter(self):
-        user_ref = self.identity_api.get_user(self.user_foo['id'])
-        self.user_foo.pop('password')
-        self.assertDictEqual(user_ref, self.user_foo)
-
-        CONF.ldap.user_filter = '(CN=DOES_NOT_MATCH)'
-        self.load_backends()
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
-                          self.user_foo['id'])
-
     def test_project_filter(self):
         tenant_ref = self.identity_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
@@ -215,40 +393,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           'dumb')
-
-    def test_user_attribute_mapping(self):
-        CONF.ldap.user_name_attribute = 'sn'
-        CONF.ldap.user_mail_attribute = 'mail'
-        CONF.ldap.user_enabled_attribute = 'enabled'
-        self.clear_database()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        user_ref = self.identity_api.get_user(self.user_two['id'])
-        self.assertEqual(user_ref['id'], self.user_two['id'])
-        self.assertEqual(user_ref['name'], self.user_two['name'])
-        self.assertEqual(user_ref['email'], self.user_two['email'])
-
-        CONF.ldap.user_name_attribute = 'mail'
-        CONF.ldap.user_mail_attribute = 'sn'
-        self.load_backends()
-        user_ref = self.identity_api.get_user(self.user_two['id'])
-        self.assertEqual(user_ref['id'], self.user_two['id'])
-        self.assertEqual(user_ref['name'], self.user_two['email'])
-        self.assertEqual(user_ref['email'], self.user_two['name'])
-
-    def test_user_attribute_ignore(self):
-        CONF.ldap.user_attribute_ignore = ['email', 'password',
-                                           'tenant_id', 'enabled', 'tenants']
-        self.clear_database()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        user_ref = self.identity_api.get_user(self.user_two['id'])
-        self.assertEqual(user_ref['id'], self.user_two['id'])
-        self.assertNotIn('email', user_ref)
-        self.assertNotIn('password', user_ref)
-        self.assertNotIn('tenant_id', user_ref)
-        self.assertNotIn('enabled', user_ref)
-        self.assertNotIn('tenants', user_ref)
 
     def test_project_attribute_mapping(self):
         CONF.ldap.tenant_name_attribute = 'ou'
@@ -384,30 +528,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
 # TODO(henry-nash): These need to be removed when the full LDAP implementation
 # is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
 
-    # (spzala)The group and domain crud tests below override the standard ones
-    # in test_backend.py so that we can exclude the update name test, since we
-    # do not yet support the update of either group or domain names with LDAP.
-    # In the tests below, the update is demonstrated by updating description.
-    # Refer to bug 1136403 for more detail.
-    def test_group_crud(self):
-        group = {
-            'id': uuid.uuid4().hex,
-            'domain_id': CONF.identity.default_domain_id,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex}
-        self.identity_api.create_group(group['id'], group)
-        group_ref = self.identity_api.get_group(group['id'])
-        self.assertDictEqual(group_ref, group)
-        group['description'] = uuid.uuid4().hex
-        self.identity_api.update_group(group['id'], group)
-        group_ref = self.identity_api.get_group(group['id'])
-        self.assertDictEqual(group_ref, group)
-
-        self.identity_api.delete_group(group['id'])
-        self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.get_group,
-                          group['id'])
-
     def test_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True, 'description': uuid.uuid4().hex}
@@ -433,33 +553,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertRaises(exception.DomainNotFound,
                           self.identity_api.get_domain,
                           domain['id'])
-
-    def test_get_role_grant_by_user_and_project(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_get_role_grants_for_user_and_project_404(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_add_role_grant_to_user_and_project_404(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_remove_role_grant_from_user_and_project(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_get_and_remove_role_grant_by_group_and_project(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_get_and_remove_role_grant_by_group_and_domain(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_and_remove_role_grant_by_user_and_domain(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_and_remove_correct_role_grant_from_a_mix(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_list_role_assignments_unfiltered(self):
-        raise nose.exc.SkipTest('Blocked by bug 1195019')
 
     def test_project_crud(self):
         # NOTE(topol): LDAP implementation does not currently support the
@@ -487,18 +580,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           project['id'])
-
-    def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_role_grant_by_group_and_cross_domain_project(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_role_grant_by_user_and_cross_domain_project(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
@@ -548,117 +629,6 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         combined_role_list = self.identity_api.get_roles_for_user_and_domain(
             user1['id'], CONF.identity.default_domain_id)
         self.assertEquals(len(combined_role_list), 0)
-
-    def test_multi_group_grants_on_project_domain(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_delete_role_with_user_and_group_grants(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_delete_user_with_group_project_domain_links(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_delete_group_with_user_project_domain_links(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_list_user_projects(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101287')
-
-    def test_create_duplicate_user_name_in_different_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_create_duplicate_project_name_in_different_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_create_duplicate_group_name_in_different_domains(self):
-        raise nose.exc.SkipTest(
-            'N/A: LDAP does not support multiple domains')
-
-    def test_move_user_between_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_move_user_between_domains_with_clashing_names_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_move_group_between_domains(self):
-        raise nose.exc.SkipTest(
-            'N/A: LDAP does not support multiple domains')
-
-    def test_move_group_between_domains_with_clashing_names_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_move_project_between_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_move_project_between_domains_with_clashing_names_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1101276')
-
-    def test_get_roles_for_user_and_domain(self):
-        raise nose.exc.SkipTest('N/A: LDAP does not support multiple domains')
-
-    def test_list_group_members_missing_entry(self):
-        """List group members with deleted user.
-
-        If a group has a deleted entry for a member, the non-deleted members
-        are returned.
-
-        """
-
-        # Create a group
-        group_id = None
-        group = dict(name=uuid.uuid4().hex)
-        group_id = self.identity_api.create_group(group_id, group)['id']
-
-        # Create a couple of users and add them to the group.
-        user_id = None
-        user = dict(name=uuid.uuid4().hex, id=uuid.uuid4().hex)
-        user_1_id = self.identity_api.create_user(user_id, user)['id']
-
-        self.identity_api.add_user_to_group(user_1_id, group_id)
-
-        user_id = None
-        user = dict(name=uuid.uuid4().hex, id=uuid.uuid4().hex)
-        user_2_id = self.identity_api.create_user(user_id, user)['id']
-
-        self.identity_api.add_user_to_group(user_2_id, group_id)
-
-        # Delete user 2
-        # NOTE(blk-u): need to go directly to user interface to keep from
-        # updating the group.
-        self.identity_api.driver.user.delete(user_2_id)
-
-        # List group users and verify only user 1.
-        res = self.identity_api.list_users_in_group(group_id)
-
-        self.assertEqual(len(res), 1, "Expected 1 entry (user_1)")
-        self.assertEqual(res[0]['id'], user_1_id, "Expected user 1 id")
-
-    def test_list_domains(self):
-        domains = self.identity_api.list_domains()
-        self.assertEquals(
-            domains,
-            [{'id': CONF.identity.default_domain_id,
-              'name': 'Default',
-              'enabled': True}])
-
-    def test_authenticate_requires_simple_bind(self):
-        user = {
-            'id': 'no_meta',
-            'name': 'NO_META',
-            'domain_id': test_backend.DEFAULT_DOMAIN_ID,
-            'password': 'no_meta2',
-            'enabled': True,
-        }
-        self.identity_api.create_user(user['id'], user)
-        self.identity_api.add_user_to_project(self.tenant_baz['id'],
-                                              user['id'])
-        self.identity_api.driver.user.LDAP_USER = None
-        self.identity_api.driver.user.LDAP_PASSWORD = None
-
-        self.assertRaises(AssertionError,
-                          self.identity_api.authenticate,
-                          user_id=user['id'],
-                          password=None)
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
@@ -733,3 +703,41 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def test_user_enable_attribute_mask(self):
         raise nose.exc.SkipTest(
             "Enabled emulation conflicts with enabled mask")
+
+
+class LdapIdentitySqlAssignment(sql.Base, test.TestCase, BaseLDAPIdentity):
+
+    def _set_config(self):
+        self.config([test.etcdir('keystone.conf.sample'),
+                     test.testsdir('test_overrides.conf'),
+                     test.testsdir('backend_ldap_sql.conf')])
+
+    def setUp(self):
+        self._set_config()
+        self.clear_database()
+        self.load_backends()
+        self.engine = self.get_engine()
+        sql.ModelBase.metadata.create_all(bind=self.engine)
+        self.load_fixtures(default_fixtures)
+        #defaulted by the data load
+        self.user_foo['enabled'] = True
+
+    def tearDown(self):
+        sql.ModelBase.metadata.drop_all(bind=self.engine)
+        self.engine.dispose()
+        sql.set_global_engine(None)
+
+    def test_domain_crud(self):
+        pass
+
+    def test_list_domains(self):
+        domains = self.identity_api.list_domains()
+        self.assertEquals(domains, [assignment.DEFAULT_DOMAIN])
+
+    def test_project_filter(self):
+        raise nose.exc.SkipTest(
+            'N/A: Not part of SQL backend')
+
+    def test_role_filter(self):
+        raise nose.exc.SkipTest(
+            'N/A: Not part of SQL backend')
