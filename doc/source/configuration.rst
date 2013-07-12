@@ -106,7 +106,10 @@ file. It is up to the plugin to register its own configuration options.
 * ``methods`` - comma-delimited list of authentication plugin names
 * ``<plugin name>`` - specify the class which handles to authentication method, in the same manner as one would specify a backend driver.
 
-Keystone provides two authentication methods by default. ``password`` handles password authentication and ``token`` handles token authentication.
+Keystone provides three authentication methods by default. ``password`` handles password
+authentication and ``token`` handles token authentication.  ``external`` is used in conjunction
+with authentication performed by a container web server that sets the ``REMOTE_USER``
+environment variable.
 
 How to Implement an Authentication Plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,6 +150,12 @@ attribute of the ``authentication`` request body. If multiple plugins are
 invoked, all plugins must succeed in order to for the entire
 authentication to be successful. Furthermore, all the plugins invoked must
 agree on the ``user_id`` in the ``auth_context``.
+
+The ``REMOTE_USER`` environment variable is only set from a containing webserver.  However,
+to ensure that a user must go through other authentication mechanisms, even if this variable
+is set, remove ``external`` from the list of plugins specified in ``methods``.  This effectively
+disables external authentication.
+
 
 Token Provider
 --------------

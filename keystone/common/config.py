@@ -24,7 +24,7 @@ from keystone.common import logging
 
 _DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-_DEFAULT_AUTH_METHODS = ['password', 'token']
+_DEFAULT_AUTH_METHODS = ['external', 'password', 'token']
 
 COMMON_CLI_OPTS = [
     cfg.BoolOpt('debug',
@@ -391,7 +391,11 @@ def configure():
     register_str(
         'token', group='auth',
         default='keystone.auth.plugins.password.Password')
-
+    #deals with REMOTE_USER authentication
+    register_str(
+        'external',
+        group='auth',
+        default='keystone.auth.plugins.external.ExternalDefault')
     # register any non-default auth methods here (used by extensions, etc)
     for method_name in CONF.auth.methods:
         if method_name not in _DEFAULT_AUTH_METHODS:

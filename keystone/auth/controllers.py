@@ -321,31 +321,13 @@ class Auth(controller.V3Controller):
             LOG.exception(e)
             raise exception.Unauthorized(e)
 
-    def _build_remote_user_auth_context(self, context, auth_info,
-                                        auth_context):
-        username = context['REMOTE_USER']
-        # FIXME(gyee): REMOTE_USER is not good enough since we are
-        # requiring domain_id to do user lookup now. Try to get
-        # the user_id from auth_info for now, assuming external auth
-        # has check to make sure user is the same as the one specify
-        # in "identity".
-        if 'password' in auth_info.get_method_names():
-            user_info = auth_info.get_method_data('password')
-            user_ref = auth_info.lookup_user(user_info['user'])
-            auth_context['user_id'] = user_ref['id']
-        else:
-            msg = _('Unable to lookup user %s') % (username)
-            raise exception.Unauthorized(msg)
-
     def authenticate(self, context, auth_info, auth_context):
         """Authenticate user."""
 
         # user have been authenticated externally
         if 'REMOTE_USER' in context:
-            self._build_remote_user_auth_context(context,
-                                                 auth_info,
-                                                 auth_context)
-            return
+            external = get_auth_method('external')
+            external.authenticate(context, auth_info, auth_context)
 
         # need to aggregate the results in case two or more methods
         # are specified
