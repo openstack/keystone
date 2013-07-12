@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-07-08 17:06+0000\n"
+"POT-Creation-Date: 2013-07-11 17:05+0000\n"
 "PO-Revision-Date: 2013-05-17 16:06+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Vietnamese (Viet Nam) "
@@ -38,9 +38,25 @@ msgstr ""
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr ""
 
-#: keystone/test.py:105
+#: keystone/test.py:106
 #, python-format
 msgid "Failed to checkout %s"
+msgstr ""
+
+#: keystone/assignment/backends/ldap.py:110
+#, python-format
+msgid "Expected dict or list: %s"
+msgstr ""
+
+#: keystone/assignment/backends/ldap.py:456
+#: keystone/identity/backends/ldap.py:433
+#, python-format
+msgid "Role %s not found"
+msgstr ""
+
+#: keystone/assignment/backends/sql.py:244
+#, python-format
+msgid "Cannot remove role that has not been granted, %s"
 msgstr ""
 
 #: keystone/auth/controllers.py:72
@@ -87,11 +103,11 @@ msgstr ""
 msgid "User have no access to domain"
 msgstr ""
 
-#: keystone/auth/token_factory.py:311 keystone/token/controllers.py:121
+#: keystone/auth/token_factory.py:311 keystone/token/controllers.py:119
 msgid "Unable to sign token."
 msgstr ""
 
-#: keystone/auth/token_factory.py:314 keystone/token/controllers.py:124
+#: keystone/auth/token_factory.py:314 keystone/token/controllers.py:122
 #, python-format
 msgid "Invalid value for token_format: %s.  Allowed values are PKI or UUID."
 msgstr ""
@@ -179,7 +195,7 @@ msgstr ""
 msgid "RBAC: Adding query filter params (%s)"
 msgstr ""
 
-#: keystone/common/controller.py:317
+#: keystone/common/controller.py:318
 msgid "Invalid token in normalize_domain_id"
 msgstr ""
 
@@ -195,12 +211,12 @@ msgstr ""
 msgid "arg_dict: %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:186
+#: keystone/common/wsgi.py:188
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr ""
 
-#: keystone/common/wsgi.py:429
+#: keystone/common/wsgi.py:431
 msgid "The resource could not be found."
 msgstr ""
 
@@ -247,13 +263,13 @@ msgid ""
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:630
-#: keystone/identity/backends/kvs.py:658
+#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:177
+#: keystone/identity/backends/kvs.py:205
 #, python-format
 msgid "Duplicate name, %s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:623
+#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:170
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr ""
@@ -441,12 +457,16 @@ msgstr ""
 msgid "Search scope %s not implemented."
 msgstr ""
 
-#: keystone/common/sql/core.py:198
+#: keystone/common/sql/core.py:126
+msgid "Global engine callback raised."
+msgstr ""
+
+#: keystone/common/sql/core.py:240
 #, python-format
 msgid "Got mysql server has gone away: %s"
 msgstr ""
 
-#: keystone/common/sql/legacy.py:180
+#: keystone/common/sql/legacy.py:188
 #, python-format
 msgid "Cannot migrate EC2 credential: %s"
 msgstr ""
@@ -455,37 +475,37 @@ msgstr ""
 msgid "version should be an integer"
 msgstr ""
 
-#: keystone/common/sql/nova.py:62
+#: keystone/common/sql/nova.py:65
 #, python-format
 msgid "Create tenant %s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:79
+#: keystone/common/sql/nova.py:82
 #, python-format
 msgid "Create user %s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:88
+#: keystone/common/sql/nova.py:91
 #, python-format
 msgid "Add user %(user_id)s to tenant %(tenant_id)s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:97
+#: keystone/common/sql/nova.py:100
 #, python-format
 msgid "Ignoring existing role %s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:104
+#: keystone/common/sql/nova.py:107
 #, python-format
 msgid "Create role %s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:114
+#: keystone/common/sql/nova.py:117
 #, python-format
 msgid "Assign role %(role_id)s to user %(user_id)s on tenant %(tenant_id)s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:133
+#: keystone/common/sql/nova.py:136
 #, python-format
 msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
 msgstr ""
@@ -497,39 +517,24 @@ msgid ""
 "%(role)s"
 msgstr ""
 
-#: keystone/identity/backends/kvs.py:284 keystone/identity/backends/kvs.py:293
+#: keystone/identity/backends/kvs.py:126 keystone/identity/backends/kvs.py:135
 msgid "User not found in group"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:82
-#, python-format
-msgid "Expected dict or list: %s"
-msgstr ""
-
-#: keystone/identity/backends/ldap.py:376
+#: keystone/identity/backends/ldap.py:192
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_id)s'. The user should "
 "be removed from the group. The user will be ignored."
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:638
-#, python-format
-msgid "Role %s not found"
-msgstr ""
-
-#: keystone/identity/backends/ldap.py:826
+#: keystone/identity/backends/ldap.py:621
 msgid "Changing Name not supported by LDAP"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:839
+#: keystone/identity/backends/ldap.py:634
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
-msgstr ""
-
-#: keystone/identity/backends/sql.py:462
-#, python-format
-msgid "Cannot remove role that has not been granted, %s"
 msgstr ""
 
 #: keystone/openstack/common/policy.py:394
@@ -552,15 +557,20 @@ msgstr ""
 msgid "enforce %(action)s: %(credentials)s"
 msgstr ""
 
-#: keystone/token/controllers.py:453 keystone/token/controllers.py:456
+#: keystone/token/controllers.py:396
+#, python-format
+msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
+msgstr ""
+
+#: keystone/token/controllers.py:413 keystone/token/controllers.py:416
 msgid "Token does not belong to specified tenant."
 msgstr ""
 
-#: keystone/token/controllers.py:463
+#: keystone/token/controllers.py:423
 msgid "Non-default domain is not supported"
 msgstr ""
 
-#: keystone/token/controllers.py:471
+#: keystone/token/controllers.py:431
 msgid "Domain scoped token is not supported"
 msgstr ""
 
@@ -585,11 +595,4 @@ msgstr ""
 #: keystone/token/backends/memcache.py:172
 msgid "Unable to add token to revocation list."
 msgstr ""
-
-#~ msgid ""
-#~ "Group member '%(user_dn)s' not found in"
-#~ " '%(group_dn)s'. The user should be "
-#~ "removed from the group. The user "
-#~ "will be ignored."
-#~ msgstr ""
 
