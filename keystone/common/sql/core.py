@@ -253,7 +253,8 @@ class Base(object):
         self._engine = self._engine or self.get_engine()
         self._sessionmaker = self._sessionmaker or self.get_sessionmaker(
             self._engine)
-        return self._sessionmaker()
+        return self._sessionmaker(autocommit=autocommit,
+                                  expire_on_commit=expire_on_commit)
 
     def get_engine(self, allow_global_engine=True):
         """Return a SQLAlchemy engine.
