@@ -17,6 +17,7 @@
 import copy
 import uuid
 
+from keystone.common import extension
 from keystone.common import logging
 from keystone.common import wsgi
 from keystone import exception
@@ -24,6 +25,25 @@ from keystone import identity
 
 
 LOG = logging.getLogger(__name__)
+
+
+extension.register_public_extension(
+    'OS-KSCRUD', {
+        'name': 'OpenStack Keystone User CRUD',
+        'namespace': 'http://docs.openstack.org/identity/api/ext/'
+                     'OS-KSCRUD/v1.0',
+        'alias': 'OS-KSCRUD',
+        'updated': '2013-07-07T12:00:0-00:00',
+        'description': 'OpenStack extensions to Keystone v2.0 API '
+                       'enabling User Operations.',
+        'links': [
+            {
+                'rel': 'describedby',
+                # TODO(ayoung): needs a description
+                'type': 'text/html',
+                'href': 'https://github.com/openstack/identity-api',
+            }
+        ]})
 
 
 class UserController(identity.controllers.User):

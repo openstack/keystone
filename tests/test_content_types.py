@@ -23,6 +23,7 @@ import webtest
 
 from keystone import test
 
+from keystone.common import extension
 from keystone.common import serializer
 from keystone.openstack.common import jsonutils
 
@@ -334,14 +335,14 @@ class CoreApiTests(object):
         self.assertValidVersionResponse(r)
 
     def test_public_extensions(self):
-        self.public_request(path='/v2.0/extensions',)
-
-        # TODO(dolph): can't test this without any public extensions defined
-        # self.assertValidExtensionListResponse(r)
+        r = self.public_request(path='/v2.0/extensions')
+        self.assertValidExtensionListResponse(r,
+                                              extension.PUBLIC_EXTENSIONS)
 
     def test_admin_extensions(self):
-        r = self.admin_request(path='/v2.0/extensions',)
-        self.assertValidExtensionListResponse(r)
+        r = self.admin_request(path='/v2.0/extensions')
+        self.assertValidExtensionListResponse(r,
+                                              extension.ADMIN_EXTENSIONS)
 
     def test_admin_extensions_404(self):
         self.admin_request(path='/v2.0/extensions/invalid-extension',
@@ -353,7 +354,8 @@ class CoreApiTests(object):
 
     def test_admin_osksadm_extension(self):
         r = self.admin_request(path='/v2.0/extensions/OS-KSADM')
-        self.assertValidExtensionResponse(r)
+        self.assertValidExtensionResponse(r,
+                                          extension.ADMIN_EXTENSIONS)
 
     def test_authenticate(self):
         r = self.public_request(
@@ -611,24 +613,26 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
         self.assertValidError(r.result['error'])
         self.assertEqual(r.result['error']['code'], r.status_code)
 
-    def assertValidExtension(self, extension):
+    def assertValidExtension(self, extension, expected):
         super(JsonTestCase, self).assertValidExtension(extension)
-
-        self.assertIsNotNone(extension.get('description'))
+        descriptions = [ext['description'] for ext in expected.itervalues()]
+        description = extension.get('description')
+        self.assertIsNotNone(description)
+        self.assertIn(description, descriptions)
         self.assertIsNotNone(extension.get('links'))
         self.assertNotEmpty(extension.get('links'))
         for link in extension.get('links'):
             self.assertValidExtensionLink(link)
 
-    def assertValidExtensionListResponse(self, r):
+    def assertValidExtensionListResponse(self, r, expected):
         self.assertIsNotNone(r.result.get('extensions'))
         self.assertIsNotNone(r.result['extensions'].get('values'))
         self.assertNotEmpty(r.result['extensions'].get('values'))
         for extension in r.result['extensions']['values']:
-            self.assertValidExtension(extension)
+            self.assertValidExtension(extension, expected)
 
-    def assertValidExtensionResponse(self, r):
-        self.assertValidExtension(r.result.get('extension'))
+    def assertValidExtensionResponse(self, r, expected):
+        self.assertValidExtension(r.result.get('extension'), expected)
 
     def assertValidAuthenticationResponse(self, r,
                                           require_service_catalog=False):
@@ -850,29 +854,31 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         self.assertValidError(xml)
         self.assertEqual(xml.get('code'), str(r.status_code))
 
-    def assertValidExtension(self, extension):
+    def assertValidExtension(self, extension, expected):
         super(XmlTestCase, self).assertValidExtension(extension)
 
         self.assertIsNotNone(extension.find(self._tag('description')))
         self.assertTrue(extension.find(self._tag('description')).text)
         links = extension.find(self._tag('links'))
         self.assertNotEmpty(links.findall(self._tag('link')))
+        descriptions = [ext['description'] for ext in expected.itervalues()]
+        description = extension.find(self._tag('description')).text
+        self.assertIn(description, descriptions)
         for link in links.findall(self._tag('link')):
             self.assertValidExtensionLink(link)
 
-    def assertValidExtensionListResponse(self, r):
+    def assertValidExtensionListResponse(self, r, expected):
         xml = r.result
         self.assertEqual(xml.tag, self._tag('extensions'))
-
         self.assertNotEmpty(xml.findall(self._tag('extension')))
-        for extension in xml.findall(self._tag('extension')):
-            self.assertValidExtension(extension)
+        for ext in xml.findall(self._tag('extension')):
+            self.assertValidExtension(ext, expected)
 
-    def assertValidExtensionResponse(self, r):
+    def assertValidExtensionResponse(self, r, expected):
         xml = r.result
         self.assertEqual(xml.tag, self._tag('extension'))
 
-        self.assertValidExtension(xml)
+        self.assertValidExtension(xml, expected)
 
     def assertValidVersion(self, version):
         super(XmlTestCase, self).assertValidVersion(version)
