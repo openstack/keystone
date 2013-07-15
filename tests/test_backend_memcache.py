@@ -164,7 +164,7 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
         user_token_list = jsonutils.loads('[%s]' % user_record)
         self.assertEquals(len(user_token_list), 2)
         expired_token_ptk = self.token_api.driver._prefix_token_id(
-            token.unique_id(expired_token_id))
+            expired_token_id)
         expired_token = self.token_api.driver.client.get(expired_token_ptk)
         expired_token['expires'] = (timeutils.utcnow() - expire_delta)
         self.token_api.driver.client.set(expired_token_ptk, expired_token)

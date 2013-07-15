@@ -252,8 +252,8 @@ class TestCase(NoModule, unittest.TestCase):
 
     def load_backends(self):
         """Initializes each manager and assigns them to an attribute."""
-        for manager in [assignment, catalog, credential,
-                        identity, policy, token, trust]:
+        for manager in [assignment, catalog, credential, identity, policy,
+                        token, trust]:
             manager_name = '%s_api' % manager.__name__.split('.')[-1]
             setattr(self, manager_name, manager.Manager())
 

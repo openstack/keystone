@@ -61,7 +61,6 @@ class CertSetupTestCase(test.TestCase):
         self.controller = token.controllers.Auth()
 
     def test_can_handle_missing_certs(self):
-        self.opt_in_group('signing', token_format='PKI')
         self.opt_in_group('signing', certfile='invalid')
         user = {
             'id': 'fake1',

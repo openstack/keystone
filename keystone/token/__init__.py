@@ -17,4 +17,5 @@
 
 from keystone.token import controllers
 from keystone.token.core import *
+from keystone.token import provider
 from keystone.token import routers

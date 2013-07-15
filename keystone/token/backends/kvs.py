@@ -26,7 +26,6 @@ class Token(kvs.Base, token.Driver):
 
     # Public interface
     def get_token(self, token_id):
-        token_id = token.unique_id(token_id)
         try:
             ref = self.db.get('token-%s' % token_id)
         except exception.NotFound:
@@ -41,7 +40,6 @@ class Token(kvs.Base, token.Driver):
             raise exception.TokenNotFound(token_id=token_id)
 
     def create_token(self, token_id, data):
-        token_id = token.unique_id(token_id)
         data_copy = copy.deepcopy(data)
         data_copy['id'] = token_id
         if not data_copy.get('expires'):
@@ -52,7 +50,6 @@ class Token(kvs.Base, token.Driver):
         return copy.deepcopy(data_copy)
 
     def delete_token(self, token_id):
-        token_id = token.unique_id(token_id)
         try:
             token_ref = self.get_token(token_id)
             self.db.delete('token-%s' % token_id)

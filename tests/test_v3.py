@@ -5,6 +5,7 @@ from lxml import etree
 import webtest
 
 from keystone import test
+from keystone import token
 
 from keystone import auth
 from keystone.common import serializer
@@ -22,6 +23,15 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class RestfulTestCase(test_content_types.RestfulTestCase):
+    _config_file_list = [test.etcdir('keystone.conf.sample'),
+                         test.testsdir('test_overrides.conf'),
+                         test.testsdir('backend_sql.conf'),
+                         test.testsdir('backend_sql_disk.conf')]
+
+    #override this to sepcify the complete list of configuration files
+    def config_files(self):
+        return self._config_file_list
+
     def setUp(self, load_sample_data=True):
         """Setup for v3 Restful Test Cases.
 
@@ -30,14 +40,12 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         load_sample_data should be set to false.
 
         """
-        self.config([
-            test.etcdir('keystone.conf.sample'),
-            test.testsdir('test_overrides.conf'),
-            test.testsdir('backend_sql.conf'),
-            test.testsdir('backend_sql_disk.conf')])
+        self.config(self.config_files())
 
         test.setup_test_database()
         self.load_backends()
+
+        self.token_provider_api = token.provider.Manager()
 
         self.public_app = webtest.TestApp(
             self.loadapp('keystone', name='main'))

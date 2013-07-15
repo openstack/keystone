@@ -65,7 +65,7 @@ class Token(token.Driver):
     def get_token(self, token_id):
         if token_id is None:
             raise exception.TokenNotFound(token_id='')
-        ptk = self._prefix_token_id(token.unique_id(token_id))
+        ptk = self._prefix_token_id(token_id)
         token_ref = self.client.get(ptk)
         if token_ref is None:
             raise exception.TokenNotFound(token_id=token_id)
@@ -74,7 +74,7 @@ class Token(token.Driver):
 
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
-        ptk = self._prefix_token_id(token.unique_id(token_id))
+        ptk = self._prefix_token_id(token_id)
         if not data_copy.get('expires'):
             data_copy['expires'] = token.default_expire_time()
         if not data_copy.get('user_id'):
@@ -118,7 +118,7 @@ class Token(token.Driver):
             if record is not None:
                 token_list = jsonutils.loads('[%s]' % record)
                 for token_i in token_list:
-                    ptk = self._prefix_token_id(token.unique_id(token_i))
+                    ptk = self._prefix_token_id(token_i)
                     token_ref = self.client.get(ptk)
                     if not token_ref:
                         # skip tokens that do not exist in memcache
@@ -174,8 +174,8 @@ class Token(token.Driver):
 
     def delete_token(self, token_id):
         # Test for existence
-        data = self.get_token(token.unique_id(token_id))
-        ptk = self._prefix_token_id(token.unique_id(token_id))
+        data = self.get_token(token_id)
+        ptk = self._prefix_token_id(token_id)
         result = self.client.delete(ptk)
         self._add_to_revocation_list(data)
         return result
@@ -186,7 +186,7 @@ class Token(token.Driver):
         user_record = self.client.get(user_key) or ""
         token_list = jsonutils.loads('[%s]' % user_record)
         for token_id in token_list:
-            ptk = self._prefix_token_id(token.unique_id(token_id))
+            ptk = self._prefix_token_id(token_id)
             token_ref = self.client.get(ptk)
             if token_ref:
                 if tenant_id is not None:

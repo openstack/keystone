@@ -41,7 +41,8 @@ DRIVERS = dict(
     identity_api=identity.Manager(),
     policy_api=policy.Manager(),
     token_api=token.Manager(),
-    trust_api=trust.Manager())
+    trust_api=trust.Manager(),
+    token_provider_api=token.provider.Manager())
 
 
 @logging.fail_gracefully
