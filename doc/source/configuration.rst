@@ -1101,7 +1101,7 @@ if the backend is providing too much output, in such case the configuration
 will look like::
 
   [ldap]
-  user_filter = (memberof=CN=openstack-users,OU=workgroups,DC=openstack,DC=com)
+  user_filter = (memberof=CN=openstack-users,OU=workgroups,DC=openstack,DC=org)
   tenant_filter =
   role_filter =
 
