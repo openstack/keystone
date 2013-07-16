@@ -26,7 +26,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         raise exception.Unauthorized()
 
     creds = {}
-    if 'token_data' in token_ref:
+    if 'token_data' in token_ref and 'token' in token_ref['token_data']:
         #V3 Tokens
         token_data = token_ref['token_data']['token']
         try:

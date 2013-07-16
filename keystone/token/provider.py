@@ -81,6 +81,9 @@ class Provider(object):
         domain-scoped token; and 'auth_context' from the authentication
         plugins.
 
+        For V2 tokens, 'token_ref' must be present in kwargs.
+        Optionally, kwargs may contain 'roles_ref' and 'catalog_ref'.
+
         :param context: request context
         :type context: dictionary
         :param version: version of the token to be issued
