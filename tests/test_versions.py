@@ -176,7 +176,6 @@ class VersionTestCase(test.TestCase):
         self.assertEqual(data, expected)
 
     def test_public_version_v3(self):
-        print CONF.public_port
         client = self.client(self.public_app)
         resp = client.get('/v3/')
         self.assertEqual(resp.status_int, 200)
