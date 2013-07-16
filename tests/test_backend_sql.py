@@ -16,6 +16,8 @@
 
 import uuid
 
+import sqlalchemy
+
 from keystone import test
 
 from keystone.common import sql
@@ -55,6 +57,94 @@ class SqlTests(test.TestCase, sql.Base):
         self.engine.dispose()
         sql.set_global_engine(None)
         super(SqlTests, self).tearDown()
+
+
+class SqlModels(SqlTests):
+    def setUp(self):
+        super(SqlModels, self).setUp()
+
+        self.metadata = sql.ModelBase.metadata
+        self.metadata.bind = self.engine
+
+    def select_table(self, name):
+        table = sqlalchemy.Table(name,
+                                 self.metadata,
+                                 autoload=True)
+        s = sqlalchemy.select([table])
+        return s
+
+    def assertExpectedSchema(self, table, cols):
+        table = self.select_table(table)
+        for col, type_, length in cols:
+            self.assertIsInstance(table.c[col].type, type_)
+            if length:
+                self.assertEquals(table.c[col].type.length, length)
+
+    def test_user_model(self):
+        cols = (('id', sql.String, 64),
+                ('name', sql.String, 64),
+                ('password', sql.String, 128),
+                ('domain_id', sql.String, 64),
+                ('enabled', sql.Boolean, None),
+                ('extra', sql.JsonBlob, None))
+        self.assertExpectedSchema('user', cols)
+
+    def test_group_model(self):
+        cols = (('id', sql.String, 64),
+                ('name', sql.String, 64),
+                ('description', sql.Text, None),
+                ('domain_id', sql.String, 64),
+                ('extra', sql.JsonBlob, None))
+        self.assertExpectedSchema('group', cols)
+
+    def test_domain_model(self):
+        cols = (('id', sql.String, 64),
+                ('name', sql.String, 64),
+                ('enabled', sql.Boolean, None))
+        self.assertExpectedSchema('domain', cols)
+
+    def test_project_model(self):
+        cols = (('id', sql.String, 64),
+                ('name', sql.String, 64),
+                ('description', sql.Text, None),
+                ('domain_id', sql.String, 64),
+                ('enabled', sql.Boolean, None),
+                ('extra', sql.JsonBlob, None))
+        self.assertExpectedSchema('project', cols)
+
+    def test_role_model(self):
+        cols = (('id', sql.String, 64),
+                ('name', sql.String, 64))
+        self.assertExpectedSchema('role', cols)
+
+    def test_user_project_metadata_model(self):
+        cols = (('user_id', sql.String, 64),
+                ('project_id', sql.String, 64),
+                ('data', sql.JsonBlob, None))
+        self.assertExpectedSchema('user_project_metadata', cols)
+
+    def test_user_domain_metadata_model(self):
+        cols = (('user_id', sql.String, 64),
+                ('domain_id', sql.String, 64),
+                ('data', sql.JsonBlob, None))
+        self.assertExpectedSchema('user_domain_metadata', cols)
+
+    def test_group_project_metadata_model(self):
+        cols = (('group_id', sql.String, 64),
+                ('project_id', sql.String, 64),
+                ('data', sql.JsonBlob, None))
+        self.assertExpectedSchema('group_project_metadata', cols)
+
+    def test_group_domain_metadata_model(self):
+        cols = (('group_id', sql.String, 64),
+                ('domain_id', sql.String, 64),
+                ('data', sql.JsonBlob, None))
+        self.assertExpectedSchema('group_domain_metadata', cols)
+
+    def test_user_group_membership(self):
+        cols = (('group_id', sql.String, 64),
+                ('user_id', sql.String, 64))
+        self.assertExpectedSchema('user_group_membership', cols)
 
 
 class SqlIdentity(SqlTests, test_backend.IdentityTests):
