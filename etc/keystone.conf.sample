@@ -262,7 +262,8 @@
 # user_additional_attribute_mapping =
 
 [auth]
-methods = password,token
+methods = external,password,token
+#external = keystone.auth.plugins.external.ExternalDefault
 password = keystone.auth.plugins.password.Password
 token = keystone.auth.plugins.token.Token
 
