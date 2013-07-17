@@ -60,7 +60,7 @@ class Identity(identity.Driver):
     def get_project(self, project_id):
         return self.assignment.get_project(project_id)
 
-    def authenticate(self, user_id=None, password=None):
+    def authenticate(self, user_id, password):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
