@@ -225,7 +225,7 @@ class AuthInfo(object):
         :returns: list of auth method names
 
         """
-        return self.auth['identity']['methods']
+        return self.auth['identity']['methods'] or []
 
     def get_method_data(self, method):
         """Get the auth method payload.

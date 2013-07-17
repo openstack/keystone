@@ -262,6 +262,11 @@ class Auth(controller.V2Controller):
         if 'REMOTE_USER' not in context:
             raise ExternalAuthNotApplicable()
 
+        #NOTE(jamielennox): xml and json differ and get confused about what
+        # empty auth should look like so just reset it.
+        if not auth:
+            auth = {}
+
         username = context['REMOTE_USER']
         try:
             user_ref = self.identity_api.get_user_by_name(
