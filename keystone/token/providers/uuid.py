@@ -235,7 +235,7 @@ class V3TokenDataHelper(object):
                         filtered_roles.append(match_roles[0])
                     else:
                         raise exception.Forbidden(
-                            _('Trustee have no delegated roles.'))
+                            _('Trustee has no delegated roles.'))
             else:
                 for role in roles:
                     filtered_roles.append({'id': role['id'],
@@ -244,12 +244,12 @@ class V3TokenDataHelper(object):
             # user has no project or domain roles, therefore access denied
             if not filtered_roles:
                 if token_project_id:
-                    msg = _('User %(user_id)s have no access '
+                    msg = _('User %(user_id)s has no access '
                             'to project %(project_id)s') % {
                                 'user_id': user_id,
                                 'project_id': token_project_id}
                 else:
-                    msg = _('User %(user_id)s have no access '
+                    msg = _('User %(user_id)s has no access '
                             'to domain %(domain_id)s') % {
                                 'user_id': user_id,
                                 'domain_id': token_domain_id}
