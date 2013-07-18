@@ -397,39 +397,39 @@ class TestTokenProvider(test.TestCase):
         token.provider.Manager()
 
     def test_default_token_format(self):
-        self.assertEqual(token.provider.Manager.check_and_get_token_provider(),
+        self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.PKI_PROVIDER)
 
     def test_uuid_token_format_and_no_provider(self):
         self.opt_in_group('signing', token_format='UUID')
-        self.assertEqual(token.provider.Manager.check_and_get_token_provider(),
+        self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.UUID_PROVIDER)
 
     def test_unsupported_token_format(self):
         self.opt_in_group('signing', token_format='CUSTOM')
         self.assertRaises(exception.UnexpectedError,
-                          token.provider.Manager.check_and_get_token_provider)
+                          token.provider.Manager.get_token_provider)
 
     def test_provider_override_token_format(self):
         self.opt_in_group('token',
                           provider='keystone.token.providers.pki.Test')
         self.assertRaises(exception.UnexpectedError,
-                          token.provider.Manager.check_and_get_token_provider)
+                          token.provider.Manager.get_token_provider)
 
         self.opt_in_group('signing', token_format='UUID')
         self.opt_in_group('token',
                           provider=token.provider.UUID_PROVIDER)
-        self.assertEqual(token.provider.Manager.check_and_get_token_provider(),
+        self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.UUID_PROVIDER)
 
         self.opt_in_group('signing', token_format='PKI')
         self.opt_in_group('token',
                           provider=token.provider.PKI_PROVIDER)
-        self.assertEqual(token.provider.Manager.check_and_get_token_provider(),
+        self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.PKI_PROVIDER)
 
         self.opt_in_group('signing', token_format='CUSTOM')
         self.opt_in_group('token',
                           provider='my.package.MyProvider')
-        self.assertEqual(token.provider.Manager.check_and_get_token_provider(),
+        self.assertEqual(token.provider.Manager.get_token_provider(),
                          'my.package.MyProvider')

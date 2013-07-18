@@ -52,16 +52,20 @@ class Manager(manager.Manager):
     """
 
     @classmethod
-    def check_and_get_token_provider(cls):
-        """Make sure we still support token_format for backward compatibility.
+    def get_token_provider(cls):
+        """Return package path to the configured token provider.
 
-        Return the provider based on token_format if provider property is not
-        set. Otherwise, ignore token_format and return the configured provider
-        instead.
+        The value should come from ``keystone.conf`` ``[token] provider``,
+        however this method ensures backwards compatibility for
+        ``keystone.conf`` ``[signing] token_format`` until Havana + 2.
+
+        Return the provider based on ``token_format`` if ``provider`` is not
+        set. Otherwise, ignore ``token_format`` and return the configured
+        ``provider`` instead.
 
         """
-        if CONF.token.provider:
-            # FIXME(gyee): we are deprecating CONF.signing.token_format. This
+        if CONF.token.provider is not None:
+            # NOTE(gyee): we are deprecating CONF.signing.token_format. This
             # code is to ensure the token provider configuration agrees with
             # CONF.signing.token_format.
             if ((CONF.signing.token_format == 'PKI' and
@@ -69,21 +73,25 @@ class Manager(manager.Manager):
                     (CONF.signing.token_format == 'UUID' and
                         CONF.token.provider != UUID_PROVIDER))):
                 raise exception.UnexpectedError(
-                    '[signing] token_format conflicts with [token] provider '
-                    'in keystone.conf')
+                    _('keystone.conf [signing] token_format (deprecated) '
+                      'conflicts with keystone.conf [token] provider'))
             return CONF.token.provider
         else:
+            msg = _('keystone.conf [signing] token_format is deprecated in '
+                    'favor of keystone.conf [token] provider')
             if CONF.signing.token_format == 'PKI':
+                LOG.warning(msg)
                 return PKI_PROVIDER
             elif CONF.signing.token_format == 'UUID':
+                LOG.warning(msg)
                 return UUID_PROVIDER
             else:
                 raise exception.UnexpectedError(
-                    'unrecognized token format. Must be either '
-                    '\'UUID\' or \'PKI\'')
+                    _('Unrecognized keystone.conf [signing] token_format: '
+                      'expected either \'UUID\' or \'PKI\''))
 
     def __init__(self):
-        super(Manager, self).__init__(self.check_and_get_token_provider())
+        super(Manager, self).__init__(self.get_token_provider())
 
 
 class Provider(object):
