@@ -415,4 +415,4 @@ def configure():
     register_str(
         'provider',
         group='token',
-        default='keystone.token.providers.pki.Provider')
+        default=None)
