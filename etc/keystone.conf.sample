@@ -161,7 +161,9 @@
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 [signing]
+# Deprecated in favor of provider in the [token] section
 #token_format = PKI
+
 #certfile = /etc/keystone/pki/certs/signing_cert.pem
 #keyfile = /etc/keystone/pki/private/signing_key.pem
 #ca_certs = /etc/keystone/pki/certs/cacert.pem
