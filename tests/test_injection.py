@@ -21,6 +21,10 @@ from keystone.common import dependency
 
 
 class TestDependencyInjection(unittest.TestCase):
+    def tearDown(self):
+        dependency.reset()
+        super(TestDependencyInjection, self).tearDown()
+
     def test_dependency_injection(self):
         class Interface(object):
             def do_work(self):
@@ -165,6 +169,29 @@ class TestDependencyInjection(unittest.TestCase):
 
         with self.assertRaises(dependency.UnresolvableDependencyException):
             Consumer()
+            dependency.resolve_future_dependencies()
+
+    def test_circular_dependency(self):
+        p1_name = uuid.uuid4().hex
+        p2_name = uuid.uuid4().hex
+
+        @dependency.provider(p1_name)
+        @dependency.requires(p2_name)
+        class P1(object):
+            pass
+
+        @dependency.provider(p2_name)
+        @dependency.requires(p1_name)
+        class P2(object):
+            pass
+
+        p1 = P1()
+        p2 = P2()
+
+        dependency.resolve_future_dependencies()
+
+        self.assertIs(getattr(p1, p2_name), p2)
+        self.assertIs(getattr(p2, p1_name), p1)
 
     def test_reset(self):
         # Can reset the registry of providers.
