@@ -16,7 +16,6 @@
 
 """Main entry point into the Identity service."""
 
-from keystone import assignment
 from keystone import clean
 from keystone.common import dependency
 from keystone.common import logging
@@ -53,6 +52,7 @@ def filter_user(user_ref):
 
 
 @dependency.provider('identity_api')
+@dependency.requires('assignment_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
@@ -61,12 +61,8 @@ class Manager(manager.Manager):
 
     """
 
-    def __init__(self, assignment_api=None):
+    def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
-        if assignment_api is None:
-            assignment_api = assignment.Manager(self)
-        self.assignment_api = assignment_api
-        self.driver.assignment_api = assignment_api
 
     def create_user(self, user_id, user_ref):
         user = user_ref.copy()

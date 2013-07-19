@@ -16,6 +16,7 @@
 
 import routes
 
+from keystone import assignment
 from keystone import auth
 from keystone import catalog
 from keystone.common import dependency
@@ -35,11 +36,18 @@ from keystone import trust
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
+
+# Ensure that the identity driver is created before the assignment manager.
+# The default assignment driver is determined by the identity driver, so the
+# identity driver must be available to the assignment manager.
+_IDENTITY_API = identity.Manager()
+
 DRIVERS = dict(
+    assignment_api=assignment.Manager(),
     catalog_api=catalog.Manager(),
     credentials_api=credential.Manager(),
     ec2_api=ec2.Manager(),
-    identity_api=identity.Manager(),
+    identity_api=_IDENTITY_API,
     policy_api=policy.Manager(),
     token_api=token.Manager(),
     trust_api=trust.Manager(),
