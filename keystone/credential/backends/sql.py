@@ -48,9 +48,12 @@ class Credential(sql.Base, credential.Driver):
             session.flush()
         return ref.to_dict()
 
-    def list_credentials(self):
+    def list_credentials(self, **filters):
         session = self.get_session()
-        refs = session.query(CredentialModel).all()
+        query = session.query(CredentialModel)
+        if 'user_id' in filters:
+            query = query.filter_by(user_id=filters.get('user_id'))
+        refs = query.all()
         return [ref.to_dict() for ref in refs]
 
     def _get_credential(self, session, credential_id):

@@ -15,4 +15,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.contrib.ec2 import controllers
 from keystone.contrib.ec2.core import *
+from keystone.contrib.ec2.routers import Ec2Extension

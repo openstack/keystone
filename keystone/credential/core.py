@@ -52,8 +52,8 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def list_credentials(self):
-        """List all credentials in the system.
+    def list_credentials(self, **filters):
+        """List all credentials in the system applying filters.
 
         :returns: a list of credential_refs or an empty list.
 

@@ -44,7 +44,6 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
-from keystone.contrib import ec2
 from keystone.contrib import oauth1
 from keystone import credential
 from keystone import exception
@@ -268,7 +267,7 @@ class TestCase(NoModule, unittest.TestCase):
         # identity driver is available to the assignment manager because the
         # assignment manager gets the default assignment driver from the
         # identity driver.
-        for manager in [identity, assignment, catalog, credential, ec2, policy,
+        for manager in [identity, assignment, catalog, credential, policy,
                         token, token_provider, trust, oauth1]:
             # manager.__name__ is like keystone.xxx[.yyy],
             # converted to xxx[_yyy]

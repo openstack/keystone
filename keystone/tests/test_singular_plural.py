@@ -17,7 +17,6 @@
 import ast
 
 from keystone.contrib.admin_crud import core as admin_crud_core
-from keystone.contrib.ec2 import core as ec2_core
 from keystone.contrib.s3 import core as s3_core
 from keystone.contrib.stats import core as stats_core
 from keystone.contrib.user_crud import core as user_crud_core
@@ -28,7 +27,7 @@ from keystone import service
 class TestSingularPlural(object):
     def test_keyword_arg_condition_or_methods(self):
         """Raise if we see a keyword arg called 'condition' or 'methods'."""
-        modules = [admin_crud_core, ec2_core, s3_core, stats_core,
+        modules = [admin_crud_core, s3_core, stats_core,
                    user_crud_core, identity_core, service]
         for module in modules:
             filename = module.__file__

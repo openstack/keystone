@@ -31,7 +31,7 @@ from keystone.common import extension
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
-from keystone.contrib import ec2
+from keystone.contrib.ec2 import controllers
 from keystone import exception
 
 CONF = config.CONF
@@ -64,7 +64,7 @@ class S3Extension(wsgi.ExtensionRouter):
                        conditions=dict(method=['POST']))
 
 
-class S3Controller(ec2.Ec2Controller):
+class S3Controller(controllers.Ec2Controller):
     def check_signature(self, creds_ref, credentials):
         msg = base64.urlsafe_b64decode(str(credentials['token']))
         key = str(creds_ref['secret'])

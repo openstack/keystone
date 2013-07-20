@@ -18,7 +18,6 @@ import uuid
 
 from keystone.tests import core as test
 
-from keystone.contrib import ec2
 from keystone.contrib import s3
 
 from keystone import exception
@@ -30,7 +29,6 @@ class S3ContribCore(test.TestCase):
 
         self.load_backends()
 
-        self.ec2_api = ec2.Manager()
         self.controller = s3.S3Controller()
 
     def test_good_signature(self):

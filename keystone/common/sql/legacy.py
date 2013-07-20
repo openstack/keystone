@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import re
 
 import sqlalchemy
@@ -21,8 +22,9 @@ from sqlalchemy import exc
 
 
 from keystone.assignment.backends import sql as assignment_sql
+from keystone.common import utils
 from keystone import config
-from keystone.contrib.ec2.backends import sql as ec2_sql
+from keystone.credential.backends import sql as ec2_sql
 from keystone.identity.backends import sql as identity_sql
 from keystone.openstack.common import log as logging
 
@@ -67,7 +69,7 @@ class LegacyMigration(object):
         self.identity_driver.db_sync()
         self.assignment_driver.db_sync()
 
-        self.ec2_driver = ec2_sql.Ec2()
+        self.ec2_driver = ec2_sql.Credential()
         self._data = {}
         self._user_map = {}
         self._project_map = {}
@@ -178,11 +180,18 @@ class LegacyMigration(object):
 
     def _migrate_ec2(self):
         for x in self._data['credentials']:
+            blob = {
+                'access': x['key'],
+                'secret': x['secret']
+            }
+            credential_id = utils.hash_access_key(blob['access'])
             new_dict = {'user_id': x['user_id'],
-                        'tenant_id': x['tenant_id'],
-                        'access': x['key'],
-                        'secret': x['secret']}
+                        'blob': json.dumps(blob),
+                        'project_id': x['tenant_id'],
+                        'id': credential_id,
+                        'type': 'ec2'}
+
             try:
-                self.ec2_driver.create_credential(None, new_dict)
+                self.ec2_driver.create_credential(credential_id, new_dict)
             except exc.IntegrityError:
                 LOG.exception(_('Cannot migrate EC2 credential: %s') % x)

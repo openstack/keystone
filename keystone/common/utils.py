@@ -76,6 +76,12 @@ def trunc_password(password):
         raise exception.ValidationError(attribute='string', target='password')
 
 
+def hash_access_key(access):
+    hash_ = hashlib.sha256()
+    hash_.update(access)
+    return hash_.hexdigest()
+
+
 def hash_user_password(user):
     """Hash a user dict's password without modifying the passed-in dict."""
     try:
@@ -168,6 +174,38 @@ def check_output(*popenargs, **kwargs):
             cmd = popenargs[0]
         raise environment.subprocess.CalledProcessError(retcode, cmd)
     return output
+
+
+def get_blob_from_credential(credential):
+    try:
+        blob = json.loads(credential.blob)
+    except (ValueError, TypeError):
+        raise exception.ValidationError(
+            message=_('Invalid blob in credential'))
+    if not blob or not isinstance(blob, dict):
+        raise exception.ValidationError(attribute='blob',
+                                        target='credential')
+    return blob
+
+
+def convert_ec2_to_v3_credential(ec2credential):
+    blob = {'access': ec2credential.access,
+            'secret': ec2credential.secret}
+    return {'id': hash_access_key(ec2credential.access),
+            'user_id': ec2credential.user_id,
+            'project_id': ec2credential.tenant_id,
+            'blob': json.dumps(blob),
+            'type': 'ec2',
+            'extra': json.dumps({})}
+
+
+def convert_v3_to_ec2_credential(credential):
+    blob = get_blob_from_credential(credential)
+    return {'access': blob.get('access'),
+            'secret': blob.get('secret'),
+            'user_id': credential.user_id,
+            'tenant_id': credential.project_id,
+            }
 
 
 def git(*args):
