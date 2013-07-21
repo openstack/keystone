@@ -154,7 +154,7 @@ class XmlBodyMiddlewareTest(test.TestCase):
         self.assertTrue(jsonutils.loads(req.body))
 
     def test_json_unnaffected(self):
-        """JSON-only requests should be unnaffected by the XML middleware."""
+        """JSON-only requests should be unaffected by the XML middleware."""
         content_type = 'application/json'
         body = '{"container": {"attribute": "value"}}'
         req = make_request(body=body, content_type=content_type, method='POST')
