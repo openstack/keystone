@@ -23,7 +23,6 @@ import logging
 import logging.config
 import logging.handlers
 import pprint
-import traceback
 
 
 # A list of things we want to replicate from logging.
@@ -78,8 +77,7 @@ def fail_gracefully(f):
         try:
             return f(*args, **kw)
         except Exception as e:
-            # tracebacks are kept in the debug log
-            logging.debug(traceback.format_exc(e))
+            logging.debug(e, exc_info=True)
 
             # exception message is printed to all logs
             logging.critical(e)
