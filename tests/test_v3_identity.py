@@ -827,14 +827,17 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')),
                          existing_assignments + 2)
-        ud_url, ud_entity = _build_role_assignment_url_and_entity(
+        unused, ud_entity = _build_role_assignment_url_and_entity(
             domain_id=self.domain_id, user_id=self.user1['id'],
             role_id=self.role_id)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        gd_url, unused = _build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, group_id=self.group['id'],
+            role_id=self.role_id)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=gd_url)
         ud_url, ud_entity = _build_role_assignment_url_and_entity(
             domain_id=self.domain_id, user_id=self.user2['id'],
             role_id=self.role_id)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=gd_url)
 
     def test_check_effective_values_for_role_assignments(self):
         """Call ``GET /role_assignments?effective=value``.
@@ -1049,16 +1052,22 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
         self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
         # ...and the two via group membership...
-        up1_url, up1_entity = _build_role_assignment_url_and_entity(
+        unused, up1_entity = _build_role_assignment_url_and_entity(
             project_id=self.project1['id'], user_id=self.user1['id'],
             role_id=self.role1['id'])
-        ud1_url, ud1_entity = _build_role_assignment_url_and_entity(
+        unused, ud1_entity = _build_role_assignment_url_and_entity(
             domain_id=self.domain_id, user_id=self.user1['id'],
             role_id=self.role1['id'])
+        gp1_url, unused = _build_role_assignment_url_and_entity(
+            project_id=self.project1['id'], group_id=self.group1['id'],
+            role_id=self.role1['id'])
+        gd1_url, unused = _build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, group_id=self.group1['id'],
+            role_id=self.role1['id'])
         self.assertRoleAssignmentInListResponse(r, up1_entity,
-                                                link_url=up1_url)
+                                                link_url=gp1_url)
         self.assertRoleAssignmentInListResponse(r, ud1_entity,
-                                                link_url=ud1_url)
+                                                link_url=gd1_url)
 
         # ...and for the grand-daddy of them all, simulate the request
         # that would generate the list of effective roles in a project
@@ -1073,12 +1082,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 2)
         # Should have one direct role and one from group membership...
-        up1_url, up1_entity = _build_role_assignment_url_and_entity(
-            project_id=self.project1['id'], user_id=self.user1['id'],
-            role_id=self.role1['id'])
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
         self.assertRoleAssignmentInListResponse(r, up1_entity,
-                                                link_url=up1_url)
+                                                link_url=gp1_url)
 
 
 class IdentityIneritanceTestCase(test_v3.RestfulTestCase):

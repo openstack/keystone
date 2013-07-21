@@ -950,23 +950,14 @@ class RoleAssignmentV3(controller.V3Controller):
             """Create a user assignment equivalent to the group one.
 
             The template has had the 'group' entity removed, so
-            substitute a 'user' one, modify the 'assignment' link
-            to match, and add a 'membership' link.
+            substitute a 'user' one. The 'assignment' link stays as it is,
+            referring to the group assignment that led to this role.
+            A 'membership' link is added that refers to this particular
+            user's membership of this group.
 
             """
             user_entry = copy.deepcopy(template)
             user_entry['user'] = {'id': user['id']}
-            scope = user_entry.get('scope')
-            if 'domain' in scope:
-                target_link = (
-                    '/domains/%s' % scope['domain']['id'])
-            else:
-                target_link = (
-                    '/projects/%s' % scope['project']['id'])
-            user_entry['links']['assignment'] = (
-                self.base_url('%s/users/%s/roles/%s' %
-                              (target_link, user['id'],
-                               user_entry['role']['id'])))
             user_entry['links']['membership'] = (
                 self.base_url('/groups/%s/users/%s' %
                               (group_id, user['id'])))
