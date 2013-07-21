@@ -34,14 +34,62 @@ This WSGI component:
 """
 
 import httplib
+import urllib
 import webob
 
-from swift.common import utils as swift_utils
-
+from keystone.common import logging
 from keystone.openstack.common import jsonutils
 
 
 PROTOCOL_NAME = 'S3 Token Authentication'
+LOG = logging.getLogger(__name__)
+
+
+# TODO(kun): remove it after oslo merge this.
+def split_path(path, minsegs=1, maxsegs=None, rest_with_last=False):
+    """Validate and split the given HTTP request path.
+
+    **Examples**::
+
+        ['a'] = split_path('/a')
+        ['a', None] = split_path('/a', 1, 2)
+        ['a', 'c'] = split_path('/a/c', 1, 2)
+        ['a', 'c', 'o/r'] = split_path('/a/c/o/r', 1, 3, True)
+
+    :param path: HTTP Request path to be split
+    :param minsegs: Minimum number of segments to be extracted
+    :param maxsegs: Maximum number of segments to be extracted
+    :param rest_with_last: If True, trailing data will be returned as part
+                           of last segment.  If False, and there is
+                           trailing data, raises ValueError.
+    :returns: list of segments with a length of maxsegs (non-existant
+              segments will return as None)
+    :raises: ValueError if given an invalid path
+    """
+    if not maxsegs:
+        maxsegs = minsegs
+    if minsegs > maxsegs:
+        raise ValueError('minsegs > maxsegs: %d > %d' % (minsegs, maxsegs))
+    if rest_with_last:
+        segs = path.split('/', maxsegs)
+        minsegs += 1
+        maxsegs += 1
+        count = len(segs)
+        if (segs[0] or count < minsegs or count > maxsegs or
+                '' in segs[1:minsegs]):
+            raise ValueError('Invalid path: %s' % urllib.quote(path))
+    else:
+        minsegs += 1
+        maxsegs += 1
+        segs = path.split('/', maxsegs)
+        count = len(segs)
+        if (segs[0] or count < minsegs or count > maxsegs + 1 or
+                '' in segs[1:minsegs] or
+                (count == maxsegs + 1 and segs[maxsegs])):
+            raise ValueError('Invalid path: %s' % urllib.quote(path))
+    segs = segs[1:maxsegs]
+    segs.extend([None] * (maxsegs - 1 - len(segs)))
+    return segs
 
 
 class ServiceError(Exception):
@@ -54,7 +102,7 @@ class S3Token(object):
     def __init__(self, app, conf):
         """Common initialization code."""
         self.app = app
-        self.logger = swift_utils.get_logger(conf, log_route='s3token')
+        self.logger = LOG
         self.logger.debug('Starting the %s component' % PROTOCOL_NAME)
         self.reseller_prefix = conf.get('reseller_prefix', 'AUTH_')
         # where to find the auth service (we use this to validate tokens)
@@ -119,7 +167,7 @@ class S3Token(object):
         self.logger.debug('Calling S3Token middleware.')
 
         try:
-            parts = swift_utils.split_path(req.path, 1, 4, True)
+            parts = split_path(req.path, 1, 4, True)
             version, account, container, obj = parts
         except ValueError:
             msg = 'Not a path query, skipping.'
