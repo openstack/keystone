@@ -1122,6 +1122,46 @@ class SqlUpgradeTests(test.TestCase):
         self.assertEqual(len(data['roles']), 1)
         self.assertIn(role_list[5]['id'], data['roles'])
 
+    def test_drop_credential_constraint(self):
+        ec2_credential = {
+            'id': '100',
+            'user_id': 'foo',
+            'project_id': 'bar',
+            'type': 'ec2',
+            'blob': json.dumps({
+                "access": "12345",
+                "secret": "12345"
+            })
+        }
+        user = {
+            'id': 'foo',
+            'name': 'FOO',
+            'password': 'foo2',
+            'enabled': True,
+            'email': 'foo@bar.com',
+            'extra': json.dumps({'enabled': True})
+        }
+        tenant = {
+            'id': 'bar',
+            'name': 'BAR',
+            'description': 'description',
+            'enabled': True,
+            'extra': json.dumps({'enabled': True})
+        }
+        session = self.Session()
+        self.upgrade(7)
+        self.insert_dict(session, 'user', user)
+        self.insert_dict(session, 'tenant', tenant)
+        self.insert_dict(session, 'credential', ec2_credential)
+        session.commit()
+        self.upgrade(30)
+        cred_table = sqlalchemy.Table('credential',
+                                      self.metadata,
+                                      autoload=True)
+        cred = session.query(cred_table).filter("id='100'").one()
+        self.assertEqual(cred.user_id,
+                         ec2_credential['user_id'])
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
