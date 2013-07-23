@@ -221,7 +221,7 @@ class Identity(sql.Base, identity.Driver):
 
             session.delete(ref)
             session.flush()
-        self.assignment.delete_user(user_id)
+        self.assignment_api.delete_user(user_id)
 
     # group crud
 
@@ -278,4 +278,4 @@ class Identity(sql.Base, identity.Driver):
 
             session.delete(ref)
             session.flush()
-        self.assignment.delete_group(group_id)
+        self.assignment_api.delete_group(group_id)

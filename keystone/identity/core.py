@@ -65,8 +65,8 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.identity.driver)
         if assignment_api is None:
             assignment_api = assignment.Manager(self)
-        self.assignment = assignment_api
-        self.driver.assignment = assignment_api
+        self.assignment_api = assignment_api
+        self.driver.assignment_api = assignment_api
 
     def create_user(self, user_id, user_ref):
         user = user_ref.copy()
@@ -102,36 +102,36 @@ class Manager(manager.Manager):
         return self.assignment_api.update_project(tenant_id, tenant)
 
     def get_project_by_name(self, tenant_name, domain_id):
-        return self.assignment.get_project_by_name(tenant_name, domain_id)
+        return self.assignment_api.get_project_by_name(tenant_name, domain_id)
 
     def get_project(self, tenant_id):
-        return self.assignment.get_project(tenant_id)
+        return self.assignment_api.get_project(tenant_id)
 
     def list_projects(self, domain_id=None):
-        return self.assignment.list_projects(domain_id)
+        return self.assignment_api.list_projects(domain_id)
 
     def get_role(self, role_id):
-        return self.assignment.get_role(role_id)
+        return self.assignment_api.get_role(role_id)
 
     def list_roles(self):
-        return self.assignment.list_roles()
+        return self.assignment_api.list_roles()
 
     def get_projects_for_user(self, user_id):
-        return self.assignment.get_projects_for_user(user_id)
+        return self.assignment_api.get_projects_for_user(user_id)
 
     def get_project_users(self, tenant_id):
-        return self.assignment.get_project_users(tenant_id)
+        return self.assignment_api.get_project_users(tenant_id)
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
-        return self.assignment.get_roles_for_user_and_project(user_id,
-                                                              tenant_id)
+        return self.assignment_api.get_roles_for_user_and_project(
+            user_id, tenant_id)
 
     def get_roles_for_user_and_domain(self, user_id, domain_id):
-        return (self.assignment.get_roles_for_user_and_domain
+        return (self.assignment_api.get_roles_for_user_and_domain
                 (user_id, domain_id))
 
     def _subrole_id_to_dn(self, role_id, tenant_id):
-        return self.assignment._subrole_id_to_dn(role_id, tenant_id)
+        return self.assignment_api._subrole_id_to_dn(role_id, tenant_id)
 
     def add_role_to_user_and_project(self, user_id,
                                      tenant_id, role_id):
@@ -139,13 +139,13 @@ class Manager(manager.Manager):
                 (user_id, tenant_id, role_id))
 
     def create_role(self, role_id, role):
-        return self.assignment.create_role(role_id, role)
+        return self.assignment_api.create_role(role_id, role)
 
     def delete_role(self, role_id):
-        return self.assignment.delete_role(role_id)
+        return self.assignment_api.delete_role(role_id)
 
     def delete_project(self, tenant_id):
-        return self.assignment.delete_project(tenant_id)
+        return self.assignment_api.delete_project(tenant_id)
 
     def remove_role_from_user_and_project(self, user_id,
                                           tenant_id, role_id):
@@ -153,62 +153,62 @@ class Manager(manager.Manager):
                 (user_id, tenant_id, role_id))
 
     def update_role(self, role_id, role):
-        return self.assignment.update_role(role_id, role)
+        return self.assignment_api.update_role(role_id, role)
 
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        return (self.assignment.create_grant
+        return (self.assignment_api.create_grant
                 (role_id, user_id, group_id, domain_id, project_id,
                  inherited_to_projects))
 
     def list_grants(self, user_id=None, group_id=None,
                     domain_id=None, project_id=None,
                     inherited_to_projects=False):
-        return (self.assignment.list_grants
+        return (self.assignment_api.list_grants
                 (user_id, group_id, domain_id, project_id,
                  inherited_to_projects))
 
     def get_grant(self, role_id, user_id=None, group_id=None,
                   domain_id=None, project_id=None,
                   inherited_to_projects=False):
-        return (self.assignment.get_grant
+        return (self.assignment_api.get_grant
                 (role_id, user_id, group_id, domain_id, project_id,
                  inherited_to_projects))
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        return (self.assignment.delete_grant
+        return (self.assignment_api.delete_grant
                 (role_id, user_id, group_id, domain_id, project_id,
                  inherited_to_projects))
 
     def create_domain(self, domain_id, domain):
-        return self.assignment.create_domain(domain_id, domain)
+        return self.assignment_api.create_domain(domain_id, domain)
 
     def get_domain_by_name(self, domain_name):
-        return self.assignment.get_domain_by_name(domain_name)
+        return self.assignment_api.get_domain_by_name(domain_name)
 
     def get_domain(self, domain_id):
-        return self.assignment.get_domain(domain_id)
+        return self.assignment_api.get_domain(domain_id)
 
     def update_domain(self, domain_id, domain):
-        return self.assignment.update_domain(domain_id, domain)
+        return self.assignment_api.update_domain(domain_id, domain)
 
     def delete_domain(self, domain_id):
-        return self.assignment.delete_domain(domain_id)
+        return self.assignment_api.delete_domain(domain_id)
 
     def list_domains(self):
-        return self.assignment.list_domains()
+        return self.assignment_api.list_domains()
 
     def list_user_projects(self, user_id):
-        return self.assignment.list_user_projects(user_id)
+        return self.assignment_api.list_user_projects(user_id)
 
     def add_user_to_project(self, tenant_id, user_id):
-        return self.assignment.add_user_to_project(tenant_id, user_id)
+        return self.assignment_api.add_user_to_project(tenant_id, user_id)
 
     def remove_user_from_project(self, tenant_id, user_id):
-        return self.assignment.remove_user_from_project(tenant_id, user_id)
+        return self.assignment_api.remove_user_from_project(tenant_id, user_id)
 
     def list_role_assignments(self):
         return self.assignment_api.list_role_assignments()
