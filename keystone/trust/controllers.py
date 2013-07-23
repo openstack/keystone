@@ -118,7 +118,7 @@ class TrustV3(controller.V3Controller):
                                                 target='roles')
         return trust_roles
 
-    @controller.protected
+    @controller.protected()
     def create_trust(self, context, trust=None):
         """Create a new trust.
 
@@ -167,7 +167,7 @@ class TrustV3(controller.V3Controller):
             raise exception.ValidationError(attribute=e.args[0],
                                             target='trust')
 
-    @controller.protected
+    @controller.protected()
     def list_trusts(self, context):
         query = context['query_string']
         trusts = []
@@ -192,7 +192,7 @@ class TrustV3(controller.V3Controller):
             self._fill_in_roles(context, trust, global_roles)
         return TrustV3.wrap_collection(context, trusts)
 
-    @controller.protected
+    @controller.protected()
     def delete_trust(self, context, trust_id):
         trust = self.trust_api.get_trust(trust_id)
         if not trust:
@@ -204,7 +204,7 @@ class TrustV3(controller.V3Controller):
         userid = trust['trustor_user_id']
         self.token_api.delete_tokens(userid, trust_id=trust_id)
 
-    @controller.protected
+    @controller.protected()
     def list_roles_for_trust(self, context, trust_id):
         trust = self.get_trust(context, trust_id)['trust']
         if not trust:
@@ -214,7 +214,7 @@ class TrustV3(controller.V3Controller):
         return {'roles': trust['roles'],
                 'links': trust['roles_links']}
 
-    @controller.protected
+    @controller.protected()
     def check_role_for_trust(self, context, trust_id, role_id):
         """Checks if a role has been assigned to a trust."""
         trust = self.trust_api.get_trust(trust_id)
@@ -227,7 +227,7 @@ class TrustV3(controller.V3Controller):
         if not matching_roles:
             raise exception.RoleNotFound(role_id=role_id)
 
-    @controller.protected
+    @controller.protected()
     def get_role_for_trust(self, context, trust_id, role_id):
         """Checks if a role has been assigned to a trust."""
         trust = self.trust_api.get_trust(trust_id)

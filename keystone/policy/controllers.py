@@ -21,7 +21,7 @@ class PolicyV3(controller.V3Controller):
     collection_name = 'policies'
     member_name = 'policy'
 
-    @controller.protected
+    @controller.protected()
     def create_policy(self, context, policy):
         ref = self._assign_unique_id(self._normalize_dict(policy))
         self._require_attribute(ref, 'blob')
@@ -35,16 +35,16 @@ class PolicyV3(controller.V3Controller):
         refs = self.policy_api.list_policies()
         return PolicyV3.wrap_collection(context, refs, filters)
 
-    @controller.protected
+    @controller.protected()
     def get_policy(self, context, policy_id):
         ref = self.policy_api.get_policy(policy_id)
         return PolicyV3.wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def update_policy(self, context, policy_id, policy):
         ref = self.policy_api.update_policy(policy_id, policy)
         return PolicyV3.wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def delete_policy(self, context, policy_id):
         return self.policy_api.delete_policy(policy_id)

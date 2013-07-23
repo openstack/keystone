@@ -86,23 +86,52 @@ def flatten(d, parent_key=''):
     return dict(items)
 
 
-def protected(f):
-    """Wraps API calls with role based access controls (RBAC)."""
-    @functools.wraps(f)
-    def wrapper(self, context, *args, **kwargs):
-        if 'is_admin' in context and context['is_admin']:
-            LOG.warning(_('RBAC: Bypassing authorization'))
-        else:
-            action = 'identity:%s' % f.__name__
-            creds = _build_policy_check_credentials(self, action,
-                                                    context, kwargs)
-            # Simply use the passed kwargs as the target dict, which
-            # would typically include the prime key of a get/update/delete
-            # call.
-            self.policy_api.enforce(creds, action, flatten(kwargs))
-            LOG.debug(_('RBAC: Authorization granted'))
+def protected(callback=None):
+    """Wraps API calls with role based access controls (RBAC).
 
-        return f(self, context, *args, **kwargs)
+    This handles both the protection of the API parameters as well as any
+    target entities for single-entity API calls.
+
+    More complex API calls (for example that deal with several different
+    entities) should pass in a callback function, that will be subsequently
+    called to check protection for these multiple entities. This callback
+    function should gather the appropriate entities needed and then call
+    check_proetction() in the V3Controller class.
+
+    """
+    def wrapper(f):
+        @functools.wraps(f)
+        def inner(self, context, *args, **kwargs):
+            if 'is_admin' in context and context['is_admin']:
+                LOG.warning(_('RBAC: Bypassing authorization'))
+            elif callback is not None:
+                prep_info = {'f_name': f.__name__,
+                             'input_attr': kwargs}
+                callback(self, context, prep_info, *args, **kwargs)
+            else:
+                action = 'identity:%s' % f.__name__
+                creds = _build_policy_check_credentials(self, action,
+                                                        context, kwargs)
+                # Check to see if we need to include the target entity in our
+                # policy checks.  We deduce this by seeing if the class has
+                # specified a get_member() method and that kwargs contains the
+                # appropriate entity id.
+                policy_dict = {}
+                if (hasattr(self, 'get_member_from_driver') and
+                        self.get_member_from_driver is not None):
+                            key = '%s_id' % self.member_name
+                            if key in kwargs:
+                                ref = self.get_member_from_driver(kwargs[key])
+                                policy_dict = {'target':
+                                               {self.member_name: ref}}
+
+                # Add in the kwargs, which means that any entity provided as a
+                # parameter for calls like create and update will be included.
+                policy_dict.update(kwargs)
+                self.policy_api.enforce(creds, action, flatten(policy_dict))
+                LOG.debug(_('RBAC: Authorization granted'))
+            return f(self, context, *args, **kwargs)
+        return inner
     return wrapper
 
 
@@ -206,6 +235,7 @@ class V3Controller(V2Controller):
 
     collection_name = 'entities'
     member_name = 'entity'
+    get_member_from_driver = None
 
     def _delete_tokens_for_group(self, group_id):
         user_refs = self.identity_api.list_users_in_group(group_id)
@@ -336,3 +366,31 @@ class V3Controller(V2Controller):
     def _filter_domain_id(self, ref):
         """Override v2 filter to let domain_id out for v3 calls."""
         return ref
+
+    def check_protection(self, context, prep_info, target_attr=None):
+        """Provide call protection for complex target attributes.
+
+        As well as including the standard parameters from the original API
+        call (which is passed in prep_info), this call will add in any
+        additional entities or attributes (passed in target_attr), so that
+        they can be referenced by policy rules.
+
+         """
+        if 'is_admin' in context and context['is_admin']:
+            LOG.warning(_('RBAC: Bypassing authorization'))
+        else:
+            action = 'identity:%s' % prep_info['f_name']
+            # TODO(henry-nash) need to log the target attributes as well
+            creds = _build_policy_check_credentials(self, action,
+                                                    context,
+                                                    prep_info['input_attr'])
+            # Build the dict the policy engine will check against from both the
+            # parameters passed into the call we are protecting (which was
+            # stored in the prep_info by protected()), plus the target
+            # attributes provided.
+            policy_dict = {}
+            if target_attr:
+                policy_dict = {'target': target_attr}
+            policy_dict.update(prep_info['input_attr'])
+            self.policy_api.enforce(creds, action, flatten(policy_dict))
+            LOG.debug(_('RBAC: Authorization granted'))

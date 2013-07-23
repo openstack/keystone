@@ -354,23 +354,23 @@ class Auth(controller.V3Controller):
             msg = _('User not found')
             raise exception.Unauthorized(msg)
 
-    @controller.protected
+    @controller.protected()
     def check_token(self, context):
         token_id = context.get('subject_token_id')
         self.token_provider_api.check_v3_token(token_id)
 
-    @controller.protected
+    @controller.protected()
     def revoke_token(self, context):
         token_id = context.get('subject_token_id')
         return self.token_provider_api.revoke_token(token_id)
 
-    @controller.protected
+    @controller.protected()
     def validate_token(self, context):
         token_id = context.get('subject_token_id')
         token_data = self.token_provider_api.validate_v3_token(token_id)
         return render_token_data_response(token_id, token_data)
 
-    @controller.protected
+    @controller.protected()
     def revocation_list(self, context, auth=None):
         return self.token_controllers_ref.revocation_list(context, auth)
 
