@@ -38,12 +38,8 @@ class CompatTestCase(test.TestCase):
     def setUp(self):
         super(CompatTestCase, self).setUp()
 
-        self.public_server = self.serveapp('keystone', name='main')
-        self.admin_server = self.serveapp('keystone', name='admin')
-
-        revdir = test.checkout_vendor(*self.get_checkout())
-        self.add_path(revdir)
-        self.clear_module('keystoneclient')
+        # The backends should be loaded and initialized before the servers are
+        # started because the servers use the backends.
 
         self.load_backends()
         self.token_provider_api = token.provider.Manager()
@@ -55,6 +51,13 @@ class CompatTestCase(test.TestCase):
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_admin['id'])
+
+        self.public_server = self.serveapp('keystone', name='main')
+        self.admin_server = self.serveapp('keystone', name='admin')
+
+        revdir = test.checkout_vendor(*self.get_checkout())
+        self.add_path(revdir)
+        self.clear_module('keystoneclient')
 
     def tearDown(self):
         self.public_server.kill()
