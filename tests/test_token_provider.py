@@ -410,11 +410,16 @@ class TestTokenProvider(test.TestCase):
         self.assertRaises(exception.UnexpectedError,
                           token.provider.Manager.get_token_provider)
 
+    def test_uuid_provider(self):
+        self.opt_in_group('token', provider=token.provider.UUID_PROVIDER)
+        self.assertEqual(token.provider.Manager.get_token_provider(),
+                         token.provider.UUID_PROVIDER)
+
     def test_provider_override_token_format(self):
         self.opt_in_group('token',
                           provider='keystone.token.providers.pki.Test')
-        self.assertRaises(exception.UnexpectedError,
-                          token.provider.Manager.get_token_provider)
+        self.assertEqual(token.provider.Manager.get_token_provider(),
+                         'keystone.token.providers.pki.Test')
 
         self.opt_in_group('signing', token_format='UUID')
         self.opt_in_group('token',

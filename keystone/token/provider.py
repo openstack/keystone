@@ -77,6 +77,10 @@ class Manager(manager.Manager):
                       'conflicts with keystone.conf [token] provider'))
             return CONF.token.provider
         else:
+            if not CONF.signing.token_format:
+                # No token provider and no format, so use default (PKI)
+                return PKI_PROVIDER
+
             msg = _('keystone.conf [signing] token_format is deprecated in '
                     'favor of keystone.conf [token] provider')
             if CONF.signing.token_format == 'PKI':
