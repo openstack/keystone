@@ -1,4 +1,3 @@
-import uuid
 
 import test_v3
 
@@ -8,20 +7,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(CatalogTestCase, self).setUp()
-
-        self.service_id = uuid.uuid4().hex
-        self.service = self.new_service_ref()
-        self.service['id'] = self.service_id
-        self.catalog_api.create_service(
-            self.service_id,
-            self.service.copy())
-
-        self.endpoint_id = uuid.uuid4().hex
-        self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
-        self.endpoint['id'] = self.endpoint_id
-        self.catalog_api.create_endpoint(
-            self.endpoint_id,
-            self.endpoint.copy())
 
     # service crud tests
 

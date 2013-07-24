@@ -86,5 +86,11 @@
     "identity:list_roles_for_trust": [["@"]],
     "identity:check_role_for_trust": [["@"]],
     "identity:get_role_for_trust": [["@"]],
-    "identity:delete_trust": [["@"]]
+    "identity:delete_trust": [["@"]],
+
+    "identity:list_projects_for_endpoint": [["rule:admin_required"]],
+    "identity:add_endpoint_to_project": [["rule:admin_required"]],
+    "identity:check_endpoint_in_project": [["rule:admin_required"]],
+    "identity:list_endpoints_for_project": [["rule:admin_required"]],
+    "identity:remove_endpoint_from_project": [["rule:admin_required"]]
 }

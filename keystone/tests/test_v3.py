@@ -30,7 +30,13 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def config_files(self):
         return self._config_file_list
 
-    def setUp(self, load_sample_data=True):
+    def setup_database(self):
+        test.setup_test_database()
+
+    def teardown_database(self):
+        test.teardown_test_database()
+
+    def setUp(self, load_sample_data=True, app_conf='keystone'):
         """Setup for v3 Restful Test Cases.
 
         If a child class wants to create their own sample data
@@ -40,13 +46,13 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         """
         self.config(self.config_files())
 
-        test.setup_test_database()
+        self.setup_database()
         self.load_backends()
 
         self.public_app = webtest.TestApp(
-            self.loadapp('keystone', name='main'))
+            self.loadapp(app_conf, name='main'))
         self.admin_app = webtest.TestApp(
-            self.loadapp('keystone', name='admin'))
+            self.loadapp(app_conf, name='admin'))
 
         if load_sample_data:
             self.domain_id = uuid.uuid4().hex
@@ -97,15 +103,29 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
                 self.default_domain_user_id, self.project_id,
                 self.role_id)
 
-        self.public_server = self.serveapp('keystone', name='main')
-        self.admin_server = self.serveapp('keystone', name='admin')
+            self.service_id = uuid.uuid4().hex
+            self.service = self.new_service_ref()
+            self.service['id'] = self.service_id
+            self.catalog_api.create_service(
+                self.service_id,
+                self.service.copy())
+
+            self.endpoint_id = uuid.uuid4().hex
+            self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
+            self.endpoint['id'] = self.endpoint_id
+            self.catalog_api.create_endpoint(
+                self.endpoint_id,
+                self.endpoint.copy())
+
+        self.public_server = self.serveapp(app_conf, name='main')
+        self.admin_server = self.serveapp(app_conf, name='admin')
 
     def tearDown(self):
         self.public_server.kill()
         self.admin_server.kill()
         self.public_server = None
         self.admin_server = None
-        test.teardown_test_database()
+        self.teardown_database()
         # need to reset the plug-ins
         auth.controllers.AUTH_METHODS = {}
         #drop the policy rules
@@ -448,10 +468,17 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
     def assertValidScopedTokenResponse(self, r, *args, **kwargs):
         require_catalog = kwargs.pop('require_catalog', True)
+        endpoint_filter = kwargs.pop('endpoint_filter', False)
+        ep_filter_assoc = kwargs.pop('ep_filter_assoc', 0)
         token = self.assertValidTokenResponse(r, *args, **kwargs)
 
         if require_catalog:
             self.assertIn('catalog', token)
+            # sub test for the OS-EP-FILTER extension enabled
+            if endpoint_filter:
+                # verify the catalog hs no more than the endpoints
+                # associated in the catalog using the ep filter assoc
+                self.assertTrue(len(token['catalog']) < ep_filter_assoc + 1)
         else:
             self.assertNotIn('catalog', token)
 

@@ -127,6 +127,11 @@ FILE_OPTIONS = {
     'ec2': [
         cfg.StrOpt('driver',
                    default='keystone.contrib.ec2.backends.kvs.Ec2')],
+    'endpoint_filter': [
+        cfg.StrOpt('driver',
+                   default='keystone.contrib.endpoint_filter.backends'
+                           '.sql.EndpointFilter'),
+        cfg.BoolOpt('return_all_endpoints_if_no_filter', default=True)],
     'stats': [
         cfg.StrOpt('driver',
                    default=('keystone.contrib.stats.backends'

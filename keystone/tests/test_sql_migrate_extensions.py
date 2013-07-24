@@ -26,6 +26,8 @@ To run these tests against a live database:
     all data will be lost.
 """
 
+
+from keystone.contrib import endpoint_filter
 from keystone.contrib import example
 from keystone.contrib import oauth1
 
@@ -108,3 +110,21 @@ class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableDoesNotExist('consumer')
         self.assertTableDoesNotExist('request_token')
         self.assertTableDoesNotExist('access_token')
+
+
+class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
+    def repo_package(self):
+        return endpoint_filter
+
+    def test_upgrade(self):
+        self.assertTableDoesNotExist('project_endpoint')
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('project_endpoint',
+                                ['endpoint_id', 'project_id'])
+
+    def test_downgrade(self):
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('project_endpoint',
+                                ['endpoint_id', 'project_id'])
+        self.downgrade(0, repository=self.repo_path)
+        self.assertTableDoesNotExist('project_endpoint')

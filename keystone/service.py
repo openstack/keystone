@@ -23,6 +23,7 @@ from keystone import catalog
 from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
+from keystone.contrib import endpoint_filter
 from keystone.contrib import oauth1
 from keystone import controllers
 from keystone import credential
@@ -47,6 +48,7 @@ DRIVERS = dict(
     assignment_api=assignment.Manager(),
     catalog_api=catalog.Manager(),
     credentials_api=credential.Manager(),
+    endpoint_filter_api=endpoint_filter.Manager(),
     identity_api=_IDENTITY_API,
     oauth1_api=oauth1.Manager(),
     policy_api=policy.Manager(),
