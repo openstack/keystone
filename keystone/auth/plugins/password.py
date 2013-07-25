@@ -94,6 +94,7 @@ class UserAuthInfo(object):
         self._assert_user_is_enabled(user_ref)
         self.user_ref = user_ref
         self.user_id = user_ref['id']
+        self.domain_id = domain_ref['id']
 
 
 class Password(auth.AuthMethodHandler):
@@ -106,7 +107,8 @@ class Password(auth.AuthMethodHandler):
         try:
             self.identity_api.authenticate(
                 user_id=user_info.user_id,
-                password=user_info.password)
+                password=user_info.password,
+                domain_scope=user_info.domain_id)
         except AssertionError:
             # authentication failed because of invalid username or password
             msg = _('Invalid username or password')

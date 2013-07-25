@@ -25,9 +25,6 @@ from keystone.openstack.common import log as logging
 LOG = logging.getLogger(__name__)
 
 CONF = config.CONF
-config.register_str('template_file',
-                    default='default_catalog.templates',
-                    group='catalog')
 
 
 def parse_templates(template_lines):

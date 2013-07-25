@@ -16,11 +16,17 @@
 
 """Main entry point into the Identity service."""
 
+import functools
+import os
+
+from oslo.config import cfg
+
 from keystone import clean
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import importutils
 from keystone.openstack.common import log as logging
 
 
@@ -51,6 +57,121 @@ def filter_user(user_ref):
     return user_ref
 
 
+class DomainConfigs(dict):
+    """Discover, store and provide access to domain specifc configs.
+
+    The setup_domain_drives() call will be made via the wrapper from
+    the first call to any driver function handled by this manager. This
+    setup call it will scan the domain config directory for files of the form
+
+    keystone.<domain_name>.conf
+
+    For each file, the domain_name will be turned into a domain_id and then
+    this class will:
+    - Create a new config structure, adding in the specific additional options
+      defined in this config file
+    - Initialise a new instance of the required driver with this new config.
+
+    """
+    configured = False
+    driver = None
+
+    def _load_driver(self, assignment_api, domain_id):
+        domain_config = self[domain_id]
+        domain_config['driver'] = (
+            importutils.import_object(
+                domain_config['cfg'].identity.driver, domain_config['cfg']))
+        domain_config['driver'].assignment_api = assignment_api
+
+    def _load_config(self, assignment_api, file_list, domain_name):
+        try:
+            domain_ref = assignment_api.get_domain_by_name(domain_name)
+        except exception.DomainNotFound:
+            msg = (_('Invalid domain name (%s) found in config file name')
+                   % domain_name)
+            LOG.warning(msg)
+
+        if domain_ref:
+            # Create a new entry in the domain config dict, which contains
+            # a new instance of both the conf environment and driver using
+            # options defined in this set of config files.  Later, when we
+            # service calls via this Manager, we'll index via this domain
+            # config dict to make sure we call the right driver
+            domain = domain_ref['id']
+            self[domain] = {}
+            self[domain]['cfg'] = cfg.ConfigOpts()
+            config.configure(conf=self[domain]['cfg'])
+            self[domain]['cfg'](args=[], project='keystone',
+                                default_config_files=file_list)
+            self._load_driver(assignment_api, domain)
+
+    def setup_domain_drivers(self, standard_driver, assignment_api):
+        # This is called by the api call wrapper
+        self.configured = True
+        self.driver = standard_driver
+
+        conf_dir = CONF.identity.domain_config_dir
+        if not os.path.exists(conf_dir):
+            msg = _('Unable to locate domain config directory: %s') % conf_dir
+            LOG.warning(msg)
+            return
+
+        for r, d, f in os.walk(conf_dir):
+            for file in f:
+                if file.startswith('keystone.') and file.endswith('.conf'):
+                    names = file.split('.')
+                    if len(names) == 3:
+                        self._load_config(assignment_api,
+                                          [os.path.join(r, file)],
+                                          names[1])
+                    else:
+                        msg = (_('Ignoring file (%s) while scanning domain '
+                                 'config directory') % file)
+                        LOG.debug(msg)
+
+    def get_domain_driver(self, domain_id):
+        if domain_id in self:
+            return self[domain_id]['driver']
+
+    def get_domain_conf(self, domain_id):
+        if domain_id in self:
+            return self[domain_id]['cfg']
+
+    def reload_domain_driver(self, assignment_api, domain_id):
+        # Only used to support unit tests that want to set
+        # new config values.  This should only be called once
+        # the domains have been configured, since it relies on
+        # the fact that the configuration files have already been
+        # read.
+        if self.configured:
+            if domain_id in self:
+                self._load_driver(assignment_api, domain_id)
+            else:
+                # The standard driver
+                self.driver = self.driver()
+                self.driver.assignment_api = assignment_api
+
+
+def domains_configured(f):
+    """Wraps API calls to lazy load domain configs after init.
+
+    This is required since the assignment manager needs to be initialized
+    before this manager, and yet this manager's init wants to be
+    able to make assignment calls (to build the domain configs).  So
+    instead, we check if the domains have been initialized on entry
+    to each call, and if requires load them,
+
+    """
+    @functools.wraps(f)
+    def wrapper(self, *args, **kwargs):
+        if (not self.domain_configs.configured and
+                CONF.identity.domain_specific_drivers_enabled):
+                    self.domain_configs.setup_domain_drivers(
+                        self.driver, self.assignment_api)
+        return f(self, *args, **kwargs)
+    return wrapper
+
+
 @dependency.provider('identity_api')
 @dependency.requires('assignment_api')
 class Manager(manager.Manager):
@@ -59,30 +180,228 @@ class Manager(manager.Manager):
     See :mod:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.
 
+    This class also handles the support of domain specific backends, by using
+    the DomainConfigs class. The setup call for DomainConfigs is called
+    from with the @domains_configured wrapper in a lazy loading fashion
+    to get around the fact that we can't satisfy the assignment api it needs
+    from within our __init__() function since the assignment driver is not
+    itself yet intitalized.
+
+    Each of the identity calls are pre-processed here to choose, based on
+    domain, which of the drivers should be called. The non-domain-specific
+    driver is still in place, and is used if there is no specific driver for
+    the domain in question.
+
     """
 
     def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
+        self.domain_configs = DomainConfigs()
 
+    # Domain ID normalization methods
+
+    def _set_domain_id(self, ref, domain_id):
+        if isinstance(ref, dict):
+            ref = ref.copy()
+            ref['domain_id'] = domain_id
+            return ref
+        elif isinstance(ref, list):
+            return [self._set_domain_id(x, domain_id) for x in ref]
+        else:
+            raise ValueError(_('Expected dict or list: %s') % type(ref))
+
+    def _clear_domain_id(self, ref):
+        # Clear the domain_id, and then check to ensure that if this
+        # was not the default domain, it is being handled by its own
+        # backend driver.
+        ref = ref.copy()
+        domain_id = ref.pop('domain_id', CONF.identity.default_domain_id)
+        if (domain_id != CONF.identity.default_domain_id and
+                domain_id not in self.domain_configs):
+                    raise exception.DomainNotFound(domain_id=domain_id)
+        return ref
+
+    def _normalize_scope(self, domain_scope):
+        if domain_scope is None:
+            return CONF.identity.default_domain_id
+        else:
+            return domain_scope
+
+    def _select_identity_driver(self, domain_id):
+        driver = self.domain_configs.get_domain_driver(domain_id)
+        if driver:
+            return driver
+        else:
+            return self.driver
+
+    def _get_domain_conf(self, domain_id):
+        conf = self.domain_configs.get_domain_conf(domain_id)
+        if conf:
+            return conf
+        else:
+            return CONF
+
+    def _get_domain_id_and_driver(self, domain_scope):
+        domain_id = self._normalize_scope(domain_scope)
+        driver = self._select_identity_driver(domain_id)
+        return (domain_id, driver)
+
+    # The actual driver calls - these are pre/post processed here as
+    # part of the Manager layer to make sure we:
+    #
+    # - select the right driver for this domain
+    # - clear/set domain_ids for drivers that do not support domains
+
+    @domains_configured
+    def authenticate(self, user_id, password, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        ref = driver.authenticate(user_id, password)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
     def create_user(self, user_id, user_ref):
         user = user_ref.copy()
         user['name'] = clean.user_name(user['name'])
         user.setdefault('enabled', True)
         user['enabled'] = clean.user_enabled(user['enabled'])
-        return self.driver.create_user(user_id, user)
 
-    def update_user(self, user_id, user_ref):
+        # For creating a user, the domain is in the object itself
+        domain_id = user_ref['domain_id']
+        driver = self._select_identity_driver(domain_id)
+        if not driver.is_domain_aware():
+            user = self._clear_domain_id(user)
+        ref = driver.create_user(user_id, user)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def get_user(self, user_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        ref = driver.get_user(user_id)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def get_user_by_name(self, user_name, domain_id):
+        driver = self._select_identity_driver(domain_id)
+        ref = driver.get_user_by_name(user_name, domain_id)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def list_users(self, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        user_list = driver.list_users()
+        if not driver.is_domain_aware():
+            user_list = self._set_domain_id(user_list, domain_id)
+        return user_list
+
+    @domains_configured
+    def update_user(self, user_id, user_ref, domain_scope=None):
         user = user_ref.copy()
         if 'name' in user:
             user['name'] = clean.user_name(user['name'])
         if 'enabled' in user:
             user['enabled'] = clean.user_enabled(user['enabled'])
-        return self.driver.update_user(user_id, user)
 
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        if not driver.is_domain_aware():
+            user = self._clear_domain_id(user)
+        ref = driver.update_user(user_id, user)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def delete_user(self, user_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        driver.delete_user(user_id)
+
+    @domains_configured
     def create_group(self, group_id, group_ref):
         group = group_ref.copy()
         group.setdefault('description', '')
-        return self.driver.create_group(group_id, group)
+
+        # For creating a group, the domain is in the object itself
+        domain_id = group_ref['domain_id']
+        driver = self._select_identity_driver(domain_id)
+        if not driver.is_domain_aware():
+            group = self._clear_domain_id(group)
+        ref = driver.create_group(group_id, group)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def get_group(self, group_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        ref = driver.get_group(group_id)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def update_group(self, group_id, group, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        if not driver.is_domain_aware():
+            group = self._clear_domain_id(group)
+        ref = driver.update_group(group_id, group)
+        if not driver.is_domain_aware():
+            ref = self._set_domain_id(ref, domain_id)
+        return ref
+
+    @domains_configured
+    def delete_group(self, group_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        driver.delete_group(group_id)
+
+    @domains_configured
+    def add_user_to_group(self, user_id, group_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        driver.add_user_to_group(user_id, group_id)
+
+    @domains_configured
+    def remove_user_from_group(self, user_id, group_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        driver.remove_user_from_group(user_id, group_id)
+
+    @domains_configured
+    def list_groups_for_user(self, user_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        group_list = driver.list_groups_for_user(user_id)
+        if not driver.is_domain_aware():
+            group_list = self._set_domain_id(group_list, domain_id)
+        return group_list
+
+    @domains_configured
+    def list_groups(self, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        group_list = driver.list_groups()
+        if not driver.is_domain_aware():
+            group_list = self._set_domain_id(group_list, domain_id)
+        return group_list
+
+    @domains_configured
+    def list_users_in_group(self, group_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        user_list = driver.list_users_in_group(group_id)
+        if not driver.is_domain_aware():
+            user_list = self._set_domain_id(user_list, domain_id)
+        return user_list
+
+    @domains_configured
+    def check_user_in_group(self, user_id, group_id, domain_scope=None):
+        domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        return driver.check_user_in_group(user_id, group_id)
+
+    # TODO(henry-nash, ayoung) The following cross calls to the assignment
+    # API should be removed, with the controller and tests making the correct
+    # calls direct to assignment.
 
     def create_project(self, tenant_id, tenant_ref):
         tenant = tenant_ref.copy()
@@ -358,6 +677,8 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    #end of identity
+    def is_domain_aware(self):
+        """Indicates if Driver supports domains."""
+        raise exception.NotImplemented()
 
-    # Assignments
+    #end of identity

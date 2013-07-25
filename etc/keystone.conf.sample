@@ -99,6 +99,14 @@
 # There is nothing special about this domain, other than the fact that it must
 # exist to order to maintain support for your v2 clients.
 # default_domain_id = default
+#
+# A subset (or all) of domains can have their own identity driver, each with
+# their own partial configuration file in a domain configuration directory.
+# Only values specific to the domain need to be placed in the domain specific
+# configuration file. This feature is disabled by default; set
+# domain_specific_drivers_enabled to True to enable.
+# domain_specific_drivers_enabled = False
+# domain_config_dir = /etc/keystone/domains
 
 # Maximum supported length for user passwords; decrease to improve performance.
 # max_password_length = 4096
