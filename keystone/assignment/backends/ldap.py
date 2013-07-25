@@ -55,19 +55,7 @@ class Assignment(assignment.Driver):
 
         self.project = ProjectApi(CONF)
         self.role = RoleApi(CONF)
-
         self._identity_api = None
-
-    @property
-    def identity_api(self):
-        return self._identity_api
-
-    @identity_api.setter
-    def identity_api(self, value):
-        self._identity_api = value
-        #TODO(ayoung): only left here to prevent unit test from breaking
-        #once we remove here. the getter and setter can be removed as well.
-        self._identity_api.driver.project = self.project
 
     def get_project(self, tenant_id):
         return self._set_default_domain(self.project.get(tenant_id))

@@ -562,12 +562,12 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
                    'domain_id': CONF.identity.default_domain_id,
                    'description': uuid.uuid4().hex
                    }
-        self.identity_api.driver.create_project(project['id'], project)
-        project_ref = self.identity_api.driver.get_project(project['id'])
+        self.assignment_api.create_project(project['id'], project)
+        project_ref = self.assignment_api.get_project(project['id'])
 
         # NOTE(crazed): If running live test with emulation, there will be
         #               an enabled key in the project_ref.
-        if self.identity_api.driver.project.enabled_emulation:
+        if self.assignment_api.driver.project.enabled_emulation:
             project['enabled'] = True
         self.assertDictEqual(project_ref, project)
 
