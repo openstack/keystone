@@ -16,7 +16,6 @@
 
 import ldap
 import ldap.modlist
-import nose.exc
 import subprocess
 
 from keystone.common import ldap as ldap_common
@@ -89,7 +88,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         test.TestCase.tearDown(self)
 
     def test_user_enable_attribute_mask(self):
-        raise nose.exc.SkipTest('Test is for Active Directory Only')
+        self.skipTest('Test is for Active Directory Only')
 
     def test_ldap_dereferencing(self):
         alt_users_ldif = {'objectclass': ['top', 'organizationalUnit'],

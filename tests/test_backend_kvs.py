@@ -15,8 +15,6 @@
 # under the License.
 import uuid
 
-import nose.exc
-
 from keystone import test
 
 from keystone import exception
@@ -36,34 +34,34 @@ class KvsIdentity(test.TestCase, test_backend.IdentityTests):
 
     def test_list_user_projects(self):
         # NOTE(chungg): not implemented
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_create_duplicate_group_name_in_different_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_create_duplicate_user_name_in_different_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_create_duplicate_project_name_in_different_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_move_user_between_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_move_user_between_domains_with_clashing_names_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_move_group_between_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_move_group_between_domains_with_clashing_names_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_move_project_between_domains(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
-        raise nose.exc.SkipTest('Blocked by bug 1119770')
+        self.skipTest('Blocked by bug 1119770')
 
 
 class KvsToken(test.TestCase, test_backend.TokenTests):

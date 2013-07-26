@@ -16,8 +16,6 @@
 
 import uuid
 
-import nose.exc
-
 from keystone import test
 
 from keystone.common import sql
@@ -109,7 +107,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
         #               the client and essentially refers to a non-existent
         #               policy manager in the v2 client. this test needs to be
         #               moved to a test suite running against the v3 api
-        raise nose.exc.SkipTest('Written prior to v3 client; needs refactor')
+        self.skipTest('Written prior to v3 client; needs refactor')
 
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
