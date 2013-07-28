@@ -118,26 +118,25 @@ class IdentityTests(object):
         self.assertEqual(unicode_name, ref['name'])
 
     def test_get_project(self):
-        tenant_ref = self.identity_api.get_project(
-            tenant_id=self.tenant_bar['id'])
+        tenant_ref = self.identity_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
-                          tenant_id=uuid.uuid4().hex)
+                          uuid.uuid4().hex)
 
     def test_get_project_by_name(self):
         tenant_ref = self.identity_api.get_project_by_name(
-            tenant_name=self.tenant_bar['name'],
-            domain_id=DEFAULT_DOMAIN_ID)
+            self.tenant_bar['name'],
+            DEFAULT_DOMAIN_ID)
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_project_by_name_404(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project_by_name,
-                          tenant_name=uuid.uuid4().hex,
-                          domain_id=DEFAULT_DOMAIN_ID)
+                          uuid.uuid4().hex,
+                          DEFAULT_DOMAIN_ID)
 
     def test_get_project_users(self):
         tenant_ref = self.identity_api.get_project_users(self.tenant_baz['id'])
@@ -152,10 +151,10 @@ class IdentityTests(object):
     def test_get_project_users_404(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project_users,
-                          tenant_id=uuid.uuid4().hex)
+                          uuid.uuid4().hex)
 
     def test_get_user(self):
-        user_ref = self.identity_api.get_user(user_id=self.user_foo['id'])
+        user_ref = self.identity_api.get_user(self.user_foo['id'])
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
@@ -165,12 +164,12 @@ class IdentityTests(object):
     def test_get_user_404(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
-                          user_id=uuid.uuid4().hex)
+                          uuid.uuid4().hex)
 
     def test_get_user_by_name(self):
         user_ref = self.identity_api.get_user_by_name(
-            user_name=self.user_foo['name'],
-            domain_id=DEFAULT_DOMAIN_ID)
+            self.user_foo['name'], DEFAULT_DOMAIN_ID)
+
         # NOTE(termie): the password field is left in user_foo to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
@@ -180,19 +179,18 @@ class IdentityTests(object):
     def test_get_user_by_name_404(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user_by_name,
-                          user_name=uuid.uuid4().hex,
-                          domain_id=DEFAULT_DOMAIN_ID)
+                          uuid.uuid4().hex,
+                          DEFAULT_DOMAIN_ID)
 
     def test_get_role(self):
-        role_ref = self.identity_api.get_role(
-            role_id=self.role_admin['id'])
+        role_ref = self.identity_api.get_role(self.role_admin['id'])
         role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
         self.assertDictEqual(role_ref_dict, self.role_admin)
 
     def test_get_role_404(self):
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.get_role,
-                          role_id=uuid.uuid4().hex)
+                          uuid.uuid4().hex)
 
     def test_create_duplicate_role_name_fails(self):
         role = {'id': 'fake1',

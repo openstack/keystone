@@ -188,9 +188,7 @@ class Ec2Controller(controller.V2Controller):
                      for role_id in roles]
 
         catalog_ref = self.catalog_api.get_catalog(
-            user_id=user_ref['id'],
-            tenant_id=tenant_ref['id'],
-            metadata=metadata_ref)
+            user_ref['id'], tenant_ref['id'], metadata_ref)
 
         auth_token_data = dict(user=user_ref,
                                tenant=tenant_ref,

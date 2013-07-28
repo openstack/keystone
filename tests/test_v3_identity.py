@@ -266,19 +266,19 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # Check all the domain2 relevant entities are gone
         self.assertRaises(exception.DomainNotFound,
                           self.identity_api.get_domain,
-                          domain_id=self.domain2['id'])
+                          self.domain2['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
-                          tenant_id=self.project2['id'])
+                          self.project2['id'])
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
-                          group_id=self.group2['id'])
+                          self.group2['id'])
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
-                          user_id=self.user2['id'])
+                          self.user2['id'])
         self.assertRaises(exception.CredentialNotFound,
                           self.credential_api.get_credential,
-                          credential_id=self.credential2['id'])
+                          self.credential2['id'])
 
         # ...and that all self.domain entities are still here
         r = self.identity_api.get_domain(self.domain['id'])
@@ -511,7 +511,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # that reference this project
         self.assertRaises(exception.CredentialNotFound,
                           self.credential_api.get_credential,
-                          credential_id=self.credential['id'])
+                          self.credential['id'])
         # And the no tokens we remain valid
         tokens = self.token_api.list_tokens(self.user['id'])
         self.assertEquals(len(tokens), 0)
