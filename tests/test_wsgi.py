@@ -14,8 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import webob
-
 from keystone import test
 
 from keystone.common import wsgi
@@ -34,7 +32,7 @@ class BaseWSGITest(test.TestCase):
         super(BaseWSGITest, self).setUp()
 
     def _make_request(self, url='/'):
-        req = webob.Request.blank(url)
+        req = wsgi.Request.blank(url)
         args = {'action': 'index', 'controller': None}
         req.environ['wsgiorg.routing_args'] = [None, args]
         return req
