@@ -138,8 +138,8 @@ class MemcacheToken(test.TestCase, test_backend.TokenTests):
         self.token_api.list_tokens(user_id)
 
     def test_flush_expired_token(self):
-        with self.assertRaises(exception.NotImplemented):
-            self.token_api.flush_expired_tokens()
+        self.assertRaises(exception.NotImplemented,
+                          self.token_api.flush_expired_tokens)
 
     def test_cleanup_user_index_on_create(self):
         valid_token_id = uuid.uuid4().hex

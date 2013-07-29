@@ -45,6 +45,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         load_sample_data should be set to false.
 
         """
+        super(RestfulTestCase, self).setUp()
         self.config(self.config_files())
 
         self.setup_database()
@@ -130,15 +131,12 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.public_server = None
         self.admin_server = None
         self.teardown_database()
-        # NOTE(morganfainberg):  The only way to reconfigure the
-        # CacheRegion object on each setUp() call is to remove the
-        # .backend property.
-        del cache.REGION.backend
         # need to reset the plug-ins
         auth.controllers.AUTH_METHODS = {}
         #drop the policy rules
         CONF.reset()
         rules.reset()
+        super(RestfulTestCase, self).tearDown()
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""

@@ -175,7 +175,7 @@ class DefaultPolicyTestCase(test.TestCase):
         common_policy.set_rules(these_rules)
 
     def tearDown(self):
-        super(DefaultPolicyTestCase, self).setUp()
+        super(DefaultPolicyTestCase, self).tearDown()
         rules.reset()
 
     def test_policy_called(self):

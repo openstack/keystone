@@ -1,5 +1,5 @@
 import inspect
-import unittest2 as unittest
+import testtools
 
 from keystone import assignment
 from keystone import catalog
@@ -11,7 +11,7 @@ from keystone import policy
 from keystone import token
 
 
-class TestDrivers(unittest.TestCase):
+class TestDrivers(testtools.TestCase):
     """Asserts that drivers are written as expected.
 
     Public methods on drivers should raise keystone.exception.NotImplemented,
@@ -28,8 +28,7 @@ class TestDrivers(unittest.TestCase):
         args = inspect.getargspec(f).args
         args.remove('self')
         kwargs = dict(zip(args, [None] * len(args)))
-        with self.assertRaises(exception.NotImplemented):
-            f(**kwargs)
+        self.assertRaises(exception.NotImplemented, f, **kwargs)
 
     def assertInterfaceNotImplemented(self, interface):
         """Public methods on an interface class should not be implemented."""

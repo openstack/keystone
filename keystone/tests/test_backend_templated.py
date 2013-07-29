@@ -63,5 +63,7 @@ class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
         (self.catalog_api.driver.templates
          ['RegionOne']['compute']['adminURL']) = \
             'http://localhost:$(compute_port)s/v1.1/$(tenant)s'
-        with self.assertRaises(exception.MalformedEndpoint):
-            self.catalog_api.get_catalog('fake-user', 'fake-tenant')
+        self.assertRaises(exception.MalformedEndpoint,
+                          self.catalog_api.get_catalog,
+                          'fake-user',
+                          'fake-tenant')

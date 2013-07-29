@@ -26,8 +26,7 @@ openstack.nose_plugin
 nosehtmloutput
 # required to build documentation
 Sphinx>=1.1.2
-# backport of unittest lib in python 2.7
-unittest2
+testtools>=0.9.32
 # test wsgi apps without starting an http server
 webtest
 

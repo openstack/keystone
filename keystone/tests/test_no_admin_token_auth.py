@@ -32,6 +32,7 @@ class TestNoAdminTokenAuth(test.TestCase):
     def tearDown(self):
         self.admin_app = None
         os.remove(test.tmpdir('no_admin_token_auth-paste.ini'))
+        super(TestNoAdminTokenAuth, self).tearDown()
 
     def test_request_no_admin_token_auth(self):
         # This test verifies that if the admin_token_auth middleware isn't
