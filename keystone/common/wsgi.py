@@ -583,7 +583,7 @@ def render_exception(error):
     body = {'error': {
         'code': error.code,
         'title': error.title,
-        'message': str(error)
+        'message': unicode(error)
     }}
     if isinstance(error, exception.AuthPluginException):
         body['error']['identity'] = error.authentication
