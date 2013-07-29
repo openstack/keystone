@@ -594,6 +594,22 @@ class SqlUpgradeTests(test.TestCase):
                       'data': json.dumps({"roles": [role2['id']]})}
         session.execute(metadata_table.insert().values(role_grant))
 
+        # Create another user to test the case where member_role_id is already
+        # assigned.
+        user2 = {'id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex,
+                 'domain_id': domain['id'],
+                 'password': uuid.uuid4().hex,
+                 'enabled': True,
+                 'extra': json.dumps({})}
+        session.execute(user_table.insert().values(user2))
+
+        # Grant CONF.member_role_id to User2
+        role_grant = {'user_id': user2['id'],
+                      'tenant_id': project['id'],
+                      'data': json.dumps({"roles": [CONF.member_role_id]})}
+        session.execute(metadata_table.insert().values(role_grant))
+
         session.commit()
 
         self.upgrade(17)
@@ -631,6 +647,14 @@ class SqlUpgradeTests(test.TestCase):
         # a different role
         data = json.dumps({"roles": [role2['id']]})
         role_grant = {'user_id': user['id'],
+                      'project_id': project['id'],
+                      'data': data}
+        cmd = user_project_metadata_table.insert().values(role_grant)
+        self.engine.execute(cmd)
+
+        # Create another conflicting user-project for User2
+        data = json.dumps({"roles": [role2['id']]})
+        role_grant = {'user_id': user2['id'],
                       'project_id': project['id'],
                       'data': data}
         cmd = user_project_metadata_table.insert().values(role_grant)
