@@ -84,7 +84,7 @@ class Identity(sql.Base, identity.Driver):
         return utils.check_password(password, user_ref.password)
 
     # Identity interface
-    def authenticate(self, user_id=None, password=None):
+    def authenticate(self, user_id, password):
         session = self.get_session()
         user_ref = None
         try:

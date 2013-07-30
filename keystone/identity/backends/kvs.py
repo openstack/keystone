@@ -28,7 +28,7 @@ class Identity(kvs.Base, identity.Driver):
         return "keystone.assignment.backends.kvs.Assignment"
 
     # Public interface
-    def authenticate(self, user_id=None, password=None):
+    def authenticate(self, user_id, password):
         user_ref = None
         try:
             user_ref = self._get_user(user_id)

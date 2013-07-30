@@ -52,7 +52,7 @@ class Identity(identity.Driver):
     def create_project(self, project_id, project):
         return self.assignment_api.create_project(project_id, project)
 
-    def authenticate(self, user_id=None, password=None):
+    def authenticate(self, user_id, password):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
