@@ -114,7 +114,7 @@ class SqlModels(SqlTests):
 
     def test_role_model(self):
         cols = (('id', sql.String, 64),
-                ('name', sql.String, 64))
+                ('name', sql.String, 255))
         self.assertExpectedSchema('role', cols)
 
     def test_user_project_metadata_model(self):
