@@ -240,7 +240,7 @@ def configure():
 
     # signing
     register_str(
-        'token_format', group='signing', default="PKI")
+        'token_format', group='signing', default=None)
     register_str(
         'certfile',
         group='signing',

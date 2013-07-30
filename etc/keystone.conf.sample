@@ -128,7 +128,8 @@
 # driver = keystone.token.backends.sql.Token
 
 # Controls the token construction, validation, and revocation operations.
-# provider = keystone.token.providers.pki.Provider
+# Core providers are keystone.token.providers.[pki|uuid].Provider
+# provider =
 
 # Amount of time a token should remain valid (in seconds)
 # expiration = 86400
@@ -165,7 +166,8 @@
 
 [signing]
 # Deprecated in favor of provider in the [token] section
-#token_format = PKI
+# Allowed values are PKI or UUID
+#token_format =
 
 #certfile = /etc/keystone/pki/certs/signing_cert.pem
 #keyfile = /etc/keystone/pki/private/signing_key.pem
