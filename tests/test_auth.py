@@ -618,6 +618,10 @@ class AuthWithTrust(AuthTest):
         role_ids = [self.role_browser['id'], self.role_member['id']]
         self.assertTrue(timeutils.parse_strtime(self.new_trust['expires_at'],
                                                 fmt=TIME_FORMAT))
+        self.assertIn('http://localhost:5000/v3/OS-TRUST/',
+                      self.new_trust['links']['self'])
+        self.assertIn('http://localhost:5000/v3/OS-TRUST/',
+                      self.new_trust['roles_links']['self'])
 
         for role in self.new_trust['roles']:
             self.assertIn(role['id'], role_ids)
