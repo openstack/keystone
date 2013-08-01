@@ -268,7 +268,12 @@ class TestCase(NoModule, unittest.TestCase):
 
         for manager in [assignment, catalog, credential, ec2, identity, policy,
                         token, token_provider, trust]:
-            manager_name = '%s_api' % manager.__name__.split('.')[-1]
+            # manager.__name__ is like keystone.xxx[.yyy],
+            # converted to xxx[_yyy]
+            manager_name = ('%s_api' %
+                            manager.__name__.replace('keystone.', '').
+                            replace('.', '_'))
+
             setattr(self, manager_name, manager.Manager())
 
     def load_fixtures(self, fixtures):

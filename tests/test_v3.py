@@ -5,7 +5,6 @@ from lxml import etree
 import webtest
 
 from keystone import test
-from keystone import token
 
 from keystone import auth
 from keystone.common import serializer
@@ -44,8 +43,6 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
         test.setup_test_database()
         self.load_backends()
-
-        self.token_provider_api = token.provider.Manager()
 
         self.public_app = webtest.TestApp(
             self.loadapp('keystone', name='main'))

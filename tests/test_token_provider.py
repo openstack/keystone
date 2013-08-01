@@ -333,7 +333,6 @@ class TestTokenProvider(test.TestCase):
     def setUp(self):
         super(TestTokenProvider, self).setUp()
         self.load_backends()
-        self.token_provider_api = token.provider.Manager()
 
     def test_get_token_version(self):
         self.assertEqual(
