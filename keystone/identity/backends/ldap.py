@@ -77,7 +77,8 @@ class Identity(identity.Driver):
         return self.assignment_api._set_default_domain(ref)
 
     def list_users(self):
-        return self.assignment_api._set_default_domain(self.user.get_all())
+        return (self.assignment_api._set_default_domain
+                (self.user.get_all_filtered()))
 
     def get_user_by_name(self, user_name, domain_id):
         self.assignment_api._validate_default_domain_id(domain_id)
@@ -181,7 +182,7 @@ class Identity(identity.Driver):
         for user_dn in self.group.list_group_users(group_id):
             user_id = self.user._dn_to_id(user_dn)
             try:
-                users.append(self.user.get(user_id))
+                users.append(self.user.get_filtered(user_id))
             except exception.UserNotFound:
                 LOG.debug(_("Group member '%(user_dn)s' not found in"
                             " '%(group_id)s'. The user should be removed"
@@ -263,6 +264,9 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     def get_filtered(self, user_id):
         user = self.get(user_id)
         return identity.filter_user(user)
+
+    def get_all_filtered(self):
+        return [identity.filter_user(user) for user in self.get_all()]
 
 
 class GroupApi(common_ldap.BaseLdap):
