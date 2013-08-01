@@ -203,7 +203,7 @@ class BaseApplication(object):
 
 
 class Application(BaseApplication):
-    @webob.dec.wsgify
+    @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
         action = arg_dict.pop('action')
