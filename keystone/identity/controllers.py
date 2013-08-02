@@ -403,6 +403,8 @@ class DomainV3(controller.V3Controller):
 
     @controller.protected
     def create_domain(self, context, domain):
+        self._require_attribute(domain, 'name')
+
         ref = self._assign_unique_id(self._normalize_dict(domain))
         ref = self.identity_api.create_domain(ref['id'], ref)
         return DomainV3.wrap_member(context, ref)
@@ -544,6 +546,8 @@ class ProjectV3(controller.V3Controller):
 
     @controller.protected
     def create_project(self, context, project):
+        self._require_attribute(project, 'name')
+
         ref = self._assign_unique_id(self._normalize_dict(project))
         ref = self._normalize_domain_id(context, ref)
         ref = self.identity_api.create_project(ref['id'], ref)
@@ -592,6 +596,8 @@ class UserV3(controller.V3Controller):
 
     @controller.protected
     def create_user(self, context, user):
+        self._require_attribute(user, 'name')
+
         ref = self._assign_unique_id(self._normalize_dict(user))
         ref = self._normalize_domain_id(context, ref)
         ref = self.identity_api.create_user(ref['id'], ref)
@@ -663,6 +669,8 @@ class GroupV3(controller.V3Controller):
 
     @controller.protected
     def create_group(self, context, group):
+        self._require_attribute(group, 'name')
+
         ref = self._assign_unique_id(self._normalize_dict(group))
         ref = self._normalize_domain_id(context, ref)
         ref = self.identity_api.create_group(ref['id'], ref)
@@ -713,6 +721,8 @@ class RoleV3(controller.V3Controller):
 
     @controller.protected
     def create_role(self, context, role):
+        self._require_attribute(role, 'name')
+
         ref = self._assign_unique_id(self._normalize_dict(role))
         ref = self.identity_api.create_role(ref['id'], ref)
         return RoleV3.wrap_member(context, ref)

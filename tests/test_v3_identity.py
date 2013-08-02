@@ -105,6 +105,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             body={'domain': ref})
         return self.assertValidDomainResponse(r, ref)
 
+    def test_create_domain_400(self):
+        """Call ``POST /domains``."""
+        self.post('/domains', body={'domain': {}}, expected_status=400)
+
     def test_list_domains(self):
         """Call ``GET /domains``."""
         r = self.get('/domains')
@@ -313,6 +317,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             body={'project': ref})
         self.assertValidProjectResponse(r, ref)
 
+    def test_create_project_400(self):
+        """Call ``POST /projects``."""
+        self.post('/projects', body={'project': {}}, expected_status=400)
+
     def test_get_project(self):
         """Call ``GET /projects/{project_id}``."""
         r = self.get(
@@ -375,6 +383,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             '/users',
             body={'user': ref})
         return self.assertValidUserResponse(r, ref)
+
+    def test_create_user_400(self):
+        """Call ``POST /users``."""
+        self.post('/users', body={'user': {}}, expected_status=400)
 
     def test_list_users(self):
         """Call ``GET /users``."""
@@ -529,6 +541,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             body={'group': ref})
         return self.assertValidGroupResponse(r, ref)
 
+    def test_create_group_400(self):
+        """Call ``POST /groups``."""
+        self.post('/groups', body={'group': {}}, expected_status=400)
+
     def test_list_groups(self):
         """Call ``GET /groups``."""
         r = self.get('/groups')
@@ -568,6 +584,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             '/roles',
             body={'role': ref})
         return self.assertValidRoleResponse(r, ref)
+
+    def test_create_role_400(self):
+        """Call ``POST /roles``."""
+        self.post('/roles', body={'role': {}}, expected_status=400)
 
     def test_list_roles(self):
         """Call ``GET /roles``."""
