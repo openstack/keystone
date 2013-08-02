@@ -18,7 +18,6 @@ import uuid
 import webob
 
 from keystone import test
-from keystone import token
 
 from keystone import config
 from keystone.openstack.common import jsonutils
@@ -40,7 +39,6 @@ class CompatTestCase(test.TestCase):
         # started because the servers use the backends.
 
         self.load_backends()
-        self.token_provider_api = token.provider.Manager()
         self.load_fixtures(default_fixtures)
 
         # TODO(termie): add an admin user to the fixtures and use that user
