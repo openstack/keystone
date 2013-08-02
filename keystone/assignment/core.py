@@ -35,6 +35,7 @@ DEFAULT_DOMAIN = {'description':
 
 
 @dependency.provider('assignment_api')
+@dependency.requires('identity_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
@@ -45,18 +46,14 @@ class Manager(manager.Manager):
     api object by both managers.
     """
 
-    def __init__(self, identity_api=None):
-        if identity_api is None:
-            from keystone import identity
-            identity_api = identity.Manager(self)
-
+    def __init__(self):
         assignment_driver = CONF.assignment.driver
+
         if assignment_driver is None:
-            assignment_driver = identity_api.default_assignment_driver()
+            identity_driver = dependency.REGISTRY['identity_api'].driver
+            assignment_driver = identity_driver.default_assignment_driver()
+
         super(Manager, self).__init__(assignment_driver)
-        self.driver.identity_api = identity_api
-        self.identity_api = identity_api
-        self.identity_api.assignment_api = self
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given project.

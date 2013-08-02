@@ -19,6 +19,7 @@ import uuid
 import ldap
 
 from keystone import clean
+from keystone.common import dependency
 from keystone.common import ldap as common_ldap
 from keystone.common import logging
 from keystone.common import models
@@ -38,6 +39,7 @@ DEFAULT_DOMAIN = {
 }
 
 
+@dependency.requires('assignment_api')
 class Identity(identity.Driver):
     def __init__(self):
         super(Identity, self).__init__()

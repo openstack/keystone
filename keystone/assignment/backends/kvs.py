@@ -16,11 +16,13 @@
 
 from keystone import assignment
 from keystone import clean
+from keystone.common import dependency
 from keystone.common import kvs
 from keystone import exception
 from keystone import identity
 
 
+@dependency.requires('identity_api')
 class Assignment(kvs.Base, assignment.Driver):
     def __init__(self):
         super(Assignment, self).__init__()

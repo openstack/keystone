@@ -16,15 +16,14 @@
 
 from keystone import assignment
 from keystone import clean
+from keystone.common import dependency
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import exception
 
 
+@dependency.requires('identity_api')
 class Assignment(sql.Base, assignment.Driver):
-    def __init__(self):
-        super(Assignment, self).__init__()
-        self.identity_api = None
 
     # Internal interface to manage the database
     def db_sync(self, version=None):
