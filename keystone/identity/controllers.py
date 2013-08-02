@@ -109,12 +109,20 @@ class Tenant(controller.V2Controller):
         # be specifying that
         clean_tenant = tenant.copy()
         clean_tenant.pop('domain_id', None)
+
+        # If the project has been disabled (or enabled=False) we are
+        # deleting the tokens for that project.
+        if not tenant.get('enabled', True):
+            self._delete_tokens_for_project(tenant_id)
+
         tenant_ref = self.identity_api.update_project(
             tenant_id, clean_tenant)
         return {'tenant': tenant_ref}
 
     def delete_project(self, context, tenant_id):
         self.assert_admin(context)
+        # Delete all tokens belonging to the users for that project
+        self._delete_tokens_for_project(tenant_id)
         self.identity_api.delete_project(tenant_id)
 
     def get_project_users(self, context, tenant_id, **kw):
@@ -572,6 +580,10 @@ class ProjectV3(controller.V3Controller):
     def update_project(self, context, project_id, project):
         self._require_matching_id(project_id, project)
 
+        # The project was disabled so we delete the tokens
+        if not project.get('enabled', True):
+            self._delete_tokens_for_project(project_id)
+
         ref = self.identity_api.update_project(project_id, project)
         return ProjectV3.wrap_member(context, ref)
 
@@ -580,6 +592,10 @@ class ProjectV3(controller.V3Controller):
         for cred in self.credential_api.list_credentials():
             if cred['project_id'] == project_id:
                 self.credential_api.delete_credential(cred['id'])
+
+        # Delete all tokens belonging to the users for that project
+        self._delete_tokens_for_project(project_id)
+
         # Finally delete the project itself - the backend is
         # responsible for deleting any role assignments related
         # to this project

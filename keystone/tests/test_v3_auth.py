@@ -545,6 +545,67 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                   headers={'X-Subject-Token': token},
                   expected_status=204)
 
+    def test_disabling_project_revokes_token(self):
+        resp = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user3['id'],
+                password=self.user3['password'],
+                project_id=self.projectA['id']))
+        token = resp.headers.get('X-Subject-Token')
+
+        # confirm token is valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=204)
+
+        # disable the project, which should invalidate the token
+        self.patch(
+            '/projects/%(project_id)s' % {'project_id': self.projectA['id']},
+            body={'project': {'enabled': False}})
+
+        # user should no longer have access to the project
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=401)
+        resp = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user3['id'],
+                password=self.user3['password'],
+                project_id=self.projectA['id']),
+            expected_status=401)
+
+    def test_deleting_project_revokes_token(self):
+        resp = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user3['id'],
+                password=self.user3['password'],
+                project_id=self.projectA['id']))
+        token = resp.headers.get('X-Subject-Token')
+
+        # confirm token is valid
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=204)
+
+        # delete the project, which should invalidate the token
+        self.delete(
+            '/projects/%(project_id)s' % {'project_id': self.projectA['id']})
+
+        # user should no longer have access to the project
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': token},
+                  expected_status=401)
+        resp = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.user3['id'],
+                password=self.user3['password'],
+                project_id=self.projectA['id']),
+            expected_status=401)
+
     def test_deleting_group_grant_revokes_tokens(self):
         """Test deleting a group grant revokes tokens.
 
