@@ -65,3 +65,13 @@ def requires(*dependencies):
         return cls
 
     return wrapped
+
+
+def reset():
+    """Reset the registry of providers.
+
+    This is useful for unit testing to ensure that tests don't use providers
+    from previous tests.
+    """
+
+    REGISTRY.clear()

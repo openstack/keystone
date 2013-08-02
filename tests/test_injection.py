@@ -165,3 +165,20 @@ class TestDependencyInjection(unittest.TestCase):
 
         with self.assertRaises(dependency.UnresolvableDependencyException):
             Consumer()
+
+    def test_reset(self):
+        # Can reset the registry of providers.
+
+        p_id = uuid.uuid4().hex
+
+        @dependency.provider(p_id)
+        class P(object):
+            pass
+
+        p_inst = P()
+
+        self.assertIs(dependency.REGISTRY[p_id], p_inst)
+
+        dependency.reset()
+
+        self.assertFalse(dependency.REGISTRY)
