@@ -44,3 +44,6 @@ netifaces
 
 # For translations processing
 Babel
+
+# For documentation
+oslo.sphinx
