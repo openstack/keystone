@@ -16,6 +16,8 @@
 
 REGISTRY = {}
 
+_future_dependencies = {}
+
 
 class UnresolvableDependencyException(Exception):
     def __init__(self, name):
@@ -31,6 +33,8 @@ def provider(name):
                 """Initialize the wrapped object and add it to the registry."""
                 init(self, *args, **kwargs)
                 REGISTRY[name] = self
+
+                resolve_future_dependencies(name)
 
             return __wrapped_init__
 
@@ -48,7 +52,13 @@ def requires(*dependencies):
 
         for dependency in self._dependencies:
             if dependency not in REGISTRY:
-                raise UnresolvableDependencyException(dependency)
+                if dependency in _future_dependencies:
+                    _future_dependencies[dependency] += [self]
+                else:
+                    _future_dependencies[dependency] = [self]
+
+                continue
+
             setattr(self, dependency, REGISTRY[dependency])
 
     def wrapped(cls):
@@ -67,6 +77,26 @@ def requires(*dependencies):
     return wrapped
 
 
+def resolve_future_dependencies(provider_name=None):
+    if provider_name:
+        targets = _future_dependencies.pop(provider_name, [])
+
+        for target in targets:
+            setattr(target, provider_name, REGISTRY[provider_name])
+
+        return
+
+    try:
+        for dependency, targets in _future_dependencies.iteritems():
+            if dependency not in REGISTRY:
+                raise UnresolvableDependencyException(dependency)
+
+            for target in targets:
+                setattr(target, dependency, REGISTRY[dependency])
+    finally:
+        _future_dependencies.clear()
+
+
 def reset():
     """Reset the registry of providers.
 
@@ -75,3 +105,4 @@ def reset():
     """
 
     REGISTRY.clear()
+    _future_dependencies.clear()

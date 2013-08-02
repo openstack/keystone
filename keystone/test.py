@@ -271,6 +271,8 @@ class TestCase(NoModule, unittest.TestCase):
             manager_name = '%s_api' % manager.__name__.split('.')[-1]
             setattr(self, manager_name, manager.Manager())
 
+        dependency.resolve_future_dependencies()
+
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.
 
