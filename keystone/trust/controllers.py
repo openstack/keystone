@@ -35,6 +35,21 @@ class TrustV3(controller.V3Controller):
     collection_name = "trusts"
     member_name = "trust"
 
+    @classmethod
+    def base_url(cls, path=None):
+        endpoint = CONF.public_endpoint % CONF
+
+        # allow a missing trailing slash in the config
+        if endpoint[-1] != '/':
+            endpoint += '/'
+
+        url = endpoint + 'v3/OS-TRUST'
+
+        if path:
+            return url + path
+        else:
+            return url + '/' + cls.collection_name
+
     def _get_user_id(self, context):
         if 'token_id' in context:
             token_id = context['token_id']
@@ -78,8 +93,7 @@ class TrustV3(controller.V3Controller):
                 trust_full_roles.append(full_role)
         trust['roles'] = trust_full_roles
         trust['roles_links'] = {
-            'self': (CONF.public_endpoint % CONF +
-                     "trusts/%s/roles" % trust['id']),
+            'self': (self.base_url() + "/%s/roles" % trust['id']),
             'next': None,
             'previous': None}
 
