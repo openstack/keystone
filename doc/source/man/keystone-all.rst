@@ -6,7 +6,7 @@ keystone-all
 Keystone Startup Command
 ------------------------
 
-:Author: openstack@lists.launchpad.net
+:Author: openstack@lists.openstack.org
 :Date:   2010-11-16
 :Copyright: OpenStack LLC
 :Version: 2012.1
