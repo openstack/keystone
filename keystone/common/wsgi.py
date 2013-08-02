@@ -283,8 +283,7 @@ class Application(BaseApplication):
     def assert_admin(self, context):
         if not context['is_admin']:
             try:
-                user_token_ref = self.token_api.get_token(
-                    token_id=context['token_id'])
+                user_token_ref = self.token_api.get_token(context['token_id'])
             except exception.TokenNotFound as e:
                 raise exception.Unauthorized(e)
 

@@ -438,7 +438,7 @@ class Provider(token.provider.Provider):
 
     def _verify_token(self, token_id, belongs_to=None):
         """Verify the given token and return the token_ref."""
-        token_ref = self.token_api.get_token(token_id=token_id)
+        token_ref = self.token_api.get_token(token_id)
         assert token_ref
         if belongs_to:
             assert (token_ref['tenant'] and
@@ -518,7 +518,7 @@ class Provider(token.provider.Provider):
                     catalog_ref = self.catalog_api.get_catalog(
                         token_ref['user']['id'],
                         token_ref['tenant']['id'],
-                        metadata=metadata_ref)
+                        metadata_ref)
                 token_data = self.v2_token_data_helper.get_token_data(
                     token_ref=token_ref,
                     roles_ref=role_refs,

@@ -91,9 +91,7 @@ class Auth(controller.V2Controller):
 
         if tenant_ref:
             catalog_ref = self.catalog_api.get_catalog(
-                user_id=user_ref['id'],
-                tenant_id=tenant_ref['id'],
-                metadata=metadata_ref)
+                user_ref['id'], tenant_ref['id'], metadata_ref)
         else:
             catalog_ref = {}
 
@@ -457,9 +455,9 @@ class Auth(controller.V2Controller):
         catalog_ref = None
         if token_ref.get('tenant'):
             catalog_ref = self.catalog_api.get_catalog(
-                user_id=token_ref['user']['id'],
-                tenant_id=token_ref['tenant']['id'],
-                metadata=token_ref['metadata'])
+                token_ref['user']['id'],
+                token_ref['tenant']['id'],
+                token_ref['metadata'])
 
         return Auth.format_endpoint_list(catalog_ref)
 
