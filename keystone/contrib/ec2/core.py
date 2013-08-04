@@ -194,11 +194,9 @@ class Ec2Controller(controller.V2Controller):
                                tenant=tenant_ref,
                                metadata=metadata_ref,
                                id='placeholder')
-        (token_id, token_data) = self.token_provider_api.issue_token(
-            version=token.provider.V2,
-            token_ref=auth_token_data,
-            roles_ref=roles_ref,
-            catalog_ref=catalog_ref)
+
+        (token_id, token_data) = self.token_provider_api.issue_v2_token(
+            auth_token_data, roles_ref, catalog_ref)
         return token_data
 
     def create_credential(self, context, user_id, tenant_id):

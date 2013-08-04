@@ -9,7 +9,6 @@ from keystone import exception
 from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 from keystone.token import core
-from keystone.token import provider as token_provider
 
 
 CONF = config.CONF
@@ -103,11 +102,8 @@ class Auth(controller.V2Controller):
             role_ref = self.identity_api.get_role(role_id)
             roles_ref.append(dict(name=role_ref['name']))
 
-        (token_id, token_data) = self.token_provider_api.issue_token(
-            version=token_provider.V2,
-            token_ref=auth_token_data,
-            roles_ref=roles_ref,
-            catalog_ref=catalog_ref)
+        (token_id, token_data) = self.token_provider_api.issue_v2_token(
+            auth_token_data, roles_ref=roles_ref, catalog_ref=catalog_ref)
         return token_data
 
     def _authenticate_token(self, context, auth):
@@ -404,9 +400,7 @@ class Auth(controller.V2Controller):
 
         """
         belongs_to = context['query_string'].get('belongsTo')
-        self.token_provider_api.check_token(token_id,
-                                            belongs_to=belongs_to,
-                                            version=token_provider.V2)
+        self.token_provider_api.check_v2_token(token_id, belongs_to)
 
     @controller.protected
     def validate_token(self, context, token_id):
@@ -418,9 +412,7 @@ class Auth(controller.V2Controller):
 
         """
         belongs_to = context['query_string'].get('belongsTo')
-        return self.token_provider_api.validate_token(
-            token_id, belongs_to=belongs_to,
-            version=token_provider.V2)
+        return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
     def delete_token(self, context, token_id):
         """Delete a token, effectively invalidating it for authz."""
