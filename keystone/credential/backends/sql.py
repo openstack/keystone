@@ -30,11 +30,6 @@ class CredentialModel(sql.ModelBase, sql.DictBase):
     blob = sql.Column(sql.JsonBlob(), nullable=False)
     type = sql.Column(sql.String(255), nullable=False)
     extra = sql.Column(sql.JsonBlob())
-    #TODO(eezhova):extra indexes should be removed. (23 migration).
-    __table_args__ = (
-        sql.Index('user_id', 'user_id'),
-        sql.Index('credential_project_id_fkey', 'project_id')
-    )
 
 
 class Credential(sql.Base, credential.Driver):
