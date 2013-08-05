@@ -17,6 +17,7 @@
 import ldap
 import ldap.modlist
 import subprocess
+import uuid
 
 from keystone.common import ldap as ldap_common
 from keystone import config
@@ -155,6 +156,69 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                                                alias_dereferencing=deref)
         self.assertEqual(ldap.DEREF_SEARCHING,
                          ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+    #FakeLDAP does not correctly process filters, so this test can only be run
+    #against a live LDAP server
+    def test_list_groups_for_user_filtered(self):
+        domain = self._get_domain_fixture()
+        test_groups = []
+        test_users = []
+        GROUP_COUNT = 3
+        USER_COUNT = 2
+
+        for x in range(0, USER_COUNT):
+            new_user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                        'password': uuid.uuid4().hex, 'enabled': True,
+                        'domain_id': domain['id']}
+            test_users.append(new_user)
+            self.identity_api.create_user(new_user['id'], new_user)
+        positive_user = test_users[0]
+        negative_user = test_users[1]
+
+        for x in range(0, USER_COUNT):
+            group_refs = self.identity_api.list_groups_for_user(
+                test_users[x]['id'])
+            self.assertEquals(len(group_refs), 0)
+
+        for x in range(0, GROUP_COUNT):
+            new_group = {'id': uuid.uuid4().hex,
+                         'domain_id': domain['id'],
+                         'name': uuid.uuid4().hex}
+            self.identity_api.create_group(new_group['id'], new_group)
+            test_groups.append(new_group)
+
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEquals(len(group_refs), x)
+
+            self.identity_api.add_user_to_group(
+                positive_user['id'],
+                new_group['id'])
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEquals(len(group_refs), x + 1)
+
+            group_refs = self.identity_api.list_groups_for_user(
+                negative_user['id'])
+            self.assertEquals(len(group_refs), 0)
+
+        CONF.ldap.group_filter = "(dn=xx)"
+        self.reload_backends(CONF.identity.default_domain_id)
+        group_refs = self.identity_api.list_groups_for_user(
+            positive_user['id'])
+        self.assertEquals(len(group_refs), 0)
+        group_refs = self.identity_api.list_groups_for_user(
+            negative_user['id'])
+        self.assertEquals(len(group_refs), 0)
+
+        CONF.ldap.group_filter = "(objectclass=*)"
+        self.reload_backends(CONF.identity.default_domain_id)
+        group_refs = self.identity_api.list_groups_for_user(
+            positive_user['id'])
+        self.assertEquals(len(group_refs), GROUP_COUNT)
+        group_refs = self.identity_api.list_groups_for_user(
+            negative_user['id'])
+        self.assertEquals(len(group_refs), 0)
 
     def test_user_enable_attribute_mask(self):
         CONF.ldap.user_enabled_emulation = False

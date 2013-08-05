@@ -2016,6 +2016,74 @@ class IdentityTests(object):
                 found = True
         self.assertTrue(found)
 
+    def test_list_groups_for_user(self):
+        domain = self._get_domain_fixture()
+        test_groups = []
+        test_users = []
+        GROUP_COUNT = 3
+        USER_COUNT = 2
+
+        for x in range(0, USER_COUNT):
+            new_user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                        'password': uuid.uuid4().hex, 'enabled': True,
+                        'domain_id': domain['id']}
+            test_users.append(new_user)
+            self.identity_api.create_user(new_user['id'], new_user)
+        positive_user = test_users[0]
+        negative_user = test_users[1]
+
+        for x in range(0, USER_COUNT):
+            group_refs = self.identity_api.list_groups_for_user(
+                test_users[x]['id'])
+            self.assertEquals(len(group_refs), 0)
+
+        for x in range(0, GROUP_COUNT):
+            before_count = x
+            after_count = x + 1
+            new_group = {'id': uuid.uuid4().hex,
+                         'domain_id': domain['id'],
+                         'name': uuid.uuid4().hex}
+            self.identity_api.create_group(new_group['id'], new_group)
+            test_groups.append(new_group)
+
+            #add the user to the group and ensure that the
+            #group count increases by one for each
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEquals(len(group_refs), before_count)
+            self.identity_api.add_user_to_group(
+                positive_user['id'],
+                new_group['id'])
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEquals(len(group_refs), after_count)
+
+            #Make sure the group count for the unrelated user
+            #did not change
+            group_refs = self.identity_api.list_groups_for_user(
+                negative_user['id'])
+            self.assertEquals(len(group_refs), 0)
+
+        #remove the user from each group and ensure that
+        #the group count reduces by one for each
+        for x in range(0, 3):
+            before_count = GROUP_COUNT - x
+            after_count = GROUP_COUNT - x - 1
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEquals(len(group_refs), before_count)
+            self.identity_api.remove_user_from_group(
+                positive_user['id'],
+                test_groups[x]['id'])
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEquals(len(group_refs), after_count)
+            #Make sure the group count for the unrelated user
+            #did not change
+            group_refs = self.identity_api.list_groups_for_user(
+                negative_user['id'])
+            self.assertEquals(len(group_refs), 0)
+
     def test_remove_user_from_group(self):
         domain = self._get_domain_fixture()
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
