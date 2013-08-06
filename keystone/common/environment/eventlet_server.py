@@ -48,10 +48,10 @@ class Server(object):
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
-        LOG.debug(_('Starting %(arg0)s on %(host)s:%(port)s') %
-                  {'arg0': sys.argv[0],
-                   'host': self.host,
-                   'port': self.port})
+        LOG.info(_('Starting %(arg0)s on %(host)s:%(port)s') %
+                 {'arg0': sys.argv[0],
+                  'host': self.host,
+                  'port': self.port})
 
         # TODO(dims): eventlet's green dns/socket module does not actually
         # support IPv6 in getaddrinfo(). We need to get around this in the
