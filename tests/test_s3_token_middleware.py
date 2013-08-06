@@ -14,30 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-
-import stubout
 import unittest2 as unittest
 import webob
 
-from swift.common import utils as swift_utils
-
 from keystone.middleware import s3_token
 from keystone.openstack.common import jsonutils
-
-
-def setUpModule(self):
-    self.stubs = stubout.StubOutForTesting()
-    # Stub out swift_utils.get_logger.  get_logger tries to configure
-    # syslogging to '/dev/log', which will fail on OS X.
-
-    def fake_get_logger(config, log_route=None):
-        return logging.getLogger(log_route)
-    self.stubs.Set(swift_utils, 'get_logger', fake_get_logger)
-
-
-def tearDownModule(self):
-    self.stubs.UnsetAll()
 
 
 class FakeHTTPResponse(object):
@@ -211,3 +192,42 @@ class S3TokenMiddlewareTestBad(S3TokenMiddlewareTestBase):
         s3_invalid_req = self.middleware.deny_request('InvalidURI')
         self.assertEqual(resp.body, s3_invalid_req.body)
         self.assertEqual(resp.status_int, s3_invalid_req.status_int)
+
+
+class S3TokenMiddlewareTestUtil(unittest.TestCase):
+    def test_split_path_failed(self):
+        self.assertRaises(ValueError, s3_token.split_path, '')
+        self.assertRaises(ValueError, s3_token.split_path, '/')
+        self.assertRaises(ValueError, s3_token.split_path, '//')
+        self.assertRaises(ValueError, s3_token.split_path, '//a')
+        self.assertRaises(ValueError, s3_token.split_path, '/a/c')
+        self.assertRaises(ValueError, s3_token.split_path, '//c')
+        self.assertRaises(ValueError, s3_token.split_path, '/a/c/')
+        self.assertRaises(ValueError, s3_token.split_path, '/a//')
+        self.assertRaises(ValueError, s3_token.split_path, '/a', 2)
+        self.assertRaises(ValueError, s3_token.split_path, '/a', 2, 3)
+        self.assertRaises(ValueError, s3_token.split_path, '/a', 2, 3, True)
+        self.assertRaises(ValueError, s3_token.split_path, '/a/c/o/r', 3, 3)
+        self.assertRaises(ValueError, s3_token.split_path, '/a', 5, 4)
+
+    def test_split_path_success(self):
+        self.assertEquals(s3_token.split_path('/a'), ['a'])
+        self.assertEquals(s3_token.split_path('/a/'), ['a'])
+        self.assertEquals(s3_token.split_path('/a/c', 2), ['a', 'c'])
+        self.assertEquals(s3_token.split_path('/a/c/o', 3), ['a', 'c', 'o'])
+        self.assertEquals(s3_token.split_path('/a/c/o/r', 3, 3, True),
+                          ['a', 'c', 'o/r'])
+        self.assertEquals(s3_token.split_path('/a/c', 2, 3, True),
+                          ['a', 'c', None])
+        self.assertEquals(s3_token.split_path('/a/c/', 2), ['a', 'c'])
+        self.assertEquals(s3_token.split_path('/a/c/', 2, 3), ['a', 'c', ''])
+
+    def test_split_path_invalid_path(self):
+        try:
+            s3_token.split_path('o\nn e', 2)
+        except ValueError, err:
+            self.assertEquals(str(err), 'Invalid path: o%0An%20e')
+        try:
+            s3_token.split_path('o\nn e', 2, 3, True)
+        except ValueError, err:
+            self.assertEquals(str(err), 'Invalid path: o%0An%20e')
