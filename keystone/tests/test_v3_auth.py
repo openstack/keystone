@@ -804,6 +804,24 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
                 password=self.user3['password'],
                 project_id=self.projectA['id']))
 
+    def test_deleting_project_deletes_grants(self):
+        # This is to make it a little bit more pretty with PEP8
+        role_path = ('/projects/%(project_id)s/users/%(user_id)s/'
+                     'roles/%(role_id)s')
+        role_path = role_path % {'user_id': self.user['id'],
+                                 'project_id': self.projectA['id'],
+                                 'role_id': self.role['id']}
+
+        # grant the user a role on the project
+        self.put(role_path)
+
+        # delete the project, which should remove the roles
+        self.delete(
+            '/projects/%(project_id)s' % {'project_id': self.projectA['id']})
+
+        # Make sure that we get a NotFound(404) when heading that role.
+        self.head(role_path, expected_status=404)
+
 
 class TestAuthExternalDisabled(test_v3.RestfulTestCase):
     def config_files(self):
