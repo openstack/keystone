@@ -45,8 +45,7 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlUpgradeTests(test.TestCase):
-
+class SqlMigrateBase(test.TestCase):
     def initialize_sql(self):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
@@ -55,12 +54,15 @@ class SqlUpgradeTests(test.TestCase):
                          test.testsdir('test_overrides.conf'),
                          test.testsdir('backend_sql.conf')]
 
-    #override this to sepcify the complete list of configuration files
+    #override this to specify the complete list of configuration files
     def config_files(self):
         return self._config_file_list
 
+    def repo_package(self):
+        return None
+
     def setUp(self):
-        super(SqlUpgradeTests, self).setUp()
+        super(SqlMigrateBase, self).setUp()
 
         self.config(self.config_files())
         self.base = sql.Base()
@@ -71,7 +73,7 @@ class SqlUpgradeTests(test.TestCase):
                                                   autocommit=False)
 
         self.initialize_sql()
-        self.repo_path = migration._find_migrate_repo()
+        self.repo_path = migration.find_migrate_repo(self.repo_package())
         self.schema = versioning_api.ControlledSchema.create(
             self.engine,
             self.repo_path, 0)
@@ -85,7 +87,64 @@ class SqlUpgradeTests(test.TestCase):
                                  autoload=True)
         self.downgrade(0)
         table.drop(self.engine, checkfirst=True)
-        super(SqlUpgradeTests, self).tearDown()
+        super(SqlMigrateBase, self).tearDown()
+
+    def select_table(self, name):
+        table = sqlalchemy.Table(name,
+                                 self.metadata,
+                                 autoload=True)
+        s = sqlalchemy.select([table])
+        return s
+
+    def assertTableExists(self, table_name):
+        try:
+            self.select_table(table_name)
+        except sqlalchemy.exc.NoSuchTableError:
+            raise AssertionError('Table "%s" does not exist' % table_name)
+
+    def assertTableDoesNotExist(self, table_name):
+        """Asserts that a given table exists cannot be selected by name."""
+        # Switch to a different metadata otherwise you might still
+        # detect renamed or dropped tables
+        try:
+            temp_metadata = sqlalchemy.MetaData()
+            temp_metadata.bind = self.engine
+            sqlalchemy.Table(table_name, temp_metadata, autoload=True)
+        except sqlalchemy.exc.NoSuchTableError:
+            pass
+        else:
+            raise AssertionError('Table "%s" already exists' % table_name)
+
+    def upgrade(self, *args, **kwargs):
+        self._migrate(*args, **kwargs)
+
+    def downgrade(self, *args, **kwargs):
+        self._migrate(*args, downgrade=True, **kwargs)
+
+    def _migrate(self, version, repository=None, downgrade=False,
+                 current_schema=None):
+        repository = repository or self.repo_path
+        err = ''
+        version = versioning_api._migrate_version(self.schema,
+                                                  version,
+                                                  not downgrade,
+                                                  err)
+        if not current_schema:
+            current_schema = self.schema
+        changeset = current_schema.changeset(version)
+        for ver, change in changeset:
+            self.schema.runchange(ver, change, changeset.step)
+        self.assertEqual(self.schema.version, version)
+
+    def assertTableColumns(self, table_name, expected_cols):
+        """Asserts that the table contains the expected set of columns."""
+        self.initialize_sql()
+        table = self.select_table(table_name)
+        actual_cols = [col.name for col in table.columns]
+        self.assertEqual(expected_cols, actual_cols, '%s table' % table_name)
+
+
+class SqlUpgradeTests(SqlMigrateBase):
 
     def test_blank_db_to_start(self):
         self.assertTableDoesNotExist('user')
@@ -107,13 +166,6 @@ class SqlUpgradeTests(test.TestCase):
             self.upgrade(x)
             self.downgrade(x - 1)
             self.upgrade(x)
-
-    def assertTableColumns(self, table_name, expected_cols):
-        """Asserts that the table contains the expected set of columns."""
-        self.initialize_sql()
-        table = self.select_table(table_name)
-        actual_cols = [col.name for col in table.columns]
-        self.assertEqual(expected_cols, actual_cols, '%s table' % table_name)
 
     def test_upgrade_add_initial_tables(self):
         self.upgrade(1)
@@ -1283,50 +1335,6 @@ class SqlUpgradeTests(test.TestCase):
                          'name': tenant['name'],
                          'extra': json.dumps(extra)})
             self.engine.execute(ins)
-
-    def select_table(self, name):
-        table = sqlalchemy.Table(name,
-                                 self.metadata,
-                                 autoload=True)
-        s = sqlalchemy.select([table])
-        return s
-
-    def assertTableExists(self, table_name):
-        try:
-            self.select_table(table_name)
-        except sqlalchemy.exc.NoSuchTableError:
-            raise AssertionError('Table "%s" does not exist' % table_name)
-
-    def assertTableDoesNotExist(self, table_name):
-        """Asserts that a given table exists cannot be selected by name."""
-        # Switch to a different metadata otherwise you might still
-        # detect renamed or dropped tables
-        try:
-            temp_metadata = sqlalchemy.MetaData()
-            temp_metadata.bind = self.engine
-            sqlalchemy.Table(table_name, temp_metadata, autoload=True)
-        except sqlalchemy.exc.NoSuchTableError:
-            pass
-        else:
-            raise AssertionError('Table "%s" already exists' % table_name)
-
-    def upgrade(self, *args, **kwargs):
-        self._migrate(*args, **kwargs)
-
-    def downgrade(self, *args, **kwargs):
-        self._migrate(*args, downgrade=True, **kwargs)
-
-    def _migrate(self, version, repository=None, downgrade=False):
-        repository = repository or self.repo_path
-        err = ''
-        version = versioning_api._migrate_version(self.schema,
-                                                  version,
-                                                  not downgrade,
-                                                  err)
-        changeset = self.schema.changeset(version)
-        for ver, change in changeset:
-            self.schema.runchange(ver, change, changeset.step)
-        self.assertEqual(self.schema.version, version)
 
     def _mysql_check_all_tables_innodb(self):
         database = self.engine.url.database
