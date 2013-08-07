@@ -32,6 +32,7 @@ class Service(sql.ModelBase, sql.DictBase):
     id = sql.Column(sql.String(64), primary_key=True)
     type = sql.Column(sql.String(255))
     extra = sql.Column(sql.JsonBlob())
+    endpoints = sql.relationship("Endpoint", backref="service")
 
 
 class Endpoint(sql.ModelBase, sql.DictBase):
@@ -150,28 +151,26 @@ class Catalog(sql.Base, catalog.Driver):
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 
+        session = self.get_session()
+        endpoints = (session.query(Endpoint).
+                     options(sql.joinedload(Endpoint.service)).
+                     all())
+
         catalog = {}
-        services = {}
-        for endpoint in self.list_endpoints():
-            # look up the service
-            services.setdefault(
-                endpoint['service_id'],
-                self.get_service(endpoint['service_id']))
-            service = services[endpoint['service_id']]
 
-            # add the endpoint to the catalog if it's not already there
-            catalog.setdefault(endpoint['region'], {})
-            catalog[endpoint['region']].setdefault(
-                service['type'], {
-                    'id': endpoint['id'],
-                    'name': service['name'],
-                    'publicURL': '',  # this may be overridden, but must exist
-                })
-
-            # add the interface's url
-            url = core.format_url(endpoint.get('url'), d)
+        for endpoint in endpoints:
+            region = endpoint['region']
+            service_type = endpoint.service['type']
+            default_service = {
+                'id': endpoint['id'],
+                'name': endpoint.service['name'],
+                'publicURL': ''
+            }
+            catalog.setdefault(region, {})
+            catalog[region].setdefault(service_type, default_service)
+            url = core.format_url(endpoint['url'], d)
             interface_url = '%sURL' % endpoint['interface']
-            catalog[endpoint['region']][service['type']][interface_url] = url
+            catalog[region][service_type][interface_url] = url
 
         return catalog
 
@@ -180,27 +179,19 @@ class Catalog(sql.Base, catalog.Driver):
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 
-        services = {}
-        for endpoint in self.list_endpoints():
-            # look up the service
-            service_id = endpoint['service_id']
-            services.setdefault(
-                service_id,
-                self.get_service(service_id))
-            service = services[service_id]
+        session = self.get_session()
+        services = (session.query(Service).
+                    options(sql.joinedload(Service.endpoints)).
+                    all())
+
+        def make_v3_endpoint(endpoint):
             del endpoint['service_id']
             endpoint['url'] = core.format_url(endpoint['url'], d)
-            if 'endpoints' in services[service_id]:
-                services[service_id]['endpoints'].append(endpoint)
-            else:
-                services[service_id]['endpoints'] = [endpoint]
+            return endpoint
 
-        catalog = []
-        for service_id, service in services.iteritems():
-            formatted_service = {}
-            formatted_service['id'] = service['id']
-            formatted_service['type'] = service['type']
-            formatted_service['endpoints'] = service['endpoints']
-            catalog.append(formatted_service)
+        catalog = [{'endpoints': [make_v3_endpoint(ep.to_dict())
+                                  for ep in svc.endpoints],
+                    'id': svc.id,
+                    'type': svc.type} for svc in services]
 
         return catalog
