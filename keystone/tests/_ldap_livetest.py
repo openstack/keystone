@@ -158,3 +158,6 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                                                alias_dereferencing=deref)
         self.assertEqual(ldap.DEREF_SEARCHING,
                          ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+    def test_create_unicode_user_name(self):
+        self.skipTest('Addressed by bug #1172106')
