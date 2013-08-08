@@ -87,9 +87,6 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
     def tearDown(self):
         test.TestCase.tearDown(self)
 
-    def test_user_enable_attribute_mask(self):
-        self.skipTest('Test is for Active Directory Only')
-
     def test_ldap_dereferencing(self):
         alt_users_ldif = {'objectclass': ['top', 'organizationalUnit'],
                           'ou': 'alt_users'}
