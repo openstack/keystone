@@ -54,6 +54,8 @@ NotFound = sql.orm.exc.NoResultFound
 Boolean = sql.Boolean
 Text = sql.Text
 UniqueConstraint = sql.UniqueConstraint
+relationship = sql.orm.relationship
+joinedload = sql.orm.joinedload
 
 
 def initialize_decorator(init):
@@ -179,6 +181,8 @@ class DictBase(object):
         setattr(self, key, value)
 
     def __getitem__(self, key):
+        if key in self.extra:
+            return self.extra[key]
         return getattr(self, key)
 
     def get(self, key, default=None):
