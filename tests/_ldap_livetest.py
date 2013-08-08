@@ -92,9 +92,6 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
     def tearDown(self):
         test.TestCase.tearDown(self)
 
-    def test_user_enable_attribute_mask(self):
-        raise nose.exc.SkipTest('Test is for Active Directory Only')
-
     def test_ldap_dereferencing(self):
         alt_users_ldif = {'objectclass': ['top', 'organizationalUnit'],
                           'ou': 'alt_users'}
@@ -163,3 +160,8 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                                                alias_dereferencing=deref)
         self.assertEqual(ldap.DEREF_SEARCHING,
                          ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
+
+    def test_user_enable_attribute_mask(self):
+        CONF.ldap.user_enabled_emulation = False
+        CONF.ldap.user_enabled_attribute = 'employeeType'
+        super(LiveLDAPIdentity, self).test_user_enable_attribute_mask()

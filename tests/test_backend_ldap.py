@@ -19,7 +19,6 @@ import ldap
 import uuid
 import nose.exc
 
-from keystone.common import ldap as ldap_common
 from keystone.common.ldap import fakeldap
 from keystone import config
 from keystone import exception
@@ -318,25 +317,55 @@ class LDAPIdentity(test.TestCase, test_backend.IdentityTests):
         self.assertNotIn('name', role_ref)
 
     def test_user_enable_attribute_mask(self):
-        CONF.ldap.user_enabled_attribute = 'enabled'
         CONF.ldap.user_enabled_mask = 2
-        CONF.ldap.user_enabled_default = 512
+        CONF.ldap.user_enabled_default = '512'
         self.clear_database()
         self.identity_api = identity.backends.ldap.Identity()
+        self.load_fixtures(default_fixtures)
+
+        ldap_ = self.identity_api.user.get_connection()
+
+        def get_enabled_vals():
+            user_dn = self.identity_api.user._id_to_dn_string('fake1')
+            enabled_attr_name = CONF.ldap.user_enabled_attribute
+
+            res = ldap_.search_s(user_dn,
+                                 ldap.SCOPE_BASE,
+                                 query='(sn=fake1)')
+            return res[0][1][enabled_attr_name]
+
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
-        self.identity_api.create_user('fake1', user)
+
+        user_ref = self.identity_api.create_user('fake1', user)
+
+        self.assertEqual(user_ref['enabled'], 512)
+        # TODO(blk-u): 512 seems wrong, should it be True?
+
+        enabled_vals = get_enabled_vals()
+        self.assertEqual(enabled_vals, [512])
+
         user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual(user_ref['enabled'], True)
+        self.assertIs(user_ref['enabled'], True)
 
         user['enabled'] = False
-        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.update_user('fake1', user)
+        self.assertIs(user_ref['enabled'], False)
+
+        enabled_vals = get_enabled_vals()
+        self.assertEqual(enabled_vals, [514])
+
         user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual(user_ref['enabled'], False)
+        self.assertIs(user_ref['enabled'], False)
 
         user['enabled'] = True
-        self.identity_api.update_user('fake1', user)
+        user_ref = self.identity_api.update_user('fake1', user)
+        self.assertIs(user_ref['enabled'], True)
+
+        enabled_vals = get_enabled_vals()
+        self.assertEqual(enabled_vals, [512])
+
         user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual(user_ref['enabled'], True)
+        self.assertIs(user_ref['enabled'], True)
 
     def test_user_api_get_connection_no_user_password(self):
         """Don't bind in case the user and password are blank"""
