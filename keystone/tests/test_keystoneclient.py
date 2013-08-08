@@ -535,6 +535,15 @@ class KeystoneClientTests(object):
         user = client.users.update_tenant(
             user=user, tenant=self.tenant_bar['id'])
 
+    def test_user_create_no_string_password(self):
+        from keystoneclient import exceptions as client_exceptions
+        client = self.get_client(admin=True)
+        self.assertRaises(client_exceptions.BadRequest,
+                          client.users.create,
+                          name='test_user',
+                          password=12345,
+                          email=uuid.uuid4().hex)
+
     def test_user_create_no_name(self):
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
