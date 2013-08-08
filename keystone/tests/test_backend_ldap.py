@@ -477,7 +477,7 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
 
     def test_user_enable_attribute_mask(self):
         CONF.ldap.user_enabled_mask = 2
-        CONF.ldap.user_enabled_default = 512
+        CONF.ldap.user_enabled_default = '512'
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
