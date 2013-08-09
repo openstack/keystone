@@ -14,110 +14,30 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-import sys
-
 from oslo.config import cfg
 
-from keystone.common import logging
+from keystone.openstack.common import log as logging
 
 
 _DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 _DEFAULT_AUTH_METHODS = ['external', 'password', 'token']
 
-COMMON_CLI_OPTS = [
-    cfg.BoolOpt('debug',
-                short='d',
-                default=False,
-                help='Print debugging output (set logging level to '
-                     'DEBUG instead of default WARNING level).'),
-    cfg.BoolOpt('verbose',
-                short='v',
-                default=False,
-                help='Print more verbose output (set logging level to '
-                     'INFO instead of default WARNING level).'),
-]
-
-LOGGING_CLI_OPTS = [
-    cfg.StrOpt('log-config',
-               metavar='PATH',
-               help='If this option is specified, the logging configuration '
-                    'file specified is used and overrides any other logging '
-                    'options specified. Please see the Python logging module '
-                    'documentation for details on logging configuration '
-                    'files.'),
-    cfg.StrOpt('log-format',
-               default=_DEFAULT_LOG_FORMAT,
-               metavar='FORMAT',
-               help='A logging.Formatter log message format string which may '
-                    'use any of the available logging.LogRecord attributes.'),
-    cfg.StrOpt('log-date-format',
-               default=_DEFAULT_LOG_DATE_FORMAT,
-               metavar='DATE_FORMAT',
-               help='Format string for %%(asctime)s in log records.'),
-    cfg.StrOpt('log-file',
-               metavar='PATH',
-               help='Name of log file to output. '
-                    'If not set, logging will go to stdout.'),
-    cfg.StrOpt('log-dir',
-               help='The directory in which to store log files. '
-                    '(will be prepended to --log-file)'),
-    cfg.BoolOpt('use-syslog',
-                default=False,
-                help='Use syslog for logging.'),
-    cfg.StrOpt('syslog-log-facility',
-               default='LOG_USER',
-               help='syslog facility to receive log lines.')
-]
 
 CONF = cfg.CONF
 
 
-def setup_logging(conf):
+def setup_logging(conf, product_name='keystone'):
     """Sets up the logging options for a log with supplied name
 
     :param conf: a cfg.ConfOpts object
     """
-
-    if conf.log_config:
-        # Use a logging configuration file for all settings...
-        if os.path.exists(conf.log_config):
-            logging.config.fileConfig(conf.log_config)
-            return
-        else:
-            raise RuntimeError(_('Unable to locate specified logging '
-                               'config file: %s') % conf.log_config)
-
-    root_logger = logging.root
-    if conf.debug:
-        root_logger.setLevel(logging.DEBUG)
-    elif conf.verbose:
-        root_logger.setLevel(logging.INFO)
-    else:
-        root_logger.setLevel(logging.WARNING)
-
-    formatter = logging.Formatter(conf.log_format, conf.log_date_format)
-
-    if conf.use_syslog:
-        try:
-            facility = getattr(logging.SysLogHandler,
-                               conf.syslog_log_facility)
-        except AttributeError:
-            raise ValueError(_('Invalid syslog facility'))
-
-        handler = logging.SysLogHandler(address='/dev/log',
-                                        facility=facility)
-    elif conf.log_file:
-        logfile = conf.log_file
-        if conf.log_dir:
-            logfile = os.path.join(conf.log_dir, logfile)
-        handler = logging.WatchedFileHandler(logfile)
-    else:
-        handler = logging.StreamHandler(sys.stdout)
-
-    handler.setFormatter(formatter)
-    root_logger.addHandler(handler)
+    # NOTE(ldbragst): This method will be removed along with other
+    # refactoring in favor of using the
+    # keystone/openstack/common/log.py implementation. This just ensures
+    # that in the time between introduction and refactoring, we still have
+    # a working logging implementation.
+    logging.setup(product_name)
 
 
 def setup_authentication():
@@ -176,9 +96,6 @@ def register_cli_int(*args, **kw):
 
 
 def configure():
-    CONF.register_cli_opts(COMMON_CLI_OPTS)
-    CONF.register_cli_opts(LOGGING_CLI_OPTS)
-
     register_cli_bool('standard-threads', default=False,
                       help='Do not monkey-patch threading system modules.')
 
