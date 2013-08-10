@@ -178,9 +178,23 @@ class Manager(manager.Manager):
                  keystone.exception.UserNotFound
 
         """
-        self.driver.add_role_to_user_and_project(user_id,
-                                                 tenant_id,
-                                                 config.CONF.member_role_id)
+        try:
+            self.driver.add_role_to_user_and_project(
+                user_id,
+                tenant_id,
+                config.CONF.member_role_id)
+        except exception.RoleNotFound:
+            LOG.info(_("Creating the default role %s "
+                       "because it does not exist.") %
+                     config.CONF.member_role_id)
+            role = {'id': CONF.member_role_id,
+                    'name': CONF.member_role_name}
+            self.driver.create_role(config.CONF.member_role_id, role)
+            #now that default role exists, the add should succeed
+            self.driver.add_role_to_user_and_project(
+                user_id,
+                tenant_id,
+                config.CONF.member_role_id)
 
     def remove_user_from_project(self, tenant_id, user_id):
         """Remove user from a tenant
