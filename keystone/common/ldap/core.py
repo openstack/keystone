@@ -172,6 +172,10 @@ class BaseLdap(object):
 
             if self.notfound_arg is None:
                 self.notfound_arg = self.options_name + '_id'
+
+            attribute_ignore = '%s_attribute_ignore' % self.options_name
+            self.attribute_ignore = getattr(conf.ldap, attribute_ignore)
+
         self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member')
         self.dumb_member = (getattr(conf.ldap, 'dumb_member') or
                             self.DUMB_MEMBER_DN)
