@@ -266,6 +266,8 @@ class Manager(manager.Manager):
                             "exist."),
                           role_id)
 
+    # TODO(henry-nash): We might want to consider list limiting this at some
+    # point in the future.
     def list_projects_for_user(self, user_id, hints=None):
         # NOTE(henry-nash): In order to get a complete list of user projects,
         # the driver will need to look at group assignments.  To avoid cross
@@ -296,6 +298,7 @@ class Manager(manager.Manager):
             self.get_domain_by_name.set(ret, self, ret['name'])
         return ret
 
+    @manager.response_truncated
     def list_domains(self, hints=None):
         return self.driver.list_domains(hints or driver_hints.Hints())
 
@@ -392,6 +395,7 @@ class Manager(manager.Manager):
                               {'userid': user['id'],
                                'domainid': domain_id})
 
+    @manager.response_truncated
     def list_projects(self, hints=None):
         return self.driver.list_projects(hints or driver_hints.Hints())
 
@@ -427,6 +431,7 @@ class Manager(manager.Manager):
             self.get_role.set(ret, self, role_id)
         return ret
 
+    @manager.response_truncated
     def list_roles(self, hints=None):
         return self.driver.list_roles(hints or driver_hints.Hints())
 
@@ -589,6 +594,9 @@ class Driver(object):
         role_set.remove(frozenset(self._role_to_dict(role_id,
                                                      inherited).items()))
         return [dict(r) for r in role_set]
+
+    def _get_list_limit(self):
+        return CONF.assignment.list_limit or CONF.list_limit
 
     @abc.abstractmethod
     def get_project_by_name(self, tenant_name, domain_id):

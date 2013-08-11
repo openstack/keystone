@@ -144,6 +144,21 @@ The contract for a driver for ``list_{entity}`` methods is therefore:
   list by filtering for one or more of the specified filters in the passed
   Hints reference, and removing any such satisfied filters.
 
+Entity list truncation by drivers
+---------------------------------
+
+Keystone supports the ability for a deployment to restrict the number of
+entries returned from ``list_{entity}`` methods, typically to prevent poorly
+formed searches (e.g. without sufficient filters) from becoming a performance
+issue.
+
+These limits are set in the configuration file, either for a specific driver or
+across all drivers.  These limits are read at the Manager level and passed into
+individual drivers as part of the Hints list object. A driver should try and
+honor any such limit if possible, but if it is unable to do so then it may
+ignore it (and the truncation of the returned list of entities will happen at
+the controller level).
+
 Testing
 -------
 

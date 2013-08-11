@@ -486,3 +486,9 @@ class SqlTokenCacheInvalidation(SqlTests, test_backend.TokenCacheInvalidation):
 
 class SqlFilterTests(SqlTests, test_backend.FilterTests):
     pass
+
+
+class SqlLimitTests(SqlTests, test_backend.LimitTests):
+    def setUp(self):
+        super(SqlLimitTests, self).setUp()
+        test_backend.LimitTests.setUp(self)

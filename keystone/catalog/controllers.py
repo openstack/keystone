@@ -195,7 +195,7 @@ class ServiceV3(controller.V3Controller):
     @controller.filterprotected('type')
     def list_services(self, context, filters):
         hints = ServiceV3.build_driver_hints(context, filters)
-        refs = self.catalog_api.list_services()
+        refs = self.catalog_api.list_services(hints=hints)
         return ServiceV3.wrap_collection(context, refs, hints=hints)
 
     @controller.protected()
@@ -248,7 +248,7 @@ class EndpointV3(controller.V3Controller):
     @controller.filterprotected('interface', 'service_id')
     def list_endpoints(self, context, filters):
         hints = EndpointV3.build_driver_hints(context, filters)
-        refs = self.catalog_api.list_endpoints()
+        refs = self.catalog_api.list_endpoints(hints=hints)
         return EndpointV3.wrap_collection(context, refs, hints=hints)
 
     @controller.protected()

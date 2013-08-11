@@ -31,6 +31,7 @@ CONF = config.CONF
 class IdentityTestFilteredCase(filtering.FilterTests,
                                test_v3.RestfulTestCase):
     """Test filter enforcement on the v3 Identity API."""
+    content_type = 'json'
 
     def setUp(self):
         """Setup for Identity Filter Test Cases."""
@@ -299,3 +300,141 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         url_by_name = "/groups"
         r = self.get(url_by_name, auth=self.auth)
         self.assertTrue(len(r.result.get('groups')) > 0)
+
+
+class IdentityTestListLimitCase(IdentityTestFilteredCase):
+    """Test list limiting enforcement on the v3 Identity API."""
+    content_type = 'json'
+
+    def setUp(self):
+        """Setup for Identity Limit Test Cases."""
+
+        super(IdentityTestListLimitCase, self).setUp()
+
+        self._set_policy({"identity:list_users": [],
+                          "identity:list_groups": [],
+                          "identity:list_projects": [],
+                          "identity:list_services": [],
+                          "identity:list_policies": []})
+
+        # Create 10 entries for each of the entities we are going to test
+        self.ENTITY_TYPES = ['user', 'group', 'project']
+        self.entity_lists = {}
+        for entity in self.ENTITY_TYPES:
+            self.entity_lists[entity] = self._create_test_data(entity, 10)
+            # Make sure we clean up when finished
+            self.addCleanup(self.clean_up_entity, entity)
+
+        self.service_list = []
+        self.addCleanup(self.clean_up_service)
+        for _ in range(10):
+            new_entity = {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex}
+            service = self.catalog_api.create_service(new_entity['id'],
+                                                      new_entity)
+            self.service_list.append(service)
+
+        self.policy_list = []
+        self.addCleanup(self.clean_up_policy)
+        for _ in range(10):
+            new_entity = {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex,
+                          'blob': uuid.uuid4().hex}
+            policy = self.policy_api.create_policy(new_entity['id'],
+                                                   new_entity)
+            self.policy_list.append(policy)
+
+    def clean_up_entity(self, entity):
+        """Clean up entity test data from Identity Limit Test Cases."""
+
+        self._delete_test_data(entity, self.entity_lists[entity])
+
+    def clean_up_service(self):
+        """Clean up service test data from Identity Limit Test Cases."""
+
+        for service in self.service_list:
+            self.catalog_api.delete_service(service['id'])
+
+    def clean_up_policy(self):
+        """Clean up policy test data from Identity Limit Test Cases."""
+
+        for policy in self.policy_list:
+            self.policy_api.delete_policy(policy['id'])
+
+    def _test_entity_list_limit(self, entity, driver):
+        """GET /<entities> (limited)
+
+        Test Plan:
+
+        - For the specified type of entity:
+            - Update policy for no protection on api
+            - Add a bunch of entities
+            - Set the global list limit to 5, and check that getting all
+            - entities only returns 5
+            - Set the driver list_limit to 4, and check that now only 4 are
+            - returned
+
+        """
+        if entity == 'policy':
+            plural = 'policies'
+        else:
+            plural = '%ss' % entity
+
+        self.opt(list_limit=5)
+        self.opt_in_group(driver, list_limit=None)
+        r = self.get('/%s' % plural, auth=self.auth)
+        self.assertEqual(len(r.result.get(plural)), 5)
+        self.assertIs(r.result.get('truncated'), True)
+
+        self.opt_in_group(driver, list_limit=4)
+        r = self.get('/%s' % plural, auth=self.auth)
+        self.assertEqual(len(r.result.get(plural)), 4)
+        self.assertIs(r.result.get('truncated'), True)
+
+    def test_users_list_limit(self):
+        self._test_entity_list_limit('user', 'identity')
+
+    def test_groups_list_limit(self):
+        self._test_entity_list_limit('group', 'identity')
+
+    def test_projects_list_limit(self):
+        self._test_entity_list_limit('project', 'assignment')
+
+    def test_services_list_limit(self):
+        self._test_entity_list_limit('service', 'catalog')
+
+    def test_non_driver_list_limit(self):
+        """Check list can be limited without driver level support.
+
+        Policy limiting is not done at the driver level (since it
+        really isn't worth doing it there).  So use this as a test
+        for ensuring the controller level will successfully limit
+        in this case.
+
+        """
+        self._test_entity_list_limit('policy', 'policy')
+
+    def test_no_limit(self):
+        """Check truncated attribute not set when list not limited."""
+
+        r = self.get('/services', auth=self.auth)
+        self.assertEqual(len(r.result.get('services')), 10)
+        self.assertIsNone(r.result.get('truncated'))
+
+    def test_at_limit(self):
+        """Check truncated attribute not set when list at max size."""
+
+        # Test this by overriding the general limit with a higher
+        # driver-specific limit (allowing all entities to be returned
+        # in the collection), which should result in a non truncated list
+        self.opt(list_limit=5)
+        self.opt_in_group('catalog', list_limit=10)
+        r = self.get('/services', auth=self.auth)
+        self.assertEqual(len(r.result.get('services')), 10)
+        self.assertIsNone(r.result.get('truncated'))
+
+
+class IdentityTestFilteredCaseXML(IdentityTestFilteredCase):
+    content_type = 'xml'
+
+
+class IdentityTestListLimitCaseXML(IdentityTestListLimitCase):
+    content_type = 'xml'

@@ -21,14 +21,15 @@ class Hints(list):
 
     Hints are modifiers that affect the return of entities from a
     list_<entities> operation.  They are typically passed to a driver to give
-    direction as to what filtering and pagination actions are being requested.
+    direction as to what filtering, pagination or list limiting actions are
+    being requested.
 
     It is optional for a driver to action some or all of the list hints,
     but any filters that it does satisfy must be marked as such by calling
     removing the filter from the list.
 
-    A Hint object is a list of dicts, initially all of type 'filter', although
-    other types may be added in the future. The list can be enumerated
+    A Hint object is a list of dicts, initially of type 'filter' or 'limit',
+    although other types may be added in the future. The list can be enumerated
     directly, or by using the filters() method which will guarantee to only
     return filters.
 
@@ -60,3 +61,22 @@ class Hints(list):
             if (entry['type'] == 'filter' and entry['name'] == name and
                     entry['comparator'] == 'equals'):
                 return entry
+
+    def set_limit(self, limit, truncated=False):
+        """Set a limit to indicate the list should be truncated."""
+        # We only allow one limit entry in the list, so if it already exists
+        # we overwrite the old one
+        for x in self:
+            if x['type'] == 'limit':
+                x['limit'] = limit
+                x['truncated'] = truncated
+                break
+        else:
+            self.append({'limit': limit, 'type': 'limit',
+                         'truncated': truncated})
+
+    def get_limit(self):
+        """Get the limit to which the list should be truncated."""
+        for x in self:
+            if x['type'] == 'limit':
+                return x

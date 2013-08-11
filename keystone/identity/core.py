@@ -363,6 +363,7 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
+    @manager.response_truncated
     @domains_configured
     def list_users(self, domain_scope=None, hints=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
@@ -463,6 +464,7 @@ class Manager(manager.Manager):
         driver.remove_user_from_group(user_id, group_id)
         self.token_api.delete_tokens_for_user(user_id)
 
+    @manager.response_truncated
     @domains_configured
     def list_groups_for_user(self, user_id, domain_scope=None,
                              hints=None):
@@ -477,6 +479,7 @@ class Manager(manager.Manager):
             ref_list = self._set_domain_id(ref_list, domain_id)
         return ref_list
 
+    @manager.response_truncated
     @domains_configured
     def list_groups(self, domain_scope=None, hints=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
@@ -489,6 +492,7 @@ class Manager(manager.Manager):
             ref_list = self._set_domain_id(ref_list, domain_id)
         return ref_list
 
+    @manager.response_truncated
     @domains_configured
     def list_users_in_group(self, group_id, domain_scope=None,
                             hints=None):
@@ -637,6 +641,9 @@ class Manager(manager.Manager):
 @six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     """Interface description for an Identity driver."""
+
+    def _get_list_limit(self):
+        return CONF.identity.list_limit or CONF.list_limit
 
     @abc.abstractmethod
     def authenticate(self, user_id, password):

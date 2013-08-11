@@ -124,10 +124,11 @@ class Identity(sql.Base, identity.Driver):
             session.add(user_ref)
         return identity.filter_user(user_ref.to_dict())
 
+    @sql.truncated
     def list_users(self, hints):
         session = db_session.get_session()
         query = session.query(User)
-        user_refs = self.filter_query(User, query, hints)
+        user_refs = self.filter_limit_query(User, query, hints)
         return [identity.filter_user(x.to_dict()) for x in user_refs]
 
     def _get_user(self, session, user_id):
@@ -256,10 +257,11 @@ class Identity(sql.Base, identity.Driver):
             session.add(ref)
         return ref.to_dict()
 
+    @sql.truncated
     def list_groups(self, hints):
         session = db_session.get_session()
         query = session.query(Group)
-        refs = self.filter_query(Group, query, hints)
+        refs = self.filter_limit_query(Group, query, hints)
         return [ref.to_dict() for ref in refs]
 
     def _get_group(self, session, group_id):
