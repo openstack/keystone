@@ -23,6 +23,7 @@ import six
 from keystone import clean
 from keystone.common import cache
 from keystone.common import dependency
+from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import config
 from keystone import exception
@@ -265,7 +266,7 @@ class Manager(manager.Manager):
                             "exist."),
                           role_id)
 
-    def list_projects_for_user(self, user_id):
+    def list_projects_for_user(self, user_id, hints=None):
         # NOTE(henry-nash): In order to get a complete list of user projects,
         # the driver will need to look at group assignments.  To avoid cross
         # calling between the assignment and identity driver we get the group
@@ -275,7 +276,8 @@ class Manager(manager.Manager):
 
         group_ids = [x['id'] for
                      x in self.identity_api.list_groups_for_user(user_id)]
-        return self.driver.list_projects_for_user(user_id, group_ids)
+        return self.driver.list_projects_for_user(
+            user_id, group_ids, hints or driver_hints.Hints())
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=EXPIRATION_TIME)
@@ -293,6 +295,9 @@ class Manager(manager.Manager):
             self.get_domain.set(ret, self, domain_id)
             self.get_domain_by_name.set(ret, self, ret['name'])
         return ret
+
+    def list_domains(self, hints=None):
+        return self.driver.list_domains(hints or driver_hints.Hints())
 
     def update_domain(self, domain_id, domain):
         ret = self.driver.update_domain(domain_id, domain)
@@ -387,6 +392,19 @@ class Manager(manager.Manager):
                               {'userid': user['id'],
                                'domainid': domain_id})
 
+    def list_projects(self, hints=None):
+        return self.driver.list_projects(hints or driver_hints.Hints())
+
+    # NOTE(henry-nash): list_projects_in_domain is actually an internal method
+    # and not exposed via the API.  Therefore there is no need to support
+    # driver hints for it.
+    def list_projects_in_domain(self, domain_id):
+        return self.driver.list_projects_in_domain(domain_id)
+
+    def list_user_projects(self, user_id, hints=None):
+        return self.driver.list_user_projects(
+            user_id, hints or driver_hints.Hints())
+
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=EXPIRATION_TIME)
     def get_project(self, project_id):
@@ -408,6 +426,9 @@ class Manager(manager.Manager):
         if SHOULD_CACHE(ret):
             self.get_role.set(ret, self, role_id)
         return ret
+
+    def list_roles(self, hints=None):
+        return self.driver.list_roles(hints or driver_hints.Hints())
 
     @notifications.updated('role')
     def update_role(self, role_id, role):
@@ -688,8 +709,11 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_domains(self):
-        """List all domains in the system.
+    def list_domains(self, hints):
+        """List domains in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of domain_refs or an empty list.
 
@@ -746,8 +770,11 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_projects(self, domain_id=None):
-        """List all projects in the system.
+    def list_projects(self, hints):
+        """List projects in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of project_refs or an empty list.
 
@@ -755,13 +782,27 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_projects_for_user(self, user_id, group_ids):
+    def list_projects_in_domain(self, domain_id):
+        """List projects in the domain.
+
+        :param domain_id: the driver MUST only return projects
+                          within this domain.
+
+        :returns: a list of project_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def list_projects_for_user(self, user_id, group_ids, hints):
         """List all projects associated with a given user.
 
         :param user_id: the user in question
         :param group_ids: the groups this user is a member of.  This list is
                           built in the Manager, so that the driver itself
                           does not have to call across to identity.
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of project_refs or an empty list.
 
@@ -810,8 +851,11 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_roles(self):
-        """List all roles in the system.
+    def list_roles(self, hints):
+        """List roles in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of role_refs or an empty list.
 

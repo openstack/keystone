@@ -22,6 +22,7 @@ import ldap as ldap
 from keystone import assignment
 from keystone import clean
 from keystone.common import dependency
+from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
 from keystone.common import models
 from keystone import config
@@ -55,10 +56,13 @@ class Assignment(assignment.Driver):
     def get_project(self, tenant_id):
         return self._set_default_domain(self.project.get(tenant_id))
 
-    def list_projects(self, domain_id=None):
-        # We don't support multiple domains within this driver, so ignore
-        # any domain passed.
+    def list_projects(self, hints):
         return self._set_default_domain(self.project.get_all())
+
+    def list_projects_in_domain(self, domain_id):
+        # We don't support multiple domains within this driver, so ignore
+        # any domain specified
+        return self.list_projects(driver_hints.Hints())
 
     def get_project_by_name(self, tenant_name, domain_id):
         self._validate_default_domain_id(domain_id)
@@ -127,10 +131,10 @@ class Assignment(assignment.Driver):
     def get_role(self, role_id):
         return self.role.get(role_id)
 
-    def list_roles(self):
+    def list_roles(self, hints):
         return self.role.get_all()
 
-    def list_projects_for_user(self, user_id, group_ids):
+    def list_projects_for_user(self, user_id, group_ids, hints):
         # NOTE(henry-nash): The LDAP backend is being deprecated, so no
         # support is provided for projects that the user has a role on solely
         # by virtue of group membership.
@@ -253,7 +257,7 @@ class Assignment(assignment.Driver):
         self._validate_default_domain_id(domain_id)
         raise exception.Forbidden('Domains are read-only against LDAP')
 
-    def list_domains(self):
+    def list_domains(self, hints):
         return [assignment.calc_default_domain()]
 
 #Bulk actions on User From identity

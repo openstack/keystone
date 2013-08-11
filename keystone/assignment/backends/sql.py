@@ -208,22 +208,29 @@ class Assignment(sql.Base, assignment.Driver):
             self._update_metadata(session, user_id, project_id, metadata_ref,
                                   domain_id, group_id)
 
-    def list_projects(self, domain_id=None):
+    def list_projects(self, hints):
         with self.transaction() as session:
-            if domain_id:
-                self._get_domain(session, domain_id)
-
             query = session.query(Project)
-            if domain_id:
-                query = query.filter_by(domain_id=domain_id)
-            project_refs = query.all()
+            project_refs = self.filter(Project, query, hints)
             return [project_ref.to_dict() for project_ref in project_refs]
 
-    def list_projects_for_user(self, user_id, group_ids):
+    def list_projects_in_domain(self, domain_id):
+        with self.transaction() as session:
+            self._get_domain(session, domain_id)
+            query = session.query(Project)
+            project_refs = query.filter_by(domain_id=domain_id)
+            return [project_ref.to_dict() for project_ref in project_refs]
+
+    def list_projects_for_user(self, user_id, group_ids, hints):
         # NOTE(henry-nash): This method is written as a series of code blocks,
         # rather than broken down into too many sub-functions, to prepare for
         # SQL optimization when we rationalize the grant tables in the
         # future.
+
+        # TODO(henry-nash): Once we replace the existing grant tables with
+        # a more normalized table structure, we will be able to implement
+        # filtering here.  Until then, we'll just ignore it and let the
+        # controller do it.
 
         def _list_domains_with_inherited_grants(query):
             domain_ids = set()
@@ -520,9 +527,10 @@ class Assignment(sql.Base, assignment.Driver):
             session.add(ref)
         return ref.to_dict()
 
-    def list_domains(self):
+    def list_domains(self, hints):
         with self.transaction() as session:
-            refs = session.query(Domain).all()
+            query = session.query(Domain)
+            refs = self.filter(Domain, query, hints)
             return [ref.to_dict() for ref in refs]
 
     def _get_domain(self, session, domain_id):
@@ -572,9 +580,10 @@ class Assignment(sql.Base, assignment.Driver):
             session.add(ref)
             return ref.to_dict()
 
-    def list_roles(self):
+    def list_roles(self, hints):
         with self.transaction() as session:
-            refs = session.query(Role).all()
+            query = session.query(Role)
+            refs = self.filter(Role, query, hints)
             return [ref.to_dict() for ref in refs]
 
     def _get_role(self, session, role_id):

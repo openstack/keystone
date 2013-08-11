@@ -104,7 +104,7 @@ class Identity(kvs.Base, identity.Driver):
         return identity.filter_user(
             self._get_user_by_name(user_name, domain_id))
 
-    def list_users(self):
+    def list_users(self, hints):
         user_ids = self.db.get('user_list', [])
         return [self.get_user(x) for x in user_ids]
 
@@ -188,7 +188,7 @@ class Identity(kvs.Base, identity.Driver):
             raise exception.NotFound(_('User not found in group'))
         self.update_user(user_id, {'groups': list(groups)})
 
-    def list_users_in_group(self, group_id):
+    def list_users_in_group(self, group_id, hints):
         self.get_group(group_id)
         user_keys = filter(lambda x: x.startswith("user-"), self.db.keys())
         user_refs = [self.db.get(key) for key in user_keys]
@@ -196,7 +196,7 @@ class Identity(kvs.Base, identity.Driver):
                                      user_refs)
         return [identity.filter_user(x) for x in user_refs_for_group]
 
-    def list_groups_for_user(self, user_id):
+    def list_groups_for_user(self, user_id, hints):
         user_ref = self._get_user(user_id)
         group_ids = user_ref.get('groups', [])
         return [self.get_group(x) for x in group_ids]
@@ -239,7 +239,7 @@ class Identity(kvs.Base, identity.Driver):
         self.db.set('group_list', list(group_list))
         return group
 
-    def list_groups(self):
+    def list_groups(self, hints):
         group_ids = self.db.get('group_list', [])
         return [self.get_group(x) for x in group_ids]
 

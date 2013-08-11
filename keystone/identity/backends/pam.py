@@ -84,7 +84,13 @@ class PamIdentity(identity.Driver):
         # in LDAP backend
         return {'id': user_name, 'name': user_name}
 
-    def list_users(self):
+    def get_role(self, role_id):
+        raise NotImplementedError()
+
+    def list_users(self, hints):
+        raise NotImplementedError()
+
+    def list_roles(self, hints):
         raise NotImplementedError()
 
     def add_user_to_project(self, tenant_id, user_id):

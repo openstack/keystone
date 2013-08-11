@@ -26,6 +26,7 @@ import six
 from keystone import clean
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import config
 from keystone import exception
@@ -305,6 +306,13 @@ class Manager(manager.Manager):
         driver = self._select_identity_driver(domain_id)
         return (domain_id, driver)
 
+    def _mark_domain_id_filter_satisfied(self, hints):
+        if hints:
+            for filter in hints.filters():
+                if (filter['name'] == 'domain_id' and
+                        filter['comparator'] == 'equals'):
+                    hints.remove(filter)
+
     # The actual driver calls - these are pre/post processed here as
     # part of the Manager layer to make sure we:
     #
@@ -354,12 +362,16 @@ class Manager(manager.Manager):
         return ref
 
     @domains_configured
-    def list_users(self, domain_scope=None):
+    def list_users(self, domain_scope=None, hints=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
-        user_list = driver.list_users()
         if not driver.is_domain_aware():
-            user_list = self._set_domain_id(user_list, domain_id)
-        return user_list
+            # We are effectively satisfying any domain_id filter by the above
+            # driver selection, so remove any such filter
+            self._mark_domain_id_filter_satisfied(hints)
+        ref_list = driver.list_users(hints or driver_hints.Hints())
+        if not driver.is_domain_aware():
+            ref_list = self._set_domain_id(ref_list, domain_id)
+        return ref_list
 
     @notifications.updated('user')
     @domains_configured
@@ -450,28 +462,44 @@ class Manager(manager.Manager):
         self.token_api.delete_tokens_for_user(user_id)
 
     @domains_configured
-    def list_groups_for_user(self, user_id, domain_scope=None):
+    def list_groups_for_user(self, user_id, domain_scope=None,
+                             hints=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
-        group_list = driver.list_groups_for_user(user_id)
         if not driver.is_domain_aware():
-            group_list = self._set_domain_id(group_list, domain_id)
-        return group_list
+            # We are effectively satisfying any domain_id filter by the above
+            # driver selection, so remove any such filter
+            self._mark_domain_id_filter_satisfied(hints)
+        ref_list = driver.list_groups_for_user(
+            user_id, hints or driver_hints.Hints())
+        if not driver.is_domain_aware():
+            ref_list = self._set_domain_id(ref_list, domain_id)
+        return ref_list
 
     @domains_configured
-    def list_groups(self, domain_scope=None):
+    def list_groups(self, domain_scope=None, hints=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
-        group_list = driver.list_groups()
         if not driver.is_domain_aware():
-            group_list = self._set_domain_id(group_list, domain_id)
-        return group_list
+            # We are effectively satisfying any domain_id filter by the above
+            # driver selection, so remove any such filter
+            self._mark_domain_id_filter_satisfied(hints)
+        ref_list = driver.list_groups(hints or driver_hints.Hints())
+        if not driver.is_domain_aware():
+            ref_list = self._set_domain_id(ref_list, domain_id)
+        return ref_list
 
     @domains_configured
-    def list_users_in_group(self, group_id, domain_scope=None):
+    def list_users_in_group(self, group_id, domain_scope=None,
+                            hints=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
-        user_list = driver.list_users_in_group(group_id)
         if not driver.is_domain_aware():
-            user_list = self._set_domain_id(user_list, domain_id)
-        return user_list
+            # We are effectively satisfying any domain_id filter by the above
+            # driver selection, so remove any such filter
+            self._mark_domain_id_filter_satisfied(hints)
+        ref_list = driver.list_users_in_group(
+            group_id, hints or driver_hints.Hints())
+        if not driver.is_domain_aware():
+            ref_list = self._set_domain_id(ref_list, domain_id)
+        return ref_list
 
     @domains_configured
     def check_user_in_group(self, user_id, group_id, domain_scope=None):
@@ -494,8 +522,8 @@ class Manager(manager.Manager):
         return self.assignment_api.update_domain(domain_id, domain)
 
     @moved_to_assignment
-    def list_domains(self):
-        return self.assignment_api.list_domains()
+    def list_domains(self, hints=None):
+        return self.assignment_api.list_domains(hints=hints)
 
     @moved_to_assignment
     def delete_domain(self, domain_id):
@@ -522,16 +550,16 @@ class Manager(manager.Manager):
         return self.assignment_api.get_project(tenant_id)
 
     @moved_to_assignment
-    def list_projects(self, domain_id=None):
-        return self.assignment_api.list_projects(domain_id)
+    def list_projects(self, hints=None):
+        return self.assignment_api.list_projects(hints=hints)
 
     @moved_to_assignment
     def get_role(self, role_id):
         return self.assignment_api.get_role(role_id)
 
     @moved_to_assignment
-    def list_roles(self):
-        return self.assignment_api.list_roles()
+    def list_roles(self, hints=None):
+        return self.assignment_api.list_roles(hints=hints)
 
     @moved_to_assignment
     def get_project_users(self, tenant_id):
@@ -628,8 +656,11 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_users(self):
-        """List all users in the system.
+    def list_users(self, hints):
+        """List users in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of user_refs or an empty list.
 
@@ -637,8 +668,12 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_users_in_group(self, group_id):
-        """List all users in a group.
+    def list_users_in_group(self, group_id, hints):
+        """List users in a group.
+
+        :param group_id: the group in question
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of user_refs or an empty list.
 
@@ -725,8 +760,11 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_groups(self):
-        """List all groups in the system.
+    def list_groups(self, hints):
+        """List groups in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of group_refs or an empty list.
 
@@ -734,8 +772,12 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_groups_for_user(self, user_id):
-        """List all groups a user is in
+    def list_groups_for_user(self, user_id, hints):
+        """List groups a user is in
+
+        :param user_id: the user in question
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
 
         :returns: a list of group_refs or an empty list.
 
