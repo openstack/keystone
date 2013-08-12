@@ -41,12 +41,12 @@ class Endpoint(sql.ModelBase, sql.DictBase):
                   'legacy_endpoint_id']
     id = sql.Column(sql.String(64), primary_key=True)
     legacy_endpoint_id = sql.Column(sql.String(64))
-    interface = sql.Column(sql.String(8), primary_key=True)
-    region = sql.Column('region', sql.String(255))
+    interface = sql.Column(sql.String(8), nullable=False)
+    region = sql.Column(sql.String(255))
     service_id = sql.Column(sql.String(64),
                             sql.ForeignKey('service.id'),
                             nullable=False)
-    url = sql.Column(sql.Text())
+    url = sql.Column(sql.Text(), nullable=False)
     extra = sql.Column(sql.JsonBlob())
 
 

@@ -26,11 +26,11 @@ class TrustModel(sql.ModelBase, sql.DictBase):
                   'project_id', 'impersonation', 'expires_at']
     id = sql.Column(sql.String(64), primary_key=True)
     #user id Of owner
-    trustor_user_id = sql.Column(sql.String(64), unique=False, nullable=False,)
+    trustor_user_id = sql.Column(sql.String(64), nullable=False,)
     #user_id of user allowed to consume this preauth
-    trustee_user_id = sql.Column(sql.String(64), unique=False, nullable=False)
-    project_id = sql.Column(sql.String(64), unique=False, nullable=True)
-    impersonation = sql.Column(sql.Boolean)
+    trustee_user_id = sql.Column(sql.String(64), nullable=False)
+    project_id = sql.Column(sql.String(64))
+    impersonation = sql.Column(sql.Boolean, nullable=False)
     deleted_at = sql.Column(sql.DateTime)
     expires_at = sql.Column(sql.DateTime)
     extra = sql.Column(sql.JsonBlob())
