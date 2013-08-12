@@ -129,7 +129,7 @@ function run_flake8 {
   # Opt-out files from flake8
   ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
   ignore_files="*.txt"
-  ignore_dirs=".venv,.tox,dist,doc,openstack,vendor,*egg"
+  ignore_dirs=".venv,.tox,build,dist,doc,openstack,vendor,*egg"
   ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
   srcfiles="."
   # Just run flake8 in current environment
