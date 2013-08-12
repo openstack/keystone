@@ -26,8 +26,7 @@ import eventlet
 import eventlet.wsgi
 import greenlet
 
-from keystone.common import logging
-from keystone.common import wsgi
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)
@@ -108,7 +107,7 @@ class Server(object):
         log = logging.getLogger('eventlet.wsgi.server')
         try:
             eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                                 log=wsgi.WritableLogger(log))
+                                 log=logging.WritableLogger(log))
         except Exception:
             LOG.exception(_('Server error'))
             raise

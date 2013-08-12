@@ -21,12 +21,12 @@ import ldap
 from keystone import clean
 from keystone.common import dependency
 from keystone.common import ldap as common_ldap
-from keystone.common import logging
 from keystone.common import models
 from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common import log as logging
 
 
 CONF = config.CONF

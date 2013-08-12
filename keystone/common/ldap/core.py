@@ -20,9 +20,8 @@ import ldap
 from ldap import filter as ldap_filter
 
 from keystone.common.ldap import fakeldap
-from keystone.common import logging
 from keystone import exception
-
+from keystone.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
 
@@ -509,7 +508,7 @@ class LdapWrapper(object):
     def add_s(self, dn, attrs):
         ldap_attrs = [(kind, [py2ldap(x) for x in safe_iter(values)])
                       for kind, values in attrs]
-        if LOG.isEnabledFor(logging.DEBUG):
+        if LOG.isEnabledFor(LOG.debug):
             sane_attrs = [(kind, values
                            if kind != 'userPassword'
                            else ['****'])
@@ -519,7 +518,7 @@ class LdapWrapper(object):
         return self.conn.add_s(dn, ldap_attrs)
 
     def search_s(self, dn, scope, query, attrlist=None):
-        if LOG.isEnabledFor(logging.DEBUG):
+        if LOG.isEnabledFor(LOG.debug):
             LOG.debug(_(
                 'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
                 'attrs=%(attrlist)s') % {
@@ -586,7 +585,7 @@ class LdapWrapper(object):
                         else [py2ldap(x) for x in safe_iter(values)]))
             for op, kind, values in modlist]
 
-        if LOG.isEnabledFor(logging.DEBUG):
+        if LOG.isEnabledFor(LOG.debug):
             sane_modlist = [(op, kind, (values if kind != 'userPassword'
                                         else ['****']))
                             for op, kind, values in ldap_modlist]

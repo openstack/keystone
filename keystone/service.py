@@ -14,19 +14,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
 import routes
 
 from keystone import assignment
 from keystone import auth
 from keystone import catalog
 from keystone.common import dependency
-from keystone.common import logging
 from keystone.common import wsgi
 from keystone import config
 from keystone.contrib import ec2
 from keystone import controllers
 from keystone import credential
 from keystone import identity
+from keystone.openstack.common import log as logging
 from keystone import policy
 from keystone import routers
 from keystone import token
@@ -56,7 +57,23 @@ DRIVERS = dict(
 dependency.resolve_future_dependencies()
 
 
-@logging.fail_gracefully
+def fail_gracefully(f):
+    """Logs exceptions and aborts."""
+    @functools.wraps(f)
+    def wrapper(*args, **kw):
+        try:
+            return f(*args, **kw)
+        except Exception as e:
+            LOG.debug(e, exc_info=True)
+
+            # exception message is printed to all logs
+            LOG.critical(e)
+
+            exit(1)
+    return wrapper
+
+
+@fail_gracefully
 def public_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
     conf = global_conf.copy()
@@ -68,7 +85,7 @@ def public_app_factory(global_conf, **local_conf):
                                  routers.Extension(False)])
 
 
-@logging.fail_gracefully
+@fail_gracefully
 def admin_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
@@ -79,7 +96,7 @@ def admin_app_factory(global_conf, **local_conf):
                                     routers.Extension()])
 
 
-@logging.fail_gracefully
+@fail_gracefully
 def public_version_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
@@ -87,7 +104,7 @@ def public_version_app_factory(global_conf, **local_conf):
                                 [routers.Versions('public')])
 
 
-@logging.fail_gracefully
+@fail_gracefully
 def admin_version_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
@@ -95,7 +112,7 @@ def admin_version_app_factory(global_conf, **local_conf):
                                 [routers.Versions('admin')])
 
 
-@logging.fail_gracefully
+@fail_gracefully
 def v3_app_factory(global_conf, **local_conf):
     controllers.register_version('v3')
     conf = global_conf.copy()

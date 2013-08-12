@@ -19,9 +19,8 @@ import os
 import stat
 
 from keystone.common import environment
-from keystone.common import logging
 from keystone import config
-
+from keystone.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF

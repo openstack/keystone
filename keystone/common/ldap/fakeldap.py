@@ -29,8 +29,8 @@ import shelve
 
 import ldap
 
-from keystone.common import logging
 from keystone.common import utils
+from keystone.openstack.common import log as logging
 
 
 SCOPE_NAMES = {
@@ -41,8 +41,6 @@ SCOPE_NAMES = {
 
 
 LOG = logging.getLogger(__name__)
-#Only enable a lower level than WARN if you are actively debugging
-LOG.level = logging.WARN
 
 
 def _match_query(query, attrs):

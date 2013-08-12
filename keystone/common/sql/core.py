@@ -26,10 +26,10 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 import sqlalchemy.pool
 from sqlalchemy import types as sql_types
 
-from keystone.common import logging
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)

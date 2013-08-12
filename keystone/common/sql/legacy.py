@@ -21,10 +21,10 @@ from sqlalchemy import exc
 
 
 from keystone.assignment.backends import sql as assignment_sql
-from keystone.common import logging
 from keystone import config
 from keystone.contrib.ec2.backends import sql as ec2_sql
 from keystone.identity.backends import sql as identity_sql
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)
