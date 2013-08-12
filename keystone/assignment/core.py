@@ -118,7 +118,6 @@ class Manager(manager.Manager):
 
             return role_list
 
-        self.identity_api.get_user(user_id)
         project_ref = self.get_project(tenant_id)
         user_role_list = _get_user_project_roles(user_id, project_ref)
         group_role_list = _get_group_project_roles(user_id, project_ref)
@@ -164,7 +163,6 @@ class Manager(manager.Manager):
             return self._roles_from_role_dicts(
                 metadata_ref.get('roles', {}), False)
 
-        self.identity_api.get_user(user_id)
         self.get_domain(domain_id)
         user_role_list = _get_user_domain_roles(user_id, domain_id)
         group_role_list = _get_group_domain_roles(user_id, domain_id)

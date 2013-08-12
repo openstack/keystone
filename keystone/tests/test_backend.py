@@ -675,36 +675,6 @@ class IdentityTests(object):
         self.assertIn(self.role_admin['id'], roles_ref_ids)
         self.assertIn('member', roles_ref_ids)
 
-    def test_get_role_grants_for_user_and_project_404(self):
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.list_grants,
-                          user_id=uuid.uuid4().hex,
-                          project_id=self.tenant_bar['id'])
-
-        self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.list_grants,
-                          user_id=self.user_foo['id'],
-                          project_id=uuid.uuid4().hex)
-
-    def test_add_role_grant_to_user_and_project_404(self):
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.create_grant,
-                          user_id=uuid.uuid4().hex,
-                          project_id=self.tenant_bar['id'],
-                          role_id=self.role_admin['id'])
-
-        self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.create_grant,
-                          user_id=self.user_foo['id'],
-                          project_id=uuid.uuid4().hex,
-                          role_id=self.role_admin['id'])
-
-        self.assertRaises(exception.RoleNotFound,
-                          self.identity_api.create_grant,
-                          user_id=self.user_foo['id'],
-                          project_id=self.tenant_bar['id'],
-                          role_id=uuid.uuid4().hex)
-
     def test_remove_role_grant_from_user_and_project(self):
         self.identity_api.create_grant(user_id=self.user_foo['id'],
                                        project_id=self.tenant_baz['id'],
@@ -1362,14 +1332,6 @@ class IdentityTests(object):
             user_id=user1['id'],
             group_id=group1['id'])
         self.identity_api.delete_user(user1['id'])
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.list_grants,
-                          user_id=user1['id'],
-                          project_id=project1['id'])
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.list_grants,
-                          user_id=user1['id'],
-                          domain_id=domain1['id'])
         self.assertRaises(exception.NotFound,
                           self.identity_api.check_user_in_group,
                           user1['id'],
@@ -1410,14 +1372,6 @@ class IdentityTests(object):
             user_id=user1['id'],
             group_id=group1['id'])
         self.identity_api.delete_group(group1['id'])
-        self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.list_grants,
-                          group_id=group1['id'],
-                          project_id=project1['id'])
-        self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.list_grants,
-                          group_id=group1['id'],
-                          domain_id=domain1['id'])
         self.identity_api.get_user(user1['id'])
 
     def test_delete_domain_with_user_group_project_links(self):
