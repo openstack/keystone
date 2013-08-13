@@ -1238,6 +1238,24 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertEqual(cred.user_id,
                          ec2_credential['user_id'])
 
+    def test_drop_credential_indexes(self):
+        self.upgrade(31)
+        table = sqlalchemy.Table('credential', self.metadata, autoload=True)
+        self.assertEqual(len(table.indexes), 0)
+
+    def test_downgrade_30(self):
+        self.upgrade(31)
+        self.downgrade(30)
+        table = sqlalchemy.Table('credential', self.metadata, autoload=True)
+        index_data = [(idx.name, idx.columns.keys())
+                      for idx in table.indexes]
+        if self.engine.name == 'mysql':
+            self.assertIn(('user_id', ['user_id']), index_data)
+            self.assertIn(('credential_project_id_fkey', ['project_id']),
+                          index_data)
+        else:
+            self.assertEqual(len(index_data), 0)
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
