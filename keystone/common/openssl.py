@@ -51,6 +51,7 @@ class BaseCertificateConfigure(object):
         self.request_file_name = os.path.join(self.conf_dir, "req.pem")
         self.ssl_dictionary = {'conf_dir': self.conf_dir,
                                'ca_cert': conf_obj.ca_certs,
+                               'default_md': 'default',
                                'ssl_config': self.ssl_config_file_name,
                                'ca_private_key': conf_obj.ca_key,
                                'request_file': self.request_file_name,
@@ -60,6 +61,17 @@ class BaseCertificateConfigure(object):
                                'valid_days': int(conf_obj.valid_days),
                                'cert_subject': conf_obj.cert_subject,
                                'ca_password': conf_obj.ca_password}
+
+        try:
+            # OpenSSL 1.0 and newer support default_md = default, olders do not
+            openssl_ver = environment.subprocess.Popen(
+                ['openssl', 'version'],
+                stdout=environment.subprocess.PIPE).stdout.read()
+            if "OpenSSL 0." in openssl_ver:
+                self.ssl_dictionary['default_md'] = 'sha1'
+        except OSError:
+            LOG.warn('Failed to invoke ``openssl version``, '
+                     'assuming is v1.0 or newer')
         self.ssl_dictionary.update(kwargs)
 
     def _make_dirs(self, file_name):
@@ -198,7 +210,7 @@ new_certs_dir     = $dir
 serial            = $dir/serial
 database          = $dir/index.txt
 default_days      = 365
-default_md        = default # use public key default MD
+default_md        = %(default_md)s
 preserve          = no
 email_in_dn       = no
 nameopt           = default_ca
@@ -218,35 +230,35 @@ emailAddress            = optional
 [ req ]
 default_bits       = 2048 # Size of keys
 default_keyfile    = key.pem # name of generated keys
-default_md         = default # message digest algorithm
-string_mask        = nombstr # permitted characters
+string_mask        = utf8only # permitted characters
 distinguished_name = req_distinguished_name
 req_extensions     = v3_req
+x509_extensions = v3_ca
 
 [ req_distinguished_name ]
-0.organizationName          = Organization Name (company)
-organizationalUnitName      = Organizational Unit Name (department, division)
-emailAddress                = Email Address
-emailAddress_max            = 40
-localityName                = Locality Name (city, district)
-stateOrProvinceName         = State or Province Name (full name)
 countryName                 = Country Name (2 letter code)
 countryName_min             = 2
 countryName_max             = 2
+stateOrProvinceName         = State or Province Name (full name)
+localityName                = Locality Name (city, district)
+0.organizationName          = Organization Name (company)
+organizationalUnitName      = Organizational Unit Name (department, division)
 commonName                  = Common Name (hostname, IP, or your name)
 commonName_max              = 64
+emailAddress                = Email Address
+emailAddress_max            = 64
 
 [ v3_ca ]
 basicConstraints       = CA:TRUE
 subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always,issuer:always
+authorityKeyIdentifier = keyid:always,issuer
 
 [ v3_req ]
 basicConstraints     = CA:FALSE
-subjectKeyIdentifier = hash
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 
 [ usr_cert ]
 basicConstraints       = CA:FALSE
 subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always,issuer:always
+authorityKeyIdentifier = keyid:always
 """
