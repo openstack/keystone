@@ -16,3 +16,4 @@ lxml
 iso8601>=0.1.4
 python-keystoneclient>=0.3.0
 oslo.config>=1.1.0
+Babel>=0.9.6
