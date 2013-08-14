@@ -1,8 +1,6 @@
-.. image:: http://term.ie/data/medium_ksl.png
-   :alt: Keystone
-
-.. toctree::
-   :maxdepth 2
+========
+Keystone
+========
 
 Keystone is an OpenStack project that provides Identity, Token, Catalog and
 Policy services for use specifically by projects in the OpenStack family.
@@ -30,10 +28,7 @@ Building the Documentation
 The documentation is all generated with Sphinx from within the doc directory.
 To generate the full set of HTML documentation::
 
-    cd doc
-    make autodoc
-    make html
-    make man
+  tox -evenv python setup.py build_sphinx
 
 the results are in the ``doc/build/html`` and ``doc/build/man`` directories
 respectively.
