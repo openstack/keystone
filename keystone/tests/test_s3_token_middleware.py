@@ -225,9 +225,9 @@ class S3TokenMiddlewareTestUtil(unittest.TestCase):
     def test_split_path_invalid_path(self):
         try:
             s3_token.split_path('o\nn e', 2)
-        except ValueError, err:
+        except ValueError as err:
             self.assertEquals(str(err), 'Invalid path: o%0An%20e')
         try:
             s3_token.split_path('o\nn e', 2, 3, True)
-        except ValueError, err:
+        except ValueError as err:
             self.assertEquals(str(err), 'Invalid path: o%0An%20e')

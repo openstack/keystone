@@ -79,7 +79,7 @@ class DbSync(BaseApp):
                 package = importutils.import_module(package_name)
                 repo_path = os.path.abspath(os.path.dirname(package.__file__))
             except ImportError:
-                print _("This extension does not provide migrations.")
+                print(_("This extension does not provide migrations."))
                 exit(0)
             try:
                 # Register the repo with the version control API
@@ -115,7 +115,7 @@ class DbVersion(BaseApp):
                 repo_path = os.path.abspath(os.path.dirname(package.__file__))
                 print(migration.db_version(repo_path))
             except ImportError:
-                print _("This extension does not provide migrations.")
+                print(_("This extension does not provide migrations."))
                 exit(1)
         else:
             print(migration.db_version())

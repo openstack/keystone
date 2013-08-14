@@ -23,18 +23,23 @@ def check_length(property_name, value, min_length=1, max_length=64):
             msg = _("%s cannot be empty.") % property_name
         else:
             msg = (_("%(property_name)s cannot be less than "
-                   "%(min_length)s characters.")) % locals()
+                   "%(min_length)s characters.") % dict(
+                       property_name=property_name, min_length=min_length))
         raise exception.ValidationError(msg)
     if len(value) > max_length:
         msg = (_("%(property_name)s should not be greater than "
-               "%(max_length)s characters.")) % locals()
+               "%(max_length)s characters.") % dict(
+                   property_name=property_name, max_length=max_length))
+
         raise exception.ValidationError(msg)
 
 
 def check_type(property_name, value, expected_type, display_expected_type):
     if not isinstance(value, expected_type):
-        msg = _("%(property_name)s is not a "
-                "%(display_expected_type)s") % locals()
+        msg = (_("%(property_name)s is not a "
+                 "%(display_expected_type)s") % dict(
+                     property_name=property_name,
+                     display_expected_type=display_expected_type))
         raise exception.ValidationError(msg)
 
 
