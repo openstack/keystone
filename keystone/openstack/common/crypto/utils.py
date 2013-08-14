@@ -19,8 +19,8 @@ import base64
 from Crypto.Hash import HMAC
 from Crypto import Random
 
-from keystone.openstack.common.gettextutils import _
-from keystone.openstack.common.importutils import import_module
+from keystone.openstack.common.gettextutils import _  # noqa
+from keystone.openstack.common import importutils
 
 
 class CryptoutilsException(Exception):
@@ -54,7 +54,7 @@ class HKDF(object):
     """
 
     def __init__(self, hashtype='SHA256'):
-        self.hashfn = import_module('Crypto.Hash.' + hashtype)
+        self.hashfn = importutils.import_module('Crypto.Hash.' + hashtype)
         self.max_okm_length = 255 * self.hashfn.digest_size
 
     def extract(self, ikm, salt=None):
@@ -107,8 +107,8 @@ class SymmetricCrypto(object):
     """
 
     def __init__(self, enctype='AES', hashtype='SHA256'):
-        self.cipher = import_module('Crypto.Cipher.' + enctype)
-        self.hashfn = import_module('Crypto.Hash.' + hashtype)
+        self.cipher = importutils.import_module('Crypto.Cipher.' + enctype)
+        self.hashfn = importutils.import_module('Crypto.Hash.' + hashtype)
 
     def new_key(self, size):
         return Random.new().read(size)
