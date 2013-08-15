@@ -328,7 +328,7 @@ class Auth(controller.V3Controller):
     def authenticate(self, context, auth_info, auth_context):
         """Authenticate user."""
 
-        # user have been authenticated externally
+        # user has been authenticated externally
         if 'REMOTE_USER' in context:
             external = get_auth_method('external')
             external.authenticate(context, auth_info, auth_context)
