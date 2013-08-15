@@ -35,46 +35,52 @@ class AuthMethodHandler(object):
                        by default. "method_names" is a list and "extras" is
                        a dictionary.
 
-        If successful, plugin must set "user_id" in "auth_context".
-        "method_name" is used to convey any additional authentication methods
-        in case authentication is for re-scoping. For example,
-        if the authentication is for re-scoping, plugin must append the
-        previous method names into "method_names". Also, plugin may add
-        any additional information into "extras". Anything in "extras"
-        will be conveyed in the token's "extras" field. Here's an example of
-        "auth_context" on successful authentication.
+        If successful, plugin must set ``user_id`` in ``auth_context``.
+        ``method_name`` is used to convey any additional authentication methods
+        in case authentication is for re-scoping. For example, if the
+        authentication is for re-scoping, plugin must append the previous
+        method names into ``method_names``. Also, plugin may add any additional
+        information into ``extras``. Anything in ``extras`` will be conveyed in
+        the token's ``extras`` attribute. Here's an example of ``auth_context``
+        on successful authentication::
 
-        {"user_id": "abc123",
-         "methods": ["password", "token"],
-         "extras": {}}
+            {
+                "extras": {},
+                "methods": [
+                    "password",
+                    "token"
+                ],
+                "user_id": "abc123"
+            }
 
         Plugins are invoked in the order in which they are specified in the
-        "methods" attribute of the "identity" object.
-        For example, with the following authentication request,
+        ``methods`` attribute of the ``identity`` object. For example,
+        ``custom-plugin`` is invoked before ``password``, which is invoked
+        before ``token`` in the following authentication request::
 
-        {"auth": {
-            "identity": {
-                "methods": ["custom-plugin", "password", "token"],
-                "token": {
-                    "id": "sdfafasdfsfasfasdfds"
-                },
-                "custom-plugin": {
-                    "custom-data": "sdfdfsfsfsdfsf"
-                },
-                "password": {
-                    "user": {
-                        "id": "s23sfad1",
-                        "password": "secrete"
+            {
+                "auth": {
+                    "identity": {
+                        "custom-plugin": {
+                            "custom-data": "sdfdfsfsfsdfsf"
+                        },
+                        "methods": [
+                            "custom-plugin",
+                            "password",
+                            "token"
+                        ],
+                        "password": {
+                            "user": {
+                                "id": "s23sfad1",
+                                "password": "secrete"
+                            }
+                        },
+                        "token": {
+                            "id": "sdfafasdfsfasfasdfds"
+                        }
                     }
                 }
             }
-        }}
-
-        plugins will be invoked in this order:
-
-        1. custom-plugin
-        2. password
-        3. token
 
         :returns: None if authentication is successful.
                   Authentication payload in the form of a dictionary for the
