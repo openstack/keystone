@@ -27,8 +27,8 @@ import passlib.hash
 
 from keystone.common import config
 from keystone.common import environment
-from keystone.common import logging
 from keystone import exception
+from keystone.openstack.common import log as logging
 
 
 CONF = config.CONF

@@ -15,8 +15,8 @@
 # under the License.
 
 from keystone.common import config
-from keystone.common import logging
 from keystone.openstack.common.gettextutils import _  # noqa
+from keystone.openstack.common import log as logging
 
 
 CONF = config.CONF

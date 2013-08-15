@@ -18,10 +18,10 @@ import copy
 import uuid
 
 from keystone.common import extension
-from keystone.common import logging
 from keystone.common import wsgi
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class UserController(identity.controllers.User):
         new_token_ref = copy.copy(token_ref)
         new_token_ref['id'] = token_id
         self.token_api.create_token(token_id, new_token_ref)
-        logging.debug('TOKEN_REF %s', new_token_ref)
+        LOG.debug('TOKEN_REF %s', new_token_ref)
         return {'access': {'token': new_token_ref}}
 
 

@@ -15,9 +15,9 @@
 # under the License.
 
 from keystone import auth
-from keystone.common import logging
 from keystone.common import wsgi
 from keystone import exception
+from keystone.openstack.common import log as logging
 from keystone import token
 
 

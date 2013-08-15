@@ -17,12 +17,12 @@
 
 from keystone.common import controller
 from keystone.common import dependency
-from keystone.common import logging
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone.openstack.common import importutils
+from keystone.openstack.common import log as logging
 from keystone import token
 from keystone import trust
 

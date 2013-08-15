@@ -20,9 +20,9 @@ import json
 
 from keystone.common import cms
 from keystone.common import environment
-from keystone.common import logging
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import log as logging
 from keystone.token.providers import uuid
 
 

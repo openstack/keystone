@@ -1,7 +1,7 @@
 import hashlib
 
 from keystone.common import environment
-from keystone.common import logging
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)

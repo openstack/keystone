@@ -18,8 +18,8 @@ import os.path
 
 from keystone.catalog.backends import kvs
 from keystone.catalog import core
-from keystone.common import logging
 from keystone import config
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)

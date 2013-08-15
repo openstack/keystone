@@ -15,9 +15,9 @@
 # under the License.
 
 from keystone import auth
-from keystone.common import logging
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common import log as logging
 
 
 METHOD_NAME = 'password'

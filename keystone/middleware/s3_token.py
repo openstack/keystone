@@ -37,8 +37,8 @@ import httplib
 import urllib
 import webob
 
-from keystone.common import logging
 from keystone.openstack.common import jsonutils
+from keystone.openstack.common import log as logging
 
 
 PROTOCOL_NAME = 'S3 Token Authentication'

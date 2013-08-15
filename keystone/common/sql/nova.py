@@ -19,10 +19,10 @@
 import uuid
 
 from keystone import assignment
-from keystone.common import logging
 from keystone import config
 from keystone.contrib.ec2.backends import sql as ec2_sql
 from keystone import identity
+from keystone.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)

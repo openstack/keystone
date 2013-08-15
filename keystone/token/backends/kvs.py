@@ -17,8 +17,8 @@
 import copy
 
 from keystone.common import kvs
-from keystone.common import logging
 from keystone import exception
+from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 from keystone import token
 
