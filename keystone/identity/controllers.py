@@ -620,23 +620,30 @@ class UserV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
     def list_users(self, context, filters):
-        refs = self.identity_api.list_users()
+        refs = self.identity_api.list_users(
+            domain_scope=self._get_domain_id_for_request(context))
         return UserV3.wrap_collection(context, refs, filters)
 
     @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
     def list_users_in_group(self, context, filters, group_id):
-        refs = self.identity_api.list_users_in_group(group_id)
+        refs = self.identity_api.list_users_in_group(
+            group_id,
+            domain_scope=self._get_domain_id_for_request(context))
         return UserV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_user(self, context, user_id):
-        ref = self.identity_api.get_user(user_id)
+        ref = self.identity_api.get_user(
+            user_id,
+            domain_scope=self._get_domain_id_for_request(context))
         return UserV3.wrap_member(context, ref)
 
     @controller.protected
     def update_user(self, context, user_id, user):
         self._require_matching_id(user_id, user)
-        ref = self.identity_api.update_user(user_id, user)
+        ref = self.identity_api.update_user(
+            user_id, user,
+            domain_scope=self._get_domain_id_for_request(context))
 
         if user.get('password') or not user.get('enabled', True):
             # revoke all tokens owned by this user
@@ -646,18 +653,24 @@ class UserV3(controller.V3Controller):
 
     @controller.protected
     def add_user_to_group(self, context, user_id, group_id):
-        self.identity_api.add_user_to_group(user_id, group_id)
+        self.identity_api.add_user_to_group(
+            user_id, group_id,
+            domain_scope=self._get_domain_id_for_request(context))
         # Delete any tokens so that group membership can have an
         # immediate effect
         self._delete_tokens_for_user(user_id)
 
     @controller.protected
     def check_user_in_group(self, context, user_id, group_id):
-        return self.identity_api.check_user_in_group(user_id, group_id)
+        return self.identity_api.check_user_in_group(
+            user_id, group_id,
+            domain_scope=self._get_domain_id_for_request(context))
 
     @controller.protected
     def remove_user_from_group(self, context, user_id, group_id):
-        self.identity_api.remove_user_from_group(user_id, group_id)
+        self.identity_api.remove_user_from_group(
+            user_id, group_id,
+            domain_scope=self._get_domain_id_for_request(context))
         self._delete_tokens_for_user(user_id)
 
     def _delete_user(self, context, user_id):
@@ -667,11 +680,13 @@ class UserV3(controller.V3Controller):
                 self.credential_api.delete_credential(cred['id'])
 
         # Make sure any tokens are marked as deleted
+        domain_id = self._get_domain_id_for_request(context)
         self._delete_tokens_for_user(user_id)
         # Finally delete the user itself - the backend is
         # responsible for deleting any role assignments related
         # to this user
-        return self.identity_api.delete_user(user_id)
+        return self.identity_api.delete_user(
+            user_id, domain_scope=domain_id)
 
     @controller.protected
     def delete_user(self, context, user_id):
@@ -693,24 +708,31 @@ class GroupV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'name')
     def list_groups(self, context, filters):
-        refs = self.identity_api.list_groups()
+        refs = self.identity_api.list_groups(
+            domain_scope=self._get_domain_id_for_request(context))
         return GroupV3.wrap_collection(context, refs, filters)
 
     @controller.filterprotected('name')
     def list_groups_for_user(self, context, filters, user_id):
-        refs = self.identity_api.list_groups_for_user(user_id)
+        refs = self.identity_api.list_groups_for_user(
+            user_id,
+            domain_scope=self._get_domain_id_for_request(context))
         return GroupV3.wrap_collection(context, refs, filters)
 
     @controller.protected
     def get_group(self, context, group_id):
-        ref = self.identity_api.get_group(group_id)
+        ref = self.identity_api.get_group(
+            group_id,
+            domain_scope=self._get_domain_id_for_request(context))
         return GroupV3.wrap_member(context, ref)
 
     @controller.protected
     def update_group(self, context, group_id, group):
         self._require_matching_id(group_id, group)
 
-        ref = self.identity_api.update_group(group_id, group)
+        ref = self.identity_api.update_group(
+            group_id, group,
+            domain_scope=self._get_domain_id_for_request(context))
         return GroupV3.wrap_member(context, ref)
 
     def _delete_group(self, context, group_id):
@@ -720,8 +742,10 @@ class GroupV3(controller.V3Controller):
         # deletion, so that we can remove these tokens after we know
         # the group deletion succeeded.
 
-        user_refs = self.identity_api.list_users_in_group(group_id)
-        self.identity_api.delete_group(group_id)
+        domain_id = self._get_domain_id_for_request(context)
+        user_refs = self.identity_api.list_users_in_group(
+            group_id, domain_scope=domain_id)
+        self.identity_api.delete_group(group_id, domain_scope=domain_id)
         for user in user_refs:
             self._delete_tokens_for_user(user['id'])
 

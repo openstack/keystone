@@ -303,34 +303,35 @@ class V3Controller(V2Controller):
         ref['id'] = uuid.uuid4().hex
         return ref
 
+    def _get_domain_id_for_request(self, context):
+        """Get the domain_id for a v3 call."""
+
+        if context['is_admin']:
+            return DEFAULT_DOMAIN_ID
+
+        # Fish the domain_id out of the token
+        #
+        # We could make this more efficient by loading the domain_id
+        # into the context in the wrapper function above (since
+        # this version of normalize_domain will only be called inside
+        # a v3 protected call).  However, this optimization is probably not
+        # worth the duplication of state
+        try:
+            token_ref = self.token_api.get_token(
+                token_id=context['token_id'])
+        except exception.TokenNotFound:
+            LOG.warning(_('Invalid token in _get_domain_id_for_request'))
+            raise exception.Unauthorized()
+
+        if 'domain' in token_ref:
+            return token_ref['domain']['id']
+        else:
+            return DEFAULT_DOMAIN_ID
+
     def _normalize_domain_id(self, context, ref):
         """Fill in domain_id if not specified in a v3 call."""
-
         if 'domain_id' not in ref:
-            if context['is_admin']:
-                ref['domain_id'] = DEFAULT_DOMAIN_ID
-            else:
-                # Fish the domain_id out of the token
-                #
-                # We could make this more efficient by loading the domain_id
-                # into the context in the wrapper function above (since
-                # this version of normalize_domain will only be called inside
-                # a v3 protected call).  However, given that we only use this
-                # for creating entities, this optimization is probably not
-                # worth the duplication of state
-                try:
-                    token_ref = self.token_api.get_token(
-                        token_id=context['token_id'])
-                except exception.TokenNotFound:
-                    LOG.warning(_('Invalid token in normalize_domain_id'))
-                    raise exception.Unauthorized()
-
-                if 'domain' in token_ref:
-                    ref['domain_id'] = token_ref['domain']['id']
-                else:
-                    # FIXME(henry-nash) Revisit this once v3 token scoping
-                    # across domains has been hashed out
-                    ref['domain_id'] = DEFAULT_DOMAIN_ID
+            ref['domain_id'] = self._get_domain_id_for_request(context)
         return ref
 
     def _filter_domain_id(self, ref):

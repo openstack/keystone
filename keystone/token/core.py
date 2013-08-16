@@ -29,7 +29,7 @@ from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF
-config.register_int('expiration', group='token', default=86400)
+
 LOG = logging.getLogger(__name__)
 
 

@@ -29,8 +29,6 @@ from keystone import token
 
 
 CONF = config.CONF
-config.register_str('servers', group='memcache', default='localhost:11211')
-config.register_int('max_compare_and_set_retry', group='memcache', default=16)
 
 LOG = logging.getLogger(__name__)
 

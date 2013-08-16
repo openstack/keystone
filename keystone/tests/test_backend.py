@@ -105,7 +105,9 @@ class IdentityTests(object):
         self.assertIn(CONF.member_role_id, role_list)
 
     def test_password_hashed(self):
-        user_ref = self.identity_api._get_user(self.user_foo['id'])
+        driver = self.identity_api._select_identity_driver(
+            self.user_foo['domain_id'])
+        user_ref = driver._get_user(self.user_foo['id'])
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
 
     def test_create_unicode_user_name(self):
@@ -1521,7 +1523,8 @@ class IdentityTests(object):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.update_user,
                           user_id,
-                          {'id': user_id})
+                          {'id': user_id,
+                           'domain_id': DEFAULT_DOMAIN_ID})
 
     def test_delete_user_with_project_association(self):
         user = {'id': uuid.uuid4().hex,

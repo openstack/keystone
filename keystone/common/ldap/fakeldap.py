@@ -123,16 +123,12 @@ server_fail = False
 
 
 class FakeShelve(dict):
-    @classmethod
-    def get_instance(cls):
-        try:
-            return cls.__instance
-        except AttributeError:
-            cls.__instance = cls()
-            return cls.__instance
 
     def sync(self):
         pass
+
+
+FakeShelves = {}
 
 
 class FakeLdap(object):
@@ -142,8 +138,10 @@ class FakeLdap(object):
 
     def __init__(self, url):
         LOG.debug(_('FakeLdap initialize url=%s'), url)
-        if url == 'fake://memory':
-            self.db = FakeShelve.get_instance()
+        if url.startswith('fake://memory'):
+            if url not in FakeShelves:
+                FakeShelves[url] = FakeShelve()
+            self.db = FakeShelves[url]
         else:
             self.db = shelve.open(url[7:])
 
