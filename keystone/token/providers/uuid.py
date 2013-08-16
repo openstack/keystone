@@ -448,14 +448,21 @@ class Provider(token.provider.Provider):
 
     def _verify_token(self, token_id, belongs_to=None):
         """Verify the given token and return the token_ref."""
-        token_ref = self.token_api.get_token(token_id)
+        try:
+            token_ref = self.token_api.get_token(token_id)
+            return self._verify_token_ref(token_ref, belongs_to)
+        except exception.TokenNotFound:
+                raise exception.Unauthorized()
+
+    def _verify_token_ref(self, token_ref, belongs_to=None):
+        """Verify and return the given token_ref."""
         if not token_ref:
-            raise exception.ValidationError(_('Bad Token Reference'))
+            raise exception.Unauthorized()
         if belongs_to:
             if not (token_ref['tenant'] and
                     token_ref['tenant']['id'] == belongs_to):
-                msg = _('id does not match belongs_to')
-                raise exception.ValidationError(msg)
+                raise exception.Unauthorized()
+
         return token_ref
 
     def revoke_token(self, token_id):
@@ -503,8 +510,11 @@ class Provider(token.provider.Provider):
                     raise exception.Unauthorized(msg)
 
     def validate_v2_token(self, token_id, belongs_to=None):
+        token_ref = self._verify_token(token_id, belongs_to)
+        return self._validate_v2_token_ref(token_ref)
+
+    def _validate_v2_token_ref(self, token_ref):
         try:
-            token_ref = self._verify_token(token_id, belongs_to)
             self._assert_default_domain(token_ref)
             # FIXME(gyee): performance or correctness? Should we return the
             # cached token or reconstruct it? Obviously if we are going with
@@ -542,32 +552,46 @@ class Provider(token.provider.Provider):
     def validate_v3_token(self, token_id):
         try:
             token_ref = self._verify_token(token_id)
-            # FIXME(gyee): performance or correctness? Should we return the
-            # cached token or reconstruct it? Obviously if we are going with
-            # the cached token, any role, project, or domain name changes
-            # will not be reflected. One may argue that with PKI tokens,
-            # we are essentially doing cached token validation anyway.
-            # Lets go with the cached token strategy. Since token
-            # management layer is now pluggable, one can always provide
-            # their own implementation to suit their needs.
-            token_data = token_ref.get('token_data')
-            if not token_data or 'token' not in token_data:
-                # token ref is created by V2 API
-                project_id = None
-                project_ref = token_ref.get('tenant')
-                if project_ref:
-                    project_id = project_ref['id']
-                token_data = self.v3_token_data_helper.get_token_data(
-                    token_ref['user']['id'],
-                    ['password', 'token'],
-                    {},
-                    project_id=project_id,
-                    bind=token_ref.get('bind'),
-                    expires=token_ref['expires'])
+            token_data = self._validate_v3_token_ref(token_ref)
             return token_data
-        except (exception.ValidationError, exception.TokenNotFound) as e:
+        except (exception.ValidationError,
+                exception.TokenNotFound,
+                exception.UserNotFound):
             LOG.exception(_('Failed to validate token'))
-            raise exception.Unauthorized(e)
+
+    def _validate_v3_token_ref(self, token_ref):
+        # FIXME(gyee): performance or correctness? Should we return the
+        # cached token or reconstruct it? Obviously if we are going with
+        # the cached token, any role, project, or domain name changes
+        # will not be reflected. One may argue that with PKI tokens,
+        # we are essentially doing cached token validation anyway.
+        # Lets go with the cached token strategy. Since token
+        # management layer is now pluggable, one can always provide
+        # their own implementation to suit their needs.
+        token_data = token_ref.get('token_data')
+        if not token_data or 'token' not in token_data:
+            # token ref is created by V2 API
+            project_id = None
+            project_ref = token_ref.get('tenant')
+            if project_ref:
+                project_id = project_ref['id']
+            token_data = self.v3_token_data_helper.get_token_data(
+                token_ref['user']['id'],
+                ['password', 'token'],
+                {},
+                project_id=project_id,
+                bind=token_ref.get('bind'),
+                expires=token_ref['expires'])
+        return token_data
+
+    def validate_token(self, token_id, belongs_to=None):
+        token_ref = self._verify_token(token_id, belongs_to=belongs_to)
+        version = self.get_token_version(token_ref)
+        if version == token.provider.V3:
+            return self._validate_v3_token_ref(token_ref)
+        elif version == token.provider.V2:
+            return self._validate_v2_token_ref(token_ref)
+        raise token.provider.UnsupportedTokenVersionException()
 
     def check_v2_token(self, token_id, belongs_to=None):
         try:
