@@ -1398,7 +1398,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         total = connection.execute("SELECT count(*) "
                                    "from information_schema.TABLES "
                                    "where TABLE_SCHEMA='%(database)s'" %
-                                   locals())
+                                   dict(database=database))
         self.assertTrue(total.scalar() > 0, "No tables found. Wrong schema?")
 
         noninnodb = connection.execute("SELECT table_name "
@@ -1406,7 +1406,7 @@ class SqlUpgradeTests(SqlMigrateBase):
                                        "where TABLE_SCHEMA='%(database)s' "
                                        "and ENGINE!='InnoDB' "
                                        "and TABLE_NAME!='migrate_version'" %
-                                       locals())
+                                       dict(database=database))
         names = [x[0] for x in noninnodb]
         self.assertEqual(names, [],
                          "Non-InnoDB tables exist")
