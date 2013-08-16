@@ -81,7 +81,7 @@ class SqlModels(SqlTests):
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
-                ('name', sql.String, 64),
+                ('name', sql.String, 255),
                 ('password', sql.String, 128),
                 ('domain_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
