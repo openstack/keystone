@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import webob
 import webob.dec
 
 from keystone.common import wsgi
