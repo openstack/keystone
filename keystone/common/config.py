@@ -116,6 +116,11 @@ FILE_OPTIONS = {
         cfg.StrOpt('driver',
                    default=('keystone.credential.backends'
                             '.sql.Credential'))],
+    'oauth1': [
+        cfg.StrOpt('driver',
+                   default='keystone.contrib.oauth1.backends.sql.OAuth1'),
+        cfg.IntOpt('request_token_duration', default=28800),
+        cfg.IntOpt('access_token_duration', default=86400)],
     'policy': [
         cfg.StrOpt('driver',
                    default='keystone.policy.backends.sql.Policy')],

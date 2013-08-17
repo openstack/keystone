@@ -72,6 +72,7 @@ following sections:
 * ``[sql]`` - optional storage backend configuration
 * ``[ec2]`` - Amazon EC2 authentication driver configuration
 * ``[s3]`` - Amazon S3 authentication driver configuration.
+* ``[oauth1]`` - Oauth 1.0a system driver configuration
 * ``[identity]`` - identity system driver configuration
 * ``[catalog]`` - service catalog driver configuration
 * ``[token]`` - token driver & token provider configuration

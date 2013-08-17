@@ -18,6 +18,7 @@
 
 from __future__ import absolute_import
 
+import json
 import sys
 import uuid
 
@@ -206,10 +207,21 @@ class V3TokenDataHelper(object):
             'domain': self._get_filtered_domain(user_ref['domain_id'])}
         token_data['user'] = filtered_user
 
+    def _populate_oauth_section(self, token_data, access_token):
+        if access_token:
+            access_token_id = access_token['id']
+            consumer_id = access_token['consumer_id']
+            token_data['OS-OAUTH1'] = ({'access_token_id': access_token_id,
+                                        'consumer_id': consumer_id})
+
     def _populate_roles(self, token_data, user_id, domain_id, project_id,
-                        trust):
+                        trust, access_token):
         if 'roles' in token_data:
             # no need to repopulate roles
+            return
+
+        if access_token:
+            token_data['roles'] = json.loads(access_token['requested_roles'])
             return
 
         if CONF.trust.enabled and trust:
@@ -288,7 +300,7 @@ class V3TokenDataHelper(object):
     def get_token_data(self, user_id, method_names, extras,
                        domain_id=None, project_id=None, expires=None,
                        trust=None, token=None, include_catalog=True,
-                       bind=None):
+                       bind=None, access_token=None):
         token_data = {'methods': method_names,
                       'extras': extras}
 
@@ -307,15 +319,17 @@ class V3TokenDataHelper(object):
 
         self._populate_scope(token_data, domain_id, project_id)
         self._populate_user(token_data, user_id, domain_id, project_id, trust)
-        self._populate_roles(token_data, user_id, domain_id, project_id, trust)
+        self._populate_roles(token_data, user_id, domain_id, project_id, trust,
+                             access_token)
         if include_catalog:
             self._populate_service_catalog(token_data, user_id, domain_id,
                                            project_id, trust)
         self._populate_token_dates(token_data, expires=expires, trust=trust)
+        self._populate_oauth_section(token_data, access_token)
         return {'token': token_data}
 
 
-@dependency.requires('token_api', 'identity_api', 'catalog_api')
+@dependency.requires('token_api', 'identity_api', 'catalog_api', 'oauth_api')
 class Provider(token.provider.Provider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
@@ -380,6 +394,12 @@ class Provider(token.provider.Provider):
         if (CONF.trust.enabled and not trust and metadata_ref and
                 'trust_id' in metadata_ref):
             trust = self.trust_api.get_trust(metadata_ref['trust_id'])
+
+        access_token = None
+        if 'oauth1' in method_names:
+            access_token_id = auth_context['access_token_id']
+            access_token = self.oauth_api.get_access_token(access_token_id)
+
         token_data = self.v3_token_data_helper.get_token_data(
             user_id,
             method_names,
@@ -389,7 +409,8 @@ class Provider(token.provider.Provider):
             expires=expires_at,
             trust=trust,
             bind=auth_context.get('bind') if auth_context else None,
-            include_catalog=include_catalog)
+            include_catalog=include_catalog,
+            access_token=access_token)
 
         token_id = self._get_token_id(token_data)
         try:
