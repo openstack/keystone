@@ -317,8 +317,7 @@ class V3Controller(V2Controller):
         # a v3 protected call).  However, this optimization is probably not
         # worth the duplication of state
         try:
-            token_ref = self.token_api.get_token(
-                token_id=context['token_id'])
+            token_ref = self.token_api.get_token(context['token_id'])
         except exception.TokenNotFound:
             LOG.warning(_('Invalid token in _get_domain_id_for_request'))
             raise exception.Unauthorized()
