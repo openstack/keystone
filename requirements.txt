@@ -18,3 +18,4 @@ python-keystoneclient>=0.3.0
 oslo.config>=1.1.0
 Babel>=0.9.6
 oauth2
+dogpile.cache>=0.5.0

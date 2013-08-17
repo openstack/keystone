@@ -20,6 +20,7 @@ import routes
 from keystone import assignment
 from keystone import auth
 from keystone import catalog
+from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
@@ -38,6 +39,9 @@ from keystone import trust
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
+
+# Ensure the cache is configured and built before we instantiate the managers
+cache.configure_cache_region(CONF, cache.REGION)
 
 # Ensure that the identity driver is created before the assignment manager.
 # The default assignment driver is determined by the identity driver, so the

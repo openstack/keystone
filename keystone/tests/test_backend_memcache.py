@@ -112,6 +112,7 @@ class MemcacheClient(object):
 class MemcacheToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(MemcacheToken, self).setUp()
+        self.load_backends()
         fake_client = MemcacheClient()
         self.token_man = token.Manager()
         self.token_man.driver = token_memcache.Token(client=fake_client)

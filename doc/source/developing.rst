@@ -259,6 +259,86 @@ Now you can get a translated error response::
  }
 
 
+Caching Layer
+-------------
+
+The caching layer is designed to be applied to any ``manager`` object within Keystone
+via the use of the ``on_arguments`` decorator provided in the ``keystone.common.cache``
+module.  This decorator leverages `dogpile.cache`_ caching system to provide a flexible
+caching backend.
+
+It is recommended that each of the managers have an independent toggle within the config
+file to enable caching.  The easiest method to utilize the toggle within the
+configuration file is to define a ``caching`` boolean option within that manager's
+configuration section (e.g. ``identity``).  Once that option is defined you can
+pass function to the ``on_arguments`` decorator with the named argument ``should_cache_fn``.
+In the ``keystone.common.cache`` module, there is a function called ``should_cache_fn``,
+which will provide a reference, to a function, that will consult the global cache
+``enabled`` option as well as the specific manager's caching enable toggle.
+
+    .. NOTE::
+        If a section-specific boolean option is not defined in the config section specified when
+        calling ``should_cache_fn``, the returned function reference will default to enabling
+        caching for that ``manager``.
+
+Example use of cache and ``should_cache_fn`` (in this example, ``token`` is the manager)::
+
+    from keystone.common import cache
+    SHOULD_CACHE = cache.should_cache_fn('token')
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE)
+    def cacheable_function(arg1, arg2, arg3):
+        ...
+        return some_value
+
+With the above example, each call to the ``cacheable_function`` would check to see if
+the arguments passed to it matched a currently valid cached item.  If the return value
+was cached, the caching layer would return the cached value; if the return value was
+not cached, the caching layer would call the function, pass the value to the ``SHOULD_CACHE``
+function reference, which would then determine if caching was globally enabled and enabled
+for the ``token`` manager.  If either caching toggle is disabled, the value is returned but
+not cached.
+
+It is recommended that each of the managers have an independent configurable time-to-live (TTL).
+If a configurable TTL has been defined for the manager configuration section, it is possible to
+pass it to the ``cache.on_arguments`` decorator with the named-argument ``expiration_time``.  For
+consistency, it is recommended that this option be called ``cache_time`` and default to ``None``.
+If the ``expiration_time`` argument passed to the decorator is set to ``None``, the expiration
+time will be set to the global default (``expiration_time`` option in the ``[cache]``
+configuration section.
+
+Example of using a section specific ``cache_time`` (in this example, ``identity`` is the manager)::
+
+    from keystone.common import cache
+    SHOULD_CACHE = cache.should_cache_fn('identity')
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.identity.cache_time)
+    def cachable_function(arg1, arg2, arg3):
+        ...
+        return some_value
+
+For cache invalidation, the ``on_arguments`` decorator will add an ``invalidate`` method
+(attribute) to your decorated function.  To invalidate the cache, you pass the same arguments
+to the ``invalidate`` method as you would the normal function.
+
+Example (using the above cacheable_function)::
+
+    def invalidate_cache(arg1, arg2, arg3):
+        cacheable_function.invalidate(arg1, arg2, arg3)
+
+.. WARNING::
+    The ``on_arguments`` decorator does not accept keyword-arguments/named arguments.  An
+    exception will be raised if keyword arguments are passed to a caching-decorated function.
+
+.. NOTE::
+    In all cases methods work the same as functions except if you are attempting to invalidate
+    the cache on a decorated bound-method, you need to pass  ``self`` to the ``invalidate``
+    method as the first argument before the arguments.
+
+.. _`dogpile.cache`: http://dogpilecache.readthedocs.org/
+
+
 Building the Documentation
 ==========================
 

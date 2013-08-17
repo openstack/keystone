@@ -71,6 +71,25 @@ FILE_OPTIONS = {
         cfg.StrOpt('provider', default=None),
         cfg.StrOpt('driver',
                    default='keystone.token.backends.sql.Token')],
+    'cache': [
+        cfg.StrOpt('config_prefix', default='cache.keystone'),
+        cfg.IntOpt('expiration_time', default=600),
+        # NOTE(morganfainberg): the dogpile.cache.memory acceptable in devstack
+        # and other such single-process/thread deployments. Running
+        # dogpile.cache.memory in any other configuration has the same pitfalls
+        # as the KVS token backend. It is recommended that either Redis or
+        # Memcached are used as the dogpile backend for real workloads. To
+        # prevent issues with the memory cache ending up in "production"
+        # unintentionally, we register a no-op as the keystone default caching
+        # backend.
+        cfg.StrOpt('backend', default='keystone.common.cache.noop'),
+        cfg.BoolOpt('use_key_mangler', default=True),
+        cfg.MultiStrOpt('backend_argument', default=[]),
+        cfg.ListOpt('proxies', default=[]),
+        # Global toggle for all caching using the should_cache_fn mechanism.
+        cfg.BoolOpt('enabled', default=False),
+        # caching backend specific debugging.
+        cfg.BoolOpt('debug_cache_backend', default=False)],
     'ssl': [
         cfg.BoolOpt('enable', default=False),
         cfg.StrOpt('certfile',

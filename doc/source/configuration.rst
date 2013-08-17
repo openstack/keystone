@@ -76,6 +76,7 @@ following sections:
 * ``[identity]`` - identity system driver configuration
 * ``[catalog]`` - service catalog driver configuration
 * ``[token]`` - token driver & token provider configuration
+* ``[cache]`` - caching layer configuration
 * ``[policy]`` - policy system driver configuration for RBAC
 * ``[signing]`` - cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL configuration
@@ -197,6 +198,75 @@ Conversely, if ``provider`` is ``keystone.token.providers.uuid.Provider``,
 
 For a customized provider, ``token_format`` must not set to ``PKI`` or
 ``UUID``.
+
+
+Caching Layer
+-------------
+
+Keystone supports a caching layer that is above the configurable subsystems (e.g ``token``,
+``identity``, etc).  Keystone uses the `dogpile.cache`_ library which allows for flexible
+cache backends. The majority of the caching configuration options are set in the ``[cache]``
+section.  However, each section that has the capability to be cached usually has a ``caching``
+boolean value that will toggle caching for that specific section.  The current default
+behavior is that subsystem caching is enabled, but the global toggle is set to disabled.
+
+``[cache]`` configuration section:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``enabled`` - enables/disables caching across all of keystone
+* ``debug_cache_backend`` - enables more in-depth logging from the cache backend (get, set, delete, etc)
+* ``backend`` - the caching backend module to use e.g. ``dogpile.cache.memcache``
+
+    .. NOTE::
+        A given ``backend`` must be registered with ``dogpile.cache`` before it
+        can be used.  The default backend is the ``Keystone`` no-op backend
+        (``keystone.common.cache.noop``). If caching is desired a different backend will
+        need to be specified.  Current functional backends are:
+
+    * ``dogpile.cache.memcached`` - Memcached backend using the standard `python-memcached`_ library
+    * ``dogpile.cache.pylibmc`` - Memcached backend using the `pylibmc`_ library
+    * ``dogpile.cache.bmemcached`` - Memcached using `python-binary-memcached`_ library.
+    * ``dogpile.cache.redis`` - `Redis`_ backend
+    * ``dogpile.cache.dbm`` - local DBM file backend
+    * ``dogpile.cache.memory`` - in-memory cache
+
+        .. WARNING::
+            ``dogpile.cache.memory`` is not suitable for use outside of testing or
+            small workloads as it does not cleanup it's internal cache on cache
+            expiration and does not share cache between processes.  This means
+            that caching and cache invalidation will not be consistent or reliable
+            when using ``Keystone`` under HTTPD or similar configurations.
+
+* ``expiration_time`` - int, the default length of time to cache a specific value. A value of ``0``
+    indicates to not cache anything.  It is recommended that the ``enabled`` option be used to disable
+    cache instead of setting this to ``0``.
+* ``backend_argument`` - an argument passed to the backend when instantiated
+    ``backend_argument`` should be specified once per argument to be passed to the
+    back end and in the format of ``<argument name>:<argument value>``.
+    e.g.: ``backend_argument = host:localhost``
+* ``proxies`` - comma delimited list of `ProxyBackends`_ e.g. ``my.example.Proxy, my.example.Proxy2``
+* ``use_key_mangler`` - Use a key-mangling function (sha1) to ensure fixed length cache-keys.
+    This is toggle-able for debugging purposes, it is highly recommended to always
+    leave this set to True.  If the cache backend provides a key-mangler, this
+    option has no effect.
+
+For more information about the different backends (and configuration options):
+    * `dogpile.cache.backends.memory`_
+    * `dogpile.cache.backends.memcached`_
+    * `dogpile.cache.backends.redis`_
+    * `dogpile.cache.backends.file`_
+
+.. _`dogpile.cache`: http://dogpilecache.readthedocs.org/en/latest/
+.. _`python-memcached`: http://www.tummy.com/software/python-memcached/
+.. _`pylibmc`: http://sendapatch.se/projects/pylibmc/index.html
+.. _`python-binary-memcached`: https://github.com/jaysonsantos/python-binary-memcached
+.. _`Redis`: http://redis.io/
+.. _`dogpile.cache.backends.memory`: http://dogpilecache.readthedocs.org/en/latest/api.html#memory-backend
+.. _`dogpile.cache.backends.memcached`: http://dogpilecache.readthedocs.org/en/latest/api.html#memcached-backends
+.. _`dogpile.cache.backends.redis`: http://dogpilecache.readthedocs.org/en/latest/api.html#redis-backends
+.. _`dogpile.cache.backends.file`: http://dogpilecache.readthedocs.org/en/latest/api.html#file-backends
+.. _`ProxyBackends`: http://dogpilecache.readthedocs.org/en/latest/api.html#proxy-backends
+
 
 Certificates for PKI
 --------------------
