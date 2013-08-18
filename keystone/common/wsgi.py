@@ -29,6 +29,7 @@ import webob.exc
 from keystone.common import config
 from keystone.common import utils
 from keystone import exception
+from keystone.openstack.common import gettextutils
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log as logging
@@ -123,7 +124,14 @@ def validate_token_bind(context, token_ref):
 
 
 class Request(webob.Request):
-    pass
+    def best_match_language(self):
+        """Determines the best available locale from the Accept-Language
+        HTTP header passed in the request.
+        """
+
+        return self.accept_language.best_match(
+            gettextutils.get_available_languages('keystone'),
+            default_match='en_US')
 
 
 class BaseApplication(object):
@@ -231,16 +239,18 @@ class Application(BaseApplication):
             LOG.warning(
                 _('Authorization failed. %(exception)s from %(remote_addr)s') %
                 {'exception': e, 'remote_addr': req.environ['REMOTE_ADDR']})
-            return render_exception(e)
+            return render_exception(e, user_locale=req.best_match_language())
         except exception.Error as e:
             LOG.warning(e)
-            return render_exception(e)
+            return render_exception(e, user_locale=req.best_match_language())
         except TypeError as e:
             LOG.exception(e)
-            return render_exception(exception.ValidationError(e))
+            return render_exception(exception.ValidationError(e),
+                                    user_locale=req.best_match_language())
         except Exception as e:
             LOG.exception(e)
-            return render_exception(exception.UnexpectedError(exception=e))
+            return render_exception(exception.UnexpectedError(exception=e),
+                                    user_locale=req.best_match_language())
 
         if result is None:
             return render_response(status=(204, 'No Content'))
@@ -364,13 +374,16 @@ class Middleware(Application):
             return self.process_response(request, response)
         except exception.Error as e:
             LOG.warning(e)
-            return render_exception(e)
+            return render_exception(e,
+                                    user_locale=request.best_match_language())
         except TypeError as e:
             LOG.exception(e)
-            return render_exception(exception.ValidationError(e))
+            return render_exception(exception.ValidationError(e),
+                                    user_locale=request.best_match_language())
         except Exception as e:
             LOG.exception(e)
-            return render_exception(exception.UnexpectedError(exception=e))
+            return render_exception(exception.UnexpectedError(exception=e),
+                                    user_locale=request.best_match_language())
 
 
 class Debug(Middleware):
@@ -472,7 +485,8 @@ class Router(object):
         match = req.environ['wsgiorg.routing_args'][1]
         if not match:
             return render_exception(
-                exception.NotFound(_('The resource could not be found.')))
+                exception.NotFound(_('The resource could not be found.')),
+                user_locale=req.best_match_language())
         app = match['controller']
         return app
 
@@ -566,12 +580,13 @@ def render_response(body=None, status=None, headers=None):
                           headerlist=headers)
 
 
-def render_exception(error):
+def render_exception(error, user_locale=None):
     """Forms a WSGI response based on the current error."""
     body = {'error': {
         'code': error.code,
         'title': error.title,
-        'message': unicode(error)
+        'message': unicode(gettextutils.get_localized_message(error.args[0],
+                                                              user_locale)),
     }}
     if isinstance(error, exception.AuthPluginException):
         body['error']['identity'] = error.authentication
