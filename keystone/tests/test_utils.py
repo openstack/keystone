@@ -29,9 +29,36 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import datetime
+import functools
+import os
+import time
+
 from keystone.tests import core as test
 
 from keystone.common import utils
+
+TZ = None
+
+
+def timezone(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        tz_original = os.environ.get('TZ')
+        try:
+            if TZ:
+                os.environ['TZ'] = TZ
+                time.tzset()
+            return func(*args, **kwargs)
+        finally:
+            if TZ:
+                if tz_original:
+                    os.environ['TZ'] = tz_original
+                else:
+                    if 'TZ' in os.environ:
+                        del os.environ['TZ']
+                time.tzset()
+    return wrapper
 
 
 class UtilsTestCase(test.TestCase):
@@ -64,3 +91,17 @@ class UtilsTestCase(test.TestCase):
         self.assertFalse(utils.auth_str_equal('a', 'aaaaa'))
         self.assertFalse(utils.auth_str_equal('aaaaa', 'a'))
         self.assertFalse(utils.auth_str_equal('ABC123', 'abc123'))
+
+    def test_unixtime(self):
+        global TZ
+
+        @timezone
+        def _test_unixtime():
+            epoch = utils.unixtime(dt)
+            self.assertEquals(epoch, epoch_ans, "TZ=%s" % TZ)
+
+        dt = datetime.datetime(1970, 1, 2, 3, 4, 56, 0)
+        epoch_ans = 56 + 4 * 60 + 3 * 3600 + 86400
+        for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
+            TZ = 'UTC' + d
+            _test_unixtime()
