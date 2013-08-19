@@ -514,24 +514,22 @@ class LdapWrapper(object):
     def add_s(self, dn, attrs):
         ldap_attrs = [(kind, [py2ldap(x) for x in safe_iter(values)])
                       for kind, values in attrs]
-        if LOG.isEnabledFor(LOG.debug):
-            sane_attrs = [(kind, values
-                           if kind != 'userPassword'
-                           else ['****'])
-                          for kind, values in ldap_attrs]
-            LOG.debug(_('LDAP add: dn=%(dn)s, attrs=%(attrs)s') % {
-                'dn': dn, 'attrs': sane_attrs})
+        sane_attrs = [(kind, values
+                       if kind != 'userPassword'
+                       else ['****'])
+                      for kind, values in ldap_attrs]
+        LOG.debug(_('LDAP add: dn=%(dn)s, attrs=%(attrs)s') % {
+            'dn': dn, 'attrs': sane_attrs})
         return self.conn.add_s(dn, ldap_attrs)
 
     def search_s(self, dn, scope, query, attrlist=None):
-        if LOG.isEnabledFor(LOG.debug):
-            LOG.debug(_(
-                'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
-                'attrs=%(attrlist)s') % {
-                    'dn': dn,
-                    'scope': scope,
-                    'query': query,
-                    'attrlist': attrlist})
+        LOG.debug(_(
+            'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
+            'attrs=%(attrlist)s') % {
+                'dn': dn,
+                'scope': scope,
+                'query': query,
+                'attrlist': attrlist})
         if self.page_size:
             res = self.paged_search_s(dn, scope, query, attrlist)
         else:
@@ -591,12 +589,11 @@ class LdapWrapper(object):
                         else [py2ldap(x) for x in safe_iter(values)]))
             for op, kind, values in modlist]
 
-        if LOG.isEnabledFor(LOG.debug):
-            sane_modlist = [(op, kind, (values if kind != 'userPassword'
-                                        else ['****']))
-                            for op, kind, values in ldap_modlist]
-            LOG.debug(_('LDAP modify: dn=%(dn)s, modlist=%(modlist)s') % {
-                'dn': dn, 'modlist': sane_modlist})
+        sane_modlist = [(op, kind, (values if kind != 'userPassword'
+                                    else ['****']))
+                        for op, kind, values in ldap_modlist]
+        LOG.debug(_('LDAP modify: dn=%(dn)s, modlist=%(modlist)s') % {
+            'dn': dn, 'modlist': sane_modlist})
 
         return self.conn.modify_s(dn, ldap_modlist)
 
