@@ -3,9 +3,9 @@ import os
 from paste import deploy
 
 from keystone.common import environment
-from keystone.common import logging
 from keystone import config
 from keystone.openstack.common import gettextutils
+from keystone.openstack.common import log as logging
 
 # NOTE(blk-u): Configure gettextutils for deferred translation of messages
 # so that error messages in responses can be translated according to the
