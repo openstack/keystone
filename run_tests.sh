@@ -127,17 +127,9 @@ function run_flake8 {
 
 
   echo "Running flake8 ..."
-  # Opt-out files from flake8
-  ignore_scripts="*.pyc,*.pyo,*.sh,*.swp,*.rst"
-  ignore_files="*.txt"
-  ignore_dirs=".venv,.tox,build,dist,doc,openstack,vendor,*egg"
-  ignore="$ignore_scripts,$ignore_files,$ignore_dirs"
-  srcfiles="."
   # Just run flake8 in current environment
-  echo ${wrapper} flake8 $FLAGS --show-source \
-    --exclude=${ignore} ${srcfiles} | tee pep8.txt
-  ${wrapper} flake8 $FLAGS --show-source \
-    --exclude=${ignore} ${srcfiles} | tee pep8.txt
+  echo ${wrapper} flake8 $FLAGS | tee pep8.txt
+  ${wrapper} flake8 $FLAGS | tee pep8.txt
 }
 
 NOSETESTS="nosetests $noseopts $noseargs"
