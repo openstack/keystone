@@ -31,6 +31,7 @@ LOG = logging.getLogger(__name__)
 # supported token versions
 V2 = 'v2.0'
 V3 = 'v3.0'
+VERSIONS = frozenset([V2, V3])
 
 # default token providers
 PKI_PROVIDER = 'keystone.token.providers.pki.Provider'
@@ -110,27 +111,41 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
-    def issue_token(self, version='v3.0', **kwargs):
-        """Issue a V3 token.
+    def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
+        """Issue a V2 token.
 
-        For V3 tokens, 'user_id', 'method_names', must present in kwargs.
-        Optionally, kwargs may contain 'expires_at' for rescope tokens;
-        'project_id' for project-scoped token; 'domain_id' for
-        domain-scoped token; and 'auth_context' from the authentication
-        plugins.
+        :param token_ref: token data to generate token from
+        :type token_ref: dict
+        :param roles_ref: optional roles list
+        :type roles_ref: dict
+        :param catalog_ref: optional catalog information
+        :type catalog_ref: dict
+        :return: (token_id, token_data)
+        """
+        raise exception.NotImplemented()
 
-        For V2 tokens, 'token_ref' must be present in kwargs.
-        Optionally, kwargs may contain 'roles_ref' and 'catalog_ref'.
+    def issue_v3_token(self, user_id, method_names, expires_at=None,
+                       project_id=None, domain_id=None, auth_context=None,
+                       metadata_ref=None, include_catalog=True):
+        """Issue a V3 Token.
 
-        :param context: request context
-        :type context: dictionary
-        :param version: version of the token to be issued
-        :type version: string
-        :param kwargs: information needed for token creation. Parameters
-                       may be different depending on token version.
-        :type kwargs: dictionary
+        :param user_id: identity of the user
+        :type user_id: string
+        :param method_names: names of authentication methods
+        :type method_names: list
+        :param expires_at: optional time the token will expire
+        :type expires_at: string
+        :param project_id: optional project identity
+        :type project_id: string
+        :param domain_id: optional domain identity
+        :type domain_id: string
+        :param auth_context: optional context from the authorization plugins
+        :type auth_context: dict
+        :param metadata_ref: optional metadata reference
+        :type metadata_ref: dict
+        :param include_catalog: optional, include the catalog in token data
+        :type include_catalog: boolean
         :returns: (token_id, token_data)
-
         """
         raise exception.NotImplemented()
 
@@ -143,35 +158,59 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
-    def validate_token(self, token_id, belongs_to=None, version='v3.0'):
-        """Validate the given token and return the token data.
+    def validate_v2_token(self, token_id, belongs_to=None):
+        """Validate the given V2 token and return the token data.
 
         Must raise Unauthorized exception if unable to validate token.
 
         :param token_id: identity of the token
         :type token_id: string
-        :param belongs_to: identity of the scoped project to validate
+        :param belongs_to: optional identity of the scoped project to validate
         :type belongs_to: string
-        :param version: version of the token to be validated
-        :type version: string
         :returns: token data
         :raises: keystone.exception.Unauthorized
 
         """
         raise exception.NotImplemented()
 
-    def check_token(self, token_id, belongs_to=None, version='v3.0'):
-        """Check the validity of the given V3 token.
+    def validate_v3_token(self, token_id):
+        """Validate the given V3 token and return the token_data.
 
-        Must raise Unauthorized exception if  unable to check token.
+        :param token_id: identity of the token
+        :type token_id: string
+        :param belongs_to: project_id token belongs to
+        :type belongs_to: string
+        :returns: token data
+        :raises: keystone.exception.Unauthorized
+        """
+        raise exception.NotImplemented()
+
+    def check_v2_token(self, token_id, belongs_to=None):
+        """Check the validity of the given V2 token.
+
+        Must raise Unauthorized exception if unable to check token.
 
         :param token_id: identity of the token
         :type token_id: string
         :param belongs_to: identity of the scoped project to validate
         :type belongs_to: string
-        :param version: version of the token to check
-        :type version: string
         :returns: None
         :raises: keystone.exception.Unauthorized
 
         """
+        raise exception.NotImplemented()
+
+    def check_v3_token(self, token_id):
+        """Check the validity of the given V3 token.
+
+        Must raise Unauthorized exception if unable to check token.
+
+        :param token_id: identity of the token
+        :type token_id: string
+        :param belongs_to: identity of the scoped project to validate
+        :type belongs_to: string
+        :returns: None
+        :raises: keystone.exception.Unauthorized
+
+        """
+        raise exception.NotImplemented()
