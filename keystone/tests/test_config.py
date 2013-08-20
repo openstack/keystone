@@ -17,3 +17,9 @@ class ConfigTestCase(test.TestCase):
         self.opt_in_group('paste_deploy', config_file='')
         self.assertEqual(config.find_paste_config(),
                          test.etcdir('keystone.conf.sample'))
+
+    def test_config_default(self):
+        self.assertEqual('keystone.auth.plugins.password.Password',
+                         CONF.auth.password)
+        self.assertEqual('keystone.auth.plugins.token.Token',
+                         CONF.auth.token)

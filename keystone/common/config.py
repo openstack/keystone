@@ -223,9 +223,9 @@ FILE_OPTIONS = {
     'auth': [
         cfg.ListOpt('methods', default=_DEFAULT_AUTH_METHODS),
         cfg.StrOpt('password',
-                   default='keystone.auth.plugins.token.Token'),
-        cfg.StrOpt('token',
                    default='keystone.auth.plugins.password.Password'),
+        cfg.StrOpt('token',
+                   default='keystone.auth.plugins.token.Token'),
         #deals with REMOTE_USER authentication
         cfg.StrOpt('external',
                    default='keystone.auth.plugins.external.ExternalDefault')],
