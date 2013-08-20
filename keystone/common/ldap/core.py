@@ -114,6 +114,7 @@ class BaseLdap(object):
     options_name = None
     model = None
     attribute_options_names = {}
+    immutable_attrs = []
     attribute_ignore = []
     tree_dn = None
 
@@ -387,6 +388,10 @@ class BaseLdap(object):
         for k, v in values.iteritems():
             if k == 'id' or k in self.attribute_ignore:
                 continue
+            if k in self.immutable_attrs and old_obj[k] != v:
+                msg = (_("Cannot change %(option_name)s %(attr)s") %
+                       {'option_name': self.options_name, 'attr': k})
+                raise exception.ValidationError(msg)
             if v is None:
                 if old_obj[k] is not None:
                     modlist.append((ldap.MOD_DELETE,
