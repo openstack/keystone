@@ -1884,7 +1884,7 @@ class TestTrustAuth(TestAuthInfo):
             role_ids=[self.role_id])
         del ref['id']
 
-        for i in range(0, 3):
+        for i in range(3):
             r = self.post('/OS-TRUST/trusts', body={'trust': ref})
             self.assertValidTrustResponse(r, ref)
 
