@@ -299,6 +299,7 @@ class BaseLdap(object):
                                          values['id'])
 
     def create(self, values):
+        self.affirm_unique(values)
         if not self.allow_create:
             action = _('LDAP %s create') % self.options_name
             raise exception.ForbiddenAction(action=action)

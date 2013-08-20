@@ -237,7 +237,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         del values['enabled_nomask']
 
     def create(self, values):
-        self.affirm_unique(values)
         values = utils.hash_ldap_user_password(values)
         if self.enabled_mask:
             self.mask_enabled_attribute(values)
@@ -276,7 +275,6 @@ class GroupApi(common_ldap.BaseLdap):
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
     def create(self, values):
-        self.affirm_unique(values)
         data = values.copy()
         if data.get('id') is None:
             data['id'] = uuid.uuid4().hex
