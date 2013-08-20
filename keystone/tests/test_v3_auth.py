@@ -1109,7 +1109,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidScopedTokenResponse(r)
         roles_ids = []
-        for i, ref in enumerate(token['roles']):
+        for ref in token['roles']:
             roles_ids.append(ref['id'])
         self.assertEqual(len(token['roles']), 2)
         self.assertIn(role_list[1]['id'], roles_ids)
@@ -1123,7 +1123,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidScopedTokenResponse(r)
         roles_ids = []
-        for i, ref in enumerate(token['roles']):
+        for ref in token['roles']:
             roles_ids.append(ref['id'])
         self.assertEqual(len(token['roles']), 2)
         self.assertIn(role_list[0]['id'], roles_ids)
@@ -1141,7 +1141,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidScopedTokenResponse(r)
         roles_ids = []
-        for i, ref in enumerate(token['roles']):
+        for ref in token['roles']:
             roles_ids.append(ref['id'])
         self.assertEqual(len(token['roles']), 3)
         self.assertIn(role_list[1]['id'], roles_ids)
