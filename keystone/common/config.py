@@ -69,6 +69,12 @@ FILE_OPTIONS = {
                         'to set this value if the base URL contains a path '
                         '(e.g. /prefix/v2.0) or the endpoint should be found '
                         'on a different server.'),
+        cfg.IntOpt('public_workers', default=1,
+                   help='The number of worker processes to serve the public '
+                        'WSGI application'),
+        cfg.IntOpt('admin_workers', default=1,
+                   help='The number of worker processes to serve the admin '
+                        'WSGI application'),
         # default max request size is 112k
         cfg.IntOpt('max_request_body_size', default=114688,
                    help='Enforced by optional sizelimit middleware '
