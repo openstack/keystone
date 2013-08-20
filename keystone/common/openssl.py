@@ -74,11 +74,11 @@ class BaseCertificateConfigure(object):
         self.ssl_dictionary.update(kwargs)
 
     def _make_dirs(self, file_name):
-        dir = os.path.dirname(file_name)
-        if not file_exists(dir):
-            os.makedirs(dir, DIR_PERMS)
+        dir_name = os.path.dirname(file_name)
+        if not file_exists(dir_name):
+            os.makedirs(dir_name, DIR_PERMS)
         if os.geteuid() == 0 and self.use_keystone_group:
-            os.chown(dir, -1, self.use_keystone_group)
+            os.chown(dir_name, -1, self.use_keystone_group)
 
     def _set_permissions(self, file_name, perms):
         os.chmod(file_name, perms)
