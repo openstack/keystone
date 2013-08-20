@@ -19,9 +19,9 @@ import random
 import uuid
 
 from keystone.common import kvs
-from keystone.common import logging
 from keystone.contrib.oauth1 import core
 from keystone import exception
+from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 
 

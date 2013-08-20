@@ -50,9 +50,9 @@ TODO vs FIXME
 Logging
 -------
 
-Use the built-in logging module, and ensure you ``getLogger``::
+Use the common logging module, and ensure you ``getLogger``::
 
-    from keystone.common import logging
+    from keystone.openstack.common import log as logging
 
     LOG = logging.getLogger(__name__)
 

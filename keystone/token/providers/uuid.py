@@ -23,9 +23,9 @@ import sys
 import uuid
 
 from keystone.common import dependency
-from keystone.common import logging
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 from keystone import token
 from keystone import trust
