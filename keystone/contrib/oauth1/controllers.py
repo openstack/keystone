@@ -347,7 +347,7 @@ class OAuthControllerV3(controller.V3Controller):
             req_set.add(x['id'])
 
         # verify the authorizing user has the roles
-        user_token = self.token_api.get_token(token_id=context['token_id'])
+        user_token = self.token_api.get_token(context['token_id'])
         credentials = user_token['metadata'].copy()
         user_roles = credentials.get('roles')
         user_id = user_token['user'].get('id')

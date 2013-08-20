@@ -60,3 +60,6 @@ class Driver(object):
 
     def list_trusts_for_trustor(self, trustor):
         raise exception.NotImplemented()
+
+    def delete_trust(self, trust_id):
+        raise exception.NotImplemented()
