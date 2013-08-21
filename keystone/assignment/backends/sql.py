@@ -97,11 +97,6 @@ class Assignment(sql.Base, assignment.Driver):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
-
         session = self.get_session()
         self._get_role(session, role_id)
 
@@ -135,10 +130,6 @@ class Assignment(sql.Base, assignment.Driver):
     def list_grants(self, user_id=None, group_id=None,
                     domain_id=None, project_id=None,
                     inherited_to_projects=False):
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
         session = self.get_session()
         if domain_id:
             self._get_domain(session, domain_id)
@@ -158,11 +149,6 @@ class Assignment(sql.Base, assignment.Driver):
     def get_grant(self, role_id, user_id=None, group_id=None,
                   domain_id=None, project_id=None,
                   inherited_to_projects=False):
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
-
         session = self.get_session()
         role_ref = self._get_role(session, role_id)
 
