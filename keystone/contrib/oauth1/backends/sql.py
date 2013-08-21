@@ -108,7 +108,7 @@ class OAuth1(sql.Base):
         return consumer_ref.to_dict()
 
     def _delete_consumer(self, session, consumer_id):
-        consumer_ref = self._get_consumer(session, consumer_id)
+        consumer_ref = self._get_consumer(consumer_id)
         q = session.query(Consumer)
         q = q.filter_by(id=consumer_id)
         q.delete(False)
