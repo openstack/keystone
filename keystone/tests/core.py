@@ -23,15 +23,12 @@ import StringIO
 import sys
 import time
 
-import gettext
 from lxml import etree
 import mox
 import nose.exc
 from paste import deploy
 import stubout
 import unittest2 as unittest
-
-gettext.install('keystone', unicode=1)
 
 from keystone.common import environment
 environment.use_eventlet()

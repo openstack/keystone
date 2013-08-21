@@ -298,3 +298,15 @@ class LocalizedResponseTest(test.TestCase):
                          'title': 'Not Found'}}
 
         self.assertEqual(exp, result)
+
+    def test_static_translated_string_is_Message(self):
+        # Statically created message strings are Message objects so that they
+        # are lazy-translated.
+        self.assertIsInstance(exception.Unauthorized.message_format,
+                              gettextutils.Message)
+
+    def test_dynamic_translated_string_is_Message(self):
+        # Dynamically created message strings are Message objects so that they
+        # are lazy-translated.
+        self.assertIsInstance(_('The resource could not be found.'),
+                              gettextutils.Message)
