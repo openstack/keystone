@@ -396,7 +396,7 @@ class Debug(Middleware):
 
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
-        if LOG.isEnabledFor(LOG.debug):
+        if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
             LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
             for key, value in req.environ.items():
                 LOG.debug('%s = %s', key, mask_password(value,
@@ -408,7 +408,7 @@ class Debug(Middleware):
             LOG.debug('')
 
         resp = req.get_response(self.application)
-        if LOG.isEnabledFor(LOG.debug):
+        if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
             LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
             for (key, value) in resp.headers.iteritems():
                 LOG.debug('%s = %s', key, value)
