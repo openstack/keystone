@@ -45,7 +45,8 @@ class RequestToken(sql.ModelBase, sql.DictBase):
     authorizing_user_id = sql.Column(sql.String(64), nullable=True)
     requested_project_id = sql.Column(sql.String(64), nullable=False)
     requested_roles = sql.Column(sql.Text(), nullable=False)
-    consumer_id = sql.Column(sql.String(64), nullable=False, index=True)
+    consumer_id = sql.Column(sql.String(64), sql.ForeignKey('consumer.id'),
+                             nullable=False, index=True)
     expires_at = sql.Column(sql.String(64), nullable=True)
 
     @classmethod
@@ -67,7 +68,8 @@ class AccessToken(sql.ModelBase, sql.DictBase):
                                      index=True)
     project_id = sql.Column(sql.String(64), nullable=False)
     requested_roles = sql.Column(sql.Text(), nullable=False)
-    consumer_id = sql.Column(sql.String(64), nullable=False)
+    consumer_id = sql.Column(sql.String(64), sql.ForeignKey('consumer.id'),
+                             nullable=False)
     expires_at = sql.Column(sql.String(64), nullable=True)
 
     @classmethod
@@ -139,9 +141,9 @@ class OAuth1(sql.Base):
     def delete_consumer(self, consumer_id):
         session = self.get_session()
         with session.begin():
-            self._delete_consumer(session, consumer_id)
             self._delete_request_tokens(session, consumer_id)
             self._delete_access_tokens(session, consumer_id)
+            self._delete_consumer(session, consumer_id)
             session.flush()
 
     def list_consumers(self):
