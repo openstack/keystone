@@ -57,8 +57,9 @@ class ExternalDomain(object):
         auth_context is an in-out variable that will be updated with the
         username from the REMOTE_USER environment variable.
 
-        If REMOTE_USER contains an `@` assume that the substring before the @
-        is the username, and the substring after the @ is the domain name.
+        If REMOTE_USER contains an `@` assume that the substring before the
+        rightmost `@` is the username, and the substring after the @ is the
+        domain name.
         """
         try:
             REMOTE_USER = context['REMOTE_USER']
@@ -66,7 +67,7 @@ class ExternalDomain(object):
             msg = _('No authenticated user')
             raise exception.Unauthorized(msg)
         try:
-            names = REMOTE_USER.split('@')
+            names = REMOTE_USER.rsplit('@', 1)
             username = names.pop(0)
             if names:
                 domain_name = names[0]
