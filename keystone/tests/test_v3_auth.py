@@ -1299,6 +1299,35 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidUnscopedTokenResponse(r)
 
+    def get_v2_token(self, tenant_id=None):
+        body = {
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.default_domain_user['name'],
+                    'password': self.default_domain_user['password'],
+                },
+            },
+        }
+        r = self.admin_request(method='POST', path='/v2.0/tokens', body=body)
+        return r
+
+    def test_validate_v2_unscoped_token_with_v3_api(self):
+        v2_token = self.get_v2_token().result['access']['token']['id']
+        auth_data = self.build_authentication_request(token=v2_token)
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+
+    def test_validate_v2_scoped_token_with_v3_api(self):
+        v2_response = self.get_v2_token(
+            tenant_id=self.default_domain_project['id'])
+        result = v2_response.result
+        v2_token = result['access']['token']['id']
+        auth_data = self.build_authentication_request(
+            token=v2_token,
+            project_id=self.default_domain_project['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidScopedTokenResponse(r)
+
     def test_invalid_user_id(self):
         auth_data = self.build_authentication_request(
             user_id=uuid.uuid4().hex,
