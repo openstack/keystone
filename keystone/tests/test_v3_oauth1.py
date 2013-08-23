@@ -121,17 +121,29 @@ class OAuth1Tests(test_v3.RestfulTestCase):
 
 class ConsumerCRUDTests(OAuth1Tests):
 
-    def test_consumer_create(self):
-        description = uuid.uuid4().hex
-        ref = {'description': description}
+    def _consumer_create(self, description=None, description_flag=True):
+        if description_flag:
+            ref = {'description': description}
+        else:
+            ref = {}
         resp = self.post(
             '/OS-OAUTH1/consumers',
             body={'consumer': ref})
         consumer = resp.result.get('consumer')
         consumer_id = consumer.get('id')
-        self.assertEqual(consumer.get('description'), description)
+        self.assertEqual(consumer['description'], description)
         self.assertIsNotNone(consumer_id)
         self.assertIsNotNone(consumer.get('secret'))
+
+    def test_consumer_create(self):
+        description = uuid.uuid4().hex
+        self._consumer_create(description=description)
+
+    def test_consumer_create_none_desc_1(self):
+        self._consumer_create()
+
+    def test_consumer_create_none_desc_2(self):
+        self._consumer_create(description_flag=False)
 
     def test_consumer_delete(self):
         consumer = self._create_single_consumer()
