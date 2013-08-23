@@ -14,10 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import datetime
 import default_fixtures
+import hashlib
 import uuid
-import nose.exc
 
 from keystone.catalog import core
 from keystone import config
@@ -2065,17 +2066,19 @@ class TokenTests(object):
                 'trust_id': None,
                 'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
-        expires = data_ref.pop('expires')
-        data_ref.pop('user_id')
+        data_ref_copy = copy.deepcopy(data_ref)
+        expires = data_ref_copy.pop('expires')
+        data_ref_copy.pop('user_id')
         self.assertTrue(isinstance(expires, datetime.datetime))
-        self.assertDictEqual(data_ref, data)
+        self.assertDictEqual(data_ref_copy, data)
 
         new_data_ref = self.token_api.get_token(token_id)
-        expires = new_data_ref.pop('expires')
-        new_data_ref.pop('user_id')
+        new_data_ref_copy = copy.deepcopy(new_data_ref)
+        expires = new_data_ref_copy.pop('expires')
+        new_data_ref_copy.pop('user_id')
 
         self.assertTrue(isinstance(expires, datetime.datetime))
-        self.assertEquals(new_data_ref, data)
+        self.assertEquals(new_data_ref_copy, data)
 
         self.token_api.delete_token(token_id)
         self.assertRaises(exception.TokenNotFound,
@@ -2247,6 +2250,36 @@ class TokenTests(object):
     def test_list_revoked_tokens_for_multiple_tokens(self):
         self.check_list_revoked_tokens([self.delete_token()
                                         for x in xrange(2)])
+
+    def test_predictable_revoked_pki_token_id(self):
+        # NOTE(dolph): _create_token_id() includes 'MII' as a prefix of the
+        #               returned token str in master, but not in grizzly.
+        #               revising _create_token_id() in grizzly to include the
+        #               previx breaks several other tests here
+        token_id = 'MII' + self._create_token_id()
+        token_id_hash = hashlib.md5(token_id).hexdigest()
+        token = {'user': {'id': uuid.uuid4().hex}}
+
+        self.token_api.create_token(token_id, token)
+        self.token_api.delete_token(token_id)
+
+        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id_hash, revoked_ids)
+        self.assertNotIn(token_id, revoked_ids)
+        for t in self.token_api.list_revoked_tokens():
+            self.assertIn('expires', t)
+
+    def test_predictable_revoked_uuid_token_id(self):
+        token_id = uuid.uuid4().hex
+        token = {'user': {'id': uuid.uuid4().hex}}
+
+        self.token_api.create_token(token_id, token)
+        self.token_api.delete_token(token_id)
+
+        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id, revoked_ids)
+        for t in self.token_api.list_revoked_tokens():
+            self.assertIn('expires', t)
 
 
 class TrustTests(object):

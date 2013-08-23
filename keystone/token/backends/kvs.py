@@ -111,7 +111,7 @@ class Token(kvs.Base, token.Driver):
             if not token.startswith('revoked-token-'):
                 continue
             record = {}
-            record['id'] = token_ref['id']
+            record['id'] = token[len('revoked-token-'):]
             record['expires'] = token_ref['expires']
             tokens.append(record)
         return tokens

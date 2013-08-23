@@ -84,8 +84,9 @@ class Token(token.Driver):
                         raise exception.UnexpectedError(msg)
         return copy.deepcopy(data_copy)
 
-    def _add_to_revocation_list(self, data):
-        data_json = jsonutils.dumps(data)
+    def _add_to_revocation_list(self, token_id, token_data):
+        data_json = jsonutils.dumps({'id': token_id,
+                                     'expires': token_data['expires']})
         if not self.client.append(self.revocation_key, ',%s' % data_json):
             if not self.client.add(self.revocation_key, data_json):
                 if not self.client.append(self.revocation_key,
@@ -95,10 +96,11 @@ class Token(token.Driver):
 
     def delete_token(self, token_id):
         # Test for existence
-        data = self.get_token(token.unique_id(token_id))
-        ptk = self._prefix_token_id(token.unique_id(token_id))
+        token_id = token.unique_id(token_id)
+        data = self.get_token(token_id)
+        ptk = self._prefix_token_id(token_id)
         result = self.client.delete(ptk)
-        self._add_to_revocation_list(data)
+        self._add_to_revocation_list(token_id, data)
         return result
 
     def list_tokens(self, user_id, tenant_id=None, trust_id=None):
