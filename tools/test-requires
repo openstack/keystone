@@ -25,6 +25,7 @@ distribute>=0.6.24
 httplib2 # keystoneclient <0.2.1
 requests>=1.0.0 # replaces httplib2 in keystoneclient >=0.2.1
 keyring
+netaddr
 
 # swift_auth test dependencies
 http://tarballs.openstack.org/swift/swift-stable-grizzly.tar.gz#egg=swift
