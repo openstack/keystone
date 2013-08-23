@@ -14,9 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import datetime
-import uuid
 import default_fixtures
+import hashlib
+import uuid
 
 from keystone.catalog import core
 from keystone import exception
@@ -628,19 +630,29 @@ class IdentityTests(object):
 
 
 class TokenTests(object):
+    def _create_token_id(self):
+        # Token must start with MII here otherwise it fails the asn1 test
+        # and is not hashed in a SQL backend.
+        token_id = "MII"
+        for i in range(1, 20):
+            token_id += uuid.uuid4().hex
+        return token_id
+
     def test_token_crud(self):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': 'testuserid'}}
         data_ref = self.token_api.create_token(token_id, data)
-        expires = data_ref.pop('expires')
+        data_ref_copy = copy.deepcopy(data_ref)
+        expires = data_ref_copy.pop('expires')
         self.assertTrue(isinstance(expires, datetime.datetime))
-        self.assertDictEqual(data_ref, data)
+        self.assertDictEqual(data_ref_copy, data)
 
         new_data_ref = self.token_api.get_token(token_id)
-        expires = new_data_ref.pop('expires')
+        new_data_ref_copy = copy.deepcopy(new_data_ref)
+        expires = new_data_ref_copy.pop('expires')
         self.assertTrue(isinstance(expires, datetime.datetime))
-        self.assertEquals(new_data_ref, data)
+        self.assertEquals(new_data_ref_copy, data)
 
         self.token_api.delete_token(token_id)
         self.assertRaises(exception.TokenNotFound,
@@ -757,6 +769,32 @@ class TokenTests(object):
     def test_list_revoked_tokens_for_multiple_tokens(self):
         self.check_list_revoked_tokens([self.delete_token()
                                         for x in xrange(2)])
+
+    def test_predictable_revoked_pki_token_id(self):
+        token_id = self._create_token_id()
+        token_id_hash = hashlib.md5(token_id).hexdigest()
+        token = {'user': {'id': uuid.uuid4().hex}}
+
+        self.token_api.create_token(token_id, token)
+        self.token_api.delete_token(token_id)
+
+        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id_hash, revoked_ids)
+        self.assertNotIn(token_id, revoked_ids)
+        for t in self.token_api.list_revoked_tokens():
+            self.assertIn('expires', t)
+
+    def test_predictable_revoked_uuid_token_id(self):
+        token_id = uuid.uuid4().hex
+        token = {'user': {'id': uuid.uuid4().hex}}
+
+        self.token_api.create_token(token_id, token)
+        self.token_api.delete_token(token_id)
+
+        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id, revoked_ids)
+        for t in self.token_api.list_revoked_tokens():
+            self.assertIn('expires', t)
 
 
 class CommonHelperTests(test.TestCase):
