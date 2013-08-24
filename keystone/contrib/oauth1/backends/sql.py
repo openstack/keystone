@@ -29,7 +29,7 @@ class Consumer(sql.ModelBase, sql.DictBase):
     __tablename__ = 'consumer'
     attributes = ['id', 'description', 'secret']
     id = sql.Column(sql.String(64), primary_key=True, nullable=False)
-    description = sql.Column(sql.String(64), nullable=False)
+    description = sql.Column(sql.String(64), nullable=True)
     secret = sql.Column(sql.String(64), nullable=False)
     extra = sql.Column(sql.JsonBlob(), nullable=False)
 
