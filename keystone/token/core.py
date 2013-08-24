@@ -19,6 +19,7 @@
 import copy
 import datetime
 
+from keystone.common import cache
 from keystone.common import cms
 from keystone.common import dependency
 from keystone.common import manager
@@ -29,8 +30,8 @@ from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF
-
 LOG = logging.getLogger(__name__)
+SHOULD_CACHE = cache.should_cache_fn('token')
 
 
 def default_expire_time():
@@ -123,7 +124,27 @@ class Manager(manager.Manager):
         return self.driver.create_token(self._unique_id(token_id), data_copy)
 
     def delete_token(self, token_id):
-        return self.driver.delete_token(self._unique_id(token_id))
+        self.driver.delete_token(self._unique_id(token_id))
+        self.invalidate_revocation_list()
+
+    def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
+                      consumer_id=None):
+        self.driver.delete_tokens(user_id, tenant_id, trust_id, consumer_id)
+        self.invalidate_revocation_list()
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.token.revocation_cache_time)
+    def list_revoked_tokens(self):
+        return self.driver.list_revoked_tokens()
+
+    def invalidate_revocation_list(self):
+        # NOTE(morganfainberg): we should always be keeping the revoked tokens
+        # list in memory, calling refresh in this case instead of ensures a
+        # cache hit when list_revoked_tokens is called again. This is an
+        # exception to the rule.  Note that ``self`` needs to be passed to
+        # refresh() because of the way the invalidation/refresh methods work on
+        # determining cache-keys.
+        self.list_revoked_tokens.refresh(self)
 
 
 class Driver(object):

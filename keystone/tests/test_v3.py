@@ -5,6 +5,7 @@ from lxml import etree
 import webtest
 
 from keystone import auth
+from keystone.common import cache
 from keystone.common import serializer
 from keystone import config
 from keystone.openstack.common import timeutils
@@ -47,6 +48,9 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.config(self.config_files())
 
         self.setup_database()
+        # ensure the cache region instance is setup
+        cache.configure_cache_region(cache.REGION)
+
         self.load_backends()
 
         self.public_app = webtest.TestApp(
@@ -126,6 +130,10 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.public_server = None
         self.admin_server = None
         self.teardown_database()
+        # NOTE(morganfainberg):  The only way to reconfigure the
+        # CacheRegion object on each setUp() call is to remove the
+        # .backend property.
+        del cache.REGION.backend
         # need to reset the plug-ins
         auth.controllers.AUTH_METHODS = {}
         #drop the policy rules

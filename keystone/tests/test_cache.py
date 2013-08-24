@@ -18,7 +18,7 @@ from dogpile.cache import api
 from dogpile.cache import proxy
 
 from keystone.common import cache
-from keystone.common import config
+from keystone import config
 from keystone.tests import core as test
 
 
@@ -44,7 +44,8 @@ class TestProxyValue(object):
 class CacheRegionTest(test.TestCase):
     def setUp(self):
         super(CacheRegionTest, self).setUp()
-        self.region = cache.configure_cache_region(CONF)
+        self.region = cache.make_region()
+        cache.configure_cache_region(self.region)
         self.region.wrap(TestProxy)
 
     def test_region_built_with_proxy_direct_cache_test(self):
@@ -56,7 +57,8 @@ class CacheRegionTest(test.TestCase):
 
     def test_cache_region_no_error_multiple_config(self):
         """Verify configuring the CacheRegion again doesn't error."""
-        cache.configure_cache_region(CONF, self.region)
+        cache.configure_cache_region(self.region)
+        cache.configure_cache_region(self.region)
 
     def test_should_cache_fn(self):
         """Verify should_cache_fn generates a sane function."""
@@ -84,7 +86,7 @@ class CacheRegionTest(test.TestCase):
         CONF.cache.backend_argument = ['arg1:test', 'arg2:test:test',
                                        'arg3.invalid']
 
-        config_dict = cache.build_cache_config(CONF)
+        config_dict = cache.build_cache_config()
         self.assertEquals(
             config_dict['test_prefix.backend'], CONF.cache.backend)
         self.assertEquals(
