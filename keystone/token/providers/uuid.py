@@ -592,18 +592,3 @@ class Provider(token.provider.Provider):
         elif version == token.provider.V2:
             return self._validate_v2_token_ref(token_ref)
         raise token.provider.UnsupportedTokenVersionException()
-
-    def check_v2_token(self, token_id, belongs_to=None):
-        try:
-            token_ref = self._verify_token(token_id, belongs_to=belongs_to)
-            self._assert_default_domain(token_ref)
-        except (exception.TokenNotFound, exception.ValidationError) as e:
-            LOG.exception(_('Failed to verify token'))
-            raise exception.Unauthorized(e)
-
-    def check_v3_token(self, token_id):
-        try:
-            self._verify_token(token_id)
-        except (exception.TokenNotFound, exception.ValidationError) as e:
-            LOG.exception(_('Failed to verify token'))
-            raise exception.Unauthorized(e)
