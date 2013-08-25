@@ -43,18 +43,18 @@ class DebugProxy(proxy.ProxyBackend):
     """Extra Logging ProxyBackend."""
     def get(self, key):
         value = self.proxied.get(key)
-        msg = _('CACHE_GET: Key: "%(key)s)" "%(value)s"')
+        msg = _('CACHE_GET: Key: "%(key)s" Value: "%(value)s"')
         LOG.debug(msg % {'key': key, 'value': value})
         return value
 
     def get_multi(self, keys):
         values = self.proxied.get_multi(keys)
-        msg = _('CACHE_GET_MULTI: "%(key)s" "%(value)s"')
+        msg = _('CACHE_GET_MULTI: "%(keys)s" Values: "%(values)s"')
         LOG.debug(msg % {'keys': keys, 'values': values})
         return values
 
     def set(self, key, value):
-        msg = _('CACHE_SET: Key: %(key)s Value: %(value)s')
+        msg = _('CACHE_SET: Key: "%(key)s" Value: "%(value)s"')
         LOG.debug(msg % {'key': key, 'value': value})
         return self.proxied.set(key, value)
 

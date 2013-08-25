@@ -17,6 +17,7 @@
 """Token provider interface."""
 
 
+from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
@@ -27,6 +28,7 @@ from keystone.openstack.common import timeutils
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+SHOULD_CACHE = cache.should_cache_fn('token')
 
 
 # supported token versions
@@ -101,17 +103,26 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(self.get_token_provider())
 
     def validate_token(self, token_id, belongs_to=None):
-        token = self.driver.validate_token(token_id, belongs_to)
+        unique_id = self.token_api.unique_id(token_id)
+        # NOTE(morganfainberg): Ensure we never use the long-form token_id
+        # (PKI) as part of the cache_key.
+        token = self._validate_token(unique_id, belongs_to)
         self._is_valid_token(token)
         return token
 
     def validate_v2_token(self, token_id, belongs_to=None):
-        token = self.driver.validate_v2_token(token_id, belongs_to)
+        unique_id = self.token_api.unique_id(token_id)
+        # NOTE(morganfainberg): Ensure we never use the long-form token_id
+        # (PKI) as part of the cache_key.
+        token = self._validate_v2_token(unique_id, belongs_to)
         self._is_valid_token(token)
         return token
 
     def validate_v3_token(self, token_id):
-        token = self.driver.validate_v3_token(token_id)
+        unique_id = self.token_api.unique_id(token_id)
+        # NOTE(morganfainberg): Ensure we never use the long-form token_id
+        # (PKI) as part of the cache_key.
+        token = self._validate_v3_token(unique_id)
         self._is_valid_token(token)
         return token
 
@@ -123,7 +134,10 @@ class Manager(manager.Manager):
         :returns: None
         :raises: keystone.exception.Unauthorized
         """
-        self.validate_v2_token(token_id)
+        # NOTE(morganfainberg): Ensure we never use the long-form token_id
+        # (PKI) as part of the cache_key.
+        unique_id = self.token_api.unique_id(token_id)
+        self.validate_v2_token(unique_id, belongs_to=belongs_to)
 
     def check_v3_token(self, token_id):
         """Check the validity of the given V3 token.
@@ -132,11 +146,28 @@ class Manager(manager.Manager):
         :returns: None
         :raises: keystone.exception.Unauthorized
         """
-        self.validate_v3_token(token_id)
+        # NOTE(morganfainberg): Ensure we never use the long-form token_id
+        # (PKI) as part of the cache_key.
+        unique_id = self.token_api.unique_id(token_id)
+        self.validate_v3_token(unique_id)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.token.cache_time)
+    def _validate_token(self, token_id, belongs_to=None):
+        return self.driver.validate_token(token_id, belongs_to)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.token.cache_time)
+    def _validate_v2_token(self, token_id, belongs_to=None):
+        return self.driver.validate_v2_token(token_id, belongs_to)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.token.cache_time)
+    def _validate_v3_token(self, token_id):
+        return self.driver.validate_v3_token(token_id)
 
     def _is_valid_token(self, token):
          # Verify the token has not expired.
-
         current_time = timeutils.normalize_time(timeutils.utcnow())
 
         try:
@@ -158,6 +189,20 @@ class Manager(manager.Manager):
 
         # Token is expired, we have a malformed token, or something went wrong.
         raise exception.Unauthorized(_('Failed to validate token'))
+
+    def invalidate_individual_token_cache(self, token_id, belongs_to=None):
+        # NOTE(morganfainberg): invalidate takes the exact same arguments as
+        # the normal method, this means we need to pass "self" in (which gets
+        # stripped off).
+
+        # FIXME(morganfainberg): Does this cache actually need to be
+        # invalidated? We maintain a cached revocation list, which should be
+        # consulted before accepting a token as valid.  For now we will
+        # do the explicit individual token invalidation.
+        self._validate_v3_token.invalidate(self, token_id)
+        self._validate_v2_token.invalidate(self, token_id)
+        self._validate_v2_token.invalidate(self, token_id, belongs_to)
+        self._validate_token.invalidate(self, token_id, belongs_to)
 
 
 class Provider(object):

@@ -15,7 +15,6 @@
 # under the License.
 
 import copy
-import datetime
 
 from keystone.common import sql
 from keystone import exception
@@ -45,12 +44,7 @@ class Token(sql.Base, token.Driver):
             raise exception.TokenNotFound(token_id=token_id)
         session = self.get_session()
         token_ref = session.query(TokenModel).get(token_id)
-        now = datetime.datetime.utcnow()
         if not token_ref or not token_ref.valid:
-            raise exception.TokenNotFound(token_id=token_id)
-        if not token_ref.expires:
-            raise exception.TokenNotFound(token_id=token_id)
-        if now >= token_ref.expires:
             raise exception.TokenNotFound(token_id=token_id)
         return token_ref.to_dict()
 
