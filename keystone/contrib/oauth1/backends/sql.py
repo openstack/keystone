@@ -84,19 +84,20 @@ class OAuth1(sql.Base):
     def db_sync(self):
         migration.db_sync()
 
-    def _get_consumer(self, consumer_id):
-        session = self.get_session()
+    def _get_consumer(self, session, consumer_id):
         consumer_ref = session.query(Consumer).get(consumer_id)
         if consumer_ref is None:
             raise exception.NotFound(_('Consumer not found'))
         return consumer_ref
 
-    def get_consumer(self, consumer_id):
+    def get_consumer_with_secret(self, consumer_id):
         session = self.get_session()
-        consumer_ref = session.query(Consumer).get(consumer_id)
-        if consumer_ref is None:
-            raise exception.NotFound(_('Consumer not found'))
-        return core.filter_consumer(consumer_ref.to_dict())
+        consumer_ref = self._get_consumer(session, consumer_id)
+        return consumer_ref.to_dict()
+
+    def get_consumer(self, consumer_id):
+        return core.filter_consumer(
+            self.get_consumer_with_secret(consumer_id))
 
     def create_consumer(self, consumer):
         consumer['secret'] = uuid.uuid4().hex
@@ -110,7 +111,7 @@ class OAuth1(sql.Base):
         return consumer_ref.to_dict()
 
     def _delete_consumer(self, session, consumer_id):
-        consumer_ref = self._get_consumer(consumer_id)
+        consumer_ref = self._get_consumer(session, consumer_id)
         q = session.query(Consumer)
         q = q.filter_by(id=consumer_id)
         q.delete(False)
@@ -154,15 +155,11 @@ class OAuth1(sql.Base):
     def update_consumer(self, consumer_id, consumer):
         session = self.get_session()
         with session.begin():
-            consumer_ref = self._get_consumer(consumer_id)
+            consumer_ref = self._get_consumer(session, consumer_id)
             old_consumer_dict = consumer_ref.to_dict()
             old_consumer_dict.update(consumer)
             new_consumer = Consumer.from_dict(old_consumer_dict)
-            for attr in Consumer.attributes:
-                if (attr != 'id' or attr != 'secret'):
-                            setattr(consumer_ref,
-                                    attr,
-                                    getattr(new_consumer, attr))
+            consumer_ref.description = new_consumer.description
             consumer_ref.extra = new_consumer.extra
             session.flush()
         return core.filter_consumer(consumer_ref.to_dict())

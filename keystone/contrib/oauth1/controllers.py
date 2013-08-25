@@ -172,7 +172,7 @@ class OAuthControllerV3(controller.V3Controller):
                 attribute='requested_project_id', target='request')
 
         req_role_ids = requested_role_ids.split(',')
-        consumer_ref = self.oauth_api._get_consumer(consumer_id)
+        consumer_ref = self.oauth_api.get_consumer_with_secret(consumer_id)
         consumer = oauth1.Consumer(key=consumer_ref['id'],
                                    secret=consumer_ref['secret'])
 
@@ -251,7 +251,7 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.ValidationError(
                 attribute='oauth_verifier', target='request')
 
-        consumer = self.oauth_api._get_consumer(consumer_id)
+        consumer = self.oauth_api.get_consumer_with_secret(consumer_id)
         req_token = self.oauth_api.get_request_token(
             request_token_id)
 
