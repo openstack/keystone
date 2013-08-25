@@ -213,7 +213,15 @@ class V3TokenDataHelper(object):
             return
 
         if access_token:
-            token_data['roles'] = json.loads(access_token['requested_roles'])
+            filtered_roles = []
+            authed_role_ids = json.loads(access_token['role_ids'])
+            all_roles = self.identity_api.list_roles()
+            for role in all_roles:
+                for authed_role in authed_role_ids:
+                    if authed_role == role['id']:
+                        filtered_roles.append({'id': role['id'],
+                                               'name': role['name']})
+            token_data['roles'] = filtered_roles
             return
 
         if CONF.trust.enabled and trust:

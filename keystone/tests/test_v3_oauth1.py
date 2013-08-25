@@ -87,9 +87,8 @@ class OAuth1Tests(test_v3.RestfulTestCase):
                                                       token=token,
                                                       **kw)
 
-    def _create_request_token(self, consumer, role, project_id):
-        params = {'requested_role_ids': role,
-                  'requested_project_id': project_id}
+    def _create_request_token(self, consumer, project_id):
+        params = {'requested_project_id': project_id}
         headers = {'Content-Type': 'application/json'}
         url = '/OS-OAUTH1/request_token'
         oreq = self._oauth_request(
@@ -242,7 +241,6 @@ class OAuthFlowTests(OAuth1Tests):
         self.assertIsNotNone(self.consumer.key)
 
         url, headers = self._create_request_token(self.consumer,
-                                                  self.role_id,
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
@@ -252,7 +250,8 @@ class OAuthFlowTests(OAuth1Tests):
         self.assertIsNotNone(self.request_token.key)
 
         url = self._authorize_request_token(request_key)
-        resp = self.put(url, expected_status=200)
+        body = {'roles': [{'id': self.role_id}]}
+        resp = self.put(url, body=body, expected_status=200)
         self.verifier = resp.result['token']['oauth_verifier']
 
         self.request_token.set_verifier(self.verifier)
@@ -468,7 +467,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer_id = consumer.get('id')
         consumer = oauth1.Consumer(consumer_id, "bad_secret")
         url, headers = self._create_request_token(consumer,
-                                                  self.role_id,
                                                   self.project_id)
         self.post(url, headers=headers, expected_status=500)
 
@@ -478,11 +476,11 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer_secret = consumer.get('secret')
         consumer = oauth1.Consumer(consumer_id, consumer_secret)
         url, headers = self._create_request_token(consumer,
-                                                  self.role_id,
                                                   self.project_id)
         self.post(url, headers=headers)
         url = self._authorize_request_token("bad_key")
-        self.put(url, expected_status=404)
+        body = {'roles': [{'id': self.role_id}]}
+        self.put(url, body=body, expected_status=404)
 
     def test_bad_verifier(self):
         consumer = self._create_single_consumer()
@@ -491,7 +489,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = oauth1.Consumer(consumer_id, consumer_secret)
 
         url, headers = self._create_request_token(consumer,
-                                                  self.role_id,
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
@@ -500,24 +497,14 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         request_token = oauth1.Token(request_key, request_secret)
 
         url = self._authorize_request_token(request_key)
-        resp = self.put(url, expected_status=200)
+        body = {'roles': [{'id': self.role_id}]}
+        resp = self.put(url, body=body, expected_status=200)
         verifier = resp.result['token']['oauth_verifier']
         self.assertIsNotNone(verifier)
 
         request_token.set_verifier("bad verifier")
         url, headers = self._create_access_token(consumer,
                                                  request_token)
-        self.post(url, headers=headers, expected_status=401)
-
-    def test_bad_requested_roles(self):
-        consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
-        consumer = oauth1.Consumer(consumer_id, consumer_secret)
-
-        url, headers = self._create_request_token(consumer,
-                                                  "bad_role",
-                                                  self.project_id)
         self.post(url, headers=headers, expected_status=401)
 
     def test_bad_authorizing_roles(self):
@@ -527,7 +514,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = oauth1.Consumer(consumer_id, consumer_secret)
 
         url, headers = self._create_request_token(consumer,
-                                                  self.role_id,
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
@@ -537,7 +523,9 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                             self.project_id,
                                                             self.role_id)
         url = self._authorize_request_token(request_key)
-        self.admin_request(path=url, method='PUT', expected_status=404)
+        body = {'roles': [{'id': self.role_id}]}
+        self.admin_request(path=url, method='PUT',
+                           body=body, expected_status=404)
 
     def test_expired_authorizing_request_token(self):
         CONF.oauth1.request_token_duration = -1
@@ -549,7 +537,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIsNotNone(self.consumer.key)
 
         url, headers = self._create_request_token(self.consumer,
-                                                  self.role_id,
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
@@ -559,7 +546,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIsNotNone(self.request_token.key)
 
         url = self._authorize_request_token(request_key)
-        self.put(url, expected_status=401)
+        body = {'roles': [{'id': self.role_id}]}
+        self.put(url, body=body, expected_status=401)
 
     def test_expired_creating_keystone_token(self):
         CONF.oauth1.access_token_duration = -1
@@ -570,7 +558,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIsNotNone(self.consumer.key)
 
         url, headers = self._create_request_token(self.consumer,
-                                                  self.role_id,
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
@@ -580,7 +567,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIsNotNone(self.request_token.key)
 
         url = self._authorize_request_token(request_key)
-        resp = self.put(url, expected_status=200)
+        body = {'roles': [{'id': self.role_id}]}
+        resp = self.put(url, body=body, expected_status=200)
         self.verifier = resp.result['token']['oauth_verifier']
 
         self.request_token.set_verifier(self.verifier)
