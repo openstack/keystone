@@ -16,7 +16,9 @@
 
 """Main entry point into the assignment service."""
 
+
 from keystone import clean
+from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
@@ -27,6 +29,7 @@ from keystone.openstack.common import log as logging
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+SHOULD_CACHE = cache.should_cache_fn('assignment')
 
 DEFAULT_DOMAIN = {'description':
                   (u'Owns users and tenants (i.e. projects)'
@@ -63,18 +66,32 @@ class Manager(manager.Manager):
         tenant.setdefault('enabled', True)
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         tenant.setdefault('description', '')
-        return self.driver.create_project(tenant_id, tenant)
+        ret = self.driver.create_project(tenant_id, tenant_ref)
+        if SHOULD_CACHE(ret):
+            self.get_project.set(ret, self, tenant_id)
+            self.get_project_by_name.set(ret, self, ret['name'],
+                                         ret['domain_id'])
+        return ret
 
     @notifications.updated('project')
     def update_project(self, tenant_id, tenant_ref):
         tenant = tenant_ref.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        return self.driver.update_project(tenant_id, tenant)
+        ret = self.driver.update_project(tenant_id, tenant_ref)
+        self.get_project.invalidate(self, tenant_id)
+        self.get_project_by_name.invalidate(self, ret['name'],
+                                            ret['domain_id'])
+        return ret
 
     @notifications.deleted('project')
     def delete_project(self, tenant_id):
-        return self.driver.delete_project(tenant_id)
+        project = self.driver.get_project(tenant_id)
+        ret = self.driver.delete_project(tenant_id)
+        self.get_project.invalidate(self, tenant_id)
+        self.get_project_by_name.invalidate(self, project['name'],
+                                            project['domain_id'])
+        return ret
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given project.
@@ -225,6 +242,65 @@ class Manager(manager.Manager):
             raise exception.NotFound(tenant_id)
         for role_id in roles:
             self.remove_role_from_user_and_project(user_id, tenant_id, role_id)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.assignment.cache_time)
+    def get_domain(self, domain_id):
+        return self.driver.get_domain(domain_id)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.assignment.cache_time)
+    def get_domain_by_name(self, domain_name):
+        return self.driver.get_domain_by_name(domain_name)
+
+    def create_domain(self, domain_id, domain):
+        ret = self.driver.create_domain(domain_id, domain)
+        if SHOULD_CACHE(ret):
+            self.get_domain.set(ret, self, domain_id)
+            self.get_domain_by_name.set(ret, self, ret['name'])
+        return ret
+
+    def update_domain(self, domain_id, domain):
+        ret = self.driver.update_domain(domain_id, domain)
+        self.get_domain.invalidate(self, domain_id)
+        self.get_domain_by_name.invalidate(self, ret['name'])
+        return ret
+
+    def delete_domain(self, domain_id):
+        domain = self.driver.get_domain(domain_id)
+        self.driver.delete_domain(domain_id)
+        self.get_domain.invalidate(self, domain_id)
+        self.get_domain_by_name.invalidate(self, domain['name'])
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.assignment.cache_time)
+    def get_project(self, project_id):
+        return self.driver.get_project(project_id)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.assignment.cache_time)
+    def get_project_by_name(self, tenant_name, domain_id):
+        return self.driver.get_project_by_name(tenant_name, domain_id)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.assignment.cache_time)
+    def get_role(self, role_id):
+        return self.driver.get_role(role_id)
+
+    def create_role(self, role_id, role):
+        ret = self.driver.create_role(role_id, role)
+        if SHOULD_CACHE(ret):
+            self.get_role.set(ret, self, role_id)
+        return ret
+
+    def update_role(self, role_id, role):
+        ret = self.driver.update_role(role_id, role)
+        self.get_role.invalidate(self, role_id)
+        return ret
+
+    def delete_role(self, role_id):
+        self.driver.delete_role(role_id)
+        self.get_role.invalidate(self, role_id)
 
 
 class Driver(object):

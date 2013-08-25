@@ -15,11 +15,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import uuid
 
 import ldap
 
 from keystone import assignment
+from keystone.common import cache
 from keystone.common.ldap import fakeldap
 from keystone.common import sql
 from keystone import config
@@ -390,6 +392,17 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
 
         CONF.ldap.tenant_filter = '(CN=DOES_NOT_MATCH)'
         self.load_backends()
+        # NOTE(morganfainberg): CONF.ldap.tenant_filter  will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_role.invalidate(self.assignment_api,
+                                                self.role_member['id'])
+        self.identity_api.get_role(self.role_member['id'])
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   self.tenant_bar['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           self.tenant_bar['id'])
@@ -400,6 +413,14 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
 
         CONF.ldap.role_filter = '(CN=DOES_NOT_MATCH)'
         self.load_backends()
+        # NOTE(morganfainberg): CONF.ldap.role_filter will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_role.invalidate(self.assignment_api,
+                                                self.role_member['id'])
         self.assertRaises(exception.RoleNotFound,
                           self.identity_api.get_role,
                           self.role_member['id'])
@@ -421,6 +442,16 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        # NOTE(morganfainberg): CONF.ldap.tenant_name_attribute,
+        # CONF.ldap.tenant_desc_attribute, and
+        # CONF.ldap.tenant_enabled_attribute will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   self.tenant_baz['id'])
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertEqual(tenant_ref['name'], self.tenant_baz['name'])
@@ -432,6 +463,16 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         CONF.ldap.tenant_name_attribute = 'description'
         CONF.ldap.tenant_desc_attribute = 'ou'
         self.load_backends()
+        # NOTE(morganfainberg): CONF.ldap.tenant_name_attribute,
+        # CONF.ldap.tenant_desc_attribute, and
+        # CONF.ldap.tenant_enabled_attribute will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   self.tenant_baz['id'])
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertEqual(tenant_ref['name'], self.tenant_baz['description'])
@@ -445,6 +486,14 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        # NOTE(morganfainberg): CONF.ldap.tenant_attribute_ignore will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change configs values in tests
+        # that could affect what the drivers would return up to the manager.
+        # This solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   self.tenant_baz['id'])
         tenant_ref = self.identity_api.get_project(self.tenant_baz['id'])
         self.assertEqual(tenant_ref['id'], self.tenant_baz['id'])
         self.assertNotIn('name', tenant_ref)
@@ -456,12 +505,28 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        # NOTE(morganfainberg): CONF.ldap.role_name_attribute will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_role.invalidate(self.assignment_api,
+                                                self.role_member['id'])
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertEqual(role_ref['name'], self.role_member['name'])
 
         CONF.ldap.role_name_attribute = 'sn'
         self.load_backends()
+        # NOTE(morganfainberg): CONF.ldap.role_name_attribute will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_role.invalidate(self.assignment_api,
+                                                self.role_member['id'])
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertNotIn('name', role_ref)
@@ -471,6 +536,14 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        # NOTE(morganfainberg): CONF.ldap.role_attribute_ignore will not be
+        # dynamically changed at runtime. This invalidate is a work-around for
+        # the expectation that it is safe to change config values in tests that
+        # could affect what the drivers would return up to the manager.  This
+        # solves this assumption when working with aggressive (on-create)
+        # cache population.
+        self.assignment_api.get_role.invalidate(self.assignment_api,
+                                                self.role_member['id'])
         role_ref = self.identity_api.get_role(self.role_member['id'])
         self.assertEqual(role_ref['id'], self.role_member['id'])
         self.assertNotIn('name', role_ref)
@@ -618,6 +691,12 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
                           self.identity_api.get_domain,
                           domain['id'])
 
+    def test_cache_layer_domain_crud(self):
+        # TODO(morganfainberg): This also needs to be removed when full LDAP
+        # implementation is submitted.  No need to duplicate the above test,
+        # just skip this time.
+        self.skipTest('Domains are read-only against LDAP')
+
     def test_project_crud(self):
         # NOTE(topol): LDAP implementation does not currently support the
         #              updating of a project name so this method override
@@ -640,6 +719,59 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           project['id'])
+
+    def test_cache_layer_project_crud(self):
+        # NOTE(morganfainberg): LDAP implementation does not currently support
+        # updating project names.  This method override provides a different
+        # update test.
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': CONF.identity.default_domain_id,
+                   'description': uuid.uuid4().hex}
+        project_id = project['id']
+        # Create a project
+        self.assignment_api.create_project(project_id, project)
+        self.assignment_api.get_project(project_id)
+        updated_project = copy.deepcopy(project)
+        updated_project['description'] = uuid.uuid4().hex
+        # Update project, bypassing assignment_api manager
+        self.assignment_api.driver.update_project(project_id,
+                                                  updated_project)
+        # Verify get_project still returns the original project_ref
+        self.assertDictContainsSubset(
+            project, self.assignment_api.get_project(project_id))
+        # Invalidate cache
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   project_id)
+        # Verify get_project now returns the new project
+        self.assertDictContainsSubset(
+            updated_project,
+            self.assignment_api.get_project(project_id))
+        # Update project using the assignment_api manager back to original
+        self.assignment_api.update_project(project['id'], project)
+        # Verify get_project returns the original project_ref
+        self.assertDictContainsSubset(
+            project, self.assignment_api.get_project(project_id))
+        # Delete project bypassing assignment_api
+        self.assignment_api.driver.delete_project(project_id)
+        # Verify get_project still returns the project_ref
+        self.assertDictContainsSubset(
+            project, self.assignment_api.get_project(project_id))
+        # Invalidate cache
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   project_id)
+        # Verify ProjectNotFound now raised
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          project_id)
+        # recreate project
+        self.assignment_api.create_project(project_id, project)
+        self.assignment_api.get_project(project_id)
+        # delete project
+        self.assignment_api.delete_project(project_id)
+        # Verify ProjectNotFound is raised
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          project_id)
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
@@ -781,6 +913,7 @@ class LdapIdentitySqlAssignment(sql.Base, test.TestCase, BaseLDAPIdentity):
         self._set_config()
         self.clear_database()
         self.load_backends()
+        cache.configure_cache_region(cache.REGION)
         self.engine = self.get_engine()
         sql.ModelBase.metadata.create_all(bind=self.engine)
         self.load_fixtures(default_fixtures)

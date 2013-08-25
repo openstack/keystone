@@ -59,15 +59,15 @@ class DebugProxy(proxy.ProxyBackend):
         return self.proxied.set(key, value)
 
     def set_multi(self, keys):
-        LOG.debug(_('CACHE_SET_MULTI: %s') % keys)
+        LOG.debug(_('CACHE_SET_MULTI: "%s"') % keys)
         self.proxied.set_multi(keys)
 
     def delete(self, key):
         self.proxied.delete(key)
-        LOG.debug(_('CACHE_DELETE: %s') % key)
+        LOG.debug(_('CACHE_DELETE: "%s"') % key)
 
     def delete_multi(self, keys):
-        LOG.debug(_('CACHE_DELETE_MULTI: %s') % keys)
+        LOG.debug(_('CACHE_DELETE_MULTI: "%s"') % keys)
         self.proxied.delete_multi(keys)
 
 

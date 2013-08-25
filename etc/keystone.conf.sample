@@ -220,6 +220,13 @@
 [assignment]
 # driver =
 
+# Assignment specific caching toggle. This has no effect unless the global
+# caching option is set to True
+# caching = True
+
+# Assignment specific cache time-to-live (TTL) in seconds.
+# cache_time =
+
 [oauth1]
 # driver = keystone.contrib.oauth1.backends.sql.OAuth1
 

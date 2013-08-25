@@ -264,6 +264,28 @@ Current keystone systems that have caching capabilities:
         ``revocation_cache_time`` in the ``[token]`` section.  The revocation
         list is refreshed whenever a token is revoked. It typically sees significantly
         more requests than specific token retrievals or token validation calls.
+    * ``assignment``
+        The assignment system has a separate ``cache_time`` configuration option,
+        that can be set to a value above or below the global ``expiration_time``
+        default, allowing for different caching behavior from the other systems in
+        ``Keystone``.  This option is set in the ``[assignment]`` section of the
+        configuration file.
+
+        Currently ``assignment`` has caching for ``project``, ``domain``, and ``role``
+        specific requests (primarily around the CRUD actions).  Caching is currently not
+        implemented on grants.  The list (``list_projects``, ``list_domains``, etc)
+        methods are not subject to caching.
+
+        .. WARNING::
+            Be aware that if a read-only ``assignment`` backend is in use, the cache
+            will not immediately reflect changes on the back end.  Any given change
+            may take up to the ``cache_time`` (if set in the ``[assignment]``
+            section of the configuration) or the global ``expiration_time`` (set in
+            the ``[cache]`` section of the configuration) before it is reflected.
+            If this type of delay (when using a read-only ``assignment`` backend) is
+            an issue, it is recommended that caching be disabled on ``assignment``.
+            To disable caching specifically on ``assignment``, in the ``[assignment]``
+            section of the configuration set ``caching`` to ``False``.
 
 For more information about the different backends (and configuration options):
     * `dogpile.cache.backends.memory`_

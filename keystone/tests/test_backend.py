@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import datetime
 import uuid
 
@@ -2276,6 +2277,146 @@ class IdentityTests(object):
                                        role_id=self.role_member['id'])
         user_projects = self.identity_api.list_user_projects(user1['id'])
         self.assertEquals(len(user_projects), 2)
+
+    def test_cache_layer_domain_crud(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        domain_id = domain['id']
+        # Create Domain
+        self.assignment_api.create_domain(domain_id, domain)
+        domain_ref = self.assignment_api.get_domain(domain_id)
+        updated_domain_ref = copy.deepcopy(domain_ref)
+        updated_domain_ref['name'] = uuid.uuid4().hex
+        # Update domain, bypassing assignment api manager
+        self.assignment_api.driver.update_domain(domain_id, updated_domain_ref)
+        # Verify get_domain still returns the domain
+        self.assertDictContainsSubset(
+            domain_ref, self.assignment_api.get_domain(domain_id))
+        # Invalidate cache
+        self.assignment_api.get_domain.invalidate(self.assignment_api,
+                                                  domain_id)
+        # Verify get_domain returns the updated domain
+        self.assertDictContainsSubset(
+            updated_domain_ref, self.assignment_api.get_domain(domain_id))
+        # Update the domain back to original ref, using the assignment api
+        # manager
+        self.assignment_api.update_domain(domain_id, domain_ref)
+        self.assertDictContainsSubset(
+            domain_ref, self.assignment_api.get_domain(domain_id))
+        # Delete domain, bypassing assignment api manager
+        self.assignment_api.driver.delete_domain(domain_id)
+        # Verify get_domain still returns the domain
+        self.assertDictContainsSubset(
+            domain_ref, self.assignment_api.get_domain(domain_id))
+        # Invalidate cache
+        self.assignment_api.get_domain.invalidate(self.assignment_api,
+                                                  domain_id)
+        # Verify get_domain now raises DomainNotFound
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.get_domain, domain_id)
+        # Recreate Domain
+        self.identity_api.create_domain(domain_id, domain)
+        self.assignment_api.get_domain(domain_id)
+        # Delete domain
+        self.assignment_api.delete_domain(domain_id)
+        # verify DomainNotFound raised
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.get_domain,
+                          domain_id)
+
+    def test_cache_layer_project_crud(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': domain['id']}
+        project_id = project['id']
+        self.assignment_api.create_domain(domain['id'], domain)
+        # Create a project
+        self.assignment_api.create_project(project_id, project)
+        self.assignment_api.get_project(project_id)
+        updated_project = copy.deepcopy(project)
+        updated_project['name'] = uuid.uuid4().hex
+        # Update project, bypassing assignment_api manager
+        self.assignment_api.driver.update_project(project_id,
+                                                  updated_project)
+        # Verify get_project still returns the original project_ref
+        self.assertDictContainsSubset(
+            project, self.assignment_api.get_project(project_id))
+        # Invalidate cache
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   project_id)
+        # Verify get_project now returns the new project
+        self.assertDictContainsSubset(
+            updated_project,
+            self.assignment_api.get_project(project_id))
+        # Update project using the assignment_api manager back to original
+        self.assignment_api.update_project(project['id'], project)
+        # Verify get_project returns the original project_ref
+        self.assertDictContainsSubset(
+            project, self.assignment_api.get_project(project_id))
+        # Delete project bypassing assignment_api
+        self.assignment_api.driver.delete_project(project_id)
+        # Verify get_project still returns the project_ref
+        self.assertDictContainsSubset(
+            project, self.assignment_api.get_project(project_id))
+        # Invalidate cache
+        self.assignment_api.get_project.invalidate(self.assignment_api,
+                                                   project_id)
+        # Verify ProjectNotFound now raised
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          project_id)
+        # recreate project
+        self.assignment_api.create_project(project_id, project)
+        self.assignment_api.get_project(project_id)
+        # delete project
+        self.assignment_api.delete_project(project_id)
+        # Verify ProjectNotFound is raised
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          project_id)
+
+    def test_cache_layer_role_crud(self):
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role_id = role['id']
+        # Create role
+        self.assignment_api.create_role(role_id, role)
+        role_ref = self.assignment_api.get_role(role_id)
+        updated_role_ref = copy.deepcopy(role_ref)
+        updated_role_ref['name'] = uuid.uuid4().hex
+        # Update role, bypassing the assignment api manager
+        self.assignment_api.driver.update_role(role_id, updated_role_ref)
+        # Verify get_role still returns old ref
+        self.assertDictEqual(role_ref, self.assignment_api.get_role(role_id))
+        # Invalidate Cache
+        self.assignment_api.get_role.invalidate(self.assignment_api,
+                                                role_id)
+        # Verify get_role returns the new role_ref
+        self.assertDictEqual(updated_role_ref,
+                             self.assignment_api.get_role(role_id))
+        # Update role back to original via the assignment api manager
+        self.assignment_api.update_role(role_id, role_ref)
+        # Verify get_role returns the original role ref
+        self.assertDictEqual(role_ref, self.assignment_api.get_role(role_id))
+        # Delete role bypassing the assignment api manager
+        self.assignment_api.driver.delete_role(role_id)
+        # Verify get_role still returns the role_ref
+        self.assertDictEqual(role_ref, self.assignment_api.get_role(role_id))
+        # Invalidate cache
+        self.assignment_api.get_role.invalidate(self.assignment_api, role_id)
+        # Verify RoleNotFound is now raised
+        self.assertRaises(exception.RoleNotFound,
+                          self.assignment_api.get_role,
+                          role_id)
+        # recreate role
+        self.assignment_api.create_role(role_id, role)
+        self.assignment_api.get_role(role_id)
+        # delete role via the assignment api manager
+        self.assignment_api.delete_role(role_id)
+        # verity RoleNotFound is now raised
+        self.assertRaises(exception.RoleNotFound,
+                          self.assignment_api.get_role,
+                          role_id)
 
 
 class TokenTests(object):

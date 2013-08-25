@@ -133,7 +133,9 @@ FILE_OPTIONS = {
         # assignment has no default for backward compatibility reasons.
         # If assignment driver is not specified, the identity driver chooses
         # the backend
-        cfg.StrOpt('driver', default=None)],
+        cfg.StrOpt('driver', default=None),
+        cfg.BoolOpt('caching', default=True),
+        cfg.IntOpt('cache_time', default=None)],
     'credential': [
         cfg.StrOpt('driver',
                    default=('keystone.credential.backends'
