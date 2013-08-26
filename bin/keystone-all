@@ -20,10 +20,20 @@ if os.path.exists(os.path.join(possible_topdir,
 from paste import deploy
 import pbr.version
 
+from keystone.openstack.common import gettextutils
+
+# NOTE(blk-u):
+# gettextutils.install() must run to set _ before importing any modules that
+# contain static translated strings.
+#
+# Configure gettextutils for deferred translation of messages
+# so that error messages in responses can be translated according to the
+# Accept-Language in the request rather than the Keystone server locale.
+gettextutils.install('keystone', lazy=True)
+
 from keystone.common import environment
 from keystone.common import utils
 from keystone import config
-from keystone.openstack.common import gettextutils
 from keystone.openstack.common import importutils
 
 
@@ -67,11 +77,6 @@ def serve(*servers):
 
 
 if __name__ == '__main__':
-    # NOTE(blk-u): Configure gettextutils for deferred translation of messages
-    # so that error messages in responses can be translated according to the
-    # Accept-Language in the request rather than the Keystone server locale.
-    gettextutils.install('keystone', lazy=True)
-
     dev_conf = os.path.join(possible_topdir,
                             'etc',
                             'keystone.conf')
