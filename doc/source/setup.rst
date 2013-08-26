@@ -26,7 +26,6 @@ Documentation`_.
 
 .. _`GitHub Repository`: http://github.com/openstack/keystone
 .. _`User Documentation`: http://docs.openstack.org/
-.. _developing: developing.rst
 
 Prerequisites
 =============
@@ -150,7 +149,7 @@ without issue::
     >>>
 
 If you can import keystone successfully, you should be ready to move on to
-developing_.
+:doc:`developing`.
 
 Troubleshooting
 ===============
