@@ -44,6 +44,7 @@ Invoking keystone-manage by itself will give you some usage information.
 Available commands:
 
 * ``db_sync``: Sync the database.
+* ``db_version``: Print the current migration version of the database.
 * ``export_legacy_catalog``: Export the service catalog from a legacy database.
 * ``import_legacy``: Import a legacy database.
 * ``import_nova_auth``: Import a dump of nova auth data into keystone.
@@ -57,44 +58,51 @@ OPTIONS
 
   -h, --help            show this help message and exit
   --version             show program's version number and exit
-  --pydev-debug-port PYDEV_DEBUG_PORT
+  --debug, -d           Print debugging output (set logging level to DEBUG
+                        instead of default WARNING level).
+  --nodebug             The inverse of --debug
   --verbose, -v         Print more verbose output (set logging level to INFO
                         instead of default WARNING level).
   --noverbose           The inverse of --verbose
-  --config-dir DIR      Path to a config directory to pull *.conf files from.
-                        This file set is sorted, so as to provide a
-                        predictable parse order if individual options are
-                        over-ridden. The set is parsed after the file(s), if
-                        any, specified via --config-file, hence over-ridden
-                        options in the directory take precedence.
+  --use-syslog          Use syslog for logging.
+  --nouse-syslog        The inverse of --use-syslog
+  --standard-threads    Do not monkey-patch threading system modules.
+  --nostandard-threads  The inverse of --standard-threads
+  --pydev-debug-port PYDEV_DEBUG_PORT
+                        Port to connect to for remote debugger.
+  --config-file PATH    Path to a config file to use. Multiple config files
+                        can be specified, with values in later files taking
+                        precedence. The default files used are:
+                        ['/etc/keystone/keystone.conf']
   --log-config PATH     If this option is specified, the logging configuration
                         file specified is used and overrides any other logging
                         options specified. Please see the Python logging
                         module documentation for details on logging
                         configuration files.
+  --log-format FORMAT   DEPRECATED. A logging.Formatter log message format
+                        string which may use any of the available
+                        logging.LogRecord attributes. This option is
+                        deprecated. Please use logging_context_format_string
+                        and logging_default_format_string instead.
   --log-date-format DATE_FORMAT
-                        Format string for %(asctime)s in log records.
-  --use-syslog          Use syslog for logging.
-  --nouse-syslog        The inverse of --use-syslog
-  --log-dir LOG_DIR     The directory in which to store log files. (will be
-                        prepended to --log-file)
+                        Format string for %(asctime)s in log records. Default:
+                        None
+  --log-file PATH, --logfile PATH
+                        (Optional) Name of log file to output to. If no
+                        default is set, logging will go to stdout.
+  --log-dir LOG_DIR, --logdir LOG_DIR
+                        (Optional) The base directory used for relative --log-
+                        file paths
   --syslog-log-facility SYSLOG_LOG_FACILITY
-                        syslog facility to receive log lines.
-  --standard-threads
-  --nostandard-threads  The inverse of --standard-threads
-  --config-file PATH    Path to a config file to use. Multiple config files
-                        can be specified, with values in later files taking
-                        precedence. The default files used are:
-                        ['/etc/keystone/keystone.conf']
+                        syslog facility to receive log lines
   --pydev-debug-host PYDEV_DEBUG_HOST
-  --debug, -d           Print debugging output (set logging level to DEBUG
-                        instead of default WARNING level).
-  --nodebug             The inverse of --debug
-  --log-format FORMAT   A logging.Formatter log message format string which
-                        may use any of the available logging.LogRecord
-                        attributes.
-  --log-file PATH       Name of log file to output. If not set, logging will
-                        go to stdout.
+                        Host to connect to for remote debugger.
+  --config-dir DIR      Path to a config directory to pull \*.conf files from.
+                        This file set is sorted, so as to provide a
+                        predictable parse order if individual options are
+                        over-ridden. The set is parsed after the file(s), if
+                        any, specified via --config-file, hence over-ridden
+                        options in the directory take precedence.
 
 FILES
 =====
