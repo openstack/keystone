@@ -129,9 +129,10 @@ class Request(webob.Request):
         HTTP header passed in the request.
         """
 
+        if not self.accept_language:
+            return None
         return self.accept_language.best_match(
-            gettextutils.get_available_languages('keystone'),
-            default_match='en_US')
+            gettextutils.get_available_languages('keystone'))
 
 
 class BaseApplication(object):
