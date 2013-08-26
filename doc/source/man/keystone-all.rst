@@ -8,7 +8,7 @@ Keystone Startup Command
 
 :Author: openstack@lists.openstack.org
 :Date:   2010-11-16
-:Copyright: OpenStack LLC
+:Copyright: OpenStack Foundation
 :Version: 2012.1
 :Manual section: 1
 :Manual group: cloud computing
