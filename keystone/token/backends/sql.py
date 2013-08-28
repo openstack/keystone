@@ -118,12 +118,15 @@ class Token(sql.Base, token.Driver):
                 (token_ref_dict.get('tenant') and
                  token_ref_dict['tenant'].get('id') == tenant_id))
 
-    def _consumer_matches(self, consumer_id, token_ref_dict):
+    def _consumer_matches(self, consumer_id, ref):
         if consumer_id is None:
             return True
         else:
-            oauth = token_ref_dict['token_data']['token'].get('OS-OAUTH1', {})
-            return oauth and oauth['consumer_id'] == consumer_id
+            try:
+                oauth = ref['token_data']['token'].get('OS-OAUTH1', {})
+                return oauth and oauth['consumer_id'] == consumer_id
+            except KeyError:
+                return False
 
     def _list_tokens_for_trust(self, trust_id):
         session = self.get_session()
