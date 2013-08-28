@@ -506,6 +506,51 @@ class IdentityTests(object):
                           self.tenant_bar['id'],
                           self.role_admin['id'])
 
+    def test_get_role_by_user_and_project_with_user_in_group(self):
+        """Test for get role by user and project, user was added into a group.
+
+        Test Plan:
+        - Create a user, a project & a group, add this user to group
+        - Create roles and grant them to user and project
+        - Check the role list get by the user and project was as expected
+
+        """
+        user_ref = {'id': uuid.uuid4().hex,
+                    'name': uuid.uuid4().hex,
+                    'domain_id': CONF.identity.default_domain_id,
+                    'password': uuid.uuid4().hex,
+                    'enabled': True}
+        self.identity_api.create_user(user_ref['id'], user_ref)
+
+        project_ref = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex,
+                       'domain_id': CONF.identity.default_domain_id}
+        self.identity_api.create_project(project_ref['id'], project_ref)
+
+        group = {'id': uuid.uuid4().hex,
+                 'name': uuid.uuid4().hex,
+                 'domain_id': CONF.identity.default_domain_id}
+        group_id = self.identity_api.create_group(group['id'], group)['id']
+        self.identity_api.add_user_to_group(user_ref['id'], group_id)
+
+        role_ref_list = []
+        for i in range(2):
+            role_ref = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            self.identity_api.create_role(role_ref['id'], role_ref)
+            role_ref_list.append(role_ref)
+
+            self.identity_api.add_role_to_user_and_project(
+                user_id=user_ref['id'],
+                tenant_id=project_ref['id'],
+                role_id=role_ref['id'])
+
+        role_list = self.identity_api.get_roles_for_user_and_project(
+            user_id=user_ref['id'],
+            tenant_id=project_ref['id'])
+
+        self.assertEqual(set(role_list),
+                         set([role_ref['id'] for role_ref in role_ref_list]))
+
     def test_get_role_by_user_and_project(self):
         roles_ref = self.identity_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
