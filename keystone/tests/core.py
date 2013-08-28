@@ -218,6 +218,8 @@ class TestCase(NoModule, unittest.TestCase):
         super(TestCase, self).setUp()
         self.config([etcdir('keystone.conf.sample'),
                      testsdir('test_overrides.conf')])
+        # ensure the cache region instance is setup
+        cache.configure_cache_region(cache.REGION)
         self.mox = mox.Mox()
         self.opt(policy_file=etcdir('policy.json'))
         self.stubs = stubout.StubOutForTesting()
@@ -233,6 +235,10 @@ class TestCase(NoModule, unittest.TestCase):
             self.stubs.UnsetAll()
             self.stubs.SmartUnsetAll()
             self.mox.VerifyAll()
+            # NOTE(morganfainberg):  The only way to reconfigure the
+            # CacheRegion object on each setUp() call is to remove the
+            # .backend property.
+            del cache.REGION.backend
             super(TestCase, self).tearDown()
         finally:
             for path in self._paths:
@@ -276,16 +282,6 @@ class TestCase(NoModule, unittest.TestCase):
                             replace('.', '_'))
 
             setattr(self, manager_name, manager.Manager())
-
-        # NOTE(morganfainberg): ensure the cache region is setup.  It is safe
-        # to call configure_cache_region on the same region multiple times.
-        # The region wont be configured more than one time.
-        cache.configure_cache_region(CONF, cache.REGION)
-
-        # Invalidate all cache between tests.  This should probably be extended
-        # to purge the cache_region's backend as well to avoid odd memory bloat
-        # during a given test sequence since we use dogpile.cache.memory.
-        cache.REGION.invalidate()
 
         dependency.resolve_future_dependencies()
 

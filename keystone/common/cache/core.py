@@ -21,7 +21,7 @@ import dogpile.cache
 from dogpile.cache import proxy
 from dogpile.cache import util
 
-from keystone.common import config
+from keystone import config
 from keystone import exception
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log
@@ -31,6 +31,7 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 REGION = dogpile.cache.make_region()
 
+make_region = dogpile.cache.make_region
 on_arguments = REGION.cache_on_arguments
 
 dogpile.cache.register_backend(
@@ -71,17 +72,17 @@ class DebugProxy(proxy.ProxyBackend):
         self.proxied.delete_multi(keys)
 
 
-def build_cache_config(conf):
+def build_cache_config():
     """Build the cache region dictionary configuration.
 
     :param conf: configuration object for keystone
     :returns: dict
     """
-    prefix = conf.cache.config_prefix
+    prefix = CONF.cache.config_prefix
     conf_dict = {}
-    conf_dict['%s.backend' % prefix] = conf.cache.backend
-    conf_dict['%s.expiration_time' % prefix] = conf.cache.expiration_time
-    for argument in conf.cache.backend_argument:
+    conf_dict['%s.backend' % prefix] = CONF.cache.backend
+    conf_dict['%s.expiration_time' % prefix] = CONF.cache.expiration_time
+    for argument in CONF.cache.backend_argument:
         try:
             (argname, argvalue) = argument.split(':', 1)
         except ValueError:
@@ -98,33 +99,28 @@ def build_cache_config(conf):
     return conf_dict
 
 
-def configure_cache_region(conf, region=None):
+def configure_cache_region(region):
     """Configure a cache region.
 
-    :param conf: global keystone configuration object
     :param region: optional CacheRegion object, if not provided a new region
                    will be instantiated
     :raises: exception.ValidationError
     :returns: dogpile.cache.CacheRegion
     """
-    if region is not None and not isinstance(region,
-                                             dogpile.cache.CacheRegion):
+    if not isinstance(region, dogpile.cache.CacheRegion):
         raise exception.ValidationError(
             _('region not type dogpile.cache.CacheRegion'))
-
-    if region is None:
-        region = dogpile.cache.make_region()
 
     if 'backend' not in region.__dict__:
         # NOTE(morganfainberg): this is how you tell if a region is configured.
         # There is a request logged with dogpile.cache upstream to make this
         # easier / less ugly.
 
-        config_dict = build_cache_config(conf)
+        config_dict = build_cache_config()
         region.configure_from_config(config_dict,
-                                     '%s.' % conf.cache.config_prefix)
+                                     '%s.' % CONF.cache.config_prefix)
 
-        if conf.cache.debug_cache_backend:
+        if CONF.cache.debug_cache_backend:
             region.wrap(DebugProxy)
 
         # NOTE(morganfainberg): if the backend requests the use of a
@@ -138,7 +134,7 @@ def configure_cache_region(conf, region=None):
             if CONF.cache.use_key_mangler:
                 region.key_mangler = util.sha1_mangle_key
 
-        for class_path in conf.cache.proxies:
+        for class_path in CONF.cache.proxies:
             # NOTE(morganfainberg): if we have any proxy wrappers, we should
             # ensure they are added to the cache region's backend.  Since
             # configure_from_config doesn't handle the wrap argument, we need

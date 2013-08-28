@@ -250,6 +250,13 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
     leave this set to True.  If the cache backend provides a key-mangler, this
     option has no effect.
 
+Current keystone systems that have caching capabilities:
+    * ``token``
+        The Token Revocation List cache time is handled by the configuration option
+        ``revocation_cache_time`` in the ``[token]`` section.  The revocation
+        list is refreshed whenever a token is revoked, and sees significantly more
+        requests than specific tokens or token validation of specific tokens will see.
+
 For more information about the different backends (and configuration options):
     * `dogpile.cache.backends.memory`_
     * `dogpile.cache.backends.memcached`_

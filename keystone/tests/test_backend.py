@@ -2516,6 +2516,41 @@ class TokenTests(object):
         self.assertEqual(len(tokens), 1)
         self.assertIn(token_id, tokens)
 
+    def test_revocation_list_cache(self):
+        expire_time = timeutils.utcnow() + datetime.timedelta(minutes=10)
+        token_id = uuid.uuid4().hex
+        token_data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
+                      'expires': expire_time,
+                      'trust_id': None,
+                      'user': {'id': 'testuserid'}}
+        token2_id = uuid.uuid4().hex
+        token2_data = {'id_hash': token2_id, 'id': token2_id, 'a': 'b',
+                       'expires': expire_time,
+                       'trust_id': None,
+                       'user': {'id': 'testuserid'}}
+        # Create 2 Tokens.
+        self.token_api.create_token(token_id, token_data)
+        self.token_api.create_token(token2_id, token2_data)
+        # Verify the revocation list is empty.
+        self.assertEquals([], self.token_api.list_revoked_tokens())
+        # Delete a token directly, bypassing the manager.
+        self.token_api.driver.delete_token(token_id)
+        # Verify the revocation list is still empty.
+        self.assertEquals([], self.token_api.list_revoked_tokens())
+        # Invalidate the revocation list.
+        self.token_api.invalidate_revocation_list()
+        # Verify the deleted token is in the revocation list.
+        revoked_tokens = [x['id']
+                          for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id, revoked_tokens)
+        # Delete the second token, through the manager
+        self.token_api.delete_token(token2_id)
+        revoked_tokens = [x['id']
+                          for x in self.token_api.list_revoked_tokens()]
+        # Verify both tokens are in the revocation list.
+        self.assertIn(token_id, revoked_tokens)
+        self.assertIn(token2_id, revoked_tokens)
+
 
 class TrustTests(object):
     def create_sample_trust(self, new_id):

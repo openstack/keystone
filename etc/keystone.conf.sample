@@ -160,6 +160,13 @@
 # mode e.g. kerberos or x509 to require binding to that authentication.
 # enforce_token_bind = permissive
 
+# Token specific caching toggle. This has no effect unless the global caching
+# option is set to True
+# caching = True
+
+# Revocation-List specific cache time-to-live (TTL) in seconds.
+# revocation_cache_time = 3600
+
 [cache]
 # Global cache functionality toggle.
 # enabled = False
