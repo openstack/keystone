@@ -14,10 +14,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 from keystone import exception
+from keystone.openstack.common import timeutils
 from keystone.tests import core as test
 from keystone import token
 
+FUTURE_DELTA = datetime.timedelta(seconds=86400)
+CURRENT_DATE = timeutils.utcnow()
 
 SAMPLE_V2_TOKEN = {
     "access": {
@@ -445,7 +450,7 @@ SAMPLE_V2_TOKEN_WITH_EMBEDED_VERSION = {
     },
     'token_version': 'v2.0'
 }
-SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = SAMPLE_V3_TOKEN = {
+SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = {
     "token": {
         "catalog": [
             {
@@ -634,6 +639,56 @@ SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = SAMPLE_V3_TOKEN = {
     'token_version': 'v3.0'
 }
 
+SAMPLE_V2_TOKEN_VALID = {
+    "access": {
+        "token": {
+            "expires": timeutils.isotime(CURRENT_DATE + FUTURE_DELTA),
+            "issued_at": "2013-05-21T00:02:43.941473Z",
+            "tenant": {
+                "enabled": True,
+                "id": "01257",
+                "name": "service"
+            }
+        }
+    }
+}
+
+SAMPLE_V2_TOKEN_EXPIRED = {
+    "access": {
+        "token": {
+            "expires": timeutils.isotime(CURRENT_DATE),
+            "issued_at": "2013-05-21T00:02:43.941473Z",
+            "tenant": {
+                "enabled": True,
+                "id": "01257",
+                "name": "service"
+            }
+        }
+    }
+}
+
+SAMPLE_V3_TOKEN_VALID = {
+    "token": {
+        "expires_at": timeutils.isotime(CURRENT_DATE + FUTURE_DELTA),
+        "issued_at": "2013-05-21T00:02:43.941473Z",
+    }
+}
+
+SAMPLE_V3_TOKEN_EXPIRED = {
+    "token": {
+        "expires_at": timeutils.isotime(CURRENT_DATE),
+        "issued_at": "2013-05-21T00:02:43.941473Z",
+    }
+}
+
+SAMPLE_MALFORMED_TOKEN = {
+    "token": {
+        "bogus": {
+            "no expiration data": None
+        }
+    }
+}
+
 
 class TestTokenProvider(test.TestCase):
     def setUp(self):
@@ -739,3 +794,20 @@ class TestTokenProvider(test.TestCase):
                           provider='my.package.MyProvider')
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          'my.package.MyProvider')
+
+    def test_provider_token_expiration_validation(self):
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api._is_valid_token,
+                          SAMPLE_V2_TOKEN_EXPIRED)
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api._is_valid_token,
+                          SAMPLE_V3_TOKEN_EXPIRED)
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api._is_valid_token,
+                          SAMPLE_MALFORMED_TOKEN)
+        self.assertEqual(
+            None,
+            self.token_provider_api._is_valid_token(SAMPLE_V2_TOKEN_VALID))
+        self.assertEqual(
+            None,
+            self.token_provider_api._is_valid_token(SAMPLE_V3_TOKEN_VALID))

@@ -22,6 +22,7 @@ from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log as logging
+from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF
@@ -43,6 +44,7 @@ class UnsupportedTokenVersionException(Exception):
     pass
 
 
+@dependency.requires('token_api')
 @dependency.provider('token_provider_api')
 class Manager(manager.Manager):
     """Default pivot point for the token provider backend.
@@ -98,6 +100,65 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(self.get_token_provider())
 
+    def validate_token(self, token_id, belongs_to=None):
+        token = self.driver.validate_token(token_id, belongs_to)
+        self._is_valid_token(token)
+        return token
+
+    def validate_v2_token(self, token_id, belongs_to=None):
+        token = self.driver.validate_v2_token(token_id, belongs_to)
+        self._is_valid_token(token)
+        return token
+
+    def validate_v3_token(self, token_id):
+        token = self.driver.validate_v3_token(token_id)
+        self._is_valid_token(token)
+        return token
+
+    def check_v2_token(self, token_id, belongs_to=None):
+        """Check the validity of the given V2 token.
+
+        :param token_id: identity of the token
+        :param belongs_to: optional identity of the scoped project
+        :returns: None
+        :raises: keystone.exception.Unauthorized
+        """
+        self.validate_v2_token(token_id)
+
+    def check_v3_token(self, token_id):
+        """Check the validity of the given V3 token.
+
+        :param token_id: identity of the token
+        :returns: None
+        :raises: keystone.exception.Unauthorized
+        """
+        self.validate_v3_token(token_id)
+
+    def _is_valid_token(self, token):
+         # Verify the token has not expired.
+
+        current_time = timeutils.normalize_time(timeutils.utcnow())
+
+        try:
+            # Get the data we need from the correct location (V2 and V3 tokens
+            # differ in structure, Try V3 first, fall back to V2 second)
+            token_data = token.get('token', token.get('access'))
+            expires_at = token_data.get('expires_at',
+                                        token_data.get('expires'))
+            if not expires_at:
+                expires_at = token_data['token']['expires']
+            expiry = timeutils.normalize_time(
+                timeutils.parse_isotime(expires_at))
+            if current_time < expiry:
+                # Token is has not expired and has not been revoked.
+                return None
+        except Exception:
+            LOG.exception(_('Unexpected error or malformed token determining '
+                            'token expiry: %s') % token)
+
+        # Token is expired, we have a malformed token, or something went wrong.
+        raise exception.Unauthorized(_('Failed to validate token'))
+
 
 class Provider(object):
     """Interface description for a Token provider."""
@@ -108,6 +169,10 @@ class Provider(object):
         If the given token data is unrecognizable,
         UnsupportedTokenVersionException is raised.
 
+        :param token_data: token_data
+        :type token_data: dict
+        :returns: token version string
+        :raises: keystone.token.provider.UnsupportedTokenVersionException
         """
         raise exception.NotImplemented()
 
@@ -120,7 +185,7 @@ class Provider(object):
         :type roles_ref: dict
         :param catalog_ref: optional catalog information
         :type catalog_ref: dict
-        :return: (token_id, token_data)
+        :returns: (token_id, token_data)
         """
         raise exception.NotImplemented()
 
@@ -158,6 +223,20 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    def validate_token(self, token_id, belongs_to=None):
+        """Detect token version and validate token and return the token data.
+
+        Must raise Unauthorized exception if unable to validate token.
+
+        :param token_id: identity of the token
+        :type token_id: string
+        :param belongs_to: optional (V2) identity of the scoped project
+        :type belongs_to: string
+        :returns: token_data
+        :raises: keystone.exception.Unauthorized
+        """
+        raise exception.NotImplemented()
+
     def validate_v2_token(self, token_id, belongs_to=None):
         """Validate the given V2 token and return the token data.
 
@@ -182,35 +261,5 @@ class Provider(object):
         :type belongs_to: string
         :returns: token data
         :raises: keystone.exception.Unauthorized
-        """
-        raise exception.NotImplemented()
-
-    def check_v2_token(self, token_id, belongs_to=None):
-        """Check the validity of the given V2 token.
-
-        Must raise Unauthorized exception if unable to check token.
-
-        :param token_id: identity of the token
-        :type token_id: string
-        :param belongs_to: identity of the scoped project to validate
-        :type belongs_to: string
-        :returns: None
-        :raises: keystone.exception.Unauthorized
-
-        """
-        raise exception.NotImplemented()
-
-    def check_v3_token(self, token_id):
-        """Check the validity of the given V3 token.
-
-        Must raise Unauthorized exception if unable to check token.
-
-        :param token_id: identity of the token
-        :type token_id: string
-        :param belongs_to: identity of the scoped project to validate
-        :type belongs_to: string
-        :returns: None
-        :raises: keystone.exception.Unauthorized
-
         """
         raise exception.NotImplemented()
