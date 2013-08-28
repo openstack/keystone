@@ -128,7 +128,11 @@ class ServiceV3(controller.V3Controller):
     collection_name = 'services'
     member_name = 'service'
 
-    @controller.protected
+    def __init__(self):
+        super(ServiceV3, self).__init__()
+        self.get_member_from_driver = self.catalog_api.get_service
+
+    @controller.protected()
     def create_service(self, context, service):
         ref = self._assign_unique_id(self._normalize_dict(service))
         self._require_attribute(ref, 'type')
@@ -141,19 +145,19 @@ class ServiceV3(controller.V3Controller):
         refs = self.catalog_api.list_services()
         return ServiceV3.wrap_collection(context, refs, filters)
 
-    @controller.protected
+    @controller.protected()
     def get_service(self, context, service_id):
         ref = self.catalog_api.get_service(service_id)
         return ServiceV3.wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def update_service(self, context, service_id, service):
         self._require_matching_id(service_id, service)
 
         ref = self.catalog_api.update_service(service_id, service)
         return ServiceV3.wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def delete_service(self, context, service_id):
         return self.catalog_api.delete_service(service_id)
 
@@ -162,6 +166,10 @@ class ServiceV3(controller.V3Controller):
 class EndpointV3(controller.V3Controller):
     collection_name = 'endpoints'
     member_name = 'endpoint'
+
+    def __init__(self):
+        super(EndpointV3, self).__init__()
+        self.get_member_from_driver = self.catalog_api.get_endpoint
 
     @classmethod
     def filter_endpoint(cls, ref):
@@ -174,7 +182,7 @@ class EndpointV3(controller.V3Controller):
         ref = cls.filter_endpoint(ref)
         return super(EndpointV3, cls).wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def create_endpoint(self, context, endpoint):
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         self._require_attribute(ref, 'service_id')
@@ -189,12 +197,12 @@ class EndpointV3(controller.V3Controller):
         refs = self.catalog_api.list_endpoints()
         return EndpointV3.wrap_collection(context, refs, filters)
 
-    @controller.protected
+    @controller.protected()
     def get_endpoint(self, context, endpoint_id):
         ref = self.catalog_api.get_endpoint(endpoint_id)
         return EndpointV3.wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def update_endpoint(self, context, endpoint_id, endpoint):
         self._require_matching_id(endpoint_id, endpoint)
 
@@ -204,6 +212,6 @@ class EndpointV3(controller.V3Controller):
         ref = self.catalog_api.update_endpoint(endpoint_id, endpoint)
         return EndpointV3.wrap_member(context, ref)
 
-    @controller.protected
+    @controller.protected()
     def delete_endpoint(self, context, endpoint_id):
         return self.catalog_api.delete_endpoint(endpoint_id)

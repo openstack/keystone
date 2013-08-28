@@ -884,6 +884,71 @@ to be passed as arguments each time::
     $ export OS_PASSWORD=my_password
     $ export OS_TENANT_NAME=my_tenant
 
+Keystone API protection with Role Based Access Control (RBAC)
+-------------------------------------------------------------
+
+Like most OpenStack projects, Keystone supports the protection of its APIs
+by defining policy rules based on an RBAC approach.  These are stored in a
+JSON policy file, the name and location of which is set in the main Keystone
+configuration file.
+
+Each keystone v3 API has a line in the policy file which dictates what level
+of protection is applied to it, where each line is of the form:
+
+<api name>: <rule statement> or <match statement>
+
+where
+
+<rule statement> can be contain <rule statement> or <match statement>
+
+<match statement> is a set of identifiers that must match between the token
+provided by the caller of the API and the parameters or target entities of
+the API call in question. For example:
+
+    "identity:create_user": [["role:admin", "domain_id:%(user.domain_id)s"]]
+
+indicates that to create a user you must have the admin role in your token and
+in addition the domain_id in your token (which implies this must be a domain
+scoped token) must match the domain_id in the user object you are trying to
+create.  In other words, you must have the admin role on the domain in which
+you are creating the user, and the token you are using must be scoped to that
+domain.
+
+Each component of a match statement is of the form:
+
+<attribute from token>:<constant> or <attribute related to API call>
+
+The following attributes are available
+
+* Attributes from token: user_id, the domain_id or project_id depending on
+  the scope, and the list of roles you have within that scope
+
+* Attributes related to API call: Any parameters that are passed into the
+  API call are available, along with any filters specified in the query
+  string. Attributes of objects passed can be refererenced using an
+  object.attribute syntax (e.g. user.domain_id). The target objects of an
+  API are also available using a target.object.attribute syntax.  For instance:
+
+    "identity:delete_user": [["role:admin", "domain_id:%(target.user.domain_id)s"]]
+
+  would ensure that the user object that is being deleted is in the same
+  domain as the token provided.
+
+The default policy.json file supplied provides a somewhat basic example of
+API protection, and does not assume any particular use of domains. For
+multi-domain configuration installations where, for example, a cloud
+provider wishes to allow adminsistration of the contents of a domain to
+be delegated, it is recommended that the supplied policy.v3cloudsample.json
+is used as a basis for creating a suitable production policy file. This
+example policy file also shows the use of an admin_domain to allow a cloud
+provider to enable cloud adminstrators to have wider access across the APIs.
+
+A clean installation would need to perhaps start with the standard policy
+file, to allow creation of the admin_domain with the first users within
+it. The domain_id of the admin domain would then be obtained and could be
+pasted into a modifed version of policy.v3cloudsample.json which could then
+be enabled as the main policy file.
+
 Example usage
 -------------
 

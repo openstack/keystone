@@ -24,7 +24,7 @@ from keystone.identity import controllers as identity_controllers
 @dependency.requires('catalog_api', 'identity_api', 'endpoint_filter_api')
 class EndpointFilterV3Controller(controller.V3Controller):
 
-    @controller.protected
+    @controller.protected()
     def add_endpoint_to_project(self, context, project_id, endpoint_id):
         """Establishes an association between an endpoint and a project."""
         # NOTE(gyee): we just need to make sure endpoint and project exist
@@ -38,7 +38,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
         self.endpoint_filter_api.add_endpoint_to_project(endpoint_id,
                                                          project_id)
 
-    @controller.protected
+    @controller.protected()
     def check_endpoint_in_project(self, context, project_id, endpoint_id):
         """Verifies endpoint is currently associated with given project."""
         self.catalog_api.get_endpoint(endpoint_id)
@@ -48,7 +48,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
         self.endpoint_filter_api.check_endpoint_in_project(endpoint_id,
                                                            project_id)
 
-    @controller.protected
+    @controller.protected()
     def list_endpoints_for_project(self, context, project_id):
         """Lists all endpoints currently associated with a given project."""
         self.identity_api.get_project(project_id)
@@ -59,13 +59,13 @@ class EndpointFilterV3Controller(controller.V3Controller):
         return catalog_controllers.EndpointV3.wrap_collection(context,
                                                               endpoints)
 
-    @controller.protected
+    @controller.protected()
     def remove_endpoint_from_project(self, context, project_id, endpoint_id):
         """Remove the endpoint from the association with given project."""
         self.endpoint_filter_api.remove_endpoint_from_project(endpoint_id,
                                                               project_id)
 
-    @controller.protected
+    @controller.protected()
     def list_projects_for_endpoint(self, context, endpoint_id):
         """Return a list of projects associated with the endpoint."""
         refs = self.endpoint_filter_api.list_project_endpoints(endpoint_id)
