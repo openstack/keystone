@@ -646,7 +646,7 @@ class EnabledEmuMixIn(BaseLdap):
         try:
             enabled_value = conn.search_s(self.enabled_emulation_dn,
                                           ldap.SCOPE_BASE,
-                                          query)
+                                          query, ['cn'])
         except ldap.NO_SUCH_OBJECT:
             return False
         else:
