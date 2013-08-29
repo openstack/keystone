@@ -23,62 +23,75 @@ from keystone.openstack.common.notifier import api as notifier_api
 LOG = log.getLogger(__name__)
 
 
-def notify_created(resource_id, resource_type, host=None):
-    """Send resource creation notification.
+class ManagerNotificationWrapper(object):
+    """Send event notifications for ``Manager`` methods.
 
-    :param resource_id: ID of the resource being created
-    :param resource_type: type of resource being created
-    :param host: host of the resource
+    Sends a notification if the wrapped Manager method does not raise an
+    ``Exception`` (such as ``keystone.exception.NotFound``).
+
+    :param resource_type: type of resource being affected
+    :param host: host of the resource (optional)
     """
+    def __init__(self, operation, resource_type, host=None):
+        self.operation = operation
+        self.resource_type = resource_type
+        self.host = host
 
-    _send_notification(resource_id, resource_type, 'created', host=host)
+    def __call__(self, f):
+        def wrapper(*args, **kwargs):
+            """Send a notification if the wrapped callable is successful."""
+            try:
+                result = f(*args, **kwargs)
+            except Exception:
+                raise
+            else:
+                _send_notification(
+                    self.operation,
+                    self.resource_type,
+                    args[1],  # f(self, resource_id, ...)
+                    self.host)
+            return result
 
-
-def notify_updated(resource_id, resource_type, host=None):
-    """Send resource update notification.
-
-    :param resource_id: ID of the resource being updated
-    :param resource_type: type of resource being updated
-    :param host: host of the resource
-    """
-
-    _send_notification(resource_id, resource_type, 'updated', host=host)
-
-
-def notify_deleted(resource_id, resource_type, host=None):
-    """Send resource deletion notification.
-
-    :param resource_id: ID of the resource being deleted
-    :param resource_type: type of resource being deleted
-    :param host: host of the resource
-    """
-
-    _send_notification(resource_id, resource_type, 'deleted', host=host)
+        return wrapper
 
 
-def _send_notification(resource_id, resource_type, operation, host=None):
-    """Send resource update notification to inform observers about resource
-       changes. This method doesn't raise an exception when sending the
-       notification fails.
+def created(*args, **kwargs):
+    """Decorator to send notifications for ``Manager.create_*`` methods."""
+    return ManagerNotificationWrapper('created', *args, **kwargs)
 
-    :param resource_id: ID of resource in notification
-    :param resource_type: type of resource being created, updated,
-                       or deleted
-    :param operation: operation being performed (created, updated,
-                       or deleted)
+
+def updated(*args, **kwargs):
+    """Decorator to send notifications for ``Manager.update_*`` methods."""
+    return ManagerNotificationWrapper('updated', *args, **kwargs)
+
+
+def deleted(*args, **kwargs):
+    """Decorator to send notifications for ``Manager.delete_*`` methods."""
+    return ManagerNotificationWrapper('deleted', *args, **kwargs)
+
+
+def _send_notification(operation, resource_type, resource_id, host=None):
+    """Send notification to inform observers about the affected resource.
+
+    This method doesn't raise an exception when sending the notification fails.
+
+    :param operation: operation being performed (created, updated, or deleted)
+    :param resource_type: type of resource being operated on
+    :param resource_id: ID of resource being operated on
     :param host: resource host
     """
     context = {}
     payload = {'resource_info': resource_id}
     service = 'identity'
     publisher_id = notifier_api.publisher_id(service, host=host)
-    event_type = ('%(service)s.%(resource_type)s.%(operation)s' %
-                  {'service': service, 'resource_type': resource_type,
-                   'operation': operation})
+    event_type = '%(service)s.%(resource_type)s.%(operation)s' % {
+        'service': service,
+        'resource_type': resource_type,
+        'operation': operation}
 
     try:
-        notifier_api.notify(context, publisher_id, event_type,
-                            notifier_api.INFO, payload)
+        notifier_api.notify(
+            context, publisher_id, event_type, notifier_api.INFO, payload)
     except Exception:
         msg = (_('Failed to send %(res_id)s %(event_type)s notification') %
                {'res_id': resource_id, 'event_type': event_type})

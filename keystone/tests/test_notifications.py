@@ -14,86 +14,116 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import uuid
+
 from keystone import notifications
 from keystone.openstack.common.notifier import api as notifier_api
 from keystone.tests import core
 
 
+EXP_RESOURCE_TYPE = uuid.uuid4().hex
+
+
+class ArbitraryException(Exception):
+    pass
+
+
+class NotificationsWrapperTestCase(core.TestCase):
+    def setUp(self):
+        super(NotificationsWrapperTestCase, self).setUp()
+
+        self.exp_resource_id = None
+        self.exp_operation = None
+        self.exp_host = None
+        self.send_notification_called = False
+
+        def fake_notify(operation, resource_type, resource_id, host=None):
+            self.assertEqual(self.exp_operation, operation)
+            self.assertEqual(EXP_RESOURCE_TYPE, resource_type)
+            self.assertEqual(self.exp_resource_id, resource_id)
+            self.assertEqual(self.exp_host, host)
+            self.send_notification_called = True
+
+        self.stubs.Set(notifications, '_send_notification', fake_notify)
+
+    @notifications.created(EXP_RESOURCE_TYPE)
+    def create_resource(self, resource_id, data):
+        return data
+
+    def test_resource_created_notification(self):
+        self.exp_operation = 'created'
+        self.exp_resource_id = uuid.uuid4().hex
+        exp_resource_data = {
+            'id': self.exp_resource_id,
+            'key': uuid.uuid4().hex}
+        self.exp_host = None
+
+        self.create_resource(self.exp_resource_id, exp_resource_data)
+        self.assertTrue(self.send_notification_called)
+
+    @notifications.updated(EXP_RESOURCE_TYPE)
+    def update_resource(self, resource_id, data):
+        return data
+
+    def test_resource_updated_notification(self):
+        self.exp_operation = 'updated'
+        self.exp_resource_id = uuid.uuid4().hex
+        exp_resource_data = {
+            'id': self.exp_resource_id,
+            'key': uuid.uuid4().hex}
+        self.exp_host = None
+
+        self.update_resource(self.exp_resource_id, exp_resource_data)
+        self.assertTrue(self.send_notification_called)
+
+    @notifications.deleted(EXP_RESOURCE_TYPE)
+    def delete_resource(self, resource_id):
+        pass
+
+    def test_resource_deleted_notification(self):
+        self.exp_operation = 'deleted'
+        self.exp_resource_id = uuid.uuid4().hex
+        self.exp_host = None
+
+        self.delete_resource(self.exp_resource_id)
+        self.assertTrue(self.send_notification_called)
+
+    @notifications.created(EXP_RESOURCE_TYPE)
+    def create_exception(self, resource_id):
+        raise ArbitraryException()
+
+    def test_create_exception_without_notification(self):
+        self.assertRaises(
+            ArbitraryException, self.create_exception, uuid.uuid4().hex)
+        self.assertFalse(self.send_notification_called)
+
+    @notifications.created(EXP_RESOURCE_TYPE)
+    def update_exception(self, resource_id):
+        raise ArbitraryException()
+
+    def test_update_exception_without_notification(self):
+        self.assertRaises(
+            ArbitraryException, self.update_exception, uuid.uuid4().hex)
+        self.assertFalse(self.send_notification_called)
+
+    @notifications.deleted(EXP_RESOURCE_TYPE)
+    def delete_exception(self, resource_id):
+        raise ArbitraryException()
+
+    def test_delete_exception_without_notification(self):
+        self.assertRaises(
+            ArbitraryException, self.delete_exception, uuid.uuid4().hex)
+        self.assertFalse(self.send_notification_called)
+
+
 class NotificationsTestCase(core.TestCase):
-
-    def test_send_notification_project_created(self):
-        """Test to ensure resource_type is 'project' and operation is
-           'created'.
-        """
-
-        resource_id = 'created_resource_id'
-        self.send_notification_called = False
-
-        def fake_send_notification(resource, resource_type, operation,
-                                   host=None):
-            exp_resource_type = 'project'
-            exp_operation = 'created'
-            self.assertEqual(exp_resource_type, resource_type)
-            self.assertEqual(exp_operation, operation)
-            self.assertEqual(resource_id, resource)
-            self.send_notification_called = True
-
-        self.stubs.Set(notifications, '_send_notification',
-                       fake_send_notification)
-        notifications.notify_created(resource_id, 'project')
-        self.assertTrue(self.send_notification_called)
-
-    def test_send_notification_project_updated(self):
-        """Test to ensure resource_type is 'project' and operation is
-           'updated'.
-        """
-
-        resource_id = 'updated_resource_id'
-        self.send_notification_called = False
-
-        def fake_send_notification(resource, resource_type, operation,
-                                   host=None):
-            exp_resource_type = 'project'
-            exp_operation = 'updated'
-            self.assertEqual(exp_resource_type, resource_type)
-            self.assertEqual(exp_operation, operation)
-            self.assertEqual(resource_id, resource)
-            self.send_notification_called = True
-
-        self.stubs.Set(notifications, '_send_notification',
-                       fake_send_notification)
-        notifications.notify_updated(resource_id, 'project')
-        self.assertTrue(self.send_notification_called)
-
-    def test_send_notification_project_deleted(self):
-        """Test to ensure resource_type is 'project' and operation is
-           'deleted'.
-        """
-
-        resource_id = 'deleted_resource_id'
-        self.send_notification_called = False
-
-        def fake_send_notification(resource, resource_type, operation,
-                                   host=None):
-            exp_resource_type = 'project'
-            exp_operation = 'deleted'
-            self.assertEqual(exp_resource_type, resource_type)
-            self.assertEqual(exp_operation, operation)
-            self.assertEqual(resource_id, resource)
-            self.send_notification_called = True
-
-        self.stubs.Set(notifications, '_send_notification',
-                       fake_send_notification)
-        notifications.notify_deleted(resource_id, 'project')
-        self.assertTrue(self.send_notification_called)
-
     def test_send_notification(self):
         """Test the private method _send_notification to ensure event_type,
            payload, and context are built and passed properly.
         """
 
-        resource = 'some_resource_id'
-        resource_type = 'project'
+        resource = uuid.uuid4().hex
+        resource_type = EXP_RESOURCE_TYPE
         operation = 'created'
         host = None
 
