@@ -104,14 +104,14 @@ class BaseCertificateConfigure(object):
             index_file = open(index_file_name, 'w')
             index_file.write('')
             index_file.close()
-        self._set_permissions(self.ssl_config_file_name, PRIV_PERMS)
+        self._set_permissions(index_file_name, PRIV_PERMS)
 
         serial_file_name = os.path.join(self.conf_dir, 'serial')
         if not file_exists(serial_file_name):
             index_file = open(serial_file_name, 'w')
             index_file.write('01')
             index_file.close()
-        self._set_permissions(self.ssl_config_file_name, PRIV_PERMS)
+        self._set_permissions(serial_file_name, PRIV_PERMS)
 
     def build_ca_cert(self):
         ca_key_file = self.ssl_dictionary['ca_private_key']
