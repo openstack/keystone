@@ -306,7 +306,8 @@ class TestCase(NoModule, unittest.TestCase):
 
             for tenant in fixtures.TENANTS:
                 try:
-                    rv = self.identity_api.create_project(tenant['id'], tenant)
+                    rv = self.assignment_api.create_project(
+                        tenant['id'], tenant)
                 except exception.Conflict:
                     rv = self.identity_api.get_project(tenant['id'])
                     pass

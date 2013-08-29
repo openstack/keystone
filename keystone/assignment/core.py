@@ -16,10 +16,12 @@
 
 """Main entry point into the assignment service."""
 
+from keystone import clean
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone import notifications
 from keystone.openstack.common import log as logging
 
 
@@ -54,6 +56,25 @@ class Manager(manager.Manager):
             assignment_driver = identity_driver.default_assignment_driver()
 
         super(Manager, self).__init__(assignment_driver)
+
+    @notifications.created('project')
+    def create_project(self, tenant_id, tenant_ref):
+        tenant = tenant_ref.copy()
+        tenant.setdefault('enabled', True)
+        tenant['enabled'] = clean.project_enabled(tenant['enabled'])
+        tenant.setdefault('description', '')
+        return self.driver.create_project(tenant_id, tenant)
+
+    @notifications.updated('project')
+    def update_project(self, tenant_id, tenant_ref):
+        tenant = tenant_ref.copy()
+        if 'enabled' in tenant:
+            tenant['enabled'] = clean.project_enabled(tenant['enabled'])
+        return self.driver.update_project(tenant_id, tenant)
+
+    @notifications.deleted('project')
+    def delete_project(self, tenant_id):
+        return self.driver.delete_project(tenant_id)
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given project.

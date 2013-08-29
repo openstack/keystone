@@ -68,7 +68,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.project = self.new_project_ref(
                 domain_id=self.domain_id)
             self.project['id'] = self.project_id
-            self.identity_api.create_project(self.project_id, self.project)
+            self.assignment_api.create_project(self.project_id, self.project)
 
             self.user_id = uuid.uuid4().hex
             self.user = self.new_user_ref(
@@ -81,8 +81,8 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.default_domain_project = self.new_project_ref(
                 domain_id=DEFAULT_DOMAIN_ID)
             self.default_domain_project['id'] = self.default_domain_project_id
-            self.identity_api.create_project(self.default_domain_project_id,
-                                             self.default_domain_project)
+            self.assignment_api.create_project(self.default_domain_project_id,
+                                               self.default_domain_project)
 
             self.default_domain_user_id = uuid.uuid4().hex
             self.default_domain_user = self.new_user_ref(

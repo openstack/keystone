@@ -187,7 +187,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                   'name': None,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.identity_api.create_project,
+                          self.assignment_api.create_project,
                           tenant['id'],
                           tenant)
         self.assertRaises(exception.ProjectNotFound,
@@ -217,7 +217,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.identity_api.create_user('fake', user)
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
                                               user['id'])
-        self.identity_api.delete_project(self.tenant_bar['id'])
+        self.assignment_api.delete_project(self.tenant_bar['id'])
         tenants = self.identity_api.get_projects_for_user(user['id'])
         self.assertEquals(tenants, [])
 
@@ -260,7 +260,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             user['id'],
             self.tenant_bar['id'],
             role['id'])
-        self.identity_api.delete_project(self.tenant_bar['id'])
+        self.assignment_api.delete_project(self.tenant_bar['id'])
 
         # Now check whether the internal representation of roles
         # has been deleted
@@ -287,12 +287,12 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             'name': uuid.uuid4().hex,
             'domain_id': DEFAULT_DOMAIN_ID,
             arbitrary_key: arbitrary_value}
-        ref = self.identity_api.create_project(tenant_id, tenant)
+        ref = self.assignment_api.create_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertIsNone(ref.get('extra'))
 
         tenant['name'] = uuid.uuid4().hex
-        ref = self.identity_api.update_project(tenant_id, tenant)
+        ref = self.assignment_api.update_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 

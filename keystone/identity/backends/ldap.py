@@ -56,9 +56,6 @@ class Identity(identity.Driver):
 
     # Identity interface
 
-    def create_project(self, project_id, project):
-        return self.assignment_api.create_project(project_id, project)
-
     def authenticate(self, user_id, password):
         try:
             user_ref = self._get_user(user_id)

@@ -381,9 +381,9 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         self.domainB = self.new_domain_ref()
         self.identity_api.create_domain(self.domainB['id'], self.domainB)
         self.projectA = self.new_project_ref(domain_id=self.domainA['id'])
-        self.identity_api.create_project(self.projectA['id'], self.projectA)
+        self.assignment_api.create_project(self.projectA['id'], self.projectA)
         self.projectB = self.new_project_ref(domain_id=self.domainA['id'])
-        self.identity_api.create_project(self.projectB['id'], self.projectB)
+        self.assignment_api.create_project(self.projectB['id'], self.projectB)
 
         # Now create some users, one in domainA and two of them in domainB
         self.user1 = self.new_user_ref(
@@ -1020,7 +1020,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
     def test_project_id_scoped_token_with_user_id_401(self):
         project_id = uuid.uuid4().hex
         project = self.new_project_ref(domain_id=self.domain_id)
-        self.identity_api.create_project(project_id, project)
+        self.assignment_api.create_project(project_id, project)
 
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -1053,7 +1053,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         domainA = self.new_domain_ref()
         self.identity_api.create_domain(domainA['id'], domainA)
         projectA = self.new_project_ref(domain_id=domainA['id'])
-        self.identity_api.create_project(projectA['id'], projectA)
+        self.assignment_api.create_project(projectA['id'], projectA)
 
         user1 = self.new_user_ref(
             domain_id=domainA['id'])
