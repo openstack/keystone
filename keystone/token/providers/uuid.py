@@ -274,7 +274,6 @@ class V3TokenDataHelper(object):
             try:
                 service_catalog = self.catalog_api.get_v3_catalog(
                     user_id, project_id)
-            # TODO(ayoung): KVS backend needs a sample implementation
             except exception.NotImplemented:
                 service_catalog = {}
             # TODO(gyee): v3 service catalog is not quite completed yet

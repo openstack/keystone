@@ -48,8 +48,7 @@ To run the keystone Admin and API server instances, use::
 
 this runs keystone with the configuration the etc/ directory of the project.
 See :doc:`configuration` for details on how Keystone is configured. By default,
-keystone is configured with KVS backends, so any data entered into keystone run
-in this fashion will not persist across restarts.
+keystone is configured with SQL backends.
 
 
 Interacting with Keystone

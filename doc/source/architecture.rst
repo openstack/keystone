@@ -131,16 +131,6 @@ expected to subclass from these classes. The default response for the defined
 apis in these Drivers is to raise a :mod:`keystone.service.TokenController`.
 
 
-KVS Backend
------------
-
-A simple backend interface meant to be further backended on anything that can
-support primary key lookups, the most trivial implementation being an in-memory
-dict.
-
-Supports all features of the general data model.
-
-
 SQL Backend
 -----------
 

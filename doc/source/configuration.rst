@@ -1105,8 +1105,8 @@ example::
 Removing Expired Tokens
 ===========================================================
 
-In the SQL and KVS token stores expired tokens are not automatically
-removed. These tokens can be removed with::
+In the SQL backend expired tokens are not automatically removed. These tokens
+can be removed with::
 
     $ keystone-manage token_flush
 
