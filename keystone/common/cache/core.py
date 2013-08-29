@@ -17,7 +17,6 @@
 """Keystone Caching Layer Implementation."""
 
 import dogpile.cache
-
 from dogpile.cache import proxy
 from dogpile.cache import util
 
