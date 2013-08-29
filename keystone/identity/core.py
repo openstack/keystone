@@ -26,6 +26,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone import notifications
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log as logging
 
@@ -260,6 +261,7 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
+    @notifications.created('user')
     @domains_configured
     def create_user(self, user_id, user_ref):
         user = user_ref.copy()
@@ -301,6 +303,7 @@ class Manager(manager.Manager):
             user_list = self._set_domain_id(user_list, domain_id)
         return user_list
 
+    @notifications.updated('user')
     @domains_configured
     def update_user(self, user_id, user_ref, domain_scope=None):
         user = user_ref.copy()
@@ -317,6 +320,7 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
+    @notifications.deleted('user')
     @domains_configured
     def delete_user(self, user_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
