@@ -30,7 +30,6 @@ from keystone.common.sql import migration
 from keystone import config
 from keystone import contrib
 from keystone.openstack.common import importutils
-from keystone.openstack.common import jsonutils
 from keystone import token
 
 CONF = config.CONF
@@ -190,67 +189,9 @@ class TokenFlush(BaseApp):
         token_manager.driver.flush_expired_tokens()
 
 
-class ImportLegacy(BaseApp):
-    """Import a legacy database."""
-
-    name = 'import_legacy'
-
-    @classmethod
-    def add_argument_parser(cls, subparsers):
-        parser = super(ImportLegacy, cls).add_argument_parser(subparsers)
-        parser.add_argument('old_db')
-        return parser
-
-    @staticmethod
-    def main():
-        from keystone.common.sql import legacy
-        migration = legacy.LegacyMigration(CONF.command.old_db)
-        migration.migrate_all()
-
-
-class ExportLegacyCatalog(BaseApp):
-    """Export the service catalog from a legacy database."""
-
-    name = 'export_legacy_catalog'
-
-    @classmethod
-    def add_argument_parser(cls, subparsers):
-        parser = super(ExportLegacyCatalog,
-                       cls).add_argument_parser(subparsers)
-        parser.add_argument('old_db')
-        return parser
-
-    @staticmethod
-    def main():
-        from keystone.common.sql import legacy
-        migration = legacy.LegacyMigration(CONF.command.old_db)
-        print('\n'.join(migration.dump_catalog()))
-
-
-class ImportNovaAuth(BaseApp):
-    """Import a dump of nova auth data into keystone."""
-
-    name = 'import_nova_auth'
-
-    @classmethod
-    def add_argument_parser(cls, subparsers):
-        parser = super(ImportNovaAuth, cls).add_argument_parser(subparsers)
-        parser.add_argument('dump_file')
-        return parser
-
-    @staticmethod
-    def main():
-        from keystone.common.sql import nova
-        dump_data = jsonutils.loads(open(CONF.command.dump_file).read())
-        nova.import_auth(dump_data)
-
-
 CMDS = [
     DbSync,
     DbVersion,
-    ExportLegacyCatalog,
-    ImportLegacy,
-    ImportNovaAuth,
     PKISetup,
     SSLSetup,
     TokenFlush,

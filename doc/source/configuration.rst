@@ -435,9 +435,6 @@ service catalog will not change very much over time.
 The value of ``template_file`` is expected to be an absolute path to your
 service catalog configuration. An example ``template_file`` is included in
 Keystone, however you should create your own to reflect your deployment.
-If you are migrating from a legacy deployment, a tool is available to help with
-this task (see `Migrating your Service Catalog from legacy versions of
-Keystone`_).
 
 Another such example is `available in devstack
 (files/default_catalog.templates)
@@ -701,124 +698,6 @@ empty list from your new database)::
     values, or deployed Keystone to a different endpoint, you will need to
     change the provided command accordingly.
 
-Migrating from legacy versions of Keystone
-==========================================
-
-Migration support is provided for the following legacy Keystone versions:
-
-* diablo-5
-* stable/diablo
-* essex-2
-* essex-3
-
-.. NOTE::
-
-    Before you can import your legacy data, you must first
-    `prepare your deployment`_.
-
-Step 1: Ensure your deployment can access your legacy database
---------------------------------------------------------------------
-
-Your legacy ``keystone.conf`` contains a SQL configuration section called
-``[keystone.backends.sqlalchemy]`` connection string which, by default,
-looks like::
-
-    sql_connection = sqlite:///keystone.db
-
-This connection string needs to be accessible from your deployment (e.g.
-you may need to copy your SQLite ``*.db`` file to a new server, adjust the
-relative path as appropriate, or open a firewall for MySQL, etc).
-
-Step 2: Import your legacy data
--------------------------------
-
-Use the following command to import your old data using the value of
-``sql_connection`` from step 3::
-
-    $ keystone-manage import_legacy <sql_connection>
-
-You should now be able to run the same command you used to test your new
-database above, but now you'll see your legacy Keystone data::
-
-    $ keystone --token ADMIN --endpoint http://127.0.0.1:35357/v2.0/ tenant-list
-    +----------------------------------+----------------+---------+
-    |                id                |      name      | enabled |
-    +----------------------------------+----------------+---------+
-    | 12edde26a6224199a66ece67b762a065 | project-y      | True    |
-    | 593715ed4359404999915ea7005a7da1 | ANOTHER:TENANT | True    |
-    | be57fed798b049bc9637d2be30bfa857 | coffee-tea     | True    |
-    | e3c382f4757a4385b502056431763cca | customer-x     | True    |
-    +----------------------------------+----------------+---------+
-
-
-Migrating your Service Catalog from legacy versions of Keystone
-===============================================================
-
-While legacy Keystone deployments stored the service catalog in the database,
-the service catalog is stored in a flat ``template_file``. An example
-service catalog template file may be found in
-``etc/default_catalog.templates``. You can change the path to your service
-catalog template in ``keystone.conf`` by changing the value of
-``[catalog] template_file``.
-
-Import your legacy catalog and redirect the output to your ``template_file``::
-
-    $ keystone-manage export_legacy_catalog <sql_connection> > <template_file>
-
-.. NOTE::
-
-    After executing this command, you will need to restart the Keystone
-    service to see your changes.
-
-Migrating from Nova Auth
-========================
-
-Migration of users, projects (aka tenants), roles and EC2 credentials
-is supported for the Essex and later releases of Nova. To migrate your auth
-data from Nova, use the following steps:
-
-.. NOTE::
-
-    Before you can migrate from nova auth, you must first
-    `prepare your deployment`_.
-
-Step 1: Export your data from Nova
-----------------------------------
-
-Use the following command to export your data from Nova to a ``dump_file``::
-
-    $ nova-manage export auth > /path/to/dump
-
-It is important to redirect the output to a file so it can be imported in the
-next step.
-
-Step 2: Import your data to Keystone
-------------------------------------
-
-Import your Nova auth data from a ``dump_file`` created with ``nova-manage``::
-
-    $ keystone-manage import_nova_auth <dump_file>
-
-.. NOTE::
-
-    Users are added to Keystone with the user ID from Nova as the user name.
-    Nova's projects are imported with the project ID as the tenant name. The
-    password used to authenticate a user in Keystone will be the API key
-    (also EC2 access key) used in Nova. Users also lose any administrative
-    privileges they had in Nova. The necessary admin role must be explicitly
-    re-assigned to each user.
-
-.. NOTE::
-
-    Users in Nova's auth system have a single set of EC2 credentials that
-    works with all projects (tenants) that user can access. In Keystone, these
-    credentials are scoped to a single user/tenant pair. In order to use the
-    same secret keys from Nova, you must prefix each corresponding access key
-    with the ID of the project used in Nova. For example, if you had access
-    to the 'Beta' project in your Nova installation with the access/secret
-    keys 'ACCESS'/'SECRET', you should use 'Beta:ACCESS'/'SECRET' in Keystone.
-    These credentials are active once your migration is complete.
-
 Initializing Keystone
 =====================
 
@@ -826,9 +705,6 @@ Initializing Keystone
 through the normal REST API. At the moment, the following calls are supported:
 
 * ``db_sync``: Sync the database schema.
-* ``import_legacy``: Import data from a legacy (pre-Essex) database.
-* ``export_legacy_catalog``: Export service catalog from a legacy (pre-Essex) database.
-* ``import_nova_auth``: Load auth data from a dump created with ``nova-manage``.
 * ``pki_setup``: Initialize the certificates for PKI based tokens.
 * ``ssl_setup``: Generate certificates for HTTPS.
 
