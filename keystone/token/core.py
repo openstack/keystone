@@ -91,6 +91,7 @@ def validate_auth_info(self, user_ref, tenant_ref):
             raise exception.Unauthorized(msg)
 
 
+@dependency.requires('token_provider_api')
 @dependency.provider('token_api')
 class Manager(manager.Manager):
     """Default pivot point for the Token backend.
@@ -103,7 +104,7 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.token.driver)
 
-    def _unique_id(self, token_id):
+    def unique_id(self, token_id):
         """Return a unique ID for a token.
 
         The returned value is useful as the primary key of a database table,
@@ -115,21 +116,55 @@ class Manager(manager.Manager):
         """
         return cms.cms_hash_token(token_id)
 
+    def _assert_valid(self, token_id, token_ref):
+        """Raise TokenNotFound if the token is expired."""
+        current_time = timeutils.normalize_time(timeutils.utcnow())
+        expires = token_ref.get('expires')
+        if not expires or current_time > timeutils.normalize_time(expires):
+            raise exception.TokenNotFound(token_id=token_id)
+
     def get_token(self, token_id):
-        return self.driver.get_token(self._unique_id(token_id))
+        unique_id = self.unique_id(token_id)
+        token_ref = self._get_token(unique_id)
+        # NOTE(morganfainberg): Lift expired checking to the manager, there is
+        # no reason to make the drivers implement this check. With caching,
+        # self._get_token could return an expired token. Make sure we behave
+        # as expected and raise TokenNotFound on those instances.
+        self._assert_valid(token_id, token_ref)
+        return token_ref
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=CONF.token.cache_time)
+    def _get_token(self, token_id):
+        # Only ever use the "unique" id in the cache key.
+        return self.driver.get_token(token_id)
 
     def create_token(self, token_id, data):
+        unique_id = self.unique_id(token_id)
         data_copy = copy.deepcopy(data)
-        data_copy['id'] = self._unique_id(token_id)
-        return self.driver.create_token(self._unique_id(token_id), data_copy)
+        data_copy['id'] = unique_id
+        ret = self.driver.create_token(unique_id, data_copy)
+        if SHOULD_CACHE(ret):
+            # NOTE(morganfainberg): when doing a cache set, you must pass the
+            # same arguments through, the same as invalidate (this includes
+            # "self"). First argument is always the value to be cached
+            self._get_token.set(ret, self, unique_id)
+        return ret
 
     def delete_token(self, token_id):
-        self.driver.delete_token(self._unique_id(token_id))
+        unique_id = self.unique_id(token_id)
+        self.driver.delete_token(unique_id)
+        self._invalidate_individual_token_cache(unique_id)
         self.invalidate_revocation_list()
 
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
                       consumer_id=None):
+        token_list = self.driver.list_tokens(user_id, tenant_id, trust_id,
+                                             consumer_id)
         self.driver.delete_tokens(user_id, tenant_id, trust_id, consumer_id)
+        for token_id in token_list:
+            unique_id = self.unique_id(token_id)
+            self._invalidate_individual_token_cache(unique_id, tenant_id)
         self.invalidate_revocation_list()
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
@@ -145,6 +180,19 @@ class Manager(manager.Manager):
         # refresh() because of the way the invalidation/refresh methods work on
         # determining cache-keys.
         self.list_revoked_tokens.refresh(self)
+
+    def _invalidate_individual_token_cache(self, token_id, belongs_to=None):
+        # NOTE(morganfainberg): invalidate takes the exact same arguments as
+        # the normal method, this means we need to pass "self" in (which gets
+        # stripped off).
+
+        # FIXME(morganfainberg): Does this cache actually need to be
+        # invalidated? We maintain a cached revocation list, which should be
+        # consulted before accepting a token as valid.  For now we will
+        # do the explicit individual token invalidation.
+        self._get_token.invalidate(self, token_id)
+        self.token_provider_api.invalidate_individual_token_cache(token_id,
+                                                                  belongs_to)
 
 
 class Driver(object):

@@ -164,6 +164,9 @@
 # option is set to True
 # caching = True
 
+# Token specific cache time-to-live (TTL) in seconds.
+# cache_time =
+
 # Revocation-List specific cache time-to-live (TTL) in seconds.
 # revocation_cache_time = 3600
 

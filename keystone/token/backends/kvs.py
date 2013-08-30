@@ -42,15 +42,9 @@ class Token(kvs.Base, token.Driver):
     def get_token(self, token_id):
         try:
             ref = self.db.get('token-%s' % token_id)
-        except exception.NotFound:
-            raise exception.TokenNotFound(token_id=token_id)
-        now = timeutils.utcnow()
-        expiry = ref['expires']
-        if expiry is None:
-            raise exception.TokenNotFound(token_id=token_id)
-        if expiry > now:
             return copy.deepcopy(ref)
-        else:
+        except Exception:
+            # On any issues here, Token is not found.
             raise exception.TokenNotFound(token_id=token_id)
 
     def create_token(self, token_id, data):
