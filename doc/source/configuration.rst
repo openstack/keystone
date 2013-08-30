@@ -231,11 +231,14 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
     * ``dogpile.cache.memory`` - in-memory cache
 
         .. WARNING::
-            ``dogpile.cache.memory`` is not suitable for use outside of testing or
-            small workloads as it does not cleanup it's internal cache on cache
-            expiration and does not share cache between processes.  This means
-            that caching and cache invalidation will not be consistent or reliable
-            when using ``Keystone`` under HTTPD or similar configurations.
+            ``dogpile.cache.memory`` is not suitable for use outside of unit testing
+            as it does not cleanup it's internal cache on cache expiration, does
+            not provide isolation to the cached data (values in the store can be
+            inadvertently changed without extra layers of data protection added),
+            and does not share cache between processes.  This means that caching
+            and cache invalidation will not be consistent or reliable
+            when using ``Keystone`` and the ``dogpile.cache.memory`` backend under
+            any real workload.
 
 * ``expiration_time`` - int, the default length of time to cache a specific value. A value of ``0``
     indicates to not cache anything.  It is recommended that the ``enabled`` option be used to disable
