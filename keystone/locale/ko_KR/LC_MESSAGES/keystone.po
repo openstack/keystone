@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-08-02 17:05+0000\n"
+"POT-Creation-Date: 2013-08-30 06:00+0000\n"
 "PO-Revision-Date: 2013-03-21 18:34+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: ko_KR <LL@li.org>\n"
@@ -28,21 +28,25 @@ msgstr ""
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr ""
 
-#: keystone/clean.py:29
+#: keystone/clean.py:30
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr ""
 
-#: keystone/clean.py:36
+#: keystone/clean.py:39
 #, python-format
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr ""
 
-#: keystone/exception.py:48
+#: keystone/cli.py:81 keystone/cli.py:117
+msgid "This extension does not provide migrations."
+msgstr ""
+
+#: keystone/exception.py:47
 msgid "missing exception kwargs (programmer error)"
 msgstr ""
 
-#: keystone/exception.py:65
+#: keystone/exception.py:64
 #, python-format
 msgid ""
 "Expecting to find %(attribute)s in %(target)s. The server could not "
@@ -50,14 +54,14 @@ msgid ""
 "incorrect. The client is assumed to be in error."
 msgstr ""
 
-#: keystone/exception.py:74
+#: keystone/exception.py:73
 #, python-format
 msgid ""
 "String length exceeded.The length of string '%(string)s' exceeded the "
 "limit of column %(type)s(CHAR(%(length)d))."
 msgstr ""
 
-#: keystone/exception.py:80
+#: keystone/exception.py:79
 #, python-format
 msgid ""
 "Request attribute %(attribute)s must be less than or equal to %(size)i. "
@@ -65,152 +69,157 @@ msgid ""
 "is invalid (too large). The client is assumed to be in error."
 msgstr ""
 
-#: keystone/exception.py:101
+#: keystone/exception.py:100
 msgid "The request you have made requires authentication."
 msgstr ""
 
-#: keystone/exception.py:107
+#: keystone/exception.py:106
 msgid "Authentication plugin error."
 msgstr ""
 
-#: keystone/exception.py:115
+#: keystone/exception.py:114
 msgid "Attempted to authenticate with an unsupported method."
 msgstr ""
 
-#: keystone/exception.py:123
+#: keystone/exception.py:122
 msgid "Additional authentications steps required."
 msgstr ""
 
-#: keystone/exception.py:131
+#: keystone/exception.py:130
 msgid "You are not authorized to perform the requested action."
 msgstr ""
 
-#: keystone/exception.py:138
+#: keystone/exception.py:137
 #, python-format
 msgid "You are not authorized to perform the requested action, %(action)s."
 msgstr ""
 
-#: keystone/exception.py:143
+#: keystone/exception.py:142
 #, python-format
 msgid "Could not find, %(target)s."
 msgstr ""
 
-#: keystone/exception.py:149
+#: keystone/exception.py:148
 #, python-format
 msgid "Could not find endpoint, %(endpoint_id)s."
 msgstr ""
 
-#: keystone/exception.py:156
+#: keystone/exception.py:155
 msgid "An unhandled exception has occurred: Could not find metadata."
 msgstr ""
 
-#: keystone/exception.py:161
+#: keystone/exception.py:160
 #, python-format
 msgid "Could not find policy, %(policy_id)s."
 msgstr ""
 
-#: keystone/exception.py:165
+#: keystone/exception.py:164
 #, python-format
 msgid "Could not find role, %(role_id)s."
 msgstr ""
 
-#: keystone/exception.py:169
+#: keystone/exception.py:168
 #, python-format
 msgid "Could not find service, %(service_id)s."
 msgstr ""
 
-#: keystone/exception.py:173
+#: keystone/exception.py:172
 #, python-format
 msgid "Could not find domain, %(domain_id)s."
 msgstr ""
 
-#: keystone/exception.py:177
+#: keystone/exception.py:176
 #, python-format
 msgid "Could not find project, %(project_id)s."
 msgstr ""
 
-#: keystone/exception.py:181
+#: keystone/exception.py:180
 #, python-format
 msgid "Could not find token, %(token_id)s."
 msgstr ""
 
-#: keystone/exception.py:185
+#: keystone/exception.py:184
 #, python-format
 msgid "Could not find user, %(user_id)s."
 msgstr ""
 
-#: keystone/exception.py:189
+#: keystone/exception.py:188
 #, python-format
 msgid "Could not find group, %(group_id)s."
 msgstr ""
 
-#: keystone/exception.py:193
+#: keystone/exception.py:192
 #, python-format
 msgid "Could not find trust, %(trust_id)s."
 msgstr ""
 
-#: keystone/exception.py:197
+#: keystone/exception.py:196
 #, python-format
 msgid "Could not find credential, %(credential_id)s."
 msgstr ""
 
-#: keystone/exception.py:201
+#: keystone/exception.py:200
 #, python-format
 msgid "Could not find version, %(version)s."
 msgstr ""
 
-#: keystone/exception.py:205
+#: keystone/exception.py:204
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s. %(details)s"
 msgstr ""
 
-#: keystone/exception.py:212
+#: keystone/exception.py:211
 msgid "Request is too large."
 msgstr ""
 
-#: keystone/exception.py:218
+#: keystone/exception.py:217
 #, python-format
 msgid ""
 "An unexpected error prevented the server from fulfilling your request. "
 "%(exception)s"
 msgstr ""
 
-#: keystone/exception.py:225
+#: keystone/exception.py:224
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr ""
 
-#: keystone/exception.py:230
+#: keystone/exception.py:229
 msgid "The action you have requested has not been implemented."
 msgstr ""
 
-#: keystone/exception.py:237
+#: keystone/exception.py:236
 #, python-format
 msgid "The Keystone paste configuration file %(config_file)s could not be found."
 msgstr ""
 
-#: keystone/test.py:117
+#: keystone/notifications.py:96
 #, python-format
-msgid "Failed to checkout %s"
+msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/assignment/core.py:529
+#: keystone/assignment/core.py:204
+#, python-format
+msgid "Creating the default role %s because it does not exist."
+msgstr ""
+
+#: keystone/assignment/core.py:560 keystone/identity/core.py:212
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
 
 #: keystone/assignment/backends/kvs.py:138
-#: keystone/assignment/backends/sql.py:285
+#: keystone/assignment/backends/sql.py:271
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:418
+#: keystone/assignment/backends/ldap.py:399
 #, python-format
 msgid "Role %s not found"
 msgstr ""
 
-#: keystone/assignment/backends/sql.py:114
+#: keystone/assignment/backends/sql.py:109
 msgid "Inherited roles can only be assigned to domains"
 msgstr ""
 
@@ -241,20 +250,29 @@ msgstr ""
 msgid "Scoping to both project and trust is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:353
+#: keystone/auth/controllers.py:354
 msgid "User not found"
 msgstr ""
 
-#: keystone/auth/plugins/external.py:36 keystone/auth/plugins/external.py:66
+#: keystone/auth/plugins/external.py:36 keystone/auth/plugins/external.py:67
 msgid "No authenticated user"
 msgstr ""
 
-#: keystone/auth/plugins/external.py:49 keystone/auth/plugins/external.py:86
+#: keystone/auth/plugins/external.py:49 keystone/auth/plugins/external.py:87
 #, python-format
 msgid "Unable to lookup user %s"
 msgstr ""
 
-#: keystone/auth/plugins/password.py:112
+#: keystone/auth/plugins/oauth1.py:55
+msgid "Access token is expired"
+msgstr ""
+
+#: keystone/auth/plugins/oauth1.py:75
+#: keystone/contrib/oauth1/controllers.py:285
+msgid "There should not be any non-oauth parameters"
+msgstr ""
+
+#: keystone/auth/plugins/password.py:114
 msgid "Invalid username or password"
 msgstr ""
 
@@ -277,201 +295,259 @@ msgid ""
 "missing a type notifier ?)"
 msgstr ""
 
-#: keystone/catalog/backends/templated.py:109
+#: keystone/catalog/backends/templated.py:106
 #, python-format
 msgid "Unable to open template file %s"
 msgstr ""
 
-#: keystone/common/cms.py:26
+#: keystone/common/cms.py:42
 #, python-format
 msgid "Verify error: %s"
 msgstr ""
 
-#: keystone/common/cms.py:118
+#: keystone/common/cms.py:134
 msgid ""
 "Signing error: Unable to load certificate - ensure you've configured PKI "
 "with 'keystone-manage pki_setup'"
 msgstr ""
 
-#: keystone/common/cms.py:122
+#: keystone/common/cms.py:138
 #, python-format
 msgid "Signing error: %s"
 msgstr ""
 
-#: keystone/common/config.py:89
-#, python-format
-msgid "Unable to locate specified logging config file: %s"
-msgstr ""
-
-#: keystone/common/config.py:107
-msgid "Invalid syslog facility"
-msgstr ""
-
-#: keystone/common/controller.py:18
+#: keystone/common/controller.py:33
 #, python-format
 msgid "RBAC: Authorizing %(action)s(%(kwargs)s)"
 msgstr ""
 
-#: keystone/common/controller.py:25
+#: keystone/common/controller.py:40
 msgid "RBAC: Invalid token"
 msgstr ""
 
-#: keystone/common/controller.py:39 keystone/common/controller.py:60
+#: keystone/common/controller.py:54 keystone/common/controller.py:75
 msgid "RBAC: Invalid user"
 msgstr ""
 
-#: keystone/common/controller.py:45
+#: keystone/common/controller.py:60
 msgid "RBAC: Proceeding without project"
 msgstr ""
 
-#: keystone/common/controller.py:65
+#: keystone/common/controller.py:80
 msgid "RBAC: Proceeding without tenant"
 msgstr ""
 
-#: keystone/common/controller.py:95 keystone/common/controller.py:146
+#: keystone/common/controller.py:122 keystone/common/controller.py:190
+#: keystone/common/controller.py:396
 msgid "RBAC: Bypassing authorization"
 msgstr ""
 
-#: keystone/common/controller.py:104 keystone/common/controller.py:144
+#: keystone/common/controller.py:148 keystone/common/controller.py:188
+#: keystone/common/controller.py:412
 msgid "RBAC: Authorization granted"
 msgstr ""
 
-#: keystone/common/controller.py:134
+#: keystone/common/controller.py:178
 #, python-format
 msgid "RBAC: Adding query filter params (%s)"
 msgstr ""
 
-#: keystone/common/controller.py:322
-msgid "Invalid token in normalize_domain_id"
+#: keystone/common/controller.py:368
+msgid "Invalid token in _get_domain_id_for_request"
 msgstr ""
 
-#: keystone/common/utils.py:233
+#: keystone/common/utils.py:73
+#, python-format
+msgid "Truncating user password to %s characters."
+msgstr ""
+
+#: keystone/common/utils.py:184 keystone/credential/controllers.py:40
+msgid "Invalid blob in credential"
+msgstr ""
+
+#: keystone/common/utils.py:263
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
 "listening on that port."
 msgstr ""
 
-#: keystone/common/wsgi.py:95
+#: keystone/common/wsgi.py:96
 msgid "No bind information present in token"
 msgstr ""
 
-#: keystone/common/wsgi.py:99
+#: keystone/common/wsgi.py:100
 #, python-format
 msgid "Named bind mode %s not in bind information"
 msgstr ""
 
-#: keystone/common/wsgi.py:105
+#: keystone/common/wsgi.py:106
 msgid "Kerberos credentials required and not present"
 msgstr ""
 
-#: keystone/common/wsgi.py:109
+#: keystone/common/wsgi.py:110
 msgid "Kerberos credentials do not match those in bind"
 msgstr ""
 
-#: keystone/common/wsgi.py:112
+#: keystone/common/wsgi.py:113
 msgid "Kerberos bind authentication successful"
 msgstr ""
 
-#: keystone/common/wsgi.py:115
+#: keystone/common/wsgi.py:116
 #, python-format
 msgid "Ignoring unknown bind for permissive mode: {%(bind_type)s: %(identifier)s}"
 msgstr ""
 
-#: keystone/common/wsgi.py:119
+#: keystone/common/wsgi.py:120
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr ""
 
-#: keystone/common/wsgi.py:211
+#: keystone/common/wsgi.py:209
 #, python-format
 msgid "arg_dict: %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:243
+#: keystone/common/wsgi.py:241
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr ""
 
-#: keystone/common/wsgi.py:487
+#: keystone/common/wsgi.py:489 keystone/tests/test_wsgi.py:311
 msgid "The resource could not be found."
 msgstr ""
 
-#: keystone/common/environment/__init__.py:37
+#: keystone/common/cache/core.py:46
+#, python-format
+msgid "CACHE_GET: Key: \"%(key)s)\" \"%(value)s\""
+msgstr ""
+
+#: keystone/common/cache/core.py:52
+#, python-format
+msgid "CACHE_GET_MULTI: \"%(key)s\" \"%(value)s\""
+msgstr ""
+
+#: keystone/common/cache/core.py:57
+#, python-format
+msgid "CACHE_SET: Key: %(key)s Value: %(value)s"
+msgstr ""
+
+#: keystone/common/cache/core.py:62
+#, python-format
+msgid "CACHE_SET_MULTI: %s"
+msgstr ""
+
+#: keystone/common/cache/core.py:67
+#, python-format
+msgid "CACHE_DELETE: %s"
+msgstr ""
+
+#: keystone/common/cache/core.py:70
+#, python-format
+msgid "CACHE_DELETE_MULTI: %s"
+msgstr ""
+
+#: keystone/common/cache/core.py:88
+#, python-format
+msgid ""
+"Unable to build cache config-key. Expected format \"<argname>:<value>\". "
+"Skipping unknown format: %s"
+msgstr ""
+
+#: keystone/common/cache/core.py:96
+#, python-format
+msgid "Keystone Cache Config: %s"
+msgstr ""
+
+#: keystone/common/cache/core.py:111
+msgid "region not type dogpile.cache.CacheRegion"
+msgstr ""
+
+#: keystone/common/cache/core.py:144
+#, python-format
+msgid "Adding cache-proxy '%s' to backend."
+msgstr ""
+
+#: keystone/common/environment/__init__.py:53
 #, python-format
 msgid "Environment configured as: %s"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:51
+#: keystone/common/environment/eventlet_server.py:50
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:113
+#: keystone/common/environment/eventlet_server.py:112
 msgid "Server error"
 msgstr ""
 
-#: keystone/common/ldap/core.py:79
+#: keystone/common/ldap/core.py:78
 #, python-format
 msgid "Invalid LDAP deref option: %s. Choose one of: "
 msgstr ""
 
-#: keystone/common/ldap/core.py:87
+#: keystone/common/ldap/core.py:86
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option). Choose one of: %(options)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:99
+#: keystone/common/ldap/core.py:98
 #, python-format
 msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:189
+#: keystone/common/ldap/core.py:198
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
 "<ldap_attribute>:<keystone_attribute>"
 msgstr ""
 
-#: keystone/common/ldap/core.py:195
+#: keystone/common/ldap/core.py:204
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%(item)s\". Value "
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:279 keystone/identity/backends/kvs.py:177
-#: keystone/identity/backends/kvs.py:205
+#: keystone/common/ldap/core.py:288 keystone/identity/backends/kvs.py:180
+#: keystone/identity/backends/kvs.py:208
 #, python-format
 msgid "Duplicate name, %s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:289 keystone/identity/backends/kvs.py:170
+#: keystone/common/ldap/core.py:298 keystone/identity/backends/kvs.py:173
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:294
+#: keystone/common/ldap/core.py:304
 #, python-format
 msgid "LDAP %s create"
 msgstr ""
 
-#: keystone/common/ldap/core.py:372
+#: keystone/common/ldap/core.py:382
 #, python-format
 msgid "LDAP %s update"
 msgstr ""
 
-#: keystone/common/ldap/core.py:405
+#: keystone/common/ldap/core.py:393
+#, python-format
+msgid "Cannot change %(option_name)s %(attr)s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:419
 #, python-format
 msgid "LDAP %s delete"
 msgstr ""
 
-#: keystone/common/ldap/core.py:430
+#: keystone/common/ldap/core.py:444
 #, python-format
 msgid "LDAP init: url=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:431
+#: keystone/common/ldap/core.py:445
 #, python-format
 msgid ""
 "LDAP init: use_tls=%(use_tls)s\n"
@@ -481,237 +557,405 @@ msgid ""
 "tls_avail=%(tls_avail)s\n"
 msgstr ""
 
-#: keystone/common/ldap/core.py:450
+#: keystone/common/ldap/core.py:464
 msgid "Invalid TLS / LDAPS combination"
 msgstr ""
 
-#: keystone/common/ldap/core.py:454
+#: keystone/common/ldap/core.py:468
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
 msgstr ""
 
-#: keystone/common/ldap/core.py:464
+#: keystone/common/ldap/core.py:478
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr ""
 
-#: keystone/common/ldap/core.py:476
+#: keystone/common/ldap/core.py:490
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr ""
 
-#: keystone/common/ldap/core.py:483
+#: keystone/common/ldap/core.py:497
 #, python-format
 msgid "LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:497
+#: keystone/common/ldap/core.py:511
 #, python-format
 msgid "LDAP bind: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:508
+#: keystone/common/ldap/core.py:521
 #, python-format
 msgid "LDAP add: dn=%(dn)s, attrs=%(attrs)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:514
+#: keystone/common/ldap/core.py:526
 #, python-format
 msgid ""
 "LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, "
 "attrs=%(attrlist)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:567
+#: keystone/common/ldap/core.py:579
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
 msgstr ""
 
-#: keystone/common/ldap/core.py:584
+#: keystone/common/ldap/core.py:595
 #, python-format
 msgid "LDAP modify: dn=%(dn)s, modlist=%(modlist)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:590
+#: keystone/common/ldap/core.py:601
 #, python-format
 msgid "LDAP delete: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:595
+#: keystone/common/ldap/core.py:606
 #, python-format
 msgid "LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:146
+#: keystone/common/ldap/fakeldap.py:161
 #, python-format
 msgid "FakeLdap initialize url=%s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:156
+#: keystone/common/ldap/fakeldap.py:173
 #, python-format
 msgid "FakeLdap bind dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:163
+#: keystone/common/ldap/fakeldap.py:180
 #, python-format
 msgid "FakeLdap bind fail: dn=%s not found"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:170
+#: keystone/common/ldap/fakeldap.py:187
 #, python-format
 msgid "FakeLdap bind fail: password for dn=%s not found"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:175
+#: keystone/common/ldap/fakeldap.py:192
 #, python-format
 msgid "FakeLdap bind fail: password for dn=%s does not match"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:190
+#: keystone/common/ldap/fakeldap.py:207
 #, python-format
 msgid "FakeLdap add item: dn=%(dn)s, attrs=%(attrs)s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:193
+#: keystone/common/ldap/fakeldap.py:210
 #, python-format
 msgid "FakeLdap add item failed: dn=%s is already in store."
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:207 keystone/common/ldap/fakeldap.py:221
+#: keystone/common/ldap/fakeldap.py:224 keystone/common/ldap/fakeldap.py:238
 #, python-format
 msgid "FakeLdap delete item: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:211 keystone/common/ldap/fakeldap.py:225
+#: keystone/common/ldap/fakeldap.py:228 keystone/common/ldap/fakeldap.py:242
 #, python-format
 msgid "FakeLdap delete item failed: dn=%s not found."
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:240
+#: keystone/common/ldap/fakeldap.py:257
 #, python-format
 msgid "FakeLdap modify item: dn=%(dn)s attrs=%(attrs)s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:245
+#: keystone/common/ldap/fakeldap.py:262
 #, python-format
 msgid "FakeLdap modify item failed: dn=%s not found."
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:262
+#: keystone/common/ldap/fakeldap.py:278
 #, python-format
 msgid "FakeLdap modify item failed: item has no attribute \"%s\" to delete"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:273
+#: keystone/common/ldap/fakeldap.py:287
 #, python-format
 msgid ""
 "FakeLdap modify item failed: item has no attribute \"%(k)s\" with value "
 "\"%(v)s\" to delete"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:279
+#: keystone/common/ldap/fakeldap.py:293
 #, python-format
 msgid "FakeLdap modify item failed: unknown command %s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:281
+#: keystone/common/ldap/fakeldap.py:295
 #, python-format
 msgid "modify_s action %s not implemented"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:300
+#: keystone/common/ldap/fakeldap.py:314
 #, python-format
 msgid "FakeLdap search at dn=%(dn)s scope=%(scope)s query=%(query)s"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:306
+#: keystone/common/ldap/fakeldap.py:320
 msgid "FakeLdap search fail: dn not found for SCOPE_BASE"
 msgstr ""
 
-#: keystone/common/ldap/fakeldap.py:320
+#: keystone/common/ldap/fakeldap.py:334
 #, python-format
 msgid "Search scope %s not implemented."
 msgstr ""
 
-#: keystone/common/sql/core.py:119
+#: keystone/common/sql/core.py:123
 msgid "Global engine callback raised."
 msgstr ""
 
-#: keystone/common/sql/core.py:233
+#: keystone/common/sql/core.py:207
+#: keystone/openstack/common/db/sqlalchemy/session.py:614
 #, python-format
 msgid "Got mysql server has gone away: %s"
 msgstr ""
 
-#: keystone/common/sql/legacy.py:188
-#, python-format
-msgid "Cannot migrate EC2 credential: %s"
-msgstr ""
-
-#: keystone/common/sql/migration.py:47
+#: keystone/common/sql/migration.py:57
+#: keystone/openstack/common/db/sqlalchemy/migration.py:219
 msgid "version should be an integer"
 msgstr ""
 
-#: keystone/common/sql/nova.py:65
+#: keystone/common/sql/migrate_repo/versions/033_migrate_ec2credentials_table_credentials.py:61
 #, python-format
-msgid "Create tenant %s"
+msgid ""
+"Credential %(access)s already exists with different secret in %(table)s "
+"table"
 msgstr ""
 
-#: keystone/common/sql/nova.py:82
+#: keystone/common/sql/migrate_repo/versions/033_migrate_ec2credentials_table_credentials.py:71
 #, python-format
-msgid "Create user %s"
+msgid ""
+"Credential %(access)s already exists with different project in %(table)s "
+"table"
 msgstr ""
 
-#: keystone/common/sql/nova.py:91
-#, python-format
-msgid "Add user %(user_id)s to tenant %(tenant_id)s"
+#: keystone/contrib/ec2/controllers.py:241
+msgid "Token belongs to another user"
 msgstr ""
 
-#: keystone/common/sql/nova.py:100
-#, python-format
-msgid "Ignoring existing role %s"
+#: keystone/contrib/ec2/controllers.py:266
+msgid "Credential belongs to another user"
 msgstr ""
 
-#: keystone/common/sql/nova.py:107
+#: keystone/contrib/endpoint_filter/backends/sql.py:53
 #, python-format
-msgid "Create role %s"
-msgstr "Role %s 생성"
-
-#: keystone/common/sql/nova.py:117
-#, python-format
-msgid "Assign role %(role_id)s to user %(user_id)s on tenant %(tenant_id)s"
+msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr ""
 
-#: keystone/common/sql/nova.py:136
-#, python-format
-msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
+#: keystone/contrib/oauth1/controllers.py:65
+msgid "Cannot change consumer secret"
 msgstr ""
 
-#: keystone/identity/controllers.py:952
+#: keystone/contrib/oauth1/controllers.py:133
+#: keystone/contrib/oauth1/backends/sql.py:276
+msgid "User IDs do not match"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:140
+msgid "Could not find role"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:195
+msgid "Non-oauth parameter - project, do not match"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:201
+msgid "Non-oauth parameter - roles, do not match"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:212
+msgid "could not find matching roles for provided role ids"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:264
+#: keystone/contrib/oauth1/controllers.py:340
+msgid "Request token is expired"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:289
+msgid "provided consumer key does not match stored consumer key"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:293
+msgid "provided verifier does not match stored verifier"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:297
+msgid "provided request key does not match stored request key"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:301
+msgid "Request Token does not have an authorizing user id"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:357
+msgid "authorizing user does not have role required"
+msgstr ""
+
+#: keystone/contrib/oauth1/controllers.py:369
+msgid "User is not a member of the requested project"
+msgstr ""
+
+#: keystone/contrib/oauth1/backends/sql.py:90
+msgid "Consumer not found"
+msgstr ""
+
+#: keystone/contrib/oauth1/backends/sql.py:195
+msgid "Request token not found"
+msgstr ""
+
+#: keystone/contrib/oauth1/backends/sql.py:256
+msgid "Access token not found"
+msgstr ""
+
+#: keystone/identity/controllers.py:1053
 #, python-format
 msgid ""
 "Group %(group)s not found for role-assignment - %(target)s with Role: "
 "%(role)s"
 msgstr ""
 
-#: keystone/identity/backends/kvs.py:126 keystone/identity/backends/kvs.py:135
+#: keystone/identity/core.py:91
+#, python-format
+msgid "Invalid domain name (%s) found in config file name"
+msgstr ""
+
+#: keystone/identity/core.py:116
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr ""
+
+#: keystone/identity/core.py:129
+#, python-format
+msgid "Ignoring file (%s) while scanning domain config directory"
+msgstr ""
+
+#: keystone/identity/backends/kvs.py:129 keystone/identity/backends/kvs.py:138
 msgid "User not found in group"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:189
+#: keystone/identity/backends/ldap.py:178
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_id)s'. The user should "
 "be removed from the group. The user will be ignored."
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:334
-msgid "Changing Name not supported by LDAP"
-msgstr ""
-
-#: keystone/identity/backends/ldap.py:347
+#: keystone/identity/backends/ldap.py:317
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
+msgstr ""
+
+#: keystone/openstack/common/eventlet_backdoor.py:142
+#, python-format
+msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
+msgstr ""
+
+#: keystone/openstack/common/exception.py:103
+msgid "Uncaught exception"
+msgstr ""
+
+#: keystone/openstack/common/excutils.py:62
+#, python-format
+msgid "Original exception being dropped: %s"
+msgstr ""
+
+#: keystone/openstack/common/excutils.py:91
+#, python-format
+msgid "Unexpected exception occurred %d time(s)... retrying."
+msgstr ""
+
+#: keystone/openstack/common/fileutils.py:64
+#, python-format
+msgid "Reloading cached file %s"
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:100
+#, python-format
+msgid "Could not release the acquired lock `%s`"
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:167
+#, python-format
+msgid "Got semaphore \"%(lock)s\""
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:176
+#, python-format
+msgid "Attempting to grab file lock \"%(lock)s\""
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:186
+#, python-format
+msgid "Created lock path: %s"
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:204
+#, python-format
+msgid "Got file lock \"%(lock)s\" at %(path)s"
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:208
+#, python-format
+msgid "Released file lock \"%(lock)s\" at %(path)s"
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:245
+#, python-format
+msgid "Got semaphore / lock \"%(function)s\""
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:249
+#, python-format
+msgid "Semaphore / lock released \"%(function)s\""
+msgstr ""
+
+#: keystone/openstack/common/log.py:244
+#, python-format
+msgid "Deprecated: %s"
+msgstr ""
+
+#: keystone/openstack/common/log.py:336
+#, python-format
+msgid "Error loading logging config %(log_config)s: %(err_msg)s"
+msgstr ""
+
+#: keystone/openstack/common/log.py:386
+#, python-format
+msgid "syslog facility must be one of: %s"
+msgstr ""
+
+#: keystone/openstack/common/log.py:556
+#, python-format
+msgid "Fatal call to deprecated config: %(msg)s"
+msgstr ""
+
+#: keystone/openstack/common/loopingcall.py:84
+#, python-format
+msgid "task run outlasted interval by %s sec"
+msgstr ""
+
+#: keystone/openstack/common/loopingcall.py:91
+msgid "in fixed duration looping call"
+msgstr ""
+
+#: keystone/openstack/common/loopingcall.py:131
+#, python-format
+msgid "Dynamic looping call sleeping for %.02f seconds"
+msgstr ""
+
+#: keystone/openstack/common/loopingcall.py:138
+msgid "in dynamic looping call"
 msgstr ""
 
 #: keystone/openstack/common/policy.py:394
@@ -729,6 +973,94 @@ msgstr ""
 msgid "Failed to understand rule %(rule)r"
 msgstr ""
 
+#: keystone/openstack/common/service.py:118
+#: keystone/openstack/common/service.py:335
+msgid "Full set of CONF:"
+msgstr ""
+
+#: keystone/openstack/common/service.py:127
+#: keystone/openstack/common/service.py:217
+#, python-format
+msgid "Caught %s, exiting"
+msgstr ""
+
+#: keystone/openstack/common/service.py:139
+msgid "Exception during rpc cleanup."
+msgstr ""
+
+#: keystone/openstack/common/service.py:188
+msgid "Parent process has died unexpectedly, exiting"
+msgstr ""
+
+#: keystone/openstack/common/service.py:223
+msgid "Unhandled exception"
+msgstr ""
+
+#: keystone/openstack/common/service.py:256
+msgid "Forking too fast, sleeping"
+msgstr ""
+
+#: keystone/openstack/common/service.py:278
+#, python-format
+msgid "Started child %d"
+msgstr ""
+
+#: keystone/openstack/common/service.py:288
+#, python-format
+msgid "Starting %d workers"
+msgstr ""
+
+#: keystone/openstack/common/service.py:305
+#, python-format
+msgid "Child %(pid)d killed by signal %(sig)d"
+msgstr ""
+
+#: keystone/openstack/common/service.py:309
+#, python-format
+msgid "Child %(pid)s exited with status %(code)d"
+msgstr ""
+
+#: keystone/openstack/common/service.py:313
+#, python-format
+msgid "pid %d not in child list"
+msgstr ""
+
+#: keystone/openstack/common/service.py:345
+#, python-format
+msgid "Caught %s, stopping children"
+msgstr ""
+
+#: keystone/openstack/common/service.py:363
+#, python-format
+msgid "Waiting on %d children to exit"
+msgstr ""
+
+#: keystone/openstack/common/sslutils.py:52
+#, python-format
+msgid "Unable to find cert_file : %s"
+msgstr ""
+
+#: keystone/openstack/common/sslutils.py:55
+#, python-format
+msgid "Unable to find ca_file : %s"
+msgstr ""
+
+#: keystone/openstack/common/sslutils.py:58
+#, python-format
+msgid "Unable to find key_file : %s"
+msgstr ""
+
+#: keystone/openstack/common/sslutils.py:61
+msgid ""
+"When running server in SSL mode, you must specify both a cert_file and "
+"key_file option value in your configuration file"
+msgstr ""
+
+#: keystone/openstack/common/sslutils.py:100
+#, python-format
+msgid "Invalid SSL version : %s"
+msgstr ""
+
 #: keystone/openstack/common/crypto/utils.py:29
 msgid "An unknown error occurred in crypto utils."
 msgstr ""
@@ -743,36 +1075,552 @@ msgstr ""
 msgid "Length of %(given)d is too long, max = %(maximum)d"
 msgstr ""
 
+#: keystone/openstack/common/db/exception.py:44
+msgid "Invalid Parameter: Unicode is not supported by the current database."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/migration.py:251
+msgid "Upgrade DB using Essex release first."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/session.py:551
+msgid "DB exception wrapped."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/session.py:694
+#, python-format
+msgid "SQL connection failed. %s attempts left."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:60
+msgid "Sort key supplied was not valid."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:99
+msgid "Id not in sort_keys; is sort_keys unique?"
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:121
+msgid "Unknown sort direction, must be 'desc' or 'asc'"
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:196
+#, python-format
+msgid ""
+"Please specify column %s in col_name_col_instance param. It is required "
+"because column has unsupported type by sqlite)."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:202
+#, python-format
+msgid ""
+"col_name_col_instance param has wrong type of column instance for column "
+"%s It should be instance of sqlalchemy.Column."
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:282
+#, python-format
+msgid "Deleting duplicated row with id: %(id)s from table: %(table)s"
+msgstr ""
+
+#: keystone/openstack/common/db/sqlalchemy/utils.py:303
+msgid "Unsupported id columns type"
+msgstr ""
+
+#: keystone/openstack/common/notifier/api.py:129
+#, python-format
+msgid "%s not in valid priorities"
+msgstr ""
+
+#: keystone/openstack/common/notifier/api.py:145
+#, python-format
+msgid ""
+"Problem '%(e)s' attempting to send to notification system. "
+"Payload=%(payload)s"
+msgstr ""
+
+#: keystone/openstack/common/notifier/api.py:164
+#, python-format
+msgid "Failed to load notifier %s. These notifications will not be sent."
+msgstr ""
+
+#: keystone/openstack/common/notifier/rpc_notifier.py:45
+#: keystone/openstack/common/notifier/rpc_notifier2.py:51
+#, python-format
+msgid "Could not send notification to %(topic)s. Payload=%(message)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/__init__.py:106
+#, python-format
+msgid ""
+"A RPC is being made while holding a lock. The locks currently held are "
+"%(locks)s. This is probably a bug. Please report it. Include the "
+"following: [%(stack)s]."
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:75
+msgid "Pool creating new connection"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:202
+#, python-format
+msgid "No calling threads waiting for msg_id : %(msg_id)s, message : %(data)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:205
+#, python-format
+msgid "_call_waiters: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:212
+#, python-format
+msgid ""
+"Number of call waiters is greater than warning threshhold: %d. There "
+"could be a MulticallProxyWaiter leak."
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:290
+#, python-format
+msgid "unpacked context: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:341
+#, python-format
+msgid "UNIQUE_ID is %s."
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:413
+#, python-format
+msgid "received %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:421
+#, python-format
+msgid "no method for message: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:422
+#, python-format
+msgid "No method for message: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:450
+#: keystone/openstack/common/rpc/impl_zmq.py:280
+#, python-format
+msgid "Expected exception during message handling (%s)"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:458
+#: keystone/openstack/common/rpc/impl_zmq.py:286
+msgid "Exception during message handling"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:532
+#, python-format
+msgid "Making synchronous call on %s ..."
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:535
+#, python-format
+msgid "MSG_ID is %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:561
+#, python-format
+msgid "Making asynchronous cast on %s..."
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:570
+msgid "Making asynchronous fanout cast..."
+msgstr ""
+
+#: keystone/openstack/common/rpc/amqp.py:598
+#, python-format
+msgid "Sending %(event_type)s on %(topic)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:77
+msgid "An unknown RPC related exception occurred."
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:89
+msgid "Exception in string format operation"
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:107
+#, python-format
+msgid ""
+"Remote error: %(exc_type)s %(value)s\n"
+"%(traceback)s."
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:124
+#, python-format
+msgid ""
+"Timeout while waiting on RPC response - topic: \"%(topic)s\", RPC method:"
+" \"%(method)s\" info: \"%(info)s\""
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:141
+#: keystone/openstack/common/rpc/common.py:142
+#: keystone/openstack/common/rpc/common.py:143
+msgid "<unknown>"
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:147
+#, python-format
+msgid "Found duplicate message(%(msg_id)s). Skipping it."
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:151
+msgid "Invalid reuse of an RPC connection."
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:155
+#, python-format
+msgid "Specified RPC version, %(version)s, not supported by this endpoint."
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:160
+#, python-format
+msgid ""
+"Specified RPC envelope version, %(version)s, not supported by this "
+"endpoint."
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:165
+#, python-format
+msgid "Specified RPC version cap, %(version_cap)s, is too low"
+msgstr ""
+
+#: keystone/openstack/common/rpc/common.py:289
+#, python-format
+msgid "Returning exception %s to caller"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:162
+msgid "Failed to process message ... skipping it."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:165
+msgid "Failed to process message ... will requeue."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:502
+#, python-format
+msgid "Reconnecting to AMQP server on %(hostname)s:%(port)d"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:524
+#, python-format
+msgid "Connected to AMQP server on %(hostname)s:%(port)d"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:561
+#, python-format
+msgid ""
+"Unable to connect to AMQP server on %(hostname)s:%(port)d after "
+"%(max_retries)d tries: %(err_str)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:575
+#, python-format
+msgid ""
+"AMQP server on %(hostname)s:%(port)d is unreachable: %(err_str)s. Trying "
+"again in %(sleep_time)d seconds."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:629
+#: keystone/openstack/common/rpc/impl_qpid.py:492
+#, python-format
+msgid "Failed to declare consumer for topic '%(topic)s': %(err_str)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:647
+#: keystone/openstack/common/rpc/impl_qpid.py:507
+#, python-format
+msgid "Timed out waiting for RPC response: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:651
+#: keystone/openstack/common/rpc/impl_qpid.py:511
+#, python-format
+msgid "Failed to consume message from queue: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_kombu.py:690
+#: keystone/openstack/common/rpc/impl_qpid.py:546
+#, python-format
+msgid "Failed to publish message to topic '%(topic)s': %(err_str)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_qpid.py:161
+msgid "Failed to process message... skipping it."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_qpid.py:434
+#, python-format
+msgid "Unable to connect to AMQP server: %(e)s. Sleeping %(delay)s seconds"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_qpid.py:440
+#, python-format
+msgid "Connected to AMQP server on %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_qpid.py:453
+msgid "Re-established AMQP queues"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_qpid.py:519
+msgid "Error processing message.  Skipping it."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:96
+msgid "JSON serialization failed."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:101
+#, python-format
+msgid "Deserializing: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:136
+#, python-format
+msgid "Connecting to %(addr)s with %(type)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:137
+#, python-format
+msgid "-> Subscribed to %(subscribe)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:138
+#, python-format
+msgid "-> bind: %(bind)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:146
+msgid "Could not open socket."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:158
+#, python-format
+msgid "Subscribing to %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:200
+msgid "You cannot recv on this socket."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:205
+msgid "You cannot send on this socket."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:267
+#, python-format
+msgid "Running func with context: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:305
+msgid "Sending reply"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:339
+msgid "RPC message did not include method."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:371
+msgid "Registering reactor"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:383
+msgid "In reactor registered"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:387
+msgid "Consuming socket"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:437
+#, python-format
+msgid "Creating proxy for topic: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:443
+msgid "Topic contained dangerous characters."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:475
+msgid "Topic socket file creation failed."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:481
+#, python-format
+msgid "Local per-topic backlog buffer full for topic %(topic)s. Dropping message."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:497
+#, python-format
+msgid "Required IPC directory does not exist at %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:506
+#, python-format
+msgid "Permission denied to IPC directory at %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:509
+msgid "Could not create ZeroMQ receiver daemon. Socket may already be in use."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:543
+#, python-format
+msgid "CONSUMER RECEIVED DATA: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:562
+msgid "ZMQ Envelope version unsupported or unknown."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:590
+msgid "Skipping topic registration. Already registered."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:597
+#, python-format
+msgid "Consumer is a zmq.%s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:649
+msgid "Creating payload"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:662
+msgid "Creating queue socket for reply waiter"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:675
+msgid "Sending cast"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:678
+msgid "Cast sent; Waiting reply"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:681
+#, python-format
+msgid "Received message: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:682
+msgid "Unpacking response"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:691
+msgid "Unsupported or unknown ZMQ envelope returned."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:698
+msgid "RPC Message Invalid."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:721
+#, python-format
+msgid "%(msg)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:724
+#, python-format
+msgid "Sending message(s) to: %s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:728
+msgid "No matchmaker results. Not casting."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:731
+msgid "No match from matchmaker."
+msgstr ""
+
+#: keystone/openstack/common/rpc/impl_zmq.py:813
+#, python-format
+msgid "rpc_zmq_matchmaker = %(orig)s is deprecated; use %(new)s instead"
+msgstr ""
+
+#: keystone/openstack/common/rpc/matchmaker.py:47
+msgid "Match not found by MatchMaker."
+msgstr ""
+
+#: keystone/openstack/common/rpc/matchmaker.py:81
+msgid "Matchmaker does not implement registration or heartbeat."
+msgstr ""
+
+#: keystone/openstack/common/rpc/matchmaker.py:217
+#, python-format
+msgid "Matchmaker unregistered: %(key)s, %(host)s"
+msgstr ""
+
+#: keystone/openstack/common/rpc/matchmaker.py:229
+msgid "Register before starting heartbeat."
+msgstr ""
+
+#: keystone/openstack/common/rpc/matchmaker_ring.py:77
+#: keystone/openstack/common/rpc/matchmaker_ring.py:95
+#, python-format
+msgid "No key defining hosts for topic '%s', see ringfile"
+msgstr ""
+
+#: keystone/openstack/common/rpc/service.py:49
+#, python-format
+msgid "Creating Consumer connection for Service %s"
+msgstr ""
+
 #: keystone/policy/backends/rules.py:93
 #, python-format
 msgid "enforce %(action)s: %(credentials)s"
 msgstr ""
 
-#: keystone/token/controllers.py:378
+#: keystone/tests/core.py:113
+#, python-format
+msgid "Failed to checkout %s"
+msgstr ""
+
+#: keystone/token/controllers.py:386
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr ""
 
-#: keystone/token/controllers.py:395 keystone/token/controllers.py:398
+#: keystone/token/controllers.py:403 keystone/token/controllers.py:406
 msgid "Token does not belong to specified tenant."
 msgstr ""
 
-#: keystone/token/provider.py:76
+#: keystone/token/provider.py:79
 msgid ""
 "keystone.conf [signing] token_format (deprecated) conflicts with "
 "keystone.conf [token] provider"
 msgstr ""
 
-#: keystone/token/provider.py:84
+#: keystone/token/provider.py:87
 msgid ""
 "keystone.conf [signing] token_format is deprecated in favor of "
 "keystone.conf [token] provider"
 msgstr ""
 
-#: keystone/token/provider.py:94
+#: keystone/token/provider.py:97
 msgid ""
 "Unrecognized keystone.conf [signing] token_format: expected either 'UUID'"
 " or 'PKI'"
+msgstr ""
+
+#: keystone/token/provider.py:156
+#, python-format
+msgid "Unexpected error or malformed token determining token expiry: %s"
+msgstr ""
+
+#: keystone/token/provider.py:160 keystone/token/providers/uuid.py:548
+#: keystone/token/providers/uuid.py:559
+msgid "Failed to validate token"
 msgstr ""
 
 #: keystone/token/backends/kvs.py:37
@@ -781,25 +1629,25 @@ msgid ""
 "keystone.token.backend.memcache instead."
 msgstr ""
 
-#: keystone/token/backends/memcache.py:144
+#: keystone/token/backends/memcache.py:142
 #, python-format
 msgid ""
 "Successful set of token-index-list for user-key \"%(user_key)s\", "
 "#%(count)d records"
 msgstr ""
 
-#: keystone/token/backends/memcache.py:154
+#: keystone/token/backends/memcache.py:152
 #, python-format
 msgid ""
 "Failed to set token-index-list for user-key \"%(user_key)s\". Attempt "
 "%(cas_retry)d of %(cas_retry_max)d"
 msgstr ""
 
-#: keystone/token/backends/memcache.py:163
+#: keystone/token/backends/memcache.py:161
 msgid "Unable to add token user list"
 msgstr ""
 
-#: keystone/token/backends/memcache.py:172
+#: keystone/token/backends/memcache.py:170
 msgid "Unable to add token to revocation list."
 msgstr ""
 
@@ -807,42 +1655,34 @@ msgstr ""
 msgid "Unable to sign token."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:193
+#: keystone/token/providers/uuid.py:186
 msgid "Trustor is disabled."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:238
+#: keystone/token/providers/uuid.py:242
 msgid "Trustee has no delegated roles."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:247
+#: keystone/token/providers/uuid.py:251
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr ""
 
-#: keystone/token/providers/uuid.py:252
+#: keystone/token/providers/uuid.py:256
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr ""
 
-#: keystone/token/providers/uuid.py:303
+#: keystone/token/providers/uuid.py:306
 msgid "User is not a trustee."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:457
+#: keystone/token/providers/uuid.py:476
 msgid "Non-default domain is not supported"
 msgstr ""
 
-#: keystone/token/providers/uuid.py:465
+#: keystone/token/providers/uuid.py:484
 msgid "Domain scoped token is not supported"
-msgstr ""
-
-#: keystone/token/providers/uuid.py:528
-msgid "Failed to validate token"
-msgstr ""
-
-#: keystone/token/providers/uuid.py:566 keystone/token/providers/uuid.py:576
-msgid "Failed to verify token"
 msgstr ""
 
 #~ msgid "User have no access to project"
@@ -852,5 +1692,44 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Invalid value for token_format: %s.  Allowed values are PKI or UUID."
+#~ msgstr ""
+
+#~ msgid "Unable to locate specified logging config file: %s"
+#~ msgstr ""
+
+#~ msgid "Invalid syslog facility"
+#~ msgstr ""
+
+#~ msgid "Invalid token in normalize_domain_id"
+#~ msgstr ""
+
+#~ msgid "Cannot migrate EC2 credential: %s"
+#~ msgstr ""
+
+#~ msgid "Create tenant %s"
+#~ msgstr ""
+
+#~ msgid "Create user %s"
+#~ msgstr ""
+
+#~ msgid "Add user %(user_id)s to tenant %(tenant_id)s"
+#~ msgstr ""
+
+#~ msgid "Ignoring existing role %s"
+#~ msgstr ""
+
+#~ msgid "Create role %s"
+#~ msgstr "Role %s 생성"
+
+#~ msgid "Assign role %(role_id)s to user %(user_id)s on tenant %(tenant_id)s"
+#~ msgstr ""
+
+#~ msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
+#~ msgstr ""
+
+#~ msgid "Changing Name not supported by LDAP"
+#~ msgstr ""
+
+#~ msgid "Failed to verify token"
 #~ msgstr ""
 
