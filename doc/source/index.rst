@@ -67,6 +67,7 @@ Developers Documentation
    api_curl_examples
    apache-httpd
    external-auth
+   event_notifications
 
 Code Documentation
 ==================
