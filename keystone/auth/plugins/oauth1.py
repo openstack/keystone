@@ -44,7 +44,7 @@ class OAuth(auth.AuthMethodHandler):
                 attribute='oauth_token', target='request')
 
         acc_token = self.oauth_api.get_access_token(access_token_id)
-        consumer = self.oauth_api._get_consumer(consumer_id)
+        consumer = self.oauth_api.get_consumer_with_secret(consumer_id)
 
         expires_at = acc_token['expires_at']
         if expires_at:

@@ -22,9 +22,12 @@ import uuid
 import webtest
 
 from keystone.common import cms
+from keystone.common.sql import migration
 from keystone import config
+from keystone import contrib
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
+from keystone.openstack.common import importutils
 from keystone.tests import core
 
 import test_v3
@@ -35,12 +38,22 @@ CONF = config.CONF
 
 
 class OAuth1Tests(test_v3.RestfulTestCase):
+    EXTENSION_NAME = 'oauth1'
+
+    def setup_database(self):
+        super(OAuth1Tests, self).setup_database()
+        package_name = "%s.%s.migrate_repo" % (contrib.__name__,
+                                               self.EXTENSION_NAME)
+        package = importutils.import_module(package_name)
+        self.repo_path = os.path.abspath(os.path.dirname(package.__file__))
+        migration.db_version_control(version=None, repo_path=self.repo_path)
+        migration.db_sync(version=None, repo_path=self.repo_path)
+
     def setUp(self):
         super(OAuth1Tests, self).setUp()
         self.controller = controllers.OAuthControllerV3()
         self.base_url = CONF.public_endpoint % CONF + "v3"
         self._generate_paste_config()
-        self.load_backends()
         self.admin_app = webtest.TestApp(
             self.loadapp('v3_oauth1', name='admin'))
         self.public_app = webtest.TestApp(
@@ -169,7 +182,6 @@ class ConsumerCRUDTests(OAuth1Tests):
         consumer = self._create_single_consumer()
         original_id = consumer.get('id')
         original_description = consumer.get('description')
-        original_secret = consumer.get('secret')
         update_description = original_description + "_new"
 
         update_ref = {'description': update_description}
@@ -179,7 +191,6 @@ class ConsumerCRUDTests(OAuth1Tests):
         consumer = update_resp.result.get('consumer')
         self.assertEqual(consumer.get('description'), update_description)
         self.assertEqual(consumer.get('id'), original_id)
-        self.assertEqual(consumer.get('secret'), original_secret)
 
     def test_consumer_update_bad_secret(self):
         consumer = self._create_single_consumer()
