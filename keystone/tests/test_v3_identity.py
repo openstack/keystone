@@ -142,7 +142,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         self.project2 = self.new_project_ref(
             domain_id=self.domain2['id'])
-        self.identity_api.create_project(self.project2['id'], self.project2)
+        self.assignment_api.create_project(self.project2['id'], self.project2)
 
         self.user2 = self.new_user_ref(
             domain_id=self.domain2['id'],
@@ -240,7 +240,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         self.project2 = self.new_project_ref(
             domain_id=self.domain2['id'])
-        self.identity_api.create_project(self.project2['id'], self.project2)
+        self.assignment_api.create_project(self.project2['id'], self.project2)
 
         self.user2 = self.new_user_ref(
             domain_id=self.domain2['id'],
@@ -352,7 +352,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # Create a second credential with a different project
         self.project2 = self.new_project_ref(
             domain_id=self.domain['id'])
-        self.identity_api.create_project(self.project2['id'], self.project2)
+        self.assignment_api.create_project(self.project2['id'], self.project2)
         self.credential2 = self.new_credential_ref(
             user_id=self.user['id'],
             project_id=self.project2['id'])
@@ -980,7 +980,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                                             self.group1['id'])
         self.project1 = self.new_project_ref(
             domain_id=self.domain['id'])
-        self.identity_api.create_project(self.project1['id'], self.project1)
+        self.assignment_api.create_project(self.project1['id'], self.project1)
         self.role1 = self.new_role_ref()
         self.identity_api.create_role(self.role1['id'], self.role1)
         self.role2 = self.new_role_ref()

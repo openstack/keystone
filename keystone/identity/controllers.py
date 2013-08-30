@@ -97,7 +97,7 @@ class Tenant(controller.V2Controller):
 
         self.assert_admin(context)
         tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
-        tenant = self.identity_api.create_project(
+        tenant = self.assignment_api.create_project(
             tenant_ref['id'],
             self._normalize_domain_id(context, tenant_ref))
         return {'tenant': self._filter_domain_id(tenant)}
@@ -114,7 +114,7 @@ class Tenant(controller.V2Controller):
         if not tenant.get('enabled', True):
             self._delete_tokens_for_project(tenant_id)
 
-        tenant_ref = self.identity_api.update_project(
+        tenant_ref = self.assignment_api.update_project(
             tenant_id, clean_tenant)
         return {'tenant': tenant_ref}
 
@@ -122,7 +122,7 @@ class Tenant(controller.V2Controller):
         self.assert_admin(context)
         # Delete all tokens belonging to the users for that project
         self._delete_tokens_for_project(tenant_id)
-        self.identity_api.delete_project(tenant_id)
+        self.assignment_api.delete_project(tenant_id)
 
     def get_project_users(self, context, tenant_id, **kw):
         self.assert_admin(context)
@@ -565,7 +565,7 @@ class ProjectV3(controller.V3Controller):
 
         ref = self._assign_unique_id(self._normalize_dict(project))
         ref = self._normalize_domain_id(context, ref)
-        ref = self.identity_api.create_project(ref['id'], ref)
+        ref = self.assignment_api.create_project(ref['id'], ref)
         return ProjectV3.wrap_member(context, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
@@ -591,7 +591,7 @@ class ProjectV3(controller.V3Controller):
         if not project.get('enabled', True):
             self._delete_tokens_for_project(project_id)
 
-        ref = self.identity_api.update_project(project_id, project)
+        ref = self.assignment_api.update_project(project_id, project)
         return ProjectV3.wrap_member(context, ref)
 
     def _delete_project(self, context, project_id):
@@ -606,7 +606,7 @@ class ProjectV3(controller.V3Controller):
         # Finally delete the project itself - the backend is
         # responsible for deleting any role assignments related
         # to this project
-        return self.identity_api.delete_project(project_id)
+        return self.assignment_api.delete_project(project_id)
 
     @controller.protected()
     def delete_project(self, context, project_id):

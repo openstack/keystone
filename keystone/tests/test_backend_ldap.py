@@ -315,14 +315,14 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
 
     def test_configurable_allowed_project_actions(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
-        self.identity_api.create_project('fake1', tenant)
+        self.assignment_api.create_project('fake1', tenant)
         tenant_ref = self.identity_api.get_project('fake1')
         self.assertEqual(tenant_ref['id'], 'fake1')
 
         tenant['enabled'] = False
-        self.identity_api.update_project('fake1', tenant)
+        self.assignment_api.update_project('fake1', tenant)
 
-        self.identity_api.delete_project('fake1')
+        self.assignment_api.delete_project('fake1')
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           'fake1')
@@ -335,17 +335,17 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
 
         tenant = {'id': 'fake1', 'name': 'fake1'}
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.create_project,
+                          self.assignment_api.create_project,
                           'fake1',
                           tenant)
 
         self.tenant_bar['enabled'] = False
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.update_project,
+                          self.assignment_api.update_project,
                           self.tenant_bar['id'],
                           self.tenant_bar)
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.delete_project,
+                          self.assignment_api.delete_project,
                           self.tenant_bar['id'])
 
     def test_configurable_allowed_role_actions(self):
@@ -613,23 +613,19 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         #              provides a different update test
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': CONF.identity.default_domain_id,
-                   'description': uuid.uuid4().hex
+                   'description': uuid.uuid4().hex, 'enabled': True
                    }
         self.assignment_api.create_project(project['id'], project)
         project_ref = self.assignment_api.get_project(project['id'])
 
-        # NOTE(crazed): If running live test with emulation, there will be
-        #               an enabled key in the project_ref.
-        if self.assignment_api.driver.project.enabled_emulation:
-            project['enabled'] = True
         self.assertDictEqual(project_ref, project)
 
         project['description'] = uuid.uuid4().hex
-        self.identity_api.update_project(project['id'], project)
+        self.assignment_api.update_project(project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
-        self.identity_api.delete_project(project['id'])
+        self.assignment_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           project['id'])
@@ -653,7 +649,7 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
         self.identity_api.create_user(user1['id'], user1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': CONF.identity.default_domain_id}
-        self.identity_api.create_project(project1['id'], project1)
+        self.assignment_api.create_project(project1['id'], project1)
 
         self.identity_api.add_role_to_user_and_project(
             user_id=user1['id'],
@@ -713,21 +709,21 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'domain_id': CONF.identity.default_domain_id,
             'description': uuid.uuid4().hex}
 
-        self.identity_api.create_project(project['id'], project)
+        self.assignment_api.create_project(project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
 
-        # self.identity_api.create_project adds an enabled
+        # self.assignment_api.create_project adds an enabled
         # key with a value of True when LDAPIdentityEnabledEmulation
         # is used so we now add this expected key to the project dictionary
         project['enabled'] = True
         self.assertDictEqual(project_ref, project)
 
         project['description'] = uuid.uuid4().hex
-        self.identity_api.update_project(project['id'], project)
+        self.assignment_api.update_project(project['id'], project)
         project_ref = self.identity_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
-        self.identity_api.delete_project(project['id'])
+        self.assignment_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.identity_api.get_project,
                           project['id'])

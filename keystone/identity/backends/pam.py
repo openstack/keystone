@@ -120,15 +120,6 @@ class PamIdentity(identity.Driver):
     def delete_user(self, user_id):
         raise NotImplementedError()
 
-    def create_project(self, tenant_id, tenant):
-        raise NotImplementedError()
-
-    def update_project(self, tenant_id, tenant):
-        raise NotImplementedError()
-
-    def delete_project(self, tenant_id, tenant):
-        raise NotImplementedError()
-
     def _get_metadata(self, user_id, tenant_id):
         metadata = {}
         if user_id == 'root':

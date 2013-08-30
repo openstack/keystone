@@ -870,7 +870,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             tenant_id = uuid.uuid4().hex
             tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
                       'domain_id': DEFAULT_DOMAIN_ID}
-            self.identity_api.create_project(tenant_id, tenant)
+            self.assignment_api.create_project(tenant_id, tenant)
             self.identity_api.add_user_to_project(tenant_id,
                                                   self.user_foo['id'])
 
@@ -897,7 +897,7 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             tenant_id = uuid.uuid4().hex
             tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
                       'domain_id': DEFAULT_DOMAIN_ID}
-            self.identity_api.create_project(tenant_id, tenant)
+            self.assignment_api.create_project(tenant_id, tenant)
             self.identity_api.add_user_to_project(tenant_id,
                                                   self.user_foo['id'])
 

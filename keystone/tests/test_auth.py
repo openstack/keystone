@@ -289,7 +289,7 @@ class AuthWithToken(AuthTest):
         self.identity_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.identity_api.create_project(project1['id'], project1)
+        self.assignment_api.create_project(project1['id'], project1)
         role_foo_domain1 = {'id': uuid.uuid4().hex,
                             'name': uuid.uuid4().hex}
         self.identity_api.create_role(role_foo_domain1['id'],

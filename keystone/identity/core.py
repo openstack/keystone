@@ -407,19 +407,6 @@ class Manager(manager.Manager):
     # API should be removed, with the controller and tests making the correct
     # calls direct to assignment.
 
-    def create_project(self, tenant_id, tenant_ref):
-        tenant = tenant_ref.copy()
-        tenant.setdefault('enabled', True)
-        tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        tenant.setdefault('description', '')
-        return self.assignment_api.create_project(tenant_id, tenant)
-
-    def update_project(self, tenant_id, tenant_ref):
-        tenant = tenant_ref.copy()
-        if 'enabled' in tenant:
-            tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        return self.assignment_api.update_project(tenant_id, tenant)
-
     def get_project_by_name(self, tenant_name, domain_id):
         return self.assignment_api.get_project_by_name(tenant_name, domain_id)
 
@@ -462,9 +449,6 @@ class Manager(manager.Manager):
 
     def delete_role(self, role_id):
         return self.assignment_api.delete_role(role_id)
-
-    def delete_project(self, tenant_id):
-        return self.assignment_api.delete_project(tenant_id)
 
     def remove_role_from_user_and_project(self, user_id,
                                           tenant_id, role_id):
