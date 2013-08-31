@@ -28,12 +28,6 @@ CONF = config.CONF
 
 
 class ExceptionTestCase(test.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def assertValidJsonRendering(self, e):
         resp = wsgi.render_exception(e)
         self.assertEqual(resp.status_int, e.code)

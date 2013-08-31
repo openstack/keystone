@@ -24,10 +24,10 @@ This module can be removed when keystone.middleware.auth_token is removed.
 
 """
 
-import unittest
+import testtools
 
 
-class TestAuthToken(unittest.TestCase):
+class TestAuthToken(testtools.TestCase):
     def test_import(self):
         # a consuming service like nova would import oslo.config first
         from oslo.config import cfg

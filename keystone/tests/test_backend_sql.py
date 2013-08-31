@@ -357,8 +357,10 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         }
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
-        with self.assertRaises(exception.MalformedEndpoint):
-            self.catalog_api.get_catalog('fake-user', 'fake-tenant')
+        self.assertRaises(exception.MalformedEndpoint,
+                          self.catalog_api.get_catalog,
+                          'fake-user',
+                          'fake-tenant')
 
     def test_get_catalog_with_empty_public_url(self):
         service = {
@@ -403,8 +405,10 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
             'url': uuid.uuid4().hex,
         }
 
-        with self.assertRaises(exception.StringLengthExceeded):
-            self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
+        self.assertRaises(exception.StringLengthExceeded,
+                          self.catalog_api.create_endpoint,
+                          endpoint['id'],
+                          endpoint.copy())
 
 
 class SqlPolicy(SqlTests, test_backend.PolicyTests):

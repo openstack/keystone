@@ -14,13 +14,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest2 as unittest
+import testtools
 import uuid
 
 from keystone.common import dependency
 
 
-class TestDependencyInjection(unittest.TestCase):
+class TestDependencyInjection(testtools.TestCase):
     def tearDown(self):
         dependency.reset()
         super(TestDependencyInjection, self).tearDown()
@@ -167,9 +167,11 @@ class TestDependencyInjection(unittest.TestCase):
         class Consumer(object):
             pass
 
-        with self.assertRaises(dependency.UnresolvableDependencyException):
+        def for_test():
             Consumer()
             dependency.resolve_future_dependencies()
+
+        self.assertRaises(dependency.UnresolvableDependencyException, for_test)
 
     def test_circular_dependency(self):
         p1_name = uuid.uuid4().hex

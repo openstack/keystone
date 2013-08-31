@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest2 as unittest
+import testtools
 import webob
 
 from keystone.middleware import s3_token
@@ -53,7 +53,7 @@ class FakeHTTPConnection(object):
         pass
 
 
-class S3TokenMiddlewareTestBase(unittest.TestCase):
+class S3TokenMiddlewareTestBase(testtools.TestCase):
     def setUp(self):
         super(S3TokenMiddlewareTestBase, self).setUp()
 
@@ -194,7 +194,7 @@ class S3TokenMiddlewareTestBad(S3TokenMiddlewareTestBase):
         self.assertEqual(resp.status_int, s3_invalid_req.status_int)
 
 
-class S3TokenMiddlewareTestUtil(unittest.TestCase):
+class S3TokenMiddlewareTestUtil(testtools.TestCase):
     def test_split_path_failed(self):
         self.assertRaises(ValueError, s3_token.split_path, '')
         self.assertRaises(ValueError, s3_token.split_path, '/')

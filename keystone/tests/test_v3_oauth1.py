@@ -61,6 +61,7 @@ class OAuth1Tests(test_v3.RestfulTestCase):
 
     def tearDown(self):
         os.remove(OAUTH_PASTE_FILE)
+        super(OAuth1Tests, self).tearDown()
 
     def _generate_paste_config(self):
         # Generate a file, based on keystone-paste.ini,

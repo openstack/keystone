@@ -16,7 +16,6 @@
 
 import uuid
 
-from keystone import config
 from keystone import exception
 
 import test_v3
@@ -1107,17 +1106,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                                                 link_url=gp1_url)
 
 
-class IdentityIneritanceTestCase(test_v3.RestfulTestCase):
+class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
     """Test inheritance crud and its effects."""
 
     def setUp(self):
-        self.orig_extension_enablement = config.CONF.os_inherit.enabled
         self.opt_in_group('os_inherit', enabled=True)
-        super(IdentityIneritanceTestCase, self).setUp()
-
-    def tearDown(self):
-        super(IdentityIneritanceTestCase, self).tearDown()
-        self.opt_in_group('os_inherit', enabled=self.orig_extension_enablement)
+        super(IdentityInheritanceTestCase, self).setUp()
 
     def test_crud_user_inherited_domain_role_grants(self):
         role_list = []
@@ -1153,28 +1147,6 @@ class IdentityIneritanceTestCase(test_v3.RestfulTestCase):
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0)
         self.assertIn(collection_url, r.result['links']['self'])
-
-    def test_crud_inherited_role_grants_failed_if_disabled(self):
-        # Disable the extension and check no API calls can be issued
-        self.opt_in_group('os_inherit', enabled=False)
-        super(IdentityIneritanceTestCase, self).setUp()
-
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role['id'], role)
-
-        base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles' % {
-                'domain_id': self.domain_id,
-                'user_id': self.user['id']})
-        member_url = '%(collection_url)s/%(role_id)s/inherited_to_projects' % {
-            'collection_url': base_collection_url,
-            'role_id': role['id']}
-        collection_url = base_collection_url + '/inherited_to_projects'
-
-        self.put(member_url, expected_status=404)
-        self.head(member_url, expected_status=404)
-        self.get(collection_url, expected_status=404)
-        self.delete(member_url, expected_status=404)
 
     def test_list_role_assignments_for_inherited_domain_grants(self):
         """Call ``GET /role_assignments with inherited domain grants``.
@@ -1555,3 +1527,29 @@ class IdentityIneritanceTestCase(test_v3.RestfulTestCase):
             role_id=role_list[4]['id'], inherited_to_projects=True)
         self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+
+
+class IdentityInheritanceDisabledTestCase(test_v3.RestfulTestCase):
+    """Test inheritance crud and its effects."""
+
+    def setUp(self):
+        self.opt_in_group('os_inherit', enabled=False)
+        super(IdentityInheritanceDisabledTestCase, self).setUp()
+
+    def test_crud_inherited_role_grants_failed_if_disabled(self):
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role['id'], role)
+
+        base_collection_url = (
+            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles' % {
+                'domain_id': self.domain_id,
+                'user_id': self.user['id']})
+        member_url = '%(collection_url)s/%(role_id)s/inherited_to_projects' % {
+            'collection_url': base_collection_url,
+            'role_id': role['id']}
+        collection_url = base_collection_url + '/inherited_to_projects'
+
+        self.put(member_url, expected_status=404)
+        self.head(member_url, expected_status=404)
+        self.get(collection_url, expected_status=404)
+        self.delete(member_url, expected_status=404)

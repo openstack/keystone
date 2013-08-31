@@ -14,9 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
 import errno
 import os
+import re
 import shutil
 import socket
 import StringIO
@@ -28,7 +28,7 @@ import mox
 import nose.exc
 from paste import deploy
 import stubout
-import unittest2 as unittest
+import testtools
 
 from keystone.common import environment
 environment.use_eventlet()
@@ -203,7 +203,7 @@ class NoModule(object):
         sys.meta_path.insert(0, finder)
 
 
-class TestCase(NoModule, unittest.TestCase):
+class TestCase(NoModule, testtools.TestCase):
     def __init__(self, *args, **kw):
         super(TestCase, self).__init__(*args, **kw)
         self._paths = []
@@ -378,14 +378,51 @@ class TestCase(NoModule, unittest.TestCase):
 
         :param delta: Maximum allowable time delta, defined in seconds.
         """
-        self.assertAlmostEqual(a, b, delta=datetime.timedelta(seconds=delta))
+        msg = '%s != %s within %s delta' % (a, b, delta)
+
+        self.assertTrue(abs(a - b).seconds <= delta, msg)
 
     def assertNotEmpty(self, l):
         self.assertTrue(len(l))
 
+    def assertDictEqual(self, d1, d2, msg=None):
+        self.assert_(isinstance(d1, dict), 'First argument is not a dict')
+        self.assert_(isinstance(d2, dict), 'Second argument is not a dict')
+        self.assertEqual(d1, d2, msg)
+
+    def assertRaisesRegexp(self, expected_exception, expected_regexp,
+                           callable_obj, *args, **kwargs):
+        """Asserts that the message in a raised exception matches a regexp.
+        """
+        try:
+            callable_obj(*args, **kwargs)
+        except expected_exception as exc_value:
+            if isinstance(expected_regexp, basestring):
+                expected_regexp = re.compile(expected_regexp)
+            if not expected_regexp.search(str(exc_value)):
+                raise self.failureException(
+                    '"%s" does not match "%s"' %
+                    (expected_regexp.pattern, str(exc_value)))
+        else:
+            if hasattr(expected_exception, '__name__'):
+                excName = expected_exception.__name__
+            else:
+                excName = str(expected_exception)
+            raise self.failureException, "%s not raised" % excName
+
     def assertDictContainsSubset(self, expected, actual, msg=None):
         """Checks whether actual is a superset of expected."""
-        safe_repr = unittest.util.safe_repr
+
+        def safe_repr(obj, short=False):
+            _MAX_LENGTH = 80
+            try:
+                result = repr(obj)
+            except Exception:
+                result = object.__repr__(obj)
+            if not short or len(result) < _MAX_LENGTH:
+                return result
+            return result[:_MAX_LENGTH] + ' [truncated]...'
+
         missing = []
         mismatched = []
         for key, value in expected.iteritems():

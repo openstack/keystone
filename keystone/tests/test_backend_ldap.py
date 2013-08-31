@@ -584,25 +584,36 @@ class LDAPIdentity(test.TestCase, BaseLDAPIdentity):
     def test_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True, 'description': uuid.uuid4().hex}
-        with self.assertRaises(exception.Forbidden):
-            self.identity_api.create_domain(domain['id'], domain)
-        with self.assertRaises(exception.Conflict):
-            self.identity_api.create_domain(
-                CONF.identity.default_domain_id, domain)
-        with self.assertRaises(exception.DomainNotFound):
-            self.identity_api.get_domain(domain['id'])
-        with self.assertRaises(exception.DomainNotFound):
-            domain['description'] = uuid.uuid4().hex
-            self.identity_api.update_domain(domain['id'], domain)
-        with self.assertRaises(exception.Forbidden):
-            self.identity_api.update_domain(
-                CONF.identity.default_domain_id, domain)
-        with self.assertRaises(exception.DomainNotFound):
-            self.identity_api.get_domain(domain['id'])
-        with self.assertRaises(exception.DomainNotFound):
-            self.identity_api.delete_domain(domain['id'])
-        with self.assertRaises(exception.Forbidden):
-            self.identity_api.delete_domain(CONF.identity.default_domain_id)
+        self.assertRaises(exception.Forbidden,
+                          self.identity_api.create_domain,
+                          domain['id'],
+                          domain)
+        self.assertRaises(exception.Conflict,
+                          self.identity_api.create_domain,
+                          CONF.identity.default_domain_id,
+                          domain)
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.get_domain,
+                          domain['id'])
+
+        domain['description'] = uuid.uuid4().hex
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.update_domain,
+                          domain['id'],
+                          domain)
+        self.assertRaises(exception.Forbidden,
+                          self.identity_api.update_domain,
+                          CONF.identity.default_domain_id,
+                          domain)
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.get_domain,
+                          domain['id'])
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.delete_domain,
+                          domain['id'])
+        self.assertRaises(exception.Forbidden,
+                          self.identity_api.delete_domain,
+                          CONF.identity.default_domain_id)
         self.assertRaises(exception.DomainNotFound,
                           self.identity_api.get_domain,
                           domain['id'])
@@ -766,6 +777,7 @@ class LdapIdentitySqlAssignment(sql.Base, test.TestCase, BaseLDAPIdentity):
                      test.testsdir('backend_ldap_sql.conf')])
 
     def setUp(self):
+        super(LdapIdentitySqlAssignment, self).setUp()
         self._set_config()
         self.clear_database()
         self.load_backends()
@@ -779,6 +791,7 @@ class LdapIdentitySqlAssignment(sql.Base, test.TestCase, BaseLDAPIdentity):
         sql.ModelBase.metadata.drop_all(bind=self.engine)
         self.engine.dispose()
         sql.set_global_engine(None)
+        super(LdapIdentitySqlAssignment, self).tearDown()
 
     def test_domain_crud(self):
         pass
