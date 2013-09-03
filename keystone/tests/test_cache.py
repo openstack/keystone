@@ -21,12 +21,12 @@ from dogpile.cache import proxy
 
 from keystone.common import cache
 from keystone import config
+from keystone import exception
 from keystone.tests import core as test
 
 
 CONF = config.CONF
 NO_VALUE = api.NO_VALUE
-SHOULD_CACHE = cache.should_cache_fn('cache')
 
 
 def _copy_value(value):
@@ -52,31 +52,18 @@ class CacheIsolatingProxy(proxy.ProxyBackend):
     thing before storing data.
     """
     def get(self, key):
-        value = _copy_value(self.proxied.get(key))
-        return value
-
-    def get_multi(self, keys):
-        values = []
-        for value in self.proxied.get_multi(keys):
-            value = _copy_value(value)
-            values.append(value)
-        return values
+        return _copy_value(self.proxied.get(key))
 
     def set(self, key, value):
-        value = _copy_value(value)
-        self.proxied.set(key, value)
-
-    def set_multi(self, mapping):
-        for key, value in mapping.items():
-            value = _copy_value(value)
-            self._cache[key] = value
+        self.proxied.set(key, _copy_value(value))
 
 
 class TestProxy(proxy.ProxyBackend):
     def get(self, key):
         value = _copy_value(self.proxied.get(key))
-        if value != NO_VALUE:
-            value[0].cached = True
+        if value is not NO_VALUE:
+            if isinstance(value[0], TestProxyValue):
+                value[0].cached = True
         return value
 
 
@@ -87,6 +74,10 @@ class TestProxyValue(object):
 
 
 class CacheRegionTest(test.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(CacheRegionTest, self).__init__(*args, **kwargs)
+        self.region = None
+
     def setUp(self):
         super(CacheRegionTest, self).setUp()
         self.region = cache.make_region()
@@ -94,19 +85,21 @@ class CacheRegionTest(test.TestCase):
         self.region.wrap(TestProxy)
 
     def test_region_built_with_proxy_direct_cache_test(self):
-        """Verify cache regions are properly built with proxies."""
+        # Verify cache regions are properly built with proxies.
         test_value = TestProxyValue('Direct Cache Test')
         self.region.set('cache_test', test_value)
         cached_value = self.region.get('cache_test')
         self.assertTrue(cached_value.cached)
 
     def test_cache_region_no_error_multiple_config(self):
-        """Verify configuring the CacheRegion again doesn't error."""
+        # Verify configuring the CacheRegion again doesn't error.
         cache.configure_cache_region(self.region)
         cache.configure_cache_region(self.region)
 
     def test_should_cache_fn(self):
-        """Verify should_cache_fn generates a sane function."""
+        # Verify should_cache_fn generates a sane function for subsystem
+        # toggle.
+        SHOULD_CACHE = cache.should_cache_fn('cache')
         test_value = TestProxyValue('Decorator Test')
 
         @self.region.cache_on_arguments(should_cache_fn=SHOULD_CACHE)
@@ -119,6 +112,26 @@ class CacheRegionTest(test.TestCase):
         self.assertFalse(cached_value.cached)
 
         setattr(CONF.cache, 'caching', True)
+        cacheable_function(test_value)
+        cached_value = cacheable_function(test_value)
+        self.assertTrue(cached_value.cached)
+
+    def test_should_cache_fn_global(self):
+        # Verify should_cache_fn generates a sane function for global
+        # toggle.
+        SHOULD_CACHE = cache.should_cache_fn('cache')
+        test_value = TestProxyValue('Decorator Test')
+
+        @self.region.cache_on_arguments(should_cache_fn=SHOULD_CACHE)
+        def cacheable_function(value):
+            return value
+
+        setattr(CONF.cache, 'enabled', False)
+        cacheable_function(test_value)
+        cached_value = cacheable_function(test_value)
+        self.assertFalse(cached_value.cached)
+
+        setattr(CONF.cache, 'enabled', True)
         cacheable_function(test_value)
         cached_value = cacheable_function(test_value)
         self.assertTrue(cached_value.cached)
@@ -141,3 +154,59 @@ class CacheRegionTest(test.TestCase):
         self.assertEquals(config_dict['test_prefix.arguments.arg2'],
                           'test:test')
         self.assertFalse('test_prefix.arguments.arg3' in config_dict)
+
+    def test_cache_debug_proxy(self):
+        single_value = 'Test Value'
+        single_key = 'testkey'
+        multi_values = {'key1': 1, 'key2': 2, 'key3': 3}
+
+        self.region.set(single_key, single_value)
+        self.assertEquals(single_value, self.region.get(single_key))
+
+        self.region.delete(single_key)
+        self.assertEquals(NO_VALUE, self.region.get(single_key))
+
+        self.region.set_multi(multi_values)
+        cached_values = self.region.get_multi(multi_values.keys())
+        for value in multi_values.values():
+            self.assertIn(value, cached_values)
+        self.assertEquals(len(multi_values.values()), len(cached_values))
+
+        self.region.delete_multi(multi_values.keys())
+        for value in self.region.get_multi(multi_values.keys()):
+            self.assertEquals(NO_VALUE, value)
+
+    def test_configure_non_region_object_raises_error(self):
+        self.assertRaises(exception.ValidationError,
+                          cache.configure_cache_region,
+                          "bogus")
+
+
+class CacheNoopBackendTest(test.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(CacheNoopBackendTest, self).__init__(*args, **kwargs)
+        self.region = None
+
+    def setUp(self):
+        super(CacheNoopBackendTest, self).setUp()
+        self.region = cache.make_region()
+        setattr(CONF.cache, 'backend', 'keystone.common.cache.noop')
+        cache.configure_cache_region(self.region)
+
+    def test_noop_backend(self):
+        single_value = 'Test Value'
+        single_key = 'testkey'
+        multi_values = {'key1': 1, 'key2': 2, 'key3': 3}
+
+        self.region.set(single_key, single_value)
+        self.assertEquals(NO_VALUE, self.region.get(single_key))
+
+        self.region.set_multi(multi_values)
+        cached_values = self.region.get_multi(multi_values.keys())
+        self.assertEquals(len(cached_values), len(multi_values.values()))
+        for value in cached_values:
+            self.assertEquals(NO_VALUE, value)
+
+        # Delete should not raise exceptions
+        self.region.delete(single_key)
+        self.region.delete_multi(multi_values.keys())
