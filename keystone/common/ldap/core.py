@@ -84,7 +84,7 @@ def parse_tls_cert(opt):
         return LDAP_TLS_CERTS[opt]
     except KeyError:
         raise ValueError(_(
-            'Invalid LDAP TLS certs option: %(option). '
+            'Invalid LDAP TLS certs option: %(option)s. '
             'Choose one of: %(options)s') % {
                 'option': opt,
                 'options': ', '.join(LDAP_TLS_CERTS.keys())})
