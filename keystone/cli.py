@@ -16,9 +16,7 @@
 
 from __future__ import absolute_import
 
-import grp
 import os
-import pwd
 
 from migrate import exceptions
 
@@ -27,6 +25,7 @@ import pbr.version
 
 from keystone.common import openssl
 from keystone.common.sql import migration
+from keystone.common import utils
 from keystone import config
 from keystone import contrib
 from keystone.openstack.common import importutils
@@ -140,14 +139,14 @@ class BaseCertificateSetup(BaseApp):
         try:
             a = CONF.command.keystone_user
             if a:
-                keystone_user_id = pwd.getpwnam(a).pw_uid
+                keystone_user_id = utils.get_unix_user(a)[0]
         except KeyError:
             raise ValueError("Unknown user '%s' in --keystone-user" % a)
 
         try:
             a = CONF.command.keystone_group
             if a:
-                keystone_group_id = grp.getgrnam(a).gr_gid
+                keystone_group_id = utils.get_unix_group(a)[0]
         except KeyError:
             raise ValueError("Unknown group '%s' in --keystone-group" % a)
 

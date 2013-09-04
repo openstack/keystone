@@ -18,6 +18,7 @@
 import os
 
 from keystone.common import environment
+from keystone.common import utils
 from keystone import config
 from keystone.openstack.common import log as logging
 
@@ -72,85 +73,98 @@ class BaseCertificateConfigure(object):
                      'assuming is v1.0 or newer')
         self.ssl_dictionary.update(kwargs)
 
-    def _make_dirs(self, file_name):
-        dir_name = os.path.dirname(file_name)
-        if not file_exists(dir_name):
-            os.makedirs(dir_name, PUBLIC_DIR_PERMS)
-        if os.geteuid() == 0 and self.use_keystone_group:
-            os.chown(dir_name, -1, self.use_keystone_group)
-
-    def _set_permissions(self, file_name, perms):
-        os.chmod(file_name, perms)
-        if os.geteuid() == 0:
-            os.chown(file_name, self.use_keystone_user or -1,
-                     self.use_keystone_group or -1)
-
     def exec_command(self, command):
         to_exec = command % self.ssl_dictionary
         LOG.info(to_exec)
         environment.subprocess.check_call(to_exec.rsplit(' '))
 
     def build_ssl_config_file(self):
+        utils.make_dirs(os.path.dirname(self.ssl_config_file_name),
+                        mode=PUBLIC_DIR_PERMS,
+                        user=self.use_keystone_user,
+                        group=self.use_keystone_group, log=LOG)
         if not file_exists(self.ssl_config_file_name):
-            self._make_dirs(self.ssl_config_file_name)
             ssl_config_file = open(self.ssl_config_file_name, 'w')
             ssl_config_file.write(self.sslconfig % self.ssl_dictionary)
             ssl_config_file.close()
-        self._set_permissions(self.ssl_config_file_name, PRIVATE_FILE_PERMS)
+        utils.set_permissions(self.ssl_config_file_name,
+                              mode=PRIVATE_FILE_PERMS,
+                              user=self.use_keystone_user,
+                              group=self.use_keystone_group, log=LOG)
 
         index_file_name = os.path.join(self.conf_dir, 'index.txt')
         if not file_exists(index_file_name):
             index_file = open(index_file_name, 'w')
             index_file.write('')
             index_file.close()
-        self._set_permissions(index_file_name, PRIVATE_FILE_PERMS)
+        utils.set_permissions(index_file_name,
+                              mode=PRIVATE_FILE_PERMS,
+                              user=self.use_keystone_user,
+                              group=self.use_keystone_group, log=LOG)
 
         serial_file_name = os.path.join(self.conf_dir, 'serial')
         if not file_exists(serial_file_name):
             index_file = open(serial_file_name, 'w')
             index_file.write('01')
             index_file.close()
-        self._set_permissions(serial_file_name, PRIVATE_FILE_PERMS)
+        utils.set_permissions(serial_file_name,
+                              mode=PRIVATE_FILE_PERMS,
+                              user=self.use_keystone_user,
+                              group=self.use_keystone_group, log=LOG)
 
     def build_ca_cert(self):
         ca_key_file = self.ssl_dictionary['ca_private_key']
-        ca_cert = self.ssl_dictionary['ca_cert']
-
+        utils.make_dirs(os.path.dirname(ca_key_file),
+                        mode=PRIVATE_DIR_PERMS,
+                        user=self.use_keystone_user,
+                        group=self.use_keystone_group, log=LOG)
         if not file_exists(ca_key_file):
-            self._make_dirs(ca_key_file)
             self.exec_command('openssl genrsa -out %(ca_private_key)s '
                               '%(key_size)d')
-            self._set_permissions(self.ssl_dictionary['ca_private_key'],
-                                  PRIVATE_FILE_PERMS)
+        utils.set_permissions(ca_key_file,
+                              mode=PRIVATE_FILE_PERMS,
+                              user=self.use_keystone_user,
+                              group=self.use_keystone_group, log=LOG)
 
+        ca_cert = self.ssl_dictionary['ca_cert']
+        utils.make_dirs(os.path.dirname(ca_cert),
+                        mode=PUBLIC_DIR_PERMS,
+                        user=self.use_keystone_user,
+                        group=self.use_keystone_group, log=LOG)
         if not file_exists(ca_cert):
-            self._make_dirs(ca_cert)
             self.exec_command('openssl req -new -x509 -extensions v3_ca '
                               '-passin pass:%(ca_password)s '
                               '-key %(ca_private_key)s -out %(ca_cert)s '
                               '-days %(valid_days)d '
                               '-config %(ssl_config)s '
                               '-subj %(cert_subject)s')
-            self._set_permissions(ca_cert, PUBLIC_FILE_PERMS)
+        utils.set_permissions(ca_cert,
+                              mode=PUBLIC_FILE_PERMS,
+                              user=self.use_keystone_user,
+                              group=self.use_keystone_group, log=LOG)
 
     def build_private_key(self):
         signing_keyfile = self.ssl_dictionary['signing_key']
-
+        utils.make_dirs(os.path.dirname(signing_keyfile),
+                        mode=PRIVATE_DIR_PERMS,
+                        user=self.use_keystone_user,
+                        group=self.use_keystone_group, log=LOG)
         if not file_exists(signing_keyfile):
-            self._make_dirs(signing_keyfile)
-
             self.exec_command('openssl genrsa -out %(signing_key)s '
                               '%(key_size)d ')
-        self._set_permissions(os.path.dirname(signing_keyfile),
-                              PRIVATE_DIR_PERMS)
-        self._set_permissions(signing_keyfile, PRIVATE_FILE_PERMS)
+        utils.set_permissions(signing_keyfile,
+                              mode=PRIVATE_FILE_PERMS,
+                              user=self.use_keystone_user,
+                              group=self.use_keystone_group, log=LOG)
 
     def build_signing_cert(self):
         signing_cert = self.ssl_dictionary['signing_cert']
 
+        utils.make_dirs(os.path.dirname(signing_cert),
+                        mode=PUBLIC_DIR_PERMS,
+                        user=self.use_keystone_user,
+                        group=self.use_keystone_group, log=LOG)
         if not file_exists(signing_cert):
-            self._make_dirs(signing_cert)
-
             self.exec_command('openssl req -key %(signing_key)s -new -nodes '
                               '-out %(request_file)s -config %(ssl_config)s '
                               '-subj %(cert_subject)s')

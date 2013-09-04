@@ -18,9 +18,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import grp
 import hashlib
 import json
 import os
+import pwd
 import time
 
 import passlib.hash
@@ -293,3 +295,219 @@ class LimitingReader(object):
         if self.bytes_read > self.limit:
             raise exception.RequestTooLarge()
         return result
+
+
+def get_unix_user(user=None):
+    '''Get the uid and user name.
+
+    This is a convenience utility which accepts a variety of input
+    which might represent a unix user. If successful it returns the uid
+    and name. Valid input is:
+
+    string
+        A string is first considered to be a user name and a lookup is
+        attempted under that name. If no name is found then an attempt
+        is made to convert the string to an integer and perform a
+        lookup as a uid.
+
+    int
+        An integer is interpretted as a uid.
+
+    None
+        None is interpreted to mean use the current process's
+        effective user.
+
+    If the input is a valid type but no user is found a KeyError is
+    raised. If the input is not a valid type a TypeError is raised.
+
+    :param object user: string, int or None specifying the user to
+                        lookup.
+
+    :return: tuple of (uid, name)
+    '''
+
+    if isinstance(user, basestring):
+        try:
+            user_info = pwd.getpwnam(user)
+        except KeyError:
+            try:
+                i = int(user)
+            except ValueError:
+                raise KeyError("user name '%s' not found" % user)
+            try:
+                user_info = pwd.getpwuid(i)
+            except KeyError:
+                raise KeyError("user id %d not found" % i)
+    elif isinstance(user, int):
+        try:
+            user_info = pwd.getpwuid(user)
+        except KeyError:
+            raise KeyError("user id %d not found" % user)
+    elif user is None:
+        user_info = pwd.getpwuid(os.geteuid())
+    else:
+        raise TypeError('user must be string, int or None; not %s (%r)' %
+                        (user.__class__.__name__, user))
+
+    return user_info.pw_uid, user_info.pw_name
+
+
+def get_unix_group(group=None):
+    '''Get the gid and group name.
+
+    This is a convenience utility which accepts a variety of input
+    which might represent a unix group. If successful it returns the gid
+    and name. Valid input is:
+
+    string
+        A string is first considered to be a group name and a lookup is
+        attempted under that name. If no name is found then an attempt
+        is made to convert the string to an integer and perform a
+        lookup as a gid.
+
+    int
+        An integer is interpretted as a gid.
+
+    None
+        None is interpreted to mean use the current process's
+        effective group.
+
+    If the input is a valid type but no group is found a KeyError is
+    raised. If the input is not a valid type a TypeError is raised.
+
+
+    :param object group: string, int or None specifying the group to
+                         lookup.
+
+    :return: tuple of (gid, name)
+    '''
+
+    if isinstance(group, basestring):
+        try:
+            group_info = grp.getgrnam(group)
+        except KeyError:
+            # Was an int passed as a string?
+            # Try converting to int and lookup by id instead.
+            try:
+                i = int(group)
+            except ValueError:
+                raise KeyError("group name '%s' not found" % group)
+            try:
+                group_info = grp.getgrgid(i)
+            except KeyError:
+                raise KeyError("group id %d not found" % i)
+    elif isinstance(group, int):
+        try:
+            group_info = grp.getgrgid(group)
+        except KeyError:
+            raise KeyError("group id %d not found" % group)
+    elif group is None:
+        group_info = grp.getgrgid(os.getegid())
+    else:
+        raise TypeError('group must be string, int or None; not %s (%r)' %
+                        (group.__class__.__name__, group))
+
+    return group_info.gr_gid, group_info.gr_name
+
+
+def set_permissions(path, mode=None, user=None, group=None, log=None):
+    '''Set the ownership and permissions on the pathname.
+
+    Each of the mode, user and group are optional, if None then
+    that aspect is not modified.
+
+    Owner and group may be specified either with a symbolic name
+    or numeric id.
+
+    :param string path: Pathname of directory whose existence is assured.
+    :param object mode: ownership permissions flags (int) i.e. chmod,
+                        if None do not set.
+    :param object user: set user, name (string) or uid (integer),
+                         if None do not set.
+    :param object group: set group, name (string) or gid (integer)
+                         if None do not set.
+    :param logger log: logging.logger object, used to emit log messages,
+                       if None no logging is performed.
+    '''
+
+    if user is None:
+        user_uid, user_name = None, None
+    else:
+        user_uid, user_name = get_unix_user(user)
+
+    if group is None:
+        group_gid, group_name = None, None
+    else:
+        group_gid, group_name = get_unix_group(group)
+
+    if log:
+        if mode is None:
+            mode_string = str(mode)
+        else:
+            mode_string = oct(mode)
+        log.debug("set_permissions: "
+                  "path='%s' mode=%s user=%s(%s) group=%s(%s)",
+                  path, mode_string,
+                  user_name, user_uid, group_name, group_gid)
+
+    # Change user and group if specified
+    if user_uid is not None or group_gid is not None:
+        if user_uid is None:
+            user_uid = -1
+        if group_gid is None:
+            group_gid = -1
+        try:
+            os.chown(path, user_uid, group_gid)
+        except OSError as exc:
+            raise EnvironmentError("chown('%s', %s, %s): %s" %
+                                   (path,
+                                    user_name, group_name,
+                                    exc.strerror))
+
+    # Change permission flags
+    if mode is not None:
+        try:
+            os.chmod(path, mode)
+        except OSError as exc:
+            raise EnvironmentError("chmod('%s', %#o): %s" %
+                                   (path, mode, exc.strerror))
+
+
+def make_dirs(path, mode=None, user=None, group=None, log=None):
+    '''Assure directory exists, set ownership and permissions.
+
+    Assure the directory exists and optionally set it's ownership
+    and permissions.
+
+    Each of the mode, user and group are optional, if None then
+    that aspect is not modified.
+
+    Owner and group may be specified either with a symbolic name
+    or numeric id.
+
+    :param string path: Pathname of directory whose existence is assured.
+    :param object mode: ownership permissions flags (int) i.e. chmod,
+                        if None do not set.
+    :param object user: set user, name (string) or uid (integer),
+                        if None do not set.
+    :param object group: set group, name (string) or gid (integer)
+                         if None do not set.
+    :param logger log: logging.logger object, used to emit log messages,
+                       if None no logging is performed.
+    '''
+
+    if log:
+        if mode is None:
+            mode_string = str(mode)
+        else:
+            mode_string = oct(mode)
+        log.debug("make_dirs path='%s' mode=%s user=%s group=%s",
+                  path, mode_string, user, group)
+
+    if not os.path.exists(path):
+        try:
+            os.makedirs(path)
+        except OSError as exc:
+            raise EnvironmentError("makedirs('%s'): %s" % (path, exc.strerror))
+
+    set_permissions(path, mode, user, group, log)
