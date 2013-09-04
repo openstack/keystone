@@ -679,6 +679,19 @@ files for each Server application.
 * ``etc/logging.conf.sample``
 * ``etc/default_catalog.templates``
 
+.. _`adding extensions`:
+
+Adding Extensions
+=================
+
+OAuth1.0a
+---------
+
+.. toctree::
+   :maxdepth: 1
+
+   extensions/oauth1-configuration.rst
+
 .. _`prepare your deployment`:
 
 Preparing your deployment
