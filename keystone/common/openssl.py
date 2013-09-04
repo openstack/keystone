@@ -16,7 +16,6 @@
 #
 
 import os
-import stat
 
 from keystone.common import environment
 from keystone import config
@@ -24,11 +23,11 @@ from keystone.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
-DIR_PERMS = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-             stat.S_IRGRP | stat.S_IXGRP |
-             stat.S_IROTH | stat.S_IXOTH)
-CERT_PERMS = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
-PRIV_PERMS = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
+
+PUBLIC_DIR_PERMS = 0o755        # -rwxr-xr-x
+PRIVATE_DIR_PERMS = 0o750       # -rwxr-x---
+PUBLIC_FILE_PERMS = 0o644       # -rw-r--r--
+PRIVATE_FILE_PERMS = 0o640      # -rw-r-----
 
 
 def file_exists(file_path):
@@ -76,7 +75,7 @@ class BaseCertificateConfigure(object):
     def _make_dirs(self, file_name):
         dir_name = os.path.dirname(file_name)
         if not file_exists(dir_name):
-            os.makedirs(dir_name, DIR_PERMS)
+            os.makedirs(dir_name, PUBLIC_DIR_PERMS)
         if os.geteuid() == 0 and self.use_keystone_group:
             os.chown(dir_name, -1, self.use_keystone_group)
 
@@ -97,21 +96,21 @@ class BaseCertificateConfigure(object):
             ssl_config_file = open(self.ssl_config_file_name, 'w')
             ssl_config_file.write(self.sslconfig % self.ssl_dictionary)
             ssl_config_file.close()
-        self._set_permissions(self.ssl_config_file_name, CERT_PERMS)
+        self._set_permissions(self.ssl_config_file_name, PRIVATE_FILE_PERMS)
 
         index_file_name = os.path.join(self.conf_dir, 'index.txt')
         if not file_exists(index_file_name):
             index_file = open(index_file_name, 'w')
             index_file.write('')
             index_file.close()
-        self._set_permissions(index_file_name, PRIV_PERMS)
+        self._set_permissions(index_file_name, PRIVATE_FILE_PERMS)
 
         serial_file_name = os.path.join(self.conf_dir, 'serial')
         if not file_exists(serial_file_name):
             index_file = open(serial_file_name, 'w')
             index_file.write('01')
             index_file.close()
-        self._set_permissions(serial_file_name, PRIV_PERMS)
+        self._set_permissions(serial_file_name, PRIVATE_FILE_PERMS)
 
     def build_ca_cert(self):
         ca_key_file = self.ssl_dictionary['ca_private_key']
@@ -122,7 +121,7 @@ class BaseCertificateConfigure(object):
             self.exec_command('openssl genrsa -out %(ca_private_key)s '
                               '%(key_size)d')
             self._set_permissions(self.ssl_dictionary['ca_private_key'],
-                                  stat.S_IRUSR)
+                                  PRIVATE_FILE_PERMS)
 
         if not file_exists(ca_cert):
             self._make_dirs(ca_cert)
@@ -132,7 +131,7 @@ class BaseCertificateConfigure(object):
                               '-days %(valid_days)d '
                               '-config %(ssl_config)s '
                               '-subj %(cert_subject)s')
-            self._set_permissions(ca_cert, CERT_PERMS)
+            self._set_permissions(ca_cert, PUBLIC_FILE_PERMS)
 
     def build_private_key(self):
         signing_keyfile = self.ssl_dictionary['signing_key']
@@ -142,8 +141,9 @@ class BaseCertificateConfigure(object):
 
             self.exec_command('openssl genrsa -out %(signing_key)s '
                               '%(key_size)d ')
-        self._set_permissions(os.path.dirname(signing_keyfile), PRIV_PERMS)
-        self._set_permissions(signing_keyfile, stat.S_IRUSR)
+        self._set_permissions(os.path.dirname(signing_keyfile),
+                              PRIVATE_DIR_PERMS)
+        self._set_permissions(signing_keyfile, PRIVATE_FILE_PERMS)
 
     def build_signing_cert(self):
         signing_cert = self.ssl_dictionary['signing_cert']
