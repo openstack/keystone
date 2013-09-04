@@ -18,15 +18,15 @@ SYNOPSIS
 
 ::
 
-  keystone-all [-h] [--version] [--pydev-debug-port PYDEV_DEBUG_PORT]
-                    [--verbose] [--noverbose] [--config-dir DIR]
-                    [--log-config PATH] [--log-date-format DATE_FORMAT]
-                    [--use-syslog] [--nouse-syslog] [--log-dir LOG_DIR]
-                    [--syslog-log-facility SYSLOG_LOG_FACILITY]
+  keystone-all [-h] [--version] [--debug] [--nodebug] [--verbose]
+                    [--noverbose] [--use-syslog] [--nouse-syslog]
                     [--standard-threads] [--nostandard-threads]
-                    [--config-file PATH] [--pydev-debug-host PYDEV_DEBUG_HOST]
-                    [--debug] [--nodebug] [--log-format FORMAT]
-                    [--log-file PATH]
+                    [--pydev-debug-port PYDEV_DEBUG_PORT] [--config-file PATH]
+                    [--log-config PATH] [--log-format FORMAT]
+                    [--log-date-format DATE_FORMAT] [--config-dir DIR]
+                    [--log-file PATH] [--log-dir LOG_DIR]
+                    [--syslog-log-facility SYSLOG_LOG_FACILITY]
+                    [--pydev-debug-host PYDEV_DEBUG_HOST]
 
 DESCRIPTION
 ===========
@@ -61,25 +61,30 @@ OPTIONS
                         options specified. Please see the Python logging
                         module documentation for details on logging
                         configuration files.
-  --log-format FORMAT   A logging.Formatter log message format string which
-                        may use any of the available logging.LogRecord
-                        attributes.
+  --log-format FORMAT   DEPRECATED. A logging.Formatter log message format
+                        string which may use any of the available
+                        logging.LogRecord attributes. This option is
+                        deprecated. Please use logging_context_format_string
+                        and logging_default_format_string instead.
   --log-date-format DATE_FORMAT
-                        Format string for %(asctime)s in log records.
-  --log-file PATH       Name of log file to output. If not set, logging will
-                        go to stdout.
-  --log-dir LOG_DIR     The directory in which to store log files. (will be
-                        prepended to --log-file)
-  --syslog-log-facility SYSLOG_LOG_FACILITY
-                        syslog facility to receive log lines.
-  --pydev-debug-host PYDEV_DEBUG_HOST
-                        Host to connect to for remote debugger.
+                        Format string for %(asctime)s in log records. Default:
+                        None
   --config-dir DIR      Path to a config directory to pull \*.conf files from.
                         This file set is sorted, so as to provide a
                         predictable parse order if individual options are
                         over-ridden. The set is parsed after the file(s), if
                         any, specified via --config-file, hence over-ridden
                         options in the directory take precedence.
+  --log-file PATH, --logfile PATH
+                        (Optional) Name of log file to output to. If no
+                        default is set, logging will go to stdout.
+  --log-dir LOG_DIR, --logdir LOG_DIR
+                        (Optional) The base directory used for relative --log-
+                        file paths
+  --syslog-log-facility SYSLOG_LOG_FACILITY
+                        syslog facility to receive log lines
+  --pydev-debug-host PYDEV_DEBUG_HOST
+                        Host to connect to for remote debugger.
 
 FILES
 =====
