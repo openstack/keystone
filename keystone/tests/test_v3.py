@@ -53,6 +53,23 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
     def teardown_database(self):
         test.teardown_test_database()
 
+    def generate_paste_config(self):
+        new_paste_file = None
+        try:
+            new_paste_file = test.generate_paste_config(self.EXTENSION_TO_ADD)
+        except AttributeError:
+            # no need to report this error here, as most tests will not have
+            # EXTENSION_TO_ADD defined.
+            pass
+        finally:
+            return new_paste_file
+
+    def remove_generated_paste_config(self):
+        try:
+            test.remove_generated_paste_config(self.EXTENSION_TO_ADD)
+        except AttributeError:
+            pass
+
     def setUp(self, load_sample_data=True, app_conf='keystone'):
         """Setup for v3 Restful Test Cases.
 
@@ -65,6 +82,11 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.config(self.config_files())
 
         self.setup_database()
+
+        new_paste_file = self.generate_paste_config()
+        if new_paste_file:
+            app_conf = 'config:%s' % (new_paste_file)
+
         # ensure the cache region instance is setup
         cache.configure_cache_region(cache.REGION)
 
@@ -147,6 +169,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.public_server = None
         self.admin_server = None
         self.teardown_database()
+        self.remove_generated_paste_config()
         # need to reset the plug-ins
         auth.controllers.AUTH_METHODS = {}
         #drop the policy rules

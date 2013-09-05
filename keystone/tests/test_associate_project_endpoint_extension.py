@@ -25,26 +25,10 @@ from keystone.tests import core as test
 import test_v3
 
 
-# TODO(gyee): we need to generalize this one and stash it into tests.core
-def _generate_paste_config(filter_name, new_paste_file_name):
-    # Generate a file, based on keystone-paste.ini, that includes
-    # endpoint_filter_extension in the pipeline
-
-    with open(test.etcdir('keystone-paste.ini'), 'r') as f:
-        contents = f.read()
-
-    new_contents = contents.replace(' service_v3',
-                                    ' %s service_v3' % (filter_name))
-
-    with open(new_paste_file_name, 'w') as f:
-        f.write(new_contents)
-
-
 class TestExtensionCase(test_v3.RestfulTestCase):
 
     EXTENSION_NAME = 'endpoint_filter'
-    EXTENSION_FILTER_NAME = 'endpoint_filter_extension'
-    PASTE_INI = 'keystone-endpoint-filter-paste.ini'
+    EXTENSION_TO_ADD = 'endpoint_filter_extension'
 
     def setup_database(self):
         self.conf_files = super(TestExtensionCase, self).config_files()
@@ -60,11 +44,7 @@ class TestExtensionCase(test_v3.RestfulTestCase):
         migration.db_sync(version=None, repo_path=self.repo_path)
 
     def setUp(self):
-        self._paste_file_name = test.tmpdir(self.PASTE_INI)
-        _generate_paste_config(self.EXTENSION_FILTER_NAME,
-                               self._paste_file_name)
-        super(TestExtensionCase, self).setUp(app_conf='config:%s' % (
-            self._paste_file_name))
+        super(TestExtensionCase, self).setUp()
         self.default_request_url = (
             '/OS-EP-FILTER/projects/%(project_id)s'
             '/endpoints/%(endpoint_id)s' % {
@@ -73,7 +53,6 @@ class TestExtensionCase(test_v3.RestfulTestCase):
 
     def tearDown(self):
         super(TestExtensionCase, self).tearDown()
-        os.remove(self._paste_file_name)
         self.conf_files.pop()
 
 

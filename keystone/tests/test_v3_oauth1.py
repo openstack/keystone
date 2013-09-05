@@ -19,8 +19,6 @@ import os
 import urlparse
 import uuid
 
-import webtest
-
 from keystone.common import cms
 from keystone.common.sql import migration
 from keystone import config
@@ -28,17 +26,17 @@ from keystone import contrib
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
 from keystone.openstack.common import importutils
-from keystone.tests import core
 
 import test_v3
 
 
-OAUTH_PASTE_FILE = 'v3_oauth1-paste.ini'
 CONF = config.CONF
 
 
 class OAuth1Tests(test_v3.RestfulTestCase):
+
     EXTENSION_NAME = 'oauth1'
+    EXTENSION_TO_ADD = 'oauth_extension'
 
     def setup_database(self):
         super(OAuth1Tests, self).setup_database()
@@ -51,29 +49,10 @@ class OAuth1Tests(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(OAuth1Tests, self).setUp()
+
+        # Now that the app has been served, we can query CONF values
+        self.base_url = (CONF.public_endpoint % CONF) + "v3"
         self.controller = controllers.OAuthControllerV3()
-        self.base_url = CONF.public_endpoint % CONF + "v3"
-        self._generate_paste_config()
-        self.admin_app = webtest.TestApp(
-            self.loadapp('v3_oauth1', name='admin'))
-        self.public_app = webtest.TestApp(
-            self.loadapp('v3_oauth1', name='admin'))
-
-    def tearDown(self):
-        os.remove(OAUTH_PASTE_FILE)
-        super(OAuth1Tests, self).tearDown()
-
-    def _generate_paste_config(self):
-        # Generate a file, based on keystone-paste.ini,
-        # that includes oauth_extension in the pipeline
-        old_pipeline = " ec2_extension "
-        new_pipeline = " oauth_extension ec2_extension "
-
-        with open(core.etcdir('keystone-paste.ini'), 'r') as f:
-            contents = f.read()
-        new_contents = contents.replace(old_pipeline, new_pipeline)
-        with open(OAUTH_PASTE_FILE, 'w') as f:
-            f.write(new_contents)
 
     def _create_single_consumer(self):
         ref = {'description': uuid.uuid4().hex}
@@ -97,7 +76,6 @@ class OAuth1Tests(test_v3.RestfulTestCase):
             http_url=self.base_url + url,
             http_method='POST',
             parameters=params)
-
         hmac = oauth1.SignatureMethod_HMAC_SHA1()
         oreq.sign_request(hmac, consumer, None)
         headers.update(oreq.to_header())

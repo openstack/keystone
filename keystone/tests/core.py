@@ -131,6 +131,28 @@ def setup_test_database():
         pass
 
 
+def generate_paste_config(extension_name):
+    # Generate a file, based on keystone-paste.ini, that is named:
+    # extension_name.ini, and includes extension_name in the pipeline
+    with open(etcdir('keystone-paste.ini'), 'r') as f:
+        contents = f.read()
+
+    new_contents = contents.replace(' service_v3',
+                                    ' %s service_v3' % (extension_name))
+
+    new_paste_file = tmpdir(extension_name + '.ini')
+    with open(new_paste_file, 'w') as f:
+        f.write(new_contents)
+
+    return new_paste_file
+
+
+def remove_generated_paste_config(extension_name):
+    # Remove the generated paste config file, named extension_name.ini
+    paste_file_to_remove = tmpdir(extension_name + '.ini')
+    os.remove(paste_file_to_remove)
+
+
 def teardown_test_database():
     sql.core.set_global_engine(None)
 
