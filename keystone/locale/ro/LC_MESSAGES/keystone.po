@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-08-30 06:00+0000\n"
+"POT-Creation-Date: 2013-09-05 06:01+0000\n"
 "PO-Revision-Date: 2013-06-08 07:51+0000\n"
 "Last-Translator: daisy.ycguo <daisy.ycguo@gmail.com>\n"
 "Language-Team: Romanian "
@@ -39,7 +39,7 @@ msgstr ""
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr ""
 
-#: keystone/cli.py:81 keystone/cli.py:117
+#: keystone/cli.py:80 keystone/cli.py:116
 msgid "This extension does not provide migrations."
 msgstr ""
 
@@ -199,12 +199,12 @@ msgstr ""
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/assignment/core.py:204
+#: keystone/assignment/core.py:221
 #, python-format
 msgid "Creating the default role %s because it does not exist."
 msgstr ""
 
-#: keystone/assignment/core.py:560 keystone/identity/core.py:212
+#: keystone/assignment/core.py:636 keystone/identity/core.py:212
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
@@ -357,16 +357,16 @@ msgstr ""
 msgid "Invalid token in _get_domain_id_for_request"
 msgstr ""
 
-#: keystone/common/utils.py:73
+#: keystone/common/utils.py:75
 #, python-format
 msgid "Truncating user password to %s characters."
 msgstr ""
 
-#: keystone/common/utils.py:184 keystone/credential/controllers.py:40
+#: keystone/common/utils.py:186 keystone/credential/controllers.py:40
 msgid "Invalid blob in credential"
 msgstr ""
 
-#: keystone/common/utils.py:263
+#: keystone/common/utils.py:265
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
@@ -420,32 +420,32 @@ msgstr ""
 
 #: keystone/common/cache/core.py:46
 #, python-format
-msgid "CACHE_GET: Key: \"%(key)s)\" \"%(value)s\""
+msgid "CACHE_GET: Key: \"%(key)s\" Value: \"%(value)s\""
 msgstr ""
 
 #: keystone/common/cache/core.py:52
 #, python-format
-msgid "CACHE_GET_MULTI: \"%(key)s\" \"%(value)s\""
+msgid "CACHE_GET_MULTI: \"%(keys)s\" Values: \"%(values)s\""
 msgstr ""
 
 #: keystone/common/cache/core.py:57
 #, python-format
-msgid "CACHE_SET: Key: %(key)s Value: %(value)s"
+msgid "CACHE_SET: Key: \"%(key)s\" Value: \"%(value)s\""
 msgstr ""
 
 #: keystone/common/cache/core.py:62
 #, python-format
-msgid "CACHE_SET_MULTI: %s"
+msgid "CACHE_SET_MULTI: \"%s\""
 msgstr ""
 
 #: keystone/common/cache/core.py:67
 #, python-format
-msgid "CACHE_DELETE: %s"
+msgid "CACHE_DELETE: \"%s\""
 msgstr ""
 
 #: keystone/common/cache/core.py:70
 #, python-format
-msgid "CACHE_DELETE_MULTI: %s"
+msgid "CACHE_DELETE_MULTI: \"%s\""
 msgstr ""
 
 #: keystone/common/cache/core.py:88
@@ -490,7 +490,7 @@ msgstr ""
 
 #: keystone/common/ldap/core.py:86
 #, python-format
-msgid "Invalid LDAP TLS certs option: %(option). Choose one of: %(options)s"
+msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
 msgstr ""
 
 #: keystone/common/ldap/core.py:98
@@ -1596,30 +1596,30 @@ msgstr ""
 msgid "Token does not belong to specified tenant."
 msgstr ""
 
-#: keystone/token/provider.py:79
+#: keystone/token/provider.py:81
 msgid ""
 "keystone.conf [signing] token_format (deprecated) conflicts with "
 "keystone.conf [token] provider"
 msgstr ""
 
-#: keystone/token/provider.py:87
+#: keystone/token/provider.py:89
 msgid ""
 "keystone.conf [signing] token_format is deprecated in favor of "
 "keystone.conf [token] provider"
 msgstr ""
 
-#: keystone/token/provider.py:97
+#: keystone/token/provider.py:99
 msgid ""
 "Unrecognized keystone.conf [signing] token_format: expected either 'UUID'"
 " or 'PKI'"
 msgstr ""
 
-#: keystone/token/provider.py:156
+#: keystone/token/provider.py:187
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
 
-#: keystone/token/provider.py:160 keystone/token/providers/uuid.py:548
+#: keystone/token/provider.py:191 keystone/token/providers/uuid.py:548
 #: keystone/token/providers/uuid.py:559
 msgid "Failed to validate token"
 msgstr ""
@@ -1732,5 +1732,26 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Failed to verify token"
+#~ msgstr ""
+
+#~ msgid "CACHE_GET: Key: \"%(key)s)\" \"%(value)s\""
+#~ msgstr ""
+
+#~ msgid "CACHE_GET_MULTI: \"%(key)s\" \"%(value)s\""
+#~ msgstr ""
+
+#~ msgid "CACHE_SET: Key: %(key)s Value: %(value)s"
+#~ msgstr ""
+
+#~ msgid "CACHE_SET_MULTI: %s"
+#~ msgstr ""
+
+#~ msgid "CACHE_DELETE: %s"
+#~ msgstr ""
+
+#~ msgid "CACHE_DELETE_MULTI: %s"
+#~ msgstr ""
+
+#~ msgid "Invalid LDAP TLS certs option: %(option). Choose one of: %(options)s"
 #~ msgstr ""
 
