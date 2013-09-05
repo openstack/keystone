@@ -1,5 +1,5 @@
 # Chinese (Taiwan) translations for keystone.
-# Copyright (C) 2013 ORGANIZATION
+# Copyright (C) 2013 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
