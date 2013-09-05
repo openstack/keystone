@@ -18,12 +18,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import calendar
 import grp
 import hashlib
 import json
 import os
 import pwd
-import time
 
 import passlib.hash
 
@@ -221,7 +221,7 @@ def unixtime(dt_obj):
     :returns: float
 
     """
-    return time.mktime(dt_obj.utctimetuple())
+    return calendar.timegm(dt_obj.utctimetuple())
 
 
 def auth_str_equal(provided, known):
