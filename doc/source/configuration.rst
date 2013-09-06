@@ -87,6 +87,14 @@ order:
 PasteDeploy configuration file is specified by the ``config_file`` parameter in ``[paste_deploy]`` section of the primary configuration file. If the parameter
 is not an absolute path, then Keystone looks for it in the same directories as above. If not specified, WSGI pipeline definitions are loaded from the primary configuration file.
 
+Domain-specific Drivers
+-----------------------
+
+.. WARNING::
+
+    This feature is experimental and unsupported in Havana (with several known
+    issues that will not be fixed). Feedback welcome for Icehouse!
+
 Keystone supports the option (disabled by default) to specify identity driver
 configurations on a domain by domain basis, allowing, for example, a specific
 domain to have its own LDAP or SQL server. This is configured by specifying the
@@ -96,15 +104,16 @@ following options::
  domain_specific_drivers_enabled = True
  domain_config_dir = /etc/keystone/domains
 
-Setting ``domain_specific_drivers_enabled`` to True will enable this feature, causing
-keystone to look in the ``domain_config_dir`` for config files of the form::
+Setting ``domain_specific_drivers_enabled`` to ``True`` will enable this
+feature, causing Keystone to look in the ``domain_config_dir`` for config files
+of the form::
 
  keystone.<domain_name>.conf
 
-Options given in the domain specific configuration file will override those in the
-primary configuration file for the specified domain only. Domains without a specific
-configuration file will continue to use the options from the primary configuration
-file.
+Options given in the domain specific configuration file will override those in
+the primary configuration file for the specified domain only. Domains without a
+specific configuration file will continue to use the options from the primary
+configuration file.
 
 Authentication Plugins
 ----------------------

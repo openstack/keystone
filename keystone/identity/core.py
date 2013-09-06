@@ -167,8 +167,12 @@ def domains_configured(f):
     def wrapper(self, *args, **kwargs):
         if (not self.domain_configs.configured and
                 CONF.identity.domain_specific_drivers_enabled):
-                    self.domain_configs.setup_domain_drivers(
-                        self.driver, self.assignment_api)
+            LOG.warning(_(
+                'Running an experimental and unsupported configuration '
+                '(domain_specific_drivers_enabled = True); '
+                'this will result in known issues.'))
+            self.domain_configs.setup_domain_drivers(
+                self.driver, self.assignment_api)
         return f(self, *args, **kwargs)
     return wrapper
 
