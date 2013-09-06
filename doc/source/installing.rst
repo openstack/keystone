@@ -1,5 +1,5 @@
 ..
-      Copyright 2012 OpenStack, LLC
+      Copyright 2012 OpenStack Foundation
       Copyright 2012 Nebula, Inc
       All Rights Reserved.
 
