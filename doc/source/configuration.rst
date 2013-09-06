@@ -329,7 +329,6 @@ The values that specify where to read the certificates are under the
 * ``ca_key`` - Default is ``/etc/keystone/ssl/certs/cakey.pem``
 * ``key_size`` - Default is ``2048``
 * ``valid_days`` - Default is ``3650``
-* ``ca_password``  - Password required to read the ca_file. Default is None
 
 Signing Certificate Issued by External CA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -342,7 +341,7 @@ the following conditions:
 * private key files must not be protected by a password
 
 When using signing certificate issued by an external CA, you do not need to
-specify ``key_size``, ``valid_days``, ``ca_key`` and ``ca_password`` as they
+specify ``key_size``, ``valid_days`` and ``ca_key`` as they
 will be ignored.
 
 The basic workflow for using a signing certificate issed by an external CA involves:
@@ -576,7 +575,6 @@ When generating SSL certificates the following values are read
 * ``key_size``: Key size to create. Defaults to 1024.
 * ``valid_days``: How long the certificate is valid for. Defaults to 3650 (10 years).
 * ``ca_key``: The private key for the CA. Defaults to ``/etc/keystone/ssl/certs/cakey.pem``.
-* ``ca_password``: The password for the CA private key. Defaults to None.
 * ``cert_subject``: The subject to set in the certificate. Defaults to /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost. When setting the subject it is important to set CN to be the address of the server so client validation will succeed. This generally means having the subject be at least /CN=<keystone ip>
 
 Generating SSL certificates

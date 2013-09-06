@@ -245,7 +245,6 @@
 #ca_key = /etc/keystone/pki/private/cakey.pem
 #key_size = 1024
 #valid_days = 3650
-#ca_password = None
 #cert_required = False
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
@@ -260,7 +259,6 @@
 #ca_key = /etc/keystone/pki/private/cakey.pem
 #key_size = 2048
 #valid_days = 3650
-#ca_password = None
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
 
 [ldap]

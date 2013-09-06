@@ -106,7 +106,6 @@ FILE_OPTIONS = {
         cfg.BoolOpt('cert_required', default=False),
         cfg.IntOpt('key_size', default=1024),
         cfg.IntOpt('valid_days', default=3650),
-        cfg.StrOpt('ca_password', default=None),
         cfg.StrOpt('cert_subject',
                    default='/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost')],
     'signing': [
@@ -121,7 +120,6 @@ FILE_OPTIONS = {
                    default="/etc/keystone/ssl/certs/cakey.pem"),
         cfg.IntOpt('key_size', default=2048),
         cfg.IntOpt('valid_days', default=3650),
-        cfg.StrOpt('ca_password', default=None),
         cfg.StrOpt('cert_subject',
                    default=('/C=US/ST=Unset/L=Unset/O=Unset/'
                             'CN=www.example.com'))],
