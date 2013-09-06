@@ -82,6 +82,62 @@
 # or a module with notify() method:
 # onready = keystone.common.systemd
 
+# === Notification Options ===
+
+# Notifications can be sent when users or projects are created, updated or
+# deleted. There are three methods of sending notifications: logging (via the
+# log_file directive), rpc (via a message queue) and no_op (no notifications
+# sent, the default)
+
+# notification_driver can be defined multiple times
+# Do nothing driver (the default)
+# notification_driver = keystone.openstack.common.notifier.no_op_notifier
+# Logging driver example (not enabled by default)
+# notification_driver = keystone.openstack.common.notifier.log_notifier
+# RPC driver example (not enabled by default)
+# notification_driver = keystone.openstack.common.notifier.rpc_notifier
+
+# Default notification level for outgoing notifications
+# default_notification_level = INFO
+
+# Default publisher_id for outgoing notifications; included in the payload.
+# default_publisher_id =
+
+# AMQP topics to publish to when using the RPC notification driver.
+# Multiple values can be specified by separating with commas.
+# The actual topic names will be %s.%(default_notification_level)s
+# notification_topics = notifications
+
+# === RPC Options ===
+
+# For Keystone, these options apply only when the RPC notification driver is
+# used.
+
+# The messaging module to use, defaults to kombu.
+# rpc_backend = keystone.openstack.common.rpc.impl_kombu
+
+# Size of RPC thread pool
+# rpc_thread_pool_size = 64
+
+# Size of RPC connection pool
+# rpc_conn_pool_size = 30
+
+# Seconds to wait for a response from call or multicall
+# rpc_response_timeout = 60
+
+# Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.
+# rpc_cast_timeout = 30
+
+# Modules of exceptions that are permitted to be recreated upon receiving
+# exception data from an rpc call.
+# allowed_rpc_exception_modules = keystone.openstack.common.exception,nova.exception,cinder.exception,exceptions
+
+# If True, use a fake RabbitMQ provider
+# fake_rabbit = False
+
+# AMQP exchange to connect to if using RabbitMQ or Qpid
+# control_exchange = openstack
+
 [sql]
 # The SQLAlchemy connection string used to connect to the database
 # connection = sqlite:///keystone.db
