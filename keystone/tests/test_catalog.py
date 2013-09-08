@@ -16,7 +16,7 @@
 
 import uuid
 
-import test_content_types
+from keystone.tests import test_content_types
 
 
 BASE_URL = 'http://127.0.0.1:35357/v2'

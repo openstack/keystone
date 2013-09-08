@@ -14,9 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import test_sql_upgrade
-
 from keystone import config
+from keystone.tests import test_sql_upgrade
+
 
 CONF = config.CONF
 

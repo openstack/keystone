@@ -30,8 +30,7 @@ To run these tests against a live database:
 from keystone.contrib import endpoint_filter
 from keystone.contrib import example
 from keystone.contrib import oauth1
-
-import test_sql_upgrade
+from keystone.tests import test_sql_upgrade
 
 
 class SqlUpgradeExampleExtension(test_sql_upgrade.SqlMigrateBase):

@@ -22,8 +22,7 @@ from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import tests
-
-import _ldap_livetest
+from keystone.tests import _ldap_livetest
 
 
 CONF = config.CONF

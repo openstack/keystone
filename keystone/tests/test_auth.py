@@ -16,16 +16,14 @@ import copy
 import datetime
 import uuid
 
-from keystone import tests
-
 from keystone import auth
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
+from keystone import tests
+from keystone.tests import default_fixtures
 from keystone import token
 from keystone import trust
-
-import default_fixtures
 
 
 CONF = config.CONF

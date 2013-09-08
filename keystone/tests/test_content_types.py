@@ -20,13 +20,11 @@ import uuid
 from lxml import etree
 import webtest
 
-from keystone import tests
-
 from keystone.common import extension
 from keystone.common import serializer
 from keystone.openstack.common import jsonutils
-
-import default_fixtures
+from keystone import tests
+from keystone.tests import default_fixtures
 
 
 class RestfulTestCase(tests.TestCase):

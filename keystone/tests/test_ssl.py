@@ -18,10 +18,10 @@
 import os
 import ssl
 
-from keystone import tests
-
 from keystone.common import environment
 from keystone import config
+from keystone import tests
+
 
 CONF = config.CONF
 

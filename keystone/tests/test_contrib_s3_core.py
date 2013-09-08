@@ -16,11 +16,9 @@
 
 import uuid
 
-from keystone import tests
-
 from keystone.contrib import s3
-
 from keystone import exception
+from keystone import tests
 
 
 class S3ContribCore(tests.TestCase):

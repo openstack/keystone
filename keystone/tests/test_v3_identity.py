@@ -17,8 +17,7 @@
 import uuid
 
 from keystone import exception
-
-import test_v3
+from keystone.tests import test_v3
 
 
 def _build_role_assignment_url_and_entity(

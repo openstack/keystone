@@ -21,8 +21,7 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 from keystone.common import sql
 from keystone import config
 from keystone import tests
-
-import test_keystoneclient
+from keystone.tests import test_keystoneclient
 
 
 CONF = config.CONF

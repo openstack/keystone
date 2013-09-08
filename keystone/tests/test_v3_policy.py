@@ -16,7 +16,7 @@
 
 import uuid
 
-import test_v3
+from keystone.tests import test_v3
 
 
 class PolicyTestCase(test_v3.RestfulTestCase):
