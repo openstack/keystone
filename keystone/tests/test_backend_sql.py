@@ -161,7 +161,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                                               user['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_projects_for_user,
+                          self.assignment_api.list_projects_for_user,
                           user['id'])
 
     def test_create_null_user_name(self):
@@ -217,7 +217,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.identity_api.add_user_to_project(self.tenant_bar['id'],
                                               user['id'])
         self.assignment_api.delete_project(self.tenant_bar['id'])
-        tenants = self.identity_api.get_projects_for_user(user['id'])
+        tenants = self.assignment_api.list_projects_for_user(user['id'])
         self.assertEquals(tenants, [])
 
     def test_metadata_removed_on_delete_user(self):

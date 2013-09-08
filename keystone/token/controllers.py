@@ -352,23 +352,6 @@ class Auth(controller.V2Controller):
                 raise exception.Unauthorized(e)
         return domain_id
 
-    def _get_project_ref(self, user_id, tenant_id):
-        """Returns the tenant_ref for the user's tenant."""
-        tenant_ref = None
-        if tenant_id:
-            tenants = self.identity_api.get_projects_for_user(user_id)
-            if tenant_id not in tenants:
-                msg = 'User %s is unauthorized for tenant %s' % (
-                    user_id, tenant_id)
-                LOG.warning(msg)
-                raise exception.Unauthorized(msg)
-
-            try:
-                tenant_ref = self.identity_api.get_project(tenant_id)
-            except exception.ProjectNotFound as e:
-                exception.Unauthorized(e)
-        return tenant_ref
-
     def _get_project_roles_and_ref(self, user_id, tenant_id):
         """Returns the project roles for this user, and the project ref."""
 

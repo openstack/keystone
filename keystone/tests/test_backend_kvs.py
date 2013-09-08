@@ -30,9 +30,8 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-    def test_list_user_projects(self):
-        # NOTE(chungg): not implemented
-        self.skipTest('Blocked by bug 1119770')
+    def test_list_projects_for_user_with_grants(self):
+        self.skipTest('kvs backend is now deprecated')
 
     def test_create_duplicate_group_name_in_different_domains(self):
         self.skipTest('Blocked by bug 1119770')

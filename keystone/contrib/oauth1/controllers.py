@@ -336,7 +336,7 @@ class OAuthControllerV3(controller.V3Controller):
 
         # verify the user has the project too
         req_project_id = req_token['requested_project_id']
-        user_projects = self.assignment_api.list_user_projects(user_id)
+        user_projects = self.assignment_api.list_projects_for_user(user_id)
         found = False
         for user_project in user_projects:
             if user_project['id'] == req_project_id:

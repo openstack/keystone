@@ -99,8 +99,8 @@ class PamIdentity(identity.Driver):
     def remove_user_from_project(self, tenant_id, user_id):
         pass
 
-    def get_projects_for_user(self, user_id):
-        return [user_id]
+    def list_projects_for_user(self, user_id):
+        return [{'id': user_id, 'name': user_id}]
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         raise NotImplementedError()

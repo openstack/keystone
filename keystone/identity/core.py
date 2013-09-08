@@ -426,9 +426,6 @@ class Manager(manager.Manager):
     def list_roles(self):
         return self.assignment_api.list_roles()
 
-    def get_projects_for_user(self, user_id):
-        return self.assignment_api.get_projects_for_user(user_id)
-
     def get_project_users(self, tenant_id):
         return self.assignment_api.get_project_users(tenant_id)
 
@@ -508,8 +505,8 @@ class Manager(manager.Manager):
     def list_domains(self):
         return self.assignment_api.list_domains()
 
-    def list_user_projects(self, user_id):
-        return self.assignment_api.list_user_projects(user_id)
+    def list_projects_for_user(self, user_id):
+        return self.assignment_api.list_projects_for_user(user_id)
 
     def add_user_to_project(self, tenant_id, user_id):
         return self.assignment_api.add_user_to_project(tenant_id, user_id)

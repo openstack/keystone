@@ -1451,8 +1451,9 @@ class IdentityTests(object):
     def test_add_user_to_project(self):
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               self.user_foo['id'])
-        tenants = self.identity_api.get_projects_for_user(self.user_foo['id'])
-        self.assertIn(self.tenant_baz['id'], tenants)
+        tenants = self.assignment_api.list_projects_for_user(
+            self.user_foo['id'])
+        self.assertIn(self.tenant_baz, tenants)
 
     def test_add_user_to_project_missing_default_role(self):
         self.assignment_api.delete_role(CONF.member_role_id)
@@ -1461,8 +1462,9 @@ class IdentityTests(object):
                           CONF.member_role_id)
         self.identity_api.add_user_to_project(self.tenant_baz['id'],
                                               self.user_foo['id'])
-        tenants = self.identity_api.get_projects_for_user(self.user_foo['id'])
-        self.assertIn(self.tenant_baz['id'], tenants)
+        tenants = (
+            self.assignment_api.list_projects_for_user(self.user_foo['id']))
+        self.assertIn(self.tenant_baz, tenants)
         default_role = self.assignment_api.get_role(CONF.member_role_id)
         self.assertIsNotNone(default_role)
 
@@ -1482,8 +1484,9 @@ class IdentityTests(object):
                                               self.user_foo['id'])
         self.identity_api.remove_user_from_project(self.tenant_baz['id'],
                                                    self.user_foo['id'])
-        tenants = self.identity_api.get_projects_for_user(self.user_foo['id'])
-        self.assertNotIn(self.tenant_baz['id'], tenants)
+        tenants = self.assignment_api.list_projects_for_user(
+            self.user_foo['id'])
+        self.assertNotIn(self.tenant_baz, tenants)
 
     def test_remove_user_from_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
@@ -1501,9 +1504,9 @@ class IdentityTests(object):
                           self.tenant_baz['id'],
                           self.user_foo['id'])
 
-    def test_get_projects_for_user_404(self):
+    def test_list_user_project_ids_404(self):
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_projects_for_user,
+                          self.assignment_api.list_projects_for_user,
                           uuid.uuid4().hex)
 
     def test_update_project_404(self):
@@ -1535,7 +1538,7 @@ class IdentityTests(object):
                                               user['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_projects_for_user,
+                          self.assignment_api.list_projects_for_user,
                           user['id'])
 
     def test_delete_user_with_project_roles(self):
@@ -1550,7 +1553,7 @@ class IdentityTests(object):
             self.role_member['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_projects_for_user,
+                          self.assignment_api.list_projects_for_user,
                           user['id'])
 
     def test_delete_user_404(self):
@@ -2263,14 +2266,14 @@ class IdentityTests(object):
                           self.identity_api.get_user,
                           user['id'])
 
-    def test_list_user_projects(self):
+    def test_list_projects_for_user(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.identity_api.create_domain(domain['id'], domain)
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                  'password': uuid.uuid4().hex, 'domain_id': domain['id'],
                  'enabled': True}
         self.identity_api.create_user(user1['id'], user1)
-        user_projects = self.identity_api.list_user_projects(user1['id'])
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEquals(len(user_projects), 0)
         self.identity_api.create_grant(user_id=user1['id'],
                                        project_id=self.tenant_bar['id'],
@@ -2278,8 +2281,46 @@ class IdentityTests(object):
         self.identity_api.create_grant(user_id=user1['id'],
                                        project_id=self.tenant_baz['id'],
                                        role_id=self.role_member['id'])
-        user_projects = self.identity_api.list_user_projects(user1['id'])
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEquals(len(user_projects), 2)
+
+    def test_list_projects_for_user_with_grants(self):
+        # Create two groups each with a role on a different project, and
+        # make user1 a member of both groups.  Both these new projects
+        # should now be included, along with any direct user grants.
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group1['id'], group1)
+        group2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group2['id'], group2)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project2['id'], project2)
+        self.identity_api.add_user_to_group(user1['id'], group1['id'])
+        self.identity_api.add_user_to_group(user1['id'], group2['id'])
+
+        # Create 3 grants, one user grant, the other two as group grants
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id=self.role_member['id'])
+        self.identity_api.create_grant(group_id=group1['id'],
+                                       project_id=project1['id'],
+                                       role_id=self.role_admin['id'])
+        self.identity_api.create_grant(group_id=group2['id'],
+                                       project_id=project2['id'],
+                                       role_id=self.role_admin['id'])
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertEquals(len(user_projects), 3)
 
     def test_cache_layer_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
@@ -3171,3 +3212,107 @@ class InheritanceTests(object):
         self.assertIn(role_list[0]['id'], combined_role_list)
         self.assertIn(role_list[2]['id'], combined_role_list)
         self.assertIn(role_list[3]['id'], combined_role_list)
+
+    def test_list_projects_for_user_with_inherited_grants(self):
+        """Test inherited group roles.
+
+        Test Plan:
+        - Enable OS-INHERIT extension
+        - Create a domain, with two projects and a user
+        - Assign an inherited user role on the domain, as well as a direct
+          user role to a separate project in a different domain
+        - Get a list of projects for user, should return all three projects
+
+        """
+        self.opt_in_group('os_inherit', enabled=True)
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project2['id'], project2)
+
+        # Create 2 grants, one on a project and one inherited grant
+        # on the domain
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id=self.role_member['id'])
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       domain_id=domain['id'],
+                                       role_id=self.role_admin['id'],
+                                       inherited_to_projects=True)
+        # Should get back all three projects, one by virtue of the direct
+        # grant, plus both projects in the domain
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertEquals(len(user_projects), 3)
+
+    def test_list_projects_for_user_with_inherited_group_grants(self):
+        """Test inherited group roles.
+
+        Test Plan:
+        - Enable OS-INHERIT extension
+        - Create two domains, each with two projects
+        - Create a user and group
+        - Make the user a member of the group
+        - Assign a user role two projects, an inherited
+          group role to one domain and an inherited regular role on
+          the other domain
+        - Get a list of projects for user, should return both pairs of projects
+          from the domain, plus the one separate project
+
+        """
+        self.opt_in_group('os_inherit', enabled=True)
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain['id'], domain)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain2['id'], domain2)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project2['id'], project2)
+        project3 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain2['id']}
+        self.assignment_api.create_project(project3['id'], project3)
+        project4 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain2['id']}
+        self.assignment_api.create_project(project4['id'], project4)
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group1['id'], group1)
+        self.identity_api.add_user_to_group(user1['id'], group1['id'])
+
+        # Create 4 grants:
+        # - one user grant on a project in domain2
+        # - one user grant on a project in the default domain
+        # - one inherited user grant on domain
+        # - one inherited group grant on domain2
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=project3['id'],
+                                       role_id=self.role_member['id'])
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       project_id=self.tenant_bar['id'],
+                                       role_id=self.role_member['id'])
+        self.identity_api.create_grant(user_id=user1['id'],
+                                       domain_id=domain['id'],
+                                       role_id=self.role_admin['id'],
+                                       inherited_to_projects=True)
+        self.identity_api.create_grant(group_id=group1['id'],
+                                       domain_id=domain2['id'],
+                                       role_id=self.role_admin['id'],
+                                       inherited_to_projects=True)
+        # Should get back all five projects, but without a duplicate for
+        # project3 (since it has both a direct user role and an inherited role)
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertEquals(len(user_projects), 5)

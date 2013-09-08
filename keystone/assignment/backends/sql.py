@@ -19,7 +19,11 @@ from keystone import clean
 from keystone.common import dependency
 from keystone.common import sql
 from keystone.common.sql import migration
+from keystone import config
 from keystone import exception
+
+
+CONF = config.CONF
 
 
 @dependency.requires('identity_api')
@@ -219,21 +223,76 @@ class Assignment(sql.Base, assignment.Driver):
         project_refs = query.all()
         return [project_ref.to_dict() for project_ref in project_refs]
 
-    def get_projects_for_user(self, user_id):
+    def list_projects_for_user(self, user_id, group_ids):
+        # NOTE(henry-nash): This method is written as a series of code blocks,
+        # rather than broken down into too many sub-functions, to prepare for
+        # SQL optimization when we rationalize the grant tables in the
+        # future.
 
-        # FIXME(henry-nash) The following should take into account
-        # both group and inherited roles. In fact, I don't see why this
-        # call can't be handled at the controller level like we do
-        # with 'get_roles_for_user_and_project()'.  Further, this
-        # call seems essentially the same as 'list_user_projects()'
-        # later in this driver.  Both should be removed.
+        def _list_domains_with_inherited_grants(query):
+            domain_ids = set()
+            domain_grants = query.all()
+            for domain_grant in domain_grants:
+                for grant in domain_grant.data.get('roles', []):
+                    if 'inherited_to' in grant:
+                        domain_ids.add(domain_grant.domain_id)
+            return domain_ids
 
-        self.identity_api.get_user(user_id)
+        # NOTE(henry-nash): The metadata management code doesn't always clean
+        # up table entries when the last role is deleted - so when checking
+        # grant entries, only include this project if there are actually roles
+        # present.
+
+        # First get a list of the projects for which the user has a direct
+        # role assigned
         session = self.get_session()
         query = session.query(UserProjectGrant)
         query = query.filter_by(user_id=user_id)
-        membership_refs = query.all()
-        return [x.project_id for x in membership_refs]
+        project_grants_for_user = query.all()
+        project_ids = set(x.project_id for x in project_grants_for_user
+                          if x.data.get('roles'))
+
+        # Now find any projects with group roles and add them in
+        for group_id in group_ids:
+            query = session.query(GroupProjectGrant)
+            query = query.filter_by(group_id=group_id)
+            project_grants_for_group = query.all()
+            for project_grant in project_grants_for_group:
+                if project_grant.data.get('roles'):
+                    project_ids.add(project_grant.project_id)
+
+        if not CONF.os_inherit.enabled:
+            return [self.get_project(x) for x in project_ids]
+
+        # Inherited roles are enabled, so check to see if this user has any
+        # such roles (direct or group) on any domain, in which case we must
+        # add in all the projects in that domain.
+
+        domain_ids = set()
+
+        # First check for user roles on any domains
+        query = session.query(UserDomainGrant)
+        query = query.filter_by(user_id=user_id)
+        domain_ids.update(_list_domains_with_inherited_grants(query))
+
+        # Now for group roles on any domains
+        for group_id in group_ids:
+            query = session.query(GroupDomainGrant)
+            query = query.filter_by(group_id=group_id)
+            domain_ids.update(_list_domains_with_inherited_grants(query))
+
+        # For each domain on which the user has an inherited role, get the
+        # list of projects in that domain and add them in to the
+        # project id list
+
+        for domain_id in domain_ids:
+            query = session.query(Project)
+            query = query.filter_by(domain_id=domain_id)
+            project_refs = query.all()
+            for project_ref in project_refs:
+                project_ids.add(project_ref.id)
+
+        return [self.get_project(x) for x in project_ids]
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.identity_api.get_user(user_id)
@@ -507,31 +566,6 @@ class Assignment(sql.Base, assignment.Driver):
             ref = self._get_domain(session, domain_id)
             session.delete(ref)
             session.flush()
-
-    def list_user_projects(self, user_id):
-
-        # FIXME(henry-nash) The following should take into account
-        # both group and inherited roles. In fact, I don't see why this
-        # call can't be handled at the controller level like we do
-        # with 'get_roles_for_user_and_project()'.  Further, this
-        # call seems essentially the same as 'get_projects_for_user()'
-        # earlier in this driver.  Both should be removed.
-
-        session = self.get_session()
-        user = self.identity_api.get_user(user_id)
-        metadata_refs = session\
-            .query(UserProjectGrant)\
-            .filter_by(user_id=user_id)
-        project_ids = set([x.project_id for x in metadata_refs
-                           if x.data.get('roles')])
-        if user.get('project_id'):
-            project_ids.add(user['project_id'])
-
-        # FIXME(dolph): this should be removed with proper migrations
-        if user.get('tenant_id'):
-            project_ids.add(user['tenant_id'])
-
-        return [self.get_project(x) for x in project_ids]
 
     # role crud
 

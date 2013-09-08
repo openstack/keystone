@@ -115,12 +115,18 @@ class Assignment(assignment.Driver):
     def list_roles(self):
         return self.role.get_all()
 
-    def get_projects_for_user(self, user_id):
+    def list_projects_for_user(self, user_id, group_ids):
+        # NOTE(henry-nash): The LDAP backend is being deprecated, so no
+        # support is provided for projects that the user has a role on solely
+        # by virtue of group membership.
         self.identity_api.get_user(user_id)
         user_dn = self.user._id_to_dn(user_id)
         associations = (self.role.list_project_roles_for_user
                         (user_dn, self.project.tree_dn))
-        return [p['id'] for p in
+        # Since the LDAP backend doesn't store the domain_id in the LDAP
+        # records (and only supports the default domain), we fill in the
+        # domain_id before we return the list.
+        return [self._set_default_domain(x) for x in
                 self.project.get_user_projects(user_dn, associations)]
 
     def get_project_users(self, tenant_id):

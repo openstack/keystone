@@ -169,8 +169,11 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_delete_group_with_user_project_domain_links(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
-    def test_list_user_projects(self):
+    def test_list_projects_for_user(self):
         self.skipTest('Blocked by bug 1101287')
+
+    def test_list_projects_for_user_with_grants(self):
+        self.skipTest('Blocked by bug 1221805')
 
     def test_create_duplicate_user_name_in_different_domains(self):
         self.skipTest('Blocked by bug 1101276')

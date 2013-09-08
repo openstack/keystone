@@ -243,6 +243,18 @@ class Manager(manager.Manager):
         for role_id in roles:
             self.remove_role_from_user_and_project(user_id, tenant_id, role_id)
 
+    def list_projects_for_user(self, user_id):
+        # NOTE(henry-nash): In order to get a complete list of user projects,
+        # the driver will need to look at group assignments.  To avoid cross
+        # calling between the assignment and identity driver we get the group
+        # list here and pass it in. The rest of the detailed logic of listing
+        # projects for a user is pushed down into the driver to enable
+        # optimization with the various backend technologies (SQL, LDAP etc.).
+
+        group_ids = [x['id'] for
+                     x in self.identity_api.list_groups_for_user(user_id)]
+        return self.driver.list_projects_for_user(user_id, group_ids)
+
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=CONF.assignment.cache_time)
     def get_domain(self, domain_id):
@@ -353,15 +365,6 @@ class Driver(object):
 
         :returns: a list of user_refs or an empty set.
         :raises: keystone.exception.ProjectNotFound
-
-        """
-        raise exception.NotImplemented()
-
-    def get_projects_for_user(self, user_id):
-        """Get the tenants associated with a given user.
-
-        :returns: a list of tenant_id's.
-        :raises: keystone.exception.UserNotFound
 
         """
         raise exception.NotImplemented()
@@ -524,8 +527,13 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def list_user_projects(self, user_id):
+    def list_projects_for_user(self, user_id, group_ids):
         """List all projects associated with a given user.
+
+        :param user_id: the user in question
+        :param group_ids: the groups this user is a member of.  This list is
+                          built in the Manager, so that the driver itself
+                          does not have to call across to identity.
 
         :returns: a list of project_refs or an empty list.
 
