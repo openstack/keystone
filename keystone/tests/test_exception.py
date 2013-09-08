@@ -16,7 +16,7 @@
 
 import uuid
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import wsgi
 from keystone import config
@@ -27,7 +27,7 @@ from keystone.openstack.common import jsonutils
 CONF = config.CONF
 
 
-class ExceptionTestCase(test.TestCase):
+class ExceptionTestCase(tests.TestCase):
     def assertValidJsonRendering(self, e):
         resp = wsgi.render_exception(e)
         self.assertEqual(resp.status_int, e.code)

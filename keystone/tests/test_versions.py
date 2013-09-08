@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import config
 from keystone import controllers
@@ -110,7 +110,7 @@ VERSIONS_RESPONSE = {
 }
 
 
-class VersionTestCase(test.TestCase):
+class VersionTestCase(tests.TestCase):
     def setUp(self):
         super(VersionTestCase, self).setUp()
         self.load_backends()
@@ -258,7 +258,7 @@ class VersionTestCase(test.TestCase):
         self.assertEqual(data, v2_only_response)
 
 
-class XmlVersionTestCase(test.TestCase):
+class XmlVersionTestCase(tests.TestCase):
 
     REQUEST_HEADERS = {'Accept': 'application/xml'}
 

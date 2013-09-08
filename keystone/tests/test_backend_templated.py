@@ -16,7 +16,7 @@
 
 import os
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import exception
 
@@ -28,7 +28,7 @@ DEFAULT_CATALOG_TEMPLATES = os.path.abspath(os.path.join(
     'default_catalog.templates'))
 
 
-class TestTemplatedCatalog(test.TestCase, test_backend.CatalogTests):
+class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
 
     DEFAULT_FIXTURE = {
         'RegionOne': {

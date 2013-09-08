@@ -20,7 +20,7 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 
 from keystone.common import sql
 from keystone import config
-from keystone.tests import core as test
+from keystone import tests
 
 import test_keystoneclient
 
@@ -31,9 +31,9 @@ CONF = config.CONF
 class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
     def config(self, config_files):
         super(KcMasterSqlTestCase, self).config([
-            test.etcdir('keystone.conf.sample'),
-            test.testsdir('test_overrides.conf'),
-            test.testsdir('backend_sql.conf')])
+            tests.etcdir('keystone.conf.sample'),
+            tests.testsdir('test_overrides.conf'),
+            tests.testsdir('backend_sql.conf')])
 
         self.load_backends()
         self.engine = self.get_engine()

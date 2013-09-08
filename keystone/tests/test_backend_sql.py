@@ -21,7 +21,7 @@ import sqlalchemy
 from keystone.common import sql
 from keystone import config
 from keystone import exception
-from keystone.tests import core as test
+from keystone import tests
 
 import default_fixtures
 import test_backend
@@ -31,13 +31,13 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlTests(test.TestCase, sql.Base):
+class SqlTests(tests.TestCase, sql.Base):
 
     def setUp(self):
         super(SqlTests, self).setUp()
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_sql.conf')])
+        self.config([tests.etcdir('keystone.conf.sample'),
+                     tests.testsdir('test_overrides.conf'),
+                     tests.testsdir('backend_sql.conf')])
 
         self.load_backends()
 

@@ -18,7 +18,7 @@ import uuid
 
 from keystone import notifications
 from keystone.openstack.common.notifier import api as notifier_api
-from keystone.tests import core
+from keystone import tests
 
 
 EXP_RESOURCE_TYPE = uuid.uuid4().hex
@@ -28,7 +28,7 @@ class ArbitraryException(Exception):
     pass
 
 
-class NotificationsWrapperTestCase(core.TestCase):
+class NotificationsWrapperTestCase(tests.TestCase):
     def setUp(self):
         super(NotificationsWrapperTestCase, self).setUp()
 
@@ -116,7 +116,7 @@ class NotificationsWrapperTestCase(core.TestCase):
         self.assertFalse(self.send_notification_called)
 
 
-class NotificationsTestCase(core.TestCase):
+class NotificationsTestCase(tests.TestCase):
     def test_send_notification(self):
         """Test the private method _send_notification to ensure event_type,
            payload, and context are built and passed properly.

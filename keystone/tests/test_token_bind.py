@@ -15,7 +15,7 @@
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
-from keystone.tests import core as test
+from keystone import tests
 
 CONF = config.CONF
 
@@ -30,7 +30,7 @@ ANY = 'any'
 ALL_TOKENS = [TOKEN_BIND_KERB, TOKEN_BIND_UNKNOWN, TOKEN_BIND_NONE]
 
 
-class BindTest(test.TestCase):
+class BindTest(tests.TestCase):
     """Test binding tokens to a Principal.
 
     Even though everything in this file references kerberos the same concepts

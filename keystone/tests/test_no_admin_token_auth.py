@@ -17,23 +17,23 @@
 import os
 import webtest
 
-from keystone.tests import core as test
+from keystone import tests
 
 
 def _generate_paste_config():
     # Generate a file, based on keystone-paste.ini, that doesn't include
     # admin_token_auth in the pipeline
 
-    with open(test.etcdir('keystone-paste.ini'), 'r') as f:
+    with open(tests.etcdir('keystone-paste.ini'), 'r') as f:
         contents = f.read()
 
     new_contents = contents.replace(' admin_token_auth ', ' ')
 
-    with open(test.tmpdir('no_admin_token_auth-paste.ini'), 'w') as f:
+    with open(tests.tmpdir('no_admin_token_auth-paste.ini'), 'w') as f:
         f.write(new_contents)
 
 
-class TestNoAdminTokenAuth(test.TestCase):
+class TestNoAdminTokenAuth(tests.TestCase):
     def setUp(self):
         super(TestNoAdminTokenAuth, self).setUp()
         self.load_backends()
@@ -41,12 +41,12 @@ class TestNoAdminTokenAuth(test.TestCase):
         _generate_paste_config()
 
         self.admin_app = webtest.TestApp(
-            self.loadapp(test.tmpdir('no_admin_token_auth'), name='admin'),
+            self.loadapp(tests.tmpdir('no_admin_token_auth'), name='admin'),
             extra_environ=dict(REMOTE_ADDR='127.0.0.1'))
 
     def tearDown(self):
         self.admin_app = None
-        os.remove(test.tmpdir('no_admin_token_auth-paste.ini'))
+        os.remove(tests.tmpdir('no_admin_token_auth-paste.ini'))
         super(TestNoAdminTokenAuth, self).tearDown()
 
     def test_request_no_admin_token_auth(self):

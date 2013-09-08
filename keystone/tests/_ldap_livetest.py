@@ -23,7 +23,7 @@ from keystone.common import ldap as ldap_common
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap
-from keystone.tests import core as test
+from keystone import tests
 
 import test_backend_ldap
 
@@ -73,9 +73,9 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                       'ou': 'UserGroups'})
 
     def _set_config(self):
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_liveldap.conf')])
+        self.config([tests.etcdir('keystone.conf.sample'),
+                     tests.testsdir('test_overrides.conf'),
+                     tests.testsdir('backend_liveldap.conf')])
 
     def test_build_tree(self):
         """Regression test for building the tree names
@@ -86,7 +86,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         self.assertEquals(user_api.tree_dn, CONF.ldap.user_tree_dn)
 
     def tearDown(self):
-        test.TestCase.tearDown(self)
+        tests.TestCase.tearDown(self)
 
     def test_ldap_dereferencing(self):
         alt_users_ldif = {'objectclass': ['top', 'organizationalUnit'],

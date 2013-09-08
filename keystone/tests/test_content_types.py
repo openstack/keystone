@@ -20,7 +20,7 @@ import uuid
 from lxml import etree
 import webtest
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import extension
 from keystone.common import serializer
@@ -29,7 +29,7 @@ from keystone.openstack.common import jsonutils
 import default_fixtures
 
 
-class RestfulTestCase(test.TestCase):
+class RestfulTestCase(tests.TestCase):
     """Performs restful tests against the WSGI app over HTTP.
 
     This class launches public & admin WSGI servers for every test, which can

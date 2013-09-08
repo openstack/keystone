@@ -34,7 +34,7 @@ import functools
 import os
 import time
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import utils
 
@@ -61,7 +61,7 @@ def timezone(func):
     return wrapper
 
 
-class UtilsTestCase(test.TestCase):
+class UtilsTestCase(tests.TestCase):
     def test_hash(self):
         password = 'right'
         wrong = 'wrongwrong'  # Two wrongs don't make a right

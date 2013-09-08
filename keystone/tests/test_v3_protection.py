@@ -22,7 +22,7 @@ from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.policy.backends import rules
-from keystone.tests import core as test
+from keystone import tests
 
 import test_v3
 
@@ -471,7 +471,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         # Finally, switch to the v3 sample policy file
         self.orig_policy_file = CONF.policy_file
         rules.reset()
-        self.opt(policy_file=test.etcdir('policy.v3cloudsample.json'))
+        self.opt(policy_file=tests.etcdir('policy.v3cloudsample.json'))
 
     def tearDown(self):
         super(IdentityTestv3CloudPolicySample, self).tearDown()

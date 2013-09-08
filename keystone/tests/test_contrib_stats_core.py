@@ -17,13 +17,13 @@
 from keystone.contrib import stats
 
 from keystone import config
-from keystone.tests import core as test
+from keystone import tests
 
 
 CONF = config.CONF
 
 
-class StatsContribCore(test.TestCase):
+class StatsContribCore(tests.TestCase):
     def setUp(self):
         super(StatsContribCore, self).setUp()
         self.stats_middleware = stats.StatsMiddleware(None)

@@ -22,7 +22,7 @@ from dogpile.cache import proxy
 from keystone.common import cache
 from keystone import config
 from keystone import exception
-from keystone.tests import core as test
+from keystone import tests
 
 
 CONF = config.CONF
@@ -73,7 +73,7 @@ class TestProxyValue(object):
         self.cached = False
 
 
-class CacheRegionTest(test.TestCase):
+class CacheRegionTest(tests.TestCase):
     def __init__(self, *args, **kwargs):
         super(CacheRegionTest, self).__init__(*args, **kwargs)
         self.region = None
@@ -182,7 +182,7 @@ class CacheRegionTest(test.TestCase):
                           "bogus")
 
 
-class CacheNoopBackendTest(test.TestCase):
+class CacheNoopBackendTest(tests.TestCase):
     def __init__(self, *args, **kwargs):
         super(CacheNoopBackendTest, self).__init__(*args, **kwargs)
         self.region = None

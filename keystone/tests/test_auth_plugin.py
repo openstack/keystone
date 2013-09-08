@@ -16,7 +16,7 @@
 
 import uuid
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import auth
 from keystone import exception
@@ -39,15 +39,15 @@ class SimpleChallengeResponse(auth.AuthMethodHandler):
             return {"challenge": "What's the name of your high school?"}
 
 
-class TestAuthPlugin(test.TestCase):
+class TestAuthPlugin(tests.TestCase):
     def setUp(self):
         super(TestAuthPlugin, self).setUp()
         self.config([
-            test.etcdir('keystone.conf.sample'),
-            test.testsdir('test_overrides.conf'),
-            test.testsdir('backend_sql.conf'),
-            test.testsdir('backend_sql_disk.conf'),
-            test.testsdir('test_auth_plugin.conf')])
+            tests.etcdir('keystone.conf.sample'),
+            tests.testsdir('test_overrides.conf'),
+            tests.testsdir('backend_sql.conf'),
+            tests.testsdir('backend_sql_disk.conf'),
+            tests.testsdir('test_auth_plugin.conf')])
         self.load_backends()
         auth.controllers.AUTH_METHODS[METHOD_NAME] = SimpleChallengeResponse()
 

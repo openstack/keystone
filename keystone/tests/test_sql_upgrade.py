@@ -32,7 +32,7 @@ import uuid
 from migrate.versioning import api as versioning_api
 import sqlalchemy
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import sql
 from keystone.common.sql import migration
@@ -48,14 +48,14 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlMigrateBase(test.TestCase):
+class SqlMigrateBase(tests.TestCase):
     def initialize_sql(self):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
 
-    _config_file_list = [test.etcdir('keystone.conf.sample'),
-                         test.testsdir('test_overrides.conf'),
-                         test.testsdir('backend_sql.conf')]
+    _config_file_list = [tests.etcdir('keystone.conf.sample'),
+                         tests.testsdir('test_overrides.conf'),
+                         tests.testsdir('backend_sql.conf')]
 
     #override this to specify the complete list of configuration files
     def config_files(self):

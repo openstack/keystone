@@ -14,7 +14,7 @@
 
 import webob
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import config
 from keystone import exception
@@ -24,7 +24,7 @@ CONF = config.CONF
 MAX_REQUEST_BODY_SIZE = CONF.max_request_body_size
 
 
-class TestRequestBodySizeLimiter(test.TestCase):
+class TestRequestBodySizeLimiter(tests.TestCase):
 
     def setUp(self):
         super(TestRequestBodySizeLimiter, self).setUp()

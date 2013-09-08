@@ -20,7 +20,7 @@ import webob
 from keystone import config
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
-from keystone.tests import core as test
+from keystone import tests
 
 import default_fixtures
 
@@ -30,7 +30,7 @@ OPENSTACK_REPO = 'https://review.openstack.org/p/openstack'
 KEYSTONECLIENT_REPO = '%s/python-keystoneclient.git' % OPENSTACK_REPO
 
 
-class CompatTestCase(test.TestCase):
+class CompatTestCase(tests.TestCase):
     def setUp(self):
         super(CompatTestCase, self).setUp()
 
@@ -50,7 +50,7 @@ class CompatTestCase(test.TestCase):
         self.public_server = self.serveapp('keystone', name='main')
         self.admin_server = self.serveapp('keystone', name='admin')
 
-        revdir = test.checkout_vendor(*self.get_checkout())
+        revdir = tests.checkout_vendor(*self.get_checkout())
         self.add_path(revdir)
         self.clear_module('keystoneclient')
 

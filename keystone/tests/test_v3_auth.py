@@ -19,7 +19,7 @@ from keystone import auth
 from keystone.common import cms
 from keystone import config
 from keystone import exception
-from keystone.tests import core as test
+from keystone import tests
 
 import test_v3
 
@@ -98,7 +98,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
 class TestPKITokenAPIs(test_v3.RestfulTestCase):
     def config_files(self):
         conf_files = super(TestPKITokenAPIs, self).config_files()
-        conf_files.append(test.testsdir('test_pki_token_provider.conf'))
+        conf_files.append(tests.testsdir('test_pki_token_provider.conf'))
         return conf_files
 
     def setUp(self):
@@ -334,7 +334,7 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase):
 class TestUUIDTokenAPIs(TestPKITokenAPIs):
     def config_files(self):
         conf_files = super(TestUUIDTokenAPIs, self).config_files()
-        conf_files.append(test.testsdir('test_uuid_token_provider.conf'))
+        conf_files.append(tests.testsdir('test_uuid_token_provider.conf'))
         return conf_files
 
     def test_v3_token_id(self):

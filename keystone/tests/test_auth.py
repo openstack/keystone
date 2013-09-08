@@ -16,7 +16,7 @@ import copy
 import datetime
 import uuid
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import auth
 from keystone import config
@@ -60,7 +60,7 @@ def _build_user_auth(token=None, user_id=None, username=None,
     return auth_json
 
 
-class AuthTest(test.TestCase):
+class AuthTest(tests.TestCase):
     def setUp(self):
         super(AuthTest, self).setUp()
 
@@ -843,7 +843,7 @@ class TokenExpirationTest(AuthTest):
         self._maintain_token_expiration()
 
 
-class NonDefaultAuthTest(test.TestCase):
+class NonDefaultAuthTest(tests.TestCase):
 
     def test_add_non_default_auth_method(self):
         self.opt_in_group('auth', methods=['password', 'token', 'custom'])

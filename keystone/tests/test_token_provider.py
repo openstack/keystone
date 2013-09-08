@@ -18,7 +18,7 @@ import datetime
 
 from keystone import exception
 from keystone.openstack.common import timeutils
-from keystone.tests import core as test
+from keystone import tests
 from keystone import token
 
 FUTURE_DELTA = datetime.timedelta(seconds=86400)
@@ -690,7 +690,7 @@ SAMPLE_MALFORMED_TOKEN = {
 }
 
 
-class TestTokenProvider(test.TestCase):
+class TestTokenProvider(tests.TestCase):
     def setUp(self):
         super(TestTokenProvider, self).setUp()
         self.load_backends()

@@ -26,7 +26,7 @@ from keystone.common import serializer
 from keystone import config
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
-from keystone.tests import core as test
+from keystone import tests
 
 import test_content_types
 
@@ -38,25 +38,25 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class RestfulTestCase(test_content_types.RestfulTestCase):
-    _config_file_list = [test.etcdir('keystone.conf.sample'),
-                         test.testsdir('test_overrides.conf'),
-                         test.testsdir('backend_sql.conf'),
-                         test.testsdir('backend_sql_disk.conf')]
+    _config_file_list = [tests.etcdir('keystone.conf.sample'),
+                         tests.testsdir('test_overrides.conf'),
+                         tests.testsdir('backend_sql.conf'),
+                         tests.testsdir('backend_sql_disk.conf')]
 
     #override this to sepcify the complete list of configuration files
     def config_files(self):
         return self._config_file_list
 
     def setup_database(self):
-        test.setup_test_database()
+        tests.setup_test_database()
 
     def teardown_database(self):
-        test.teardown_test_database()
+        tests.teardown_test_database()
 
     def generate_paste_config(self):
         new_paste_file = None
         try:
-            new_paste_file = test.generate_paste_config(self.EXTENSION_TO_ADD)
+            new_paste_file = tests.generate_paste_config(self.EXTENSION_TO_ADD)
         except AttributeError:
             # no need to report this error here, as most tests will not have
             # EXTENSION_TO_ADD defined.
@@ -66,7 +66,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
     def remove_generated_paste_config(self):
         try:
-            test.remove_generated_paste_config(self.EXTENSION_TO_ADD)
+            tests.remove_generated_paste_config(self.EXTENSION_TO_ADD)
         except AttributeError:
             pass
 

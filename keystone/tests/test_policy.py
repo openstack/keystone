@@ -19,7 +19,7 @@ import StringIO
 import tempfile
 import urllib2
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import config
 from keystone import exception
@@ -30,7 +30,7 @@ from keystone.policy.backends import rules
 CONF = config.CONF
 
 
-class PolicyFileTestCase(test.TestCase):
+class PolicyFileTestCase(tests.TestCase):
     def setUp(self):
         super(PolicyFileTestCase, self).setUp()
         self.orig_policy_file = CONF.policy_file
@@ -58,7 +58,7 @@ class PolicyFileTestCase(test.TestCase):
                           empty_credentials, action, self.target)
 
 
-class PolicyTestCase(test.TestCase):
+class PolicyTestCase(tests.TestCase):
     def setUp(self):
         super(PolicyTestCase, self).setUp()
         rules.reset()
@@ -155,7 +155,7 @@ class PolicyTestCase(test.TestCase):
         rules.enforce(admin_credentials, uppercase_action, self.target)
 
 
-class DefaultPolicyTestCase(test.TestCase):
+class DefaultPolicyTestCase(tests.TestCase):
     def setUp(self):
         super(DefaultPolicyTestCase, self).setUp()
         rules.reset()

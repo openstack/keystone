@@ -17,10 +17,10 @@
 import copy
 
 from keystone.common import serializer
-from keystone.tests import core as test
+from keystone import tests
 
 
-class XmlSerializerTestCase(test.TestCase):
+class XmlSerializerTestCase(tests.TestCase):
     def assertSerializeDeserialize(self, d, xml, xmlns=None):
         self.assertEqualXML(
             serializer.to_xml(copy.deepcopy(d), xmlns),

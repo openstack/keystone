@@ -16,7 +16,7 @@
 
 import uuid
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone import config
 from keystone.identity.backends import pam as identity_pam
@@ -26,12 +26,12 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class PamIdentity(test.TestCase):
+class PamIdentity(tests.TestCase):
     def setUp(self):
         super(PamIdentity, self).setUp()
-        self.config([test.etcdir('keystone.conf.sample'),
-                     test.testsdir('test_overrides.conf'),
-                     test.testsdir('backend_pam.conf')])
+        self.config([tests.etcdir('keystone.conf.sample'),
+                     tests.testsdir('test_overrides.conf'),
+                     tests.testsdir('backend_pam.conf')])
         self.identity_api = identity_pam.PamIdentity()
         id = uuid.uuid4().hex
         self.tenant_in = {'id': id, 'name': id}

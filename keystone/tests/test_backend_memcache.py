@@ -20,7 +20,7 @@ import uuid
 
 import memcache
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import utils
 from keystone import exception
@@ -110,7 +110,7 @@ class MemcacheClient(object):
             pass
 
 
-class MemcacheToken(test.TestCase, test_backend.TokenTests):
+class MemcacheToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(MemcacheToken, self).setUp()
         self.load_backends()

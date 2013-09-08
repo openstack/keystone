@@ -14,7 +14,7 @@
 
 
 from keystone.common import sql
-from keystone.tests import core as test
+from keystone import tests
 
 
 class CallbackMonitor:
@@ -46,7 +46,7 @@ class CallbackMonitor:
         self._complete = True
 
 
-class TestGlobalEngine(test.TestCase):
+class TestGlobalEngine(tests.TestCase):
 
     def tearDown(self):
         sql.set_global_engine(None)
@@ -141,7 +141,7 @@ class TestGlobalEngine(test.TestCase):
         cb_mon2.check()
 
 
-class TestBase(test.TestCase):
+class TestBase(tests.TestCase):
 
     def tearDown(self):
         sql.set_global_engine(None)

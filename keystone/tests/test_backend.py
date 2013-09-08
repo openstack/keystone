@@ -18,7 +18,7 @@ import copy
 import datetime
 import uuid
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.catalog import core
 from keystone import config
@@ -2777,7 +2777,7 @@ class TrustTests(object):
         self.assertEqual(len(trusts), 3)
 
 
-class CommonHelperTests(test.TestCase):
+class CommonHelperTests(tests.TestCase):
     def test_format_helper_raises_malformed_on_missing_key(self):
         self.assertRaises(exception.MalformedEndpoint,
                           core.format_url,

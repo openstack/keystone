@@ -17,13 +17,13 @@ import uuid
 
 from keystone import exception
 from keystone import identity
-from keystone.tests import core as test
+from keystone import tests
 
 import default_fixtures
 import test_backend
 
 
-class KvsIdentity(test.TestCase, test_backend.IdentityTests):
+class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
     def setUp(self):
         super(KvsIdentity, self).setUp()
         identity.CONF.identity.driver = (
@@ -63,7 +63,7 @@ class KvsIdentity(test.TestCase, test_backend.IdentityTests):
         self.skipTest('Blocked by bug 1119770')
 
 
-class KvsToken(test.TestCase, test_backend.TokenTests):
+class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
         identity.CONF.identity.driver = (
@@ -71,7 +71,7 @@ class KvsToken(test.TestCase, test_backend.TokenTests):
         self.load_backends()
 
 
-class KvsTrust(test.TestCase, test_backend.TrustTests):
+class KvsTrust(tests.TestCase, test_backend.TrustTests):
     def setUp(self):
         super(KvsTrust, self).setUp()
         identity.CONF.identity.driver = (
@@ -84,7 +84,7 @@ class KvsTrust(test.TestCase, test_backend.TrustTests):
         self.load_fixtures(default_fixtures)
 
 
-class KvsCatalog(test.TestCase, test_backend.CatalogTests):
+class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(KvsCatalog, self).setUp()
         identity.CONF.identity.driver = (

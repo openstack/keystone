@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import environment
 from keystone import config
@@ -24,7 +24,7 @@ from keystone import config
 CONF = config.CONF
 
 
-class IPv6TestCase(test.TestCase):
+class IPv6TestCase(tests.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.skip_if_no_ipv6()

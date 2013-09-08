@@ -20,7 +20,7 @@ import uuid
 from keystone.common.sql import migration
 from keystone import contrib
 from keystone.openstack.common import importutils
-from keystone.tests import core as test
+from keystone import tests
 
 import test_v3
 
@@ -33,7 +33,7 @@ class TestExtensionCase(test_v3.RestfulTestCase):
     def setup_database(self):
         self.conf_files = super(TestExtensionCase, self).config_files()
         self.conf_files.append(
-            test.testsdir('test_associate_project_endpoint_extension.conf'))
+            tests.testsdir('test_associate_project_endpoint_extension.conf'))
         super(TestExtensionCase, self).setup_database()
         package_name = "%s.%s.migrate_repo" % (contrib.__name__,
                                                self.EXTENSION_NAME)

@@ -18,7 +18,7 @@
 import os
 import shutil
 
-from keystone.tests import core as test
+from keystone import tests
 
 from keystone.common import openssl
 from keystone import exception
@@ -29,7 +29,7 @@ import default_fixtures
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SSLDIR = "%s/tests/ssl/" % ROOTDIR
-CONF = test.CONF
+CONF = tests.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
@@ -41,7 +41,7 @@ CERTDIR = rootdir("certs")
 KEYDIR = rootdir("private")
 
 
-class CertSetupTestCase(test.TestCase):
+class CertSetupTestCase(tests.TestCase):
 
     def setUp(self):
         super(CertSetupTestCase, self).setUp()
