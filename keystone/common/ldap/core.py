@@ -243,12 +243,15 @@ class BaseLdap(object):
         if self.LDAP_SCOPE == ldap.SCOPE_ONELEVEL:
             return self._id_to_dn_string(id)
         conn = self.get_connection()
-        search_result = conn.search_s(
-            self.tree_dn, self.LDAP_SCOPE,
-            '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
-            {'id_attr': self.id_attr,
-             'id': ldap.filter.escape_filter_chars(str(id)),
-             'objclass': self.object_class})
+        try:
+            search_result = conn.search_s(
+                self.tree_dn, self.LDAP_SCOPE,
+                '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
+                {'id_attr': self.id_attr,
+                 'id': ldap.filter.escape_filter_chars(str(id)),
+                 'objclass': self.object_class})
+        finally:
+            conn.unbind_s()
         if search_result:
             dn, attrs = search_result[0]
             return dn
@@ -321,8 +324,10 @@ class BaseLdap(object):
 
         if 'groupOfNames' in object_classes and self.use_dumb_member:
             attrs.append(('member', [self.dumb_member]))
-
-        conn.add_s(self._id_to_dn(values['id']), attrs)
+        try:
+            conn.add_s(self._id_to_dn(values['id']), attrs)
+        finally:
+            conn.unbind_s()
         return values
 
     def _ldap_get(self, id, filter=None):
@@ -340,6 +345,8 @@ class BaseLdap(object):
             res = conn.search_s(self.tree_dn, self.LDAP_SCOPE, query, attrs)
         except ldap.NO_SUCH_OBJECT:
             return None
+        finally:
+            conn.unbind_s()
         try:
             return res[0]
         except IndexError:
@@ -356,6 +363,8 @@ class BaseLdap(object):
                                  self.attribute_mapping.values())
         except ldap.NO_SUCH_OBJECT:
             return []
+        finally:
+            conn.unbind_s()
 
     def get(self, id, filter=None):
         res = self._ldap_get(id, filter)
@@ -411,6 +420,8 @@ class BaseLdap(object):
                 conn.modify_s(self._id_to_dn(id), modlist)
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(id)
+            finally:
+                conn.unbind_s()
 
         return self.get(id)
 
@@ -424,6 +435,8 @@ class BaseLdap(object):
             conn.delete_s(self._id_to_dn(id))
         except ldap.NO_SUCH_OBJECT:
             raise self._not_found(id)
+        finally:
+            conn.unbind_s()
 
     def deleteTree(self, id):
         conn = self.get_connection()
@@ -435,6 +448,8 @@ class BaseLdap(object):
                               serverctrls=[tree_delete_control])
         except ldap.NO_SUCH_OBJECT:
             raise self._not_found(id)
+        finally:
+            conn.unbind_s()
 
 
 class LdapWrapper(object):
@@ -510,6 +525,10 @@ class LdapWrapper(object):
     def simple_bind_s(self, user, password):
         LOG.debug(_("LDAP bind: dn=%s"), user)
         return self.conn.simple_bind_s(user, password)
+
+    def unbind_s(self):
+        LOG.debug("LDAP unbind")
+        return self.conn.unbind_s()
 
     def add_s(self, dn, attrs):
         ldap_attrs = [(kind, [py2ldap(x) for x in safe_iter(values)])
@@ -651,6 +670,8 @@ class EnabledEmuMixIn(BaseLdap):
             return False
         else:
             return bool(enabled_value)
+        finally:
+            conn.unbind_s()
 
     def _add_enabled(self, object_id):
         if not self._get_enabled(object_id):
@@ -667,6 +688,8 @@ class EnabledEmuMixIn(BaseLdap):
                 if self.use_dumb_member:
                     attr_list[1][1].append(self.dumb_member)
                 conn.add_s(self.enabled_emulation_dn, attr_list)
+            finally:
+                conn.unbind_s()
 
     def _remove_enabled(self, object_id):
         conn = self.get_connection()
@@ -677,6 +700,8 @@ class EnabledEmuMixIn(BaseLdap):
             conn.modify_s(self.enabled_emulation_dn, modlist)
         except (ldap.NO_SUCH_OBJECT, ldap.NO_SUCH_ATTRIBUTE):
             pass
+        finally:
+            conn.unbind_s()
 
     def create(self, values):
         if self.enabled_emulation:

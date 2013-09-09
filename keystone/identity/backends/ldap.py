@@ -63,6 +63,7 @@ class Identity(identity.Driver):
             raise AssertionError('Invalid user / password')
         if not user_id or not password:
             raise AssertionError('Invalid user / password')
+        conn = None
         try:
             conn = self.user.get_connection(self.user._id_to_dn(user_id),
                                             password)
@@ -70,6 +71,9 @@ class Identity(identity.Driver):
                 raise AssertionError('Invalid user / password')
         except Exception:
             raise AssertionError('Invalid user / password')
+        finally:
+            if conn:
+                conn.unbind_s()
         return identity.filter_user(user_ref)
 
     def _get_user(self, user_id):
@@ -286,19 +290,20 @@ class GroupApi(common_ldap.BaseLdap):
             # TODO(spzala): this is only placeholder for group and domain
             # role support which will be added under bug 1101287
 
-            conn = self.get_connection()
             query = '(objectClass=%s)' % self.object_class
             dn = None
             dn = self._id_to_dn(id)
             if dn:
                 try:
+                    conn = self.get_connection()
                     roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
                                           query, ['%s' % '1.1'])
                     for role_dn, _ in roles:
                         conn.delete_s(role_dn)
                 except ldap.NO_SUCH_OBJECT:
                     pass
-
+                finally:
+                    conn.unbind_s()
             super(GroupApi, self).delete(id)
 
     def update(self, id, values):
@@ -317,6 +322,8 @@ class GroupApi(common_ldap.BaseLdap):
             raise exception.Conflict(_(
                 'User %(user_id)s is already a member of group %(group_id)s') %
                 {'user_id': user_id, 'group_id': group_id})
+        finally:
+            conn.unbind_s()
 
     def remove_user(self, user_dn, group_id, user_id):
         conn = self.get_connection()
@@ -328,6 +335,8 @@ class GroupApi(common_ldap.BaseLdap):
                   user_dn)])
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.UserNotFound(user_id=user_id)
+        finally:
+            conn.unbind_s()
 
     def list_user_groups(self, user_dn):
         """Return a list of groups for which the user is a member."""
@@ -350,6 +359,8 @@ class GroupApi(common_ldap.BaseLdap):
                                   query, ['%s' % self.member_attribute])
         except ldap.NO_SUCH_OBJECT:
             return []
+        finally:
+            conn.unbind_s()
         users = []
         for dn, member in attrs:
             user_dns = member[self.member_attribute]
