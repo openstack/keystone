@@ -1739,8 +1739,10 @@ class IdentityTests(object):
 
     def test_list_users(self):
         users = self.identity_api.list_users()
-        for test_user in default_fixtures.USERS:
-            self.assertTrue(x for x in users if x['id'] == test_user['id'])
+        self.assertEqual(len(default_fixtures.USERS), len(users))
+        user_ids = set(user['id'] for user in users)
+        expected_user_ids = set(user['id'] for user in default_fixtures.USERS)
+        self.assertEqual(expected_user_ids, user_ids)
 
     def test_list_groups(self):
         group1 = {
@@ -1810,8 +1812,10 @@ class IdentityTests(object):
 
     def test_list_roles(self):
         roles = self.identity_api.list_roles()
-        for test_role in default_fixtures.ROLES:
-            self.assertTrue(x for x in roles if x['id'] == test_role['id'])
+        self.assertEqual(len(default_fixtures.ROLES), len(roles))
+        role_ids = set(role['id'] for role in roles)
+        expected_role_ids = set(role['id'] for role in default_fixtures.ROLES)
+        self.assertEqual(expected_role_ids, role_ids)
 
     def test_delete_project_with_role_assignments(self):
         tenant = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
