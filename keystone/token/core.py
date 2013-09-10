@@ -173,13 +173,10 @@ class Manager(manager.Manager):
         return self.driver.list_revoked_tokens()
 
     def invalidate_revocation_list(self):
-        # NOTE(morganfainberg): we should always be keeping the revoked tokens
-        # list in memory, calling refresh in this case instead of ensures a
-        # cache hit when list_revoked_tokens is called again. This is an
-        # exception to the rule.  Note that ``self`` needs to be passed to
-        # refresh() because of the way the invalidation/refresh methods work on
+        # NOTE(morganfainberg): Note that ``self`` needs to be passed to
+        # invalidate() because of the way the invalidation method works on
         # determining cache-keys.
-        self.list_revoked_tokens.refresh(self)
+        self.list_revoked_tokens.invalidate(self)
 
     def _invalidate_individual_token_cache(self, token_id, belongs_to=None):
         # NOTE(morganfainberg): invalidate takes the exact same arguments as
