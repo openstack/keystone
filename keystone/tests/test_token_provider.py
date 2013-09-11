@@ -801,13 +801,13 @@ class TestTokenProvider(tests.TestCase):
                          'my.package.MyProvider')
 
     def test_provider_token_expiration_validation(self):
-        self.assertRaises(exception.Unauthorized,
+        self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._is_valid_token,
                           SAMPLE_V2_TOKEN_EXPIRED)
-        self.assertRaises(exception.Unauthorized,
+        self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._is_valid_token,
                           SAMPLE_V3_TOKEN_EXPIRED)
-        self.assertRaises(exception.Unauthorized,
+        self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._is_valid_token,
                           SAMPLE_MALFORMED_TOKEN)
         self.assertEqual(

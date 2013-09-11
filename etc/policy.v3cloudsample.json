@@ -3,7 +3,7 @@
     "cloud_admin": [["rule:admin_required", "domain_id:admin_domain_id"]],
     "service_role": [["role:service"]],
     "service_or_admin": [["rule:admin_required"], ["rule:service_role"]],
-    "owner" : [["user_id:%(user_id)s"]],
+    "owner" : [["user_id:%(user_id)s"], ["user_id:%(target.entity.user_id)s"]],
     "admin_or_owner": [["rule:admin_required"], ["rule:owner"]],
     "admin_or_cloud_admin": [["rule:admin_required"], ["rule:cloud_admin"]],
 
@@ -85,7 +85,7 @@
     "identity:update_policy": [["rule:cloud_admin"]],
     "identity:delete_policy": [["rule:cloud_admin"]],
 
-    "identity:check_token": [["rule:admin_required"]],
+    "identity:check_token": [["rule:admin_or_owner"]],
     "identity:validate_token": [["rule:service_or_admin"]],
     "identity:validate_token_head": [["rule:service_or_admin"]],
     "identity:revocation_list": [["rule:service_or_admin"]],

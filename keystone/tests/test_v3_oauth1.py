@@ -365,7 +365,7 @@ class AuthTokenTests(OAuthFlowTests):
         headers = {'X-Subject-Token': self.keystone_token_id,
                    'X-Auth-Token': self.keystone_token_id}
         self.get('/auth/tokens', headers=headers,
-                 expected_status=401)
+                 expected_status=404)
 
     def test_deleting_consumer_also_deletes_tokens(self):
         self.test_oauth_flow()
@@ -386,7 +386,7 @@ class AuthTokenTests(OAuthFlowTests):
         headers = {'X-Subject-Token': self.keystone_token_id,
                    'X-Auth-Token': self.keystone_token_id}
         self.head('/auth/tokens', headers=headers,
-                  expected_status=401)
+                  expected_status=404)
 
     def test_change_user_password_also_deletes_tokens(self):
         self.test_oauth_flow()
