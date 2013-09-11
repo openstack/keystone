@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2013-09-05 06:01+0000\n"
+"POT-Creation-Date: 2013-09-11 06:00+0000\n"
 "PO-Revision-Date: 2013-08-30 04:19+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Slovak "
@@ -203,7 +203,7 @@ msgstr ""
 msgid "Creating the default role %s because it does not exist."
 msgstr ""
 
-#: keystone/assignment/core.py:636 keystone/identity/core.py:212
+#: keystone/assignment/core.py:636 keystone/identity/core.py:216
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
@@ -214,7 +214,7 @@ msgstr ""
 msgid "Cannot remove role that has not been granted, %s"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:399
+#: keystone/assignment/backends/ldap.py:405
 #, python-format
 msgid "Role %s not found"
 msgstr ""
@@ -268,7 +268,7 @@ msgid "Access token is expired"
 msgstr ""
 
 #: keystone/auth/plugins/oauth1.py:75
-#: keystone/contrib/oauth1/controllers.py:285
+#: keystone/contrib/oauth1/controllers.py:260
 msgid "There should not be any non-oauth parameters"
 msgstr ""
 
@@ -511,43 +511,43 @@ msgid ""
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:288 keystone/identity/backends/kvs.py:180
+#: keystone/common/ldap/core.py:291 keystone/identity/backends/kvs.py:180
 #: keystone/identity/backends/kvs.py:208
 #, python-format
 msgid "Duplicate name, %s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:298 keystone/identity/backends/kvs.py:173
+#: keystone/common/ldap/core.py:301 keystone/identity/backends/kvs.py:173
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:304
+#: keystone/common/ldap/core.py:307
 #, python-format
 msgid "LDAP %s create"
 msgstr ""
 
-#: keystone/common/ldap/core.py:382
+#: keystone/common/ldap/core.py:391
 #, python-format
 msgid "LDAP %s update"
 msgstr ""
 
-#: keystone/common/ldap/core.py:393
+#: keystone/common/ldap/core.py:402
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:419
+#: keystone/common/ldap/core.py:430
 #, python-format
 msgid "LDAP %s delete"
 msgstr ""
 
-#: keystone/common/ldap/core.py:444
+#: keystone/common/ldap/core.py:459
 #, python-format
 msgid "LDAP init: url=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:445
+#: keystone/common/ldap/core.py:460
 #, python-format
 msgid ""
 "LDAP init: use_tls=%(use_tls)s\n"
@@ -557,64 +557,64 @@ msgid ""
 "tls_avail=%(tls_avail)s\n"
 msgstr ""
 
-#: keystone/common/ldap/core.py:464
+#: keystone/common/ldap/core.py:479
 msgid "Invalid TLS / LDAPS combination"
 msgstr ""
 
-#: keystone/common/ldap/core.py:468
+#: keystone/common/ldap/core.py:483
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
 msgstr ""
 
-#: keystone/common/ldap/core.py:478
+#: keystone/common/ldap/core.py:493
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr ""
 
-#: keystone/common/ldap/core.py:490
+#: keystone/common/ldap/core.py:505
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr ""
 
-#: keystone/common/ldap/core.py:497
+#: keystone/common/ldap/core.py:512
 #, python-format
 msgid "LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:511
+#: keystone/common/ldap/core.py:526
 #, python-format
 msgid "LDAP bind: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:521
+#: keystone/common/ldap/core.py:540
 #, python-format
 msgid "LDAP add: dn=%(dn)s, attrs=%(attrs)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:526
+#: keystone/common/ldap/core.py:545
 #, python-format
 msgid ""
 "LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, "
 "attrs=%(attrlist)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:579
+#: keystone/common/ldap/core.py:598
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
 msgstr ""
 
-#: keystone/common/ldap/core.py:595
+#: keystone/common/ldap/core.py:614
 #, python-format
 msgid "LDAP modify: dn=%(dn)s, modlist=%(modlist)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:601
+#: keystone/common/ldap/core.py:620
 #, python-format
 msgid "LDAP delete: dn=%s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:606
+#: keystone/common/ldap/core.py:625
 #, python-format
 msgid "LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s"
 msgstr ""
@@ -757,7 +757,7 @@ msgid "Cannot change consumer secret"
 msgstr ""
 
 #: keystone/contrib/oauth1/controllers.py:133
-#: keystone/contrib/oauth1/backends/sql.py:276
+#: keystone/contrib/oauth1/backends/sql.py:279
 msgid "User IDs do not match"
 msgstr ""
 
@@ -765,48 +765,40 @@ msgstr ""
 msgid "Could not find role"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:195
+#: keystone/contrib/oauth1/controllers.py:189
 msgid "Non-oauth parameter - project, do not match"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:201
-msgid "Non-oauth parameter - roles, do not match"
-msgstr ""
-
-#: keystone/contrib/oauth1/controllers.py:212
-msgid "could not find matching roles for provided role ids"
-msgstr ""
-
-#: keystone/contrib/oauth1/controllers.py:264
-#: keystone/contrib/oauth1/controllers.py:340
+#: keystone/contrib/oauth1/controllers.py:239
+#: keystone/contrib/oauth1/controllers.py:315
 msgid "Request token is expired"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:289
+#: keystone/contrib/oauth1/controllers.py:264
 msgid "provided consumer key does not match stored consumer key"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:293
+#: keystone/contrib/oauth1/controllers.py:268
 msgid "provided verifier does not match stored verifier"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:297
+#: keystone/contrib/oauth1/controllers.py:272
 msgid "provided request key does not match stored request key"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:301
+#: keystone/contrib/oauth1/controllers.py:276
 msgid "Request Token does not have an authorizing user id"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:357
+#: keystone/contrib/oauth1/controllers.py:331
 msgid "authorizing user does not have role required"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:369
+#: keystone/contrib/oauth1/controllers.py:346
 msgid "User is not a member of the requested project"
 msgstr ""
 
-#: keystone/contrib/oauth1/backends/sql.py:90
+#: keystone/contrib/oauth1/backends/sql.py:91
 msgid "Consumer not found"
 msgstr ""
 
@@ -814,7 +806,7 @@ msgstr ""
 msgid "Request token not found"
 msgstr ""
 
-#: keystone/contrib/oauth1/backends/sql.py:256
+#: keystone/contrib/oauth1/backends/sql.py:259
 msgid "Access token not found"
 msgstr ""
 
@@ -840,18 +832,25 @@ msgstr ""
 msgid "Ignoring file (%s) while scanning domain config directory"
 msgstr ""
 
+#: keystone/identity/core.py:170
+msgid ""
+"Running an experimental and unsupported configuration "
+"(domain_specific_drivers_enabled = True); this will result in known "
+"issues."
+msgstr ""
+
 #: keystone/identity/backends/kvs.py:129 keystone/identity/backends/kvs.py:138
 msgid "User not found in group"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:178
+#: keystone/identity/backends/ldap.py:182
 #, python-format
 msgid ""
 "Group member '%(user_dn)s' not found in '%(group_id)s'. The user should "
 "be removed from the group. The user will be ignored."
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:317
+#: keystone/identity/backends/ldap.py:322
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr ""
@@ -1618,8 +1617,8 @@ msgstr ""
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
 
-#: keystone/token/provider.py:191 keystone/token/providers/uuid.py:548
-#: keystone/token/providers/uuid.py:559
+#: keystone/token/provider.py:191 keystone/token/providers/uuid.py:556
+#: keystone/token/providers/uuid.py:567
 msgid "Failed to validate token"
 msgstr ""
 
@@ -1659,29 +1658,29 @@ msgstr ""
 msgid "Trustor is disabled."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:242
+#: keystone/token/providers/uuid.py:250
 msgid "Trustee has no delegated roles."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:251
+#: keystone/token/providers/uuid.py:259
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr ""
 
-#: keystone/token/providers/uuid.py:256
+#: keystone/token/providers/uuid.py:264
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr ""
 
-#: keystone/token/providers/uuid.py:306
+#: keystone/token/providers/uuid.py:314
 msgid "User is not a trustee."
 msgstr ""
 
-#: keystone/token/providers/uuid.py:476
+#: keystone/token/providers/uuid.py:484
 msgid "Non-default domain is not supported"
 msgstr ""
 
-#: keystone/token/providers/uuid.py:484
+#: keystone/token/providers/uuid.py:492
 msgid "Domain scoped token is not supported"
 msgstr ""
 
@@ -1704,5 +1703,11 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Invalid LDAP TLS certs option: %(option). Choose one of: %(options)s"
+#~ msgstr ""
+
+#~ msgid "Non-oauth parameter - roles, do not match"
+#~ msgstr ""
+
+#~ msgid "could not find matching roles for provided role ids"
 #~ msgstr ""
 
