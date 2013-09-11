@@ -16,6 +16,7 @@
 
 import copy
 import datetime
+import hashlib
 import uuid
 
 from keystone import tests
@@ -2695,6 +2696,32 @@ class TokenTests(object):
         # Verify both tokens are in the revocation list.
         self.assertIn(token_id, revoked_tokens)
         self.assertIn(token2_id, revoked_tokens)
+
+    def test_predictable_revoked_pki_token_id(self):
+        token_id = self._create_token_id()
+        token_id_hash = hashlib.md5(token_id).hexdigest()
+        token = {'user': {'id': uuid.uuid4().hex}}
+
+        self.token_api.create_token(token_id, token)
+        self.token_api.delete_token(token_id)
+
+        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id_hash, revoked_ids)
+        self.assertNotIn(token_id, revoked_ids)
+        for t in self.token_api.list_revoked_tokens():
+            self.assertIn('expires', t)
+
+    def test_predictable_revoked_uuid_token_id(self):
+        token_id = uuid.uuid4().hex
+        token = {'user': {'id': uuid.uuid4().hex}}
+
+        self.token_api.create_token(token_id, token)
+        self.token_api.delete_token(token_id)
+
+        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        self.assertIn(token_id, revoked_ids)
+        for t in self.token_api.list_revoked_tokens():
+            self.assertIn('expires', t)
 
 
 class TrustTests(object):
