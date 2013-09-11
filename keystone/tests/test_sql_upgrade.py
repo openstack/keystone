@@ -221,6 +221,44 @@ class SqlUpgradeTests(SqlMigrateBase):
         session.commit()
         session.close()
 
+    def test_upgrade_user_tenant_membership_to_metadata(self):
+        self.upgrade(16)
+        self.assertTableColumns(
+            'user_project_membership',
+            ['user_id', 'tenant_id'])
+
+        user = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': 'default',
+            'extra': json.dumps({}),
+        }
+        project = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': 'default',
+            'extra': json.dumps({}),
+        }
+        metadata = {
+            'user_id': user['id'],
+            'tenant_id': project['id'],
+        }
+        session = self.Session()
+        self.insert_dict(session, 'user', user)
+        self.insert_dict(session, 'project', project)
+        self.insert_dict(session, 'user_project_membership', metadata)
+
+        self.upgrade(17)
+        user_project_metadata_table = sqlalchemy.Table(
+            'user_project_metadata', self.metadata, autoload=True)
+
+        result = session.query(user_project_metadata_table).one()
+        self.assertEqual(result.user_id, user['id'])
+        self.assertEqual(result.project_id, project['id'])
+        self.assertEqual(
+            json.loads(result.data),
+            {'roles': [CONF.member_role_id]})
+
     def test_normalized_enabled_states(self):
         self.upgrade(8)
 
