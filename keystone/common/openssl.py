@@ -58,8 +58,7 @@ class BaseCertificateConfigure(object):
                                'signing_cert': conf_obj.certfile,
                                'key_size': int(conf_obj.key_size),
                                'valid_days': int(conf_obj.valid_days),
-                               'cert_subject': conf_obj.cert_subject,
-                               'ca_password': conf_obj.ca_password}
+                               'cert_subject': conf_obj.cert_subject}
 
         try:
             # OpenSSL 1.0 and newer support default_md = default, olders do not
@@ -133,7 +132,6 @@ class BaseCertificateConfigure(object):
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(ca_cert):
             self.exec_command('openssl req -new -x509 -extensions v3_ca '
-                              '-passin pass:%(ca_password)s '
                               '-key %(ca_private_key)s -out %(ca_cert)s '
                               '-days %(valid_days)d '
                               '-config %(ssl_config)s '
@@ -165,7 +163,7 @@ class BaseCertificateConfigure(object):
                         user=self.use_keystone_user,
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(signing_cert):
-            self.exec_command('openssl req -key %(signing_key)s -new -nodes '
+            self.exec_command('openssl req -key %(signing_key)s -new '
                               '-out %(request_file)s -config %(ssl_config)s '
                               '-subj %(cert_subject)s')
 
