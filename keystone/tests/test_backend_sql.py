@@ -21,6 +21,7 @@ import sqlalchemy
 from keystone.common import sql
 from keystone import config
 from keystone import exception
+from keystone.identity.backends import sql as identity_sql
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import test_backend
@@ -326,6 +327,24 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.assertIsNone(ref['extra'].get('password'))
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
+
+    def test_sql_user_to_dict_null_default_project_id(self):
+        user_id = uuid.uuid4().hex
+        user = {
+            'id': user_id,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'password': uuid.uuid4().hex}
+
+        self.identity_api.create_user(user_id, user)
+        session = self.get_session()
+        query = session.query(identity_sql.User)
+        query = query.filter_by(id=user_id)
+        raw_user_ref = query.one()
+        self.assertIsNone(raw_user_ref.default_project_id)
+        user_ref = raw_user_ref.to_dict()
+        self.assertNotIn('default_project_id', user_ref)
+        session.close()
 
 
 class SqlTrust(SqlTests, test_backend.TrustTests):

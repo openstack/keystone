@@ -72,7 +72,7 @@ USERS = [
         'password': 'two2',
         'email': 'two@example.com',
         'enabled': True,
-        'tenant_id': 'baz',
+        'default_project_id': 'baz',
         'tenants': ['baz'],
         'email': 'two@three.com',
     }, {
@@ -82,7 +82,7 @@ USERS = [
         'password': 'bad',
         'email': 'bad@guy.com',
         'enabled': False,
-        'tenant_id': 'baz',
+        'default_project_id': 'baz',
         'tenants': ['baz'],
         'email': 'badguy@goodguy.com',
     }, {

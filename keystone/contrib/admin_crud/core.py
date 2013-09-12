@@ -114,12 +114,12 @@ class CrudExtension(wsgi.ExtensionRouter):
         mapper.connect(
             '/users/{user_id}/tenant',
             controller=user_controller,
-            action='update_user_project',
+            action='update_user',
             conditions=dict(method=['PUT']))
         mapper.connect(
             '/users/{user_id}/OS-KSADM/tenant',
             controller=user_controller,
-            action='update_user_project',
+            action='update_user',
             conditions=dict(method=['PUT']))
 
         # COMPAT(diablo): the copy with no OS-KSADM is from diablo

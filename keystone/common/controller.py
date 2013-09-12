@@ -214,8 +214,9 @@ class V2Controller(wsgi.Application):
                                           trust['id'])
 
     def _delete_tokens_for_project(self, project_id):
-        for user_ref in self.identity_api.get_project_users(project_id):
-            self._delete_tokens_for_user(user_ref['id'], project_id=project_id)
+        user_ids = self.assignment_api.list_user_ids_for_project(project_id)
+        for user_id in user_ids:
+            self._delete_tokens_for_user(user_id, project_id=project_id)
 
     def _require_attribute(self, ref, attr):
         """Ensures the reference contains the specified attribute."""
@@ -233,7 +234,8 @@ class V2Controller(wsgi.Application):
         ref['domain_id'] = DEFAULT_DOMAIN_ID
         return ref
 
-    def _filter_domain_id(self, ref):
+    @staticmethod
+    def filter_domain_id(ref):
         """Remove domain_id since v2 calls are not domain-aware."""
         ref.pop('domain_id', None)
         return ref
@@ -379,7 +381,8 @@ class V3Controller(V2Controller):
             ref['domain_id'] = self._get_domain_id_for_request(context)
         return ref
 
-    def _filter_domain_id(self, ref):
+    @staticmethod
+    def filter_domain_id(ref):
         """Override v2 filter to let domain_id out for v3 calls."""
         return ref
 

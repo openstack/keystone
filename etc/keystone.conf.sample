@@ -349,7 +349,8 @@
 # user_enabled_attribute = enabled
 # user_enabled_mask = 0
 # user_enabled_default = True
-# user_attribute_ignore = tenant_id,tenants
+# user_attribute_ignore = default_project_id,tenants
+# user_default_project_id_attribute =
 # user_allow_create = True
 # user_allow_update = True
 # user_allow_delete = True

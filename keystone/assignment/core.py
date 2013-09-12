@@ -241,7 +241,8 @@ class Manager(manager.Manager):
         if not roles:
             raise exception.NotFound(tenant_id)
         for role_id in roles:
-            self.remove_role_from_user_and_project(user_id, tenant_id, role_id)
+            self.driver.remove_role_from_user_and_project(user_id, tenant_id,
+                                                          role_id)
 
     def list_projects_for_user(self, user_id):
         # NOTE(henry-nash): In order to get a complete list of user projects,
@@ -360,10 +361,10 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    def get_project_users(self, tenant_id):
-        """Lists all users with a relationship to the specified project.
+    def list_user_ids_for_project(self, tenant_id):
+        """Lists all user IDs with a role assignment in the specified project.
 
-        :returns: a list of user_refs or an empty set.
+        :returns: a list of user_ids or an empty set.
         :raises: keystone.exception.ProjectNotFound
 
         """

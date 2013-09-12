@@ -95,9 +95,14 @@ class Auth(controller.V2Controller):
 
         user_ref, tenant_ref, metadata_ref, expiry, bind = auth_info
         core.validate_auth_info(self, user_ref, tenant_ref)
-        user_ref = self._filter_domain_id(user_ref)
+        # NOTE(morganfainberg): Make sure the data is in correct form since it
+        # might be consumed external to Keystone and this is a v2.0 controller.
+        # The user_ref is encoded into the auth_token_data which is returned as
+        # part of the token data. The token provider doesn't care about the
+        # format.
+        user_ref = self.identity_api.v3_to_v2_user(user_ref)
         if tenant_ref:
-            tenant_ref = self._filter_domain_id(tenant_ref)
+            tenant_ref = self.filter_domain_id(tenant_ref)
         auth_token_data = self._get_auth_token_data(user_ref,
                                                     tenant_ref,
                                                     metadata_ref,

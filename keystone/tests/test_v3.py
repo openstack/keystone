@@ -109,9 +109,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             self.assignment_api.create_project(self.project_id, self.project)
 
             self.user_id = uuid.uuid4().hex
-            self.user = self.new_user_ref(
-                domain_id=self.domain_id,
-                project_id=self.project_id)
+            self.user = self.new_user_ref(domain_id=self.domain_id)
             self.user['id'] = self.user_id
             self.identity_api.create_user(self.user_id, self.user)
 
@@ -124,8 +122,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
 
             self.default_domain_user_id = uuid.uuid4().hex
             self.default_domain_user = self.new_user_ref(
-                domain_id=DEFAULT_DOMAIN_ID,
-                project_id=self.default_domain_project_id)
+                domain_id=DEFAULT_DOMAIN_ID)
             self.default_domain_user['id'] = self.default_domain_user_id
             self.identity_api.create_user(self.default_domain_user_id,
                                           self.default_domain_user)
@@ -212,7 +209,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         ref['email'] = uuid.uuid4().hex
         ref['password'] = uuid.uuid4().hex
         if project_id:
-            ref['project_id'] = project_id
+            ref['default_project_id'] = project_id
         return ref
 
     def new_group_ref(self, domain_id):
@@ -717,9 +714,14 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         self.assertIsNotNone(entity.get('domain_id'))
         self.assertIsNotNone(entity.get('email'))
         self.assertIsNone(entity.get('password'))
+        self.assertNotIn('tenantId', entity)
         if ref:
             self.assertEqual(ref['domain_id'], entity['domain_id'])
             self.assertEqual(ref['email'], entity['email'])
+            if 'default_project_id' in ref:
+                self.assertIsNotNone(ref['default_project_id'])
+                self.assertEqual(ref['default_project_id'],
+                                 entity['default_project_id'])
         return entity
 
     # group validation

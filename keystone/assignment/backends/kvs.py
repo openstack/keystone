@@ -19,7 +19,6 @@ from keystone import clean
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone import exception
-from keystone import identity
 
 
 @dependency.requires('identity_api')
@@ -52,12 +51,12 @@ class Assignment(kvs.Base, assignment.Driver):
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_name)
 
-    def get_project_users(self, tenant_id):
+    def list_user_ids_for_project(self, tenant_id):
         self.get_project(tenant_id)
         user_keys = filter(lambda x: x.startswith("user-"), self.db.keys())
         user_refs = [self.db.get(key) for key in user_keys]
         user_refs = filter(lambda x: tenant_id in x['tenants'], user_refs)
-        return [identity.filter_user(user_ref) for user_ref in user_refs]
+        return [user_ref['id'] for user_ref in user_refs]
 
     def _get_user(self, user_id):
         try:
