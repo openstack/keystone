@@ -399,14 +399,30 @@ class TenantController(wsgi.Application):
             context, tenant_ref['id'], tenant_ref)
         return {'tenant': tenant}
 
+    def _delete_tokens_for_user(self, context, user_id, tenant_id=None):
+        self.token_api.revoke_tokens(context, user_id, tenant_id=tenant_id)
+
+    def _delete_tokens_for_tenant(self, context, tenant_id):
+        for user_ref in self.identity_api.get_tenant_users(context, tenant_id):
+            self._delete_tokens_for_user(
+                context, user_ref['id'], tenant_id=tenant_id)
+
     def update_tenant(self, context, tenant_id, tenant):
         self.assert_admin(context)
+
+        # If the tenant has been disabled (or enabled=False) we are
+        # deleting the tokens for that tenant.
+        if not tenant.get('enabled', True):
+            self._delete_tokens_for_tenant(context, tenant_id)
+
         tenant_ref = self.identity_api.update_tenant(
             context, tenant_id, tenant)
         return {'tenant': tenant_ref}
 
     def delete_tenant(self, context, tenant_id):
         self.assert_admin(context)
+        # Delete all tokens belonging to the users for that tenant
+        self._delete_tokens_for_tenant(context, tenant_id)
         self.identity_api.delete_tenant(context, tenant_id)
 
     def get_tenant_users(self, context, tenant_id, **kw):
