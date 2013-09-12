@@ -118,7 +118,6 @@ class Identity(identity.Driver):
 
         user = utils.hash_ldap_user_password(user)
         if self.user.enabled_mask:
-            user['enabled_nomask'] = old_obj['enabled_nomask']
             self.user.mask_enabled_attribute(user)
         self.user.update(user_id, user, old_obj)
         return self.user.get_filtered(user_id)
@@ -223,7 +222,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         obj = super(UserApi, self)._ldap_res_to_model(res)
         if self.enabled_mask != 0:
             enabled = int(obj.get('enabled', self.enabled_default))
-            obj['enabled_nomask'] = enabled
             obj['enabled'] = ((enabled & self.enabled_mask) !=
                               self.enabled_mask)
         return obj
@@ -240,8 +238,11 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     def create(self, values):
         values = utils.hash_ldap_user_password(values)
         if self.enabled_mask:
+            orig_enabled = values['enabled']
             self.mask_enabled_attribute(values)
         values = super(UserApi, self).create(values)
+        if self.enabled_mask:
+            values['enabled'] = orig_enabled
         return values
 
     def check_password(self, user_id, password):
