@@ -17,6 +17,7 @@
 REGISTRY = {}
 
 _future_dependencies = {}
+_future_optionals = {}
 
 
 class UnresolvableDependencyException(Exception):
@@ -44,22 +45,30 @@ def provider(name):
     return wrapper
 
 
+def _process_dependencies(obj):
+    # Any dependencies that can be resolved immediately are resolved.
+    # Dependencies that cannot be resolved immediately are stored for
+    # resolution in resolve_future_dependencies.
+
+    def process(obj, attr_name, unresolved_in_out):
+        for dependency in getattr(obj, attr_name, []):
+            if dependency not in REGISTRY:
+                # We don't know about this dependency, so save it for later.
+                unresolved_in_out.setdefault(dependency, []).append(obj)
+                continue
+
+            setattr(obj, dependency, REGISTRY[dependency])
+
+    process(obj, '_dependencies', _future_dependencies)
+    process(obj, '_optionals', _future_optionals)
+
+
 def requires(*dependencies):
     """Inject specified dependencies from the registry into the instance."""
     def wrapper(self, *args, **kwargs):
         """Inject each dependency from the registry."""
         self.__wrapped_init__(*args, **kwargs)
-
-        for dependency in self._dependencies:
-            if dependency not in REGISTRY:
-                if dependency in _future_dependencies:
-                    _future_dependencies[dependency] += [self]
-                else:
-                    _future_dependencies[dependency] = [self]
-
-                continue
-
-            setattr(self, dependency, REGISTRY[dependency])
+        _process_dependencies(self)
 
     def wrapped(cls):
         """Note the required dependencies on the object for later injection.
@@ -77,15 +86,56 @@ def requires(*dependencies):
     return wrapped
 
 
+def optional(*dependencies):
+    """Optionally inject specified dependencies from the registry into the
+       instance.
+
+    """
+    def wrapper(self, *args, **kwargs):
+        """Inject each dependency from the registry."""
+        self.__wrapped_init__(*args, **kwargs)
+        _process_dependencies(self)
+
+    def wrapped(cls):
+        """Note the optional dependencies on the object for later injection.
+
+        The dependencies of the parent class are combined with that of the
+        child class to create a new set of dependencies.
+        """
+
+        existing_optionals = getattr(cls, '_optionals', set())
+        cls._optionals = existing_optionals.union(dependencies)
+        if not hasattr(cls, '__wrapped_init__'):
+            cls.__wrapped_init__ = cls.__init__
+            cls.__init__ = wrapper
+        return cls
+
+    return wrapped
+
+
 def resolve_future_dependencies(provider_name=None):
     if provider_name:
+        # A provider was registered, so take care of any objects depending on
+        # it.
         targets = _future_dependencies.pop(provider_name, [])
+        targets.extend(_future_optionals.pop(provider_name, []))
 
         for target in targets:
             setattr(target, provider_name, REGISTRY[provider_name])
 
         return
 
+    # Resolve optional dependencies, sets the attribute to None if there's no
+    # provider registered.
+    for dependency, targets in _future_optionals.iteritems():
+        provider = REGISTRY.get(dependency)
+        for target in targets:
+            setattr(target, dependency, provider)
+
+    _future_optionals.clear()
+
+    # Resolve optional dependencies, raises UnresolvableDependencyException if
+    # there's no provider registered.
     try:
         for dependency, targets in _future_dependencies.iteritems():
             if dependency not in REGISTRY:
@@ -106,3 +156,4 @@ def reset():
 
     REGISTRY.clear()
     _future_dependencies.clear()
+    _future_optionals.clear()
