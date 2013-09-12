@@ -20,17 +20,15 @@ import uuid
 
 import memcache
 
-from keystone import tests
-
 from keystone.common import utils
 from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
+from keystone import tests
+from keystone.tests import test_backend
+from keystone.tests import test_utils
 from keystone import token
 from keystone.token.backends import memcache as token_memcache
-
-import test_backend
-import test_utils
 
 
 class MemcacheClient(object):

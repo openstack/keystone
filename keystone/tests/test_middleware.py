@@ -16,11 +16,10 @@
 
 import webob
 
-from keystone import tests
-
 from keystone import config
 from keystone import middleware
 from keystone.openstack.common import jsonutils
+from keystone import tests
 
 
 CONF = config.CONF

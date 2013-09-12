@@ -19,14 +19,12 @@ import datetime
 import hashlib
 import uuid
 
-from keystone import tests
-
 from keystone.catalog import core
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
-
-import default_fixtures
+from keystone import tests
+from keystone.tests import default_fixtures
 
 
 CONF = config.CONF

@@ -18,7 +18,7 @@ import hashlib
 import json
 import uuid
 
-import test_v3
+from keystone.tests import test_v3
 
 
 class CredentialTestCase(test_v3.RestfulTestCase):

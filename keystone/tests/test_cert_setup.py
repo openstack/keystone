@@ -18,13 +18,11 @@
 import os
 import shutil
 
-from keystone import tests
-
 from keystone.common import openssl
 from keystone import exception
+from keystone import tests
+from keystone.tests import default_fixtures
 from keystone import token
-
-import default_fixtures
 
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

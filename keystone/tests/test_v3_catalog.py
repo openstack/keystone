@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import test_v3
+from keystone.tests import test_v3
 
 
 class CatalogTestCase(test_v3.RestfulTestCase):

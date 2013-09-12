@@ -24,8 +24,7 @@ from keystone import config
 from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap
 from keystone import tests
-
-import test_backend_ldap
+from keystone.tests import test_backend_ldap
 
 
 CONF = config.CONF

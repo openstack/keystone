@@ -15,10 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from keystone import tests
-
 from keystone.common import environment
 from keystone import config
+from keystone import tests
 
 
 CONF = config.CONF

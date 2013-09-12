@@ -26,8 +26,7 @@ from keystone import contrib
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
 from keystone.openstack.common import importutils
-
-import test_v3
+from keystone.tests import test_v3
 
 
 CONF = config.CONF

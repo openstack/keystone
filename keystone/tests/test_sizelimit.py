@@ -14,11 +14,11 @@
 
 import webob
 
-from keystone import tests
-
 from keystone import config
 from keystone import exception
 from keystone import middleware
+from keystone import tests
+
 
 CONF = config.CONF
 MAX_REQUEST_BODY_SIZE = CONF.max_request_body_size

@@ -16,12 +16,11 @@
 
 import os
 
-from keystone import tests
-
 from keystone import exception
+from keystone import tests
+from keystone.tests import default_fixtures
+from keystone.tests import test_backend
 
-import default_fixtures
-import test_backend
 
 DEFAULT_CATALOG_TEMPLATES = os.path.abspath(os.path.join(
     os.path.dirname(__file__),

@@ -34,9 +34,9 @@ import functools
 import os
 import time
 
+from keystone.common import utils
 from keystone import tests
 
-from keystone.common import utils
 
 TZ = None
 

@@ -28,9 +28,8 @@ from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import tests
-
-import default_fixtures
-import test_backend
+from keystone.tests import default_fixtures
+from keystone.tests import test_backend
 
 
 CONF = config.CONF
