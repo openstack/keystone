@@ -328,7 +328,8 @@ class V3TokenDataHelper(object):
         return {'token': token_data}
 
 
-@dependency.requires('token_api', 'identity_api', 'catalog_api', 'oauth_api')
+@dependency.optional('oauth_api')
+@dependency.requires('token_api', 'identity_api', 'catalog_api')
 class Provider(token.provider.Provider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
@@ -398,8 +399,11 @@ class Provider(token.provider.Provider):
 
         access_token = None
         if 'oauth1' in method_names:
-            access_token_id = auth_context['access_token_id']
-            access_token = self.oauth_api.get_access_token(access_token_id)
+            if self.oauth_api:
+                access_token_id = auth_context['access_token_id']
+                access_token = self.oauth_api.get_access_token(access_token_id)
+            else:
+                raise exception.Forbidden(_('Oauth is disabled.'))
 
         token_data = self.v3_token_data_helper.get_token_data(
             user_id,
