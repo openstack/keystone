@@ -721,18 +721,17 @@ class Identity(sql.Base, identity.Driver):
     def list_groups_for_user(self, user_id):
         session = self.get_session()
         self.get_user(user_id)
-        query = session.query(UserGroupMembership)
-        query = query.filter_by(user_id=user_id)
-        membership_refs = query.all()
-        return [self.get_group(x.group_id) for x in membership_refs]
+        query = session.query(Group).join(UserGroupMembership)
+        query = query.filter(UserGroupMembership.user_id == user_id)
+        return [g.to_dict() for g in query]
 
     def list_users_in_group(self, group_id):
         session = self.get_session()
         self.get_group(group_id)
-        query = session.query(UserGroupMembership)
-        query = query.filter_by(group_id=group_id)
-        membership_refs = query.all()
-        return [self.get_user(x.user_id) for x in membership_refs]
+        query = session.query(User).join(UserGroupMembership)
+        query = query.filter(UserGroupMembership.group_id == group_id)
+
+        return [identity.filter_user(u.to_dict()) for u in query]
 
     def delete_user(self, user_id):
         session = self.get_session()
