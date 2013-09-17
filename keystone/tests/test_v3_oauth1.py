@@ -147,7 +147,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         consumer_id = consumer.get('id')
         resp = self.get('/OS-OAUTH1/consumers/%(consumer_id)s'
                         % {'consumer_id': consumer_id})
-        self.assertTrue(resp.result.get('consumer').get('id'), consumer_id)
+        self.assertEqual(resp.result.get('consumer').get('id'), consumer_id)
 
     def test_consumer_list(self):
         resp = self.get('/OS-OAUTH1/consumers')
@@ -269,8 +269,8 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                         % {'user_id': self.user_id,
                            'key': self.access_token.key})
         entity = resp.result.get('access_token')
-        self.assertTrue(entity['id'], self.access_token.key)
-        self.assertTrue(entity['consumer_id'], self.consumer.key)
+        self.assertEqual(entity['id'], self.access_token.key)
+        self.assertEqual(entity['consumer_id'], self.consumer.key)
 
     def test_get_access_token_dne(self):
         self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
@@ -294,7 +294,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                   'role': self.role_id})
         resp = self.get(url)
         entity = resp.result.get('role')
-        self.assertTrue(entity['id'], self.role_id)
+        self.assertEqual(entity['id'], self.role_id)
 
     def test_get_role_in_access_token_dne(self):
         self.test_oauth_flow()

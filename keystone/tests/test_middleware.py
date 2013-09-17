@@ -149,7 +149,7 @@ class XmlBodyMiddlewareTest(tests.TestCase):
             content_type='application/xml',
             method='POST')
         middleware.XmlBodyMiddleware(None).process_request(req)
-        self.assertTrue(req.content_type, 'application/json')
+        self.assertEqual(req.content_type, 'application/json')
         self.assertTrue(jsonutils.loads(req.body))
 
     def test_json_unnaffected(self):
