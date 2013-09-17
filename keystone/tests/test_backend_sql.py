@@ -416,3 +416,9 @@ class SqlPolicy(SqlTests, test_backend.PolicyTests):
 
 class SqlInheritance(SqlTests, test_backend.InheritanceTests):
     pass
+
+
+class SqlTokenCacheInvalidation(SqlTests, test_backend.TokenCacheInvalidation):
+    def setUp(self):
+        super(SqlTokenCacheInvalidation, self).setUp()
+        self._create_test_data()

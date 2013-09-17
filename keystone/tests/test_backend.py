@@ -2763,6 +2763,96 @@ class TokenTests(object):
             self.assertIn('expires', t)
 
 
+class TokenCacheInvalidation(object):
+    def _create_test_data(self):
+        self.user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                     'password': uuid.uuid4().hex,
+                     'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
+        self.tenant = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                       'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
+
+        # Create an equivalent of a scoped token
+        token_dict = {'user': self.user, 'tenant': self.tenant,
+                      'metadata': {}, 'id': 'placeholder'}
+        id, data = self.token_provider_api.issue_v2_token(token_dict)
+        self.scoped_token_id = id
+
+        # ..and an un-scoped one
+        token_dict = {'user': self.user, 'tenant': None,
+                      'metadata': {}, 'id': 'placeholder'}
+        id, data = self.token_provider_api.issue_v2_token(token_dict)
+        self.unscoped_token_id = id
+
+        # Validate them, in the various ways possible - this will load the
+        # responses into the token cache.
+        self._check_scoped_tokens_are_valid()
+        self._check_unscoped_tokens_are_valid()
+
+    def _check_unscoped_tokens_are_invalid(self):
+        self.assertRaises(
+            exception.Unauthorized,
+            self.token_provider_api.validate_token,
+            self.unscoped_token_id)
+        self.assertRaises(
+            exception.Unauthorized,
+            self.token_provider_api.validate_v2_token,
+            self.unscoped_token_id)
+
+    def _check_scoped_tokens_are_invalid(self):
+        self.assertRaises(
+            exception.Unauthorized,
+            self.token_provider_api.validate_token,
+            self.scoped_token_id)
+        self.assertRaises(
+            exception.Unauthorized,
+            self.token_provider_api.validate_token,
+            self.scoped_token_id,
+            self.tenant['id'])
+        self.assertRaises(
+            exception.Unauthorized,
+            self.token_provider_api.validate_v2_token,
+            self.scoped_token_id)
+        self.assertRaises(
+            exception.Unauthorized,
+            self.token_provider_api.validate_v2_token,
+            self.scoped_token_id,
+            self.tenant['id'])
+
+    def _check_scoped_tokens_are_valid(self):
+        self.token_provider_api.validate_token(self.scoped_token_id)
+        self.token_provider_api.validate_token(
+            self.scoped_token_id, belongs_to=self.tenant['id'])
+        self.token_provider_api.validate_v2_token(self.scoped_token_id)
+        self.token_provider_api.validate_v2_token(
+            self.scoped_token_id, belongs_to=self.tenant['id'])
+
+    def _check_unscoped_tokens_are_valid(self):
+        self.token_provider_api.validate_token(self.unscoped_token_id)
+        self.token_provider_api.validate_v2_token(self.unscoped_token_id)
+
+    def test_delete_unscoped_token(self):
+        self.token_api.delete_token(self.unscoped_token_id)
+        self._check_unscoped_tokens_are_invalid()
+
+    def test_delete_scoped_token_by_id(self):
+        self.token_api.delete_token(self.scoped_token_id)
+        self._check_scoped_tokens_are_invalid()
+        self._check_unscoped_tokens_are_valid()
+
+    def test_delete_scoped_token_by_user(self):
+        self.token_api.delete_tokens(self.user['id'])
+        # Since we are deleting all tokens for this user, they should all
+        # now be invalid.
+        self._check_scoped_tokens_are_invalid()
+        self._check_unscoped_tokens_are_invalid()
+
+    def test_delete_scoped_token_by_user_and_tenant(self):
+        self.token_api.delete_tokens(self.user['id'],
+                                     tenant_id=self.tenant['id'])
+        self._check_scoped_tokens_are_invalid()
+        self._check_unscoped_tokens_are_valid()
+
+
 class TrustTests(object):
     def create_sample_trust(self, new_id):
         self.trustor = self.user_foo

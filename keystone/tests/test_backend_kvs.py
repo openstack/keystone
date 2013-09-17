@@ -15,11 +15,14 @@
 # under the License.
 import uuid
 
+from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import test_backend
+
+CONF = config.CONF
 
 
 class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
@@ -115,3 +118,13 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
     def test_get_catalog(self):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertDictEqual(catalog_ref, self.catalog_foobar)
+
+
+class KvsTokenCacheInvalidation(tests.TestCase,
+                                test_backend.TokenCacheInvalidation):
+    def setUp(self):
+        super(KvsTokenCacheInvalidation, self).setUp()
+        CONF.identity.driver = 'keystone.identity.backends.kvs.Identity'
+        CONF.token.driver = 'keystone.token.backends.kvs.Token'
+        self.load_backends()
+        self._create_test_data()
