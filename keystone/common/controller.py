@@ -171,6 +171,12 @@ class V2Controller(wsgi.Application):
                                           trust['trustee_user_id'],
                                           trust['id'])
 
+    def _delete_tokens_for_project(self, context, project_id):
+        for user_ref in self.identity_api.get_project_users(
+                context, project_id):
+            self._delete_tokens_for_user(
+                context, user_ref['id'], project_id=project_id)
+
     def _require_attribute(self, ref, attr):
         """Ensures the reference contains the specified attribute."""
         if ref.get(attr) is None or ref.get(attr) == '':
