@@ -438,6 +438,8 @@ class IdentityTests(object):
         - Create a grant of each type (user/group on project/domain)
         - Check the number of assignments has gone up by 4 and that
           the entries we added are in the list returned
+        - Check that if we list assignments by role_id, then we get back
+          assignments that only contain that role.
 
         """
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -455,8 +457,11 @@ class IdentityTests(object):
                        'domain_id': new_domain['id']}
         self.assignment_api.create_project(new_project['id'], new_project)
 
-        # First check how many role grant already exist
-        existing_assignments = len(self.identity_api.list_role_assignments())
+        # First check how many role grants already exist
+        existing_assignments = len(self.assignment_api.list_role_assignments())
+        existing_assignments_for_role = len(
+            self.assignment_api.list_role_assignments_for_role(
+                role_id='admin'))
 
         # Now create the grants (roles are defined in default_fixtures)
         self.identity_api.create_grant(user_id=new_user['id'],
@@ -472,8 +477,8 @@ class IdentityTests(object):
                                        project_id=new_project['id'],
                                        role_id='admin')
 
-        # Read back the list of assignments - check it is gone up by 4
-        assignment_list = self.identity_api.list_role_assignments()
+        # Read back the full list of assignments - check it is gone up by 4
+        assignment_list = self.assignment_api.list_role_assignments()
         self.assertEquals(len(assignment_list), existing_assignments + 4)
 
         # Now check that each of our four new entries are in the list
@@ -493,6 +498,28 @@ class IdentityTests(object):
             {'group_id': new_group['id'], 'project_id': new_project['id'],
              'role_id': 'admin'},
             assignment_list)
+
+        # Read back the list of assignments for just the admin role, checking
+        # this only goes up by two.
+        assignment_list = self.assignment_api.list_role_assignments_for_role(
+            role_id='admin')
+        self.assertEquals(len(assignment_list),
+                          existing_assignments_for_role + 2)
+
+        # Now check that each of our two new entries are in the list
+        self.assertIn(
+            {'group_id': new_group['id'], 'domain_id': new_domain['id'],
+             'role_id': 'admin'},
+            assignment_list)
+        self.assertIn(
+            {'group_id': new_group['id'], 'project_id': new_project['id'],
+             'role_id': 'admin'},
+            assignment_list)
+
+    def test_list_role_assignments_bad_role(self):
+        assignment_list = self.assignment_api.list_role_assignments_for_role(
+            role_id=uuid.uuid4().hex)
+        self.assertEqual(assignment_list, [])
 
     def test_add_duplicate_role_grant(self):
         roles_ref = self.identity_api.get_roles_for_user_and_project(

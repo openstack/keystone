@@ -315,6 +315,17 @@ class Manager(manager.Manager):
         self.driver.delete_role(role_id)
         self.get_role.invalidate(self, role_id)
 
+    def list_role_assignments_for_role(self, role_id=None):
+        # NOTE(henry-nash): Currently the efficiency of the key driver
+        # implementation (SQL) of list_role_assignments is severely hampered by
+        # the existence of the multiple grant tables - hence there is little
+        # advantage in pushing the logic of this method down into the driver.
+        # Once the single assignment table is implemented, then this situation
+        # will be different, and this method should have its own driver
+        # implementation.
+        return [r for r in self.driver.list_role_assignments()
+                if r['role_id'] == role_id]
+
 
 class Driver(object):
 
