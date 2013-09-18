@@ -145,14 +145,14 @@ class CacheRegionTest(tests.TestCase):
                                        'arg3.invalid']
 
         config_dict = cache.build_cache_config()
-        self.assertEquals(
+        self.assertEqual(
             config_dict['test_prefix.backend'], CONF.cache.backend)
-        self.assertEquals(
+        self.assertEqual(
             config_dict['test_prefix.expiration_time'],
             CONF.cache.expiration_time)
-        self.assertEquals(config_dict['test_prefix.arguments.arg1'], 'test')
-        self.assertEquals(config_dict['test_prefix.arguments.arg2'],
-                          'test:test')
+        self.assertEqual(config_dict['test_prefix.arguments.arg1'], 'test')
+        self.assertEqual(config_dict['test_prefix.arguments.arg2'],
+                         'test:test')
         self.assertFalse('test_prefix.arguments.arg3' in config_dict)
 
     def test_cache_debug_proxy(self):
@@ -161,20 +161,20 @@ class CacheRegionTest(tests.TestCase):
         multi_values = {'key1': 1, 'key2': 2, 'key3': 3}
 
         self.region.set(single_key, single_value)
-        self.assertEquals(single_value, self.region.get(single_key))
+        self.assertEqual(single_value, self.region.get(single_key))
 
         self.region.delete(single_key)
-        self.assertEquals(NO_VALUE, self.region.get(single_key))
+        self.assertEqual(NO_VALUE, self.region.get(single_key))
 
         self.region.set_multi(multi_values)
         cached_values = self.region.get_multi(multi_values.keys())
         for value in multi_values.values():
             self.assertIn(value, cached_values)
-        self.assertEquals(len(multi_values.values()), len(cached_values))
+        self.assertEqual(len(multi_values.values()), len(cached_values))
 
         self.region.delete_multi(multi_values.keys())
         for value in self.region.get_multi(multi_values.keys()):
-            self.assertEquals(NO_VALUE, value)
+            self.assertEqual(NO_VALUE, value)
 
     def test_configure_non_region_object_raises_error(self):
         self.assertRaises(exception.ValidationError,
@@ -199,13 +199,13 @@ class CacheNoopBackendTest(tests.TestCase):
         multi_values = {'key1': 1, 'key2': 2, 'key3': 3}
 
         self.region.set(single_key, single_value)
-        self.assertEquals(NO_VALUE, self.region.get(single_key))
+        self.assertEqual(NO_VALUE, self.region.get(single_key))
 
         self.region.set_multi(multi_values)
         cached_values = self.region.get_multi(multi_values.keys())
-        self.assertEquals(len(cached_values), len(multi_values.values()))
+        self.assertEqual(len(cached_values), len(multi_values.values()))
         for value in cached_values:
-            self.assertEquals(NO_VALUE, value)
+            self.assertEqual(NO_VALUE, value)
 
         # Delete should not raise exceptions
         self.region.delete(single_key)

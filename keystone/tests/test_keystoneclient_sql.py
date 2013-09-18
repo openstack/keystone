@@ -78,11 +78,11 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
                                            adminurl=endpoint_adminurl,
                                            internalurl=endpoint_internalurl)
 
-        self.assertEquals(endpoint.region, endpoint_region)
-        self.assertEquals(endpoint.service_id, service.id)
-        self.assertEquals(endpoint.publicurl, endpoint_publicurl)
-        self.assertEquals(endpoint.internalurl, endpoint_internalurl)
-        self.assertEquals(endpoint.adminurl, endpoint_adminurl)
+        self.assertEqual(endpoint.region, endpoint_region)
+        self.assertEqual(endpoint.service_id, service.id)
+        self.assertEqual(endpoint.publicurl, endpoint_publicurl)
+        self.assertEqual(endpoint.internalurl, endpoint_internalurl)
+        self.assertEqual(endpoint.adminurl, endpoint_adminurl)
 
         client.endpoints.delete(id=endpoint.id)
         self.assertRaises(client_exceptions.NotFound, client.endpoints.delete,
@@ -126,20 +126,20 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
 
     def test_ec2_credential_crud(self):
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEquals(creds, [])
+        self.assertEqual(creds, [])
 
         cred = self.default_client.ec2.create(user_id=self.user_foo['id'],
                                               tenant_id=self.tenant_bar['id'])
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEquals(creds, [cred])
+        self.assertEqual(creds, [cred])
         got = self.default_client.ec2.get(user_id=self.user_foo['id'],
                                           access=cred.access)
-        self.assertEquals(cred, got)
+        self.assertEqual(cred, got)
 
         self.default_client.ec2.delete(user_id=self.user_foo['id'],
                                        access=cred.access)
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEquals(creds, [])
+        self.assertEqual(creds, [])
 
     def test_ec2_list_credentials(self):
         cred_1 = self.default_client.ec2.create(
@@ -155,10 +155,10 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
         cred_4 = two.ec2.create(user_id=self.user_two['id'],
                                 tenant_id=self.tenant_bar['id'])
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEquals(len(creds), 3)
-        self.assertEquals(sorted([cred_1, cred_2, cred_3],
-                                 key=lambda x: x.access),
-                          sorted(creds, key=lambda x: x.access))
+        self.assertEqual(len(creds), 3)
+        self.assertEqual(sorted([cred_1, cred_2, cred_3],
+                                key=lambda x: x.access),
+                         sorted(creds, key=lambda x: x.access))
         self.assertNotIn(cred_4, creds)
 
     def test_ec2_credentials_create_404(self):
@@ -274,20 +274,20 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
             blob=policy_blob,
             type=policy_type,
             endpoint=endpoint.id)
-        self.assertEquals(policy_blob, policy.policy)
-        self.assertEquals(policy_type, policy.type)
-        self.assertEquals(endpoint.id, policy.endpoint_id)
+        self.assertEqual(policy_blob, policy.policy)
+        self.assertEqual(policy_type, policy.type)
+        self.assertEqual(endpoint.id, policy.endpoint_id)
 
         policy = client.policies.get(policy=policy.id)
-        self.assertEquals(policy_blob, policy.policy)
-        self.assertEquals(policy_type, policy.type)
-        self.assertEquals(endpoint.id, policy.endpoint_id)
+        self.assertEqual(policy_blob, policy.policy)
+        self.assertEqual(policy_type, policy.type)
+        self.assertEqual(endpoint.id, policy.endpoint_id)
 
         endpoints = [x for x in client.endpoints.list() if x.id == endpoint.id]
         endpoint = endpoints[0]
-        self.assertEquals(policy_blob, policy.policy)
-        self.assertEquals(policy_type, policy.type)
-        self.assertEquals(endpoint.id, policy.endpoint_id)
+        self.assertEqual(policy_blob, policy.policy)
+        self.assertEqual(policy_type, policy.type)
+        self.assertEqual(endpoint.id, policy.endpoint_id)
 
         # update
         policy_blob = uuid.uuid4().hex
@@ -306,9 +306,9 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
             endpoint=endpoint.id)
 
         policy = client.policies.get(policy=policy.id)
-        self.assertEquals(policy_blob, policy.policy)
-        self.assertEquals(policy_type, policy.type)
-        self.assertEquals(endpoint.id, policy.endpoint_id)
+        self.assertEqual(policy_blob, policy.policy)
+        self.assertEqual(policy_type, policy.type)
+        self.assertEqual(endpoint.id, policy.endpoint_id)
 
         # delete
         client.policies.delete(policy=policy.id)
@@ -317,4 +317,4 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
             client.policies.get,
             policy=policy.id)
         policies = [x for x in client.policies.list() if x.id == policy.id]
-        self.assertEquals(len(policies), 0)
+        self.assertEqual(len(policies), 0)

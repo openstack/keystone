@@ -77,7 +77,7 @@ class SqlModels(SqlTests):
         for col, type_, length in cols:
             self.assertIsInstance(table.c[col].type, type_)
             if length:
-                self.assertEquals(table.c[col].type.length, length)
+                self.assertEqual(table.c[col].type.length, length)
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
@@ -219,7 +219,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                                               user['id'])
         self.assignment_api.delete_project(self.tenant_bar['id'])
         tenants = self.assignment_api.list_projects_for_user(user['id'])
-        self.assertEquals(tenants, [])
+        self.assertEqual(tenants, [])
 
     def test_metadata_removed_on_delete_user(self):
         # A test to check that the internal representation
