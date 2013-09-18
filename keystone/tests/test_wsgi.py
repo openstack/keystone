@@ -222,10 +222,10 @@ class WSGIFunctionTest(tests.TestCase):
 class LocalizedResponseTest(tests.TestCase):
     def setUp(self):
         super(LocalizedResponseTest, self).setUp()
-        gettextutils._AVAILABLE_LANGUAGES = []
+        gettextutils._AVAILABLE_LANGUAGES.clear()
 
     def tearDown(self):
-        gettextutils._AVAILABLE_LANGUAGES = []
+        gettextutils._AVAILABLE_LANGUAGES.clear()
         super(LocalizedResponseTest, self).tearDown()
 
     def _set_expected_languages(self, all_locales=[], avail_locales=None):
