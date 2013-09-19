@@ -78,8 +78,14 @@ def use_eventlet(monkeypatch_thread=None):
     # Raise the default from 8192 to accommodate large tokens
     eventlet.wsgi.MAX_HEADER_LINE = 16384
 
-    eventlet.patcher.monkey_patch(all=False, socket=True, time=True,
-                                  thread=monkeypatch_thread)
+    # NOTE(ldbragst): Explicitly declare what should be monkey patched and
+    # what shouldn't. Doing this allows for more readable code when
+    # understanding Eventlet in Keystone. The following is a complete list
+    # of what is monkey patched instead of passing all=False and then passing
+    # module=True to monkey patch a specific module.
+    eventlet.patcher.monkey_patch(os=False, select=True, socket=True,
+                                  thread=monkeypatch_thread, time=True,
+                                  psycopg=False, MySQLdb=False)
 
     Server = eventlet_server.Server
     httplib = _httplib
