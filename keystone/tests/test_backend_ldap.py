@@ -327,6 +327,11 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         # If this doesn't raise, then the test is successful.
         self.identity_api.create_user('fake1', user)
 
+    def test_update_user_name(self):
+        """A user's name cannot be changed through the LDAP driver."""
+        self.assertRaises(exception.Conflict,
+                          super(BaseLDAPIdentity, self).test_update_user_name)
+
 
 class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
     def setUp(self):
