@@ -194,7 +194,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                                'email': 'mail',
                                'name': 'name',
                                'enabled': 'enabled',
-                               'domain_id': 'domain_id',
                                'default_project_id': 'default_project_id'}
     immutable_attrs = ['id']
 
@@ -253,8 +252,7 @@ class GroupApi(common_ldap.BaseLdap):
     NotFound = exception.GroupNotFound
     options_name = 'group'
     attribute_options_names = {'description': 'desc',
-                               'name': 'name',
-                               'domain_id': 'domain_id'}
+                               'name': 'name'}
     immutable_attrs = ['name']
     model = models.Group
 
