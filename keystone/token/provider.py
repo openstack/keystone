@@ -106,7 +106,8 @@ class Manager(manager.Manager):
         unique_id = self.token_api.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
-        token = self._validate_token(unique_id, belongs_to)
+        token = self._validate_token(unique_id)
+        self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token
 
@@ -114,7 +115,8 @@ class Manager(manager.Manager):
         unique_id = self.token_api.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
-        token = self._validate_v2_token(unique_id, belongs_to)
+        token = self._validate_v2_token(unique_id)
+        self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token
 
@@ -153,13 +155,13 @@ class Manager(manager.Manager):
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=CONF.token.cache_time)
-    def _validate_token(self, token_id, belongs_to=None):
-        return self.driver.validate_token(token_id, belongs_to)
+    def _validate_token(self, token_id):
+        return self.driver.validate_token(token_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=CONF.token.cache_time)
-    def _validate_v2_token(self, token_id, belongs_to=None):
-        return self.driver.validate_v2_token(token_id, belongs_to)
+    def _validate_v2_token(self, token_id):
+        return self.driver.validate_v2_token(token_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=CONF.token.cache_time)
@@ -190,7 +192,20 @@ class Manager(manager.Manager):
         # Token is expired, we have a malformed token, or something went wrong.
         raise exception.Unauthorized(_('Failed to validate token'))
 
-    def invalidate_individual_token_cache(self, token_id, belongs_to=None):
+    def _token_belongs_to(self, token, belongs_to):
+        """Check if the token belongs to the right tenant.
+
+        This is only used on v2 tokens.  The structural validity of the token
+        will have already been checked before this method is called.
+
+        """
+        if belongs_to:
+            token_data = token['access']['token']
+            if ('tenant' not in token_data or
+                    token_data['tenant']['id'] != belongs_to):
+                raise exception.Unauthorized()
+
+    def invalidate_individual_token_cache(self, token_id):
         # NOTE(morganfainberg): invalidate takes the exact same arguments as
         # the normal method, this means we need to pass "self" in (which gets
         # stripped off).
@@ -199,10 +214,10 @@ class Manager(manager.Manager):
         # invalidated? We maintain a cached revocation list, which should be
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
-        self._validate_v3_token.invalidate(self, token_id)
+
+        self._validate_token.invalidate(self, token_id)
         self._validate_v2_token.invalidate(self, token_id)
-        self._validate_v2_token.invalidate(self, token_id, belongs_to)
-        self._validate_token.invalidate(self, token_id, belongs_to)
+        self._validate_v3_token.invalidate(self, token_id)
 
 
 class Provider(object):
@@ -268,29 +283,25 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
-    def validate_token(self, token_id, belongs_to=None):
+    def validate_token(self, token_id):
         """Detect token version and validate token and return the token data.
 
         Must raise Unauthorized exception if unable to validate token.
 
         :param token_id: identity of the token
         :type token_id: string
-        :param belongs_to: optional (V2) identity of the scoped project
-        :type belongs_to: string
         :returns: token_data
         :raises: keystone.exception.Unauthorized
         """
         raise exception.NotImplemented()
 
-    def validate_v2_token(self, token_id, belongs_to=None):
+    def validate_v2_token(self, token_id):
         """Validate the given V2 token and return the token data.
 
         Must raise Unauthorized exception if unable to validate token.
 
         :param token_id: identity of the token
         :type token_id: string
-        :param belongs_to: optional identity of the scoped project to validate
-        :type belongs_to: string
         :returns: token data
         :raises: keystone.exception.Unauthorized
 

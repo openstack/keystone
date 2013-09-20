@@ -453,23 +453,18 @@ class Provider(token.provider.Provider):
 
         return (token_id, token_data)
 
-    def _verify_token(self, token_id, belongs_to=None):
+    def _verify_token(self, token_id):
         """Verify the given token and return the token_ref."""
         try:
             token_ref = self.token_api.get_token(token_id)
-            return self._verify_token_ref(token_ref, belongs_to)
+            return self._verify_token_ref(token_ref)
         except exception.TokenNotFound:
                 raise exception.Unauthorized()
 
-    def _verify_token_ref(self, token_ref, belongs_to=None):
+    def _verify_token_ref(self, token_ref):
         """Verify and return the given token_ref."""
         if not token_ref:
             raise exception.Unauthorized()
-        if belongs_to:
-            if not (token_ref['tenant'] and
-                    token_ref['tenant']['id'] == belongs_to):
-                raise exception.Unauthorized()
-
         return token_ref
 
     def revoke_token(self, token_id):
@@ -516,8 +511,8 @@ class Provider(token.provider.Provider):
                 if project_ref['domain_id'] != DEFAULT_DOMAIN_ID:
                     raise exception.Unauthorized(msg)
 
-    def validate_v2_token(self, token_id, belongs_to=None):
-        token_ref = self._verify_token(token_id, belongs_to)
+    def validate_v2_token(self, token_id):
+        token_ref = self._verify_token(token_id)
         return self._validate_v2_token_ref(token_ref)
 
     def _validate_v2_token_ref(self, token_ref):
@@ -591,8 +586,8 @@ class Provider(token.provider.Provider):
                 expires=token_ref['expires'])
         return token_data
 
-    def validate_token(self, token_id, belongs_to=None):
-        token_ref = self._verify_token(token_id, belongs_to=belongs_to)
+    def validate_token(self, token_id):
+        token_ref = self._verify_token(token_id)
         version = self.get_token_version(token_ref)
         if version == token.provider.V3:
             return self._validate_v3_token_ref(token_ref)
