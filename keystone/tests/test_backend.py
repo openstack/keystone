@@ -1993,6 +1993,20 @@ class IdentityTests(object):
                                             new_group['id'])
         self.identity_api.check_user_in_group(new_user['id'], new_group['id'])
 
+    def test_create_invalid_domain_fails(self):
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': "doesnotexist",
+                     'name': uuid.uuid4().hex}
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.create_group,
+                          new_group['id'],
+                          new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': uuid.uuid4().hex, 'enabled': True,
+                    'domain_id': "doesnotexist"}
+        self.assertRaises(exception.DomainNotFound,
+                          self.identity_api.create_user,
+                          new_user['id'], new_user)
+
     def test_check_user_not_in_group(self):
         new_group = {
             'id': uuid.uuid4().hex,

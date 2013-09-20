@@ -237,6 +237,7 @@ class Manager(manager.Manager):
         if driver:
             return driver
         else:
+            self.get_domain(domain_id)
             return self.driver
 
     def _get_domain_conf(self, domain_id):

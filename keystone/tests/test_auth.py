@@ -256,7 +256,9 @@ class AuthWithToken(AuthTest):
             self.tenant_bar['id'],
             self.role_member['id'])
         # Now create a group role for this user as well
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': uuid.uuid4().hex,
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.identity_api.create_domain(domain1['id'], domain1)
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
                      'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
         self.identity_api.add_user_to_group(self.user_foo['id'],
