@@ -2847,6 +2847,7 @@ class TokenCacheInvalidation(object):
     def test_delete_unscoped_token(self):
         self.token_api.delete_token(self.unscoped_token_id)
         self._check_unscoped_tokens_are_invalid()
+        self._check_scoped_tokens_are_valid()
 
     def test_delete_scoped_token_by_id(self):
         self.token_api.delete_token(self.scoped_token_id)
