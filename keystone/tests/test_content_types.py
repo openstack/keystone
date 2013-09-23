@@ -631,6 +631,15 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
     def assertValidExtensionResponse(self, r, expected):
         self.assertValidExtension(r.result.get('extension'), expected)
 
+    def assertValidUser(self, user):
+        super(JsonTestCase, self).assertValidUser(user)
+        self.assertNotIn('default_project_id', user)
+        if 'tenantId' in user:
+            # NOTE(morganfainberg): tenantId should never be "None", it gets
+            # filtered out of the object if it is there. This is suspenders
+            # and a belt check to avoid unintended regressions.
+            self.assertIsNotNone(user.get('tenantId'))
+
     def assertValidAuthenticationResponse(self, r,
                                           require_service_catalog=False):
         self.assertIsNotNone(r.result.get('access'))

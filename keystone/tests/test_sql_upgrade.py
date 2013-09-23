@@ -1535,6 +1535,127 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.insert_dict(session, 'credential', v3_cred_invalid_blob)
         self.assertRaises(exception.ValidationError, self.upgrade, 33)
 
+    def test_migrate_add_default_project_id_column_upgrade(self):
+        user1 = {
+            'id': 'foo1',
+            'name': 'FOO1',
+            'password': 'foo2',
+            'enabled': True,
+            'email': 'foo@bar.com',
+            'extra': json.dumps({'tenantId': 'bar'}),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        user2 = {
+            'id': 'foo2',
+            'name': 'FOO2',
+            'password': 'foo2',
+            'enabled': True,
+            'email': 'foo@bar.com',
+            'extra': json.dumps({'tenant_id': 'bar'}),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        user3 = {
+            'id': 'foo3',
+            'name': 'FOO3',
+            'password': 'foo2',
+            'enabled': True,
+            'email': 'foo@bar.com',
+            'extra': json.dumps({'default_project_id': 'bar'}),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        user4 = {
+            'id': 'foo4',
+            'name': 'FOO4',
+            'password': 'foo2',
+            'enabled': True,
+            'email': 'foo@bar.com',
+            'extra': json.dumps({'tenantId': 'baz',
+                                 'default_project_id': 'bar'}),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+
+        session = self.Session()
+        self.upgrade(33)
+        self.insert_dict(session, 'user', user1)
+        self.insert_dict(session, 'user', user2)
+        self.insert_dict(session, 'user', user3)
+        self.insert_dict(session, 'user', user4)
+        self.assertTableColumns('user',
+                                ['id', 'name', 'extra', 'password',
+                                 'enabled', 'domain_id'])
+        session.commit()
+        session.close()
+        self.upgrade(34)
+        session = self.Session()
+        self.assertTableColumns('user',
+                                ['id', 'name', 'extra', 'password',
+                                 'enabled', 'domain_id', 'default_project_id'])
+
+        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
+        updated_user1 = session.query(user_table).filter_by(id='foo1').one()
+        old_json_data = json.loads(user1['extra'])
+        new_json_data = json.loads(updated_user1.extra)
+        self.assertNotIn('tenantId', new_json_data)
+        self.assertEqual(old_json_data['tenantId'],
+                         updated_user1.default_project_id)
+        updated_user2 = session.query(user_table).filter_by(id='foo2').one()
+        old_json_data = json.loads(user2['extra'])
+        new_json_data = json.loads(updated_user2.extra)
+        self.assertNotIn('tenant_id', new_json_data)
+        self.assertEqual(old_json_data['tenant_id'],
+                         updated_user2.default_project_id)
+        updated_user3 = session.query(user_table).filter_by(id='foo3').one()
+        old_json_data = json.loads(user3['extra'])
+        new_json_data = json.loads(updated_user3.extra)
+        self.assertNotIn('default_project_id', new_json_data)
+        self.assertEqual(old_json_data['default_project_id'],
+                         updated_user3.default_project_id)
+        updated_user4 = session.query(user_table).filter_by(id='foo4').one()
+        old_json_data = json.loads(user4['extra'])
+        new_json_data = json.loads(updated_user4.extra)
+        self.assertNotIn('default_project_id', new_json_data)
+        self.assertNotIn('tenantId', new_json_data)
+        self.assertEqual(old_json_data['default_project_id'],
+                         updated_user4.default_project_id)
+
+    def test_migrate_add_default_project_id_column_downgrade(self):
+        user1 = {
+            'id': 'foo1',
+            'name': 'FOO1',
+            'password': 'foo2',
+            'enabled': True,
+            'email': 'foo@bar.com',
+            'extra': json.dumps({}),
+            'default_project_id': 'bar',
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+
+        self.upgrade(34)
+        session = self.Session()
+        self.insert_dict(session, 'user', user1)
+        self.assertTableColumns('user',
+                                ['id', 'name', 'extra', 'password',
+                                 'enabled', 'domain_id', 'default_project_id'])
+        session.commit()
+        session.close()
+        self.downgrade(33)
+        session = self.Session()
+        self.assertTableColumns('user',
+                                ['id', 'name', 'extra', 'password',
+                                 'enabled', 'domain_id'])
+
+        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
+        updated_user1 = session.query(user_table).filter_by(id='foo1').one()
+        new_json_data = json.loads(updated_user1.extra)
+        self.assertIn('tenantId', new_json_data)
+        self.assertIn('default_project_id', new_json_data)
+        self.assertEqual(user1['default_project_id'],
+                         new_json_data['tenantId'])
+        self.assertEqual(user1['default_project_id'],
+                         new_json_data['default_project_id'])
+        self.assertEqual(user1['default_project_id'],
+                         new_json_data['tenant_id'])
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

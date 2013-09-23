@@ -93,9 +93,6 @@ class Identity(identity.Driver):
     # CRUD
     def create_user(self, user_id, user):
         user_ref = self.user.create(user)
-        tenant_id = user.get('tenant_id')
-        if tenant_id is not None:
-            self.assignment_api.add_user_to_project(tenant_id, user_id)
         return identity.filter_user(user_ref)
 
     def update_user(self, user_id, user):
@@ -104,17 +101,6 @@ class Identity(identity.Driver):
         old_obj = self.user.get(user_id)
         if 'name' in user and old_obj.get('name') != user['name']:
             raise exception.Conflict('Cannot change user name')
-
-        if 'tenant_id' in user and \
-                old_obj.get('tenant_id') != user['tenant_id']:
-            if old_obj['tenant_id']:
-                self.project.remove_user(old_obj['tenant_id'],
-                                         self.user._id_to_dn(user_id),
-                                         user_id)
-            if user['tenant_id']:
-                self.project.add_user(user['tenant_id'],
-                                      self.user._id_to_dn(user_id),
-                                      user_id)
 
         user = utils.hash_ldap_user_password(user)
         if self.user.enabled_mask:
@@ -208,7 +194,8 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                                'email': 'mail',
                                'name': 'name',
                                'enabled': 'enabled',
-                               'domain_id': 'domain_id'}
+                               'domain_id': 'domain_id',
+                               'default_project_id': 'default_project_id'}
     immutable_attrs = ['id']
 
     model = models.User

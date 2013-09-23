@@ -542,6 +542,11 @@ class LdapWrapper(object):
         return self.conn.add_s(dn, ldap_attrs)
 
     def search_s(self, dn, scope, query, attrlist=None):
+        # NOTE(morganfainberg): Remove "None" singletons from this list, which
+        # allows us to set mapped attributes to "None" as defaults in config.
+        # Without this filtering, the ldap query would raise a TypeError since
+        # attrlist is expected to be an iterable of strings.
+        attrlist = [attr for attr in attrlist if attr is not None]
         LOG.debug(_(
             'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
             'attrs=%(attrlist)s') % {
