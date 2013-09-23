@@ -341,7 +341,6 @@
 # user_tree_dn = ou=Users,dc=example,dc=com
 # user_filter =
 # user_objectclass = inetOrgPerson
-# user_domain_id_attribute = businessCategory
 # user_id_attribute = cn
 # user_name_attribute = sn
 # user_mail_attribute = email
