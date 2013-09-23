@@ -746,12 +746,6 @@ class TestTokenProvider(tests.TestCase):
                           provider=token.provider.UUID_PROVIDER)
         token.provider.Manager()
 
-        # custom provider should be OK too
-        self.opt_in_group('signing', token_format='CUSTOM')
-        self.opt_in_group('token',
-                          provider=token.provider.PKI_PROVIDER)
-        token.provider.Manager()
-
     def test_default_token_format(self):
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.PKI_PROVIDER)
@@ -760,6 +754,15 @@ class TestTokenProvider(tests.TestCase):
         self.opt_in_group('signing', token_format='UUID')
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.UUID_PROVIDER)
+
+    def test_default_providers_without_token_format(self):
+        self.opt_in_group('token',
+                          provider=token.provider.UUID_PROVIDER)
+        token.provider.Manager()
+
+        self.opt_in_group('token',
+                          provider=token.provider.PKI_PROVIDER)
+        token.provider.Manager()
 
     def test_unsupported_token_format(self):
         self.opt_in_group('signing', token_format='CUSTOM')

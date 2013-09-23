@@ -73,10 +73,11 @@ class Manager(manager.Manager):
             # NOTE(gyee): we are deprecating CONF.signing.token_format. This
             # code is to ensure the token provider configuration agrees with
             # CONF.signing.token_format.
-            if ((CONF.signing.token_format == 'PKI' and
-                    CONF.token.provider != PKI_PROVIDER or
-                    (CONF.signing.token_format == 'UUID' and
-                        CONF.token.provider != UUID_PROVIDER))):
+            if (CONF.signing.token_format and
+                    ((CONF.token.provider == PKI_PROVIDER and
+                        CONF.signing.token_format != 'PKI') or
+                        (CONF.token.provider == UUID_PROVIDER and
+                            CONF.signing.token_format != 'UUID'))):
                 raise exception.UnexpectedError(
                     _('keystone.conf [signing] token_format (deprecated) '
                       'conflicts with keystone.conf [token] provider'))
