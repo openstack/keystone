@@ -555,9 +555,6 @@ class Manager(manager.Manager):
     def remove_user_from_project(self, tenant_id, user_id):
         return self.assignment_api.remove_user_from_project(tenant_id, user_id)
 
-    def list_role_assignments(self):
-        return self.assignment_api.list_role_assignments()
-
 
 class Driver(object):
     """Interface description for an Identity driver."""

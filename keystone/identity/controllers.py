@@ -336,6 +336,10 @@ class Role(controller.V2Controller):
 
     def delete_role(self, context, role_id):
         self.assert_admin(context)
+        # The driver will delete any assignments for this role.
+        # We must first, however, revoke any tokens for users that have an
+        # assignment with this role.
+        self._delete_tokens_for_role(role_id)
         self.identity_api.delete_role(role_id)
 
     def get_roles(self, context):
@@ -857,7 +861,11 @@ class RoleV3(controller.V3Controller):
 
     @controller.protected()
     def delete_role(self, context, role_id):
-        return self.identity_api.delete_role(role_id)
+        # The driver will delete any assignments for this role.
+        # We must first, however, revoke any tokens for users that have an
+        # assignment with this role.
+        self._delete_tokens_for_role(role_id)
+        self.identity_api.delete_role(role_id)
 
     def _require_domain_xor_project(self, domain_id, project_id):
         if (domain_id and project_id) or (not domain_id and not project_id):
@@ -1263,7 +1271,7 @@ class RoleAssignmentV3(controller.V3Controller):
         # to pass the filters into the driver call, so that the list size is
         # kept a minimum.
 
-        refs = self.identity_api.list_role_assignments()
+        refs = self.assignment_api.list_role_assignments()
         formatted_refs = (
             [self._format_entity(x) for x in refs
              if self._filter_inherited(x)])
