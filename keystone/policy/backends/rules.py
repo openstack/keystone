@@ -31,6 +31,7 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
+_ENFORCER = None
 _POLICY_PATH = None
 _POLICY_CACHE = {}
 
@@ -38,26 +39,31 @@ _POLICY_CACHE = {}
 def reset():
     global _POLICY_PATH
     global _POLICY_CACHE
+    global _ENFORCER
     _POLICY_PATH = None
     _POLICY_CACHE = {}
-    common_policy.reset()
+    _ENFORCER = None
 
 
 def init():
     global _POLICY_PATH
     global _POLICY_CACHE
+    global _ENFORCER
     if not _POLICY_PATH:
         _POLICY_PATH = CONF.policy_file
         if not os.path.exists(_POLICY_PATH):
             _POLICY_PATH = CONF.find_file(_POLICY_PATH)
+    if not _ENFORCER:
+        _ENFORCER = common_policy.Enforcer(policy_file=_POLICY_PATH)
     utils.read_cached_file(_POLICY_PATH,
                            _POLICY_CACHE,
                            reload_func=_set_rules)
 
 
 def _set_rules(data):
+    global _ENFORCER
     default_rule = CONF.policy_default_rule
-    common_policy.set_rules(common_policy.Rules.load_json(
+    _ENFORCER.set_rules(common_policy.Rules.load_json(
         data, default_rule))
 
 
@@ -83,9 +89,10 @@ def enforce(credentials, action, target, do_raise=True):
     # Add the exception arguments if asked to do a raise
     extra = {}
     if do_raise:
-        extra.update(exc=exception.ForbiddenAction, action=action)
+        extra.update(exc=exception.ForbiddenAction, action=action,
+                     do_raise=do_raise)
 
-    return common_policy.check(action, target, credentials, **extra)
+    return _ENFORCER.enforce(action, target, credentials, **extra)
 
 
 class Policy(policy.Driver):
