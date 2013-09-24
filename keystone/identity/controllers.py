@@ -252,8 +252,9 @@ class User(controller.V2Controller):
             if user_ref['tenantId'] != old_user_ref.get('tenantId'):
                 if old_user_ref.get('tenantId'):
                     try:
-                        self.assignment_api.remove_user_from_project(
-                            old_user_ref['tenantId'], user_id)
+                        member_role_id = config.CONF.member_role_id
+                        self.assignment_api.remove_role_from_user_and_project(
+                            user_id, old_user_ref['tenantId'], member_role_id)
                     except exception.NotFound:
                         # NOTE(morganfainberg): This is not a critical error it
                         # just means that the user cannot be removed from the
